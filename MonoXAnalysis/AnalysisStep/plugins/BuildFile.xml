@@ -1,11 +1,9 @@
-<export>
-</export>
 <use name="FWCore/Framework"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/MessageLogger">
-<use name="FWCore/ServiceRegistry">
-<use name="CommonTools/UtilAlgos">
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DataFormats/HLTReco"/>
 <use name="DataFormats/VertexReco"/>
@@ -16,5 +14,3 @@
 <use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="JetMETCorrections/Objects"/>
 <flags EDM_PLUGIN="1"/>
-<library file="*.cc" name="MonoXAnalysisAnalysisStepPlugins">
-</library>
