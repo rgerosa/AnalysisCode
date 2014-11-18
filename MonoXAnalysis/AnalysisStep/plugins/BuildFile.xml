@@ -3,6 +3,7 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="EGamma/EGammaAnalysisTools"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="HLTrigger/HLTcore"/>
@@ -10,7 +11,9 @@
 <use name="DataFormats/VertexReco"/>
 <use name="DataFormats/TrackReco"/>
 <use name="DataFormats/METReco"/>
+<use name="DataFormats/JetReco"/>
 <use name="DataFormats/Math"/>
+<use name="DataFormats/Common"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/GsfTrackReco"/>
@@ -21,4 +24,6 @@
 <use name="TrackingTools/IPTools"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
 <use name="JetMETCorrections/Objects"/>
+<use name="CondFormats/JetMETObjects"/>
+<use name="RecoEgamma/EgammaTools"/>
 <flags EDM_PLUGIN="1"/>
