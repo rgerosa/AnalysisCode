@@ -7,7 +7,7 @@ void info() {
     double lumi      = isData ? 1.0 : 19.7;
     //double rescale   = 1./0.995;
     double rescale   = 1.0;
-    const char* path = "/home/avartak/CMS/MonoX/CMSSW_5_3_12/src/MonoXAnalysis/AnalysisStep/trees/dmAVM10/reducedtree.root";
+    const char* path = "/home/avartak/CMS/MonoX/CMSSW_5_3_12/src/MonoXAnalysis/AnalysisStep/trees/ttbar/reducedtree.root";
 
     std::stringstream str_cut;
 

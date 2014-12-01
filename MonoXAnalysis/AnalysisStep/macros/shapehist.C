@@ -1,3 +1,13 @@
+/*
+
+The 'process' in the following code means the following
+
+process = 0 : Shape is to be taken from Monte Carlo
+process = 1 : Shape is to be taken from Z->mumu control sample
+process = 2 : Shape is to be taken from W->mu nu control sample
+
+*/
+
 #include <iostream>
 #include <sstream>
 #include "yield.h"
