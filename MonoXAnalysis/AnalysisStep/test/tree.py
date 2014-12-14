@@ -17,7 +17,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet( 
     allowUnscheduled = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True) 
+    wantSummary = cms.untracked.bool(False) 
 )
 
 # How many events to process
@@ -42,7 +42,7 @@ else:
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/1CDD7B73-E8E1-E111-9694-0030487D8661.root')
+    fileNames = cms.untracked.vstring('/store/mc/Summer12_DR53X/TTJets_MassiveBinDECAY_TuneZ2star_8TeV-madgraph-tauola/AODSIM/PU_S10_START53_V7A-v1/0000/ACCEC445-28E2-E111-8950-003048C692CA.root')
 )
 
 # Define the output -- Needed for some of the PAT sequences
@@ -133,12 +133,40 @@ process.particleFlowClean = cms.EDProducer("PFCleaner",
 from RecoJets.JetProducers.ak5PFJets_cfi import *
 process.ak5PFJetsClean = ak5PFJets.clone(src = cms.InputTag("particleFlowClean", "pfcands"))
 
+process.ca8PFJetsClean = ak5PFJets.clone(
+    src = cms.InputTag("particleFlowClean", "pfcands"),
+    jetPtMin = cms.double(10.0),
+    doAreaFastjet = cms.bool(True),
+    rParam = cms.double(0.8),
+    jetAlgorithm = cms.string("CambridgeAachen"),
+)
+
+from RecoJets.JetProducers.ak5PFJetsPruned_cfi import ak5PFJetsPruned
+process.ca8PFJetsCleanPruned = ak5PFJetsPruned.clone(
+    src = cms.InputTag("particleFlowClean", "pfcands"),
+    jetPtMin = cms.double(10.0),
+    doAreaFastjet = cms.bool(True),
+    rParam = cms.double(0.8),
+    jetAlgorithm = cms.string("CambridgeAachen"),
+)
+
+process.load("RecoJets.Configuration.GenJetParticles_cff")
+from RecoJets.Configuration.RecoGenJets_cff import ak7GenJetsNoNu
+process.ca8GenJetsNoNu = ak7GenJetsNoNu.clone()
+process.ca8GenJetsNoNu.rParam = 0.8
+process.ca8GenJetsNoNu.jetAlgorithm = "CambridgeAachen"
+
+process.ca8PFJetsCleanVMaps = cms.EDProducer("JetSubstructureValueMapsProducer",
+    src = cms.InputTag("ca8PFJetsClean"),
+    jetRadius = cms.double(0.8)
+)
+
 from PhysicsTools.PatAlgos.tools.jetTools import *
 switchJetCollection(
     process,
     cms.InputTag('ak5PFJetsClean'),
     doJTA            = False,
-    doBTagging       = False,
+    doBTagging       = True,
     jetCorrLabel     = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
     doType1MET       = False,
     genJetCollection = cms.InputTag('ak5GenJets'),
@@ -157,6 +185,34 @@ addJetCollection(
     genJetCollection = cms.InputTag('ak5GenJets'),
     doJetID          = True
 )   
+
+addJetCollection(
+    process,
+    cms.InputTag('ca8PFJetsClean'),
+    algoLabel        = 'CA8',
+    typeLabel        = 'PF',
+    doJTA            = False,
+    doBTagging       = False,
+    jetCorrLabel     = ('AK7PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
+    doType1MET       = False,
+    genJetCollection = cms.InputTag('ca8GenJetsNoNu'),
+    doJetID          = True
+)
+
+addJetCollection(
+    process,
+    cms.InputTag('ca8PFJetsCleanPruned'),
+    algoLabel        = 'CA8Pruned',
+    typeLabel        = 'PF',
+    doJTA            = False,
+    doBTagging       = False,
+    jetCorrLabel     = ('AK7PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute']),
+    doType1MET       = False,
+    genJetCollection = cms.InputTag('ca8GenJetsNoNu'),
+    doJetID          = True
+)
+
+process.patJetsCA8PF.userData.userFloats.src = cms.VInputTag("ca8PFJetsCleanVMaps:tau1", "ca8PFJetsCleanVMaps:tau2", "ca8PFJetsCleanVMaps:tau3")
 
 process.load("JetMETCorrections.Type1MET.pfMETCorrectionType0_cfi")
 process.pfType1CorrectedMet.srcType1Corrections = cms.VInputTag(
@@ -211,6 +267,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     taus = cms.InputTag("selectedPatTaus"),
     jets = cms.InputTag("patJets"),
     nochsjets = cms.InputTag("patJetsAK5PF"),
+    fatjets = cms.InputTag("patJetsCA8PF"),
+    prunedfatjets = cms.InputTag("patJetsCA8PrunedPF"),
     gens = cms.InputTag("genParticles"),
     pfmet = cms.InputTag("pfMet"),
     t1pfmet = cms.InputTag("pfType1CorrectedMet"),
@@ -244,13 +302,15 @@ else :
 
     process.metfilter = cms.EDFilter("CandViewSelector",
         src = cms.InputTag("mumet"),
-        cut = cms.string("et > 200"),
+        #cut = cms.string("et > 200"),
+        cut = cms.string("et > 0"),
         filter = cms.bool(True)
     )
 
 
 if filterHighMETEvents: 
-    process.treePath = cms.Path(process.goodVertices + process.triggerfilter + process.metfilter + process.tree)
+    #process.treePath = cms.Path(process.goodVertices + process.triggerfilter + process.metfilter + process.tree)
+    process.treePath = cms.Path(process.goodVertices + process.metfilter + process.tree)
 else :
     process.treePath = cms.Path(process.goodVertices + process.tree)
 
