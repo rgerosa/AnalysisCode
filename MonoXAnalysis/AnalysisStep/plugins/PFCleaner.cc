@@ -6,31 +6,30 @@ Muon ID and isolation : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMu
 Photon ID and isolation : https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonID2012
 Electron ID and isolation : https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
 
+Need to switch to Run-II electron ID : https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
+
 */
 
 
 #include <memory>
 #include <vector>
+#include <iostream>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaCutBasedEleId.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "MonoXAnalysis/AnalysisStep/interface/EGammaCutBasedEleId.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 class PFCleaner : public edm::EDProducer {
@@ -41,67 +40,51 @@ class PFCleaner : public edm::EDProducer {
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
     private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        virtual void beginJob() override;
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        virtual void endJob() override;
         
-        virtual void beginRun(edm::Run&, edm::EventSetup const&);
-        virtual void endRun(edm::Run&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         double getChargedHadronEAForPhotonIso(double);
         double getNeutralHadronEAForPhotonIso(double);
         double getGammaEAForPhotonIso(double);
-        bool testPhotonIsolation(reco::PhotonRef, double, double, double, double);
+        bool testPhotonIsolation(const reco::Photon&, double, double, double, double);
 
-        edm::InputTag src;
         edm::InputTag beamspot;
         edm::InputTag vertices;
-        edm::InputTag pfpu;
         edm::InputTag rhoTag;
-        edm::InputTag conversions;
+        edm::InputTag muons;
         edm::InputTag electrons;
+        edm::InputTag conversions;
         edm::InputTag photons;
-        edm::InputTag elCHPFIso;
-        edm::InputTag elNHPFIso;
-        edm::InputTag elPHPFIso;
-        edm::InputTag elPUPFIso;
-        edm::InputTag phCHPFIso;
-        edm::InputTag phNHPFIso;
-        edm::InputTag phPHPFIso;
 
         double d0cut, dzcut;
 
-        bool vetophotons;
+        bool debug;
 };
 
 PFCleaner::PFCleaner(const edm::ParameterSet& iConfig): 
-    src(iConfig.getParameter<edm::InputTag>("src")),
     beamspot(iConfig.getParameter<edm::InputTag>("beamspot")),
     vertices(iConfig.getParameter<edm::InputTag>("vertices")),
-    pfpu(iConfig.getParameter<edm::InputTag>("pfpileup")),
     rhoTag(iConfig.getParameter<edm::InputTag>("rho")),
-    conversions(iConfig.getParameter<edm::InputTag>("conversions")),
+    muons(iConfig.getParameter<edm::InputTag>("muons")),
     electrons(iConfig.getParameter<edm::InputTag>("electrons")),
+    conversions(iConfig.getParameter<edm::InputTag>("conversions")),
     photons(iConfig.getParameter<edm::InputTag>("photons")),
-    elCHPFIso(iConfig.getParameter<edm::InputTag>("electronPFIsoCH")),
-    elNHPFIso(iConfig.getParameter<edm::InputTag>("electronPFIsoNH")),
-    elPHPFIso(iConfig.getParameter<edm::InputTag>("electronPFIsoPH")),
-    elPUPFIso(iConfig.getParameter<edm::InputTag>("electronPFIsoPU")),
-    phCHPFIso(iConfig.getParameter<edm::InputTag>("photonPFIsoCH")),
-    phNHPFIso(iConfig.getParameter<edm::InputTag>("photonPFIsoNH")),
-    phPHPFIso(iConfig.getParameter<edm::InputTag>("photonPFIsoPH")),
     d0cut(iConfig.getParameter<double>("d0cut")),
     dzcut(iConfig.getParameter<double>("dzcut")),
-    vetophotons(iConfig.getParameter<bool>("vetophotons"))
+    debug(iConfig.existsAs<bool>("debug") ? iConfig.getParameter<bool>("debug") : false)
 {
-    produces<reco::PFCandidateCollection>("pfcands");
-    produces<reco::MuonRefVector>("muons");
-    produces<reco::GsfElectronRefVector>("electrons");
-    produces<reco::MuonRefVector>("tightmuons");
-    produces<reco::GsfElectronRefVector>("tightelectrons");
-    produces<reco::PhotonRefVector>("photons");
+    produces<pat::MuonRefVector>("muons");
+    produces<pat::ElectronRefVector>("electrons");
+    produces<pat::ElectronRefVector>("electronsnew");
+    produces<pat::MuonRefVector>("tightmuons");
+    produces<pat::ElectronRefVector>("tightelectrons");
+    produces<pat::PhotonRefVector>("photons");
 }
 
 
@@ -113,157 +96,204 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     using namespace reco;
     using namespace std;
 
-    Handle<PFCandidateCollection> inputH;
-    iEvent.getByLabel(src, inputH);
-    PFCandidateCollection input = *inputH;    
-
-    Handle<View<PFCandidate> > pfpileupH;
-    iEvent.getByLabel(pfpu, pfpileupH);
-
     Handle<BeamSpot> beamspotH;
     iEvent.getByLabel(beamspot, beamspotH);
 
     Handle<vector<Vertex> > verticesH;
     iEvent.getByLabel(vertices, verticesH);
 
+    Handle<vector<pat::Muon> > muonsH;
+    iEvent.getByLabel(muons, muonsH);
+
+    Handle<vector<pat::Electron> > electronsH;
+    iEvent.getByLabel(electrons, electronsH);
+
     Handle<vector<Conversion> > conversionsH;
     iEvent.getByLabel(conversions, conversionsH);
 
-    Handle<vector<GsfElectron> > electronsH;
-    iEvent.getByLabel(electrons, electronsH);
-
-    Handle<vector<Photon> > photonsH;
+    Handle<vector<pat::Photon> > photonsH;
     iEvent.getByLabel(photons, photonsH);
-
-    Handle<ValueMap<double> > elCHPFIsoH;
-    iEvent.getByLabel(elCHPFIso, elCHPFIsoH);
-
-    Handle<ValueMap<double> > elNHPFIsoH;
-    iEvent.getByLabel(elNHPFIso, elNHPFIsoH);
-
-    Handle<ValueMap<double> > elPHPFIsoH;
-    iEvent.getByLabel(elPHPFIso, elPHPFIsoH);
-
-    Handle<ValueMap<double> > elPUPFIsoH;
-    iEvent.getByLabel(elPUPFIso, elPUPFIsoH);
-
-    Handle<ValueMap<double> > phCHPFIsoH;
-    iEvent.getByLabel(phCHPFIso, phCHPFIsoH);
-
-    Handle<ValueMap<double> > phNHPFIsoH;
-    iEvent.getByLabel(phNHPFIso, phNHPFIsoH);
-
-    Handle<ValueMap<double> > phPHPFIsoH;
-    iEvent.getByLabel(phPHPFIso, phPHPFIsoH);
 
     Handle<double> rhoH;
     iEvent.getByLabel(rhoTag, rhoH);
     double rho = *rhoH;
 
-    std::auto_ptr<PFCandidateCollection> output(new PFCandidateCollection);
-    std::auto_ptr<MuonRefVector> outputmuons(new MuonRefVector);
-    std::auto_ptr<GsfElectronRefVector> outputelectrons(new GsfElectronRefVector);
-    std::auto_ptr<MuonRefVector> outputtightmuons(new MuonRefVector);
-    std::auto_ptr<GsfElectronRefVector> outputtightelectrons(new GsfElectronRefVector);
-    std::auto_ptr<PhotonRefVector> outputphotons(new PhotonRefVector);
+    std::auto_ptr<pat::MuonRefVector> outputmuons(new pat::MuonRefVector);
+    std::auto_ptr<pat::ElectronRefVector> outputelectrons(new pat::ElectronRefVector);
+    std::auto_ptr<pat::ElectronRefVector> outputelectronsnew(new pat::ElectronRefVector);
+    std::auto_ptr<pat::MuonRefVector> outputtightmuons(new pat::MuonRefVector);
+    std::auto_ptr<pat::ElectronRefVector> outputtightelectrons(new pat::ElectronRefVector);
+    std::auto_ptr<pat::PhotonRefVector> outputphotons(new pat::PhotonRefVector);
 
-    for (size_t i = 0; i  < input.size(); i++) {
-        bool veto = false;
+    for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
+        if (verticesH->size() == 0) continue;
+        bool passeskincuts = (muons_iter->pt() > 10 && fabs(muons_iter->eta()) < 2.4);
+        bool passestipcut = false;
+        bool passeslipcut = false;
+        if (muons_iter->innerTrack().isAvailable() && fabs(muons_iter->innerTrack()->dxy(verticesH->begin()->position())) < d0cut) passestipcut = true;
+        if (muons_iter->innerTrack().isAvailable() && fabs(muons_iter->innerTrack()->dz (verticesH->begin()->position())) < dzcut) passeslipcut = true;
+        float isoval = muons_iter->pfIsolationR04().sumNeutralHadronEt;
+        isoval += muons_iter->pfIsolationR04().sumPhotonEt;
+        isoval -= 0.5*muons_iter->pfIsolationR04().sumPUPt;
+        if (isoval < 0.) isoval = 0.;
+        isoval += muons_iter->pfIsolationR04().sumChargedHadronPt;
+        isoval /= muons_iter->pt();
+        bool passesselection = (muon::isLooseMuon(*muons_iter) && isoval < 0.2);
 
-        for (View<PFCandidate>::const_iterator pfpileup_iter = pfpileupH->begin(); pfpileup_iter != pfpileupH->end(); ++pfpileup_iter) {
-            if (input[i].pdgId() == pfpileup_iter->pdgId() && input[i].pt() == pfpileup_iter->pt() && input[i].eta() == pfpileup_iter->eta() && input[i].phi() == pfpileup_iter->phi()) veto = true;
+        if (debug && muons_iter->pt() > 10) {
+            std::cout << "**** Muon Info ****" << std::endl;
+            std::cout << "pT : " << muons_iter->pt() << ", eta : " << muons_iter->eta() << ", phi : " << muons_iter->phi() << std::endl;
+            std::cout << "chiso  : " << muons_iter->pfIsolationR04().sumNeutralHadronEt       << std::endl;
+            std::cout << "nhiso  : " << muons_iter->pfIsolationR04().sumPhotonEt              << std::endl;
+            std::cout << "phiso  : " << muons_iter->pfIsolationR04().sumChargedHadronPt       << std::endl;
+            std::cout << "puiso  : " << muons_iter->pfIsolationR04().sumPUPt                  << std::endl;
+            std::cout << "isoval : " << isoval                                                << std::endl;
+            std::cout << "ID (V) : " << muon::isLooseMuon(*muons_iter)                        << std::endl;
+            std::cout << "ID (T) : " << muon::isTightMuon(*muons_iter, *(verticesH->begin())) << std::endl;
+            std::cout << std::endl;
         }
 
-        bool isMu = (abs(input[i].pdgId()) == 13 && input[i].muonRef().isAvailable());
-        if (isMu && verticesH->size() > 0) {
-            bool passeskincuts = (input[i].muonRef()->pt() > 10 && fabs(input[i].muonRef()->eta()) < 2.4);
-            bool passestipcut = false;
-            bool passeslipcut = false;
-            if (input[i].muonRef()->innerTrack().isAvailable() && fabs(input[i].muonRef()->innerTrack()->dxy(verticesH->begin()->position())) < d0cut) passestipcut = true;
-            if (input[i].muonRef()->innerTrack().isAvailable() && fabs(input[i].muonRef()->innerTrack()->dz (verticesH->begin()->position())) < dzcut) passeslipcut = true;
-            float isoval = input[i].muonRef()->pfIsolationR04().sumNeutralHadronEt;
-            isoval += input[i].muonRef()->pfIsolationR04().sumPhotonEt;
-            isoval -= 0.5*input[i].muonRef()->pfIsolationR04().sumPUPt;
-            if (isoval < 0.) isoval = 0.;
-            isoval += input[i].muonRef()->pfIsolationR04().sumChargedHadronPt;
-            isoval /= input[i].pt();
-            bool passesselection = (muon::isLooseMuon(*(input[i].muonRef())) && isoval < 0.2);
-            //bool passesselection = ((input[i].muonRef()->isTrackerMuon() || input[i].muonRef()->isGlobalMuon()) && isoval < 0.2);
-            if (passeskincuts && passestipcut && passeslipcut && passesselection) {
-                veto = true;
-                outputmuons->push_back(input[i].muonRef());
-
-                if (muon::isTightMuon(*(input[i].muonRef()), *(verticesH->begin())) && isoval < 0.12) outputtightmuons->push_back(input[i].muonRef());
-            }
-        }
-
-        bool isEl = (abs(input[i].pdgId()) == 11 && input[i].gsfElectronRef().isAvailable());
-        if (isEl && verticesH->size() > 0) {
-            bool passeskincuts = (input[i].gsfElectronRef()->pt() > 10 && fabs(input[i].gsfElectronRef()->superCluster()->eta()) < 2.5);
-            bool passestipcut = false;
-            bool passeslipcut = false;
-            if (input[i].gsfElectronRef()->gsfTrack().isAvailable() && fabs(input[i].gsfElectronRef()->gsfTrack()->dxy(verticesH->begin()->position())) < d0cut) passestipcut = true;
-            if (input[i].gsfElectronRef()->gsfTrack().isAvailable() && fabs(input[i].gsfElectronRef()->gsfTrack()->dz (verticesH->begin()->position())) < dzcut) passeslipcut = true;
-            double chiso = (*elCHPFIsoH)[input[i].gsfElectronRef()];
-            double nhiso = (*elNHPFIsoH)[input[i].gsfElectronRef()];
-            double phiso = (*elPHPFIsoH)[input[i].gsfElectronRef()];
-            //double puiso = (*elPUPFIsoH)[input[i].gsfElectronRef()];
-            bool passesselection = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, input[i].gsfElectronRef(), conversionsH, *(beamspotH.product()), verticesH, chiso, phiso, nhiso, rho);
-
-            /*
-            double hoe    = input[i].gsfElectronRef()->hadronicOverEm();
-            double sieie  = input[i].gsfElectronRef()->sigmaIetaIeta();
-            double dphi   = fabs(input[i].gsfElectronRef()->deltaPhiSuperClusterTrackAtVtx());
-            double deta   = fabs(input[i].gsfElectronRef()->deltaEtaSuperClusterTrackAtVtx());
-            int    nmhits = input[i].gsfElectronRef()->gsfTrack()->trackerExpectedHitsInner().numberOfHits();
-
-            bool passesselection = false;
-            if (nmhits <= 1 && ((input[i].gsfElectronRef()->isEB() && sieie < 0.01 && dphi < 0.8 && deta < 0.007 && hoe < 0.15) || (input[i].gsfElectronRef()->isEE() && sieie < 0.03 && dphi < 0.7 && deta < 0.01 && hoe < 0.07))) {
-                passesselection = true;
-            }
-
-            double iso = nhiso + phiso - 0.5*puiso;
-            if (iso < 0.) iso = 0.;
-            iso += chiso;
-            iso /= input[i].gsfElectronRef()->pt();
-            if (iso > 0.2) passesselection = false;
-            */
-
-            if (passeskincuts && passestipcut && passeslipcut && passesselection) {
-                veto = true;
-                outputelectrons->push_back(input[i].gsfElectronRef());
-
-                bool passestightid = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, input[i].gsfElectronRef(), conversionsH, *(beamspotH.product()), verticesH, chiso, phiso, nhiso, rho);
-                bool passestighttrig = EgammaCutBasedEleId::PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, input[i].gsfElectronRef());
-                if (passestightid && passestighttrig) outputtightelectrons->push_back(input[i].gsfElectronRef());
-            }
-        }
-
-        bool isPh = (abs(input[i].pdgId()) == 22 && input[i].photonRef().isAvailable());
-        if (isPh) {
-            bool passeskincuts = (input[i].photonRef()->pt() > 30 && fabs(input[i].photonRef()->eta()) < 2.5);
-            bool isconversionssafe = !ConversionTools::hasMatchedPromptElectron(input[i].photonRef()->superCluster(), electronsH, conversionsH, beamspotH->position());
-            double chiso = (*phCHPFIsoH)[input[i].photonRef()];
-            double nhiso = (*phNHPFIsoH)[input[i].photonRef()];
-            double phiso = (*phPHPFIsoH)[input[i].photonRef()];
-            bool passesiso = testPhotonIsolation(input[i].photonRef(), chiso, nhiso, phiso, rho);
-            bool passesselection = (passesiso && input[i].photonRef()->hadTowOverEm() < 0.05 && input[i].photonRef()->r9() > 0.9 &&  
-                                   ((input[i].photonRef()->isEB() && input[i].photonRef()->sigmaIetaIeta() < 0.011) || (input[i].photonRef()->isEE() && input[i].photonRef()->sigmaIetaIeta() < 0.033)));
-            if (passeskincuts && isconversionssafe && passesselection) {
-                if (vetophotons) veto = true;
-                outputphotons->push_back(input[i].photonRef());
-            }
-        }
-        if (!veto) {
-            PFCandidatePtr ptrToMother(inputH, i);
-            output->push_back(input[i]);
-            output->back().setSourceCandidatePtr(ptrToMother);
+        if (passeskincuts && passestipcut && passeslipcut && passesselection) {
+            outputmuons->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+            if (muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval < 0.12) outputtightmuons->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
         }
     }
 
-    iEvent.put(output, "pfcands");
+    for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
+        if (verticesH->size() == 0) continue;
+        bool passeskincuts = (electrons_iter->pt() > 10 && fabs(electrons_iter->superCluster()->eta()) < 2.5);
+        bool passestipcut = false;
+        bool passeslipcut = false;
+        if (electrons_iter->gsfTrack().isAvailable() && fabs(electrons_iter->gsfTrack()->dxy(verticesH->begin()->position())) < d0cut) passestipcut = true;
+        if (electrons_iter->gsfTrack().isAvailable() && fabs(electrons_iter->gsfTrack()->dz (verticesH->begin()->position())) < dzcut) passeslipcut = true;
+        double chiso = electrons_iter->pfIsolationVariables().sumChargedHadronPt;
+        double nhiso = electrons_iter->pfIsolationVariables().sumNeutralHadronEt;
+        double phiso = electrons_iter->pfIsolationVariables().sumPhotonEt;
+        bool passesselection = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::VETO, *electrons_iter, conversionsH, *(beamspotH.product()), verticesH, chiso, phiso, nhiso, rho);
+        if (passeskincuts && passestipcut && passeslipcut && passesselection) {
+            outputelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+            bool passestightid = EgammaCutBasedEleId::PassWP(EgammaCutBasedEleId::TIGHT, *electrons_iter, conversionsH, *(beamspotH.product()), verticesH, chiso, phiso, nhiso, rho);
+            bool passestighttrig = EgammaCutBasedEleId::PassTriggerCuts(EgammaCutBasedEleId::TRIGGERTIGHT, *electrons_iter);
+            if (passestightid && passestighttrig) outputtightelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+        }
+    }
+
+    for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
+        if (verticesH->size() == 0) continue;
+        bool passeskincuts = (electrons_iter->pt() > 10 && fabs(electrons_iter->superCluster()->eta()) < 2.5);
+
+        bool isBarrel = (fabs(electrons_iter->superCluster()->eta()) <= 1.479 ? true : false);
+
+        bool passestipcut = false;
+        bool passeslipcut = false;
+        float d0val = fabs(electrons_iter->gsfTrack()->dxy(verticesH->begin()->position()));
+        float dzval = fabs(electrons_iter->gsfTrack()->dz (verticesH->begin()->position()));
+        if ((isBarrel && d0val < 0.0250) || (!isBarrel && d0val < 0.2232)) passestipcut = true;
+        if ((isBarrel && dzval < 0.5863) || (!isBarrel && dzval < 0.9513)) passeslipcut = true;
+
+        bool passesselection = false;
+        bool passesid = false;
+        bool passesiso = false;
+        float dEtaIn = fabs(electrons_iter->deltaEtaSuperClusterTrackAtVtx());
+        float dPhiIn = fabs(electrons_iter->deltaPhiSuperClusterTrackAtVtx());
+        float sieie  = electrons_iter->full5x5_sigmaIetaIeta();
+        float hoe    = electrons_iter->hcalOverEcal();
+        float iemip  = 1e30;
+        if (electrons_iter->ecalEnergy() != 0 && std::isfinite(electrons_iter->ecalEnergy())) iemip =  fabs(1.0/electrons_iter->ecalEnergy() - electrons_iter->eSuperClusterOverP()/electrons_iter->ecalEnergy());
+        int mhits = electrons_iter->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS); 
+        bool passesconversionveto = !ConversionTools::hasMatchedConversion(*electrons_iter, conversionsH, beamspotH->position());
+
+        if (isBarrel) {
+            if (dEtaIn < 0.0200 && dPhiIn < 0.2579 && sieie < 0.0125 && hoe < 0.2564 && iemip < 0.1508 && passesconversionveto && mhits <= 2) passesid = true;
+        }
+        else {
+            if (dEtaIn < 0.0141 && dPhiIn < 0.2591 && sieie < 0.0371 && hoe < 0.1335 && iemip < 0.1542 && passesconversionveto && mhits <= 3) passesid = true;
+        }
+
+        double chiso = electrons_iter->pfIsolationVariables().sumChargedHadronPt;
+        double nhiso = electrons_iter->pfIsolationVariables().sumNeutralHadronEt;
+        double phiso = electrons_iter->pfIsolationVariables().sumPhotonEt;
+        double puiso = electrons_iter->pfIsolationVariables().sumPUPt;
+        double iso   = nhiso + phiso - 0.5*puiso;
+        if (iso < 0.0) iso = 0.0;
+        iso += chiso;
+        iso /= electrons_iter->pt();
+        if (isBarrel) {
+            if (iso <= 0.3313) passesiso = true;
+        }            
+        else {
+            if (iso <= 0.3816) passesiso = true;
+        }
+       
+        passesselection = passesid && passesiso; 
+
+        if (debug && electrons_iter->pt() > 10) {
+            std::cout << "**** Electron Info ****" << std::endl;
+            std::cout << "pT : " << electrons_iter->pt() << ", eta : " << electrons_iter->eta() << ", phi : " << electrons_iter->phi() << std::endl;
+            std::cout << "dEtaIn : " << dEtaIn               << std::endl;
+            std::cout << "dPhiIn : " << dPhiIn               << std::endl;
+            std::cout << "sieie  : " << sieie                << std::endl;
+            std::cout << "hoe    : " << hoe                  << std::endl;
+            std::cout << "iemip  : " << iemip                << std::endl;
+            std::cout << "mhits  : " << mhits                << std::endl;
+            std::cout << "conv   : " << passesconversionveto << std::endl;
+            std::cout << "d0     : " << d0val                << std::endl;
+            std::cout << "dz     : " << dzval                << std::endl;
+            std::cout << "chiso  : " << chiso                << std::endl;
+            std::cout << "nhiso  : " << nhiso                << std::endl;
+            std::cout << "phiso  : " << phiso                << std::endl;
+            std::cout << "puiso  : " << puiso                << std::endl;
+            std::cout << "isoval : " << iso                  << std::endl;
+            std::cout << "ID (V) : " << passesid             << std::endl;
+            std::cout << "Iso    : " << passesiso            << std::endl;
+            std::cout << std::endl;
+        }
+
+        if (passeskincuts && passestipcut && passeslipcut && passesselection) {
+            outputelectronsnew->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+        }
+    }
+
+    for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
+        bool passeskincuts = (photons_iter->pt() > 30 && fabs(photons_iter->eta()) < 2.5);
+        bool isconversionssafe = true;
+        for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
+            if (electrons_iter->superCluster() != photons_iter->superCluster()) continue;
+            if (electrons_iter->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
+            if (ConversionTools::hasMatchedConversion(*electrons_iter, conversionsH, beamspotH->position())) continue;
+            isconversionssafe = false;
+        }
+        Ref<vector<pat::Photon> > photonR(photonsH, photons_iter - photonsH->begin());
+        double chiso = photons_iter->chargedHadronIso();
+        double nhiso = photons_iter->neutralHadronIso();
+        double phiso = photons_iter->photonIso();
+        bool passesiso = testPhotonIsolation(*photons_iter, chiso, nhiso, phiso, rho);
+        bool passesselection = (passesiso && photons_iter->hadTowOverEm() < 0.05 && photons_iter->r9() > 0.9 &&  
+                               ((photons_iter->isEB() && photons_iter->sigmaIetaIeta() < 0.011) || (photons_iter->isEE() && photons_iter->sigmaIetaIeta() < 0.033)));
+
+        if (debug && photons_iter->pt() > 30) {
+            std::cout << "**** Photon Info ****" << std::endl;
+            std::cout << "pT : " << photons_iter->pt() << ", eta : " << photons_iter->eta() << ", phi : " << photons_iter->phi() << std::endl;
+            std::cout << "R9     : " << photons_iter->r9()            << std::endl;
+            std::cout << "hoe    : " << photons_iter->hadTowOverEm()  << std::endl;
+            std::cout << "sieie  : " << photons_iter->sigmaIetaIeta() << std::endl;
+            std::cout << "conv   : " << isconversionssafe             << std::endl;
+            std::cout << "chiso  : " << chiso                << std::endl;
+            std::cout << "nhiso  : " << nhiso                << std::endl;
+            std::cout << "phiso  : " << phiso                << std::endl;
+            std::cout << "rho    : " << rho                  << std::endl;
+            std::cout << "ID,Iso : " << passesselection      << std::endl;
+            std::cout << std::endl;
+        }
+
+        if (passeskincuts && isconversionssafe && passesselection) {
+            outputphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+        }
+    }
+
     iEvent.put(outputmuons, "muons");
     iEvent.put(outputelectrons, "electrons");
+    iEvent.put(outputelectronsnew, "electronsnew");
     iEvent.put(outputtightmuons, "tightmuons");
     iEvent.put(outputtightelectrons, "tightelectrons");
     iEvent.put(outputphotons, "photons");
@@ -275,16 +305,16 @@ void PFCleaner::beginJob() {
 void PFCleaner::endJob() {
 }
 
-void PFCleaner::beginRun(edm::Run&, edm::EventSetup const&) {
+void PFCleaner::beginRun(edm::Run const&, edm::EventSetup const&) {
 }
 
-void PFCleaner::endRun(edm::Run&, edm::EventSetup const&) {
+void PFCleaner::endRun(edm::Run const&, edm::EventSetup const&) {
 }
 
-void PFCleaner::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
+void PFCleaner::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
-void PFCleaner::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
+void PFCleaner::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
 void PFCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -326,21 +356,21 @@ double PFCleaner::getGammaEAForPhotonIso(double eta) {
     else return 0.;
 }
 
-bool PFCleaner::testPhotonIsolation(reco::PhotonRef photon, double chargedHadronIsolation, double neutralHadronIsolation, double gammaIsolation, double rhoval) {
-    double corrCHIso = chargedHadronIsolation - rhoval * getChargedHadronEAForPhotonIso(photon->eta());
-    double corrNHIso = neutralHadronIsolation - rhoval * getNeutralHadronEAForPhotonIso(photon->eta());
-    double corrPHIso = gammaIsolation - rhoval * getGammaEAForPhotonIso(photon->eta());
+bool PFCleaner::testPhotonIsolation(const reco::Photon& photon, double chargedHadronIsolation, double neutralHadronIsolation, double gammaIsolation, double rhoval) {
+    double corrCHIso = chargedHadronIsolation - rhoval * getChargedHadronEAForPhotonIso(photon.eta());
+    double corrNHIso = neutralHadronIsolation - rhoval * getNeutralHadronEAForPhotonIso(photon.eta());
+    double corrPHIso = gammaIsolation - rhoval * getGammaEAForPhotonIso(photon.eta());
 
     if (corrCHIso < 0.) corrCHIso = 0.;
     if (corrNHIso < 0.) corrNHIso = 0.;
     if (corrPHIso < 0.) corrPHIso = 0.;
 
-    if (photon->isEB()) {
-        if (corrCHIso < 1.5 && corrNHIso < 1.0 + 0.04*photon->pt() && corrPHIso < 0.7 + 0.005*photon->pt()) return true;
+    if (photon.isEB()) {
+        if (corrCHIso < 1.5 && corrNHIso < 1.0 + 0.04*photon.pt() && corrPHIso < 0.7 + 0.005*photon.pt()) return true;
         else return false;
     }
-    else if (photon->isEE()) {
-        if (corrCHIso < 1.2 && corrNHIso < 1.5 + 0.04*photon->pt() && corrPHIso < 1.0 + 0.005*photon->pt()) return true;
+    else if (photon.isEE()) {
+        if (corrCHIso < 1.2 && corrNHIso < 1.5 + 0.04*photon.pt() && corrPHIso < 1.0 + 0.005*photon.pt()) return true;
         else return false;
     }
     else return false;
