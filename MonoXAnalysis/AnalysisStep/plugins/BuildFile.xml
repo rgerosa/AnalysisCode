@@ -3,7 +3,6 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ServiceRegistry"/>
-<use name="EGamma/EGammaAnalysisTools"/>
 <use name="CommonTools/UtilAlgos"/>
 <use name="CommonTools/Utils"/>
 <use name="HLTrigger/HLTcore"/>
@@ -26,4 +25,5 @@
 <use name="JetMETCorrections/Objects"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="RecoEgamma/EgammaTools"/>
+<use name="MonoXAnalysis/AnalysisStep"/>
 <flags EDM_PLUGIN="1"/>
