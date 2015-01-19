@@ -29,14 +29,14 @@ class CandCorrectedMETProducer : public edm::EDProducer {
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
     private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
+        virtual void beginJob() override;
+        virtual void produce(edm::Event&, const edm::EventSetup&) override;
+        virtual void endJob() override;
         
-        virtual void beginRun(edm::Run&, edm::EventSetup const&);
-        virtual void endRun(edm::Run&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
         edm::InputTag metTag;
         std::vector<edm::InputTag> candTags;
@@ -97,16 +97,16 @@ void CandCorrectedMETProducer::beginJob() {
 void CandCorrectedMETProducer::endJob() {
 }
 
-void CandCorrectedMETProducer::beginRun(edm::Run&, edm::EventSetup const&) {
+void CandCorrectedMETProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
 }
 
-void CandCorrectedMETProducer::endRun(edm::Run&, edm::EventSetup const&) {
+void CandCorrectedMETProducer::endRun(edm::Run const&, edm::EventSetup const&) {
 }
 
-void CandCorrectedMETProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
+void CandCorrectedMETProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
-void CandCorrectedMETProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&) {
+void CandCorrectedMETProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
 void CandCorrectedMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
