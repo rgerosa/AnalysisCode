@@ -25,5 +25,4 @@
 <use name="JetMETCorrections/Objects"/>
 <use name="CondFormats/JetMETObjects"/>
 <use name="RecoEgamma/EgammaTools"/>
-<use name="MonoXAnalysis/AnalysisStep"/>
 <flags EDM_PLUGIN="1"/>
