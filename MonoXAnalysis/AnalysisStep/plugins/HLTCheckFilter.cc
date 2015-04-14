@@ -2,7 +2,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <iostream>
 
 #include <TPRegexp.h>
 
@@ -34,14 +33,11 @@ class HLTCheckFilter : public edm::EDFilter {
         edm::InputTag triggerResultsTag;
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
-
-        bool debug;
 };
 
 HLTCheckFilter::HLTCheckFilter(const edm::ParameterSet& iConfig):
     triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
-    triggerPathsVector(iConfig.getParameter<std::vector<std::string> >("triggerPaths")),
-    debug(iConfig.existsAs<bool>("debug") ? iConfig.getParameter<bool>("debug") : false)
+    triggerPathsVector(iConfig.getParameter<std::vector<std::string> >("triggerPaths"))
 {
 }
 
@@ -83,7 +79,6 @@ void HLTCheckFilter::beginRun(edm::Run const& iRun , edm::EventSetup const& iSet
         TPRegexp pattern(triggerPathsVector[i]);
         for(size_t j = 0; j < hltConfig.triggerNames().size(); j++){
             std::string pathName = hltConfig.triggerNames()[j];
-            if (debug && i == 0) std::cout << pathName << std::endl;                
             if(TString(pathName).Contains(pattern)){
                 triggerPathsMap[triggerPathsVector[i]] = j;
             }
