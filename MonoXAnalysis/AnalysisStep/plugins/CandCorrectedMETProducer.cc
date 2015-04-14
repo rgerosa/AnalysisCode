@@ -1,14 +1,3 @@
-/*
-
-Notes:
-
-Muon ID and isolation : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
-Photon ID and isolation : https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonID2012
-Electron ID and isolation : https://twiki.cern.ch/twiki/bin/viewauth/CMS/EgammaCutBasedIdentification
-
-*/
-
-
 #include <memory>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
