@@ -29,7 +29,7 @@ process.maxEvents = cms.untracked.PSet(
 isMC = True
 
 # Filter on high MET events
-filterHighMETEvents = True
+filterHighMETEvents = False
 
 # Define the global tag depending on the sample type
 if isMC:
@@ -39,22 +39,7 @@ else:
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring([
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/08405777-2560-E411-BE59-0025902009B8.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/929341DB-2660-E411-8D11-002590200900.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/DC071E96-DF60-E411-A43C-001E67397D91.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/F8D96877-2560-E411-9418-0025902009B8.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/1E5B3288-DA60-E411-9891-002590A371C4.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/30B2D673-9061-E411-B97D-001E67396DF1.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/463CFD0B-9161-E411-B7E5-001E67398E12.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/6CC45722-9061-E411-A3B4-001E67396DF1.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/78ED8A43-0D60-E411-8B05-0025B3E05D8C.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/8498B043-0D60-E411-835E-002481E14F1E.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/9601DCE4-9161-E411-915D-001E67396D5B.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/B22166BD-0D60-E411-95E0-0025B3E0658E.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/DA1BF4BF-9061-E411-9BB8-001E67396DF1.root',
-       '/store/mc/Phys14DR/DarkMatter_Monojet_M-10_AV_Tune4C_13TeV-madgraph/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/20000/EEFD4E0F-9161-E411-8556-001E67396DF1.root'         
-    ])
+    fileNames = cms.untracked.vstring('/store/mc/Phys14DR/ZJetsToNuNu_HT-100to200_Tune4C_13TeV-madgraph-tauola/MINIAODSIM/PU20bx25_PHYS14_25_V1-v1/00000/0E9FF9A1-D073-E411-B441-20CF305B04DA.root')
 )
 
 # Select good primary vertices
@@ -64,27 +49,51 @@ process.goodVertices = cms.EDFilter("VertexSelector",
   filter = cms.bool(True),
 )
 
+# Electron and Photon ValueMaps for identification and isolation
+process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
+
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+process.load("RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cfi")
+process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag('slimmedElectrons')
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
+process.egmGsfElectronIDSequence = cms.Sequence(process.egmGsfElectronIDs)
+my_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_miniAOD_cff']
+for idmod in my_id_modules:
+     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+
 process.selectedObjects = cms.EDProducer("PFCleaner",
-    src = cms.InputTag("particleFlow"),
-    beamspot = cms.InputTag("offlineBeamSpot"),
     vertices = cms.InputTag("goodVertices"),
-    rho = cms.InputTag("fixedGridRhoFastjetCentralNeutral"),
-    pfcands = cms.InputTag("packedPFCandidates"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
-    conversions = cms.InputTag("reducedEgamma", "reducedConversions"),
-    d0cut = cms.double(0.2),
-    dzcut = cms.double(0.5)
+    electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-veto"),
+    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V1-miniAOD-standalone-medium"),
+    photonsigmaietaieta = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta"),
+    photonchargediso = cms.InputTag("photonIDValueMapProducer:phoChargedIsolation"),
+    photonneutraliso = cms.InputTag("photonIDValueMapProducer:phoNeutralHadronIsolation"),
+    photongammaiso = cms.InputTag("photonIDValueMapProducer:phoPhotonIsolation")
 )
 
 # Define all the METs corrected for lepton/photon momenta
-process.mumet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")) 
+process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
+    met = cms.InputTag("pfMet"),
+    muons = cms.InputTag("selectedObjects", "muons")
 )
-
+process.pfmupt = cms.EDProducer("MuonCorrectedMETProducer",
+    met = cms.InputTag("pfMet"),
+    muons = cms.InputTag("selectedObjects", "muons"),
+    muptonly = cms.bool(True)
+)
 process.phmet = cms.EDProducer("CandCorrectedMETProducer",
+    met = cms.InputTag("pfMet"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")) 
+)
+process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
+    met = cms.InputTag("slimmedMETs"),
+    muons = cms.InputTag("selectedObjects", "muons")
+)
+process.t1phmet = cms.EDProducer("CandCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")) 
 )
@@ -94,39 +103,53 @@ from RecoMET.METProducers.PFMET_cfi import pfMet
 process.pfMet = pfMet.clone(src = "packedPFCandidates")
 process.pfMet.calculateSignificance = False
 
+from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+
+process.ak4PFJets = ak4PFJets.clone(src = "packedPFCandidates")
+
+process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
+from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
+process.pfType1CorrectedMet = pfMetT1.clone()
+
 # Remove MC matching when running on data
 if not isMC:
     runOnData(process)
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tree.root"))
 
+process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+if isMC : 
+    process.ak4PFCHSCorr = process.ak4PFCHSL1FastL2L3.clone()
+else :
+    process.ak4PFCHSCorr = process.ak4PFCHSL1FastL2L3Residual.clone()
+
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     pileup = cms.InputTag("addPileupInfo"),
     vertices = cms.InputTag("goodVertices"),
     gens = cms.InputTag("prunedGenParticles"),
-    photons = cms.InputTag("selectedObjects", "photons"),
+    pfcands = cms.InputTag("packedPFCandidates"),
     muons = cms.InputTag("selectedObjects", "muons"),
     electrons = cms.InputTag("selectedObjects", "electrons"),
-    electronsnew = cms.InputTag("selectedObjects", "electronsnew"),
+    photons = cms.InputTag("selectedObjects", "photons"),
     tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
     tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
+    tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
     taus = cms.InputTag("slimmedTaus"),
     jets = cms.InputTag("slimmedJets"),
     fatjets = cms.InputTag("slimmedJetsAK8"),
     pfmet = cms.InputTag("pfMet"),
     t1pfmet = cms.InputTag("slimmedMETs"),
+    pfmupt = cms.InputTag("pfmupt"),
     mumet = cms.InputTag("mumet"),
     phmet = cms.InputTag("phmet"),
+    t1mumet = cms.InputTag("t1mumet"),
+    t1phmet = cms.InputTag("t1phmet"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-    weight = cms.double(1000.0/191200.0),
+    jes = cms.string("ak4PFCHSCorr"),
+    weight = cms.double(1000.0*831.76/25446993.0),
     isWorZMCSample = cms.bool(False),
-    isSignalSample = cms.bool(True)
-)
-
-# Select events passing the monojet triggers and having MET > 200 GeV
-process.triggerfilter = cms.EDFilter("HLTCheckFilter",
-    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-    triggerPaths   = cms.vstring('HLT_MonoCentralPFJet140_PFMETNoMu100_PFMHTNoMu140_NoiseCleaned', 'HLT_MonoCentralPFJet140_PFMETNoMu140_PFMHTNoMu140_NoiseCleaned', 'HLT_MonoCentralPFJet150_PFMETNoMu150_PFMHTNoMu150_NoiseCleaned')
+    isSignalSample = cms.bool(False),
+    cleanPhotonJet = cms.bool(True)
 )
 
 process.metfilter = cms.EDFilter("CandViewSelector",
@@ -137,7 +160,6 @@ process.metfilter = cms.EDFilter("CandViewSelector",
 
 
 if filterHighMETEvents: 
-    #process.treePath = cms.Path(process.goodVertices + process.triggerfilter + process.metfilter + process.tree)
     process.treePath = cms.Path(process.goodVertices + process.metfilter + process.tree)
 else :
     process.treePath = cms.Path(process.goodVertices + process.tree)

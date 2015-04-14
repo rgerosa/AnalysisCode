@@ -95,7 +95,6 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag triggerResultsTag;
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
-        std::string jes;
         bool isWorZMCSample;   
         bool isSignalSample;   
         bool cleanPhotonJet;   
@@ -141,7 +140,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     t1mumetTag(iConfig.getParameter<edm::InputTag>("t1mumet")),
     t1phmetTag(iConfig.getParameter<edm::InputTag>("t1phmet")),
     triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
-    jes(iConfig.getParameter<std::string>("jes")),
     isWorZMCSample(iConfig.existsAs<bool>("isWorZMCSample") ? iConfig.getParameter<bool>("isWorZMCSample") : false),
     isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
     cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
@@ -226,8 +224,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<View<MET> > t1phmetH;
     iEvent.getByLabel(t1phmetTag, t1phmetH);
-
-    //const JetCorrector* jcorrector  = JetCorrector::getJetCorrector(jes, iSetup);
 
     // Event, lumi, run info
     event = iEvent.id().event();
