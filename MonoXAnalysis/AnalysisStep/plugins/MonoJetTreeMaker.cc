@@ -579,10 +579,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     ntaus           = 0;
     ntaus2          = 0;
     for (View<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
-        if (taus_iter->pt() > 20 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("chargedIsoPtSum") < 1.0) ntaus2++;
+        if (taus_iter->pt() > 15 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("chargedIsoPtSum") < 1.0) ntaus2++;
     }
     for (View<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
-        if (taus_iter->pt() > 20 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5) ntaus++;
+        if (taus_iter->pt() > 15 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5) ntaus++;
     }
 
     // Generator-level information
