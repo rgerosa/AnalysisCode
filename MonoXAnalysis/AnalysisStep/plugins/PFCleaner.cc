@@ -153,7 +153,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
         const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
-        bool passeskincuts = (photons_iter->pt() > 10 && fabs(photons_iter->superCluster()->eta()) < 3.0);
+        bool passeskincuts = (photons_iter->pt() > 15 && fabs(photons_iter->superCluster()->eta()) < 2.5);
         bool haspixelseed = photons_iter->hasPixelSeed();
         double hovere = photons_iter->hadTowOverEm();
         double sieie = (*photonSIEIEH)[photonPtr];
@@ -169,7 +169,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
         if (passeskincuts && passesselection) {
             outputphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
-            if (photons_iter->pt() > 160 && fabs(photons_iter->superCluster()->eta()) < 2.5) outputtightphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+            if (photons_iter->pt() > 160) outputtightphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
         }
     }
 
