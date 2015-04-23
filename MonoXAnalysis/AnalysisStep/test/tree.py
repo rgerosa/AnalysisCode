@@ -146,10 +146,9 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     t1phmet = cms.InputTag("t1phmet"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     jes = cms.string("ak4PFCHSCorr"),
-    weight = cms.double(1000.0*831.76/25446993.0),
-    isWorZMCSample = cms.bool(False),
-    isSignalSample = cms.bool(False),
-    cleanPhotonJet = cms.bool(True)
+    #weight = cms.double(1000.0*831.76/25446993.0),
+    weight = cms.double(1000.0*809.1/25446993.0),
+    isWorZMCSample = cms.bool(False)
 )
 
 process.metfilter = cms.EDFilter("CandViewSelector",
