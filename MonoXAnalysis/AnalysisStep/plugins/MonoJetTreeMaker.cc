@@ -91,6 +91,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         void initPileupWeights();            
         void findFirstNonPhotonMother(const reco::Candidate*, int &, int &);
 
+        // InputTags
         edm::InputTag pileupInfoTag;
         edm::InputTag verticesTag;
         edm::InputTag gensTag;
@@ -110,6 +111,28 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag t1mumetTag;
         edm::InputTag t1phmetTag;
         edm::InputTag triggerResultsTag;
+
+        // Tokens
+        edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+        edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
+        edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
+        edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
+        edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
+        edm::EDGetTokenT<pat::ElectronRefVector> electronsToken;
+        edm::EDGetTokenT<pat::PhotonRefVector> photonsToken;
+        edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
+        edm::EDGetTokenT<pat::ElectronRefVector> tightelectronsToken;
+        edm::EDGetTokenT<pat::PhotonRefVector> tightphotonsToken;
+        edm::EDGetTokenT<edm::View<pat::Tau> >  tausToken;
+        edm::EDGetTokenT<edm::View<pat::Jet> >  jetsToken;
+        edm::EDGetTokenT<edm::View<pat::Jet> >  fatjetsToken;
+        edm::EDGetTokenT<edm::View<pat::MET> >  t1pfmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >  mumetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >  phmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >  t1mumetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >  t1phmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >  pfmuptToken;
+
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
         bool isWorZMCSample;   
@@ -164,6 +187,28 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     kfact(iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0)
 {
     initPileupWeights();
+
+    // Token consumes instructions
+    triggerResultsToken = consumes<edm::TriggerResults> (triggerResultsTag); 
+    pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (pileupInfoTag);
+    verticesToken = consumes<std::vector<reco::Vertex> > (verticesTag);
+    gensToken = consumes<edm::View<reco::GenParticle> > (gensTag); 
+    muonsToken = consumes<pat::MuonRefVector> (muonsTag); 
+    electronsToken = consumes<pat::ElectronRefVector> (electronsTag); 
+    photonsToken = consumes<pat::PhotonRefVector> (photonsTag); 
+    tightmuonsToken = consumes<pat::MuonRefVector> (tightmuonsTag); 
+    tightelectronsToken = consumes<pat::ElectronRefVector> (tightelectronsTag); 
+    tightphotonsToken = consumes<pat::PhotonRefVector> (tightphotonsTag); 
+    tausToken = consumes<edm::View<pat::Tau> > (tausTag); 
+    jetsToken = consumes<edm::View<pat::Jet> > (jetsTag); 
+    fatjetsToken = consumes<edm::View<pat::Jet> > (fatjetsTag); 
+    t1pfmetToken = consumes<edm::View<pat::MET> > (t1pfmetTag); 
+    mumetToken = consumes<edm::View<reco::MET> > (mumetTag); 
+    phmetToken = consumes<edm::View<reco::MET> > (phmetTag); 
+    t1mumetToken = consumes<edm::View<reco::MET> > (t1mumetTag); 
+    t1phmetToken = consumes<edm::View<reco::MET> > (t1phmetTag); 
+    pfmuptToken = consumes<edm::View<reco::MET> > (pfmuptTag); 
+    
 }
 
 
@@ -178,66 +223,66 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // Get handles to all the requisite collections
     Handle<TriggerResults> triggerResultsH;
-    iEvent.getByLabel(triggerResultsTag, triggerResultsH);
+    iEvent.getByToken(triggerResultsToken, triggerResultsH);
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
-    iEvent.getByLabel(pileupInfoTag, pileupInfoH);
+    iEvent.getByToken(pileupInfoToken, pileupInfoH);
 
     Handle<vector<Vertex> > verticesH;
-    iEvent.getByLabel(verticesTag, verticesH);
+    iEvent.getByToken(verticesToken, verticesH);
 
     Handle<View<GenParticle> > gensH;
-    if (isWorZMCSample || isSignalSample) iEvent.getByLabel(gensTag, gensH);
+    if (isWorZMCSample || isSignalSample) iEvent.getByToken(gensToken, gensH);
 
     Handle<pat::MuonRefVector> muonsH;
-    iEvent.getByLabel(muonsTag, muonsH);
+    iEvent.getByToken(muonsToken, muonsH);
     pat::MuonRefVector muons = *muonsH;
 
     Handle<pat::ElectronRefVector> electronsH;
-    iEvent.getByLabel(electronsTag, electronsH);
+    iEvent.getByToken(electronsToken, electronsH);
     pat::ElectronRefVector electrons = *electronsH;
 
     Handle<pat::PhotonRefVector> photonsH;
-    iEvent.getByLabel(photonsTag, photonsH);
+    iEvent.getByToken(photonsToken, photonsH);
 
     Handle<pat::MuonRefVector> tightmuonsH;
-    iEvent.getByLabel(tightmuonsTag, tightmuonsH);
+    iEvent.getByToken(tightmuonsToken, tightmuonsH);
     pat::MuonRefVector tightmuons = *tightmuonsH;
 
     Handle<pat::ElectronRefVector> tightelectronsH;
-    iEvent.getByLabel(tightelectronsTag, tightelectronsH);
+    iEvent.getByToken(tightelectronsToken, tightelectronsH);
     pat::ElectronRefVector tightelectrons = *tightelectronsH;
 
     Handle<pat::PhotonRefVector> tightphotonsH;
-    iEvent.getByLabel(tightphotonsTag, tightphotonsH);
+    iEvent.getByToken(tightphotonsToken, tightphotonsH);
     pat::PhotonRefVector tightphotons = *tightphotonsH;
 
     Handle<View<pat::Tau> > tausH;
-    iEvent.getByLabel(tausTag, tausH);
+    iEvent.getByToken(tausToken, tausH);
 
     Handle<View<pat::Jet> > jetsH;
-    iEvent.getByLabel(jetsTag, jetsH);
+    iEvent.getByToken(jetsToken, jetsH);
 
     Handle<View<pat::Jet> > fatjetsH;
-    iEvent.getByLabel(fatjetsTag, fatjetsH);
+    iEvent.getByToken(fatjetsToken, fatjetsH);
 
     Handle<View<pat::MET> > t1pfmetH;
-    iEvent.getByLabel(t1pfmetTag, t1pfmetH);
+    iEvent.getByToken(t1pfmetToken, t1pfmetH);
 
-    Handle<View<MET> > mumetH;
-    iEvent.getByLabel(mumetTag, mumetH);
+    Handle<View<reco::MET> > mumetH;
+    iEvent.getByToken(mumetToken, mumetH);
 
-    Handle<View<MET> > phmetH;
-    iEvent.getByLabel(phmetTag, phmetH);
+    Handle<View<reco::MET> > phmetH;
+    iEvent.getByToken(phmetToken, phmetH);
 
-    Handle<View<MET> > t1mumetH;
-    iEvent.getByLabel(t1mumetTag, t1mumetH);
+    Handle<View<reco::MET> > t1mumetH;
+    iEvent.getByToken(t1mumetToken, t1mumetH);
 
-    Handle<View<MET> > t1phmetH;
-    iEvent.getByLabel(t1phmetTag, t1phmetH);
+    Handle<View<reco::MET> > t1phmetH;
+    iEvent.getByToken(t1phmetToken, t1phmetH);
 
-    Handle<View<MET> > pfmuptH;
-    iEvent.getByLabel(pfmuptTag, pfmuptH);
+    Handle<View<reco::MET> > pfmuptH;
+    iEvent.getByToken(pfmuptToken, pfmuptH);
 
     // Event, lumi, run info
     event = iEvent.id().event();
@@ -273,15 +318,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     weight = wgt * kfact * puwgt;
 
     // MET information 
-    pfmet        = t1pfmetH->front().uncorrectedPt();
-    pfmetphi     = t1pfmetH->front().uncorrectedPhi();
- 
     t1pfmet      = t1pfmetH->front().et();
     t1pfmetphi   = t1pfmetH->front().phi();
-  
-    pfmupt       = pfmuptH->front().et();
-    pfmuphi      = pfmuptH->front().phi();
- 
+
+    pfmet        = t1pfmetH->front().uncorrectedPt();
+    pfmetphi     = t1pfmetH->front().uncorrectedPhi();
+
     mumet        = mumetH->front().et();
     mumetphi     = mumetH->front().phi();
  
@@ -293,6 +335,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
     t1phmet      = t1phmetH->front().et();
     t1phmetphi   = t1phmetH->front().phi();
+
+    pfmupt       = pfmuptH->front().et();
+    pfmuphi      = pfmuptH->front().phi();
 
     // Jet information
     int hardestPhotonIndex = -1;
