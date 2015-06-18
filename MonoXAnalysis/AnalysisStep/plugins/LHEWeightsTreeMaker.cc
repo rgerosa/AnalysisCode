@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include <TTree.h>
 
@@ -38,22 +39,26 @@ class LHEWeightsTreeMaker : public edm::EDAnalyzer {
 
         // InputTags
         edm::InputTag lheInfoTag;
+        edm::InputTag genInfoTag;
 
         // Tokens
         edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
+        edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
 
         uint32_t event, run, lumi;
-        double   wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3;
+        double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3;
         double*  wgtpdf;
         double*  wgtqcd;
         TTree* tree;
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
-    lheInfoTag(iConfig.getParameter<edm::InputTag>("lheinfo"))
+    lheInfoTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
+    genInfoTag(iConfig.getParameter<edm::InputTag>("geninfo"))
 {
     // Token consumes instructions
     lheInfoToken = consumes<LHEEventProduct>(lheInfoTag);
+    genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
 }
 
 
@@ -68,13 +73,17 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
     Handle<LHEEventProduct> lheInfoH;
     iEvent.getByToken(lheInfoToken, lheInfoH);
 
+    Handle<GenEventInfoProduct> genInfoH;
+    iEvent.getByToken(genInfoToken, genInfoH);
+
     // Event, lumi, run info
     event = iEvent.id().event();
     run   = iEvent.id().run();
     lumi  = iEvent.luminosityBlock();
 
     // Weights info
-    wgtxsec = 0.0;
+    wgtsign = genInfoH->weight();
+    wgtxsec = lheInfoH->originalXWGTUP();
     wgtpdf1 = 0.0;
     wgtpdf2 = 0.0;
     wgtpdf3 = 0.0;
@@ -86,7 +95,6 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     vector<gen::WeightsInfo> weights = lheInfoH->weights();
     for (size_t i = 0; i < weights.size(); i++) {
-        if (weights[i].id == "1"  ) wgtxsec = weights[i].wgt;
         if (weights[i].id == "315") wgtpdf1 = weights[i].wgt;
         if (weights[i].id == "316") wgtpdf2 = weights[i].wgt;
         if (weights[i].id == "370") wgtpdf3 = weights[i].wgt;
@@ -115,6 +123,7 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("run"                  , &run                  , "run/i");
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
     // Event weights
+    tree->Branch("wgtsign"              , &wgtsign              , "wgtsign/D");
     tree->Branch("wgtxsec"              , &wgtxsec              , "wgtxsec/D");
     tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");
     tree->Branch("wgtpdf2"              , &wgtpdf2              , "wgtpdf2/D");

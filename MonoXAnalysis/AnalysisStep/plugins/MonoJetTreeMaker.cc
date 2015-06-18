@@ -15,6 +15,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -93,6 +94,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
 
         // InputTags
         edm::InputTag pileupInfoTag;
+        edm::InputTag genEvtInfoTag;
         edm::InputTag verticesTag;
         edm::InputTag gensTag;
         edm::InputTag muonsTag;
@@ -115,6 +117,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
+        edm::EDGetTokenT<GenEventInfoProduct> genEvtInfoToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
         edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
         edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
@@ -158,11 +161,12 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
-        double   wgt, kfact, puwgt, weight;
+        double   xsec, wgt, kfact, puwgt;
 };
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
     pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileup")),
+    genEvtInfoTag(iConfig.getParameter<edm::InputTag>("genevt")),
     verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
     gensTag((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles"))),
     muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
@@ -186,7 +190,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
     cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
     cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
-    wgt(iConfig.getParameter<double>("weight")),
+    xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") : 1.0),
     kfact(iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0)
 {
     initPileupWeights();
@@ -194,6 +198,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     // Token consumes instructions
     triggerResultsToken = consumes<edm::TriggerResults> (triggerResultsTag); 
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (pileupInfoTag);
+    genEvtInfoToken = consumes<GenEventInfoProduct> (genEvtInfoTag);
     verticesToken = consumes<std::vector<reco::Vertex> > (verticesTag);
     gensToken = consumes<edm::View<reco::GenParticle> > (gensTag); 
     muonsToken = consumes<pat::MuonRefVector> (muonsTag); 
@@ -211,7 +216,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     t1mumetToken = consumes<edm::View<reco::MET> > (t1mumetTag); 
     t1phmetToken = consumes<edm::View<reco::MET> > (t1phmetTag); 
     pfmuptToken = consumes<edm::View<reco::MET> > (pfmuptTag); 
-    
+   
+    xsec *= 1000.; 
 }
 
 
@@ -230,6 +236,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
+
+    Handle<GenEventInfoProduct> genEvtInfoH;
+    iEvent.getByToken(genEvtInfoToken, genEvtInfoH);
 
     Handle<vector<Vertex> > verticesH;
     iEvent.getByToken(verticesToken, verticesH);
@@ -319,8 +328,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puobs  = 0;
     putrue = 0;
     puwgt  = 1.;
-    weight = wgt * kfact * puwgt;
-
+    wgt    = genEvtInfoH->weight();
+    
     // MET information 
     t1pfmet      = t1pfmetH->front().et();
     t1pfmetphi   = t1pfmetH->front().phi();
@@ -361,7 +370,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
         }
         for (std::size_t j = 0; j < electrons.size(); j++) {
-            if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
+            if (cleanMuonJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
         }
         for (std::size_t j = 0; j < photons.size(); j++) {
             if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
@@ -601,17 +610,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     ntaus           = 0;
 
     for (View<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
-        bool skiptau = false;
-        for (std::size_t j = 0; j < muons.size(); j++) {
-            if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
-        }
-        for (std::size_t j = 0; j < electrons.size(); j++) {
-            if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
-        }
-        for (std::size_t j = 0; j < photons.size(); j++) {
-            if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
-        }
-        if (taus_iter->pt() > 18 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") < 5 && !skiptau) ntaus++;
+        if (taus_iter->pt() > 18 && fabs(taus_iter->eta()) < 2.3 && taus_iter->tauID("decayModeFinding") > 0.5 && taus_iter->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") < 5) ntaus++;
     }
 
     vector<pat::MuonRef> muonvector;
@@ -876,10 +875,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("run"                  , &run                  , "run/i");
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
     // Event weights
+    tree->Branch("xsec"                 , &xsec                 , "xsec/D");
     tree->Branch("wgt"                  , &wgt                  , "wgt/D");
     tree->Branch("kfact"                , &kfact                , "kfact/D");
     tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
-    tree->Branch("weight"               , &weight               , "weight/D");
     // Pileup info
     tree->Branch("puobs"                , &puobs                , "puobs/I");
     tree->Branch("putrue"               , &putrue               , "putrue/I");
@@ -1082,8 +1081,6 @@ void MonoJetTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descript
     descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(MonoJetTreeMaker);
-
 void MonoJetTreeMaker::initPileupWeights() {
     puhist = new TH1F("puhist", "", 60, 0., 60.);
     for(int k = 0; k < 60; k++) puhist->SetBinContent(k+1, 1.0);
@@ -1105,4 +1102,6 @@ void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle,
     }
     return;
 }
+
+DEFINE_FWK_MODULE(MonoJetTreeMaker);
 
