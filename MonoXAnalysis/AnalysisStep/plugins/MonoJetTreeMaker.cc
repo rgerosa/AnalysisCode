@@ -53,24 +53,6 @@
 #include <TLorentzVector.h>
 #include <TPRegexp.h>
 
-struct PatJetPtSorter {
-    bool operator() (const pat::Jet& i, const pat::Jet& j) {
-        return (i.pt() > j.pt());
-    }
-} jetsorter;
-
-struct PatMuonPtSorter {
-    bool operator() (pat::MuonRef i, pat::MuonRef j) {
-        return (i->pt() > j->pt());
-    }
-} muonsorter;
-
-struct PatElectronPtSorter {
-    bool operator() (pat::ElectronRef i, pat::ElectronRef j) {
-        return (i->pt() > j->pt());
-    }
-} electronsorter;
-
 class MonoJetTreeMaker : public edm::EDAnalyzer {
     public:
         explicit MonoJetTreeMaker(const edm::ParameterSet&);
@@ -160,6 +142,25 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
         double   xsec, wgt, kfact, puwgt, weight;
+
+        struct PatJetPtSorter {
+            bool operator() (const pat::Jet& i, const pat::Jet& j) {
+                return (i.pt() > j.pt());
+            }
+        } jetsorter;
+        
+        struct PatMuonPtSorter {
+            bool operator() (pat::MuonRef i, pat::MuonRef j) {
+                return (i->pt() > j->pt());
+            }
+        } muonsorter;
+        
+        struct PatElectronPtSorter {
+            bool operator() (pat::ElectronRef i, pat::ElectronRef j) {
+                return (i->pt() > j->pt());
+            }
+        } electronsorter;
+
 };
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
@@ -212,7 +213,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     t1mumetToken = consumes<edm::View<reco::MET> > (t1mumetTag); 
     t1phmetToken = consumes<edm::View<reco::MET> > (t1phmetTag); 
     pfmuptToken = consumes<edm::View<reco::MET> > (pfmuptTag); 
-    
+   
     xsec *= 1000.; 
 }
 
