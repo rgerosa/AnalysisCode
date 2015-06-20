@@ -15,6 +15,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -88,11 +89,11 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-        void initPileupWeights();            
         void findFirstNonPhotonMother(const reco::Candidate*, int &, int &);
 
         // InputTags
         edm::InputTag pileupInfoTag;
+        edm::InputTag genevtInfoTag;
         edm::InputTag verticesTag;
         edm::InputTag gensTag;
         edm::InputTag muonsTag;
@@ -115,6 +116,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
+        edm::EDGetTokenT<GenEventInfoProduct> genevtInfoToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
         edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
         edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
@@ -141,7 +143,6 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         bool cleanElectronJet;   
         bool cleanPhotonJet;   
         TTree* tree;
-        TH1F* puhist;
 
         int32_t  puobs, putrue; 
         int32_t  wzid, l1id, l2id, i1id, i2id, i3id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id; 
@@ -158,11 +159,12 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
-        double   wgt, kfact, puwgt, weight;
+        double   xsec, wgt, kfact, puwgt, weight;
 };
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
     pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileup")),
+    genevtInfoTag(iConfig.getParameter<edm::InputTag>("genevt")),
     verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
     gensTag((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles"))),
     muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
@@ -186,14 +188,13 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
     cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
     cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
-    wgt(iConfig.getParameter<double>("weight")),
+    xsec(iConfig.getParameter<double>("xsec")),
     kfact(iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0)
 {
-    initPileupWeights();
-
     // Token consumes instructions
     triggerResultsToken = consumes<edm::TriggerResults> (triggerResultsTag); 
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (pileupInfoTag);
+    genevtInfoToken = consumes<GenEventInfoProduct> (genevtInfoTag);
     verticesToken = consumes<std::vector<reco::Vertex> > (verticesTag);
     gensToken = consumes<edm::View<reco::GenParticle> > (gensTag); 
     muonsToken = consumes<pat::MuonRefVector> (muonsTag); 
@@ -216,7 +217,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
 
 MonoJetTreeMaker::~MonoJetTreeMaker() {
-    if (puhist) delete puhist;
 }
 
 void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -230,6 +230,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
+
+    Handle<GenEventInfoProduct> genevtInfoH;
+    iEvent.getByToken(genevtInfoToken, genevtInfoH);
 
     Handle<vector<Vertex> > verticesH;
     iEvent.getByToken(verticesToken, verticesH);
@@ -319,7 +322,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puobs  = 0;
     putrue = 0;
     puwgt  = 1.;
-    weight = wgt * kfact * puwgt;
+    weight = xsec * kfact * puwgt;
+    wgt    = genevtInfoH->weight();
 
     // MET information 
     t1pfmet      = t1pfmetH->front().et();
@@ -876,6 +880,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("run"                  , &run                  , "run/i");
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
     // Event weights
+    tree->Branch("xsec"                 , &xsec                 , "xsec/D");
     tree->Branch("wgt"                  , &wgt                  , "wgt/D");
     tree->Branch("kfact"                , &kfact                , "kfact/D");
     tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
@@ -1082,13 +1087,6 @@ void MonoJetTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descript
     descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(MonoJetTreeMaker);
-
-void MonoJetTreeMaker::initPileupWeights() {
-    puhist = new TH1F("puhist", "", 60, 0., 60.);
-    for(int k = 0; k < 60; k++) puhist->SetBinContent(k+1, 1.0);
-}
-
 /*
 This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
 */
@@ -1105,4 +1103,6 @@ void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle,
     }
     return;
 }
+
+DEFINE_FWK_MODULE(MonoJetTreeMaker);
 
