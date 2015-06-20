@@ -213,6 +213,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     t1phmetToken = consumes<edm::View<reco::MET> > (t1phmetTag); 
     pfmuptToken = consumes<edm::View<reco::MET> > (pfmuptTag); 
     
+    xsec *= 1000.; 
 }
 
 
