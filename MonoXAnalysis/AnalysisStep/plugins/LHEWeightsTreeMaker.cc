@@ -5,6 +5,7 @@
 #include <cmath>
 #include <algorithm>
 #include <sstream>
+#include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -59,10 +60,15 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
     // Token consumes instructions
     lheInfoToken = consumes<LHEEventProduct>(lheInfoTag);
     genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
+
+    wgtqcd = new double[8];
+    wgtpdf = new double[100];
 }
 
 
 LHEWeightsTreeMaker::~LHEWeightsTreeMaker() {
+    delete wgtqcd;
+    delete wgtpdf;
 }
 
 void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -88,8 +94,6 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
     wgtpdf2 = 0.0;
     wgtpdf3 = 0.0;
     
-    wgtqcd = new double[8];
-    wgtpdf = new double[100];
     for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
     for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
 
@@ -112,6 +116,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
 
     tree->Fill();
+
 }
 
 
@@ -128,8 +133,8 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");
     tree->Branch("wgtpdf2"              , &wgtpdf2              , "wgtpdf2/D");
     tree->Branch("wgtpdf3"              , &wgtpdf3              , "wgtpdf3/D");
-    tree->Branch("wgtpdf"               , &wgtpdf               , "wgtpdf[100]/D");
-    tree->Branch("wgtqcd"               , &wgtqcd               , "wgtqcd[8]/D");
+    tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
+    tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
 }
 
 void LHEWeightsTreeMaker::endJob() {
