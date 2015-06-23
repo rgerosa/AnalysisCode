@@ -73,17 +73,22 @@ class ZGammaStudies : public edm::EDAnalyzer {
 
         edm::InputTag gensTag;
         edm::InputTag genjetsTag;
+        edm::InputTag triggerResultsTag;
         edm::InputTag muonsTag;
         edm::InputTag electronsTag;
         edm::InputTag photonsTag;
         edm::InputTag tausTag;
         edm::InputTag jetsTag;
         edm::InputTag t1pfmetTag;
+        bool isPhotonSample;
+        std::vector<std::string> triggerPathsVector;
+        std::map<std::string, int> triggerPathsMap;
         TTree* tree;
 
         int32_t  puobs, putrue; 
         int32_t  vid, l1id, l2id; 
         uint32_t event, run, lumi;
+        uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175;
         uint32_t nmuons, nelectrons, ntaus, nphotons, njets, ngenjets;
         double   t1pfmet, t1pfmetphi, t1phmet, t1phmetphi;
         double   phpt, pheta, phphi;
@@ -95,7 +100,6 @@ class ZGammaStudies : public edm::EDAnalyzer {
         double   genjetjetdphi;
         double   vmass, vmt, vpt, veta, vphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
         double   wgt;
-        bool     isPhotonSample;
 
         struct PatJetPtSorter {
             bool operator() (const pat::Jet& i, const pat::Jet& j) {
@@ -115,14 +119,15 @@ class ZGammaStudies : public edm::EDAnalyzer {
 ZGammaStudies::ZGammaStudies(const edm::ParameterSet& iConfig): 
     gensTag(iConfig.getParameter<edm::InputTag>("gens")),
     genjetsTag(iConfig.getParameter<edm::InputTag>("genjets")),
+    triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
     muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
     electronsTag(iConfig.getParameter<edm::InputTag>("electrons")),
     photonsTag(iConfig.getParameter<edm::InputTag>("photons")),
     tausTag(iConfig.getParameter<edm::InputTag>("taus")),
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     t1pfmetTag(iConfig.getParameter<edm::InputTag>("t1pfmet")),
-    wgt(iConfig.getParameter<double>("weight")),
-    isPhotonSample(iConfig.getParameter<bool>("isPhotonSample"))
+    isPhotonSample(iConfig.getParameter<bool>("isPhotonSample")),
+    wgt(iConfig.getParameter<double>("weight"))
 {
 }
 
@@ -136,6 +141,9 @@ void ZGammaStudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     using namespace std;
 
     // Get handles to all the requisite collections
+    Handle<TriggerResults> triggerResultsH;
+    iEvent.getByLabel(triggerResultsTag, triggerResultsH);
+
     Handle<View<GenParticle> > gensH;
     iEvent.getByLabel(gensTag, gensH);
 
@@ -167,6 +175,24 @@ void ZGammaStudies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     event = iEvent.id().event();
     run   = iEvent.id().run();
     lumi  = iEvent.luminosityBlock();
+
+    // Trigger info
+    hltmet90     = 0;
+    hltmet120    = 0;
+    hltjetmet90  = 0;
+    hltjetmet120 = 0;
+    hltphoton165 = 0;
+    hltphoton175 = 0;
+
+    for (size_t i = 0; i < triggerPathsVector.size(); i++) {
+        if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;
+        if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90     = 1; // MET trigger
+        if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120    = 1; // MET trigger
+        if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90  = 1; // Jet-MET trigger
+        if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120 = 1; // Jet-MET trigger
+        if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165 = 1; // Photon trigger
+        if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175 = 1; // Photon trigger
+    }
 
     // Generator-level information
     vid    = 0;
@@ -388,6 +414,13 @@ void ZGammaStudies::beginJob() {
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
     // Event weight
     tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+    // Triggers
+    tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/i");
+    tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/i");
+    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/i");
+    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/i");
+    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/i");
+    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/i");
     // Object counts
     tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
     tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
@@ -401,6 +434,12 @@ void ZGammaStudies::beginJob() {
     tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
     tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
     // Jet info
+    tree->Branch("signalgenjetpt"       , &signalgenjetpt       , "signalgenjetpt/D");
+    tree->Branch("signalgenjeteta"      , &signalgenjeteta      , "signalgenjeteta/D");
+    tree->Branch("signalgenjetphi"      , &signalgenjetphi      , "signalgenjetphi/D");
+    tree->Branch("secondgenjetpt"       , &secondgenjetpt       , "secondgenjetpt/D");
+    tree->Branch("secondgenjeteta"      , &secondgenjeteta      , "secondgenjeteta/D");
+    tree->Branch("secondgenjetphi"      , &secondgenjetphi      , "secondgenjetphi/D");
     tree->Branch("signaljetpt"          , &signaljetpt          , "signaljetpt/D");
     tree->Branch("signaljeteta"         , &signaljeteta         , "signaljeteta/D");
     tree->Branch("signaljetphi"         , &signaljetphi         , "signaljetphi/D");
@@ -442,6 +481,30 @@ void ZGammaStudies::endJob() {
 }
 
 void ZGammaStudies::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+    triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
+    triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned");
+    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned");
+    triggerPathsVector.push_back("HLT_Photon165");
+    triggerPathsVector.push_back("HLT_Photon175_HE10");
+
+    HLTConfigProvider hltConfig;
+    bool changedConfig = false;
+    hltConfig.init(iRun, iSetup, triggerResultsTag.process(), changedConfig);
+
+    for (size_t i = 0; i < triggerPathsVector.size(); i++) {
+        triggerPathsMap[triggerPathsVector[i]] = -1;
+    }
+
+    for(size_t i = 0; i < triggerPathsVector.size(); i++){
+        TPRegexp pattern(triggerPathsVector[i]);
+        for(size_t j = 0; j < hltConfig.triggerNames().size(); j++){
+            std::string pathName = hltConfig.triggerNames()[j];
+            if(TString(pathName).Contains(pattern)){
+                triggerPathsMap[triggerPathsVector[i]] = j;
+            }
+        }
+    }
 }
 
 void ZGammaStudies::endRun(edm::Run const&, edm::EventSetup const&) {
