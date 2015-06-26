@@ -47,7 +47,7 @@ class LHEWeightsTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
 
         uint32_t event, run, lumi;
-        double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3;
+        double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
         double*  wgtpdf;
         double*  wgtqcd;
         TTree* tree;
@@ -93,15 +93,19 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
     wgtpdf1 = 0.0;
     wgtpdf2 = 0.0;
     wgtpdf3 = 0.0;
+    wgtpdf4 = 0.0;
+    wgtpdf5 = 0.0;
     
     for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
     for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
 
     vector<gen::WeightsInfo> weights = lheInfoH->weights();
     for (size_t i = 0; i < weights.size(); i++) {
-        if (weights[i].id == "315") wgtpdf1 = weights[i].wgt;
-        if (weights[i].id == "316") wgtpdf2 = weights[i].wgt;
-        if (weights[i].id == "370") wgtpdf3 = weights[i].wgt;
+        if (weights[i].id == "315") wgtpdf1 = weights[i].wgt; // cteq6l1
+        if (weights[i].id == "316") wgtpdf2 = weights[i].wgt; // MMHT2014lo68cl
+        if (weights[i].id == "370") wgtpdf3 = weights[i].wgt; // HERAPDF15LO
+        if (weights[i].id == "393") wgtpdf4 = weights[i].wgt; // CT10nlo
+        if (weights[i].id == "446") wgtpdf5 = weights[i].wgt; // MMHT2014nlo68cl
 
         for (size_t j = 2; j <= 9; j++) {
             stringstream ss;
@@ -133,6 +137,8 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");
     tree->Branch("wgtpdf2"              , &wgtpdf2              , "wgtpdf2/D");
     tree->Branch("wgtpdf3"              , &wgtpdf3              , "wgtpdf3/D");
+    tree->Branch("wgtpdf4"              , &wgtpdf4              , "wgtpdf4/D");
+    tree->Branch("wgtpdf5"              , &wgtpdf5              , "wgtpdf5/D");
     tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
     tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
 }
