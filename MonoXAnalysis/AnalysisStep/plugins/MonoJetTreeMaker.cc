@@ -586,6 +586,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     mht = sqrt(mhtx*mhtx + mhty*mhty);
 
+    if (jetEts.size() > 1 && jetEts.size() < 15) { // Memory consumption explodes with large number of jets -- this should be addressed
+        // This code is ripped off from UserCode/SusyAnalysis/HadronicSUSYOverlapExercise/ANALYSIS/src 
+        std::vector<double> diff( 1<<(jetEts.size()-1) , 0. );
+        for(size_t i = 0; i < diff.size(); i++) {
+            for(size_t j = 0; j < jetEts.size(); j++) diff[i] += jetEts[j] * ( 1 - 2 * (int(i>>j)&1) );
+        }        
+        for(size_t i = 0; i < diff.size(); i++) {
+            diff[i] = fabs(diff[i]);
+        }        
+        dht = *min_element(diff.begin(), diff.end());
+        alphat = 0.5 * (ht - dht) / sqrt(ht*ht - mht*mht);
+    }
+    else alphat = 0.0;
+
     apcjetmetmax = 0.0;
     apcjetmetmin = 0.0;
 
