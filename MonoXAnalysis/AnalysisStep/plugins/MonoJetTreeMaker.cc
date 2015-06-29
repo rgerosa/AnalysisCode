@@ -84,6 +84,9 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag tightmuonsTag;
         edm::InputTag tightelectronsTag;
         edm::InputTag tightphotonsTag;
+        edm::InputTag loosephotonsTag;
+        edm::InputTag photonsieieTag;
+        edm::InputTag rndgammaisoTag;
         edm::InputTag tausTag;
         edm::InputTag jetsTag;
         edm::InputTag fatjetsTag;
@@ -107,6 +110,9 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
         edm::EDGetTokenT<pat::ElectronRefVector> tightelectronsToken;
         edm::EDGetTokenT<pat::PhotonRefVector> tightphotonsToken;
+        edm::EDGetTokenT<pat::PhotonRefVector> loosephotonsToken;
+        edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
+        edm::EDGetTokenT<edm::ValueMap<float> > rndgammaisoToken;
         edm::EDGetTokenT<edm::View<pat::Tau> >  tausToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  jetsToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  fatjetsToken;
@@ -119,18 +125,16 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
-        bool isWorZMCSample;   
-        bool isSignalSample;   
-        bool cleanMuonJet;   
-        bool cleanElectronJet;   
-        bool cleanPhotonJet;   
+        bool isWorZMCSample, isSignalSample;   
+        bool cleanMuonJet, cleanElectronJet, cleanPhotonJet;   
+        bool uselheweights;   
         TTree* tree;
 
         int32_t  puobs, putrue; 
         int32_t  wzid, l1id, l2id, i1id, i2id, i3id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id; 
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, njets, nbjets, nfatjets, njetsnotfat, nbjetsnotfat, nphotons;
-        uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu;
+        uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, phmet, phmetphi, t1mumet, t1mumetphi, t1phmet, t1phmetphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjetmass, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprunedmass;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
@@ -141,6 +145,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
+        double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
         double   xsec, wgt, kfact, puwgt, weight;
 
         struct PatJetPtSorter {
@@ -161,6 +166,12 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
             }
         } electronsorter;
 
+        struct PatPhotonPtSorter {
+            bool operator() (pat::PhotonRef i, pat::PhotonRef j) {
+                return (i->pt() > j->pt());
+            }
+        } photonsorter;
+
 };
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
@@ -174,6 +185,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     tightmuonsTag(iConfig.getParameter<edm::InputTag>("tightmuons")),
     tightelectronsTag(iConfig.getParameter<edm::InputTag>("tightelectrons")),
     tightphotonsTag(iConfig.getParameter<edm::InputTag>("tightphotons")),
+    loosephotonsTag(iConfig.getParameter<edm::InputTag>("loosephotons")),
+    photonsieieTag(iConfig.getParameter<edm::InputTag>("photonsieie")),
+    rndgammaisoTag(iConfig.getParameter<edm::InputTag>("rndgammaiso")),
     tausTag(iConfig.getParameter<edm::InputTag>("taus")),
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     fatjetsTag(iConfig.getParameter<edm::InputTag>("fatjets")),
@@ -189,8 +203,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
     cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
     cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
+    uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
     xsec(iConfig.getParameter<double>("xsec")),
-    kfact(iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0)
+    kfact((iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0))
 {
     // Token consumes instructions
     triggerResultsToken = consumes<edm::TriggerResults> (triggerResultsTag); 
@@ -204,6 +219,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     tightmuonsToken = consumes<pat::MuonRefVector> (tightmuonsTag); 
     tightelectronsToken = consumes<pat::ElectronRefVector> (tightelectronsTag); 
     tightphotonsToken = consumes<pat::PhotonRefVector> (tightphotonsTag); 
+    loosephotonsToken = consumes<pat::PhotonRefVector> (loosephotonsTag); 
+    photonsieieToken = consumes<edm::ValueMap<float> > (photonsieieTag); 
+    rndgammaisoToken = consumes<edm::ValueMap<float> > (rndgammaisoTag); 
     tausToken = consumes<edm::View<pat::Tau> > (tausTag); 
     jetsToken = consumes<edm::View<pat::Jet> > (jetsTag); 
     fatjetsToken = consumes<edm::View<pat::Jet> > (fatjetsTag); 
@@ -234,7 +252,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
 
     Handle<GenEventInfoProduct> genevtInfoH;
-    iEvent.getByToken(genevtInfoToken, genevtInfoH);
+    if (uselheweights) iEvent.getByToken(genevtInfoToken, genevtInfoH);
 
     Handle<vector<Vertex> > verticesH;
     iEvent.getByToken(verticesToken, verticesH);
@@ -265,6 +283,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<pat::PhotonRefVector> tightphotonsH;
     iEvent.getByToken(tightphotonsToken, tightphotonsH);
     pat::PhotonRefVector tightphotons = *tightphotonsH;
+
+    Handle<pat::PhotonRefVector> loosephotonsH;
+    iEvent.getByToken(loosephotonsToken, loosephotonsH);
+    pat::PhotonRefVector loosephotons = *loosephotonsH;
+
+    Handle<edm::ValueMap<float> > photonsieieH;
+    iEvent.getByToken(photonsieieToken, photonsieieH);
+
+    Handle<edm::ValueMap<float> > rndgammaisoH;
+    iEvent.getByToken(rndgammaisoToken, rndgammaisoH);
 
     Handle<View<pat::Tau> > tausH;
     iEvent.getByToken(tausToken, tausH);
@@ -306,6 +334,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltphoton165 = 0;
     hltphoton175 = 0;
     hltdoublemu  = 0;
+    hltsinglemu  = 0;
+    hltdoubleel  = 0;
+    hltsingleel  = 0;
 
     for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;
@@ -317,6 +348,27 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175 = 1; // Photon trigger
         if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu  = 1; // Double muon trigger
         if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu  = 1; // Double muon trigger
+        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 11 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 12 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 13 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
+        if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
+        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
     }
 
     // Pileup info -- Will need to the updated to the Run-II specifications
@@ -325,7 +377,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     putrue = 0;
     puwgt  = 1.;
     weight = xsec * kfact * puwgt;
-    wgt    = genevtInfoH->weight();
+    if (uselheweights) wgt    = genevtInfoH->weight();
+    else wgt = 1.0;
 
     // MET information 
     t1pfmet      = t1pfmetH->front().et();
@@ -900,6 +953,23 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         phphi   = tightphotons[hardestPhotonIndex]->phi();
     }
 
+    loosephpt     = 0.0;
+    loosepheta    = 0.0;
+    loosephphi    = 0.0;
+    loosephsieie  = 0.0;
+    loosephrndiso = 0.0;
+
+    vector<pat::PhotonRef> loosephotonvector;
+    for (size_t i = 0; i < loosephotons.size(); i++) loosephotonvector.push_back(loosephotons[i]);
+    sort(loosephotonvector.begin(), loosephotonvector.end(), photonsorter);
+    if (loosephotonvector.size() > 0) {
+        loosephpt     = loosephotonvector[0]->pt();
+        loosepheta    = loosephotonvector[0]->eta();
+        loosephphi    = loosephotonvector[0]->phi();
+        loosephsieie  = (*photonsieieH)[loosephotonvector[0]];
+        loosephrndiso = (*rndgammaisoH)[loosephotonvector[0]];
+    }
+
     tree->Fill();
 }
 
@@ -929,6 +999,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/i");
     tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/i");
     tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/i");
+    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/i");
+    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/i");
+    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/i");
     // Object counts
     tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
     tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
@@ -1043,7 +1116,12 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("phpt"                 , &phpt                 , "phpt/D");
     tree->Branch("pheta"                , &pheta                , "pheta/D");
     tree->Branch("phphi"                , &phphi                , "phphi/D");
-    
+    // Loose photon info for purity
+    tree->Branch("loosephpt"            , &loosephpt            , "loosephpt/D");
+    tree->Branch("loosepheta"           , &loosepheta           , "loosepheta/D");
+    tree->Branch("loosephphi"           , &loosephphi           , "loosephphi/D");
+    tree->Branch("loosephsieie"         , &loosephsieie         , "loosephsieie/D");
+    tree->Branch("loosephrndiso"        , &loosephrndiso        , "loosephrndiso/D");
     // W/Z gen-level info
     tree->Branch("wzid"                 , &wzid                 , "wzid/I");
     tree->Branch("wzmass"               , &wzmass               , "wzmass/D");
@@ -1085,6 +1163,27 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     triggerPathsVector.push_back("HLT_Photon175_HE10");
     triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
     triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
+    triggerPathsVector.push_back("HLT_IsoMu17_eta2p1");
+    triggerPathsVector.push_back("HLT_IsoMu20_eta2p1");
+    triggerPathsVector.push_back("HLT_IsoMu24_eta2p1");
+    triggerPathsVector.push_back("HLT_IsoMu20");
+    triggerPathsVector.push_back("HLT_IsoMu27");
+    triggerPathsVector.push_back("HLT_IsoTkMu20_eta2p1");
+    triggerPathsVector.push_back("HLT_IsoTkMu24_eta2p1");
+    triggerPathsVector.push_back("HLT_IsoTkMu20");
+    triggerPathsVector.push_back("HLT_IsoTkMu27");
+    triggerPathsVector.push_back("HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf");
+    triggerPathsVector.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW");
+    triggerPathsVector.push_back("HLT_DoubleEle33_CaloIdL_GsfTrkIdVL");
+    triggerPathsVector.push_back("HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300");
+    triggerPathsVector.push_back("HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL");
+    triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+    triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+    triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf");
+    triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf");
+    triggerPathsVector.push_back("HLT_Ele32_eta2p1_WPLoose_Gsf");
+    triggerPathsVector.push_back("HLT_Ele32_eta2p1_WPTight_Gsf");
+    triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_WHbbBoost");
 
     HLTConfigProvider hltConfig;
     bool changedConfig = false;
