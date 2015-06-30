@@ -142,7 +142,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi ;
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin;
         double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
-        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
+        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi, gengammajetdr;
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
         double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
@@ -710,31 +710,32 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     for (size_t i = 0; i < electrons.size(); i++) electronvector.push_back(electrons[i]);
 
     // Generator-level information
-    wzid   = 0;
-    wzmass = 0.0;
-    wzpt   = 0.0;
-    wzeta  = 0.0;
-    wzphi  = 0.0;
-    l1id   = 0;
-    l1pt   = 0.0;
-    l1eta  = 0.0;
-    l1phi  = 0.0;
-    l2id   = 0;
-    l2pt   = 0.0;
-    l2eta  = 0.0;
-    l2phi  = 0.0;
-    i1id   = 0;
-    i1pt   = 0.0;
-    i1eta  = 0.0;
-    i1phi  = 0.0;
-    i2id   = 0;
-    i2pt   = 0.0;
-    i2eta  = 0.0;
-    i2phi  = 0.0;
-    i3id   = 0;
-    i3pt   = 0.0;
-    i3eta  = 0.0;
-    i3phi  = 0.0;
+    wzid          = 0;
+    wzmass        = 0.0;
+    wzpt          = 0.0;
+    wzeta         = 0.0;
+    wzphi         = 0.0;
+    l1id          = 0;
+    l1pt          = 0.0;
+    l1eta         = 0.0;
+    l1phi         = 0.0;
+    l2id          = 0;
+    l2pt          = 0.0;
+    l2eta         = 0.0;
+    l2phi         = 0.0;
+    i1id          = 0;
+    i1pt          = 0.0;
+    i1eta         = 0.0;
+    i1phi         = 0.0;
+    i2id          = 0;
+    i2pt          = 0.0;
+    i2eta         = 0.0;
+    i2phi         = 0.0;
+    i3id          = 0;
+    i3pt          = 0.0;
+    i3eta         = 0.0;
+    i3phi         = 0.0;
+    gengammajetdr = 0.0;
 
     if ((isWorZMCSample || isSignalSample) && gensH.isValid()) {
         int isrcounter = 1;
@@ -784,12 +785,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 const Candidate* genpho = &(*gens_iter);
                 int ancestorPID = -999;
                 int ancestorStatus = -999;
+                double ancestorEta = -999.;
+                double ancestorPhi = -999.;
                 findFirstNonPhotonMother(genpho, ancestorPID, ancestorStatus);
-                if (abs(ancestorPID) >= 1 || abs(ancestorPID) <= 5 || (ancestorPID == 2212 && ancestorStatus == 4)) {
+                if (abs(ancestorPID) >= 1 || abs(ancestorPID) <= 5) {
                     wzid   = gens_iter->pdgId();
                     wzpt   = gens_iter->pt();
                     wzeta  = gens_iter->eta();
                     wzphi  = gens_iter->phi();
+                    gengammajetdr = deltaR(wzeta, wzphi, ancestorEta, ancestorPhi);
                 }
             }
             if (isSignalSample && gens_iter->pdgId() == 18) {
@@ -1149,6 +1153,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("i3pt"                 , &i3pt                 , "i3pt/D");
     tree->Branch("i3eta"                , &i3eta                , "i3eta/D");
     tree->Branch("i3phi"                , &i3phi                , "i3phi/D");
+    tree->Branch("gengammajetdr"        , &gengammajetdr        , "gengammajetdr/D");
 }
 
 void MonoJetTreeMaker::endJob() {
@@ -1213,20 +1218,14 @@ void MonoJetTreeMaker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void MonoJetTreeMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
-void MonoJetTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.setUnknown();
-    descriptions.addDefault(desc);
-}
-
 /*
 This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
 */
 void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus) {
-    if( particle == 0 ){
+    if (particle == 0) {
         return;
     }
-    if( abs(particle->pdgId()) == 22 ){
+    if (abs(particle->pdgId()) == 22) {
         findFirstNonPhotonMother(particle->mother(0), ancestorPID, ancestorStatus);
     }
     else {
@@ -1234,6 +1233,12 @@ void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle,
         ancestorStatus = particle->status();
     }
     return;
+}
+
+void MonoJetTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+    desc.setUnknown();
+    descriptions.addDefault(desc);
 }
 
 DEFINE_FWK_MODULE(MonoJetTreeMaker);
