@@ -415,7 +415,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
         muidonly[i] = 0;
         muid[i] = 0;
-        if (nvtx > 0 && muon::isTightMuon(muons[i], *(verticesH->begin())) && isoval < 0.12) {
+        if (nvtx > 0 && muon::isTightMuon(muons[i], *(verticesH->begin()))) {
             muidonly[i] = 1;
             if (isoval < 0.12) muid[i] = 1;
         }
@@ -753,7 +753,7 @@ void TreeDumper::beginJob() {
     tree->Branch("muidonly"             , muidonly              , "muidonly[nmuons]/I");
     tree->Branch("muid"                 , muid                  , "muid[nmuons]/I");
     tree->Branch("mupid"                , mupid                 , "mupid[nmuons]/I");
-    tree->Branch("muiso"                , muiso                 , "muiso[nmuons]/I");
+    tree->Branch("muiso"                , muiso                 , "muiso[nmuons]/D");
     tree->Branch("elpt"                 , elpt                  , "elpt[nelectrons]/D");
     tree->Branch("eleta"                , eleta                 , "eleta[nelectrons]/D");
     tree->Branch("elphi"                , elphi                 , "elphi[nelectrons]/D");
