@@ -43,6 +43,10 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+#include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 #include <TH1F.h>
 #include <TTree.h>
@@ -749,6 +753,7 @@ void TreeDumper::beginJob() {
     tree->Branch("muidonly"             , muidonly              , "muidonly[nmuons]/I");
     tree->Branch("muid"                 , muid                  , "muid[nmuons]/I");
     tree->Branch("mupid"                , mupid                 , "mupid[nmuons]/I");
+    tree->Branch("muiso"                , muiso                 , "muiso[nmuons]/I");
     tree->Branch("elpt"                 , elpt                  , "elpt[nelectrons]/D");
     tree->Branch("eleta"                , eleta                 , "eleta[nelectrons]/D");
     tree->Branch("elphi"                , elphi                 , "elphi[nelectrons]/D");
