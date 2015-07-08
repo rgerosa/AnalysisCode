@@ -97,9 +97,11 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag t1mumetTag;
         edm::InputTag t1phmetTag;
         edm::InputTag triggerResultsTag;
+        edm::InputTag filterResultsTag;
 
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+        edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
         edm::EDGetTokenT<GenEventInfoProduct> genevtInfoToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
@@ -125,6 +127,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
+        std::vector<std::string> filterPathsVector;
+        std::map<std::string, int> filterPathsMap;
         bool isWorZMCSample, isSignalSample;   
         bool cleanMuonJet, cleanElectronJet, cleanPhotonJet;   
         bool uselheweights;   
@@ -135,6 +139,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nfatjets;
         uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
+        uint32_t flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, phmet, phmetphi, t1mumet, t1mumetphi, t1phmet, t1phmetphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjetmass, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprunedmass;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
@@ -198,6 +203,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     t1mumetTag(iConfig.getParameter<edm::InputTag>("t1mumet")),
     t1phmetTag(iConfig.getParameter<edm::InputTag>("t1phmet")),
     triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
+    filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
     isWorZMCSample(iConfig.existsAs<bool>("isWorZMCSample") ? iConfig.getParameter<bool>("isWorZMCSample") : false),
     isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
     cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
@@ -209,6 +215,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 {
     // Token consumes instructions
     triggerResultsToken = consumes<edm::TriggerResults> (triggerResultsTag); 
+    filterResultsToken = consumes<edm::TriggerResults> (filterResultsTag); 
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (pileupInfoTag);
     genevtInfoToken = consumes<GenEventInfoProduct> (genevtInfoTag);
     verticesToken = consumes<std::vector<reco::Vertex> > (verticesTag);
@@ -247,6 +254,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Get handles to all the requisite collections
     Handle<TriggerResults> triggerResultsH;
     iEvent.getByToken(triggerResultsToken, triggerResultsH);
+
+    Handle<TriggerResults> filterResultsH;
+    iEvent.getByToken(filterResultsToken, filterResultsH);
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
@@ -369,6 +379,29 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
         if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
         if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+    }
+
+    // MET filter info
+    flagcsctight  = 0;
+    flaghbhenoise = 0;
+    flaghcallaser = 0;
+    flagecaltrig  = 0;
+    flageebadsc   = 0;
+    flagecallaser = 0;
+    flagtrkfail   = 0;
+    flagtrkpog    = 0;
+
+    // Which MET filters passed
+    for (size_t i = 0; i < filterPathsVector.size(); i++) {
+        if (filterPathsMap[filterPathsVector[i]] == -1) continue;
+        if (i == 0  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagcsctight  = 1; // CSCTightHaloFilter
+        if (i == 1  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaghbhenoise = 1; // HBHENoiseFilter
+        if (i == 2  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaghcallaser = 1; // hcalLaserEventFilter
+        if (i == 3  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagecaltrig  = 1; // EcalDeadCellTriggerPrimitiveFilter
+        if (i == 4  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flageebadsc   = 1; // eeBadScFilter
+        if (i == 5  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagecallaser = 1; // ecalLaserCorrFilter
+        if (i == 6  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagtrkfail   = 1; // trackingFailureFilter
+        if (i == 7  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagtrkpog    = 1; // trkPOGFilters
     }
 
     // Pileup info -- Will need to the updated to the Run-II specifications
@@ -991,7 +1024,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("puobs"                , &puobs                , "puobs/I");
     tree->Branch("putrue"               , &putrue               , "putrue/I");
     tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
-    // Triggers and event filters
+    // Triggers
     tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/i");
     tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/i");
     tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/i");
@@ -1002,6 +1035,15 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/i");
     tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/i");
     tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/i");
+    // MET filters
+    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/i");
+    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/i");
+    tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/i");
+    tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/i");
+    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/i");
+    tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/i");
+    tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/i");
+    tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/i");
     // Object counts
     tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
     tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
@@ -1201,6 +1243,33 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
             std::string pathName = hltConfig.triggerNames()[j];
             if(TString(pathName).Contains(pattern)){
                 triggerPathsMap[triggerPathsVector[i]] = j;
+            }
+        }
+    }
+
+    // MET filter Paths
+    filterPathsVector.push_back("Flag_CSCTightHaloFilter");
+    filterPathsVector.push_back("Flag_HBHENoiseFilter");
+    filterPathsVector.push_back("Flag_hcalLaserEventFilter");
+    filterPathsVector.push_back("Flag_EcalDeadCellTriggerPrimitiveFilter");
+    filterPathsVector.push_back("Flag_eeBadScFilter");
+    filterPathsVector.push_back("Flag_ecalLaserCorrFilter");
+    filterPathsVector.push_back("Flag_trackingFailureFilter");
+    filterPathsVector.push_back("Flag_trkPOGFilters");
+
+    HLTConfigProvider fltrConfig;
+    fltrConfig.init(iRun, iSetup, filterResultsTag.process(), changedConfig);
+
+    for (size_t i = 0; i < filterPathsVector.size(); i++) {
+        filterPathsMap[filterPathsVector[i]] = -1;
+    }
+
+    for(size_t i = 0; i < filterPathsVector.size(); i++){
+        TPRegexp pattern(filterPathsVector[i]);
+        for(size_t j = 0; j < fltrConfig.triggerNames().size(); j++){
+            std::string pathName = fltrConfig.triggerNames()[j];
+            if(TString(pathName).Contains(pattern)){
+                filterPathsMap[filterPathsVector[i]] = j;
             }
         }
     }
