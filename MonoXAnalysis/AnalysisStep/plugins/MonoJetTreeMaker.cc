@@ -141,13 +141,13 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
         uint32_t flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, phmet, phmetphi, t1mumet, t1mumetphi, t1phmet, t1phmetphi;
-        double   fatjetpt, fatjeteta, fatjetphi, fatjetmass, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprunedmass;
+        double   fatjetpt, fatjeteta, fatjetphi, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprmass, fatjetsdmass, fatjettrmass, fatjetftmass;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
         double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
         double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi ;
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin;
         double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
-        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi, gengammajetdr;
+        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
         double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
         double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
@@ -624,24 +624,28 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     fatjetpt         = 0.0;
     fatjeteta        = 0.0;
     fatjetphi        = 0.0;
-    fatjetmass       = 0.0;
     fatjettau2       = -1.0;
     fatjettau1       = 1.0;
+    fatjetprmass     = 0.0;
+    fatjetsdmass     = 0.0;
+    fatjettrmass     = 0.0;
+    fatjetftmass     = 0.0;
     fatjetCHfrac     = 0.0;
     fatjetNHfrac     = 0.0;
     fatjetEMfrac     = 0.0;
     fatjetCEMfrac    = 0.0;
     fatjetmetdphi    = 0.0;
-    fatjetprunedmass = 0.0;
 
     if (fatjets.size() > 0) {
         fatjetpt         = fatjets[0].pt();
         fatjeteta        = fatjets[0].eta();
         fatjetphi        = fatjets[0].phi();
-        fatjetmass       = fatjets[0].mass();
         fatjettau2       = fatjets[0].userFloat("NjettinessAK8:tau2");
         fatjettau1       = fatjets[0].userFloat("NjettinessAK8:tau1");
-        fatjetprunedmass = fatjets[0].userFloat("ak8PFJetsCHSPrunedLinks");
+        fatjetprmass     = fatjets[0].userFloat("ak8PFJetsCHSPrunedMass");
+        fatjetsdmass     = fatjets[0].userFloat("ak8PFJetsCHSSoftDropMass");
+        fatjettrmass     = fatjets[0].userFloat("ak8PFJetsCHSTrimmedMass");
+        fatjetftmass     = fatjets[0].userFloat("ak8PFJetsCHSFilteredMass");
         fatjetCHfrac     = fatjets[0].chargedHadronEnergyFraction();
         fatjetNHfrac     = fatjets[0].neutralHadronEnergyFraction();
         fatjetEMfrac     = fatjets[0].neutralEmEnergyFraction();
@@ -764,7 +768,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     i3pt          = 0.0;
     i3eta         = 0.0;
     i3phi         = 0.0;
-    gengammajetdr = 0.0;
 
     if ((isWorZMCSample || isSignalSample) && gensH.isValid()) {
         int isrcounter = 1;
@@ -810,20 +813,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 l2phi  = gens_iter->daughter(1)->phi();
                 wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi)))); 
             }
-            if (isWorZMCSample && gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > 100.) {
-                const Candidate* genpho = &(*gens_iter);
-                int ancestorPID = -999;
-                int ancestorStatus = -999;
-                double ancestorEta = -999.;
-                double ancestorPhi = -999.;
-                findFirstNonPhotonMother(genpho, ancestorPID, ancestorStatus);
-                if (abs(ancestorPID) >= 1 || abs(ancestorPID) <= 5) {
-                    wzid   = gens_iter->pdgId();
-                    wzpt   = gens_iter->pt();
-                    wzeta  = gens_iter->eta();
-                    wzphi  = gens_iter->phi();
-                    gengammajetdr = deltaR(wzeta, wzphi, ancestorEta, ancestorPhi);
-                }
+            if (isWorZMCSample && gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
+                wzid   = gens_iter->pdgId();
+                wzpt   = gens_iter->pt();
+                wzeta  = gens_iter->eta();
+                wzphi  = gens_iter->phi();
             }
             if (isSignalSample && gens_iter->pdgId() == 18) {
                 l1id   = gens_iter->pdgId();
@@ -1073,8 +1067,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("fatjetpt"             , &fatjetpt             , "fatjetpt/D");
     tree->Branch("fatjeteta"            , &fatjeteta            , "fatjeteta/D");
     tree->Branch("fatjetphi"            , &fatjetphi            , "fatjetphi/D");
-    tree->Branch("fatjetmass"           , &fatjetmass           , "fatjetmass/D");
-    tree->Branch("fatjetprunedmass"     , &fatjetprunedmass     , "fatjetprunedmass/D");
+    tree->Branch("fatjetprmass"         , &fatjetprmass         , "fatjetprmass/D");
+    tree->Branch("fatjetsdmass"         , &fatjetsdmass         , "fatjetsdmass/D");
+    tree->Branch("fatjettrmass"         , &fatjettrmass         , "fatjettrmass/D");
+    tree->Branch("fatjetftmass"         , &fatjetftmass         , "fatjetftmass/D");
     tree->Branch("fatjettau2"           , &fatjettau2           , "fatjettau2/D");
     tree->Branch("fatjettau1"           , &fatjettau1           , "fatjettau1/D");
     tree->Branch("fatjetCHfrac"         , &fatjetCHfrac         , "fatjetCHfrac/D");
@@ -1192,7 +1188,6 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("i3pt"                 , &i3pt                 , "i3pt/D");
     tree->Branch("i3eta"                , &i3eta                , "i3eta/D");
     tree->Branch("i3phi"                , &i3phi                , "i3phi/D");
-    tree->Branch("gengammajetdr"        , &gengammajetdr        , "gengammajetdr/D");
 }
 
 void MonoJetTreeMaker::endJob() {
