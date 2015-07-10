@@ -36,6 +36,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -94,6 +95,7 @@ class TreeDumper : public edm::EDAnalyzer {
         edm::InputTag t1pfmetTag;
         edm::InputTag genevtInfoTag;
         edm::InputTag gensTag;
+        edm::InputTag genjetsTag;
 
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults>            triggerResultsToken;
@@ -117,6 +119,7 @@ class TreeDumper : public edm::EDAnalyzer {
         edm::EDGetTokenT<edm::View<pat::MET> >           t1pfmetToken;
         edm::EDGetTokenT<GenEventInfoProduct>            genevtInfoToken;
         edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
+        edm::EDGetTokenT<edm::View<reco::GenJet> >       genjetsToken;
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
@@ -151,6 +154,8 @@ class TreeDumper : public edm::EDAnalyzer {
 
         double   vmass, vmt, vpt, veta, vphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
         uint8_t  vid, l1id, l2id; 
+        uint8_t  ngenjets; 
+        double   genjetpt[100], genjeteta[100], genjetphi[100]; 
         double   xsec, wgt, kfact;
 
         struct PatJetPtSorter {
@@ -207,6 +212,7 @@ TreeDumper::TreeDumper(const edm::ParameterSet& iConfig):
     t1pfmetTag(iConfig.getParameter<edm::InputTag>("t1pfmet")),
     genevtInfoTag((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator"))),
     gensTag((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles"))),
+    genjetsTag((iConfig.existsAs<edm::InputTag>("genjets") ? iConfig.getParameter<edm::InputTag>("genjets") : edm::InputTag("slimmedGenJets"))),
     isVMCSample(iConfig.existsAs<bool>("isVMCSample") ? iConfig.getParameter<bool>("isVMCSample") : false),
     uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
     applyHighMETFilter(iConfig.existsAs<bool>("applyHighMETFilter") ? iConfig.getParameter<bool>("applyHighMETFilter") : false),
@@ -236,6 +242,7 @@ TreeDumper::TreeDumper(const edm::ParameterSet& iConfig):
     t1pfmetToken             = consumes<edm::View<pat::MET> >          (t1pfmetTag); 
     genevtInfoToken          = consumes<GenEventInfoProduct>           (genevtInfoTag);
     gensToken                = consumes<edm::View<reco::GenParticle> > (gensTag); 
+    genjetsToken             = consumes<edm::View<reco::GenJet> >      (genjetsTag); 
   
     // Scaling the cross-section to fb 
     xsec *= 1000.; 
@@ -314,6 +321,9 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     Handle<View<GenParticle> > gensH;
     if (isVMCSample) iEvent.getByToken(gensToken, gensH);
+
+    Handle<View<GenJet> > genjetsH;
+    if (isVMCSample) iEvent.getByToken(genjetsToken, genjetsH);
 
     // Event, lumi, run info
     event = iEvent.id().event();
@@ -748,6 +758,19 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         }
     }
 
+    // AK4 GenJets information
+    ngenjets = 0;
+    if (isVMCSample && gensH.isValid()) {
+        for (View<GenJet>::const_iterator genjets_iter = genjetsH->begin(); genjets_iter != genjetsH->end(); ++genjets_iter) {
+            if (genjets_iter->pt() > 10.) {
+                genjetpt[ngenjets]  = genjets_iter->pt();
+                genjeteta[ngenjets] = genjets_iter->eta();
+                genjetphi[ngenjets] = genjets_iter->phi();
+                ngenjets++;
+            }
+        }
+    }
+
     tree->Fill();
 
 }
@@ -800,6 +823,7 @@ void TreeDumper::beginJob() {
     tree->Branch("ntaus"                , &ntaus                , "ntaus/b");
     tree->Branch("njets"                , &njets                , "njets/b");
     tree->Branch("nfatjets"             , &nfatjets             , "nfatjets/b");
+    tree->Branch("ngenjets"             , &ngenjets             , "ngenjets/b");
     tree->Branch("nvetomuons"           , &nvetomuons           , "nvetomuons/b");
     tree->Branch("nvetoelectrons"       , &nvetoelectrons       , "nvetoelectrons/b");
     tree->Branch("nvetophotons"         , &nvetophotons         , "nvetophotons/b");
@@ -881,6 +905,9 @@ void TreeDumper::beginJob() {
     tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
     tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
     tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
+    tree->Branch("genjetpt"             , genjetpt              , "genjetpt[ngenjets]/D");
+    tree->Branch("genjeteta"            , genjeteta             , "genjeteta[ngenjets]/D");
+    tree->Branch("genjetphi"            , genjetphi             , "genjetphi[ngenjets]/D");
 }
 
 void TreeDumper::endJob() {
