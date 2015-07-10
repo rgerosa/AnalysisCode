@@ -32,11 +32,17 @@ isMC = True
 filterHighMETEvents = False
 
 # Filter on triggered events
-filterOnHLT = True
+filterOnHLT = False
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValADDMonoJet_d3MD3_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/80CF5456-B9EC-E411-93DA-002618FDA248.root')
+    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root')
+    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValZMM_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/1C258197-BEEC-E411-A70A-002618943901.root')
+    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValWM_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/6AF5B73D-C8EC-E411-8559-002618943865.root')
+    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValRSGravitonToGaGa_13TeV/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/189277BA-DCEC-E411-B3B8-0025905B859E.root')
+    #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v3/00000/6408230F-9F08-E511-A1A6-D4AE526A023A.root')
+    #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/04963444-D107-E511-B245-02163E00F339.root')
 )
 
 # Setup the service to make a ROOT TTree
@@ -81,8 +87,9 @@ process.tree = cms.EDAnalyzer("TreeDumper",
     filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
     vertices = cms.InputTag("goodVertices"),
-    gens = cms.InputTag("prunedGenParticles"),
     genevt = cms.InputTag("generator"),
+    gens = cms.InputTag("prunedGenParticles"),
+    genjets = cms.InputTag("slimmedGenJets"),
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
@@ -106,6 +113,17 @@ process.tree = cms.EDAnalyzer("TreeDumper",
     applyHighMETFilter = cms.bool(filterHighMETEvents)
 )
 
+# Gen Tree -- For event weights
+process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
+    addqcdpdfweights = cms.bool(False),
+    uselheweights = cms.bool(False),
+    lheinfo = cms.InputTag("externalLHEProducer"),
+    geninfo = cms.InputTag("generator")
+)
+
 # Process Path
-process.treePath = cms.Path(process.tree)
+if isMC:
+    process.treePath = cms.Path(process.gentree + process.tree)
+else :
+    process.treePath = cms.Path(process.tree)
 
