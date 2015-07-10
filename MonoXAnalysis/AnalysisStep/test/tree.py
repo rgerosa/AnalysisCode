@@ -44,7 +44,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if isMC:
     process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Simulation
 else:
-    process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Data (for now set to the MC tag)
+    process.GlobalTag.globaltag = 'GR_P_V54::All'       # for Data
 
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -66,6 +66,7 @@ for idmod in ele_id_modules:
 for idmod in ph_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
+# Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
     vertices = cms.InputTag("goodVertices"),
     pfcands = cms.InputTag("packedPFCandidates"),
@@ -102,10 +103,7 @@ process.t1phmet = cms.EDProducer("CandCorrectedMETProducer",
     cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")) 
 )
 
-# Remove MC matching when running on data
-if not isMC:
-    runOnData(process)
-
+# Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     pileup = cms.InputTag("addPileupInfo"),
     genevt = cms.InputTag("generator"),
@@ -140,6 +138,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     isWorZMCSample = cms.bool(False)
 )
 
+# Tree for the generator weights
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
@@ -147,15 +146,21 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     addqcdpdfweights = cms.bool(False)
 )
 
+# MET filter
 process.metfilter = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("t1mumet"),
     cut = cms.string("et > 200"),
     filter = cms.bool(True)
 )
 
-
+# Set up the path
 if filterHighMETEvents: 
-    process.treePath = cms.Path(process.gentree + process.goodVertices + process.metfilter + process.tree)
+    if (isMC):
+        process.treePath = cms.Path(process.gentree + process.goodVertices + process.metfilter + process.tree)
+    else :
+        process.treePath = cms.Path(                  process.goodVertices + process.metfilter + process.tree)
 else :
-    process.treePath = cms.Path(process.gentree + process.goodVertices + process.tree)
-
+    if (isMC):
+        process.treePath = cms.Path(process.gentree + process.goodVertices                     + process.tree)
+    else :
+        process.treePath = cms.Path(process.gentree + process.goodVertices + process.metfilter + process.tree)
