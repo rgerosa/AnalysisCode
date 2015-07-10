@@ -410,7 +410,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     putrue = 0;
     puwgt  = 1.;
     weight = xsec * kfact * puwgt;
-    if (uselheweights) wgt    = genevtInfoH->weight();
+    if (uselheweights) wgt = genevtInfoH->weight();
     else wgt = 1.0;
 
     // MET information 
