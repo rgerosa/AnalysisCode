@@ -35,6 +35,7 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -74,6 +75,7 @@ class TreeDumper : public edm::EDAnalyzer {
         // InputTags
         edm::InputTag triggerResultsTag;
         edm::InputTag filterResultsTag;
+        edm::InputTag hcalnoiseTag;
         edm::InputTag verticesTag;
         edm::InputTag muonsTag;
         edm::InputTag electronsTag;
@@ -96,6 +98,7 @@ class TreeDumper : public edm::EDAnalyzer {
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults>            triggerResultsToken;
         edm::EDGetTokenT<edm::TriggerResults>            filterResultsToken;
+        edm::EDGetTokenT<HcalNoiseSummary>               hcalnoiseToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> >     verticesToken;
         edm::EDGetTokenT<edm::View<pat::Muon> >          muonsToken;
         edm::EDGetTokenT<edm::View<pat::Electron> >      electronsToken;
@@ -121,33 +124,33 @@ class TreeDumper : public edm::EDAnalyzer {
         std::map<std::string, int> filterPathsMap;
         bool isVMCSample;   
         bool uselheweights;   
-        bool applyHighMETFilter;
+        bool applyHighMETFilter, applyHLTFilter;
         TTree* tree;
 
         uint32_t event, run, lumi;
-        uint32_t hltmet90, hltmet120, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
-        uint32_t flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog;
-        uint32_t nvtx;
+        uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
+        uint8_t  flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
+        uint8_t  nvtx;
 
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, mumet, mumetphi, t1mumet, t1mumetphi;
-        uint32_t njets, nfatjets, ncntjets, ncntjets2p5, ncntjets3p0;
+        uint8_t  njets, nfatjets, ncntjets, ncntjets2p5, ncntjets3p0;
         double   jetpt[100], jeteta[100], jetphi[100], jetbtag[100], jetCHfrac[100], jetNHfrac[100], jetEMfrac[100], jetCEMfrac[100];
-        int32_t  jetid[100], pujetid[100];
+        uint8_t  jetid[100], pujetid[100];
         double   fatjetpt[100], fatjeteta[100], fatjetphi[100], fatjetprmass[100], fatjetsdmass[100], fatjettrmass[100], fatjetftmass[100], fatjettau2[100], fatjettau1[100]; 
         double   fatjetCHfrac[100], fatjetNHfrac[100], fatjetEMfrac[100], fatjetCEMfrac[100], fatjetmetdphi[100];
-        int32_t  fatjetid[100], pufatjetid[100];
+        uint8_t  fatjetid[100], pufatjetid[100];
 
-        uint32_t nmuons, nelectrons, ntaus, nphotons, nvetomuons, nvetoelectrons, nvetotaus, nvetophotons;
+        uint8_t  nmuons, nelectrons, ntaus, nphotons, nvetomuons, nvetoelectrons, nvetotaus, nvetophotons;
         double   mupt[100], mueta[100], muphi[100], mupfpt[100], mupfeta[100], mupfphi[100], muiso[100];
-        int32_t  muid[100], muidonly[100], mupid[100];
+        uint8_t  muid[100], muidonly[100], mupid[100];
         double   elpt[100], eleta[100], elphi[100];
-        int32_t  elidloose[100], elidmedium[100], elidtight[100], elpid[100];
+        uint8_t  elidveto[100], elidloose[100], elidmedium[100], elidtight[100], elpid[100];
         double   phpt[100], pheta[100], phphi[100], phsieie[100];
-        int32_t  phidloose[100], phidmedium[100], phidtight[100];
+        uint8_t  phidloose[100], phidmedium[100], phidtight[100];
         double   tapt[100], taeta[100], taphi[100], taiso[100];
 
         double   vmass, vmt, vpt, veta, vphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
-        int32_t  vid, l1id, l2id; 
+        uint8_t  vid, l1id, l2id; 
         double   xsec, wgt, kfact;
 
         struct PatJetPtSorter {
@@ -185,6 +188,7 @@ class TreeDumper : public edm::EDAnalyzer {
 TreeDumper::TreeDumper(const edm::ParameterSet& iConfig): 
     triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
     filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
+    hcalnoiseTag(iConfig.getParameter<edm::InputTag>("hcalnoise")),
     verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
     muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
     electronsTag(iConfig.getParameter<edm::InputTag>("electrons")),
@@ -206,12 +210,14 @@ TreeDumper::TreeDumper(const edm::ParameterSet& iConfig):
     isVMCSample(iConfig.existsAs<bool>("isVMCSample") ? iConfig.getParameter<bool>("isVMCSample") : false),
     uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
     applyHighMETFilter(iConfig.existsAs<bool>("applyHighMETFilter") ? iConfig.getParameter<bool>("applyHighMETFilter") : false),
+    applyHLTFilter(iConfig.existsAs<bool>("applyHLTFilter") ? iConfig.getParameter<bool>("applyHLTFilter") : false),
     xsec((iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") : 1.0)),
     kfact((iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0))
 {
     // Token consumes instructions
     triggerResultsToken      = consumes<edm::TriggerResults>           (triggerResultsTag); 
     filterResultsToken       = consumes<edm::TriggerResults>           (filterResultsTag); 
+    hcalnoiseToken           = consumes<HcalNoiseSummary>              (hcalnoiseTag); 
     verticesToken            = consumes<std::vector<reco::Vertex> >    (verticesTag);
     muonsToken               = consumes<edm::View<pat::Muon> >         (muonsTag); 
     electronsToken           = consumes<edm::View<pat::Electron> >     (electronsTag); 
@@ -251,6 +257,9 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     Handle<TriggerResults> filterResultsH;
     iEvent.getByToken(filterResultsToken, filterResultsH);
+
+    Handle<HcalNoiseSummary> hcalnoiseH;
+    iEvent.getByToken(hcalnoiseToken, hcalnoiseH);
 
     Handle<vector<Vertex> > verticesH;
     iEvent.getByToken(verticesToken, verticesH);
@@ -312,50 +321,76 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     lumi  = iEvent.luminosityBlock();
 
     // Trigger info
-    hltmet90     = 0;
-    hltmet120    = 0;
-    hltjetmet90  = 0;
-    hltjetmet120 = 0;
-    hltphoton165 = 0;
-    hltphoton175 = 0;
-    hltdoublemu  = 0;
-    hltsinglemu  = 0;
-    hltdoubleel  = 0;
-    hltsingleel  = 0;
+    hltmet90        = 0;
+    hltmet120       = 0;
+    hltmetwithmu90  = 0;
+    hltmetwithmu120 = 0;
+    hltmetwithmu170 = 0;
+    hltmetwithmu300 = 0;
+    hltjetmet90     = 0;
+    hltjetmet120    = 0;
+    hltphoton165    = 0;
+    hltphoton175    = 0;
+    hltdoublemu     = 0;
+    hltsinglemu     = 0;
+    hltdoubleel     = 0;
+    hltsingleel     = 0;
 
     // Which triggers fired
     for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;
-        if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90     = 1; // MET trigger
-        if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120    = 1; // MET trigger
-        if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90  = 1; // Jet-MET trigger
-        if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120 = 1; // Jet-MET trigger
-        if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165 = 1; // Photon trigger
-        if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175 = 1; // Photon trigger
-        if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu  = 1; // Double muon trigger
-        if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu  = 1; // Double muon trigger
-        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 11 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 12 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 13 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu  = 1; // Single muon trigger
-        if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel  = 1; // Double muon trigger
-        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
-        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
-        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
-        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
-        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel  = 1; // Single electron trigger
+        if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
+        if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+        if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90  = 1; // MET trigger
+        if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
+        if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+        if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
+        if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
+        if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
+        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
+        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
+        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 11 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 12 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 13 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double muon trigger
+        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
     }
+
+    bool triggered = false;
+    if (hltmet90        == 1) triggered = true;
+    if (hltmet120       == 1) triggered = true;
+    if (hltmetwithmu90  == 1) triggered = true;
+    if (hltmetwithmu120 == 1) triggered = true;
+    if (hltmetwithmu170 == 1) triggered = true;
+    if (hltmetwithmu300 == 1) triggered = true;
+    if (hltjetmet90     == 1) triggered = true;
+    if (hltjetmet120    == 1) triggered = true;
+    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton175    == 1) triggered = true;
+    if (hltdoublemu     == 1) triggered = true;
+    if (hltsinglemu     == 1) triggered = true;
+    if (hltdoubleel     == 1) triggered = true;
+    if (hltsingleel     == 1) triggered = true;
+    if (!triggered) return;
+    if (applyHLTFilter && !triggered) return;
 
     // MET filter info
     flagcsctight  = 0;
@@ -366,6 +401,14 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     flagecallaser = 0;
     flagtrkfail   = 0;
     flagtrkpog    = 0;
+
+    // HCAL Noise info
+    flaghnoiseloose = 0;
+    flaghnoisetight = 0;
+    flaghnoisehilvl = 0;
+    if (hcalnoiseH->passLooseNoiseFilter()    ) flaghnoiseloose = 1; 
+    if (hcalnoiseH->passTightNoiseFilter()    ) flaghnoisetight = 1; 
+    if (hcalnoiseH->passHighLevelNoiseFilter()) flaghnoisehilvl = 1; 
 
     // Which MET filters passed
     for (size_t i = 0; i < filterPathsVector.size(); i++) {
@@ -381,7 +424,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
     // Pileup info -- For now just the number of vertices
-    nvtx = verticesH->size();
+    nvtx = (verticesH->size() <= 100 ? verticesH->size() : 100);
 
     // Event weight -- Pertinent in the case of aMC@NLO samples where event weights can be negative
     if (uselheweights) wgt = genevtInfoH->weight();
@@ -416,8 +459,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(muons.begin(), muons.end(), muonsorter);
 
-    nmuons     = muons.size();
-    if (nmuons > 100) nmuons = 100;
+    nmuons = (muons.size() <= 100 ? muons.size() : 100);
     nvetomuons = 0;
 
     for (size_t i = 0; i < nmuons; i++) {
@@ -464,14 +506,17 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     // Electron information
     pat::ElectronCollection electrons;
+    vector<int> eidveto;
     vector<int> eidloose;
     vector<int> eidmedium;
     vector<int> eidtight;
     for (View<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
         const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
-        if (electrons_iter->pt() > 10. && fabs(electrons_iter->superCluster()->eta()) < 2.5 && (*electronVetoIdH)[electronPtr]) {
+        if (electrons_iter->pt() > 10. && fabs(electrons_iter->superCluster()->eta()) < 2.5) {
             pat::Electron electron = *electrons_iter;
             electrons.push_back(electron);
+            if ((*electronVetoIdH)  [electronPtr]) eidveto  .push_back(1);
+            else                                   eidveto  .push_back(0);
             if ((*electronLooseIdH) [electronPtr]) eidloose .push_back(1);
             else                                   eidloose .push_back(0);
             if ((*electronMediumIdH)[electronPtr]) eidmedium.push_back(1);
@@ -482,9 +527,8 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(electrons.begin(), electrons.end(), electronsorter);
 
-    nelectrons     = electrons.size();
-    nvetoelectrons = nelectrons;
-    if (nelectrons > 100) nelectrons = 100;
+    nelectrons = (electrons.size() <= 100 ? electrons.size() : 100);
+    nvetoelectrons = 0;
 
     for (size_t i = 0; i < nelectrons; i++) {
         elpt[i]  = electrons[i].pt();
@@ -492,9 +536,12 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         elphi[i] = electrons[i].phi();
         elpid[i] = electrons[i].pdgId();
 
+        elidveto  [i] = eidveto[i];
         elidloose [i] = eidloose[i];
         elidmedium[i] = eidmedium[i];
         elidtight [i] = eidtight[i];
+
+        if (elidveto[i] == 1) nvetoelectrons++;
     }
 
     // Photon information
@@ -521,8 +568,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(photons.begin(), photons.end(), photonsorter);
 
-    nphotons     = photons.size();
-    if (nphotons > 100) nphotons = 100;
+    nphotons = (photons.size() <= 100 ? photons.size() : 100);
     nvetophotons = 0;
 
     for (size_t i = 0; i < nphotons; i++) {
@@ -550,8 +596,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(taus.begin(), taus.end(), tausorter);
 
-    ntaus     = taus.size();
-    if (ntaus > 100) ntaus = 100.;
+    ntaus = (taus.size() <= 100 ? taus.size() : 100);
     nvetotaus = 0;
 
     for (size_t i = 0; i < ntaus; i++) {
@@ -571,8 +616,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(jets.begin(), jets.end(), jetsorter);
 
-    njets       = jets.size();
-    if (njets   > 100) njets = 100;
+    njets = (jets.size() <= 100 ? jets.size() : 100);
     ncntjets    = 0;
     ncntjets2p5 = 0;
     ncntjets3p0 = 0;
@@ -618,7 +662,7 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
     sort(fatjets.begin(), fatjets.end(), jetsorter);
 
-    nfatjets = fatjets.size();
+    nfatjets = (fatjets.size() <= 100 ? fatjets.size() : 100);
     if (nfatjets > 100) nfatjets = 100;
     
     for (size_t i = 0; i < nfatjets; i++) {
@@ -721,38 +765,45 @@ void TreeDumper::beginJob() {
     tree->Branch("wgt"                  , &wgt                  , "wgt/D");
     tree->Branch("kfact"                , &kfact                , "kfact/D");
     // Pileup info
-    tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
+    tree->Branch("nvtx"                 , &nvtx                 , "nvtx/b");
     // Triggers
-    tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/i");
-    tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/i");
-    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/i");
-    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/i");
-    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/i");
-    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/i");
-    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/i");
-    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/i");
-    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/i");
-    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/i");
+    tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
+    tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
+    tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
+    tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
+    tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
+    tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
+    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
+    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
+    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
+    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
+    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
+    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
     // MET filters
-    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/i");
-    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/i");
-    tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/i");
-    tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/i");
-    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/i");
-    tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/i");
-    tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/i");
-    tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/i");
+    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
+    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
+    tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/b");
+    tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/b");
+    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
+    tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/b");
+    tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/b");
+    tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/b");
+    tree->Branch("flaghnoiseloose"      , &flaghnoiseloose      , "flaghnoiseloose/b");
+    tree->Branch("flaghnoisetight"      , &flaghnoisetight      , "flaghnoisetight/b");
+    tree->Branch("flaghnoisehilvl"      , &flaghnoisehilvl      , "flaghnoisehilvl/b");
     // Object counts
-    tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
-    tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
-    tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
-    tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
-    tree->Branch("njets"                , &njets                , "njets/i");
-    tree->Branch("nfatjets"             , &nfatjets             , "nfatjets/i");
-    tree->Branch("nvetomuons"           , &nvetomuons           , "nvetomuons/i");
-    tree->Branch("nvetoelectrons"       , &nvetoelectrons       , "nvetoelectrons/i");
-    tree->Branch("nvetophotons"         , &nvetophotons         , "nvetophotons/i");
-    tree->Branch("nvetotaus"            , &nvetotaus            , "nvetotaus/i");
+    tree->Branch("nmuons"               , &nmuons               , "nmuons/b");
+    tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/b");
+    tree->Branch("nphotons"             , &nphotons             , "nphotons/b");
+    tree->Branch("ntaus"                , &ntaus                , "ntaus/b");
+    tree->Branch("njets"                , &njets                , "njets/b");
+    tree->Branch("nfatjets"             , &nfatjets             , "nfatjets/b");
+    tree->Branch("nvetomuons"           , &nvetomuons           , "nvetomuons/b");
+    tree->Branch("nvetoelectrons"       , &nvetoelectrons       , "nvetoelectrons/b");
+    tree->Branch("nvetophotons"         , &nvetophotons         , "nvetophotons/b");
+    tree->Branch("nvetotaus"            , &nvetotaus            , "nvetotaus/b");
     // MET info
     tree->Branch("pfmet"                , &pfmet                , "pfmet/D");
     tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/D");
@@ -771,8 +822,8 @@ void TreeDumper::beginJob() {
     tree->Branch("jetNHfrac"            , jetNHfrac             , "jetNHfrac[njets]/D");
     tree->Branch("jetEMfrac"            , jetEMfrac             , "jetEMfrac[njets]/D");
     tree->Branch("jetCEMfrac"           , jetCEMfrac            , "jetCEMfrac[njets]/D");
-    tree->Branch("jetid"                , jetid                 , "jetid[njets]/I");
-    tree->Branch("pujetid"              , pujetid               , "pujetid[njets]/I");
+    tree->Branch("jetid"                , jetid                 , "jetid[njets]/b");
+    tree->Branch("pujetid"              , pujetid               , "pujetid[njets]/b");
     tree->Branch("fatjetpt"             , fatjetpt              , "fatjetpt[nfatjets]/D");
     tree->Branch("fatjeteta"            , fatjeteta             , "fatjeteta[nfatjets]/D");
     tree->Branch("fatjetphi"            , fatjetphi             , "fatjetphi[nfatjets]/D");
@@ -786,46 +837,47 @@ void TreeDumper::beginJob() {
     tree->Branch("fatjetNHfrac"         , fatjetNHfrac          , "fatjetNHfrac[nfatjets]/D");
     tree->Branch("fatjetEMfrac"         , fatjetEMfrac          , "fatjetEMfrac[nfatjets]/D");
     tree->Branch("fatjetCEMfrac"        , fatjetCEMfrac         , "fatjetCEMfrac[nfatjets]/D");
-    tree->Branch("fatjetid"             , fatjetid              , "fatjetid[nfatjets]/I");
-    tree->Branch("pufatjetid"           , pufatjetid            , "pufatjetid[nfatjets]/I");
+    tree->Branch("fatjetid"             , fatjetid              , "fatjetid[nfatjets]/b");
+    tree->Branch("pufatjetid"           , pufatjetid            , "pufatjetid[nfatjets]/b");
     // Lepton-Photon info
     tree->Branch("mupt"                 , mupt                  , "mupt[nmuons]/D");
     tree->Branch("mueta"                , mueta                 , "mueta[nmuons]/D");
     tree->Branch("muphi"                , muphi                 , "muphi[nmuons]/D");
-    tree->Branch("muidonly"             , muidonly              , "muidonly[nmuons]/I");
-    tree->Branch("muid"                 , muid                  , "muid[nmuons]/I");
-    tree->Branch("mupid"                , mupid                 , "mupid[nmuons]/I");
+    tree->Branch("muidonly"             , muidonly              , "muidonly[nmuons]/b");
+    tree->Branch("muid"                 , muid                  , "muid[nmuons]/b");
+    tree->Branch("mupid"                , mupid                 , "mupid[nmuons]/B");
     tree->Branch("muiso"                , muiso                 , "muiso[nmuons]/D");
     tree->Branch("elpt"                 , elpt                  , "elpt[nelectrons]/D");
     tree->Branch("eleta"                , eleta                 , "eleta[nelectrons]/D");
     tree->Branch("elphi"                , elphi                 , "elphi[nelectrons]/D");
-    tree->Branch("elidloose"            , elidloose             , "elidloose[nelectrons]/I");
-    tree->Branch("elidmedium"           , elidmedium            , "elidmedium[nelectrons]/I");
-    tree->Branch("elidtight"            , elidtight             , "elidtight[nelectrons]/I");
-    tree->Branch("elpid"                , elpid                 , "elpid[nelectrons]/I");
+    tree->Branch("elidveto"             , elidveto              , "elidveto[nelectrons]/b");
+    tree->Branch("elidloose"            , elidloose             , "elidloose[nelectrons]/b");
+    tree->Branch("elidmedium"           , elidmedium            , "elidmedium[nelectrons]/b");
+    tree->Branch("elidtight"            , elidtight             , "elidtight[nelectrons]/b");
+    tree->Branch("elpid"                , elpid                 , "elpid[nelectrons]/B");
     tree->Branch("phpt"                 , phpt                  , "phpt[nphotons]/D");
     tree->Branch("pheta"                , pheta                 , "pheta[nphotons]/D");
     tree->Branch("phphi"                , phphi                 , "phphi[nphotons]/D");
-    tree->Branch("phidloose"            , phidloose             , "phidloose[nphotons]/I");
-    tree->Branch("phidmedium"           , phidmedium            , "phidmedium[nphotons]/I");
-    tree->Branch("phidtight"            , phidtight             , "phidtight[nphotons]/I");
+    tree->Branch("phidloose"            , phidloose             , "phidloose[nphotons]/b");
+    tree->Branch("phidmedium"           , phidmedium            , "phidmedium[nphotons]/b");
+    tree->Branch("phidtight"            , phidtight             , "phidtight[nphotons]/b");
     tree->Branch("phsieie"              , phsieie               , "phsieie[nphotons]/D");
     tree->Branch("tapt"                 , tapt                  , "tapt[ntaus]/D");
     tree->Branch("taeta"                , taeta                 , "taeta[ntaus]/D");
     tree->Branch("taphi"                , taphi                 , "taphi[ntaus]/D");
     tree->Branch("taiso"                , taiso                 , "taiso[ntaus]/D");
     // W/Z gen-level info
-    tree->Branch("vid"                  , &vid                  , "vid/I");
+    tree->Branch("vid"                  , &vid                  , "vid/B");
     tree->Branch("vmass"                , &vmass                , "vmass/D");
     tree->Branch("vmt"                  , &vmt                  , "vmt/D");
     tree->Branch("vpt"                  , &vpt                  , "vpt/D");
     tree->Branch("veta"                 , &veta                 , "veta/D");
     tree->Branch("vphi"                 , &vphi                 , "vphi/D");
-    tree->Branch("l1id"                 , &l1id                 , "l1id/I");
+    tree->Branch("l1id"                 , &l1id                 , "l1id/B");
     tree->Branch("l1pt"                 , &l1pt                 , "l1pt/D");
     tree->Branch("l1eta"                , &l1eta                , "l1eta/D");
     tree->Branch("l1phi"                , &l1phi                , "l1phi/D");
-    tree->Branch("l2id"                 , &l2id                 , "l2id/I");
+    tree->Branch("l2id"                 , &l2id                 , "l2id/B");
     tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
     tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
     tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
@@ -838,6 +890,10 @@ void TreeDumper::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
     // Trigger Paths
     triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
     triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+    triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight");
+    triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight");
+    triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned");
+    triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned");
     triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned");
     triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned");
     triggerPathsVector.push_back("HLT_Photon165");

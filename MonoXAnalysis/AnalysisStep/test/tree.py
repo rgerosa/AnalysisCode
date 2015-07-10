@@ -31,6 +31,9 @@ isMC = True
 # Filter on high MET events
 filterHighMETEvents = False
 
+# Filter on triggered events
+filterOnHLT = True
+
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/04DC7D13-1E0C-E511-847C-00A0D1EE923C.root')
@@ -45,6 +48,12 @@ if isMC:
     process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Simulation
 else:
     process.GlobalTag.globaltag = 'GR_P_V54::All'       # for Data
+
+# Set the process for reading MET filter flags from TriggerResults
+if isMC:
+    metFilterProcess = "PAT"
+else :
+    metFilterProcess = "RECO"
 
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -129,12 +138,13 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     t1mumet = cms.InputTag("t1mumet"),
     t1phmet = cms.InputTag("t1phmet"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-    filterResults = cms.InputTag("TriggerResults", "", "PAT"),
+    filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
     xsec = cms.double(32.293),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
     cleanPhotonJet = cms.bool(True),
+    applyHLTFilter = cms.bool(filterOnHLT),
     uselheweights = cms.bool(False),
     isWorZMCSample = cms.bool(False)
 )

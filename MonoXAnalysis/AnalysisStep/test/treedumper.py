@@ -31,15 +31,12 @@ isMC = True
 # Filter on high MET events
 filterHighMETEvents = False
 
+# Filter on triggered events
+filterOnHLT = True
+
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValADDMonoJet_d3MD3_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/80CF5456-B9EC-E411-93DA-002618FDA248.root')
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/0A9E2CED-C9EC-E411-A8E4-003048FFCBA8.root')
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValZMM_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/1C258197-BEEC-E411-A70A-002618943901.root')
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValWM_13/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/6AF5B73D-C8EC-E411-8559-002618943865.root')
-    #fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_4_1/RelValRSGravitonToGaGa_13TeV/MINIAODSIM/MCRUN2_74_V9_gensim71X-v1/00000/189277BA-DCEC-E411-B3B8-0025905B859E.root')
-    #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v3/00000/6408230F-9F08-E511-A1A6-D4AE526A023A.root')
-    #fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/Asympt50ns_MCRUN2_74_V9A-v2/60000/04963444-D107-E511-B245-02163E00F339.root')
 )
 
 # Setup the service to make a ROOT TTree
@@ -50,7 +47,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if isMC:
     process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Simulation
 else:
-    process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Data (for now set to the MC tag)
+    process.GlobalTag.globaltag = 'GR_P_V54::All'       # for Data
+
+# Set the process for reading MET filter flags from TriggerResults
+if isMC:
+    metFilterProcess = "PAT"
+else :
+    metFilterProcess = "RECO"
 
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -72,13 +75,11 @@ for idmod in ele_id_modules:
 for idmod in ph_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
-# Remove MC matching when running on data
-if not isMC:
-    runOnData(process)
-
 # The tree maker
 process.tree = cms.EDAnalyzer("TreeDumper",
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+    filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
+    hcalnoise = cms.InputTag("hcalnoise"),
     vertices = cms.InputTag("goodVertices"),
     gens = cms.InputTag("prunedGenParticles"),
     genevt = cms.InputTag("generator"),
@@ -101,6 +102,7 @@ process.tree = cms.EDAnalyzer("TreeDumper",
     uselheweights = cms.bool(False),
     xsec = cms.double(1.0),
     kfactor = cms.double(1.0),
+    applyHLTFilter = cms.bool(filterOnHLT),
     applyHighMETFilter = cms.bool(filterHighMETEvents)
 )
 
