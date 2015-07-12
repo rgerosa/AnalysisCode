@@ -93,33 +93,35 @@ class TreeDumper : public edm::EDAnalyzer {
         edm::InputTag jetsTag;
         edm::InputTag fatjetsTag;
         edm::InputTag t1pfmetTag;
+        edm::InputTag pileupInfoTag;
         edm::InputTag genevtInfoTag;
         edm::InputTag gensTag;
         edm::InputTag genjetsTag;
 
         // Tokens
-        edm::EDGetTokenT<edm::TriggerResults>            triggerResultsToken;
-        edm::EDGetTokenT<edm::TriggerResults>            filterResultsToken;
-        edm::EDGetTokenT<HcalNoiseSummary>               hcalnoiseToken;
-        edm::EDGetTokenT<std::vector<reco::Vertex> >     verticesToken;
-        edm::EDGetTokenT<edm::View<pat::Muon> >          muonsToken;
-        edm::EDGetTokenT<edm::View<pat::Electron> >      electronsToken;
-        edm::EDGetTokenT<edm::View<pat::Photon> >        photonsToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           electronVetoIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           electronLooseIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           electronMediumIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           electronTightIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           photonLooseIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           photonMediumIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >           photonTightIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<float> >          photonSIEIEMapToken;
-        edm::EDGetTokenT<edm::View<pat::Tau> >           tausToken;
-        edm::EDGetTokenT<edm::View<pat::Jet> >           jetsToken;
-        edm::EDGetTokenT<edm::View<pat::Jet> >           fatjetsToken;
-        edm::EDGetTokenT<edm::View<pat::MET> >           t1pfmetToken;
-        edm::EDGetTokenT<GenEventInfoProduct>            genevtInfoToken;
-        edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
-        edm::EDGetTokenT<edm::View<reco::GenJet> >       genjetsToken;
+        edm::EDGetTokenT<edm::TriggerResults>             triggerResultsToken;
+        edm::EDGetTokenT<edm::TriggerResults>             filterResultsToken;
+        edm::EDGetTokenT<HcalNoiseSummary>                hcalnoiseToken;
+        edm::EDGetTokenT<std::vector<reco::Vertex> >      verticesToken;
+        edm::EDGetTokenT<edm::View<pat::Muon> >           muonsToken;
+        edm::EDGetTokenT<edm::View<pat::Electron> >       electronsToken;
+        edm::EDGetTokenT<edm::View<pat::Photon> >         photonsToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            electronVetoIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            electronLooseIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            electronMediumIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            electronTightIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            photonLooseIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            photonMediumIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >            photonTightIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >           photonSIEIEMapToken;
+        edm::EDGetTokenT<edm::View<pat::Tau> >            tausToken;
+        edm::EDGetTokenT<edm::View<pat::Jet> >            jetsToken;
+        edm::EDGetTokenT<edm::View<pat::Jet> >            fatjetsToken;
+        edm::EDGetTokenT<edm::View<pat::MET> >            t1pfmetToken;
+        edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken;
+        edm::EDGetTokenT<GenEventInfoProduct>             genevtInfoToken;
+        edm::EDGetTokenT<edm::View<reco::GenParticle> >   gensToken;
+        edm::EDGetTokenT<edm::View<reco::GenJet> >        genjetsToken;
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
@@ -133,7 +135,7 @@ class TreeDumper : public edm::EDAnalyzer {
         uint32_t event, run, lumi;
         uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
         uint8_t  flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
-        uint8_t  nvtx;
+        uint8_t  nvtx, puobs, putrue; 
 
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, mumet, mumetphi, t1mumet, t1mumetphi;
         uint8_t  njets, nfatjets, ncntjets, ncntjets2p5, ncntjets3p0;
@@ -210,6 +212,7 @@ TreeDumper::TreeDumper(const edm::ParameterSet& iConfig):
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     fatjetsTag(iConfig.getParameter<edm::InputTag>("fatjets")),
     t1pfmetTag(iConfig.getParameter<edm::InputTag>("t1pfmet")),
+    pileupInfoTag((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo"))),
     genevtInfoTag((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator"))),
     gensTag((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles"))),
     genjetsTag((iConfig.existsAs<edm::InputTag>("genjets") ? iConfig.getParameter<edm::InputTag>("genjets") : edm::InputTag("slimmedGenJets"))),
@@ -221,28 +224,29 @@ TreeDumper::TreeDumper(const edm::ParameterSet& iConfig):
     kfact((iConfig.existsAs<double>("kfactor") ? iConfig.getParameter<double>("kfactor") : 1.0))
 {
     // Token consumes instructions
-    triggerResultsToken      = consumes<edm::TriggerResults>           (triggerResultsTag); 
-    filterResultsToken       = consumes<edm::TriggerResults>           (filterResultsTag); 
-    hcalnoiseToken           = consumes<HcalNoiseSummary>              (hcalnoiseTag); 
-    verticesToken            = consumes<std::vector<reco::Vertex> >    (verticesTag);
-    muonsToken               = consumes<edm::View<pat::Muon> >         (muonsTag); 
-    electronsToken           = consumes<edm::View<pat::Electron> >     (electronsTag); 
-    photonsToken             = consumes<edm::View<pat::Photon> >       (photonsTag); 
-    electronVetoIdMapToken   = consumes<edm::ValueMap<bool> >          (electronVetoIdMap);
-    electronLooseIdMapToken  = consumes<edm::ValueMap<bool> >          (electronLooseIdMap);
-    electronMediumIdMapToken = consumes<edm::ValueMap<bool> >          (electronMediumIdMap);
-    electronTightIdMapToken  = consumes<edm::ValueMap<bool> >          (electronTightIdMap);
-    photonLooseIdMapToken    = consumes<edm::ValueMap<bool> >          (photonLooseIdMap);
-    photonMediumIdMapToken   = consumes<edm::ValueMap<bool> >          (photonMediumIdMap);
-    photonTightIdMapToken    = consumes<edm::ValueMap<bool> >          (photonTightIdMap);
-    photonSIEIEMapToken      = consumes<edm::ValueMap<float> >         (photonSIEIEMap);
-    tausToken                = consumes<edm::View<pat::Tau> >          (tausTag); 
-    jetsToken                = consumes<edm::View<pat::Jet> >          (jetsTag); 
-    fatjetsToken             = consumes<edm::View<pat::Jet> >          (fatjetsTag); 
-    t1pfmetToken             = consumes<edm::View<pat::MET> >          (t1pfmetTag); 
-    genevtInfoToken          = consumes<GenEventInfoProduct>           (genevtInfoTag);
-    gensToken                = consumes<edm::View<reco::GenParticle> > (gensTag); 
-    genjetsToken             = consumes<edm::View<reco::GenJet> >      (genjetsTag); 
+    triggerResultsToken      = consumes<edm::TriggerResults>             (triggerResultsTag); 
+    filterResultsToken       = consumes<edm::TriggerResults>             (filterResultsTag); 
+    hcalnoiseToken           = consumes<HcalNoiseSummary>                (hcalnoiseTag); 
+    verticesToken            = consumes<std::vector<reco::Vertex> >      (verticesTag);
+    muonsToken               = consumes<edm::View<pat::Muon> >           (muonsTag); 
+    electronsToken           = consumes<edm::View<pat::Electron> >       (electronsTag); 
+    photonsToken             = consumes<edm::View<pat::Photon> >         (photonsTag); 
+    electronVetoIdMapToken   = consumes<edm::ValueMap<bool> >            (electronVetoIdMap);
+    electronLooseIdMapToken  = consumes<edm::ValueMap<bool> >            (electronLooseIdMap);
+    electronMediumIdMapToken = consumes<edm::ValueMap<bool> >            (electronMediumIdMap);
+    electronTightIdMapToken  = consumes<edm::ValueMap<bool> >            (electronTightIdMap);
+    photonLooseIdMapToken    = consumes<edm::ValueMap<bool> >            (photonLooseIdMap);
+    photonMediumIdMapToken   = consumes<edm::ValueMap<bool> >            (photonMediumIdMap);
+    photonTightIdMapToken    = consumes<edm::ValueMap<bool> >            (photonTightIdMap);
+    photonSIEIEMapToken      = consumes<edm::ValueMap<float> >           (photonSIEIEMap);
+    tausToken                = consumes<edm::View<pat::Tau> >            (tausTag); 
+    jetsToken                = consumes<edm::View<pat::Jet> >            (jetsTag); 
+    fatjetsToken             = consumes<edm::View<pat::Jet> >            (fatjetsTag); 
+    t1pfmetToken             = consumes<edm::View<pat::MET> >            (t1pfmetTag); 
+    pileupInfoToken          = consumes<std::vector<PileupSummaryInfo> > (pileupInfoTag);
+    genevtInfoToken          = consumes<GenEventInfoProduct>             (genevtInfoTag);
+    gensToken                = consumes<edm::View<reco::GenParticle> >   (gensTag); 
+    genjetsToken             = consumes<edm::View<reco::GenJet> >        (genjetsTag); 
   
     // Scaling the cross-section to fb 
     xsec *= 1000.; 
@@ -315,6 +319,9 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     Handle<View<pat::MET> > t1pfmetH;
     iEvent.getByToken(t1pfmetToken, t1pfmetH);
+
+    Handle<vector<PileupSummaryInfo> > pileupInfoH;
+    iEvent.getByToken(pileupInfoToken, pileupInfoH);
 
     Handle<GenEventInfoProduct> genevtInfoH;
     if (uselheweights) iEvent.getByToken(genevtInfoToken, genevtInfoH);
@@ -435,6 +442,20 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     // Pileup info -- For now just the number of vertices
     nvtx = (verticesH->size() <= 100 ? verticesH->size() : 100);
+    puobs  = 0;
+    putrue = 0;
+    if (uselheweights) wgt = genevtInfoH->weight();
+    else wgt = 1.0;
+
+    if (pileupInfoH.isValid()) {
+        for (vector<PileupSummaryInfo>::const_iterator pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
+            if (pileupInfo_iter->getBunchCrossing() == 0) {
+                puobs  = pileupInfo_iter->getPU_NumInteractions();
+                putrue = pileupInfo_iter->getTrueNumInteractions();
+            }
+        }
+    }
+
 
     // Event weight -- Pertinent in the case of aMC@NLO samples where event weights can be negative
     if (uselheweights) wgt = genevtInfoH->weight();
@@ -789,6 +810,8 @@ void TreeDumper::beginJob() {
     tree->Branch("kfact"                , &kfact                , "kfact/D");
     // Pileup info
     tree->Branch("nvtx"                 , &nvtx                 , "nvtx/b");
+    tree->Branch("puobs"                , &puobs                , "puobs/b");
+    tree->Branch("putrue"               , &putrue               , "putrue/b");
     // Triggers
     tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
     tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");

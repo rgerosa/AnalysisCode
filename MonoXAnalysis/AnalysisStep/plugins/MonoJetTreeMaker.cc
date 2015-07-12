@@ -184,8 +184,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
 };
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
-    pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileup")),
-    genevtInfoTag(iConfig.getParameter<edm::InputTag>("genevt")),
+    pileupInfoTag((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo"))),
+    genevtInfoTag((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator"))),
     verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
     gensTag((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles"))),
     muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
@@ -456,6 +456,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puwgt  = 1.;
     if (uselheweights) wgt = genevtInfoH->weight();
     else wgt = 1.0;
+
+    if (pileupInfoH.isValid()) {
+        for (vector<PileupSummaryInfo>::const_iterator pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
+            if (pileupInfo_iter->getBunchCrossing() == 0) {
+                puobs  = pileupInfo_iter->getPU_NumInteractions();
+                putrue = pileupInfo_iter->getTrueNumInteractions();
+            }
+        }
+    }
 
     // MET information 
     t1pfmet      = t1pfmetH->front().et();
