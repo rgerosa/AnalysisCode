@@ -800,8 +800,6 @@ void TreeDumper::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         }
     }
 
-    if (abs(l1id) != 13 || abs(l2id) != 13) return;
-
     tree->Fill();
 
 }
