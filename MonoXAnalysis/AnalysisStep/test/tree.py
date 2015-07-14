@@ -174,4 +174,4 @@ else :
     if (isMC):
         process.treePath = cms.Path(process.gentree + process.goodVertices                     + process.tree)
     else :
-        process.treePath = cms.Path(process.gentree + process.goodVertices + process.metfilter + process.tree)
+        process.treePath = cms.Path(                  process.goodVertices                     + process.tree)
