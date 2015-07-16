@@ -1052,6 +1052,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         loosephrndiso = (*rndgammaisoH)[loosephotonvector[0]];
     }
 
+    //if (abs(l1id) != 13 || abs(l2id) != 13) return;
+
     tree->Fill();
 }
 
@@ -1079,26 +1081,26 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
     tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
     tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
-    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/i");
-    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/i");
-    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/i");
-    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/i");
-    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/i");
-    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/i");
-    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/i");
-    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/i");
+    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
+    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
+    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
+    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
+    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
+    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
     // MET filters
-    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/i");
-    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/i");
-    tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/i");
-    tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/i");
-    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/i");
-    tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/i");
-    tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/i");
-    tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/i");
-    tree->Branch("flaghnoiseloose"      , &flaghnoiseloose      , "flaghnoiseloose/i");
-    tree->Branch("flaghnoisetight"      , &flaghnoisetight      , "flaghnoisetight/i");
-    tree->Branch("flaghnoisehilvl"      , &flaghnoisehilvl      , "flaghnoisehilvl/i");
+    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
+    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
+    tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/b");
+    tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/b");
+    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
+    tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/b");
+    tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/b");
+    tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/b");
+    tree->Branch("flaghnoiseloose"      , &flaghnoiseloose      , "flaghnoiseloose/b");
+    tree->Branch("flaghnoisetight"      , &flaghnoisetight      , "flaghnoisetight/b");
+    tree->Branch("flaghnoisehilvl"      , &flaghnoisehilvl      , "flaghnoisehilvl/b");
     // Object counts
     tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
     tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
