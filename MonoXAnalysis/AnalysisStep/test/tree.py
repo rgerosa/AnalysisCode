@@ -79,6 +79,7 @@ for idmod in ph_id_modules:
 process.selectedObjects = cms.EDProducer("PFCleaner",
     vertices = cms.InputTag("goodVertices"),
     pfcands = cms.InputTag("packedPFCandidates"),
+    jets = cms.InputTag("slimmedJets"),
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
