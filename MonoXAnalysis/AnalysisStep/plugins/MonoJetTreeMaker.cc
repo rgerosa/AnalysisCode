@@ -1354,14 +1354,14 @@ void MonoJetTreeMaker::endJob() {
 }
 
 void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-    triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+    triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
+    triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
     triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight");
     triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight");
-    triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned");
-    triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+    triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned");
+    triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned");
+    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
+    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
     triggerPathsVector.push_back("HLT_Photon165_HE10");
     triggerPathsVector.push_back("HLT_Photon175");
     triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
