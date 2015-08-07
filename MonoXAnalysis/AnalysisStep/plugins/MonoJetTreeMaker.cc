@@ -85,12 +85,15 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag tightmuonsTag;
         edm::InputTag tightelectronsTag;
         edm::InputTag tightphotonsTag;
+        edm::InputTag photonMediumIdTag;
+        edm::InputTag photonTightIdTag;
         edm::InputTag loosephotonsTag;
         edm::InputTag photonsieieTag;
         edm::InputTag rndgammaisoTag;
         edm::InputTag tausTag;
         edm::InputTag jetsTag;
         edm::InputTag fatjetsTag;
+        edm::InputTag pfmetTag;
         edm::InputTag t1pfmetTag;
         edm::InputTag pfmuptTag;
         edm::InputTag mumetTag;
@@ -115,18 +118,21 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
         edm::EDGetTokenT<pat::ElectronRefVector> tightelectronsToken;
         edm::EDGetTokenT<pat::PhotonRefVector> tightphotonsToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> > photonTightIdToken;
         edm::EDGetTokenT<pat::PhotonRefVector> loosephotonsToken;
         edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
         edm::EDGetTokenT<edm::ValueMap<float> > rndgammaisoToken;
         edm::EDGetTokenT<edm::View<pat::Tau> >  tausToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  jetsToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  fatjetsToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > pfmetToken;
         edm::EDGetTokenT<edm::View<pat::MET> >  t1pfmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >  mumetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >  phmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >  t1mumetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >  t1phmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >  pfmuptToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > mumetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > phmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > t1mumetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > t1phmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> > pfmuptToken;
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
@@ -139,12 +145,13 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         TTree* tree;
 
         int32_t  puobs, putrue; 
-        int32_t  wzid, l1id, l2id, i1id, i2id, i3id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id; 
+        int32_t  wzid, l1id, l2id, i1id, i2id, i3id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id, phidm, phidt; 
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nfatjets;
         uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
         uint8_t  flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, phmet, phmetphi, t1mumet, t1mumetphi, t1phmet, t1phmetphi;
+        double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprmass, fatjetsdmass, fatjettrmass, fatjetftmass;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
         double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
@@ -152,7 +159,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin;
         double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
-        double   mu1pt, mu1eta, mu1phi, mu2pt, mu2eta, mu2phi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
+        double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
         double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
         double   xsec, wgt, kfact, puwgt;
@@ -194,12 +201,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     tightmuonsTag(iConfig.getParameter<edm::InputTag>("tightmuons")),
     tightelectronsTag(iConfig.getParameter<edm::InputTag>("tightelectrons")),
     tightphotonsTag(iConfig.getParameter<edm::InputTag>("tightphotons")),
+    photonMediumIdTag(iConfig.getParameter<edm::InputTag>("photonMediumId")),
+    photonTightIdTag(iConfig.getParameter<edm::InputTag>("photonTightId")),
     loosephotonsTag(iConfig.getParameter<edm::InputTag>("loosephotons")),
     photonsieieTag(iConfig.getParameter<edm::InputTag>("photonsieie")),
     rndgammaisoTag(iConfig.getParameter<edm::InputTag>("rndgammaiso")),
     tausTag(iConfig.getParameter<edm::InputTag>("taus")),
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     fatjetsTag(iConfig.getParameter<edm::InputTag>("fatjets")),
+    pfmetTag(iConfig.getParameter<edm::InputTag>("pfmet")),
     t1pfmetTag(iConfig.getParameter<edm::InputTag>("t1pfmet")),
     pfmuptTag(iConfig.getParameter<edm::InputTag>("pfmupt")),
     mumetTag(iConfig.getParameter<edm::InputTag>("mumet")),
@@ -233,12 +243,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     tightmuonsToken = consumes<pat::MuonRefVector> (tightmuonsTag); 
     tightelectronsToken = consumes<pat::ElectronRefVector> (tightelectronsTag); 
     tightphotonsToken = consumes<pat::PhotonRefVector> (tightphotonsTag); 
+    photonMediumIdToken = consumes<edm::ValueMap<bool> > (photonMediumIdTag); 
+    photonTightIdToken = consumes<edm::ValueMap<bool> > (photonTightIdTag); 
     loosephotonsToken = consumes<pat::PhotonRefVector> (loosephotonsTag); 
     photonsieieToken = consumes<edm::ValueMap<float> > (photonsieieTag); 
     rndgammaisoToken = consumes<edm::ValueMap<float> > (rndgammaisoTag); 
     tausToken = consumes<edm::View<pat::Tau> > (tausTag); 
     jetsToken = consumes<edm::View<pat::Jet> > (jetsTag); 
     fatjetsToken = consumes<edm::View<pat::Jet> > (fatjetsTag); 
+    pfmetToken = consumes<edm::View<reco::MET> > (pfmetTag); 
     t1pfmetToken = consumes<edm::View<pat::MET> > (t1pfmetTag); 
     mumetToken = consumes<edm::View<reco::MET> > (mumetTag); 
     phmetToken = consumes<edm::View<reco::MET> > (phmetTag); 
@@ -304,6 +317,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(tightphotonsToken, tightphotonsH);
     pat::PhotonRefVector tightphotons = *tightphotonsH;
 
+    Handle<edm::ValueMap<bool> > photonMediumIdH;
+    iEvent.getByToken(photonMediumIdToken, photonMediumIdH);
+
+    Handle<edm::ValueMap<bool> > photonTightIdH;
+    iEvent.getByToken(photonTightIdToken, photonTightIdH);
+
     Handle<pat::PhotonRefVector> loosephotonsH;
     iEvent.getByToken(loosephotonsToken, loosephotonsH);
     pat::PhotonRefVector loosephotons = *loosephotonsH;
@@ -322,6 +341,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<View<pat::Jet> > fatjetsH;
     iEvent.getByToken(fatjetsToken, fatjetsH);
+
+    Handle<View<reco::MET> > pfmetH;
+    iEvent.getByToken(pfmetToken, pfmetH);
 
     Handle<View<pat::MET> > t1pfmetH;
     iEvent.getByToken(t1pfmetToken, t1pfmetH);
@@ -466,11 +488,50 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // MET information 
+    hmet    = 0.;
+    amet    = 0.;
+    bmet    = 0.;
+    cmet    = 0.;
+    emet    = 0.;
+    mmet    = 0.;
+    pmet    = 0.;
+
+    hmetphi = 0.;
+    ametphi = 0.;
+    bmetphi = 0.;
+    cmetphi = 0.;
+    emetphi = 0.;
+    mmetphi = 0.;
+    pmetphi = 0.;
+
     t1pfmet      = t1pfmetH->front().et();
     t1pfmetphi   = t1pfmetH->front().phi();
 
     pfmet        = t1pfmetH->front().uncorrectedPt();
     pfmetphi     = t1pfmetH->front().uncorrectedPhi();
+
+    if (pfmetH.isValid() && pfmetH->size() == 9) {
+    hmet         = (*pfmetH)[1].et();
+    hmetphi      = (*pfmetH)[1].phi();
+
+    amet         = (*pfmetH)[2].et();
+    ametphi      = (*pfmetH)[2].phi();
+
+    bmet         = (*pfmetH)[3].et();
+    bmetphi      = (*pfmetH)[3].phi();
+
+    cmet         = (*pfmetH)[4].et();
+    cmetphi      = (*pfmetH)[4].phi();
+
+    emet         = (*pfmetH)[5].et();
+    emetphi      = (*pfmetH)[5].phi();
+
+    mmet         = (*pfmetH)[6].et();
+    mmetphi      = (*pfmetH)[6].phi();
+
+    pmet         = (*pfmetH)[7].et();
+    pmetphi      = (*pfmetH)[7].phi();
+    }
 
     mumet        = mumetH->front().et();
     mumetphi     = mumetH->front().phi();
@@ -914,11 +975,17 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     mu1pt       = 0.0;
     mu1eta      = 0.0;
     mu1phi      = 0.0;
+    mu1pfpt     = 0.0;
+    mu1pfeta    = 0.0;
+    mu1pfphi    = 0.0;
     mu1id       = 0;
     mu2pid      = 0;
     mu2pt       = 0.0;
     mu2eta      = 0.0; 
     mu2phi      = 0.0;
+    mu2pfpt     = 0.0;
+    mu2pfeta    = 0.0;
+    mu2pfphi    = 0.0;
     mu2id       = 0;
     el1pid      = 0;
     el1pt       = 0.0;
@@ -936,10 +1003,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     if (nmuons == 1 || nmuons == 2) {
         pat::MuonRef muon = muons[0];
-        mu1pid = muon->pdgId(); 
-        mu1pt  = muon->pt(); 
-        mu1eta = muon->eta(); 
-        mu1phi = muon->phi();
+        mu1pid   = muon->pdgId(); 
+        mu1pt    = muon->pt(); 
+        mu1eta   = muon->eta(); 
+        mu1phi   = muon->phi();
+        mu1pfpt  = muon->pfP4().Pt();
+        mu1pfeta = muon->pfP4().Eta();
+        mu1pfphi = muon->pfP4().Phi();
 
         for (std::size_t i = 0; i < tightmuons.size(); i++) {
             if (muon == tightmuons[i]) mu1id = 1;
@@ -956,6 +1026,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         mu2pt  = muon->pt(); 
         mu2eta = muon->eta(); 
         mu2phi = muon->phi();
+        mu2pfpt  = muon->pfP4().Pt();
+        mu2pfeta = muon->pfP4().Eta();
+        mu2pfphi = muon->pfP4().Phi();
     
         for (std::size_t i = 0; i < tightmuons.size(); i++) {
             if (muon == tightmuons[i]) mu2id = 1;
@@ -1024,12 +1097,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     } 
 
     // Photon information
+    phidm    = 0;
+    phidt    = 0;
     phpt     = 0.0;
     pheta    = 0.0;
     phphi    = 0.0;
     nphotons = photonsH->size();
 
     if (hardestPhotonIndex >= 0) {
+        phidm   = ((*photonMediumIdH)[tightphotons[hardestPhotonIndex]] ? 1 : 0);
+        phidt   = ((*photonTightIdH )[tightphotons[hardestPhotonIndex]] ? 1 : 0);
         phpt    = tightphotons[hardestPhotonIndex]->pt();
         pheta   = tightphotons[hardestPhotonIndex]->eta();
         phphi   = tightphotons[hardestPhotonIndex]->phi();
@@ -1051,8 +1128,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         loosephsieie  = (*photonsieieH)[loosephotonvector[0]];
         loosephrndiso = (*rndgammaisoH)[loosephotonvector[0]];
     }
-
-    //if (abs(l1id) != 13 || abs(l2id) != 13) return;
 
     tree->Fill();
 }
@@ -1126,6 +1201,20 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/D");
     tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
     tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
+    tree->Branch("hmet"                 , &hmet                 , "hmet/D");
+    tree->Branch("hmetphi"              , &hmetphi              , "hmetphi/D");
+    tree->Branch("amet"                 , &amet                 , "amet/D");
+    tree->Branch("ametphi"              , &ametphi              , "ametphi/D");
+    tree->Branch("bmet"                 , &bmet                 , "bmet/D");
+    tree->Branch("bmetphi"              , &bmetphi              , "bmetphi/D");
+    tree->Branch("cmet"                 , &cmet                 , "cmet/D");
+    tree->Branch("cmetphi"              , &cmetphi              , "cmetphi/D");
+    tree->Branch("emet"                 , &emet                 , "emet/D");
+    tree->Branch("emetphi"              , &emetphi              , "emetphi/D");
+    tree->Branch("mmet"                 , &mmet                 , "mmet/D");
+    tree->Branch("mmetphi"              , &mmetphi              , "mmetphi/D");
+    tree->Branch("pmet"                 , &pmet                 , "pmet/D");
+    tree->Branch("pmetphi"              , &pmetphi              , "pmetphi/D");
     // Jet info
     tree->Branch("fatjetpt"             , &fatjetpt             , "fatjetpt/D");
     tree->Branch("fatjeteta"            , &fatjeteta            , "fatjeteta/D");
@@ -1183,11 +1272,17 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/D");
     tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/D");
     tree->Branch("mu1phi"               , &mu1phi               , "mu1phi/D");
+    tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/D");
+    tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/D");
+    tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/D");
     tree->Branch("mu1id"                , &mu1id                , "mu1id/I");
     tree->Branch("mu2pid"               , &mu2pid               , "mu2pid/I");
     tree->Branch("mu2pt"                , &mu2pt                , "mu2pt/D");
     tree->Branch("mu2eta"               , &mu2eta               , "mu2eta/D");
     tree->Branch("mu2phi"               , &mu2phi               , "mu2phi/D");
+    tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/D");
+    tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/D");
+    tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/D");
     tree->Branch("mu2id"                , &mu2id                , "mu2id/I");
     tree->Branch("el1pid"               , &el1pid               , "el1pid/I");
     tree->Branch("el1pt"                , &el1pt                , "el1pt/D");
@@ -1215,6 +1310,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
     tree->Branch("wemt"                 , &wemt                 , "wemt/D");
     // Photon info
+    tree->Branch("phidm"                , &phidm                , "phidm/I");
+    tree->Branch("phidt"                , &phidt                , "phidt/I");
     tree->Branch("phpt"                 , &phpt                 , "phpt/D");
     tree->Branch("pheta"                , &pheta                , "pheta/D");
     tree->Branch("phphi"                , &phphi                , "phphi/D");
