@@ -72,7 +72,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-        void findFirstNonPhotonMother(const reco::Candidate*, int &, int &);
+        void findMother(const reco::Candidate*, int &, double &, double &, double &);
+        void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
 
         // InputTags
         edm::InputTag pileupInfoTag;
@@ -145,20 +146,20 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         TTree* tree;
 
         int32_t  puobs, putrue; 
-        int32_t  wzid, l1id, l2id, i1id, i2id, i3id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id, phidm, phidt; 
+        int32_t  wzid, l1id, l2id, mu1pid, mu2pid, mu1id, mu2id, el1pid, el2pid, el1id, el2id, phidm, phidt, parid, ancid; 
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nfatjets;
         uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
         uint8_t  flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, phmet, phmetphi, t1mumet, t1mumetphi, t1phmet, t1phmetphi;
-        double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi;
+        double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprmass, fatjetsdmass, fatjettrmass, fatjetftmass;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
         double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
         double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi ;
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin;
         double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
-        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, i1pt, i1eta, i1phi, i2pt, i2eta, i2phi, i3pt, i3eta, i3phi;
+        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
         double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
         double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
@@ -495,6 +496,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     emet    = 0.;
     mmet    = 0.;
     pmet    = 0.;
+    omet    = 0.;
 
     hmetphi = 0.;
     ametphi = 0.;
@@ -503,6 +505,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     emetphi = 0.;
     mmetphi = 0.;
     pmetphi = 0.;
+    ometphi = 0.;
 
     t1pfmet      = t1pfmetH->front().et();
     t1pfmetphi   = t1pfmetH->front().phi();
@@ -531,6 +534,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     pmet         = (*pfmetH)[7].et();
     pmetphi      = (*pfmetH)[7].phi();
+
+    omet         = (*pfmetH)[8].et();
+    ometphi      = (*pfmetH)[8].phi();
     }
 
     mumet        = mumetH->front().et();
@@ -869,59 +875,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     l2pt          = 0.0;
     l2eta         = 0.0;
     l2phi         = 0.0;
-    i1id          = 0;
-    i1pt          = 0.0;
-    i1eta         = 0.0;
-    i1phi         = 0.0;
-    i2id          = 0;
-    i2pt          = 0.0;
-    i2eta         = 0.0;
-    i2phi         = 0.0;
-    i3id          = 0;
-    i3pt          = 0.0;
-    i3eta         = 0.0;
-    i3phi         = 0.0;
+    parid         = 0;
+    parpt         = 0.0;
+    pareta        = 0.0;
+    parphi        = 0.0;
+    ancid         = 0;
+    ancpt         = 0.0;
+    anceta        = 0.0;
+    ancphi        = 0.0;
 
-    if ((isWorZMCSample || isSignalSample) && gensH.isValid()) {
-        int isrcounter = 1;
+    if (isWorZMCSample && gensH.isValid()) {
         for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-            if (isSignalSample && gens_iter->pdgId() == 18) {
-                l1id   = gens_iter->pdgId();
-                l1pt   = gens_iter->pt();
-                l1eta  = gens_iter->eta();
-                l1phi  = gens_iter->phi();
-            }
-            if (isSignalSample && gens_iter->pdgId() == -18) {
-                l2id   = gens_iter->pdgId();
-                l2pt   = gens_iter->pt();
-                l2eta  = gens_iter->eta();
-                l2phi  = gens_iter->phi();
-            }
-            if (isSignalSample && gens_iter->status() == 23 && abs(gens_iter->pdgId()) != 18) {
-                if (isrcounter == 1) {
-                    i1id  = gens_iter->pdgId();
-                    i1pt  = gens_iter->pt();
-                    i1eta = gens_iter->eta();
-                    i1phi = gens_iter->phi();
-                    isrcounter++;
-                }
-                else if (isrcounter == 2) {
-                    i2id  = gens_iter->pdgId();
-                    i2pt  = gens_iter->pt();
-                    i2eta = gens_iter->eta();
-                    i2phi = gens_iter->phi();
-                    isrcounter++;
-                }
-                else if (isrcounter == 3) {
-                    i3id  = gens_iter->pdgId();
-                    i3pt  = gens_iter->pt();
-                    i3eta = gens_iter->eta();
-                    i3phi = gens_iter->phi();
-                    isrcounter++;
-                }
-            }
-
-            if (isWorZMCSample && (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) {
+            if ((gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) {
                 wzid   = gens_iter->pdgId();
                 wzmass = gens_iter->mass();
                 wzpt   = gens_iter->pt();
@@ -939,21 +904,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             }
         }
 
-        for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-            if (wzid == 0 && isWorZMCSample && gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
-                wzid   = gens_iter->pdgId();
-                wzpt   = gens_iter->pt();
-                wzeta  = gens_iter->eta();
-                wzphi  = gens_iter->phi();
+        if (wzid == 0) {
+            for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+                if (gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
+                    wzid   = gens_iter->pdgId();
+                    wzpt   = gens_iter->pt();
+                    wzeta  = gens_iter->eta();
+                    wzphi  = gens_iter->phi();
+
+                    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
+                    findMother(&(*gens_iter), parid, parpt, pareta, parphi);
+                }
             }
         }
-
-        if (isSignalSample && l1id == 18 && l2id == -18) {
-            double wzpx = l1pt*cos(l1phi) + l2pt*cos(l2phi);
-            double wzpy = l1pt*sin(l1phi) + l2pt*sin(l2phi);
-            wzpt = sqrt(wzpx*wzpx + wzpy*wzpy);
-            wzphi = atan2(wzpy, wzpx);
-        }            
     }
 
     // W, Z control sample information
@@ -1215,6 +1178,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("mmetphi"              , &mmetphi              , "mmetphi/D");
     tree->Branch("pmet"                 , &pmet                 , "pmet/D");
     tree->Branch("pmetphi"              , &pmetphi              , "pmetphi/D");
+    tree->Branch("omet"                 , &omet                 , "omet/D");
+    tree->Branch("ometphi"              , &ometphi              , "ometphi/D");
     // Jet info
     tree->Branch("fatjetpt"             , &fatjetpt             , "fatjetpt/D");
     tree->Branch("fatjeteta"            , &fatjeteta            , "fatjeteta/D");
@@ -1336,18 +1301,14 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
     tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
     tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
-    tree->Branch("i1id"                 , &i1id                 , "i1id/I");
-    tree->Branch("i1pt"                 , &i1pt                 , "i1pt/D");
-    tree->Branch("i1eta"                , &i1eta                , "i1eta/D");
-    tree->Branch("i1phi"                , &i1phi                , "i1phi/D");
-    tree->Branch("i2id"                 , &i2id                 , "i2id/I");
-    tree->Branch("i2pt"                 , &i2pt                 , "i2pt/D");
-    tree->Branch("i2eta"                , &i2eta                , "i2eta/D");
-    tree->Branch("i2phi"                , &i2phi                , "i2phi/D");
-    tree->Branch("i3id"                 , &i3id                 , "i3id/I");
-    tree->Branch("i3pt"                 , &i3pt                 , "i3pt/D");
-    tree->Branch("i3eta"                , &i3eta                , "i3eta/D");
-    tree->Branch("i3phi"                , &i3phi                , "i3phi/D");
+    tree->Branch("parid"                , &parid                , "parid/I");
+    tree->Branch("parpt"                , &parpt                , "parpt/D");
+    tree->Branch("pareta"               , &pareta               , "pareta/D");
+    tree->Branch("parphi"               , &parphi               , "parphi/D");
+    tree->Branch("ancid"                , &ancid                , "ancid/I");
+    tree->Branch("ancpt"                , &ancpt                , "ancpt/D");
+    tree->Branch("anceta"               , &anceta               , "anceta/D");
+    tree->Branch("ancphi"               , &ancphi               , "ancphi/D");
 }
 
 void MonoJetTreeMaker::endJob() {
@@ -1446,16 +1407,31 @@ void MonoJetTreeMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::Even
 /*
 This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
 */
-void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int &ancestorPID, int &ancestorStatus) {
+void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
     if (particle == 0) {
         return;
     }
     if (abs(particle->pdgId()) == 22) {
-        findFirstNonPhotonMother(particle->mother(0), ancestorPID, ancestorStatus);
+        findFirstNonPhotonMother(particle->mother(0), ancestorid, ancestorpt, ancestoreta, ancestorphi);
     }
     else {
-        ancestorPID = particle->pdgId();
-        ancestorStatus = particle->status();
+        ancestorid  = particle->pdgId();
+        ancestorpt  = particle->pt();
+        ancestoreta = particle->eta();
+        ancestorphi = particle->phi();
+    }
+    return;
+}
+
+void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
+    if (particle == 0) {
+        return;
+    }
+    if (abs(particle->pdgId()) == 22) {
+        ancestorid  = particle->pdgId();
+        ancestorpt  = particle->pt();
+        ancestoreta = particle->eta();
+        ancestorphi = particle->phi();
     }
     return;
 }
