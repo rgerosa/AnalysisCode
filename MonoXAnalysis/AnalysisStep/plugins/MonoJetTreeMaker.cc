@@ -91,6 +91,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag loosephotonsTag;
         edm::InputTag photonsieieTag;
         edm::InputTag rndgammaisoTag;
+        edm::InputTag rndchhadisoTag;
         edm::InputTag tausTag;
         edm::InputTag jetsTag;
         edm::InputTag fatjetsTag;
@@ -123,6 +124,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<pat::PhotonRefVector> loosephotonsToken;
         edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
         edm::EDGetTokenT<edm::ValueMap<float> > rndgammaisoToken;
+        edm::EDGetTokenT<edm::ValueMap<float> > rndchhadisoToken;
         edm::EDGetTokenT<edm::View<pat::Tau> >  tausToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  jetsToken;
         edm::EDGetTokenT<edm::View<pat::Jet> >  fatjetsToken;
@@ -160,7 +162,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
         double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
-        double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso;
+        double   loosephpt, loosepheta, loosephphi, loosephsieie, loosephrndiso, loosephrndchiso;
         double   xsec, wgt, kfact, puwgt;
 
         struct PatJetPtSorter {
@@ -205,6 +207,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     loosephotonsTag(iConfig.getParameter<edm::InputTag>("loosephotons")),
     photonsieieTag(iConfig.getParameter<edm::InputTag>("photonsieie")),
     rndgammaisoTag(iConfig.getParameter<edm::InputTag>("rndgammaiso")),
+    rndchhadisoTag(iConfig.getParameter<edm::InputTag>("rndchhadiso")),
     tausTag(iConfig.getParameter<edm::InputTag>("taus")),
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     fatjetsTag(iConfig.getParameter<edm::InputTag>("fatjets")),
@@ -246,6 +249,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     loosephotonsToken = consumes<pat::PhotonRefVector> (loosephotonsTag); 
     photonsieieToken = consumes<edm::ValueMap<float> > (photonsieieTag); 
     rndgammaisoToken = consumes<edm::ValueMap<float> > (rndgammaisoTag); 
+    rndchhadisoToken = consumes<edm::ValueMap<float> > (rndchhadisoTag); 
     tausToken = consumes<edm::View<pat::Tau> > (tausTag); 
     jetsToken = consumes<edm::View<pat::Jet> > (jetsTag); 
     fatjetsToken = consumes<edm::View<pat::Jet> > (fatjetsTag); 
@@ -329,6 +333,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<edm::ValueMap<float> > rndgammaisoH;
     iEvent.getByToken(rndgammaisoToken, rndgammaisoH);
+
+    Handle<edm::ValueMap<float> > rndchhadisoH;
+    iEvent.getByToken(rndchhadisoToken, rndchhadisoH);
 
     Handle<View<pat::Tau> > tausH;
     iEvent.getByToken(tausToken, tausH);
@@ -1074,21 +1081,23 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         phphi   = tightphotons[hardestPhotonIndex]->phi();
     }
 
-    loosephpt     = 0.0;
-    loosepheta    = 0.0;
-    loosephphi    = 0.0;
-    loosephsieie  = 0.0;
-    loosephrndiso = 0.0;
+    loosephpt       = 0.0;
+    loosepheta      = 0.0;
+    loosephphi      = 0.0;
+    loosephsieie    = 0.0;
+    loosephrndiso   = 0.0;
+    loosephrndchiso = 0.0;
 
     vector<pat::PhotonRef> loosephotonvector;
     for (size_t i = 0; i < loosephotons.size(); i++) loosephotonvector.push_back(loosephotons[i]);
     sort(loosephotonvector.begin(), loosephotonvector.end(), photonsorter);
     if (loosephotonvector.size() > 0) {
-        loosephpt     = loosephotonvector[0]->pt();
-        loosepheta    = loosephotonvector[0]->eta();
-        loosephphi    = loosephotonvector[0]->phi();
-        loosephsieie  = (*photonsieieH)[loosephotonvector[0]];
-        loosephrndiso = (*rndgammaisoH)[loosephotonvector[0]];
+        loosephpt       = loosephotonvector[0]->pt();
+        loosepheta      = loosephotonvector[0]->eta();
+        loosephphi      = loosephotonvector[0]->phi();
+        loosephsieie    = (*photonsieieH)[loosephotonvector[0]];
+        loosephrndiso   = (*rndgammaisoH)[loosephotonvector[0]];
+        loosephrndchiso = (*rndchhadisoH)[loosephotonvector[0]];
     }
 
     tree->Fill();
@@ -1285,6 +1294,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("loosephphi"           , &loosephphi           , "loosephphi/D");
     tree->Branch("loosephsieie"         , &loosephsieie         , "loosephsieie/D");
     tree->Branch("loosephrndiso"        , &loosephrndiso        , "loosephrndiso/D");
+    tree->Branch("loosephrndchiso"      , &loosephrndchiso      , "loosephrndchiso/D");
     // W/Z gen-level info
     tree->Branch("wzid"                 , &wzid                 , "wzid/I");
     tree->Branch("wzmass"               , &wzmass               , "wzmass/D");
