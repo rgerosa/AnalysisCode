@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Is this a simulation or real data
-isMC = True
+isMC = False
 
 # Filter on high MET events
 filterHighMETEvents = False
@@ -36,7 +36,37 @@ filterOnHLT = False
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/30000/7CA24445-832E-E511-920B-02163E011DDE.root')
+    fileNames = cms.untracked.vstring([
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/096/00000/EAC7605D-5526-E511-A895-02163E011FAB.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/161/00000/6E54E224-9C26-E511-B468-02163E0121BD.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/162/00000/D83F99AD-4227-E511-8960-02163E0133B5.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/163/00000/728A4697-9F26-E511-ADAD-02163E0119C9.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/164/00000/80F01937-A426-E511-B2D7-02163E01182A.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/167/00000/A6972749-A826-E511-B7C5-02163E013414.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/168/00000/3CBFC5DE-BB26-E511-A5C2-02163E0135B4.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/244/00000/D8D780D0-7727-E511-A2C5-02163E0137FC.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/251/00000/6EED993F-9927-E511-A6A9-02163E01259F.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/252/00000/289A42F1-9627-E511-8A00-02163E011C7F.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/491/00000/9C464F2A-C628-E511-8923-02163E01463E.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/493/00000/6819E5CA-C828-E511-AD4E-02163E0135F3.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/496/00000/70CCF186-912C-E511-BEBD-02163E012BD2.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/497/00000/D43AFD8F-E028-E511-8467-02163E01414A.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/498/00000/969A3EAE-EB28-E511-B91A-02163E012601.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/499/00000/5EEEB744-F728-E511-8E47-02163E013440.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/500/00000/1838372C-2329-E511-8E7B-02163E011BD1.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/521/00000/9A3A76CA-6629-E511-8B2E-02163E011EE9.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/522/00000/9297A416-5B29-E511-8956-02163E014543.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/548/00000/16919B06-D329-E511-B79D-02163E01252E.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/559/00000/82304EB8-A62C-E511-B4A3-02163E0133F9.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/560/00000/7E5EF8F5-DD29-E511-BC88-02163E011DAE.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/561/00000/F6777C76-152A-E511-A06F-02163E013553.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/562/00000/8210BDF2-422A-E511-AD74-02163E01463E.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/562/00000/C4A70AFB-272A-E511-9B44-02163E011955.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/604/00000/865C217E-992A-E511-8FD4-02163E0127DF.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/612/00000/DE1D52B8-AB2A-E511-AF79-02163E0134CC.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/628/00000/404908F7-B52A-E511-AC9A-02163E013830.root',
+       '/store/data/Run2015B/SinglePhoton/MINIAOD/PromptReco-v1/000/251/638/00000/0E9B99F5-F62A-E511-A7F4-02163E01299A.root',
+    ])
 )
 
 # Setup the service to make a ROOT TTree
@@ -82,6 +112,7 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
+    jets = cms.InputTag("slimmedJets"),
     electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
     electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
     photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose")
@@ -107,6 +138,20 @@ runMetCorAndUncFromMiniAOD(process,
     pfCandColl=cms.InputTag("noHFCands"),
     postfix="NoHF"
 )
+
+process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+
+process.patPFMetT1T2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT1T2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
 process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
@@ -138,6 +183,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight"),
     loosephotons = cms.InputTag("selectedObjects", "loosephotons"),
     rndgammaiso = cms.InputTag("selectedObjects", "rndgammaiso"),
+    rndchhadiso = cms.InputTag("selectedObjects", "rndchhadiso"),
     photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
     taus = cms.InputTag("slimmedTaus"),
     jets = cms.InputTag("slimmedJets"),
@@ -151,21 +197,21 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
-    xsec = cms.double(9235.0),
+    xsec = cms.double(1.0),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
     cleanPhotonJet = cms.bool(True),
     applyHLTFilter = cms.bool(filterOnHLT),
-    uselheweights = cms.bool(True),
-    isWorZMCSample = cms.bool(True)
+    uselheweights = cms.bool(False),
+    isWorZMCSample = cms.bool(False)
 )
 
 # Tree for the generator weights
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
-    uselheweights = cms.bool(True),
-    addqcdpdfweights = cms.bool(True)
+    uselheweights = cms.bool(False),
+    addqcdpdfweights = cms.bool(False)
 )
 
 # MET filter
