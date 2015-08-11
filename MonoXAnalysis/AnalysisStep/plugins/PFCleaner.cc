@@ -213,7 +213,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.put(outputtightphotons, "tightphotons");
     iEvent.put(outputloosephotons, "loosephotons");
     iEvent.put(outputgammaisomap, "rndgammaiso");
-    iEvent.put(outputgammaisomap, "rndchhadiso");
+    iEvent.put(outputchhadisomap, "rndchhadiso");
 }
 
 void PFCleaner::beginJob() {
