@@ -867,64 +867,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     vector<pat::ElectronRef> electronvector;
     for (size_t i = 0; i < electrons.size(); i++) electronvector.push_back(electrons[i]);
 
-    // Generator-level information
-    wzid          = 0;
-    wzmass        = 0.0;
-    wzpt          = 0.0;
-    wzeta         = 0.0;
-    wzphi         = 0.0;
-    l1id          = 0;
-    l1pt          = 0.0;
-    l1eta         = 0.0;
-    l1phi         = 0.0;
-    l2id          = 0;
-    l2pt          = 0.0;
-    l2eta         = 0.0;
-    l2phi         = 0.0;
-    parid         = 0;
-    parpt         = 0.0;
-    pareta        = 0.0;
-    parphi        = 0.0;
-    ancid         = 0;
-    ancpt         = 0.0;
-    anceta        = 0.0;
-    ancphi        = 0.0;
-
-    if (isWorZMCSample && gensH.isValid()) {
-        for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-            if ((gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) {
-                wzid   = gens_iter->pdgId();
-                wzmass = gens_iter->mass();
-                wzpt   = gens_iter->pt();
-                wzeta  = gens_iter->eta();
-                wzphi  = gens_iter->phi();
-                l1id   = gens_iter->daughter(0)->pdgId();
-                l1pt   = gens_iter->daughter(0)->pt();
-                l1eta  = gens_iter->daughter(0)->eta();
-                l1phi  = gens_iter->daughter(0)->phi();
-                l2id   = gens_iter->daughter(1)->pdgId();
-                l2pt   = gens_iter->daughter(1)->pt();
-                l2eta  = gens_iter->daughter(1)->eta();
-                l2phi  = gens_iter->daughter(1)->phi();
-                wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
-            }
-        }
-
-        if (wzid == 0) {
-            for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-                if (gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
-                    wzid   = gens_iter->pdgId();
-                    wzpt   = gens_iter->pt();
-                    wzeta  = gens_iter->eta();
-                    wzphi  = gens_iter->phi();
-
-                    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
-                    findMother(&(*gens_iter), parid, parpt, pareta, parphi);
-                }
-            }
-        }
-    }
-
     // W, Z control sample information
     zmass       = 0.0; 
     zpt         = 0.0;
@@ -1098,6 +1040,64 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         loosephsieie    = (*photonsieieH)[loosephotonvector[0]];
         loosephrndiso   = (*rndgammaisoH)[loosephotonvector[0]];
         loosephrndchiso = (*rndchhadisoH)[loosephotonvector[0]];
+    }
+
+    // Generator-level information
+    wzid          = 0;
+    wzmass        = 0.0;
+    wzpt          = 0.0;
+    wzeta         = 0.0;
+    wzphi         = 0.0;
+    l1id          = 0;
+    l1pt          = 0.0;
+    l1eta         = 0.0;
+    l1phi         = 0.0;
+    l2id          = 0;
+    l2pt          = 0.0;
+    l2eta         = 0.0;
+    l2phi         = 0.0;
+    parid         = 0;
+    parpt         = 0.0;
+    pareta        = 0.0;
+    parphi        = 0.0;
+    ancid         = 0;
+    ancpt         = 0.0;
+    anceta        = 0.0;
+    ancphi        = 0.0;
+
+    if (isWorZMCSample && gensH.isValid()) {
+        for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+            if ((gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) {
+                wzid   = gens_iter->pdgId();
+                wzmass = gens_iter->mass();
+                wzpt   = gens_iter->pt();
+                wzeta  = gens_iter->eta();
+                wzphi  = gens_iter->phi();
+                l1id   = gens_iter->daughter(0)->pdgId();
+                l1pt   = gens_iter->daughter(0)->pt();
+                l1eta  = gens_iter->daughter(0)->eta();
+                l1phi  = gens_iter->daughter(0)->phi();
+                l2id   = gens_iter->daughter(1)->pdgId();
+                l2pt   = gens_iter->daughter(1)->pt();
+                l2eta  = gens_iter->daughter(1)->eta();
+                l2phi  = gens_iter->daughter(1)->phi();
+                wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
+            }
+        }
+
+        if (wzid == 0) {
+            for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+                if (gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
+                    wzid   = gens_iter->pdgId();
+                    wzpt   = gens_iter->pt();
+                    wzeta  = gens_iter->eta();
+                    wzphi  = gens_iter->phi();
+
+                    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
+                    findMother(&(*gens_iter), parid, parpt, pareta, parphi);
+                }
+            }
+        }
     }
 
     tree->Fill();
