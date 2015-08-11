@@ -32,11 +32,11 @@ isMC = True
 filterHighMETEvents = False
 
 # Filter on triggered events
-filterOnHLT = True
+filterOnHLT = False
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/QCD_Pt_800to1000_TuneCUETP8M1_13TeV_pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/00000/04DC7D13-1E0C-E511-847C-00A0D1EE923C.root')
+    fileNames = cms.untracked.vstring('/store/mc/RunIISpring15DR74/GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/30000/7CA24445-832E-E511-920B-02163E011DDE.root')
 )
 
 # Setup the service to make a ROOT TTree
@@ -45,9 +45,9 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("tree.r
 # Set the global tag depending on the sample type
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 if isMC:
-    process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'   # for Simulation
+    process.GlobalTag.globaltag = 'MCRUN2_74_V9A::All'   # for Simulation
 else:
-    process.GlobalTag.globaltag = 'GR_P_V54::All'       # for Data
+    process.GlobalTag.globaltag = 'GR_P_V56::All'       # for Data
 
 # Set the process for reading MET filter flags from TriggerResults
 if isMC:
@@ -79,7 +79,6 @@ for idmod in ph_id_modules:
 process.selectedObjects = cms.EDProducer("PFCleaner",
     vertices = cms.InputTag("goodVertices"),
     pfcands = cms.InputTag("packedPFCandidates"),
-    jets = cms.InputTag("slimmedJets"),
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
@@ -89,28 +88,38 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
 )
 
 # Define all the METs corrected for lepton/photon momenta
+process.partMet = cms.EDProducer("METBreakDownProducer",
+    pfcands = cms.InputTag("packedPFCandidates") 
+)
+
+process.noHFCands = cms.EDFilter("CandPtrSelector",
+    src=cms.InputTag("packedPFCandidates"),
+    cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+)
+
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+runMetCorAndUncFromMiniAOD(process,
+    isData = (not isMC),
+)
+runMetCorAndUncFromMiniAOD(process,
+    isData = (not isMC),
+    pfCandColl=cms.InputTag("noHFCands"),
+    postfix="NoHF"
+)
+
 process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons"),
-    useuncorrmet = cms.bool(True)
 )
 process.pfmupt = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons"),
     muptonly = cms.bool(True)
 )
-process.phmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
-    useuncorrmet = cms.bool(True)
-)
 process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons")
-)
-process.t1phmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")) 
 )
 
 # Make the tree 
@@ -125,37 +134,40 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
     tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
     tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
+    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium"),
+    photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight"),
     loosephotons = cms.InputTag("selectedObjects", "loosephotons"),
     rndgammaiso = cms.InputTag("selectedObjects", "rndgammaiso"),
     photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
     taus = cms.InputTag("slimmedTaus"),
     jets = cms.InputTag("slimmedJets"),
     fatjets = cms.InputTag("slimmedJetsAK8"),
-    pfmet = cms.InputTag("pfMet"),
+    partmet = cms.InputTag("partMet"),
     t1pfmet = cms.InputTag("slimmedMETs"),
+    t1metnohf = cms.InputTag("slimmedMETsNoHF"),
     pfmupt = cms.InputTag("pfmupt"),
     mumet = cms.InputTag("mumet"),
-    phmet = cms.InputTag("phmet"),
+    mumetnohf = cms.InputTag("mumetnohf"),
     t1mumet = cms.InputTag("t1mumet"),
-    t1phmet = cms.InputTag("t1phmet"),
+    t1mumetnohf = cms.InputTag("t1mumetnohf"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
-    xsec = cms.double(32.293),
+    xsec = cms.double(9235.0),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
     cleanPhotonJet = cms.bool(True),
     applyHLTFilter = cms.bool(filterOnHLT),
-    uselheweights = cms.bool(False),
-    isWorZMCSample = cms.bool(False)
+    uselheweights = cms.bool(True),
+    isWorZMCSample = cms.bool(True)
 )
 
 # Tree for the generator weights
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
-    uselheweights = cms.bool(False),
-    addqcdpdfweights = cms.bool(False)
+    uselheweights = cms.bool(True),
+    addqcdpdfweights = cms.bool(True)
 )
 
 # MET filter
