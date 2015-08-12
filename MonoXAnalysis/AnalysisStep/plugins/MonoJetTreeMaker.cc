@@ -95,6 +95,10 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag tausTag;
         edm::InputTag jetsTag;
         edm::InputTag fatjetsTag;
+        edm::InputTag qglTag;
+        edm::InputTag qgs2Tag;
+        edm::InputTag qgmultTag;
+        edm::InputTag qgptdTag;
         edm::InputTag t1pfmetTag;
         edm::InputTag t1metnohfTag;
         edm::InputTag partmetTag;
@@ -106,34 +110,38 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::InputTag hcalnoiseTag;
 
         // Tokens
-        edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-        edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
-        edm::EDGetTokenT<HcalNoiseSummary> hcalnoiseToken;
+        edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
+        edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
+        edm::EDGetTokenT<HcalNoiseSummary>                 hcalnoiseToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
-        edm::EDGetTokenT<GenEventInfoProduct> genevtInfoToken;
-        edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
-        edm::EDGetTokenT<edm::View<reco::GenParticle> >  gensToken;
-        edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
-        edm::EDGetTokenT<pat::ElectronRefVector> electronsToken;
-        edm::EDGetTokenT<pat::PhotonRefVector> photonsToken;
-        edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
-        edm::EDGetTokenT<pat::ElectronRefVector> tightelectronsToken;
-        edm::EDGetTokenT<pat::PhotonRefVector> tightphotonsToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > photonTightIdToken;
-        edm::EDGetTokenT<pat::PhotonRefVector> loosephotonsToken;
-        edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
-        edm::EDGetTokenT<edm::ValueMap<float> > rndgammaisoToken;
-        edm::EDGetTokenT<edm::ValueMap<float> > rndchhadisoToken;
-        edm::EDGetTokenT<edm::View<pat::Tau> >  tausToken;
-        edm::EDGetTokenT<edm::View<pat::Jet> >  jetsToken;
-        edm::EDGetTokenT<edm::View<pat::Jet> >  fatjetsToken;
-        edm::EDGetTokenT<edm::View<pat::MET> >  t1pfmetToken;
-        edm::EDGetTokenT<edm::View<pat::MET> >  t1metnohfToken;
-        edm::EDGetTokenT<edm::View<reco::MET> > partmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> > pfmuptToken;
-        edm::EDGetTokenT<edm::View<reco::MET> > mumetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> > t1mumetToken;
+        edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
+        edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
+        edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
+        edm::EDGetTokenT<pat::MuonRefVector>               muonsToken;
+        edm::EDGetTokenT<pat::ElectronRefVector>           electronsToken;
+        edm::EDGetTokenT<pat::PhotonRefVector>             photonsToken;
+        edm::EDGetTokenT<pat::MuonRefVector>               tightmuonsToken;
+        edm::EDGetTokenT<pat::ElectronRefVector>           tightelectronsToken;
+        edm::EDGetTokenT<pat::PhotonRefVector>             tightphotonsToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >             photonMediumIdToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> >             photonTightIdToken;
+        edm::EDGetTokenT<pat::PhotonRefVector>             loosephotonsToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            photonsieieToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            rndgammaisoToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            rndchhadisoToken;
+        edm::EDGetTokenT<std::vector<pat::Tau> >           tausToken;
+        edm::EDGetTokenT<std::vector<pat::Jet> >           jetsToken;
+        edm::EDGetTokenT<std::vector<pat::Jet> >           fatjetsToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            qglToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            qgs2Token;
+        edm::EDGetTokenT<edm::ValueMap<int> >              qgmultToken;
+        edm::EDGetTokenT<edm::ValueMap<float> >            qgptdToken;
+        edm::EDGetTokenT<edm::View<pat::MET> >             t1pfmetToken;
+        edm::EDGetTokenT<edm::View<pat::MET> >             t1metnohfToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            partmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            pfmuptToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            mumetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            t1mumetToken;
 
         std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
@@ -154,9 +162,10 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, metnohf, metnohfphi, t1metnohf, t1metnohfphi, pfmupt, pfmuphi, mumet, mumetphi, t1mumet, t1mumetphi;
         double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprmass, fatjetsdmass, fatjettrmass, fatjetftmass;
-        double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
-        double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
-        double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi ;
+        double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi, signaljetqgl, signaljetqgs2, signaljetqgptd;
+        double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi, secondjetqgl, secondjetqgs2, secondjetqgptd;
+        double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi , thirdjetqgl , thirdjetqgs2 , thirdjetqgptd ;
+        int      signaljetqgmult, secondjetqgmult, thirdjetqgmult;
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin;
         double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
@@ -166,8 +175,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         double   xsec, wgt, kfact, puwgt;
 
         struct PatJetPtSorter {
-            bool operator() (const pat::Jet& i, const pat::Jet& j) {
-                return (i.pt() > j.pt());
+            bool operator() (pat::JetRef i, pat::JetRef j) {
+                return (i->pt() > j->pt());
             }
         } jetsorter;
         
@@ -211,6 +220,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     tausTag(iConfig.getParameter<edm::InputTag>("taus")),
     jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
     fatjetsTag(iConfig.getParameter<edm::InputTag>("fatjets")),
+    qglTag(iConfig.getParameter<edm::InputTag>("qgl")),
+    qgs2Tag(iConfig.getParameter<edm::InputTag>("qgs2")),
+    qgmultTag(iConfig.getParameter<edm::InputTag>("qgmult")),
+    qgptdTag(iConfig.getParameter<edm::InputTag>("qgptd")),
     t1pfmetTag(iConfig.getParameter<edm::InputTag>("t1pfmet")),
     t1metnohfTag(iConfig.getParameter<edm::InputTag>("t1metnohf")),
     partmetTag(iConfig.getParameter<edm::InputTag>("partmet")),
@@ -250,9 +263,13 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     photonsieieToken = consumes<edm::ValueMap<float> > (photonsieieTag); 
     rndgammaisoToken = consumes<edm::ValueMap<float> > (rndgammaisoTag); 
     rndchhadisoToken = consumes<edm::ValueMap<float> > (rndchhadisoTag); 
-    tausToken = consumes<edm::View<pat::Tau> > (tausTag); 
-    jetsToken = consumes<edm::View<pat::Jet> > (jetsTag); 
-    fatjetsToken = consumes<edm::View<pat::Jet> > (fatjetsTag); 
+    tausToken = consumes<std::vector<pat::Tau> > (tausTag); 
+    jetsToken = consumes<std::vector<pat::Jet> > (jetsTag); 
+    qglToken = consumes<edm::ValueMap<float> > (qglTag); 
+    qgs2Token = consumes<edm::ValueMap<float> > (qgs2Tag); 
+    qgmultToken = consumes<edm::ValueMap<int> > (qgmultTag); 
+    qgptdToken = consumes<edm::ValueMap<float> > (qgptdTag); 
+    fatjetsToken = consumes<std::vector<pat::Jet> > (fatjetsTag); 
     t1pfmetToken = consumes<edm::View<pat::MET> > (t1pfmetTag); 
     t1metnohfToken = consumes<edm::View<pat::MET> > (t1metnohfTag); 
     partmetToken = consumes<edm::View<reco::MET> > (partmetTag); 
@@ -337,14 +354,26 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<edm::ValueMap<float> > rndchhadisoH;
     iEvent.getByToken(rndchhadisoToken, rndchhadisoH);
 
-    Handle<View<pat::Tau> > tausH;
+    Handle<std::vector<pat::Tau> > tausH;
     iEvent.getByToken(tausToken, tausH);
 
-    Handle<View<pat::Jet> > jetsH;
+    Handle<std::vector<pat::Jet> > jetsH;
     iEvent.getByToken(jetsToken, jetsH);
 
-    Handle<View<pat::Jet> > fatjetsH;
+    Handle<std::vector<pat::Jet> > fatjetsH;
     iEvent.getByToken(fatjetsToken, fatjetsH);
+
+    Handle<edm::ValueMap<float> > qglH;
+    iEvent.getByToken(qglToken, qglH);
+
+    Handle<edm::ValueMap<float> > qgs2H;
+    iEvent.getByToken(qgs2Token, qgs2H);
+
+    Handle<edm::ValueMap<int> > qgmultH;
+    iEvent.getByToken(qgmultToken, qgmultH);
+
+    Handle<edm::ValueMap<float> > qgptdH;
+    iEvent.getByToken(qgptdToken, qgptdH);
 
     Handle<View<pat::MET> > t1pfmetH;
     iEvent.getByToken(t1pfmetToken, t1pfmetH);
@@ -570,9 +599,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
     }
 
-    pat::JetCollection incjets;
-    pat::JetCollection jets;
-    for (View<pat::Jet>::const_iterator jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
+    vector<pat::JetRef> incjets;
+    vector<pat::JetRef> jets;
+    for (vector<pat::Jet>::const_iterator jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
         if (fabs(jets_iter->eta()) > 4.5) continue;
         bool skipjet = false;
         for (std::size_t j = 0; j < muons.size(); j++) {
@@ -599,12 +628,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (jetabseta >= 2.75 && jetabseta < 3.00 && puidval > -0.55) passpuid = true;
         if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.45) passpuid = true;
         if (!passpuid) continue;
-        pat::Jet jet = *jets_iter;
-        incjets.push_back(jet);
+        pat::JetRef jetref(jetsH, jets_iter - jetsH->begin());
+        incjets.push_back(jetref);
     }
 
-    pat::JetCollection fatjets;
-    for (View<pat::Jet>::const_iterator fatjets_iter = fatjetsH->begin(); fatjets_iter != fatjetsH->end(); ++fatjets_iter) {
+    vector<pat::JetRef> fatjets;
+    for (vector<pat::Jet>::const_iterator fatjets_iter = fatjetsH->begin(); fatjets_iter != fatjetsH->end(); ++fatjets_iter) {
         if (fabs(fatjets_iter->eta()) > 2.5) continue;
         bool skipfatjet = false;
         for (std::size_t j = 0; j < muons.size(); j++) {
@@ -631,13 +660,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (fatjetabseta >= 2.75 && fatjetabseta < 3.00 && puidval > -0.55) passpuid = true;
         if (fatjetabseta >= 3.00 && fatjetabseta < 5.00 && puidval > -0.45) passpuid = true;
         if (!passpuid) continue;
-        pat::Jet fatjet = *fatjets_iter;
-        fatjets.push_back(fatjet);
+        pat::JetRef fatjetref(fatjetsH, fatjets_iter - fatjetsH->begin());
+        fatjets.push_back(fatjetref);
     }
 
 
     for (size_t i = 0; i < incjets.size(); i++) {
-        if (fabs(incjets[i].eta()) <= 2.5) jets.push_back(incjets[i]);
+        if (fabs(incjets[i]->eta()) <= 2.5) jets.push_back(incjets[i]);
     }        
 
     sort(jets.begin(), jets.end(), jetsorter);
@@ -648,8 +677,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     njets     = 0;
     nbjets    = 0;
     for (size_t i = 0; i < jets.size(); i++) {
-        if (jets[i].pt() > 30) njets++;
-        if (jets[i].pt() > 30 && jets[i].bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.814) nbjets++;
+        if (jets[i]->pt() > 30) njets++;
+        if (jets[i]->pt() > 30 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.814) nbjets++;
     }
 
     signaljetpt      = 0.0;
@@ -661,6 +690,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     signaljetEMfrac  = 0.0;
     signaljetCEMfrac = 0.0;
     signaljetmetdphi = 0.0;
+    signaljetqgl     = 0.0;
+    signaljetqgs2    = 0.0;
+    signaljetqgmult  = 0;
+    signaljetqgptd   = 0.0;
     secondjetpt      = 0.0;
     secondjeteta     = 0.0;
     secondjetphi     = 0.0;
@@ -670,6 +703,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     secondjetEMfrac  = 0.0;
     secondjetCEMfrac = 0.0;
     secondjetmetdphi = 0.0;
+    secondjetqgl     = 0.0;
+    secondjetqgs2    = 0.0;
+    secondjetqgmult  = 0;
+    secondjetqgptd   = 0.0;
     thirdjetpt       = 0.0;
     thirdjeteta      = 0.0;
     thirdjetphi      = 0.0;
@@ -679,42 +716,58 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     thirdjetEMfrac   = 0.0;
     thirdjetCEMfrac  = 0.0;
     thirdjetmetdphi  = 0.0;
+    thirdjetqgl      = 0.0;
+    thirdjetqgs2     = 0.0;
+    thirdjetqgmult   = 0;
+    thirdjetqgptd    = 0.0;
     jetjetdphi       = 0.0;
     jetmetdphimin    = 0.0;
     incjetmetdphimin = 0.0;
 
 
     if (njets > 0) {
-        signaljetpt      = jets[0].pt();
-        signaljeteta     = jets[0].eta();
-        signaljetphi     = jets[0].phi();
-        signaljetbtag    = jets[0].bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-        signaljetCHfrac  = jets[0].chargedHadronEnergyFraction();
-        signaljetNHfrac  = jets[0].neutralHadronEnergyFraction();
-        signaljetEMfrac  = jets[0].neutralEmEnergyFraction();
-        signaljetCEMfrac = jets[0].chargedEmEnergyFraction();
+        signaljetpt      = jets[0]->pt();
+        signaljeteta     = jets[0]->eta();
+        signaljetphi     = jets[0]->phi();
+        signaljetbtag    = jets[0]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+        signaljetCHfrac  = jets[0]->chargedHadronEnergyFraction();
+        signaljetNHfrac  = jets[0]->neutralHadronEnergyFraction();
+        signaljetEMfrac  = jets[0]->neutralEmEnergyFraction();
+        signaljetCEMfrac = jets[0]->chargedEmEnergyFraction();
+        signaljetqgl     = (*qglH)   [jets[0]];
+        signaljetqgs2    = (*qgs2H)  [jets[0]];
+        signaljetqgmult  = (*qgmultH)[jets[0]];
+        signaljetqgptd   = (*qgptdH) [jets[0]];
     }
 
     if (njets > 1) {
-        secondjetpt      = jets[1].pt();
-        secondjeteta     = jets[1].eta();
-        secondjetphi     = jets[1].phi();
-        secondjetbtag    = jets[1].bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-        secondjetCHfrac  = jets[1].chargedHadronEnergyFraction();
-        secondjetNHfrac  = jets[1].neutralHadronEnergyFraction();
-        secondjetEMfrac  = jets[1].neutralEmEnergyFraction();
-        secondjetCEMfrac = jets[1].chargedEmEnergyFraction();
+        secondjetpt      = jets[1]->pt();
+        secondjeteta     = jets[1]->eta();
+        secondjetphi     = jets[1]->phi();
+        secondjetbtag    = jets[1]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+        secondjetCHfrac  = jets[1]->chargedHadronEnergyFraction();
+        secondjetNHfrac  = jets[1]->neutralHadronEnergyFraction();
+        secondjetEMfrac  = jets[1]->neutralEmEnergyFraction();
+        secondjetCEMfrac = jets[1]->chargedEmEnergyFraction();
+        secondjetqgl     = (*qglH)   [jets[1]];
+        secondjetqgs2    = (*qgs2H)  [jets[1]];
+        secondjetqgmult  = (*qgmultH)[jets[1]];
+        secondjetqgptd   = (*qgptdH) [jets[1]];
     }
 
     if (njets > 2) {
-        thirdjetpt       = jets[2].pt();
-        thirdjeteta      = jets[2].eta();
-        thirdjetphi      = jets[2].phi();
-        thirdjetbtag     = jets[2].bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
-        thirdjetCHfrac   = jets[2].chargedHadronEnergyFraction();
-        thirdjetNHfrac   = jets[2].neutralHadronEnergyFraction();
-        thirdjetEMfrac   = jets[2].neutralEmEnergyFraction();
-        thirdjetCEMfrac  = jets[2].chargedEmEnergyFraction();
+        thirdjetpt       = jets[2]->pt();
+        thirdjeteta      = jets[2]->eta();
+        thirdjetphi      = jets[2]->phi();
+        thirdjetbtag     = jets[2]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+        thirdjetCHfrac   = jets[2]->chargedHadronEnergyFraction();
+        thirdjetNHfrac   = jets[2]->neutralHadronEnergyFraction();
+        thirdjetEMfrac   = jets[2]->neutralEmEnergyFraction();
+        thirdjetCEMfrac  = jets[2]->chargedEmEnergyFraction();
+        thirdjetqgl      = (*qglH)   [jets[1]];
+        thirdjetqgs2     = (*qgs2H)  [jets[1]];
+        thirdjetqgmult   = (*qgmultH)[jets[1]];
+        thirdjetqgptd    = (*qgptdH) [jets[1]];
     }
 
     if (signaljetpt > 0.0 && secondjetpt > 0.0) jetjetdphi = deltaPhi(signaljetphi, secondjetphi);
@@ -724,8 +777,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     std::vector<double> jetmetdphiminvector;
     for (size_t i = 0; i < jets.size(); i++) {
-        if (jets[i].pt() > 30) {
-            double jetphi = atan2(sin(jets[i].phi()), cos(jets[i].phi()));
+        if (jets[i]->pt() > 30) {
+            double jetphi = atan2(sin(jets[i]->phi()), cos(jets[i]->phi()));
             jetmetdphiminvector.push_back(fabs(deltaPhi(jetphi, mumetphi)));
         }
     }
@@ -733,8 +786,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     std::vector<double> incjetmetdphiminvector;
     for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i].pt() > 30) {
-            double incjetphi = atan2(sin(incjets[i].phi()), cos(incjets[i].phi()));
+        if (incjets[i]->pt() > 30) {
+            double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
             incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, mumetphi)));
         }
     }
@@ -743,7 +796,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Fat jets
     nfatjets = 0;
     for (size_t i = 0; i < fatjets.size(); i++) {
-        if (fatjets[i].pt() > 100) nfatjets++;
+        if (fatjets[i]->pt() > 100) nfatjets++;
     }
 
     fatjetpt         = 0.0;
@@ -762,19 +815,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     fatjetmetdphi    = 0.0;
 
     if (fatjets.size() > 0) {
-        fatjetpt         = fatjets[0].pt();
-        fatjeteta        = fatjets[0].eta();
-        fatjetphi        = fatjets[0].phi();
-        fatjettau2       = fatjets[0].userFloat("NjettinessAK8:tau2");
-        fatjettau1       = fatjets[0].userFloat("NjettinessAK8:tau1");
-        fatjetprmass     = fatjets[0].userFloat("ak8PFJetsCHSPrunedMass");
-        fatjetsdmass     = fatjets[0].userFloat("ak8PFJetsCHSSoftDropMass");
-        fatjettrmass     = fatjets[0].userFloat("ak8PFJetsCHSTrimmedMass");
-        fatjetftmass     = fatjets[0].userFloat("ak8PFJetsCHSFilteredMass");
-        fatjetCHfrac     = fatjets[0].chargedHadronEnergyFraction();
-        fatjetNHfrac     = fatjets[0].neutralHadronEnergyFraction();
-        fatjetEMfrac     = fatjets[0].neutralEmEnergyFraction();
-        fatjetCEMfrac    = fatjets[0].chargedEmEnergyFraction();
+        fatjetpt         = fatjets[0]->pt();
+        fatjeteta        = fatjets[0]->eta();
+        fatjetphi        = fatjets[0]->phi();
+        fatjettau2       = fatjets[0]->userFloat("NjettinessAK8:tau2");
+        fatjettau1       = fatjets[0]->userFloat("NjettinessAK8:tau1");
+        fatjetprmass     = fatjets[0]->userFloat("ak8PFJetsCHSPrunedMass");
+        fatjetsdmass     = fatjets[0]->userFloat("ak8PFJetsCHSSoftDropMass");
+        fatjettrmass     = fatjets[0]->userFloat("ak8PFJetsCHSTrimmedMass");
+        fatjetftmass     = fatjets[0]->userFloat("ak8PFJetsCHSFilteredMass");
+        fatjetCHfrac     = fatjets[0]->chargedHadronEnergyFraction();
+        fatjetNHfrac     = fatjets[0]->neutralHadronEnergyFraction();
+        fatjetEMfrac     = fatjets[0]->neutralEmEnergyFraction();
+        fatjetCEMfrac    = fatjets[0]->chargedEmEnergyFraction();
         fatjetmetdphi    = deltaPhi(fatjetphi, mumetphi);;
     }
 
@@ -788,11 +841,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     double mhty = 0.;
     std::vector<double> jetEts;
     for (size_t i = 0; i < jets.size(); i++) {
-        if (jets[i].pt() > 30) {
-            ht += jets[i].pt();
-            mhtx -= jets[i].pt() * cos(jets[i].phi());
-            mhty -= jets[i].pt() * sin(jets[i].phi());
-            jetEts.push_back(jets[i].pt());
+        if (jets[i]->pt() > 30) {
+            ht += jets[i]->pt();
+            mhtx -= jets[i]->pt() * cos(jets[i]->phi());
+            mhty -= jets[i]->pt() * sin(jets[i]->phi());
+            jetEts.push_back(jets[i]->pt());
         }
     }
 
@@ -817,15 +870,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     std::vector<double> apcjetmetvector;
     for (size_t j = 0; j < jets.size(); j++) {
-        if (jets[j].pt() > 30) {
+        if (jets[j]->pt() > 30) {
             apcjetmetvector.push_back(0.);
             for (size_t i = 0; i < jets.size(); i++) {
-                if (jets[i].pt() > 30) {
-                    double dphijet = fabs(deltaPhi(jets[i].phi(), jets[j].phi()));
-                    double jetphi  = atan2(jets[i].pt()*sin(jets[i].phi()), jets[i].pt()*cos(jets[i].phi()));
+                if (jets[i]->pt() > 30) {
+                    double dphijet = fabs(deltaPhi(jets[i]->phi(), jets[j]->phi()));
+                    double jetphi  = atan2(sin(jets[i]->phi()), cos(jets[i]->phi()));
                     double dphimet = fabs(deltaPhi(jetphi, mumetphi));
 
-                    apcjetmetvector.back() += jets[i].pt() * cos(dphijet/2.0) * sin(dphimet/2.0);
+                    apcjetmetvector.back() += jets[i]->pt() * cos(dphijet/2.0) * sin(dphimet/2.0);
                 }
             }
         }
@@ -847,7 +900,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     ntightelectrons = tightelectronsH->size();
     ntaus           = 0;
 
-    for (View<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
+    for (vector<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
         bool skiptau = false;
         for (std::size_t j = 0; j < muons.size(); j++) {
             if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
@@ -1212,6 +1265,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("signaljetEMfrac"      , &signaljetEMfrac      , "signaljetEMfrac/D");
     tree->Branch("signaljetCEMfrac"     , &signaljetCEMfrac     , "signaljetCEMfrac/D");
     tree->Branch("signaljetmetdphi"     , &signaljetmetdphi     , "signaljetmetdphi/D");
+    tree->Branch("signaljetqgl"         , &signaljetqgl         , "signaljetqgl/D");
+    tree->Branch("signaljetqgs2"        , &signaljetqgs2        , "signaljetqgs2/D");
+    tree->Branch("signaljetqgmult"      , &signaljetqgmult      , "signaljetqgmult/I");
+    tree->Branch("signaljetqgptd"       , &signaljetqgptd       , "signaljetqgptd/D");
     tree->Branch("secondjetpt"          , &secondjetpt          , "secondjetpt/D");
     tree->Branch("secondjeteta"         , &secondjeteta         , "secondjeteta/D");
     tree->Branch("secondjetphi"         , &secondjetphi         , "secondjetphi/D");
@@ -1221,6 +1278,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("secondjetEMfrac"      , &secondjetEMfrac      , "secondjetEMfrac/D");
     tree->Branch("secondjetCEMfrac"     , &secondjetCEMfrac     , "secondjetCEMfrac/D");
     tree->Branch("secondjetmetdphi"     , &secondjetmetdphi     , "secondjetmetdphi/D");
+    tree->Branch("secondjetqgl"         , &secondjetqgl         , "secondjetqgl/D");
+    tree->Branch("secondjetqgs2"        , &secondjetqgs2        , "secondjetqgs2/D");
+    tree->Branch("secondjetqgmult"      , &secondjetqgmult      , "secondjetqgmult/I");
+    tree->Branch("secondjetqgptd"       , &secondjetqgptd       , "secondjetqgptd/D");
     tree->Branch("thirdjetpt"           , &thirdjetpt           , "thirdjetpt/D");
     tree->Branch("thirdjeteta"          , &thirdjeteta          , "thirdjeteta/D");
     tree->Branch("thirdjetphi"          , &thirdjetphi          , "thirdjetphi/D");
@@ -1230,6 +1291,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("thirdjetEMfrac"       , &thirdjetEMfrac       , "thirdjetEMfrac/D");
     tree->Branch("thirdjetCEMfrac"      , &thirdjetCEMfrac      , "thirdjetCEMfrac/D");
     tree->Branch("thirdjetmetdphi"      , &thirdjetmetdphi      , "thirdjetmetdphi/D");
+    tree->Branch("thirdjetqgl"          , &thirdjetqgl          , "thirdjetqgl/D");
+    tree->Branch("thirdjetqgs2"         , &thirdjetqgs2         , "thirdjetqgs2/D");
+    tree->Branch("thirdjetqgmult"       , &thirdjetqgmult       , "thirdjetqgmult/I");
+    tree->Branch("thirdjetqgptd"        , &thirdjetqgptd        , "thirdjetqgptd/D");
     tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
     tree->Branch("jetmetdphimin"        , &jetmetdphimin        , "jetmetdphimin/D");
     tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
