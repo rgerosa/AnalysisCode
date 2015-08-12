@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet( 
@@ -34,6 +34,9 @@ filterHighMETEvents = False
 # Filter on triggered events
 filterOnHLT = False
 
+# Use private JECs since the GTs are not updated
+usePrivateSQlite = True
+
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
@@ -50,6 +53,31 @@ if isMC:
     process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'    # for Simulation
 else:
     process.GlobalTag.globaltag = 'GR_P_V56::All'        # for Data
+
+# Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py
+if usePrivateSQlite:
+    from CondCore.DBCommon.CondDBSetup_cfi import *
+    import os
+    era = "Summer15_50nsV2_MC"
+    dBFile = os.path.expandvars(era+".db")
+    process.jec = cms.ESSource("PoolDBESSource",
+        CondDBSetup,
+        connect = cms.string("sqlite_file:"+dBFile),
+        toGet =  cms.VPSet(
+            cms.PSet(
+                record = cms.string("JetCorrectionsRecord"),
+                tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PF"),
+                label= cms.untracked.string("AK4PF")
+            ),
+            cms.PSet(
+                record = cms.string("JetCorrectionsRecord"),
+                tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
+                label= cms.untracked.string("AK4PFchs")
+            ),
+        )
+    )
+    process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
+
 
 # Set the process for reading MET filter flags from TriggerResults
 if isMC:
