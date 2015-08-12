@@ -12,7 +12,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet( 
@@ -105,33 +105,12 @@ for idmod in ele_id_modules:
 for idmod in ph_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
-# Create a set of objects to read from
-process.selectedObjects = cms.EDProducer("PFCleaner",
-    vertices = cms.InputTag("goodVertices"),
-    pfcands = cms.InputTag("packedPFCandidates"),
-    muons = cms.InputTag("slimmedMuons"),
-    electrons = cms.InputTag("slimmedElectrons"),
-    photons = cms.InputTag("slimmedPhotons"),
-    jets = cms.InputTag("slimmedJets"),
-    electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
-    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose")
-)
+# Rerun Jet/MET with updated corrections and recommendations 
+if isMC:
+    JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+else :
+    JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
 
-# Quark-Gluon Discriminant
-process.load("RecoJets.JetProducers.QGTagger_cfi")
-process.QGTagger.srcJets = "slimmedJets"
-process.QGTagger.srcVertexCollection = "goodVertices"
-
-# Define all the METs corrected for lepton/photon momenta
-process.partMet = cms.EDProducer("METBreakDownProducer",
-    pfcands = cms.InputTag("packedPFCandidates") 
-)
-
-process.noHFCands = cms.EDFilter("CandPtrSelector",
-    src=cms.InputTag("packedPFCandidates"),
-    cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
-)
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
@@ -140,8 +119,8 @@ runMetCorAndUncFromMiniAOD(process,
 )
 runMetCorAndUncFromMiniAOD(process,
     isData = (not isMC),
-    pfCandColl=cms.InputTag("noHFCands"),
-    postfix="NoHF"
+    pfCandColl = cms.InputTag("noHFCands"),
+    postfix = "NoHF"
 )
 
 process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
@@ -158,6 +137,42 @@ process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
 process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+    src = cms.InputTag("slimmedJets"),
+    levels = JECLevels,
+    payload = 'AK4PFchs' 
+)
+
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.slimmedJetsRecorrected = patJetsUpdated.clone(
+    jetSource = cms.InputTag("slimmedJets"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+)
+
+# Create a set of objects to read from
+process.selectedObjects = cms.EDProducer("PFCleaner",
+    vertices = cms.InputTag("goodVertices"),
+    pfcands = cms.InputTag("packedPFCandidates"),
+    muons = cms.InputTag("slimmedMuons"),
+    electrons = cms.InputTag("slimmedElectrons"),
+    photons = cms.InputTag("slimmedPhotons"),
+    jets = cms.InputTag("slimmedJetsRecorrected"),
+    electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
+    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
+    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose")
+)
+
+# Define all the METs corrected for lepton/photon momenta
+process.partMet = cms.EDProducer("METBreakDownProducer",
+    pfcands = cms.InputTag("packedPFCandidates") 
+)
+
+process.noHFCands = cms.EDFilter("CandPtrSelector",
+    src=cms.InputTag("packedPFCandidates"),
+    cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+)
+
 process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons"),
@@ -171,6 +186,11 @@ process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons")
 )
+
+# Quark-Gluon Discriminant
+process.load("RecoJets.JetProducers.QGTagger_cfi")
+process.QGTagger.srcJets = "slimmedJetsRecorrected"
+process.QGTagger.srcVertexCollection = "goodVertices"
 
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
@@ -191,7 +211,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     rndchhadiso = cms.InputTag("selectedObjects", "rndchhadiso"),
     photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
     taus = cms.InputTag("slimmedTaus"),
-    jets = cms.InputTag("slimmedJets"),
+    jets = cms.InputTag("slimmedJetsRecorrected"),
     fatjets = cms.InputTag("slimmedJetsAK8"),
     qgl = cms.InputTag("QGTagger", "qgLikelihood"),
     qgs2 = cms.InputTag("QGTagger", "axis2"),
