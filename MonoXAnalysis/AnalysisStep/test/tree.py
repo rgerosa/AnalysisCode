@@ -17,7 +17,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # Set the process options -- Display summary at the end, enable unscheduled execution
 process.options = cms.untracked.PSet( 
     allowUnscheduled = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(True) 
+    wantSummary = cms.untracked.bool(False) 
 )
 
 # How many events to process
@@ -37,10 +37,13 @@ filterOnHLT = False
 # Use private JECs since the GTs are not updated
 usePrivateSQlite = True
 
+# Apply L2L3 residual corrections -- under development 
+applyL2L3Residuals = True
+
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
-        '/store/mc/RunIISpring15DR74/GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/30000/7CA24445-832E-E511-920B-02163E011DDE.root'
+        '/store/mc/RunIISpring15DR74/GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/00BA540A-5618-E511-9D04-A0369F3102F6.root'
     ])
 )
 
@@ -58,7 +61,11 @@ else:
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
-    era = "Summer15_50nsV2_MC"
+    era = "Summer15_50nsV4"
+    if isMC : 
+        era += "_MC"
+    else :
+        era += "_DATA"
     dBFile = os.path.expandvars(era+".db")
     process.jec = cms.ESSource("PoolDBESSource",
         CondDBSetup,
@@ -109,7 +116,10 @@ for idmod in ph_id_modules:
 if isMC:
     JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
 else :
-    JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+    if not applyL2L3Residuals : 
+        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+    else : 
+        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
 
 
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
@@ -123,19 +133,20 @@ runMetCorAndUncFromMiniAOD(process,
     postfix = "NoHF"
 )
 
-process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-
-process.patPFMetT1T2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT1T2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+if not applyL2L3Residuals : 
+    process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+    process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+    
+    process.patPFMetT1T2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT1T2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
+    process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+    process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
 process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(

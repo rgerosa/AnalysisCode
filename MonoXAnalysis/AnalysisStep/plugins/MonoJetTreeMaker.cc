@@ -511,7 +511,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puobs  = 0;
     putrue = 0;
     puwgt  = 1.;
-    if (uselheweights) wgt = genevtInfoH->weight();
+    if (uselheweights && genevtInfoH.isValid()) wgt = genevtInfoH->weight();
     else wgt = 1.0;
 
     if (pileupInfoH.isValid()) {
