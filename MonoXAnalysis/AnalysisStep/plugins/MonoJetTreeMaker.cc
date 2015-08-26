@@ -548,11 +548,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pfmet          = t1pfmetH->front().uncorrectedPt();
     pfmetphi       = t1pfmetH->front().uncorrectedPhi();
 
-    t1metnohf      = t1pfmetH->front().et();
-    t1metnohfphi   = t1pfmetH->front().phi();
+    t1metnohf      = t1metnohfH->front().et();
+    t1metnohfphi   = t1metnohfH->front().phi();
 
-    metnohf        = t1pfmetH->front().uncorrectedPt();
-    metnohfphi     = t1pfmetH->front().uncorrectedPhi();
+    metnohf        = t1metnohfH->front().uncorrectedPt();
+    metnohfphi     = t1metnohfH->front().uncorrectedPhi();
 
     if (partmetH.isValid() && partmetH->size() == 9) {
     hmet           = (*partmetH)[1].et();
@@ -851,6 +851,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     mht = sqrt(mhtx*mhtx + mhty*mhty);
 
+    /*
     if (jetEts.size() > 1 && jetEts.size() < 15) { // Memory consumption explodes with large number of jets -- this should be addressed
         // This code is ripped off from UserCode/SusyAnalysis/HadronicSUSYOverlapExercise/ANALYSIS/src 
         std::vector<double> diff( 1<<(jetEts.size()-1) , 0. );
@@ -864,6 +865,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         alphat = 0.5 * (ht - dht) / sqrt(ht*ht - mht*mht);
     }
     else alphat = 0.0;
+    */
 
     apcjetmetmax = 0.0;
     apcjetmetmin = 0.0;
