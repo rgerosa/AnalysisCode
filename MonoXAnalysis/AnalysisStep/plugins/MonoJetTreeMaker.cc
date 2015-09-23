@@ -83,6 +83,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
         edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
         edm::EDGetTokenT<HcalNoiseSummary>                 hcalnoiseToken;
+        edm::EDGetTokenT<bool>                             hbhelooseToken;
+        edm::EDGetTokenT<bool>                             hbhetightToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
         edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
@@ -123,7 +125,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nfatjets;
         uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
-        uint8_t  flagcsctight, flaghbhenoise, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
+        uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, t1mumet, t1mumetphi;
         double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
         double   fatjetpt, fatjeteta, fatjetphi, fatjettau2, fatjettau1, fatjetCHfrac, fatjetNHfrac, fatjetEMfrac, fatjetCEMfrac, fatjetmetdphi, fatjetprmass, fatjetsdmass, fatjettrmass, fatjetftmass;
@@ -170,6 +172,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
     filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
     hcalnoiseToken(consumes<HcalNoiseSummary> (iConfig.getParameter<edm::InputTag>("hcalnoise"))),
+    hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
+    hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
     pileupInfoToken(consumes<std::vector<PileupSummaryInfo> > ((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo")))),
     genevtInfoToken(consumes<GenEventInfoProduct> ((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator")))),
     verticesToken(consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
@@ -224,6 +228,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     Handle<HcalNoiseSummary> hcalnoiseH;
     iEvent.getByToken(hcalnoiseToken, hcalnoiseH);
+
+    Handle<bool> hbhelooseH;
+    iEvent.getByToken(hbhelooseToken, hbhelooseH);
+
+    Handle<bool> hbhetightH;
+    iEvent.getByToken(hbhetightToken, hbhetightH);
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
@@ -402,6 +412,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hcalnoiseH->passLooseNoiseFilter()    ) flaghnoiseloose = 1; 
     if (hcalnoiseH->passTightNoiseFilter()    ) flaghnoisetight = 1; 
     if (hcalnoiseH->passHighLevelNoiseFilter()) flaghnoisehilvl = 1; 
+
+    flaghbheloose = (*hbhelooseH ? 1 : 0);
+    flaghbhetight = (*hbhetightH ? 1 : 0);
 
     // Which MET filters passed
     for (size_t i = 0; i < filterPathsVector.size(); i++) {
@@ -1078,6 +1091,8 @@ void MonoJetTreeMaker::beginJob() {
     // MET filters
     tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
     tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
+    tree->Branch("flaghbheloose"        , &flaghbheloose        , "flaghbheloose/b");
+    tree->Branch("flaghbhetight"        , &flaghbhetight        , "flaghbhetight/b");
     tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/b");
     tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/b");
     tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");

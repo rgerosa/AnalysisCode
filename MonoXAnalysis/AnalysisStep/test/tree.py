@@ -101,6 +101,8 @@ else :
     else : 
         JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
 
+# Re-run the HBHE Noise filter
+process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
 
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -124,6 +126,8 @@ for idmod in ph_id_modules:
 
 
 # Re-running of jets and MET
+jetCollName = "slimmedJets"
+
 if redoJetsMET :  
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
@@ -154,6 +158,7 @@ if redoJetsMET :
         jetSource = cms.InputTag("slimmedJets"),
         jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
     )
+    jetCollName = "slimmedJetsRecorrected"
 
 # Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
@@ -162,7 +167,7 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
-    jets = cms.InputTag("slimmedJetsRecorrected"),
+    jets = cms.InputTag(jetCollName),
     electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
     electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
     photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose")
@@ -195,7 +200,7 @@ process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
 
 # Quark-Gluon Discriminant
 process.load("RecoJets.JetProducers.QGTagger_cfi")
-process.QGTagger.srcJets = "slimmedJetsRecorrected"
+process.QGTagger.srcJets = jetCollName
 process.QGTagger.srcVertexCollection = "goodVertices"
 
 # Make the tree 
@@ -213,7 +218,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
     taus = cms.InputTag("slimmedTaus"),
-    jets = cms.InputTag("slimmedJetsRecorrected"),
+    jets = cms.InputTag(jetCollName),
     fatjets = cms.InputTag("slimmedJetsAK8"),
     qgl = cms.InputTag("QGTagger", "qgLikelihood"),
     qgs2 = cms.InputTag("QGTagger", "axis2"),
@@ -227,6 +232,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     filterResults = cms.InputTag("TriggerResults", "", miniAODProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
+    hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
+    hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
     xsec = cms.double(831.76),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
