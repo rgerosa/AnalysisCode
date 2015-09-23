@@ -34,22 +34,22 @@ filterHighMETEvents = False
 # Filter on triggered events
 filterOnHLT = True
 
+# Redo jets and MET with updated JEC
+redoJetsMET = False
+
 # Use private JECs since the GTs are not updated
 usePrivateSQlite = False
 
 # Apply L2L3 residual corrections
 applyL2L3Residuals = False
 
-# JEC uncertainty
-if isMC : 
-    jecUncertaintyFile = "PhysicsTools/PatUtils/data/Summer15_25nsV2_MC_UncertaintySources_AK4PFchs.txt"
-else :
-    jecUncertaintyFile = "PhysicsTools/PatUtils/data/Summer15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt"
+# Process name used in MiniAOD -- needed to get the correct trigger results, and also for redoing the MET
+miniAODProcess = "PAT"
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
-        '/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/40000/0ECCB5A6-582F-E511-BD43-00259075D714.root'
+        '/store/mc/RunIISpring15MiniAODv2/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/00000/0014DC94-DC5C-E511-82FB-7845C4FC39F5.root'
     ])
 )
 
@@ -92,11 +92,15 @@ if usePrivateSQlite:
     process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 
 
-# Set the process for reading MET filter flags from TriggerResults
+# JEC levels when redoing jets and MET
 if isMC:
-    metFilterProcess = "PAT"
+    JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
 else :
-    metFilterProcess = "RECO"
+    if not applyL2L3Residuals : 
+        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
+    else : 
+        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
+
 
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
@@ -118,56 +122,38 @@ for idmod in ele_id_modules:
 for idmod in ph_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
-# Rerun Jet/MET with updated corrections and recommendations 
-if isMC:
-    JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
-else :
+
+# Re-running of jets and MET
+if redoJetsMET :  
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+    runMetCorAndUncFromMiniAOD(process,
+        isData = (not isMC),
+    )
+    if miniAODProcess != "PAT" :
+        process.genMetExtractor.metSource= cms.InputTag("slimmedMETs", "", miniAODProcess)   
+        process.slimmedMETs.t01Variation = cms.InputTag("slimmedMETs", "", miniAODProcess) 
+
     if not applyL2L3Residuals : 
-        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute']
-    else : 
-        JECLevels = ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']
+        process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+        process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+        process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+        process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+        process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+        process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+        
+    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+    process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+        src = cms.InputTag("slimmedJets"),
+        levels = JECLevels,
+        payload = 'AK4PFchs' 
+    )
 
-
-from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
-
-runMetCorAndUncFromMiniAOD(process,
-    isData = (not isMC),
-    jecUnFile = jecUncertaintyFile
-)
-runMetCorAndUncFromMiniAOD(process,
-    isData = (not isMC),
-    pfCandColl = cms.InputTag("noHFCands"),
-    jecUnFile = jecUncertaintyFile,
-    postfix = "NoHF"
-)
-
-if not applyL2L3Residuals : 
-    process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-    process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-    
-    process.patPFMetT1T2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT1T2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT2CorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.patPFMetT2SmearCorrNoHF.jetCorrLabelRes = cms.InputTag("L3Absolute")
-    process.shiftedPatJetEnDownNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-    process.shiftedPatJetEnUpNoHF.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-    src = cms.InputTag("slimmedJets"),
-    levels = JECLevels,
-    payload = 'AK4PFchs' 
-)
-
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-process.slimmedJetsRecorrected = patJetsUpdated.clone(
-    jetSource = cms.InputTag("slimmedJets"),
-    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-)
+    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+    process.slimmedJetsRecorrected = patJetsUpdated.clone(
+        jetSource = cms.InputTag("slimmedJets"),
+        jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+    )
 
 # Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
@@ -226,10 +212,6 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
     photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
-    loosephotons = cms.InputTag("selectedObjects", "loosephotons"),
-    rndgammaiso = cms.InputTag("selectedObjects", "rndgammaiso"),
-    rndchhadiso = cms.InputTag("selectedObjects", "rndchhadiso"),
-    photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
     taus = cms.InputTag("slimmedTaus"),
     jets = cms.InputTag("slimmedJetsRecorrected"),
     fatjets = cms.InputTag("slimmedJetsAK8"),
@@ -239,14 +221,13 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     qgptd = cms.InputTag("QGTagger", "ptD"),
     partmet = cms.InputTag("partMet"),
     t1pfmet = cms.InputTag("slimmedMETs"),
-    t1metnohf = cms.InputTag("slimmedMETsNoHF"),
     pfmupt = cms.InputTag("pfmupt"),
     mumet = cms.InputTag("mumet"),
     t1mumet = cms.InputTag("t1mumet"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-    filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
+    filterResults = cms.InputTag("TriggerResults", "", miniAODProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
-    xsec = cms.double(2008.4*3.0),
+    xsec = cms.double(831.76),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
     cleanPhotonJet = cms.bool(True),

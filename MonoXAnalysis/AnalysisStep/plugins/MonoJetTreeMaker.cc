@@ -455,8 +455,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     t1pfmet        = t1pfmetH->front().et();
     t1pfmetphi     = t1pfmetH->front().phi();
 
-    pfmet          = t1pfmetH->front().uncorrectedPt();
-    pfmetphi       = t1pfmetH->front().uncorrectedPhi();
+    pfmet          = t1pfmetH->front().uncorPt();
+    pfmetphi       = t1pfmetH->front().uncorPhi();
 
     if (partmetH.isValid() && partmetH->size() == 9) {
     hmet           = (*partmetH)[1].et();
