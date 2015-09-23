@@ -7,7 +7,7 @@ process = cms.Process("TREE")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -32,18 +32,24 @@ isMC = True
 filterHighMETEvents = False
 
 # Filter on triggered events
-filterOnHLT = False
+filterOnHLT = True
 
 # Use private JECs since the GTs are not updated
-usePrivateSQlite = True
+usePrivateSQlite = False
 
-# Apply L2L3 residual corrections -- under development 
-applyL2L3Residuals = True
+# Apply L2L3 residual corrections
+applyL2L3Residuals = False
+
+# JEC uncertainty
+if isMC : 
+    jecUncertaintyFile = "PhysicsTools/PatUtils/data/Summer15_25nsV2_MC_UncertaintySources_AK4PFchs.txt"
+else :
+    jecUncertaintyFile = "PhysicsTools/PatUtils/data/Summer15_25nsV2_DATA_UncertaintySources_AK4PFchs.txt"
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
-        '/store/mc/RunIISpring15DR74/GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/00000/00BA540A-5618-E511-9D04-A0369F3102F6.root'
+        '/store/mc/RunIISpring15DR74/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v2/40000/0ECCB5A6-582F-E511-BD43-00259075D714.root'
     ])
 )
 
@@ -51,11 +57,11 @@ process.source = cms.Source("PoolSource",
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tree.root"))
 
 # Set the global tag depending on the sample type
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
 if isMC:
-    process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'    # for Simulation
+    process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'   # for Simulation
 else:
-    process.GlobalTag.globaltag = 'GR_P_V56::All'        # for Data
+    process.GlobalTag.globaltag = '74X_dataRun2_v2'            # for Data
 
 # Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py
 if usePrivateSQlite:
@@ -105,8 +111,8 @@ dataFormat = DataFormat.MiniAOD
 switchOnVIDElectronIdProducer(process, dataFormat)
 switchOnVIDPhotonIdProducer(process, dataFormat)
 
-ele_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff']
-ph_id_modules  = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+ele_id_modules = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff']
+ph_id_modules  = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_50ns_V1_cff']
 for idmod in ele_id_modules:
     setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 for idmod in ph_id_modules:
@@ -126,10 +132,12 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 
 runMetCorAndUncFromMiniAOD(process,
     isData = (not isMC),
+    jecUnFile = jecUncertaintyFile
 )
 runMetCorAndUncFromMiniAOD(process,
     isData = (not isMC),
     pfCandColl = cms.InputTag("noHFCands"),
+    jecUnFile = jecUncertaintyFile,
     postfix = "NoHF"
 )
 
@@ -169,9 +177,9 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
     jets = cms.InputTag("slimmedJetsRecorrected"),
-    electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-veto"),
-    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-PHYS14-PU20bx25-V2-standalone-medium"),
-    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-loose")
+    electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
+    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
+    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose")
 )
 
 # Define all the METs corrected for lepton/photon momenta
@@ -187,6 +195,7 @@ process.noHFCands = cms.EDFilter("CandPtrSelector",
 process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
     muons = cms.InputTag("selectedObjects", "muons"),
+    useuncorrmet = cms.bool(True)
 )
 process.pfmupt = cms.EDProducer("MuonCorrectedMETProducer",
     met = cms.InputTag("slimmedMETs"),
@@ -215,8 +224,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
     tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
     tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
-    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-medium"),
-    photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-PHYS14-PU20bx25-V2-standalone-tight"),
+    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
+    photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
     loosephotons = cms.InputTag("selectedObjects", "loosephotons"),
     rndgammaiso = cms.InputTag("selectedObjects", "rndgammaiso"),
     rndchhadiso = cms.InputTag("selectedObjects", "rndchhadiso"),
@@ -237,7 +246,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     filterResults = cms.InputTag("TriggerResults", "", metFilterProcess),
     hcalnoise = cms.InputTag("hcalnoise"),
-    xsec = cms.double(9235.0),
+    xsec = cms.double(2008.4*3.0),
     cleanMuonJet = cms.bool(True),
     cleanElectronJet = cms.bool(True),
     cleanPhotonJet = cms.bool(True),
@@ -251,7 +260,7 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
     uselheweights = cms.bool(True),
-    addqcdpdfweights = cms.bool(True)
+    addqcdpdfweights = cms.bool(False)
 )
 
 # MET filter

@@ -1079,7 +1079,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         if (wzid == 0) {
             for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-                if (gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->pt() > wzpt) {
+                if (gens_iter->pdgId() == 22 && gens_iter->status() == 1 && gens_iter->isPromptFinalState() && gens_iter->pt() > wzpt) {
                     wzid   = gens_iter->pdgId();
                     wzpt   = gens_iter->pt();
                     wzeta  = gens_iter->eta();
