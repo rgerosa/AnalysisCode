@@ -472,8 +472,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pmetphi = 0.;
     ometphi = 0.;
 
-    t1pfmet        = t1pfmetH->front().et();
-    t1pfmetphi     = t1pfmetH->front().phi();
+    t1pfmet        = t1pfmetH->front().corPt();
+    t1pfmetphi     = t1pfmetH->front().corPhi();
 
     pfmet          = t1pfmetH->front().uncorPt();
     pfmetphi       = t1pfmetH->front().uncorPhi();
