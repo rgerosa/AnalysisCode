@@ -83,9 +83,9 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         // Tokens
         edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
         edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
-        edm::EDGetTokenT<HcalNoiseSummary>                 hcalnoiseToken;
         edm::EDGetTokenT<bool>                             hbhelooseToken;
         edm::EDGetTokenT<bool>                             hbhetightToken;
+        edm::EDGetTokenT<bool>                             hbheisoToken;
         edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
         edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
         edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
@@ -129,7 +129,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         uint32_t event, run, lumi;
         uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nbjetslowpt;
         uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
-        uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog, flaghnoiseloose, flaghnoisetight, flaghnoisehilvl;
+        uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, t1mumet, t1mumetphi, elmet, elmetphi, t1elmet, t1elmetphi, phmet, phmetphi, t1phmet, t1phmetphi;
         double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
         double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi, signaljetqgl, signaljetqgs2, signaljetqgptd;
@@ -174,9 +174,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
     triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
     filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
-    hcalnoiseToken(consumes<HcalNoiseSummary> (iConfig.getParameter<edm::InputTag>("hcalnoise"))),
     hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
     hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
+    hbheisoToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheiso"))),
     pileupInfoToken(consumes<std::vector<PileupSummaryInfo> > ((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo")))),
     genevtInfoToken(consumes<GenEventInfoProduct> ((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator")))),
     verticesToken(consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
@@ -232,14 +232,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<TriggerResults> filterResultsH;
     iEvent.getByToken(filterResultsToken, filterResultsH);
 
-    Handle<HcalNoiseSummary> hcalnoiseH;
-    iEvent.getByToken(hcalnoiseToken, hcalnoiseH);
-
     Handle<bool> hbhelooseH;
     iEvent.getByToken(hbhelooseToken, hbhelooseH);
 
     Handle<bool> hbhetightH;
     iEvent.getByToken(hbhetightToken, hbhetightH);
+
+    Handle<bool> hbheisoH;
+    iEvent.getByToken(hbheisoToken, hbheisoH);
 
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
     iEvent.getByToken(pileupInfoToken, pileupInfoH);
@@ -414,16 +414,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     flagtrkfail   = 0;
     flagtrkpog    = 0;
 
-    // HCAL Noise info
-    flaghnoiseloose = 0;
-    flaghnoisetight = 0;
-    flaghnoisehilvl = 0;
-    if (hcalnoiseH->passLooseNoiseFilter()    ) flaghnoiseloose = 1; 
-    if (hcalnoiseH->passTightNoiseFilter()    ) flaghnoisetight = 1; 
-    if (hcalnoiseH->passHighLevelNoiseFilter()) flaghnoisehilvl = 1; 
-
+    // HBHE Noise 
     flaghbheloose = (*hbhelooseH ? 1 : 0);
     flaghbhetight = (*hbhetightH ? 1 : 0);
+    flaghbheiso   = (*hbheisoH   ? 1 : 0);
 
     // Which MET filters passed
     for (size_t i = 0; i < filterPathsVector.size(); i++) {
@@ -1098,15 +1092,13 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
     tree->Branch("flaghbheloose"        , &flaghbheloose        , "flaghbheloose/b");
     tree->Branch("flaghbhetight"        , &flaghbhetight        , "flaghbhetight/b");
+    tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/b");
     tree->Branch("flaghcallaser"        , &flaghcallaser        , "flaghcallaser/b");
     tree->Branch("flagecaltrig"         , &flagecaltrig         , "flagecaltrig/b");
     tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
     tree->Branch("flagecallaser"        , &flagecallaser        , "flagecallaser/b");
     tree->Branch("flagtrkfail"          , &flagtrkfail          , "flagtrkfail/b");
     tree->Branch("flagtrkpog"           , &flagtrkpog           , "flagtrkpog/b");
-    tree->Branch("flaghnoiseloose"      , &flaghnoiseloose      , "flaghnoiseloose/b");
-    tree->Branch("flaghnoisetight"      , &flaghnoisetight      , "flaghnoisetight/b");
-    tree->Branch("flaghnoisehilvl"      , &flaghnoisehilvl      , "flaghnoisehilvl/b");
     // Object counts
     tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
     tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
