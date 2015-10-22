@@ -61,7 +61,7 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 if isMC:
     process.GlobalTag.globaltag = '74X_mcRun2_asymptotic_v2'   # for Simulation
 else:
-    process.GlobalTag.globaltag = '74X_dataRun2_v4'            # for Data
+    process.GlobalTag.globaltag = '74X_dataRun2_Prompt_v4'            # for Data
 
 # Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py
 if usePrivateSQlite:
