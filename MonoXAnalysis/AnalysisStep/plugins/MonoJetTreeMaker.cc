@@ -132,12 +132,13 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flaghcallaser, flagecaltrig, flageebadsc, flagecallaser, flagtrkfail, flagtrkpog;
         double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, pfmupt, pfmuphi, mumet, mumetphi, t1mumet, t1mumetphi, elmet, elmetphi, t1elmet, t1elmetphi, phmet, phmetphi, t1phmet, t1phmetphi;
         double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
-        double   signaljetpt, signaljeteta, signaljetphi, signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi, signaljetqgl, signaljetqgs2, signaljetqgptd;
-        double   secondjetpt, secondjeteta, secondjetphi, secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi, secondjetqgl, secondjetqgs2, secondjetqgptd;
-        double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi , thirdjetqgl , thirdjetqgs2 , thirdjetqgptd ;
+        double   leadingjetpt, leadingjeteta, leadingjetphi;
+        double   signaljetpt , signaljeteta , signaljetphi , signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi, signaljetqgl, signaljetqgs2, signaljetqgptd;
+        double   secondjetpt , secondjeteta , secondjetphi , secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi, secondjetqgl, secondjetqgs2, secondjetqgptd;
+        double   thirdjetpt  , thirdjeteta  , thirdjetphi  , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi , thirdjetqgl , thirdjetqgs2 , thirdjetqgptd ;
         int      signaljetqgmult, secondjetqgmult, thirdjetqgmult;
         double   jetjetdphi, jetmetdphimin, incjetmetdphimin, jetelmetdphimin, incjetelmetdphimin, jetphmetdphimin, incjetphmetdphimin;
-        double   ht, dht, mht, alphat, apcjetmetmax, apcjetmetmin; 
+        double   ht, mht, apcjetmetmax, apcjetmetmin; 
         double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
         double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso, el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
         double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
@@ -531,10 +532,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
     }
 
+    leadingjetpt  = 0.0;
+    leadingjeteta = 0.0;
+    leadingjetphi = 0.0;
+
     vector<pat::JetRef> incjets;
     vector<pat::JetRef> jets;
     for (vector<pat::Jet>::const_iterator jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
-        if (fabs(jets_iter->eta()) > 4.5) continue;
         bool skipjet = false;
         for (std::size_t j = 0; j < muons.size(); j++) {
             if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
@@ -546,6 +550,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) skipjet = true;
         }
         if (skipjet) continue;
+        if (jets_iter->pt() > leadingjetpt) {
+            leadingjetpt  = jets_iter->pt() ;
+            leadingjeteta = jets_iter->eta();
+            leadingjetphi = jets_iter->phi();
+        }
         bool passjetid = false;
         if (fabs(jets_iter->eta()) <= 3.0 && jets_iter->neutralHadronEnergyFraction() < 0.99 && jets_iter->neutralEmEnergyFraction() < 0.99 && (jets_iter->chargedMultiplicity() + jets_iter->neutralMultiplicity()) > 1) {
             if (fabs(jets_iter->eta()) > 2.4) passjetid = true;
@@ -737,9 +746,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // QCD suppression handles
     ht     = 0.;
-    dht    = -1.;
     mht    = 0.;
-    alphat = -1.;
 
     double mhtx = 0.;
     double mhty = 0.;
@@ -754,22 +761,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     mht = sqrt(mhtx*mhtx + mhty*mhty);
-
-    /*
-    if (jetEts.size() > 1 && jetEts.size() < 15) { // Memory consumption explodes with large number of jets -- this should be addressed
-        // This code is ripped off from UserCode/SusyAnalysis/HadronicSUSYOverlapExercise/ANALYSIS/src 
-        std::vector<double> diff( 1<<(jetEts.size()-1) , 0. );
-        for(size_t i = 0; i < diff.size(); i++) {
-            for(size_t j = 0; j < jetEts.size(); j++) diff[i] += jetEts[j] * ( 1 - 2 * (int(i>>j)&1) );
-        }        
-        for(size_t i = 0; i < diff.size(); i++) {
-            diff[i] = fabs(diff[i]);
-        }        
-        dht = *min_element(diff.begin(), diff.end());
-        alphat = 0.5 * (ht - dht) / sqrt(ht*ht - mht*mht);
-    }
-    else alphat = 0.0;
-    */
 
     apcjetmetmax = 0.0;
     apcjetmetmin = 0.0;
@@ -1143,6 +1134,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("omet"                 , &omet                 , "omet/D");
     tree->Branch("ometphi"              , &ometphi              , "ometphi/D");
     // Jet info
+    tree->Branch("leadingjetpt"         , &leadingjetpt         , "leadingjetpt/D");
+    tree->Branch("leadingjeteta"        , &leadingjeteta        , "leadingjeteta/D");
+    tree->Branch("leadingjetphi"        , &leadingjetphi        , "leadingjetphi/D");
     tree->Branch("signaljetpt"          , &signaljetpt          , "signaljetpt/D");
     tree->Branch("signaljeteta"         , &signaljeteta         , "signaljeteta/D");
     tree->Branch("signaljetphi"         , &signaljetphi         , "signaljetphi/D");
@@ -1191,9 +1185,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
     // QCD suppression
     tree->Branch("ht"                   , &ht                   , "ht/D");
-    tree->Branch("dht"                  , &dht                  , "dht/D");
     tree->Branch("mht"                  , &mht                  , "mht/D");
-    tree->Branch("alphat"               , &alphat               , "alphat/D");
     tree->Branch("apcjetmetmax"         , &apcjetmetmax         , "apcjetmetmax/D");
     tree->Branch("apcjetmetmin"         , &apcjetmetmin         , "apcjetmetmin/D");
     // Lepton info
@@ -1308,8 +1300,8 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     triggerPathsVector.push_back("HLT_IsoTkMu20");
     triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
     triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
-    triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf");
-    triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf");
+    triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v");
+    triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v");
     triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v");
     triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v");
 
