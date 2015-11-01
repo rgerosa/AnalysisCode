@@ -30,6 +30,7 @@ void makehist(TTree* tree, TH1* hist, bool isMC, int sample, double scale, TH2* 
     TBranch  *bnhfrac     = tree->GetBranch("signaljetNHfrac");
     TBranch  *bemfrac     = tree->GetBranch("signaljetEMfrac");
 
+    TBranch  *bmet        = tree->GetBranch("t1pfmet");
     TBranch  *bmmet       = tree->GetBranch("t1mumet");
     TBranch  *bmmetphi    = tree->GetBranch("t1mumetphi");
     TBranch  *bemet       = tree->GetBranch("t1elmet");
@@ -81,6 +82,7 @@ void makehist(TTree* tree, TH1* hist, bool isMC, int sample, double scale, TH2* 
     Double_t nhfrac       = 0.0;
     Double_t emfrac       = 0.0;
 
+    Double_t pfmet        = 0.0;
     Double_t mmet         = 0.0;
     Double_t mmetphi      = 0.0;
     Double_t emet         = 0.0;
@@ -132,6 +134,7 @@ void makehist(TTree* tree, TH1* hist, bool isMC, int sample, double scale, TH2* 
     bnhfrac               ->SetAddress(&nhfrac);
     bemfrac               ->SetAddress(&emfrac);
 
+    bmet                  ->SetAddress(&pfmet);
     bmmet                 ->SetAddress(&mmet);
     bmmetphi              ->SetAddress(&mmetphi);
     bemet                 ->SetAddress(&emet);
@@ -184,6 +187,7 @@ void makehist(TTree* tree, TH1* hist, bool isMC, int sample, double scale, TH2* 
         bnhfrac           ->GetEvent(i);
         bemfrac           ->GetEvent(i);
 
+        bmet              ->GetEvent(i);
         bmmet             ->GetEvent(i);
         bmmetphi          ->GetEvent(i);
         bemet             ->GetEvent(i);
@@ -291,6 +295,7 @@ void makehist(TTree* tree, TH1* hist, bool isMC, int sample, double scale, TH2* 
         if (jetpt  < 100.) continue;
         if (jmdphi < 0.5) continue;
         if (sample == 5 && fabs(pheta) > 1.4442) continue;
+        if (sample == 4 && pfmet < 50.) continue;
         if (met < 200.) continue;
 
         double fillvar = met;

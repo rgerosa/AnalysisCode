@@ -1,0 +1,36 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+----------------------------------------------------------------------------------
+shapes data_obs      dimuon   workspace.root w:data_obs_ZE
+shapes Znunu         dimuon   workspace.root w:Znunu_ZE
+shapes WJets_ZE      dimuon   workspace.root w:WJets_ZE
+shapes Dibosons      dimuon   workspace.root w:Dibosons_ZE
+shapes Top           dimuon   workspace.root w:Top_ZE
+----------------------------------------------------------------------------------
+bin         dimuon
+observation -1
+----------------------------------------------------------------------------------
+bin                                 dimuon      dimuon      dimuon          dimuon
+process                             Znunu       WJets_ZE    Dibosons        Top   
+process                             1           2           4               5     
+rate                                1          -1           -1              -1    
+----------------------------------------------------------------------------------
+
+Lumi                      lnN       -           1.055       1.055           1.055 
+Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020             
+Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010             
+Estimate_WJets_ZE         lnN       -           1.200       -               -     
+Estimate_DIBOSONS         lnN       -           -           1.200           -     
+Estimate_TOP              lnN       -           -           -               1.100 
+Znunu_ZE_bin1_Runc        param     0     1
+Znunu_ZE_bin2_Runc        param     0     1
+Znunu_ZE_bin3_Runc        param     0     1
+Znunu_ZE_bin4_Runc        param     0     1
+Znunu_ZE_bin5_Runc        param     0     1
+Znunu_ZE_bin6_Runc        param     0     1
+Znunu_ZE_bin7_Runc        param     0     1
+
+----------------------------------------------------------------------------------
+

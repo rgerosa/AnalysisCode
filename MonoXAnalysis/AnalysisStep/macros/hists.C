@@ -1,10 +1,10 @@
 #include "makehist.h"
 
-int nbins  = 7;
-float bins[]  = {200., 250., 300., 350., 400., 500., 600., 1000.};
+int nbins  = 6;
+float bins[]  = {200., 250., 300., 350., 400., 500., 1000.};
 
-int nrbins = 7;
-float rbins[] = {200., 250., 300., 350., 400., 500., 600., 1000.};
+int nrbins = 6;
+float rbins[] = {200., 250., 300., 350., 400., 500., 1000.};
 
 void makezmmcorhist(string ext="", TH1* khist=NULL) {
     TFile  nfile("/Users/avartak/CMS/MonoX/Trees/znn100toinf/sigtree.root");     
@@ -30,6 +30,9 @@ void makezmmcorhist(string ext="", TH1* khist=NULL) {
     nhist.SetName((name+"hist" ).c_str());
     nhist.Write();
     outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
 }
 
 void makezeecorhist(string ext="", TH1* khist=NULL) {
@@ -56,6 +59,9 @@ void makezeecorhist(string ext="", TH1* khist=NULL) {
     nhist.SetName((name+"hist" ).c_str());
     nhist.Write();
     outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
 }
 
 void makewmncorhist(string ext="", TH1* khist=NULL) {
@@ -82,6 +88,38 @@ void makewmncorhist(string ext="", TH1* khist=NULL) {
     nhist.SetName((name+"hist" ).c_str());
     nhist.Write();
     outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
+}
+
+void makewencorhist(string ext="", TH1* khist=NULL) {
+    TFile  nfile("/Users/avartak/CMS/MonoX/Trees/wln100toinf/sigtree.root");
+    TFile  dfile("/Users/avartak/CMS/MonoX/Trees/wln100toinf/wentree.root");
+
+    TTree* ntree = (TTree*)nfile.Get("tree/tree");
+    TTree* dtree = (TTree*)dfile.Get("tree/tree");
+
+    TH1F nhist("nhist", "", nrbins, rbins);
+    TH1F dhist("dhist", "", nrbins, rbins);
+
+    TFile* sffile = new TFile("leptonIDsfs.root");
+    TH2*  sflhist = (TH2*)sffile->Get("electron_veto_SF");
+    TH2*  sfthist = (TH2*)sffile->Get("electron_tight_SF");
+
+    makehist(ntree, &nhist,  true, 0, 1.00, sflhist, sfthist, NULL, khist);
+    makehist(dtree, &dhist,  true, 4, 1.00, sflhist, sfthist, NULL, khist);
+
+    string name = string("wencor")+ext;
+
+    nhist.Divide(&dhist);
+    TFile outfile((name+".root").c_str(), "RECREATE");
+    nhist.SetName((name+"hist" ).c_str());
+    nhist.Write();
+    outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
 }
 
 void makewzmcorhist(string ext="", TH1* zkhist=NULL, TH1* wkhist=NULL) {
@@ -108,6 +146,34 @@ void makewzmcorhist(string ext="", TH1* zkhist=NULL, TH1* wkhist=NULL) {
     nhist.SetName((name+"hist" ).c_str());
     nhist.Write();
     outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
+}
+
+void makezwjcorhist(string ext="", TH1* zkhist=NULL, TH1* wkhist=NULL) {
+    TFile  nfile("/Users/avartak/CMS/MonoX/Trees/znn100toinf/sigtree.root");
+    TFile  dfile("/Users/avartak/CMS/MonoX/Trees/wln100toinf/sigtree.root");
+
+    TTree* ntree = (TTree*)nfile.Get("tree/tree");
+    TTree* dtree = (TTree*)dfile.Get("tree/tree");
+
+    TH1F nhist("nhist", "", nrbins, rbins);
+    TH1F dhist("dhist", "", nrbins, rbins);
+
+    makehist(ntree, &nhist,  true, 0, 1.00, NULL, NULL, NULL, zkhist);
+    makehist(dtree, &dhist,  true, 0, 1.00, NULL, NULL, NULL, wkhist);
+
+    string name = string("zwjcor")+ext;
+
+    nhist.Divide(&dhist);
+    TFile outfile((name+".root").c_str(), "RECREATE");
+    nhist.SetName((name+"hist" ).c_str());
+    nhist.Write();
+    outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
 }
 
 void makegamcorhist(string ext="", TH1* zkhist=NULL, TH1* gkhist=NULL) {
@@ -130,6 +196,9 @@ void makegamcorhist(string ext="", TH1* zkhist=NULL, TH1* gkhist=NULL) {
     nhist.SetName((name+"hist" ).c_str());
     nhist.Write();
     outfile.Close();
+
+    nfile.Close();
+    dfile.Close();
 }
 
 void sigdatamchist(TFile* outfile, bool blind=false) {
@@ -194,6 +263,16 @@ void sigdatamchist(TFile* outfile, bool blind=false) {
     qchist.Write();
     sihist.Write();
     dthist.Write();
+
+    znfile.Close();
+    wlfile.Close();
+    zlfile.Close();
+    ttfile.Close();
+    difile.Close();
+    qcfile.Close();
+    sifile.Close();
+    dtfile.Close();
+
 }
 
 void gamdatamchist(TFile* outfile) {
@@ -213,31 +292,36 @@ void gamdatamchist(TFile* outfile) {
     dthist.Write();
     qchist.Write();
 
+    dtfile.Close();
 }
 
 void lepdatamchist(TFile* outfile, int sample) {
 
-    if (sample != 1 && sample != 2 && sample != 3) return;
+    if (sample != 1 && sample != 2 && sample != 3 && sample != 4) return;
 
     string filename;
     if      (sample == 1)   filename = "zmmtree.root";
-    else if (sample == 3)   filename = "zeetree.root";
     else if (sample == 2)   filename = "wmntree.root";
+    else if (sample == 3)   filename = "zeetree.root";
+    else if (sample == 4)   filename = "wentree.root";
 
     string vlfilename;
     if      (sample == 1) vlfilename = "wln100toinf/";
-    else if (sample == 3) vlfilename = "wln100toinf/";
     else if (sample == 2) vlfilename = "zll100toinf/";
+    else if (sample == 3) vlfilename = "wln100toinf/";
+    else if (sample == 4) vlfilename = "zll100toinf/";
 
     string dtfilename;
     if      (sample == 1) dtfilename = "metD/";
-    else if (sample == 3) dtfilename = "singleelD/";
     else if (sample == 2) dtfilename = "metD/";
+    else if (sample == 3) dtfilename = "singleelD/";
+    else if (sample == 4) dtfilename = "singleelD/";
 
     string suffix;
     if      (sample == 1) suffix = "zmm";
-    else if (sample == 3) suffix = "zee";
     else if (sample == 2) suffix = "wmn";
+    else if (sample == 3) suffix = "zee";
+    else if (sample == 4) suffix = "wen";
 
     TFile ttfile((string("/Users/avartak/CMS/MonoX/Trees/top/")          + filename).c_str());
     TFile difile((string("/Users/avartak/CMS/MonoX/Trees/dibosons/")     + filename).c_str());
@@ -270,49 +354,71 @@ void lepdatamchist(TFile* outfile, int sample) {
     qchist.Write();
     vlhist.Write();
 
+    dtfile.Close();
+    vlfile.Close();
+    ttfile.Close();
+    difile.Close();
+    qcfile.Close();
 }
 
 void hists() {
 
-    TFile* zkfile = new TFile("zkfactor.root");
-    TFile* gkfile = new TFile("gammakfactor.root");
+    TFile* zgzkfile = new TFile("zkfactor.root");
+    TFile* zggkfile = new TFile("gammakfactor.root");
+    TH1F*  zgzkhist = (TH1F*)zgzkfile->Get("zkfactor"); 
+    TH1F*  zggkhist = (TH1F*)zgzkfile->Get("gammakfactor"); 
 
-    TH1F*  zkhist = (TH1F*)zkfile->Get("zkfactor"); 
-    TH1F*  gkhist = (TH1F*)zkfile->Get("gammakfactor"); 
+    TFile* zwkfile  = new TFile("wzkfactor.root");
+    TH1F*  zwzkhist = (TH1F*)zwkfile->Get("wzzkfactor"); 
+    TH1F*  zwwkhist = (TH1F*)zwkfile->Get("wzwkfactor"); 
 
     makezmmcorhist();    
     makezeecorhist();
     makewmncorhist();    
-    makewzmcorhist();
+    makewencorhist();    
+    makezwjcorhist();
     makegamcorhist();
-    makegamcorhist("nlo", zkhist, gkhist);
+
+    makezwjcorhist("nlo", zwzkhist, zwwkhist);
+    makegamcorhist("nlo", zgzkhist, zggkhist);
 
     TFile* zmmcorfile = new TFile("zmmcor.root");
     TFile* zeecorfile = new TFile("zeecor.root");
     TFile* wmncorfile = new TFile("wmncor.root");
-    TFile* wzmcorfile = new TFile("wzmcor.root");
+    TFile* wencorfile = new TFile("wencor.root");
+    TFile* zwjcorfile = new TFile("zwjcor.root");
     TFile* gamcorfile = new TFile("gamcor.root");
 
     TFile* gamcornlofile = new TFile("gamcornlo.root");
+    TFile* zwjcornlofile = new TFile("zwjcornlo.root");
 
     TH1* zmmcorhist = (TH1*)zmmcorfile->Get("zmmcorhist");    
     TH1* zeecorhist = (TH1*)zeecorfile->Get("zeecorhist");    
     TH1* wmncorhist = (TH1*)wmncorfile->Get("wmncorhist");    
-    TH1* wzmcorhist = (TH1*)wzmcorfile->Get("wzmcorhist");    
+    TH1* wencorhist = (TH1*)wencorfile->Get("wencorhist");    
+    TH1* zwjcorhist = (TH1*)zwjcorfile->Get("zwjcorhist");    
     TH1* gamcorhist = (TH1*)gamcorfile->Get("gamcorhist");    
 
     TH1* gamcornlohist = (TH1*)gamcornlofile->Get("gamcornlohist");    
     gamcornlohist->Divide(gamcorhist);
-    for (int i = 1; i <= gamcornlohist->GetNbinsX(); i++) gamcornlohist->SetBinContent(i, gamcornlohist->GetBinContent(i)-1.0);
-    gamcornlohist->SetName("Theory");
+    for (int i = 1; i <= gamcornlohist->GetNbinsX(); i++) gamcornlohist->SetBinContent(i, fabs(gamcornlohist->GetBinContent(i)-1.0));
+    gamcornlohist->SetName("ZG_Theory");
+
+    TH1* zwjcornlohist = (TH1*)zwjcornlofile->Get("zwjcornlohist");    
+    zwjcornlohist->Divide(zwjcorhist);
+    for (int i = 1; i <= zwjcornlohist->GetNbinsX(); i++) zwjcornlohist->SetBinContent(i, fabs(zwjcornlohist->GetBinContent(i)-1.0));
+    zwjcornlohist->SetName("ZW_Theory");
 
     TFile outfile("templates.root", "RECREATE");
 
     zmmcorhist->Write();
     zeecorhist->Write();
     wmncorhist->Write();
-    wzmcorhist->Write();
+    wencorhist->Write();
+    zwjcorhist->Write();
     gamcorhist->Write();
+
+    zwjcornlohist->Write();
     gamcornlohist->Write();
 
     sigdatamchist(&outfile);
@@ -320,6 +426,7 @@ void hists() {
     lepdatamchist(&outfile, 1);
     lepdatamchist(&outfile, 2);
     lepdatamchist(&outfile, 3);
+    lepdatamchist(&outfile, 4);
 
     outfile.Close();
 

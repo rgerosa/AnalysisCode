@@ -1,5 +1,7 @@
 #include <vector>
 
+bool connectWZ = true;
+
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {
     RooDataHist rhist(procname.c_str(), "", varlist, hist);
     ws.import(rhist);
@@ -26,8 +28,8 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
 
 }
 
-void makeCRBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* rhist, vector<TH1*> syst, const RooArgList& srbinlist) {
-    RooArgList crbinlist;
+void makeConnectedBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* rhist, vector<TH1*> syst, const RooArgList& srbinlist, RooArgList* crbinlist=NULL) {
+    if (crbinlist == NULL) crbinlist = new RooArgList();
 
     for (int i = 1; i <= rhist->GetNbinsX(); i++) {
         stringstream rbinss;
@@ -61,18 +63,17 @@ void makeCRBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* rhi
         formss << ")";
 
         RooFormulaVar* binvar = new RooFormulaVar(binss.str().c_str(), "", formss.str().c_str(), RooArgList(fobinlist));
-        crbinlist.add(*binvar);
+        crbinlist->add(*binvar);
     }
 
     stringstream normss;
     normss << procname << "_norm";
 
-    RooParametricHist phist(procname.c_str(), "", var, crbinlist, *rhist);
-    RooAddition norm(normss.str().c_str(),"", crbinlist);
+    RooParametricHist phist(procname.c_str(), "", var, *crbinlist, *rhist);
+    RooAddition norm(normss.str().c_str(),"", *crbinlist);
 
     ws.import(phist);
     ws.import(norm, RooFit::RecycleConflictNodes());
-
 }
 
 void createWorkspace(){
@@ -103,7 +104,10 @@ void createWorkspace(){
     // WJets background
     TH1F* wln_SR_hist = (TH1F*)templatesfile->Get("wjethist");
     RooArgList wln_SR_bins;
-    makeBinList("WJets_SR", met, wspace, wln_SR_hist, wln_SR_bins);
+    vector<TH1*> wln_SR_syst;
+    wln_SR_syst.push_back((TH1F*)templatesfile->Get("ZW_Theory"));
+    if (!connectWZ) makeBinList("WJets_SR", met, wspace, wln_SR_hist, wln_SR_bins);
+    else   makeConnectedBinList("WJets_SR", met, wspace, (TH1F*)templatesfile->Get("zwjcorhist"), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
 
     // Other MC backgrounds
     addTemplate("ZJets_SR"     , vars, wspace, (TH1F*)templatesfile->Get("zjethist"));
@@ -114,7 +118,7 @@ void createWorkspace(){
     // ---------------------------- CONTROL REGION (Dimuon) -----------------------------------------------------------------//
     addTemplate("data_obs_ZM", vars, wspace, (TH1F*)templatesfile->Get("datahistzmm"));
     vector<TH1*>   znn_ZM_syst;
-    makeCRBinList("Znunu_ZM", met, wspace, (TH1F*)templatesfile->Get("zmmcorhist"), znn_ZM_syst, znn_SR_bins);
+    makeConnectedBinList("Znunu_ZM", met, wspace, (TH1F*)templatesfile->Get("zmmcorhist"), znn_ZM_syst, znn_SR_bins);
 
     // Other MC backgrounds in dimuon control region
     addTemplate("WJets_ZM"     , vars, wspace, (TH1F*)templatesfile->Get("lbkghistzmm"));
@@ -125,7 +129,7 @@ void createWorkspace(){
     // ---------------------------- CONTROL REGION (Dielectron) -----------------------------------------------------------------//
     addTemplate("data_obs_ZE"  , vars, wspace, (TH1F*)templatesfile->Get("datahistzee"));
     vector<TH1*> znn_ZE_syst;
-    makeCRBinList("Znunu_ZE", met, wspace, (TH1F*)templatesfile->Get("zeecorhist"), znn_ZE_syst, znn_SR_bins);
+    makeConnectedBinList("Znunu_ZE", met, wspace, (TH1F*)templatesfile->Get("zeecorhist"), znn_ZE_syst, znn_SR_bins);
 
     // Other MC backgrounds in dielectron control region
     addTemplate("WJets_ZE"     , vars, wspace, (TH1F*)templatesfile->Get("lbkghistzee"));
@@ -136,8 +140,8 @@ void createWorkspace(){
     // ---------------------------- CONTROL REGION (Photon+Jets) -----------------------------------------------------------------//
     addTemplate("data_obs_GJ"  , vars, wspace, (TH1F*)templatesfile->Get("datahistgam"));
     vector<TH1*> znn_GJ_syst;
-    znn_GJ_syst.push_back((TH1F*)templatesfile->Get("Theory"));
-    makeCRBinList("Znunu_GJ", met, wspace, (TH1F*)templatesfile->Get("gamcorhist"), znn_GJ_syst, znn_SR_bins);
+    znn_GJ_syst.push_back((TH1F*)templatesfile->Get("ZG_Theory"));
+    makeConnectedBinList("Znunu_GJ", met, wspace, (TH1F*)templatesfile->Get("gamcorhist"), znn_GJ_syst, znn_SR_bins);
 
     // Other MC backgrounds photon+jets control region
     addTemplate("QCD_GJ"     , vars, wspace, (TH1F*)templatesfile->Get("qbkghistgam"));
@@ -145,13 +149,24 @@ void createWorkspace(){
     // ---------------------------- CONTROL REGION (Single muon) -----------------------------------------------------------------//
     addTemplate("data_obs_WM"  , vars, wspace, (TH1F*)templatesfile->Get("datahistwmn"));
     vector<TH1*> wln_WM_syst;
-    makeCRBinList("WJets_WM", met, wspace, (TH1F*)templatesfile->Get("wmncorhist"), wln_WM_syst, wln_SR_bins);
+    makeConnectedBinList("WJets_WM", met, wspace, (TH1F*)templatesfile->Get("wmncorhist"), wln_WM_syst, wln_SR_bins);
 
     // Other MC backgrounds in single muon control region
     addTemplate("ZJets_WM"     , vars, wspace, (TH1F*)templatesfile->Get("lbkghistwmn"));
     addTemplate("Top_WM"       , vars, wspace, (TH1F*)templatesfile->Get("tbkghistwmn"));
     addTemplate("QCD_WM"       , vars, wspace, (TH1F*)templatesfile->Get("qbkghistwmn"));
     addTemplate("Dibosons_WM"  , vars, wspace, (TH1F*)templatesfile->Get("dbkghistwmn"));
+
+    // ---------------------------- CONTROL REGION (Single electron) -----------------------------------------------------------------//
+    addTemplate("data_obs_WE"  , vars, wspace, (TH1F*)templatesfile->Get("datahistwen"));
+    vector<TH1*> wln_WE_syst;
+    makeConnectedBinList("WJets_WE", met, wspace, (TH1F*)templatesfile->Get("wencorhist"), wln_WE_syst, wln_SR_bins);
+
+    // Other MC backgrounds in single electron control region
+    addTemplate("ZJets_WE"     , vars, wspace, (TH1F*)templatesfile->Get("lbkghistwen"));
+    addTemplate("Top_WE"       , vars, wspace, (TH1F*)templatesfile->Get("tbkghistwen"));
+    addTemplate("QCD_WE"       , vars, wspace, (TH1F*)templatesfile->Get("qbkghistwen"));
+    addTemplate("Dibosons_WE"  , vars, wspace, (TH1F*)templatesfile->Get("dbkghistwen"));
 
     // ---------------------------- Write out the workspace -----------------------------------------------------------------//
     outfile->cd();
