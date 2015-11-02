@@ -22,7 +22,7 @@ process.options = cms.untracked.PSet(
 
 # How many events to process
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 # Is this a simulation or real data
@@ -174,7 +174,12 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     jets = cms.InputTag(jetCollName),
     electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
     electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose")
+    photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"),
+    rho=cms.InputTag("fixedGridRhoFastjetAll"),
+ photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
+ photonPHiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
+ photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation")
+   
 )
 
 # Define all the METs corrected for lepton/photon momenta
@@ -238,6 +243,9 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
     tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
     tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
+   # photonsNew = cms.InputTag("selectedObjects", "photonsNew"),
+  #  tightphotonsNew = cms.InputTag("selectedObjects", "tightphotonsNew"),
+    #photonNewId = cms.InputTag("selectedObjects", "photonisoNew"),
     photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
     taus = cms.InputTag("slimmedTaus"),
