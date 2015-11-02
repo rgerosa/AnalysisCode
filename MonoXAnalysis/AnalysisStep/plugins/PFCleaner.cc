@@ -156,9 +156,10 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
     std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
     //livia
+    std::auto_ptr<edm::ValueMap<bool> > outputphotonisoNewmap(new ValueMap<bool>());
     std::auto_ptr<pat::PhotonRefVector> outputphotonsNew(new pat::PhotonRefVector);
     std::auto_ptr<pat::PhotonRefVector> outputtightphotonsNew(new pat::PhotonRefVector);
-    std::auto_ptr<edm::ValueMap<bool> > outputphotonisoNewmap(new ValueMap<bool>());
+ 
 
     TRandom3 rand;
 
@@ -190,11 +191,12 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     std::vector<float> rndgammaiso;
     std::vector<float> rndchhadiso;
-    std::vector<bool> photonisoNew;//livia
+    std::vector<bool> photonidNew;//livia
 
     for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
         float gaisoval = 0.;
         float chisoval = 0.;
+	bool 	passesphotonisoNew = false;
         double rndphi = photons_iter->phi() + M_PI/2.0;
         if (userandomphi) {
             rndphi = rand.Uniform(-M_PI, M_PI);
@@ -209,29 +211,33 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         rndgammaiso.push_back(gaisoval);
         rndchhadiso.push_back(chisoval);
 
+
+	//livia
+	const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
+	double photonsieie=(*photonsieieH)[photonPtr];
+	double photonphiso=(*photonPHisoH)[photonPtr];
+	double photonchiso=(*photonCHisoH)[photonPtr];
+	double photonhoe =  photons_iter->hadTowOverEm();
+	passesphotonisoNew = IsPassingPhotonIsoNew(photons_iter->pt(),photons_iter->superCluster()->eta(),photonhoe,photonchiso,photonphiso,photonsieie,rho );
+	photonidNew.push_back(passesphotonisoNew);
+
+
         if (fabs(photons_iter->superCluster()->eta()) > 2.5 || photons_iter->pt() < 15) continue;
         if (photons_iter->r9() > 0.8 || photons_iter->chargedHadronIso() < 20. || photons_iter->chargedHadronIso() < photons_iter->pt()*0.3) outputloosephotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin())); 
 
-        const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
+        
         bool passeslooseid = (*photonLooseIdH)[photonPtr];
         if (passeslooseid && photons_iter->passElectronVeto()) {
             outputphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
             if (photons_iter->pt() > 175) outputtightphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
         }
+
 	//livia
-	double photonsieie=(*photonsieieH)[photonPtr];
-	double photonphiso=(*photonPHisoH)[photonPtr];
-	double photonchiso=(*photonCHisoH)[photonPtr];
-	double photonhoe =  photons_iter->hadTowOverEm();
-	bool passesphotonisoNew = IsPassingPhotonIsoNew(photons_iter->pt(),photons_iter->superCluster()->eta(),photonhoe,photonchiso,photonphiso,photonsieie,rho );
-	photonisoNew.push_back(passesphotonisoNew);
 	if (passesphotonisoNew && photons_iter->passElectronVeto()){
 	  std::cout<<"pass"<<std::endl;
-	  std::cout<<"pass2"<<std::endl;
 	  outputphotonsNew->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
             if (photons_iter->pt() > 175) outputtightphotonsNew->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
 	}
-
     }
 
 
@@ -245,10 +251,10 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     chfiller.insert(photonsH, rndchhadiso.begin(), rndchhadiso.end());
     chfiller.fill();
 
-
     //livia
+    
     edm::ValueMap<bool>::Filler photonisoNewfiller(*outputphotonisoNewmap);
-    photonisoNewfiller.insert(photonsH, photonisoNew.begin(), photonisoNew.end());
+    photonisoNewfiller.insert(photonsH, photonidNew.begin(), photonidNew.end());
     photonisoNewfiller.fill();
     
     iEvent.put(outputmuons, "muons");
@@ -260,11 +266,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.put(outputloosephotons, "loosephotons");
     iEvent.put(outputgammaisomap, "rndgammaiso");
     iEvent.put(outputchhadisomap, "rndchhadiso");
-    iEvent.put(outputphotonisoNewmap, "photonidNew");
+    //  iEvent.put(outputphotonisoNewmap, "photonidNew");
 
     //livia
     iEvent.put(outputphotonsNew, "photonsNew");
-    iEvent.put(outputtightphotons, "tightphotonsNew");
+    iEvent.put(outputtightphotonsNew, "tightphotonsNew");
 }
 
 void PFCleaner::beginJob() {
@@ -308,7 +314,7 @@ bool PFCleaner::IsPassingPhotonIsoNew(double pt,double eta,double hoe, double ch
   double k;
   double EA=0;
   double newphiso;
-  bool isPassing = false;
+  int isPassing = false;
   if(abs(eta)<1.4442){
     chisoCUT= 5;
     sieieCUT=0.0105;
