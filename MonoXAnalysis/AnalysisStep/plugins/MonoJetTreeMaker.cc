@@ -1010,8 +1010,10 @@ void MonoJetTreeMaker::beginJob() {
     // Event weights
     tree->Branch("xsec"                 , &xsec                 , "xsec/D");
     tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+    if (addqcdpdfweights) {
     tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
     tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
+    }
     tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
     // Pileup info
     tree->Branch("puobs"                , &puobs                , "puobs/I");
