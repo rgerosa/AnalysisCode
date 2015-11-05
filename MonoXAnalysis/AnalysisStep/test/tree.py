@@ -22,7 +22,7 @@ process.options = cms.untracked.PSet(
 
 # How many events to process
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 # Is this a simulation or real data
@@ -49,7 +49,7 @@ miniAODProcess = "PAT"
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
-        '/store/data/Run2015D/DoubleMuon/MINIAOD/05Oct2015-v1/30000/B0E177F6-8A6F-E511-A81F-0025905B85D6.root'
+        '/store/mc/RunIISpring15MiniAODv2/GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/10B3B366-4C71-E511-8364-00259074AE3C.root'
     ])
 )
 
@@ -171,15 +171,14 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     muons = cms.InputTag("slimmedMuons"),
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
     jets = cms.InputTag(jetCollName),
     electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
-    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
+    electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
     photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"),
-    rho=cms.InputTag("fixedGridRhoFastjetAll"),
- photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
- photonPHiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
- photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation")
-   
+    photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
+    photonphiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
+    photonchiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation")
 )
 
 # Define all the METs corrected for lepton/photon momenta
@@ -226,11 +225,6 @@ process.t1phmet = cms.EDProducer("CandCorrectedMETProducer",
     cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
 )
 
-# Quark-Gluon Discriminant
-process.load("RecoJets.JetProducers.QGTagger_cfi")
-process.QGTagger.srcJets = jetCollName
-process.QGTagger.srcVertexCollection = "goodVertices"
-
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     pileup = cms.InputTag("addPileupInfo"),
@@ -243,20 +237,14 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
     tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
     tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
-    photonsNew = cms.InputTag("selectedObjects", "photonsNew"),
-    tightphotonsNew = cms.InputTag("selectedObjects", "tightphotonsNew"),
-    photonNewId = cms.InputTag("selectedObjects", "photonisoNew"),
+    electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
+    photonLooseId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"),
     photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
+    photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
     taus = cms.InputTag("slimmedTaus"),
     jets = cms.InputTag(jetCollName),
-    qgl = cms.InputTag("QGTagger", "qgLikelihood"),
-    qgs2 = cms.InputTag("QGTagger", "axis2"),
-    qgmult = cms.InputTag("QGTagger", "mult"),
-    qgptd = cms.InputTag("QGTagger", "ptD"),
-    partmet = cms.InputTag("partMet"),
     t1pfmet = cms.InputTag("slimmedMETs"),
-    pfmupt = cms.InputTag("pfmupt"),
     mumet = cms.InputTag("mumet"),
     t1mumet = cms.InputTag("t1mumet"),
     elmet = cms.InputTag("elmet"),
@@ -265,7 +253,6 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     t1phmet = cms.InputTag("t1phmet"),
     triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
     filterResults = cms.InputTag("TriggerResults", "", miniAODProcess),
-    hcalnoise = cms.InputTag("hcalnoise"),
     hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
     hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
     hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
