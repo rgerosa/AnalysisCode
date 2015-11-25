@@ -18,8 +18,8 @@ process                             1           2           4               5
 rate                                1          -1           -1              -1    
 ----------------------------------------------------------------------------------
 
-Lumi                      lnN       -           1.055       1.055           1.055 
-Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020             
+Lumi                      lnN       -           1.120       1.120           1.120 
+Uncertainty_ELSF          lnN       1.040       1.040       1.040           1.040             
 Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010             
 Estimate_WJets_ZE         lnN       -           1.200       -               -     
 Estimate_DIBOSONS         lnN       -           -           1.200           -     

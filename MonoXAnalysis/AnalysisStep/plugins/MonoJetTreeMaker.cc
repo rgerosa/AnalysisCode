@@ -105,7 +105,8 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         edm::EDGetTokenT<edm::ValueMap<bool> >             photonHighPtIdToken;
         edm::EDGetTokenT<std::vector<pat::Tau> >           tausToken;
         edm::EDGetTokenT<std::vector<pat::Jet> >           jetsToken;
-        edm::EDGetTokenT<edm::View<pat::MET> >             t1pfmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            pfmetToken;
+        edm::EDGetTokenT<edm::View<reco::MET> >            t1pfmetToken;
         edm::EDGetTokenT<edm::View<reco::MET> >            mumetToken;
         edm::EDGetTokenT<edm::View<reco::MET> >            t1mumetToken;
         edm::EDGetTokenT<edm::View<reco::MET> >            elmetToken;
@@ -199,7 +200,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     photonHighPtIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonHighPtId"))),
     tausToken(consumes<std::vector<pat::Tau> > (iConfig.getParameter<edm::InputTag>("taus"))),
     jetsToken(consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
-    t1pfmetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1pfmet"))),
+    pfmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("pfmet"))),
+    t1pfmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1pfmet"))),
     mumetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("mumet"))),
     t1mumetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1mumet"))),
     elmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("elmet"))),
@@ -307,7 +309,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<std::vector<pat::Jet> > jetsH;
     iEvent.getByToken(jetsToken, jetsH);
 
-    Handle<View<pat::MET> > t1pfmetH;
+    Handle<View<reco::MET> > pfmetH;
+    iEvent.getByToken(pfmetToken, pfmetH);
+
+    Handle<View<reco::MET> > t1pfmetH;
     iEvent.getByToken(t1pfmetToken, t1pfmetH);
 
     Handle<View<reco::MET> > mumetH;
@@ -460,11 +465,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // MET information 
+    pfmet          = pfmetH->front().et();
+    pfmetphi       = pfmetH->front().phi();
+
     t1pfmet        = t1pfmetH->front().et();
     t1pfmetphi     = t1pfmetH->front().phi();
-
-    pfmet          = t1pfmetH->front().uncorPt();
-    pfmetphi       = t1pfmetH->front().uncorPhi();
 
     mumet          = mumetH->front().et();
     mumetphi       = mumetH->front().phi();
@@ -659,7 +664,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> jetmetdphimin4vector;
     for (size_t i = 0; i < jets.size(); i++) {
         if (jets[i]->pt() > 30) {
-            double jetphi = atan2(sin(jets[i]->phi()), cos(jets[i]->phi()));
+            double jetphi = jets[i]->phi();
             jetmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
             if (i < 4) jetmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
         }
@@ -671,6 +676,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> incjetmetdphimin4vector;
     for (size_t i = 0; i < incjets.size(); i++) {
         if (incjets[i]->pt() > 30) {
+            //double incjetphi = incjets[i]->phi();
             double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
             incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
             if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
@@ -683,7 +689,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> jetelmetdphimin4vector;
     for (size_t i = 0; i < jets.size(); i++) {
         if (jets[i]->pt() > 30) {
-            double jetphi = atan2(sin(jets[i]->phi()), cos(jets[i]->phi()));
+            double jetphi = jets[i]->phi();
             jetelmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
             if (i < 4) jetelmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
         }
@@ -695,7 +701,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> incjetelmetdphimin4vector;
     for (size_t i = 0; i < incjets.size(); i++) {
         if (incjets[i]->pt() > 30) {
-            double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
+            double incjetphi = incjets[i]->phi();
             incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
             if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
         }
@@ -707,7 +713,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> jetphmetdphimin4vector;
     for (size_t i = 0; i < jets.size(); i++) {
         if (jets[i]->pt() > 30) {
-            double jetphi = atan2(sin(jets[i]->phi()), cos(jets[i]->phi()));
+            double jetphi = jets[i]->phi();
             jetphmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
             if (i < 4) jetphmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
         }
@@ -719,7 +725,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     std::vector<double> incjetphmetdphimin4vector;
     for (size_t i = 0; i < incjets.size(); i++) {
         if (incjets[i]->pt() > 30) {
-            double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
+            double incjetphi = incjets[i]->phi();
             incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
             if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
         }
@@ -994,6 +1000,27 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                 }
             }
         }
+    }
+
+    if (isSignalSample && gensH.isValid()) {
+        TLorentzVector dm1vec; 
+        TLorentzVector dm2vec; 
+        bool foundfirst = false;
+        for (View<GenParticle>::const_iterator gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+            if (gens_iter->pdgId() == 1000022 && !foundfirst) {
+                dm1vec.SetPtEtaPhiE(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->p());
+                foundfirst = true;
+            }
+            if (gens_iter->pdgId() == 1000022 &&  foundfirst) {
+                dm2vec.SetPtEtaPhiE(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->p());
+                break;
+            }
+        }
+        TLorentzVector medvec(dm1vec);
+        medvec += dm2vec;
+        wzpt  = medvec.Pt();
+        wzeta = medvec.Eta();
+        wzphi = medvec.Phi();
     }
 
     tree->Fill();

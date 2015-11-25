@@ -5,7 +5,7 @@ kmax * number of nuisance parameters
 ------------------------------------------------------------------------------------------------
 shapes data_obs      onemuon   workspace.root w:data_obs_WM
 shapes WJets         onemuon   workspace.root w:WJets_WM
-shapes ZJets         onemuon   workspace.root w:ZJets_WM
+shapes ZJets_WM      onemuon   workspace.root w:ZJets_WM
 shapes Dibosons      onemuon   workspace.root w:Dibosons_WM
 shapes Top           onemuon   workspace.root w:Top_WM
 shapes QCD_WM        onemuon   workspace.root w:QCD_WM
@@ -14,15 +14,15 @@ bin         onemuon
 observation -1
 ------------------------------------------------------------------------------------------------
 bin                                 onemuon     onemuon     onemuon         onemuon       onemuon
-process                             WJets       ZJets       Dibosons        Top           QCD_WM
+process                             WJets       ZJets_WM    Dibosons        Top           QCD_WM
 process                             2           3           4               5             6
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
 
-Lumi                      lnN       -           1.055       1.055           1.055         1.055
+Lumi                      lnN       -           1.120       1.120           1.120         1.120
 Uncertainty_MUSF          lnN       1.010       1.010       1.010           1.010         1.010
-Uncertainty_VPDF          lnN       1.030       -           -               -             -             
-Estimate_ZJets            lnN       -           1.200       -               -             -
+Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
+Estimate_ZJets_ZM         lnN       -           1.200       -               -             -
 Estimate_DIBOSONS         lnN       -           -           1.200           -             -
 Estimate_TOP              lnN       -           -           -               1.100         -
 Estimate_QCD_WM           lnN       -           -           -               -             1.500

@@ -1,4 +1,5 @@
 #include <vector>
+#include <utility>
 
 bool connectWZ = true;
 
@@ -23,12 +24,12 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
     RooParametricHist phist(procname.c_str(), "", var, binlist, *hist);
     RooAddition norm(normss.str().c_str(), "", binlist);
 
-    ws.import(phist);
-    ws.import(norm,RooFit::RecycleConflictNodes());
+    ws.import(phist,RooFit::RecycleConflictNodes());
+    ws.import(norm, RooFit::RecycleConflictNodes());
 
 }
 
-void makeConnectedBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* rhist, vector<TH1*> syst, const RooArgList& srbinlist, RooArgList* crbinlist=NULL) {
+void makeConnectedBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* rhist, vector<pair<RooRealVar*, TH1*> > syst, const RooArgList& srbinlist, RooArgList* crbinlist=NULL) {
     if (crbinlist == NULL) crbinlist = new RooArgList();
 
     for (int i = 1; i <= rhist->GetNbinsX(); i++) {
@@ -55,10 +56,15 @@ void makeConnectedBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH
         formss << "*(1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2)";
         for (int j = 0; j < syst.size(); j++) {
             stringstream systbinss;
-            systbinss << procname << "_bin" << i << "_" << syst[j]->GetName();
-            RooRealVar* systbinvar = new RooRealVar(systbinss.str().c_str(), "", 0., -5., 5.);
-            fobinlist.add(*systbinvar);
-            formss << "*(1+" << syst[j]->GetBinContent(i) << "*@" << j+3 << ")";
+            if (syst[j].first == NULL) {
+                systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
+                RooRealVar* systbinvar = new RooRealVar(systbinss.str().c_str(), "", 0., -5., 5.);
+                fobinlist.add(*systbinvar);
+            }
+            else {
+                fobinlist.add(*syst[j].first);
+            }
+            formss << "*(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << ")";
         }
         formss << ")";
 
@@ -72,7 +78,7 @@ void makeConnectedBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH
     RooParametricHist phist(procname.c_str(), "", var, *crbinlist, *rhist);
     RooAddition norm(normss.str().c_str(),"", *crbinlist);
 
-    ws.import(phist);
+    ws.import(phist,RooFit::RecycleConflictNodes());
     ws.import(norm, RooFit::RecycleConflictNodes());
 }
 
@@ -87,7 +93,6 @@ void createWorkspace(){
 
     // Templates
     TFile* templatesfile = new TFile("templates.root");
-    TFile* datafile      = new TFile("data.root");
 
     // ---------------------------- SIGNAL REGION -------------------------------------------------------------------//
     // Data
@@ -104,20 +109,34 @@ void createWorkspace(){
     // WJets background
     TH1F* wln_SR_hist = (TH1F*)templatesfile->Get("wjethist");
     RooArgList wln_SR_bins;
-    vector<TH1*> wln_SR_syst;
-    wln_SR_syst.push_back((TH1F*)templatesfile->Get("ZW_Theory"));
+    vector<pair<RooRealVar*, TH1*> > wln_SR_syst;
+    RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_RenScale1" , "", 0., -5., 5.);
+    RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_FactScale1", "", 0., -5., 5.);
+    RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_RenScale2" , "", 0., -5., 5.);
+    RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2", "", 0., -5., 5.);
+    RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF"       , "", 0., -5., 5.);
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get("ZW_EWK")));
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re1, (TH1F*)templatesfile->Get("ZW_RenScale1")));
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa1, (TH1F*)templatesfile->Get("ZW_FactScale1")));
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re2, (TH1F*)templatesfile->Get("ZW_RenScale2")));
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa2, (TH1F*)templatesfile->Get("ZW_FactScale2")));
+    wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_pdf, (TH1F*)templatesfile->Get("ZW_PDF")));
     if (!connectWZ) makeBinList("WJets_SR", met, wspace, wln_SR_hist, wln_SR_bins);
-    else   makeConnectedBinList("WJets_SR", met, wspace, (TH1F*)templatesfile->Get("zwjcorhist"), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
+    else   makeConnectedBinList("WJets_SR", met, wspace, (TH1F*)templatesfile->Get("zwjcorewkhist"), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
+
+    TH1F* qcdhist = (TH1F*)templatesfile->Get("qbkghist");
+    qcdhist->Scale(2.0);
 
     // Other MC backgrounds
     addTemplate("ZJets_SR"     , vars, wspace, (TH1F*)templatesfile->Get("zjethist"));
     addTemplate("Top_SR"       , vars, wspace, (TH1F*)templatesfile->Get("tbkghist"));
-    addTemplate("QCD_SR"       , vars, wspace, (TH1F*)templatesfile->Get("qbkghist"));
+    //addTemplate("QCD_SR"       , vars, wspace, (TH1F*)templatesfile->Get("qbkghist"));
+    addTemplate("QCD_SR"       , vars, wspace, qcdhist);
     addTemplate("Dibosons_SR"  , vars, wspace, (TH1F*)templatesfile->Get("dbkghist"));
 
     // ---------------------------- CONTROL REGION (Dimuon) -----------------------------------------------------------------//
     addTemplate("data_obs_ZM", vars, wspace, (TH1F*)templatesfile->Get("datahistzmm"));
-    vector<TH1*>   znn_ZM_syst;
+    vector<pair<RooRealVar*, TH1*> >   znn_ZM_syst;
     makeConnectedBinList("Znunu_ZM", met, wspace, (TH1F*)templatesfile->Get("zmmcorhist"), znn_ZM_syst, znn_SR_bins);
 
     // Other MC backgrounds in dimuon control region
@@ -128,7 +147,7 @@ void createWorkspace(){
 
     // ---------------------------- CONTROL REGION (Dielectron) -----------------------------------------------------------------//
     addTemplate("data_obs_ZE"  , vars, wspace, (TH1F*)templatesfile->Get("datahistzee"));
-    vector<TH1*> znn_ZE_syst;
+    vector<pair<RooRealVar*, TH1*> > znn_ZE_syst;
     makeConnectedBinList("Znunu_ZE", met, wspace, (TH1F*)templatesfile->Get("zeecorhist"), znn_ZE_syst, znn_SR_bins);
 
     // Other MC backgrounds in dielectron control region
@@ -139,16 +158,28 @@ void createWorkspace(){
 
     // ---------------------------- CONTROL REGION (Photon+Jets) -----------------------------------------------------------------//
     addTemplate("data_obs_GJ"  , vars, wspace, (TH1F*)templatesfile->Get("datahistgam"));
-    vector<TH1*> znn_GJ_syst;
-    znn_GJ_syst.push_back((TH1F*)templatesfile->Get("ZG_Theory"));
-    makeConnectedBinList("Znunu_GJ", met, wspace, (TH1F*)templatesfile->Get("gamcorhist"), znn_GJ_syst, znn_SR_bins);
+    vector<pair<RooRealVar*, TH1*> > znn_GJ_syst;
+    RooRealVar* znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1" , "", 0., -5., 5.);
+    RooRealVar* znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1", "", 0., -5., 5.);
+    RooRealVar* znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2" , "", 0., -5., 5.);
+    RooRealVar* znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2", "", 0., -5., 5.);
+    RooRealVar* znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"       , "", 0., -5., 5.);
+    RooRealVar* znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint" , "", 0., -5., 5.);
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get("ZG_EWK")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re1, (TH1F*)templatesfile->Get("ZG_RenScale1")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa1, (TH1F*)templatesfile->Get("ZG_FactScale1")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re2, (TH1F*)templatesfile->Get("ZG_RenScale2")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa2, (TH1F*)templatesfile->Get("ZG_FactScale2")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_pdf, (TH1F*)templatesfile->Get("ZG_PDF")));
+    znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fpc, (TH1F*)templatesfile->Get("ZG_Footprint")));
+    makeConnectedBinList("Znunu_GJ", met, wspace, (TH1F*)templatesfile->Get("gamcorewkhist"), znn_GJ_syst, znn_SR_bins);
 
     // Other MC backgrounds photon+jets control region
     addTemplate("QCD_GJ"     , vars, wspace, (TH1F*)templatesfile->Get("qbkghistgam"));
 
     // ---------------------------- CONTROL REGION (Single muon) -----------------------------------------------------------------//
     addTemplate("data_obs_WM"  , vars, wspace, (TH1F*)templatesfile->Get("datahistwmn"));
-    vector<TH1*> wln_WM_syst;
+    vector<pair<RooRealVar*, TH1*> > wln_WM_syst;
     makeConnectedBinList("WJets_WM", met, wspace, (TH1F*)templatesfile->Get("wmncorhist"), wln_WM_syst, wln_SR_bins);
 
     // Other MC backgrounds in single muon control region
@@ -159,7 +190,7 @@ void createWorkspace(){
 
     // ---------------------------- CONTROL REGION (Single electron) -----------------------------------------------------------------//
     addTemplate("data_obs_WE"  , vars, wspace, (TH1F*)templatesfile->Get("datahistwen"));
-    vector<TH1*> wln_WE_syst;
+    vector<pair<RooRealVar*, TH1*> > wln_WE_syst;
     makeConnectedBinList("WJets_WE", met, wspace, (TH1F*)templatesfile->Get("wencorhist"), wln_WE_syst, wln_SR_bins);
 
     // Other MC backgrounds in single electron control region
@@ -172,4 +203,5 @@ void createWorkspace(){
     outfile->cd();
     wspace.Write();
     outfile->Close();
+
 }

@@ -34,22 +34,19 @@ filterHighMETEvents = False
 # Filter on triggered events
 filterOnHLT = True
 
-# Redo jets and MET with updated JEC
-redoJetsMET = False
-
 # Use private JECs since the GTs are not updated
-usePrivateSQlite = False
+usePrivateSQlite = True
 
 # Apply L2L3 residual corrections
-applyL2L3Residuals = False
+applyL2L3Residuals = True
 
 # Process name used in MiniAOD -- needed to get the correct trigger results, and also for redoing the MET
-miniAODProcess = "PAT"
+miniAODProcess = "RECO"
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
     fileNames = cms.untracked.vstring([
-        '/store/mc/RunIISpring15MiniAODv2/GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/30000/10B3B366-4C71-E511-8364-00259074AE3C.root'
+        '/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root'
     ])
 )
 
@@ -67,7 +64,7 @@ else:
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
-    era = "Summer15_25nsV5"
+    era = "Summer15_25nsV6"
     if isMC : 
         era += "_MC"
     else :
@@ -129,40 +126,43 @@ for idmod in ph_id_modules:
 
 
 # Re-running of jets and MET
-jetCollName = "slimmedJets"
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
+    
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+    src = cms.InputTag("slimmedJets"),
+    levels = JECLevels,
+    payload = 'AK4PFchs' 
+)
 
-if redoJetsMET :  
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+process.slimmedJetsRecorrected = patJetsUpdated.clone(
+    jetSource = cms.InputTag("slimmedJets"),
+    jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+)
 
-    runMetCorAndUncFromMiniAOD(process,
-        isData = (not isMC),
-    )
-    if miniAODProcess != "PAT" :
-        if isMC : 
-            process.genMetExtractor.metSource= cms.InputTag("slimmedMETs", "", miniAODProcess)   
-        process.slimmedMETs.t01Variation = cms.InputTag("slimmedMETs", "", miniAODProcess) 
+process.pfCandsCHS = cms.EDFilter("CandPtrSelector", 
+    src = cms.InputTag("packedPFCandidates"), 
+    cut = cms.string("fromPV")
+)
 
-    if not applyL2L3Residuals : 
-        process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-        process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-        process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-        process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
-        process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-        process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-        
-    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
-    process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
-        src = cms.InputTag("slimmedJets"),
-        levels = JECLevels,
-        payload = 'AK4PFchs' 
-    )
+from RecoJets.Configuration.RecoPFJets_cff import ak4PFJetsCHS
+process.ak4PFJetsCHS = ak4PFJetsCHS.clone(src = "pfCandsCHS")
 
-    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-    process.slimmedJetsRecorrected = patJetsUpdated.clone(
-        jetSource = cms.InputTag("slimmedJets"),
-        jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
-    )
-    jetCollName = "slimmedJetsRecorrected"
+from RecoMET.METProducers.PFMET_cfi import pfMet
+process.pfMet = pfMet.clone(src = "packedPFCandidates")
+
+process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
+if isMC : 
+    process.corrPfMetType1.jetCorrLabelRes = "ak4PFCHSL1FastL2L3Corrector"
+else :
+    if not applyL2L3Residuals :
+        process.corrPfMetType1.jetCorrLabelRes = "ak4PFCHSL1FastL2L3Corrector"
+    else :
+        process.corrPfMetType1.jetCorrLabelRes = "ak4PFCHSL1FastL2L3ResidualCorrector"
+
+from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
+process.pfMetT1 = pfMetT1.clone()
 
 # Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
@@ -172,7 +172,7 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
     electrons = cms.InputTag("slimmedElectrons"),
     photons = cms.InputTag("slimmedPhotons"),
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
-    jets = cms.InputTag(jetCollName),
+    jets = cms.InputTag("slimmedJetsRecorrected"),
     electronidveto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
     electronidmedium = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
     photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"),
@@ -182,46 +182,29 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
 )
 
 # Define all the METs corrected for lepton/photon momenta
-process.partMet = cms.EDProducer("METBreakDownProducer",
-    pfcands = cms.InputTag("packedPFCandidates") 
-)
-
-process.noHFCands = cms.EDFilter("CandPtrSelector",
-    src=cms.InputTag("packedPFCandidates"),
-    cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
-)
-
-process.mumet = cms.EDProducer("MuonCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    muons = cms.InputTag("selectedObjects", "muons"),
-    useuncorrmet = cms.bool(True)
-)
-process.pfmupt = cms.EDProducer("MuonCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    muons = cms.InputTag("selectedObjects", "muons"),
-    muptonly = cms.bool(True)
-)
-process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
+process.mumet = cms.EDProducer("MuonCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMet"),
     muons = cms.InputTag("selectedObjects", "muons")
 )
+process.t1mumet = cms.EDProducer("MuonCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMetT1"),
+    muons = cms.InputTag("selectedObjects", "muons")
+)
+process.elmet = cms.EDProducer("CandCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMet"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons"))
+)
+process.t1elmet = cms.EDProducer("CandCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMetT1"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
+)
+process.phmet = cms.EDProducer("CandCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMet"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons"))
 
-process.elmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
-    useuncorrmet = cms.bool(True)
 )
-process.t1elmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
-)
-process.phmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
-    useuncorrmet = cms.bool(True)
-)
-process.t1phmet = cms.EDProducer("CandCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs"),
+process.t1phmet = cms.EDProducer("CandCorrectedRecoMETProducer",
+    met = cms.InputTag("pfMetT1"),
     cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
 )
 
@@ -243,8 +226,9 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
     photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
     photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
     taus = cms.InputTag("slimmedTaus"),
-    jets = cms.InputTag(jetCollName),
-    t1pfmet = cms.InputTag("slimmedMETs"),
+    jets = cms.InputTag("slimmedJetsRecorrected"),
+    pfmet = cms.InputTag("pfMet"),
+    t1pfmet = cms.InputTag("pfMetT1"),
     mumet = cms.InputTag("mumet"),
     t1mumet = cms.InputTag("t1mumet"),
     elmet = cms.InputTag("elmet"),

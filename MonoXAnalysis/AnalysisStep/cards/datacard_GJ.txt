@@ -16,7 +16,8 @@ process                             1           6
 rate                                1          -1        
 ---------------------------------------------------------
 
-Estimate_QCD_GJ           lnN       -           1.020    
+Estimate_QCD_GJ           lnN       -           1.400    
+Uncertainty_PHSF          lnN       1.020       -  
 Znunu_GJ_bin1_Runc        param     0     1
 Znunu_GJ_bin2_Runc        param     0     1
 Znunu_GJ_bin3_Runc        param     0     1
@@ -24,13 +25,19 @@ Znunu_GJ_bin4_Runc        param     0     1
 Znunu_GJ_bin5_Runc        param     0     1
 Znunu_GJ_bin6_Runc        param     0     1
 Znunu_GJ_bin7_Runc        param     0     1
-Znunu_GJ_bin1_Theory      param     0     1
-Znunu_GJ_bin2_Theory      param     0     1
-Znunu_GJ_bin3_Theory      param     0     1
-Znunu_GJ_bin4_Theory      param     0     1
-Znunu_GJ_bin5_Theory      param     0     1
-Znunu_GJ_bin6_Theory      param     0     1
-Znunu_GJ_bin7_Theory      param     0     1
+Znunu_GJ_bin1_ZG_EWK      param     0     1
+Znunu_GJ_bin2_ZG_EWK      param     0     1
+Znunu_GJ_bin3_ZG_EWK      param     0     1
+Znunu_GJ_bin4_ZG_EWK      param     0     1
+Znunu_GJ_bin5_ZG_EWK      param     0     1
+Znunu_GJ_bin6_ZG_EWK      param     0     1
+Znunu_GJ_bin7_ZG_EWK      param     0     1
+Znunu_GJ_RenScale1        param     0     1
+Znunu_GJ_FactScale1       param     0     1
+Znunu_GJ_RenScale2        param     0     1
+Znunu_GJ_FactScale2       param     0     1
+Znunu_GJ_PDF              param     0     1
+Znunu_GJ_Footprint        param     0     1
 
 ---------------------------------------------------------
 
