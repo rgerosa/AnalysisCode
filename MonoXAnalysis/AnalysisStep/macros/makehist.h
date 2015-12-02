@@ -1,9 +1,9 @@
-#ifndef MAKEHIST_H
-#define MAKEHIST_H
+#ifndef MAKEHIST4_H
+#define MAKEHIST4_H
 
 #include <vector>
 
-void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vector<TH1*> khists, TH1* rhist=NULL) {
+void makehist4(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vector<TH1*> khists, TH1* rhist=NULL) {
     double lumi = 2.11;
 
     TFile* pufile = new TFile("purwt.root");
@@ -16,14 +16,21 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
     TH2*  esflhist = (TH2*)sffile->Get("electron_veto_SF");
     TH2*  esfthist = (TH2*)sffile->Get("electron_tight_SF");
 
-    TFile* psffile = new TFile("PhotonSFandEffandPurity_Lumi1e26fb_1108.root");
+    TFile* psffile = new TFile("PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
     TH2*  psfhist = (TH2*)psffile->Get("PhotonSF");
+
+    TFile* purfile = new TFile("PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
+    TH2*  purhist = (TH2*)psffile->Get("PhotonPurity");
 
     TFile* trefile = new TFile("leptonTrigsfs.root");
     TH2*  trehist = (TH2*)trefile->Get("hltel27_SF");
 
+    TFile* trmfile = new TFile("mettrigSF.root");
+    TH1*  trmhist = (TH1*)trefile->Get("mettrigSF");
+
     hist->Sumw2();
 
+    TBranch  *brun        = tree->GetBranch("run");
     TBranch  *bnvtx       = tree->GetBranch("nvtx");
     TBranch  *bxsec       = tree->GetBranch("xsec");
     TBranch  *bwgt        = tree->GetBranch("wgt");
@@ -89,10 +96,14 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
     TBranch  *bphphi      = tree->GetBranch("phphi");
 
     TBranch  *bwzpt       = tree->GetBranch("wzpt");
+    TBranch  *bwzeta      = tree->GetBranch("wzeta");
     TBranch  *bzmass      = tree->GetBranch("zmass");
     TBranch  *bzmmpt      = tree->GetBranch("zpt");
     TBranch  *bzeept      = tree->GetBranch("zeept");
+    TBranch  *bzmmeta     = tree->GetBranch("zeta");
+    TBranch  *bzeeeta     = tree->GetBranch("zeeeta");
 
+    UInt_t   run          = 0;
     UInt_t   nvtx         = 0;
     Double_t xsec         = 0.0;
     Double_t wgt          = 0.0;
@@ -150,10 +161,14 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
     Double_t phphi        = 0.0;
 
     Double_t wzpt         = 0.0;
+    Double_t wzeta        = 0.0;
     Double_t zmass        = 0.0;
     Double_t zmmpt        = 0.0;
     Double_t zeept        = 0.0;
+    Double_t zmmeta       = 0.0;
+    Double_t zeeeta       = 0.0;
 
+    brun                  ->SetAddress(&run);
     bnvtx                 ->SetAddress(&nvtx);
     bxsec                 ->SetAddress(&xsec);
     bwgt                  ->SetAddress(&wgt);
@@ -211,11 +226,15 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
     bphphi                ->SetAddress(&phphi);
 
     bwzpt                 ->SetAddress(&wzpt);
+    bwzeta                ->SetAddress(&wzeta);
     bzmass                ->SetAddress(&zmass);
     bzmmpt                ->SetAddress(&zmmpt);
     bzeept                ->SetAddress(&zeept);
+    bzmmeta               ->SetAddress(&zmmeta);
+    bzeeeta               ->SetAddress(&zeeeta);
 
     for (Long64_t i = 0; i < tree->GetEntries(); i++) {
+        brun              ->GetEvent(i);
         bnvtx             ->GetEvent(i);
         bxsec             ->GetEvent(i);
         bwgt              ->GetEvent(i);
@@ -275,26 +294,29 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
         bphphi            ->GetEvent(i);
 
         bwzpt             ->GetEvent(i);
+        bwzeta            ->GetEvent(i);
         bzmass            ->GetEvent(i);
         bzmmpt            ->GetEvent(i);
         bzeept            ->GetEvent(i);
+        bzmmeta           ->GetEvent(i);
+        bzeeeta           ->GetEvent(i);
         
         Double_t hlt = 0.0;
         if      (sample == 0 || sample == 1 || sample == 2) hlt = hltm;
         else if (sample == 3 || sample == 4)                hlt = hlte;
-        else if (sample == 5)                               hlt = hltp;
+        else if (sample == 5 || sample == 6)                hlt = hltp;
 
-        if (sample == 5 && hltp2 > 0) hlt = hltp2;
+        if ((sample == 5 || sample == 6) && hltp2 > 0)      hlt = hltp2;
 
         Double_t jmdphi = 0.0;
         if      (sample == 0 || sample == 1 || sample == 2) jmdphi = fabs(jmmdphi);
         else if (sample == 3 || sample == 4)                jmdphi = fabs(jemdphi);
-        else if (sample == 5)                               jmdphi = fabs(jpmdphi);
+        else if (sample == 5 || sample == 6)                jmdphi = fabs(jpmdphi);
 
         Double_t met = 0.0;
         if      (sample == 0 || sample == 1 || sample == 2) met = mmet;
         else if (sample == 3 || sample == 4)                met = emet;
-        else if (sample == 5)                               met = pmet;
+        else if (sample == 5 || sample == 6)                met = pmet;
 
         Double_t zpt = 0.0;
         if      (sample == 1) zpt = zmmpt;
@@ -303,6 +325,7 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
 
         Double_t puwgt = 0.;
         if (nvtx <= 35) puwgt = puhist->GetBinContent(nvtx);
+        //puwgt = 1.0;
 
         Int_t    id1   = 0;
         Int_t    id2   = 0;
@@ -327,12 +350,15 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
             eta1 = fabs(el1eta);
             eta2 = fabs(el2eta);
         }
-        else if (sample == 5) {
+        else if (sample == 5 || sample == 6) {
             id1  = 1.0;
             id2  = 1.0;
             pt1  = phpt;
             eta1 = fabs(pheta);
         }
+
+        if (pt1 >= 1000.) pt1 = 999.0;
+        if (pt2 >= 1000.) pt2 = 999.0;
 
         TH2* sflhist = NULL;
         TH2* sfthist = NULL;
@@ -362,10 +388,18 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
                 sfwgt *= trehist->GetBinContent(trehist->FindBin(pt1, eta1));
             }
         }
-        if (isMC && psfhist && sample == 5) {
+        if (isMC && psfhist && (sample == 5 || sample == 6)) {
             if (pt1 > 0. && id1 == 1) {
                 sfwgt *= psfhist->GetBinContent(psfhist->FindBin(pt1, eta1));
             }
+        }
+        if (!isMC && purhist && sample == 6) {
+            if (pt1 > 175. && id1 == 1) {
+                sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(pt1, eta1)));
+            }
+        }
+        if (isMC && trmhist && (sample == 0 || sample == 1 || sample == 2)) {
+            sfwgt *= trmhist->GetBinContent(trmhist->FindBin(met));
         }
 
         Double_t kvar = wzpt;
@@ -391,15 +425,17 @@ void makehist2(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
         if (jmdphi < 0.5) continue;
         if (sample == 1 && mu1pid == mu2pid) continue;
         if (sample == 3 && el1pid == el2pid) continue;
-        if (sample == 5 && phpt < 175.) continue;
-        if (sample == 5 && fabs(pheta) > 1.4442) continue;
+        if ((sample == 5 || sample == 6) && phpt < 175.) continue;
+        if ((sample == 5 || sample == 6) && fabs(pheta) > 1.4442) continue;
         if (sample == 4 && pfmet < 50.) continue;
+        if (met < 200.) continue;
 
         double fillvar = met;
         if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) fillvar = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());
 
         double evtwgt = 1.0;
         if (isMC) evtwgt = xsec*scale*lumi*wgt*puwgt*sfwgt*rwgt*kwgt/wgtsum;
+        if (!isMC && sample == 6) evtwgt = sfwgt;
 
         hist->Fill(fillvar, evtwgt);
     }

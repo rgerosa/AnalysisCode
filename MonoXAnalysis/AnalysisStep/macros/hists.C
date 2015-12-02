@@ -1,7 +1,4 @@
-#include "makehist.h"
-
-double crh = 0.95;
-double crl = 0.32;
+#include "makehist4.h"
 
 int nbins  = 7;
 float bins[]  = {200., 250., 300., 350., 400., 500., 600., 1000.};
@@ -31,8 +28,8 @@ void makezmmcorhist() {
     zhists.push_back(znlohist);
     zhists.push_back(zewkhist);
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 1, 1.00, zhists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 1, 1.00, zhists, NULL);
 
     string name = string("zmmcor");    
 
@@ -70,8 +67,8 @@ void makezeecorhist() {
     zhists.push_back(znlohist);
     zhists.push_back(zewkhist);
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 3, 1.00, zhists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 3, 1.00, zhists, NULL);
 
     string name = string("zeecor");    
 
@@ -110,8 +107,8 @@ void makewmncorhist() {
     zhists.push_back(zewkhist);
 
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 2, 1.00, zhists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 2, 1.00, zhists, NULL);
 
     string name = string("wmncor");    
 
@@ -149,8 +146,8 @@ void makewencorhist(string ext="", int pdf=0) {
     zhists.push_back(znlohist);
     zhists.push_back(zewkhist);
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 4, 1.00, zhists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 4, 1.00, zhists, NULL);
 
     string name = string("wencor")+ext;
 
@@ -197,8 +194,8 @@ void makewzmcorhist() {
     whists.push_back(wnlohist);
     whists.push_back(wewkhist);
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 2, 1.00, whists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 2, 1.00, whists, NULL);
 
     string name = string("wzmcor");    
 
@@ -271,8 +268,8 @@ void makezwjcorhist(string ext="", int kfact=0) {
     if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
 
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 0, 1.00, whists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 0, 1.00, whists, NULL);
 
     string name = string("zwjcor")+ext;
 
@@ -292,6 +289,7 @@ void makezwjcorhist(string ext="", int kfact=0) {
 void makegamcorhist(string ext="", int kfact=0) {
     TFile  nfile("/Users/avartak/CMS/MonoX/FinalTrees/znn100toinf/sigtree.root");
     TFile  dfile("/Users/avartak/CMS/MonoX/FinalTrees/gam100toinf/gamtree.root");
+    //TFile  dfile("/Users/avartak/CMS/MonoX/FinalTrees/gam100toinf/loosegamtree.root");
 
     TTree* ntree = (TTree*)nfile.Get("tree");
     TTree* dtree = (TTree*)dfile.Get("tree");
@@ -351,8 +349,8 @@ void makegamcorhist(string ext="", int kfact=0) {
     if (kfact == 7) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
     if (kfact == 8) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
 
-    makehist2(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(dtree, &dhist,  true, 5, 1.00, ahists, NULL);
+    makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(dtree, &dhist,  true, 5, 1.00, ahists, NULL);
 
     string name = string("gamcor")+ext;    
 
@@ -377,7 +375,7 @@ void sigdatamchist(TFile* outfile, bool blind=false) {
     TFile ttfile("/Users/avartak/CMS/MonoX/FinalTrees/top/sigtree.root");
     TFile difile("/Users/avartak/CMS/MonoX/FinalTrees/qcd/sigtree.root");
     TFile qcfile("/Users/avartak/CMS/MonoX/FinalTrees/dibosons/sigtree.root");
-    TFile sifile("/Users/avartak/CMS/MonoX/FinalTrees/avM2000m50/sigtree.root");
+    TFile sifile("/Users/avartak/CMS/MonoX/FinalTrees/psM200m1/sigtree.root");
     TFile dtfile("/Users/avartak/CMS/MonoX/FinalTrees/met/sigtree.root");
 
     TH1F znhist("zinvhist", "", nbins, bins);
@@ -416,17 +414,14 @@ void sigdatamchist(TFile* outfile, bool blind=false) {
     whists.push_back(wnlohist); whists.push_back(wewkhist);
 
 
-    makehist2(zntree, &znhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(wltree, &wlhist,  true, 0, 1.00, whists, NULL);
-    makehist2(zltree, &zlhist,  true, 0, 1.00, zhists, NULL);
-    makehist2(tttree, &tthist,  true, 0, 1.00, ehists, NULL);
-    makehist2(ditree, &dihist,  true, 0, 1.00, ehists, NULL);
-    makehist2(qctree, &qchist,  true, 0, 1.00, ehists, NULL);
-    makehist2(sitree, &sihist,  true, 0, 1.00, ehists, NULL);
-    makehist2(dttree, &dthist, false, 0, 1.00, ehists, NULL);
-
-    //sihist.Scale(893.368/421.5);
-    //sihist.Scale(1000./421.5);
+    makehist4(zntree, &znhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(wltree, &wlhist,  true, 0, 1.00, whists, NULL);
+    makehist4(zltree, &zlhist,  true, 0, 1.00, zhists, NULL);
+    makehist4(tttree, &tthist,  true, 0, 1.00, ehists, NULL);
+    makehist4(ditree, &dihist,  true, 0, 1.00, ehists, NULL);
+    makehist4(qctree, &qchist,  true, 0, 1.00, ehists, NULL);
+    makehist4(sitree, &sihist,  true, 0, 1.00, ehists, NULL);
+    makehist4(dttree, &dthist, false, 0, 1.00, ehists, NULL);
 
     if (blind) {
         for (int i = 1; i <= dthist.GetNbinsX(); i++) {
@@ -476,9 +471,10 @@ void gamdatamchist(TFile* outfile) {
 
     vector<TH1*> ehists;
 
-    makehist2(dttree, &dthist, false, 5, 1.00, ehists, NULL);
+    makehist4(dttree, &dthist, false, 5, 1.00, ehists, NULL);
+    makehist4(dttree, &qchist, false, 6, 1.00, ehists, NULL);
 
-    for (int i = 1; i <= dthist.GetNbinsX(); i++) qchist.SetBinContent(i, dthist.GetBinContent(i)*0.05);
+    //for (int i = 1; i <= dthist.GetNbinsX(); i++) qchist.SetBinContent(i, dthist.GetBinContent(i)*0.05);
 
     outfile->cd();
     dthist.Write();
@@ -553,11 +549,11 @@ void lepdatamchist(TFile* outfile, int sample) {
     if (vlfilename == "wln100toinf/") {vhists.push_back(wnlohist); vhists.push_back(wewkhist);}
     if (vlfilename == "zll100toinf/") {vhists.push_back(znlohist); vhists.push_back(zewkhist);}
 
-    makehist2(dttree, &dthist, false, sample, 1.00, ehists, NULL);
-    makehist2(vltree, &vlhist,  true, sample, 1.00, ehists, NULL);
-    makehist2(tttree, &tthist,  true, sample, 1.00, ehists, NULL);
-    makehist2(ditree, &dihist,  true, sample, 1.00, ehists, NULL);
-    makehist2(qctree, &qchist,  true, sample, 1.00, ehists, NULL);
+    makehist4(dttree, &dthist, false, sample, 1.00, ehists, NULL);
+    makehist4(vltree, &vlhist,  true, sample, 1.00, ehists, NULL);
+    makehist4(tttree, &tthist,  true, sample, 1.00, ehists, NULL);
+    makehist4(ditree, &dihist,  true, sample, 1.00, ehists, NULL);
+    makehist4(qctree, &qchist,  true, sample, 1.00, ehists, NULL);
 
     outfile->cd();
     dthist.Write();
@@ -577,7 +573,6 @@ void lepdatamchist(TFile* outfile, int sample) {
 
 void hists() {
     /*
-    makewmncorhist();    
     makezmmcorhist(); 
     makezeecorhist();
     makewmncorhist();    
