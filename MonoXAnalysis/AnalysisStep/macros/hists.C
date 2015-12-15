@@ -373,9 +373,9 @@ void sigdatamchist(TFile* outfile, bool blind=false) {
     TFile wlfile("/Users/avartak/CMS/MonoX/FinalTrees/wln100toinf/sigtree.root");
     TFile zlfile("/Users/avartak/CMS/MonoX/FinalTrees/zll100toinf/sigtree.root");
     TFile ttfile("/Users/avartak/CMS/MonoX/FinalTrees/top/sigtree.root");
-    TFile difile("/Users/avartak/CMS/MonoX/FinalTrees/qcd/sigtree.root");
-    TFile qcfile("/Users/avartak/CMS/MonoX/FinalTrees/dibosons/sigtree.root");
-    TFile sifile("/Users/avartak/CMS/MonoX/FinalTrees/psM200m1/sigtree.root");
+    TFile qcfile("/Users/avartak/CMS/MonoX/FinalTrees/qcd/sigtree.root");
+    TFile difile("/Users/avartak/CMS/MonoX/FinalTrees/dibosons/sigtree.root");
+    TFile sifile("/Users/avartak/CMS/MonoX/FinalTrees/vM1000m1/sigtree.root");
     TFile dtfile("/Users/avartak/CMS/MonoX/FinalTrees/met/sigtree.root");
 
     TH1F znhist("zinvhist", "", nbins, bins);
@@ -435,6 +435,12 @@ void sigdatamchist(TFile* outfile, bool blind=false) {
             dthist.SetBinContent(i, int(binval));
         }
     }
+
+    /*
+    for (int i = 1; i <= dthist.GetNbinsX(); i++) {
+        dthist.SetBinContent(i, dthist.GetBinContent(i)+int(sihist.GetBinContent(i)));
+    }
+    */
 
     outfile->cd();
     znhist.Write();
@@ -533,11 +539,9 @@ void lepdatamchist(TFile* outfile, int sample) {
 
     TFile kffile("scalefactors_v4.root");
     TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
-    //TH1* znlohist = (TH1*)kffile.Get("znlo1/znlo1_nominal");
     TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
     TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
     TH1* wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
-    //TH1* wnlohist = (TH1*)kffile.Get("wnlo1/wnlo1_nominal");
     TH1*  wlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
     TH1* wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
 
