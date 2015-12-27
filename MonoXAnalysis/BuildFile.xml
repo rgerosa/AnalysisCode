@@ -1,0 +1,21 @@
+<use   name="JetMETCorrections/Objects"/>
+<use   name="CondFormats/JetMETObjects"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="rootrflx"/>
+<use   name="root"/>
+<use   name="rootmath"/>
+<use   name="rootcore"/>
+<use   name="rootMinuit"/>
+<use name="rootgraphics"/>
+<flags   GENREFLEX_ARGS="--"/>
+<flags   CXXFLAGS="-Werror=unused-but-set-variable"/>
+<export>
+  <lib   name="1"/>
+</export>
