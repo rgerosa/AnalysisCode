@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
 from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
+from RecoMET.METProducers.PFMET_cfi import pfMet
 
 ## generic function that corrects jet and MET given a JEC
 def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, applyL2L3Residuals, doMETSystematics):
@@ -37,10 +38,10 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 
 	## redo raw PF met for both collections
 	if not hasattr(process,"pfMet"+postfix): 
-		setattr(process,"pfMet"+postfix,cms.EDProducer("RecoMETExtractor",
-							       correctionLevel = cms.string('raw'),
-							       metSource = cms.InputTag(metCollection,"","@skipCurrentProcess")
-							       )
+		setattr(process,"pfMet"+postfix, pfMet.clone( 
+				src = cms.InputTag("packedPFCandidates"),
+				alias = cms.string('pfMet'+postfix)
+				)
 			)
 
 		## re-cast PFMets into PAT objects
@@ -114,9 +115,9 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 						src = cms.InputTag("slimmedElectrons"),
 						useExternalUncertainty = cms.bool(False),
 						binning = cms.VPSet(
-							cms.PSet(binSelection = cms.string("abs(eta) < 1.5"),
+							cms.PSet(binSelection = cms.string("isEB"),
 								 uncertainty = cms.double(0.006)),
-							cms.PSet(binSelection = cms.string("abs(eta) >= 1.5 && abs(eta) < 2.5"),
+							cms.PSet(binSelection = cms.string("!isEB"),
 								 uncertainty = cms.double(0.015))
 							)
 						),
@@ -124,9 +125,9 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 						src = cms.InputTag("slimmedPhotons"),
 						useExternalUncertainty = cms.bool(False),
 						binning = cms.VPSet(
-							cms.PSet(binSelection = cms.string('abs(eta) < 1.5'),
+							cms.PSet(binSelection = cms.string('isEB'),
 								 uncertainty = cms.double(0.01)),
-							cms.PSet(binSelection = cms.string('abs(eta) >= 1.5 && abs(eta) < 2.5'),
+							cms.PSet(binSelection = cms.string('!isEB'),
 								 uncertainty = cms.double(0.025))
 							)
 						),
@@ -211,7 +212,8 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 								      t01Variation = cms.InputTag(metCollection,"","@skipCurrentProcess"),
 								      t1Uncertainties = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"%s"),
 								      tXYUncForRaw = cms.InputTag(metCollection,"","@skipCurrentProcess"),
-								      tXYUncForT1 = cms.InputTag(metCollection,"","@skipCurrentProcess")
+								      tXYUncForT1 = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      t1SmearedVarsAndUncs = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"Smear%s")
 								      ))
 		else:
 
