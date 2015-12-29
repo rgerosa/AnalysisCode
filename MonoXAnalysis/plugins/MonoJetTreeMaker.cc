@@ -6,17 +6,21 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
+
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -47,6 +51,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
+
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
@@ -55,7 +60,7 @@
 #include <TLorentzVector.h>
 #include <TPRegexp.h>
 
-class MonoJetTreeMaker : public edm::EDAnalyzer {
+class MonoJetTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
     public:
         explicit MonoJetTreeMaker(const edm::ParameterSet&);
         ~MonoJetTreeMaker();
@@ -68,10 +73,10 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
         virtual void endJob() override;
         
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+        virtual void endRun(edm::Run const&, edm::EventSetup const&);
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
         void findMother(const reco::Candidate*, int &, double &, double &, double &);
         void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
@@ -118,6 +123,7 @@ class MonoJetTreeMaker : public edm::EDAnalyzer {
         std::map<std::string, int> triggerPathsMap;
         std::vector<std::string> filterPathsVector;
         std::map<std::string, int> filterPathsMap;
+
         bool applyHLTFilter;
         bool isWorZMCSample, isSignalSample;   
         bool cleanMuonJet, cleanElectronJet, cleanPhotonJet;   
@@ -218,8 +224,11 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     addqcdpdfweights(iConfig.existsAs<bool>("addqcdpdfweights") ? iConfig.getParameter<bool>("addqcdpdfweights") : false),
     xsec(iConfig.getParameter<double>("xsec") * 1000.0)
 {
-    wgtqcd = new double[8];
-    wgtpdf = new double[100];
+
+  usesResource("TFileService");
+  
+  wgtqcd = new double[8];
+  wgtpdf = new double[100];
 }
 
 

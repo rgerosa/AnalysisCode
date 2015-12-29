@@ -1,14 +1,14 @@
 #include <memory>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-class LHEInfoReader : public edm::EDAnalyzer {
+class LHEInfoReader : public edm::one::EDAnalyzer<> {
     public:
         explicit LHEInfoReader(const edm::ParameterSet&);
         ~LHEInfoReader();
@@ -21,7 +21,7 @@ class LHEInfoReader : public edm::EDAnalyzer {
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
         virtual void endJob() override;
         
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&);
 };
 
 LHEInfoReader::LHEInfoReader(const edm::ParameterSet& iConfig) {
@@ -41,13 +41,12 @@ void LHEInfoReader::endJob() {
 }
 
 void LHEInfoReader::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-    edm::Handle<LHERunInfoProduct> run;
-    typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-    
+
+    edm::Handle<LHERunInfoProduct> run;    
     iRun.getByLabel("externalLHEProducer", run);
     LHERunInfoProduct myLHERunInfoProduct = *(run.product());
     
-    for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
+    for (auto iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
         std::cout << iter->tag() << std::endl;
         std::vector<std::string> lines = iter->lines();
         for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
