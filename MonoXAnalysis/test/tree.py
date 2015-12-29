@@ -114,23 +114,23 @@ if options.isMC and options.applyL2L3Residuals:
 
 
 print "##### Settings ######"
-print "Running with isMC = ",options.isMC	
+print "Running with isMC                = ",options.isMC	
 print "Running with filterHighMETEvents = ",options.filterHighMETEvents	
-print "Running with filterOnHLT = ",options.filterOnHLT	
-print "Running with usePrivateSQlite = ",options.usePrivateSQlite	
-print "Running with applyL2L3Residuals = ",options.applyL2L3Residuals	
-print "Running with doMETSystematics = ",options.doMETSystematics	
-print "Running with processName = ",options.processName	
-print "Running with miniAODProcess = ",options.miniAODProcess	
-print "Running with outputFileName = ",options.outputFileName	
-print "Running with globalTag = ",options.globalTag	
-print "Running with JEC Era = ",options.JECEra	
+print "Running with filterOnHLT         = ",options.filterOnHLT	
+print "Running with usePrivateSQlite    = ",options.usePrivateSQlite	
+print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
+print "Running with doMETSystematics    = ",options.doMETSystematics	
+print "Running with processName         = ",options.processName	
+print "Running with miniAODProcess      = ",options.miniAODProcess	
+print "Running with outputFileName      = ",options.outputFileName	
+print "Running with globalTag           = ",options.globalTag	
+print "Running with JEC Era             = ",options.JECEra	
 print "Running with dropAnalyzerDumpEDM = ",options.dropAnalyzerDumpEDM	
-print "Running with reportEvery = ",options.reportEvery	    
-print "Running with wantSummary = ",options.wantSummary	
-print "Running with addPileupJetID = ",options.addPileupJetID
-print "Running with addQGLikelihood = ",options.addQGLikelihood
-print "Running with addMVAMet = ",options.addMVAMet
+print "Running with reportEvery         = ",options.reportEvery	    
+print "Running with wantSummary         = ",options.wantSummary	
+print "Running with addPileupJetID      = ",options.addPileupJetID
+print "Running with addQGLikelihood     = ",options.addQGLikelihood
+print "Running with addMVAMet           = ",options.addMVAMet
 print "#####################"
 
 ## Define the CMSSW process
@@ -168,9 +168,11 @@ else:
 
 
 ## Set the process options -- Display summary at the end, enable unscheduled execution
+CPUS = os.system('getconf _NPROCESSORS_ONLN')
 process.options = cms.untracked.PSet( 
     allowUnscheduled = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(options.wantSummary) 
+    wantSummary = cms.untracked.bool(options.wantSummary),
+    numberOfThreads = cms.untracked.uint32(CPUS),
 )
 
 ## How many events to process
@@ -248,35 +250,28 @@ from AnalysisCode.MonoXAnalysis.MVAMet_cff import runMVAMet
 
 if options.addMVAMet:
 	## to parse leptons we need a list of CandidateView not a value map with Refs
-	leptons = ["PFCleaner:tightmuons","PFCleaner:tightelectrons"]
+	#leptons = ["PFCleaner:tightmuons","PFCleaner:tightelectrons"]
+	leptons = [];
 	runMVAMet(process,isMC = options.isMC,leptons = leptons )
 
 
 # Define all the METs corrected for lepton/photon momenta
-#process.mumet = cms.EDProducer("MuonCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMet"),
-#    muons = cms.InputTag("selectedObjects", "muons")
-#)
-#process.t1mumet = cms.EDProducer("MuonCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMetT1"),
-#    muons = cms.InputTag("selectedObjects", "muons")
-#)
-#process.elmet = cms.EDProducer("CandCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMet"),
-#    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons"))
-#)
-#process.t1elmet = cms.EDProducer("CandCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMetT1"),
-#    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
-#)
-#process.phmet = cms.EDProducer("CandCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMet"),
-#    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons"))
-#)
-#process.t1phmet = cms.EDProducer("CandCorrectedRecoMETProducer",
-#    met = cms.InputTag("pfMetT1"),
-#    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
-#)
+process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
+    met   = cms.InputTag("slimmedMETs","","TREE"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
+)
+process.t1elmet = cms.EDProducer("ElectronCorrectedMETProducer",
+    met = cms.InputTag("slimmedMETs","","TREE"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
+)
+process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
+    met = cms.InputTag("slimmedMETs","","TREE"),
+    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
+)
+process.t1taumet = cms.EDProducer("TauCorrectedMETProducer",
+    met = cms.InputTag("slimmedMETs","","TREE"),
+    cands = cms.VInputTag(cms.InputTag("slimmedTaus")),
+)
 
 # Make the tree 
 #process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
@@ -320,32 +315,41 @@ if options.addMVAMet:
 #)
 
 # Tree for the generator weights
-#process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
-#    lheinfo = cms.InputTag("externalLHEProducer"),
-#    geninfo = cms.InputTag("generator"),
-#    uselheweights = cms.bool(False),
-#    addqcdpdfweights = cms.bool(False)
-#)
+'''
+process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
+    lheinfo = cms.InputTag("externalLHEProducer"),
+    geninfo = cms.InputTag("generator"),
+    uselheweights = cms.bool(False),
+    addqcdpdfweights = cms.bool(False)
+)
 
 # MET filter
-#process.metfilter = cms.EDFilter("CandViewSelector",
-#    src = cms.InputTag("t1mumet"),
-#    cut = cms.string("et > 200"),
-#    filter = cms.bool(True)
-#)
+process.metfilter = cms.EDFilter("CandViewSelector",
+    src = cms.InputTag("t1mumet"),
+    cut = cms.string("et > 200"),
+    filter = cms.bool(True)
+)
 
 # Set up the path
-#if filterHighMETEvents: 
-#    if (isMC):
-#        process.treePath = cms.Path(process.gentree + process.metFilters + process.metfilter + process.tree)
-#    else :
-#        process.treePath = cms.Path(                  process.metFilters + process.metfilter + process.tree)
-#else :
-#    if (isMC):
-#       process.treePath = cms.Path(process.gentree + process.metFilters                     + process.tree)
-#   else :
-#        process.treePath = cms.Path(                  process.metFilters                     + process.tree)
-
+if options.filterHighMETEvents: 
+   if (options.isMC):
+        process.treePath = cms.Path(process.gentree + 
+				    process.metFilters + 
+				    process.metfilter + 
+				    process.tree)
+    else :
+        process.treePath = cms.Path(process.metFilters + 
+				    process.metfilter + 
+				    process.tree)
+else :
+    if (options.isMC):
+       process.treePath = cms.Path(process.gentree + 
+				   process.metFilters + 
+				   process.tree)
+   else :
+        process.treePath = cms.Path(process.metFilters + 
+				    process.tree)
+'''
 ## Create output file
 if options.dropAnalyzerDumpEDM == False:	
    ## Setup the service to make a ROOT TTree
@@ -366,6 +370,11 @@ else:
                                       	'keep *_*slimmed*_*_*'+options.processName+'*',
                                       	'keep *_*slimmedMETs*_*_*',
 					'keep *_*selectedObjects*_*_*',
+					'keep *_*mvaMET*_*_*',
+					'keep *_*t1mumet*_*_*',
+					'keep *_*t1elmet*_*_*',
+					'keep *_*t1phmet*_*_*',
+					'keep *_*t1taumet*_*_*',
                                       	),
                                     )
 
