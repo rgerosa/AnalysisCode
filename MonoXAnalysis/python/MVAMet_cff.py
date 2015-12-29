@@ -14,11 +14,22 @@ def runMVAMet(process,isMC,leptons):
     if not hasattr(process,"ak4PFL1FastL2L3Corrector"):
         process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
-
-    process.calibratedAK4PFJetsForPFMVAMEt = calibratedAK4PFJetsForPFMVAMEt.clone()
-    if not isMC:
-        process.calibratedAK4PFJetsForPFMVAMEt.correctors = cms.vstring("ak4PFL1FastL2L3Residual")
     
+    process.calibratedAK4PFJetsForPFMVAMEt = calibratedAK4PFJetsForPFMVAMEt.clone(
+        correctors = cms.vstring("ak4PFL1FastL2L3"))
+
+    from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3, ak4PFL1FastL2L3Residual, ak4PFL1Fastjet, ak4PFL2Relative, ak4PFL3Absolute
+
+    if not isMC:
+        process.ak4PFL1FastL2L3Residual = ak4PFL1FastL2L3Residual.clone();
+        process.calibratedAK4PFJetsForPFMVAMEt.correctors = cms.vstring("ak4PFL1FastL2L3Residual")
+    else:
+        process.ak4PFL1FastL2L3 = ak4PFL1FastL2L3.clone();
+
+    process.ak4PFL1Fastjet = ak4PFL1Fastjet.clone()
+    process.ak4PFL2Relative = ak4PFL2Relative.clone()
+    process.ak4PFL3Absolute = ak4PFL3Absolute.clone()
+
     from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator
     from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
 
