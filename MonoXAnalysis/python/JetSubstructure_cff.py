@@ -94,12 +94,14 @@ def runGroomedMethod(process, isMC,
             svSource = cms.InputTag('slimmedSecondaryVertices'),
             genJetCollection = cms.InputTag("genJets"+jetAlgo+postfix),
             pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-            btagDiscriminators = ['None'], ## no b-tag info for pruned jets                                                                                                  
-            getJetMCFlavour = isMC, ## no flavor info                                                                                                                        
-            genParticles = cms.InputTag('prunedGenParticles')
+            btagDiscriminators = ['None'], ## no b-tag info for pruned jets                                                                                                 
+            getJetMCFlavour = isMC, ## no flavor info                                                                                                                       
+            genParticles = cms.InputTag("prunedGenParticles")
             )
 
-
+        if "Puppi" in pfCand or "puppi" in pfCand:
+            getattr(process,"patJetCorrFactor"+jetCollection+postfix).useRho = cms.bool(False)
+    
     if addQGLikelihood:
         if not hasattr(process,jetCollection+postfix+"QGL"):
                 setattr(process,jetCollection+postfix+"QGL", QGTagger.clone(
@@ -119,19 +121,23 @@ def runGroomedMethod(process, isMC,
                                    src = cms.InputTag(jetCollection+"Reduced"),                                                                                       
                                    matched = cms.InputTag('patJets'+jetCollection+postfix),                                                                                     
                                    distMax = cms.double(coneSize),                                                                                                    
-                                   values = cms.vstring("mass","pt","hadronFlavour","partonFlavour","userFloat('"+jetCollection+"PrunedQGL:qgLikelihood')","genJet().mass","genJet().pt","bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),                                                                                                    
-                                   valueLabels = cms.vstring("mass","pt","hadronFlavour","partonFlavor","qgLikelihood","genMass","genPt","bTagCSVIVFV2")))            
-                                                                                                                                      
+                                   values = cms.vstring("mass","pt","userFloat('"+jetCollection+"PrunedQGL:qgLikelihood')","bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),                                                                                           
+                                   valueLabels = cms.vstring("mass","pt","qgLikelihood","bTagCSVIVFV2")))            
+            
+            if isMC:
+                getattr(process,jetCollection+postfix+'Matched').valueLabels += ["hadronFlavour","partonFlavor","genMass","genPt"]
+                getattr(process,jetCollection+postfix+'Matched').values += ["hadronFlavour","partonFlavour","genJet().mass","genJet().pt"]
  
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:mass']                                                         
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:pt']                                                          
-            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:qgLikelihood']                                                 
-            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:hadronFlavour']                                       
-            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:partonFlavor']                     
-            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genMass']                                                       
-            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genPt']                                                      
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:qgLikelihood']                                                  
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:bTagCSVIVFV2']                                                  
 
+            if isMC:
+                getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:hadronFlavour']                                       
+                getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:partonFlavor']                     
+                getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genMass']                                              
+                getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genPt']                                                     
 
     if addSubJets:
 
@@ -152,6 +158,7 @@ def runGroomedMethod(process, isMC,
                         ))
 
         if not hasattr(process,"patJets"+jetCollection+postfix+"SubJets"):
+
             addJetCollection(
                 process,
                 labelName = jetCollection+postfix+'SubJets',
@@ -163,14 +170,17 @@ def runGroomedMethod(process, isMC,
                 pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'), 
                 svSource = cms.InputTag('slimmedSecondaryVertices'), 
                 getJetMCFlavour = isMC,
-                genParticles = cms.InputTag('prunedGenParticles'),
+                genParticles = cms.InputTag("prunedGenParticles"),
                 btagDiscriminators = btagDiscriminators,
-                genJetCollection = cms.InputTag("genJets"+jetAlgo+postfix+"SubJets",'SubJets'),
+                genJetCollection = cms.InputTag("genJets"+jetAlgo+postfix+"SubJets","SubJets"),
                 explicitJTA  = True,  # needed for subjet b tagging
                 svClustering = True, # needed for subjet b tagging
                 fatJets = cms.InputTag(jetCollection+"Reduced"),             # needed for subjet flavor clustering
                 groomedFatJets=cms.InputTag(jetCollection+postfix+"SubJets"), # needed for subjet flavor clustering
                 ) 
+
+            if "Puppi" in pfCand or "puppi" in pfCand:
+                getattr(process,"patJetCorrFactor"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
 
         ## adding sub-jet QGL
         if addQGLikelihood:
@@ -343,6 +353,7 @@ def JetSubstructure(process,
     
     ## build pat-jets from this skimmed collection: example
     if not hasattr(process,"patJets"+jetCollection):
+
         addJetCollection(
             process,
             labelName = jetCollection,
@@ -356,8 +367,11 @@ def JetSubstructure(process,
             pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'), 
             btagDiscriminators = bTagDiscriminators,
             getJetMCFlavour = isMC,
-            genParticles = cms.InputTag('prunedGenParticles'),
+            genParticles = cms.InputTag("prunedGenParticles"),
             ) 
+
+        if "Puppi" in pfCand or "puppi" in pfCand:
+            getattr(process,"patJetCorrFactor"+jetCollection).useRho = cms.bool(False)
         
     ## add QGLikelihood on fat jet
     if addQGLikelihood:
@@ -513,3 +527,8 @@ def JetSubstructure(process,
         getattr(process,"packedPatJets"+jetCollection).algoTags = Tags;
         getattr(process,"packedPatJets"+jetCollection).algoLabels = Labels;
 
+
+    if not isMC:
+
+        from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
+        removeMCMatching(process, names=['Jets'], outputModules=['out'])

@@ -41,6 +41,18 @@ options.register (
 	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
+## do substructure for chs jets
+options.register (
+	'doSubstructureCHS',False,
+	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'run substructure algo for AK8CHS jets (Pruning, softDrop)');
+
+## do substructure for chs jets
+options.register (
+	'doSubstructurePuppi',False,
+	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'run substructure algo for AK8Puppi jets (Pruning, softDrop)');
+
 ## re-compute pileup-jet id for AK4 jets
 options.register (
 	'addPileupJetID',False,
@@ -297,23 +309,58 @@ process.puppit1phmet = process.t1phmet.clone(
 )
 
 
+## Create output file
+if options.dropAnalyzerDumpEDM == False:	
+   ## Setup the service to make a ROOT TTree
+   process.TFileService = cms.Service("TFileService", 
+		fileName = cms.string(options.outputFileName))
+else:
+   # Make edm File storing all the products from the processName (current process)
+   process.out = cms.OutputModule("PoolOutputModule",
+                                      fileName = cms.untracked.string(options.outputFileName),
+                                      outputCommands = cms.untracked.vstring(
+                                        'drop *',
+                                      	'keep *_*T1*_*_*'+options.processName+'*',
+                                      	'keep *_*metSysProducer*_*_*'+options.processName+'*',
+                                      	'drop *_*T0*_*_*'+options.processName+'*',
+                                      	'drop *_*T2*_*_*'+options.processName+'*',
+                                      	'keep *_*slimmed*_*_*'+options.processName+'*',
+                                      	'keep *_*slimmedMETs*_*_*',
+                                      	'keep *_patJetsAK8*_*_*',
+                                      	'keep *_*Matched_*_*',
+                                      	'keep *_*Packed_*_*',
+					'keep *_*selectedObjects*_*_*',
+					'keep *_*mvaMET*_*_*',
+					'keep *_*t1mumet*_*_*',
+					'keep *_*t1elmet*_*_*',
+					'keep *_*t1phmet*_*_*',
+					'keep *_*t1taumet*_*_*',
+                                      	),
+                                    )
+
+   process.output = cms.EndPath(process.out)
+
+
 #### substructure sequence
 from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
-JetSubstructure(process,
-		options.isMC,
-		coneSize = 0.8, algo = "AK",
-		pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
-		addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-		addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
-		addQGLikelihood = True);
+if options.doSubstructureCHS:
+	JetSubstructure(process,
+			options.isMC,
+			coneSize = 0.8, algo = "AK",
+			pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
+			addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+			addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+			addQGLikelihood = True);
 
-#JetSubstructure(process,
-#		options.isMC,
-#		coneSize = 0.8, algo = "AK",
-#		pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
-#		addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-#		addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
-#		addQGLikelihood = True);
+if options.doSubstructurePuppi:
+
+	JetSubstructure(process,
+			options.isMC,
+			coneSize = 0.8, algo = "AK",
+			pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
+			addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+			addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+			addQGLikelihood = True);
 
 # Make the tree 
 '''
@@ -424,39 +471,6 @@ else :
         process.treePath = cms.Path(process.metFilters + 
 				    process.tree)
 '''
-## Create output file
-if options.dropAnalyzerDumpEDM == False:	
-   ## Setup the service to make a ROOT TTree
-   process.TFileService = cms.Service("TFileService", 
-		fileName = cms.string(options.outputFileName))
-else:
-   # Make edm File storing all the products from the processName (current process)
-   process.out = cms.OutputModule("PoolOutputModule",
-                                      fileName = cms.untracked.string(options.outputFileName),
-                                      outputCommands = cms.untracked.vstring(
-                                        'drop *',
-                                      	'keep *_*pat*_*_*'+options.processName+'*',
-                                      	'keep *_*Pat*_*_*'+options.processName+'*',
-                                      	'keep *_*T1*_*_*'+options.processName+'*',
-                                      	'keep *_*metSysProducer*_*_*'+options.processName+'*',
-                                      	'drop *_*T0*_*_*'+options.processName+'*',
-                                      	'drop *_*T2*_*_*'+options.processName+'*',
-                                      	'keep *_*slimmed*_*_*'+options.processName+'*',
-                                      	'keep *_*slimmedMETs*_*_*',
-                                      	'keep *_patJetsAK8*_*_*',
-                                      	'keep *_genJets*_*_*',
-                                      	'keep *_*Matched_*_*',
-                                      	'keep *_*Packed_*_*',
-					'keep *_*selectedObjects*_*_*',
-					'keep *_*mvaMET*_*_*',
-					'keep *_*t1mumet*_*_*',
-					'keep *_*t1elmet*_*_*',
-					'keep *_*t1phmet*_*_*',
-					'keep *_*t1taumet*_*_*',
-                                      	),
-                                    )
-
-   process.output = cms.EndPath(process.out)
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

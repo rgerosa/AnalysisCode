@@ -18,10 +18,11 @@ def runMVAMet(process,isMC,leptons):
     process.calibratedAK4PFJetsForPFMVAMEt = calibratedAK4PFJetsForPFMVAMEt.clone(
         correctors = cms.vstring("ak4PFL1FastL2L3"))
 
-    from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3, ak4PFL1FastL2L3Residual, ak4PFL1Fastjet, ak4PFL2Relative, ak4PFL3Absolute
+    from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3, ak4PFL1FastL2L3Residual, ak4PFL1Fastjet, ak4PFL2Relative, ak4PFL3Absolute, ak4PFResidual
 
     if not isMC:
         process.ak4PFL1FastL2L3Residual = ak4PFL1FastL2L3Residual.clone();
+        process.ak4PFResidual = ak4PFResidual.clone()
         process.calibratedAK4PFJetsForPFMVAMEt.correctors = cms.vstring("ak4PFL1FastL2L3Residual")
     else:
         process.ak4PFL1FastL2L3 = ak4PFL1FastL2L3.clone();
