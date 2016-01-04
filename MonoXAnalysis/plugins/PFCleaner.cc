@@ -51,10 +51,14 @@ class PFCleaner : public edm::stream::EDProducer<> {
         edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
         edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
         edm::EDGetTokenT<std::vector<pat::Photon> > photonsToken;
+
         edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
         edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
         edm::EDGetTokenT<edm::ValueMap<bool> > electronHeepIdMapToken;
+
         edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
+        edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
         edm::EDGetTokenT<double>  rhoToken;
 
         //livia 
@@ -76,9 +80,11 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     electronsToken           (consumes<std::vector<pat::Electron> > (iConfig.getParameter<edm::InputTag>("electrons"))),
     photonsToken             (consumes<std::vector<pat::Photon> > (iConfig.getParameter<edm::InputTag>("photons"))),
     electronVetoIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronidveto"))),
+    electronLooseIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronidloose"))),
     electronTightIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronidtight"))),
     electronHeepIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronidheep"))),
     photonLooseIdMapToken    (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonidloose"))),
+    photonMediumIdMapToken    (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonidmedium"))),
     rhoToken                 (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     //livia
     photonsieieToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"))), 
@@ -87,14 +93,19 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     userandomphi             (iConfig.existsAs<bool>("userandomphiforRC") ? iConfig.getParameter<bool>("userandomphiforRC") : false)
 {
     produces<pat::MuonRefVector>("muons");
-    produces<pat::ElectronRefVector>("electrons");
-    produces<pat::PhotonRefVector>("photons");
     produces<pat::MuonRefVector>("tightmuons");
     produces<pat::MuonRefVector>("highptmuons");
+
+    produces<pat::ElectronRefVector>("electrons");
+    produces<pat::ElectronRefVector>("looseelectrons");
     produces<pat::ElectronRefVector>("tightelectrons");
     produces<pat::ElectronRefVector>("heepelectrons");
-    produces<pat::PhotonRefVector>("tightphotons");
+
+    produces<pat::PhotonRefVector>("photons");
     produces<pat::PhotonRefVector>("loosephotons");
+    produces<pat::PhotonRefVector>("mediumphotons");
+    produces<pat::PhotonRefVector>("tightphotons");
+
     produces<edm::ValueMap<float> >("rndgammaiso");
     produces<edm::ValueMap<float> >("rndchhadiso");
     produces<edm::ValueMap<bool> >("photonHighPtId");
@@ -133,6 +144,9 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     Handle<edm::ValueMap<bool> > electronVetoIdH;
     iEvent.getByToken(electronVetoIdMapToken, electronVetoIdH);
 
+    Handle<edm::ValueMap<bool> > electronLooseIdH;
+    iEvent.getByToken(electronLooseIdMapToken, electronLooseIdH);
+
     Handle<edm::ValueMap<bool> > electronTightIdH;
     iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
 
@@ -141,7 +155,10 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     Handle<edm::ValueMap<bool> > photonLooseIdH;
     iEvent.getByToken(photonLooseIdMapToken, photonLooseIdH);
-    
+
+    Handle<edm::ValueMap<bool> > photonMediumIdH;
+    iEvent.getByToken(photonMediumIdMapToken, photonMediumIdH);
+
     Handle<edm::ValueMap<float> > photonsieieH;
     iEvent.getByToken(photonsieieToken, photonsieieH);
 
@@ -159,11 +176,14 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<pat::MuonRefVector> outputtightmuons(new pat::MuonRefVector);
     std::auto_ptr<pat::MuonRefVector> outputhighptmuons(new pat::MuonRefVector);
     std::auto_ptr<pat::ElectronRefVector> outputelectrons(new pat::ElectronRefVector);
+    std::auto_ptr<pat::ElectronRefVector> outputvetoelectrons(new pat::ElectronRefVector);
+    std::auto_ptr<pat::ElectronRefVector> outputlooseelectrons(new pat::ElectronRefVector);
     std::auto_ptr<pat::ElectronRefVector> outputtightelectrons(new pat::ElectronRefVector);
     std::auto_ptr<pat::ElectronRefVector> outputheepelectrons(new pat::ElectronRefVector);
     std::auto_ptr<pat::PhotonRefVector> outputphotons(new pat::PhotonRefVector);
-    std::auto_ptr<pat::PhotonRefVector> outputtightphotons(new pat::PhotonRefVector);
     std::auto_ptr<pat::PhotonRefVector> outputloosephotons(new pat::PhotonRefVector);
+    std::auto_ptr<pat::PhotonRefVector> outputmediumphotons(new pat::PhotonRefVector);
+    std::auto_ptr<pat::PhotonRefVector> outputtightphotons(new pat::PhotonRefVector);
     std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
     std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
     //livia
@@ -200,16 +220,22 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
         bool passeskincuts  = (electrons_iter->pt() > 10 && fabs(electrons_iter->superCluster()->eta()) < 2.5);
         bool passesvetoid   = (*electronVetoIdH)[electronPtr];
+        bool passeslooseid  = (*electronLooseIdH)[electronPtr];
         bool passestightid  = (*electronTightIdH)[electronPtr];
         bool passesheepid   = (*electronHeepIdH)[electronPtr];
 
         if (passeskincuts && passesvetoid) 
 	  outputelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+
+        if (passeskincuts && passeslooseid) 
+	  outputlooseelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+
         if (passeskincuts && passestightid) 
 	  outputtightelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+
 	if(passeskincuts &&  passesheepid)
 	  outputheepelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-
+	
     }
 
     // photon https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2
@@ -256,9 +282,16 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  outputloosephotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin())); 
 
         bool passeslooseid = (*photonLooseIdH)[photonPtr];
+        bool passesmediumid = (*photonMediumIdH)[photonPtr];
+
         if ((passeslooseid || passesphotonidhighpt) && photons_iter->passElectronVeto()) {
+
             if (passeslooseid) 
 	      outputphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+
+	    if (passesmediumid)
+	      outputmediumphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+
             if (photons_iter->pt() > 150) 
 	      outputtightphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
         }

@@ -61,169 +61,253 @@
 #include <TPRegexp.h>
 
 class MonoJetTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-    public:
-        explicit MonoJetTreeMaker(const edm::ParameterSet&);
-        ~MonoJetTreeMaker();
-        
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
-    
-    private:
-        virtual void beginJob() override;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override;
-        
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-        void findMother(const reco::Candidate*, int &, double &, double &, double &);
-        void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
-        double computeMuonIso(const reco::Muon&);
+public:
+  explicit MonoJetTreeMaker(const edm::ParameterSet&);
+  ~MonoJetTreeMaker();
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+  
+private:
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
+  
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  
+  void findMother(const reco::Candidate*, int &, double &, double &, double &);
+  void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
+  double computeMuonIso(const reco::Muon&);
+  
+  // InputTags
+  edm::InputTag triggerResultsTag;
+  edm::InputTag filterResultsTag;
+  
+  // trgger and filter tokens
+  edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
+  edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
+  edm::EDGetTokenT<bool>                             hbhelooseToken;
+  edm::EDGetTokenT<bool>                             hbhetightToken;
+  edm::EDGetTokenT<bool>                             hbheisoToken;
+  
+  // Gen Particles
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
+  edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
+  edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
+  
+  // Vertex
+  edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
 
-        // InputTags
-        edm::InputTag triggerResultsTag;
-        edm::InputTag filterResultsTag;
+  // muons
+  edm::EDGetTokenT<pat::MuonRefVector>               muonsToken;
+  edm::EDGetTokenT<pat::MuonRefVector>               tightmuonsToken;
+  edm::EDGetTokenT<pat::MuonRefVector>               highptmuonsToken;
 
-        // Tokens
-        edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
-        edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
-        edm::EDGetTokenT<bool>                             hbhelooseToken;
-        edm::EDGetTokenT<bool>                             hbhetightToken;
-        edm::EDGetTokenT<bool>                             hbheisoToken;
-        edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
-        edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
-        edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
-        edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
-        edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
-        edm::EDGetTokenT<pat::MuonRefVector>               muonsToken;
-        edm::EDGetTokenT<pat::ElectronRefVector>           electronsToken;
-        edm::EDGetTokenT<pat::PhotonRefVector>             photonsToken;
-        edm::EDGetTokenT<pat::MuonRefVector>               tightmuonsToken;
-        edm::EDGetTokenT<pat::ElectronRefVector>           tightelectronsToken;
-        edm::EDGetTokenT<pat::PhotonRefVector>             tightphotonsToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >             electronLooseIdToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >             photonLooseIdToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >             photonMediumIdToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >             photonTightIdToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> >             photonHighPtIdToken;
-        edm::EDGetTokenT<std::vector<pat::Tau> >           tausToken;
-        edm::EDGetTokenT<std::vector<pat::Jet> >           jetsToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            pfmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            t1pfmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            mumetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            t1mumetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            elmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            t1elmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            phmetToken;
-        edm::EDGetTokenT<edm::View<reco::MET> >            t1phmetToken;
+  // electrons
+  edm::EDGetTokenT<pat::ElectronRefVector>           electronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>           tightelectronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>           heepelectronsToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >             electronLooseIdToken;  
 
-        std::vector<std::string> triggerPathsVector;
-        std::map<std::string, int> triggerPathsMap;
-        std::vector<std::string> filterPathsVector;
-        std::map<std::string, int> filterPathsMap;
+  // Photons
+  edm::EDGetTokenT<pat::PhotonRefVector>             photonsToken;
+  edm::EDGetTokenT<pat::PhotonRefVector>             tightphotonsToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >             photonLooseIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >             photonMediumIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >             photonTightIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >             photonHighPtIdToken;
 
-        bool applyHLTFilter;
-        bool isWorZMCSample, isSignalSample;   
-        bool cleanMuonJet, cleanElectronJet, cleanPhotonJet;   
-        bool uselheweights;   
-        bool addqcdpdfweights;   
-        TTree* tree;
+  // Taus
+  edm::EDGetTokenT<std::vector<pat::Tau> >           tausToken;
 
-        int32_t  puobs, putrue; 
-        int32_t  wzid, l1id, l2id, mu1pid, mu2pid, mu1id, mu2id, mu1idm, mu2idm, mu1idt, mu2idt, el1pid, el2pid, el1id, el1idl, el2id, el2idl, phidl, phidm, phidt, phidh, parid, ancid; 
-        uint32_t event, run, lumi;
-        uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, njets, nbjets, nbjetslowpt;
-        uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300, hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
-        uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
-        double   pfmet, pfmetphi, t1pfmet, t1pfmetphi, mumet, mumetphi, t1mumet, t1mumetphi, elmet, elmetphi, t1elmet, t1elmetphi, phmet, phmetphi, t1phmet, t1phmetphi;
-        double   hmet, hmetphi, amet, ametphi, bmet, bmetphi, cmet, cmetphi, emet, emetphi, mmet, mmetphi, pmet, pmetphi, omet, ometphi;
-        double   leadingjetpt, leadingjeteta, leadingjetphi;
-        double   signaljetpt , signaljeteta , signaljetphi , signaljetbtag, signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
-        double   secondjetpt , secondjeteta , secondjetphi , secondjetbtag, secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
-        double   thirdjetpt  , thirdjeteta  , thirdjetphi  , thirdjetbtag , thirdjetCHfrac , thirdjetNHfrac , thirdjetEMfrac , thirdjetCEMfrac , thirdjetmetdphi ;
-        double   fourthjetpt , fourthjeteta , fourthjetphi , fourthjetbtag, fourthjetCHfrac, fourthjetNHfrac, fourthjetEMfrac, fourthjetCEMfrac, fourthjetmetdphi;
-        double   jetmetdphimin , incjetmetdphimin , jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
-        double   jetmetdphimin4, incjetmetdphimin4, jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
-        double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
-        double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso;
-        double   el1pt, el1eta, el1phi, el2pt, el2eta, el2phi, phpt, pheta, phphi;
-        double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
-        double   xsec, wgt, kfact, puwgt;
-        double*  wgtpdf;
-        double*  wgtqcd;
+  //Jets AK4
+  edm::EDGetTokenT<std::vector<pat::Jet> >           jetsToken;
+  edm::EDGetTokenT<std::vector<pat::Jet> >           puppijetsToken;
 
-        struct PatJetPtSorter {
-            bool operator() (pat::JetRef i, pat::JetRef j) {
-                return (i->pt() > j->pt());
-            }
-        } jetsorter;
-        
-        struct PatMuonPtSorter {
-            bool operator() (pat::MuonRef i, pat::MuonRef j) {
-                return (i->pt() > j->pt());
-            }
-        } muonsorter;
-        
-        struct PatElectronPtSorter {
-            bool operator() (pat::ElectronRef i, pat::ElectronRef j) {
-                return (i->pt() > j->pt());
-            }
-        } electronsorter;
+  // MET
+  edm::EDGetTokenT<edm::View<pat::MET> >             t1metToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             t1mumetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             t1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             t1phmetToken;
 
-        struct PatPhotonPtSorter {
-            bool operator() (pat::PhotonRef i, pat::PhotonRef j) {
-                return (i->pt() > j->pt());
-            }
-        } photonsorter;
+  // Puppi MET
+  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1metToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1mumetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1phmetToken;
 
+  // MVA met
+  edm::EDGetTokenT<edm::View<reco::MET> >           mvaMETToken;
+
+  // inner vectors
+  std::vector<std::string> triggerPathsVector;
+  std::map<std::string, int> triggerPathsMap;
+  std::vector<std::string> filterPathsVector;
+  std::map<std::string, int> filterPathsMap;
+
+  // inner bools
+  bool applyHLTFilter;
+  bool isWorZMCSample, isSignalSample;   
+  bool cleanMuonJet, cleanElectronJet, cleanPhotonJet;   
+  bool uselheweights;   
+  bool addqcdpdfweights;   
+  bool addPuppiJets;
+  bool addPuppiMET;
+  bool addMETSystematics;
+
+  // tree
+  TTree* tree;
+
+  // pileup info
+  int32_t puobs, putrue; 
+  // lepton info
+  int32_t wzid, l1id, l2id;
+  int32_t mu1pid, mu2pid, mu1id, mu2id, mu1idm, mu2idm, mu1idt, mu2idt, mu1hptid, mu2hptid;
+  int32_t el1pid, el2pid, el1id, el1idl, el2id, el2idl;
+  int32_t phidl, phidm, phidt, phidh, parid, ancid; 
+  // event info
+  uint32_t event, run, lumi;  
+  uint32_t nvtx, nmuons, nelectrons, ntaus, ntightmuons, ntightelectrons, nphotons, nhighptmuons, nheepelectrons;
+  uint32_t njets, npuppijets, nbjets, npuppibjets, nbjetslowpt, npuppibjetslowpt;
+  uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
+  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
+  uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
+  // met info
+  double  pfmet, pfmetphi, t1pfmet, t1pfmetphi, mumet, mumetphi, t1mumet, t1mumetphi, elmet, elmetphi, t1elmet, t1elmetphi, phmet, phmetphi, t1phmet, t1phmetphi;
+  // puppi met info
+  double  puppipfmet, puppipfmetphi, puppit1pfmet, puppit1pfmetphi, puppimumet, puppimumetphi, puppit1mumet, puppit1mumetphi, puppielmet, puppielmetphi, puppit1elmet, puppit1elmetphi, puppiphmet, puppiphmetphi, puppit1phmet, puppit1phmetphi;
+  // mva met
+  double mvamet, mvametphi;
+  // met sys
+  double t1pfmetMuEnUp, t1pfmetMuEnDown, t1pfmetElEnUp, t1pfmetElEnDown, t1pfmetPhoEnUp, t1pfmetPhoEnDown, t1pfmetTauEnUp, t1pfmetTauEnDown, t1pfmetJetEnUp, t1pfmetJetEnDown, t1pfmetJetResUp, t1pfmetJetResDown, t1pfmetUncEnUp, t1pfmetUncEnDown;
+  double puppit1pfmetMuEnUp, puppit1pfmetMuEnDown, puppit1pfmetElEnUp, puppit1pfmetElEnDown, puppit1pfmetPhoEnUp, puppit1pfmetPhoEnDown, puppit1pfmetTauEnUp, puppit1pfmetTauEnDown, puppit1pfmetJetEnUp, puppit1pfmetJetEnDown, puppit1pfmetJetResUp, puppit1pfmetJetResDown, puppit1pfmetUncEnUp, puppit1pfmetUncEnDown;
+  
+  // jet ak4 CHS
+  double   leadingjetpt, leadingjeteta, leadingjetphi, leadingjetm; 
+  // leading
+  double   signaljetpt , signaljeteta , signaljetphi , signaljetm, signaljetbtag;
+  double   signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
+  double   signaljethadronflavor, signaljetpartonflavor, signaljetQGLikelihood, signaljetpuid, signaljetgenpt, signaljetgeneta, signaljetgenphi, signaljetgenm, signaljetcharge, signaljetrawpt;
+  //
+  double   secondjetpt , secondjeteta , secondjetphi , secondjetm, secondjetbtag;
+  double   secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
+  double   secondjethadronflavor, secondjetpartonflavor, secondjetQGLikelihood, secondjetpuid, secondjetgenpt, secondjetgeneta, secondjetgenphi, secondjetgenm, secondjetcharge, secondjetrawpt;
+  //
+  double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetm, thirdjetbtag;
+  double   thirdjetCHfrac, thirdjetNHfrac, thirdjetEMfrac, thirdjetCEMfrac, thirdjetmetdphi;
+  double   thirdjethadronflavor, thirdjetpartonflavor, thirdjetQGLikelihood, thirdjetpuid, thirdjetgenpt, thirdjetgeneta, thirdjetgenphi, thirdjetgenm, thirdjetcharge, thirdjetrawpt;
+  //
+  double   jetmetdphimin , incjetmetdphimin , jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
+  double   jetmetdphimin4, incjetmetdphimin4, jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
+
+  // Puppijet ak4 puppi
+  double   leadingpuppijetpt, leadingpuppijeteta, leadingpuppijetphi, leadingpuppijetm; 
+  // leading
+  double   signalpuppijetpt , signalpuppijeteta , signalpuppijetphi , signalpuppijetm, signalpuppijetbtag;
+  double   signalpuppijetCHfrac, signalpuppijetNHfrac, signalpuppijetEMfrac, signalpuppijetCEMfrac, signalpuppijetmetdphi;
+  double   signalpuppijethadronflavor, signalpuppijetpartonflavor, signalpuppijetQGLikelihood, signalpuppijetpuid, signalpuppijetgenpt, signalpuppijetgeneta, signalpuppijetgenphi, signalpuppijetgenm, signalpuppijetcharge, signalpuppijetrawpt;
+  //
+  double   secondpuppijetpt , secondpuppijeteta , secondpuppijetphi , secondpuppijetm, secondpuppijetbtag;
+  double   secondpuppijetCHfrac, secondpuppijetNHfrac, secondpuppijetEMfrac, secondpuppijetCEMfrac, secondpuppijetmetdphi;
+  double   secondpuppijethadronflavor, secondpuppijetpartonflavor, secondpuppijetQGLikelihood, secondpuppijetpuid, secondpuppijetgenpt, secondpuppijetgeneta, secondpuppijetgenphi, secondpuppijetgenm, secondpuppijetcharge, secondpuppijetrawpt;
+  //
+  double   thirdpuppijetpt , thirdpuppijeteta , thirdpuppijetphi , thirdpuppijetm, thirdpuppijetbtag;
+  double   thirdpuppijetCHfrac, thirdpuppijetNHfrac, thirdpuppijetEMfrac, thirdpuppijetCEMfrac, thirdpuppijetmetdphi;
+  double   thirdpuppijethadronflavor, thirdpuppijetpartonflavor, thirdpuppijetQGLikelihood, thirdpuppijetpuid, thirdpuppijetgenpt, thirdpuppijetgeneta, thirdpuppijetgenphi, thirdpuppijetgenm, thirdpuppijetcharge, thirdpuppijetrawpt;
+  //
+  double   puppijetmetdphimin , incpuppijetmetdphimin , puppijetelmetdphimin , incpuppijetelmetdphimin , puppijetphmetdphimin , incpuppijetphmetdphimin , puppijetpuppijetdphi;
+  double   puppijetmetdphimin4, incpuppijetmetdphimin4, puppijetelmetdphimin4, incpuppijetelmetdphimin4, puppijetphmetdphimin4, incpuppijetphmetdphimin4, puppiht; 
+  //
+  double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
+  double   mu1pt, mu1eta, mu1phi, mu1pterr, mu1pfpt, mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso, mu2pterr;
+  double   el1pt, el1eta, el1phi, ele1e, ele1eerr, el2pt, ele2e, ele2eerr, el2eta, el2phi, phpt, pheta, phphi, phe, pheerr;
+  double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
+  double   xsec, wgt, kfact, puwgt;
+  double*  wgtpdf;
+  double*  wgtqcd;
+
+  template<typename T>
+  struct PatPtSorter {
+    bool operator() (const T & i, const T & j) {
+      return (i->pt() > j->pt());
+    }
+  };
+  
 };
 
+
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
-    triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
-    filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
-    triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
-    filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
-    hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
-    hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
-    hbheisoToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheiso"))),
-    pileupInfoToken(consumes<std::vector<PileupSummaryInfo> > ((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo")))),
-    genevtInfoToken(consumes<GenEventInfoProduct> ((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator")))),
-    lheInfoToken(consumes<LHEEventProduct> ((iConfig.existsAs<edm::InputTag>("lheinfo") ? iConfig.getParameter<edm::InputTag>("lheinfo") : edm::InputTag("externalLHEProducer")))),
-    verticesToken(consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
-    gensToken(consumes<edm::View<reco::GenParticle> > ((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles")))),
-    muonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("muons"))),
-    electronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("electrons"))),
-    photonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("photons"))),
-    tightmuonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("tightmuons"))),
-    tightelectronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("tightelectrons"))),
-    tightphotonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("tightphotons"))),
-    electronLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("electronLooseId"))),
-    photonLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonLooseId"))),
-    photonMediumIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonMediumId"))),
-    photonTightIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonTightId"))),
-    photonHighPtIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonHighPtId"))),
-    tausToken(consumes<std::vector<pat::Tau> > (iConfig.getParameter<edm::InputTag>("taus"))),
-    jetsToken(consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
-    pfmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("pfmet"))),
-    t1pfmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1pfmet"))),
-    mumetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("mumet"))),
-    t1mumetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1mumet"))),
-    elmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("elmet"))),
-    t1elmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1elmet"))),
-    phmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("phmet"))),
-    t1phmetToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("t1phmet"))),
-    applyHLTFilter(iConfig.existsAs<bool>("applyHLTFilter") ? iConfig.getParameter<bool>("applyHLTFilter") : false),
-    isWorZMCSample(iConfig.existsAs<bool>("isWorZMCSample") ? iConfig.getParameter<bool>("isWorZMCSample") : false),
-    isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
-    cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
-    cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
-    cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
-    uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
-    addqcdpdfweights(iConfig.existsAs<bool>("addqcdpdfweights") ? iConfig.getParameter<bool>("addqcdpdfweights") : false),
-    xsec(iConfig.getParameter<double>("xsec") * 1000.0)
-{
+  // trigger part
+  triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
+  filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
+  triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
+  filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
+  hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
+  hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
+  hbheisoToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheiso"))),
+  // gen level info
+  pileupInfoToken(consumes<std::vector<PileupSummaryInfo> > ((iConfig.existsAs<edm::InputTag>("pileup") ? iConfig.getParameter<edm::InputTag>("pileup") : edm::InputTag("addPileupInfo")))),
+  genevtInfoToken(consumes<GenEventInfoProduct> ((iConfig.existsAs<edm::InputTag>("genevt") ? iConfig.getParameter<edm::InputTag>("genevt") : edm::InputTag("generator")))),
+  lheInfoToken(consumes<LHEEventProduct> ((iConfig.existsAs<edm::InputTag>("lheinfo") ? iConfig.getParameter<edm::InputTag>("lheinfo") : edm::InputTag("externalLHEProducer"))
+)),
+  gensToken(consumes<edm::View<reco::GenParticle> > ((iConfig.existsAs<edm::InputTag>("gens") ? iConfig.getParameter<edm::InputTag>("gens") : edm::InputTag("prunedGenParticles")))),
+  // vertexes
+  verticesToken(consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
+  //muons
+  muonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("muons"))),
+  tightmuonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("tightmuons"))),
+  highptmuonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("highptmuons"))),
+  // electrons
+  electronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("electrons"))),
+  tightelectronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("tightelectrons"))),
+  heepelectronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("heepelectrons"))),
+  electronLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("electronLooseId"))),
+  // photons
+  photonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("photons"))),
+  tightphotonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("tightphotons"))),
+  photonLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonLooseId"))),
+  photonMediumIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonMediumId"))),
+  photonTightIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonTightId"))),
+  photonHighPtIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonHighPtId"))),
+  // taus
+  tausToken(consumes<std::vector<pat::Tau> > (iConfig.getParameter<edm::InputTag>("taus"))),
+  // jets AK4
+  jetsToken(consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
+  puppijetsToken(consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("puppijets"))),
+  // met
+  t1metToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1met"))),
+  t1mumetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1mumet"))),
+  t1elemetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1elmet"))),
+  t1phmetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1phmet"))),
+  // puppi met
+  puppit1metToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1met"))),
+  puppit1mumetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1mumet"))),
+  puppit1elemetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1elmet"))),
+  puppit1phmetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1phmet"))),
+  // MVA met
+  mvaMETToken(consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("mvaMET"))),
+  //bools
+  applyHLTFilter(iConfig.existsAs<bool>("applyHLTFilter") ? iConfig.getParameter<bool>("applyHLTFilter") : false),
+
+  isWorZMCSample(iConfig.existsAs<bool>("isWorZMCSample") ? iConfig.getParameter<bool>("isWorZMCSample") : false),
+  isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
+
+  cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
+  cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
+  cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
+
+  uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
+  addqcdpdfweights(iConfig.existsAs<bool>("addqcdpdfweights") ? iConfig.getParameter<bool>("addqcdpdfweights") : false),
+
+  addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
+  addPuppiMET(iConfig.existsAs<bool>("addPuppiMET") ? iConfig.getParameter<bool>("addPuppiMET") : false),
+  addMETSystematics(iConfig.existsAs<bool>("addMETSystematics") ? iConfig.getParameter<bool>("addMETSystematics") : false),
+  xsec(iConfig.getParameter<double>("xsec") * 1000.0){
 
   usesResource("TFileService");
   
@@ -241,7 +325,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     using namespace edm;
     using namespace reco;
     using namespace std;
-
+    /*
     // Get handles to all the requisite collections
     Handle<TriggerResults> triggerResultsH;
     iEvent.getByToken(triggerResultsToken, triggerResultsH);
@@ -1033,121 +1117,199 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     tree->Fill();
+    */
 }
 
 
 void MonoJetTreeMaker::beginJob() {
-    edm::Service<TFileService> fs;
-    tree = fs->make<TTree>("tree"       , "tree");
-    // Run, Lumi, Event info
-    tree->Branch("event"                , &event                , "event/i");
-    tree->Branch("run"                  , &run                  , "run/i");
-    tree->Branch("lumi"                 , &lumi                 , "lumi/i");
+
+  edm::Service<TFileService> fs;
+  tree = fs->make<TTree>("tree"       , "tree");
+
+  // Run, Lumi, Event info
+  tree->Branch("event"                , &event                , "event/i");
+  tree->Branch("run"                  , &run                  , "run/i");
+  tree->Branch("lumi"                 , &lumi                 , "lumi/i");
     // Event weights
-    tree->Branch("xsec"                 , &xsec                 , "xsec/D");
-    tree->Branch("wgt"                  , &wgt                  , "wgt/D");
-    if (addqcdpdfweights) {
+  tree->Branch("xsec"                 , &xsec                 , "xsec/D");
+  tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+  
+  if (addqcdpdfweights) {
     tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
     tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
-    }
-    tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
-    // Pileup info
-    tree->Branch("puobs"                , &puobs                , "puobs/I");
-    tree->Branch("putrue"               , &putrue               , "putrue/I");
-    tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
-    // Triggers
-    tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
-    tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
-    tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
-    tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
-    tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
-    tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
-    tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
-    tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
-    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
-    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
-    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
-    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
-    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
-    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
-    // MET filters
-    tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
-    tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
-    tree->Branch("flaghbheloose"        , &flaghbheloose        , "flaghbheloose/b");
-    tree->Branch("flaghbhetight"        , &flaghbhetight        , "flaghbhetight/b");
-    tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/b");
-    tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
-    // Object counts
-    tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
-    tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
-    tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/i");
-    tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
-    tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
-    tree->Branch("njets"                , &njets                , "njets/i");
-    tree->Branch("nbjets"               , &nbjets               , "nbjets/i");
-    tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/i");
-    tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
-    // MET info
-    tree->Branch("pfmet"                , &pfmet                , "pfmet/D");
-    tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/D");
-    tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/D");
-    tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/D");
-    tree->Branch("mumet"                , &mumet                , "mumet/D");
-    tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
-    tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/D");
-    tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/D");
-    tree->Branch("elmet"                , &elmet                , "elmet/D");
-    tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/D");
-    tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/D");
-    tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/D");
-    tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
-    tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
-    // Jet info
-    tree->Branch("leadingjetpt"         , &leadingjetpt         , "leadingjetpt/D");
-    tree->Branch("leadingjeteta"        , &leadingjeteta        , "leadingjeteta/D");
-    tree->Branch("leadingjetphi"        , &leadingjetphi        , "leadingjetphi/D");
-    tree->Branch("signaljetpt"          , &signaljetpt          , "signaljetpt/D");
-    tree->Branch("signaljeteta"         , &signaljeteta         , "signaljeteta/D");
-    tree->Branch("signaljetphi"         , &signaljetphi         , "signaljetphi/D");
-    tree->Branch("signaljetbtag"        , &signaljetbtag        , "signaljetbtag/D");
-    tree->Branch("signaljetCHfrac"      , &signaljetCHfrac      , "signaljetCHfrac/D");
-    tree->Branch("signaljetNHfrac"      , &signaljetNHfrac      , "signaljetNHfrac/D");
-    tree->Branch("signaljetEMfrac"      , &signaljetEMfrac      , "signaljetEMfrac/D");
-    tree->Branch("signaljetCEMfrac"     , &signaljetCEMfrac     , "signaljetCEMfrac/D");
-    tree->Branch("signaljetmetdphi"     , &signaljetmetdphi     , "signaljetmetdphi/D");
-    tree->Branch("secondjetpt"          , &secondjetpt          , "secondjetpt/D");
-    tree->Branch("secondjeteta"         , &secondjeteta         , "secondjeteta/D");
-    tree->Branch("secondjetphi"         , &secondjetphi         , "secondjetphi/D");
-    tree->Branch("secondjetbtag"        , &secondjetbtag        , "secondjetbtag/D");
-    tree->Branch("secondjetCHfrac"      , &secondjetCHfrac      , "secondjetCHfrac/D");
-    tree->Branch("secondjetNHfrac"      , &secondjetNHfrac      , "secondjetNHfrac/D");
-    tree->Branch("secondjetEMfrac"      , &secondjetEMfrac      , "secondjetEMfrac/D");
-    tree->Branch("secondjetCEMfrac"     , &secondjetCEMfrac     , "secondjetCEMfrac/D");
-    tree->Branch("secondjetmetdphi"     , &secondjetmetdphi     , "secondjetmetdphi/D");
-    tree->Branch("thirdjetpt"           , &thirdjetpt           , "thirdjetpt/D");
-    tree->Branch("thirdjeteta"          , &thirdjeteta          , "thirdjeteta/D");
-    tree->Branch("thirdjetphi"          , &thirdjetphi          , "thirdjetphi/D");
-    tree->Branch("thirdjetbtag"         , &thirdjetbtag         , "thirdjetbtag/D");
-    tree->Branch("thirdjetCHfrac"       , &thirdjetCHfrac       , "thirdjetCHfrac/D");
-    tree->Branch("thirdjetNHfrac"       , &thirdjetNHfrac       , "thirdjetNHfrac/D");
-    tree->Branch("thirdjetEMfrac"       , &thirdjetEMfrac       , "thirdjetEMfrac/D");
-    tree->Branch("thirdjetCEMfrac"      , &thirdjetCEMfrac      , "thirdjetCEMfrac/D");
-    tree->Branch("thirdjetmetdphi"      , &thirdjetmetdphi      , "thirdjetmetdphi/D");
-    tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
-    tree->Branch("jetmetdphimin"        , &jetmetdphimin        , "jetmetdphimin/D");
-    tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
-    tree->Branch("jetelmetdphimin"      , &jetelmetdphimin      , "jetelmetdphimin/D");
-    tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
-    tree->Branch("jetphmetdphimin"      , &jetphmetdphimin      , "jetphmetdphimin/D");
-    tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
-    tree->Branch("jetmetdphimin4"       , &jetmetdphimin4       , "jetmetdphimin4/D");
-    tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/D");
-    tree->Branch("jetelmetdphimin4"     , &jetelmetdphimin4     , "jetelmetdphimin4/D");
-    tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/D");
-    tree->Branch("jetphmetdphimin4"     , &jetphmetdphimin4     , "jetphmetdphimin4/D");
-    tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/D");
-    tree->Branch("ht"                   , &ht                   , "ht/D");
-    // Lepton info
+  }
+
+  tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
+  // Pileup info
+  tree->Branch("puobs"                , &puobs                , "puobs/I");
+  tree->Branch("putrue"               , &putrue               , "putrue/I");
+  tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
+  // Triggers
+  tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
+  tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
+  tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
+  tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
+  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
+  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
+  tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
+  tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
+  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
+  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
+  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
+  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
+  // MET filters
+  tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
+  tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
+  tree->Branch("flaghbheloose"        , &flaghbheloose        , "flaghbheloose/b");
+  tree->Branch("flaghbhetight"        , &flaghbhetight        , "flaghbhetight/b");
+  tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/b");
+  tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
+
+  // Object counts
+  tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
+  tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
+  tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/i");
+  tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/i");
+  tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
+  tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/i");
+  tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
+  tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
+  tree->Branch("njets"                , &njets                , "njets/i");
+  tree->Branch("nbjets"               , &nbjets               , "nbjets/i");
+  tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/i");
+
+  if(addPuppiJets){
+    tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/i");
+    tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/i");
+    tree->Branch("npuppibjetslowpt"          , &npuppibjetslowpt          , "npuppibjetslowpt/i");
+  }
+
+  // MET
+  tree->Branch("pfmet"                , &pfmet                , "pfmet/D");
+  tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/D");
+  tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/D");
+  tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/D");
+  tree->Branch("mumet"                , &mumet                , "mumet/D");
+  tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
+  tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/D");
+  tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/D");
+  tree->Branch("elmet"                , &elmet                , "elmet/D");
+  tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/D");
+  tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/D");
+  tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/D");
+  tree->Branch("phmet"                , &phmet                , "phmet/D");
+  tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/D");
+  tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
+  tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
+
+  tree->Branch("mvamet"              , &mvamet              , "mvamet/D");
+  tree->Branch("mvametphi"           , &mvametphi           , "mvametphi/D");
+
+  tree->Branch("t1pfmetMuEnUp"       , &t1pfmetMuEnUp       , "t1pfmetMuEnUp/D");
+  tree->Branch("t1pfmetMuEnDown"     , &t1pfmetMuEnDown     , "t1pfmetMuEnDown/D");
+  tree->Branch("t1pfmetElEnUp"       , &t1pfmetElEnUp       , "t1pfmetElEnUp/D");
+  tree->Branch("t1pfmetElEnDown"     , &t1pfmetElEnDown     , "t1pfmetElEnDown/D");
+  tree->Branch("t1pfmetPhoEnUp"       , &t1pfmetPhoEnUp       , "t1pfmetPhoEnUp/D");
+  tree->Branch("t1pfmetPhoEnDown"     , &t1pfmetPhoEnDown     , "t1pfmetPhoEnDown/D");
+  tree->Branch("t1pfmetTauEnUp"       , &t1pfmetTauEnUp       , "t1pfmetTauEnUp/D");
+  tree->Branch("t1pfmetTauEnDown"     , &t1pfmetTauEnDown     , "t1pfmetTauEnDown/D");
+  tree->Branch("t1pfmetJetEnUp"       , &t1pfmetJetEnUp       , "t1pfmetJetEnUp/D");
+  tree->Branch("t1pfmetJetEnDown"     , &t1pfmetJetEnDown     , "t1pfmetJetEnDown/D");
+  tree->Branch("t1pfmetJetResUp"       , &t1pfmetJetResUp       , "t1pfmetJetResUp/D");
+  tree->Branch("t1pfmetJetResDown"     , &t1pfmetJetResDown     , "t1pfmetJetResDown/D");
+  tree->Branch("t1pfmetUncEnUp"       , &t1pfmetUncEnUp       , "t1pfmetUncEnUp/D");
+  tree->Branch("t1pfmetUncEnDown"     , &t1pfmetUncEnDown     , "t1pfmetUncEnDown/D");
+
+
+  if(addPuppiMET){
+
+    tree->Branch("puppipfmet"                , &puppipfmet                , "puppipfmet/D");
+    tree->Branch("puppipfmetphi"             , &puppipfmetphi             , "puppipfmetphi/D");
+    tree->Branch("puppit1pfmet"              , &puppit1pfmet              , "puppit1pfmet/D");
+    tree->Branch("puppit1pfmetphi"           , &puppit1pfmetphi           , "puppit1pfmetphi/D");
+    tree->Branch("puppimumet"                , &puppimumet                , "puppimumet/D");
+    tree->Branch("puppimumetphi"             , &puppimumetphi             , "puppimumetphi/D");
+    tree->Branch("puppit1mumet"              , &puppit1mumet              , "puppit1mumet/D");
+    tree->Branch("puppit1mumetphi"           , &puppit1mumetphi           , "puppit1mumetphi/D");
+    tree->Branch("puppielmet"                , &puppielmet                , "puppielmet/D");
+    tree->Branch("puppielmetphi"             , &puppielmetphi             , "elmetphi/D");
+    tree->Branch("puppit1elmet"              , &puppit1elmet              , "puppit1elmet/D");
+    tree->Branch("puppit1elmetphi"           , &puppit1elmetphi           , "puppit1elmetphi/D");
+    tree->Branch("puppiphmet"                , &puppiphmet              , "puppiphmet/D");
+    tree->Branch("puppiphmetphi"             , &puppiphmetphi           , "puppiphmetphi/D");
+    tree->Branch("puppit1phmet"              , &puppit1phmet              , "puppit1phmet/D");
+    tree->Branch("puppit1phmetphi"           , &puppit1phmetphi           , "puppit1phmetphi/D");
+
+    tree->Branch("puppit1pfmetMuEnUp"       , &puppit1pfmetMuEnUp       , "puppit1pfmetMuEnUp/D");
+    tree->Branch("puppit1pfmetMuEnDown"     , &puppit1pfmetMuEnDown     , "puppit1pfmetMuEnDown/D");
+    tree->Branch("puppit1pfmetElEnUp"       , &puppit1pfmetElEnUp       , "puppit1pfmetElEnUp/D");
+    tree->Branch("puppit1pfmetElEnDown"     , &puppit1pfmetElEnDown     , "puppit1pfmetElEnDown/D");
+    tree->Branch("puppit1pfmetPhoEnUp"       , &puppit1pfmetPhoEnUp       , "puppit1pfmetPhoEnUp/D");
+    tree->Branch("puppit1pfmetPhoEnDown"     , &puppit1pfmetPhoEnDown     , "puppit1pfmetPhoEnDown/D");
+    tree->Branch("puppit1pfmetTauEnUp"       , &puppit1pfmetTauEnUp       , "puppit1pfmetTauEnUp/D");
+    tree->Branch("puppit1pfmetTauEnDown"     , &puppit1pfmetTauEnDown     , "puppit1pfmetTauEnDown/D");
+    tree->Branch("puppit1pfmetJetEnUp"       , &puppit1pfmetJetEnUp       , "puppit1pfmetJetEnUp/D");
+    tree->Branch("puppit1pfmetJetEnDown"     , &puppit1pfmetJetEnDown     , "puppit1pfmetJetEnDown/D");
+    tree->Branch("puppit1pfmetJetResUp"       , &puppit1pfmetJetResUp       , "puppit1pfmetJetResUp/D");
+    tree->Branch("puppit1pfmetJetResDown"     , &puppit1pfmetJetResDown     , "puppit1pfmetJetResDown/D");
+    tree->Branch("puppit1pfmetUncEnUp"       , &puppit1pfmetUncEnUp       , "puppit1pfmetUncEnUp/D");
+    tree->Branch("puppit1pfmetUncEnDown"     , &puppit1pfmetUncEnDown     , "puppit1pfmetUncEnDown/D");
+
+
+  }
+
+  // Jet info
+  tree->Branch("leadingjetpt"         , &leadingjetpt         , "leadingjetpt/D");
+  tree->Branch("leadingjeteta"        , &leadingjeteta        , "leadingjeteta/D");
+  tree->Branch("leadingjetphi"        , &leadingjetphi        , "leadingjetphi/D");
+  tree->Branch("leadingjetm"        , &leadingjetm        , "leadingjetm/D");
+
+  tree->Branch("signaljetpt"          , &signaljetpt          , "signaljetpt/D");
+  tree->Branch("signaljeteta"         , &signaljeteta         , "signaljeteta/D");
+  tree->Branch("signaljetphi"         , &signaljetphi         , "signaljetphi/D");
+  tree->Branch("signaljetbtag"        , &signaljetbtag        , "signaljetbtag/D");
+  tree->Branch("signaljetCHfrac"      , &signaljetCHfrac      , "signaljetCHfrac/D");
+  tree->Branch("signaljetNHfrac"      , &signaljetNHfrac      , "signaljetNHfrac/D");
+  tree->Branch("signaljetEMfrac"      , &signaljetEMfrac      , "signaljetEMfrac/D");
+  tree->Branch("signaljetCEMfrac"     , &signaljetCEMfrac     , "signaljetCEMfrac/D");
+  tree->Branch("signaljetmetdphi"     , &signaljetmetdphi     , "signaljetmetdphi/D");
+  tree->Branch("secondjetpt"          , &secondjetpt          , "secondjetpt/D");
+  tree->Branch("secondjeteta"         , &secondjeteta         , "secondjeteta/D");
+  tree->Branch("secondjetphi"         , &secondjetphi         , "secondjetphi/D");
+  tree->Branch("secondjetbtag"        , &secondjetbtag        , "secondjetbtag/D");
+  tree->Branch("secondjetCHfrac"      , &secondjetCHfrac      , "secondjetCHfrac/D");
+  tree->Branch("secondjetNHfrac"      , &secondjetNHfrac      , "secondjetNHfrac/D");
+  tree->Branch("secondjetEMfrac"      , &secondjetEMfrac      , "secondjetEMfrac/D");
+  tree->Branch("secondjetCEMfrac"     , &secondjetCEMfrac     , "secondjetCEMfrac/D");
+  tree->Branch("secondjetmetdphi"     , &secondjetmetdphi     , "secondjetmetdphi/D");
+  tree->Branch("thirdjetpt"           , &thirdjetpt           , "thirdjetpt/D");
+  tree->Branch("thirdjeteta"          , &thirdjeteta          , "thirdjeteta/D");
+  tree->Branch("thirdjetphi"          , &thirdjetphi          , "thirdjetphi/D");
+  tree->Branch("thirdjetbtag"         , &thirdjetbtag         , "thirdjetbtag/D");
+  tree->Branch("thirdjetCHfrac"       , &thirdjetCHfrac       , "thirdjetCHfrac/D");
+  tree->Branch("thirdjetNHfrac"       , &thirdjetNHfrac       , "thirdjetNHfrac/D");
+  tree->Branch("thirdjetEMfrac"       , &thirdjetEMfrac       , "thirdjetEMfrac/D");
+  tree->Branch("thirdjetCEMfrac"      , &thirdjetCEMfrac      , "thirdjetCEMfrac/D");
+  tree->Branch("thirdjetmetdphi"      , &thirdjetmetdphi      , "thirdjetmetdphi/D");
+
+  tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
+  tree->Branch("jetmetdphimin"        , &jetmetdphimin        , "jetmetdphimin/D");
+  tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
+  tree->Branch("jetelmetdphimin"      , &jetelmetdphimin      , "jetelmetdphimin/D");
+  tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
+  tree->Branch("jetphmetdphimin"      , &jetphmetdphimin      , "jetphmetdphimin/D");
+  tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
+  tree->Branch("jetmetdphimin4"       , &jetmetdphimin4       , "jetmetdphimin4/D");
+  tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/D");
+  tree->Branch("jetelmetdphimin4"     , &jetelmetdphimin4     , "jetelmetdphimin4/D");
+  tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/D");
+  tree->Branch("jetphmetdphimin4"     , &jetphmetdphimin4     , "jetphmetdphimin4/D");
+  tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/D");
+  tree->Branch("ht"                   , &ht                   , "ht/D");
+
+  // Lepton info
     tree->Branch("mu1pid"               , &mu1pid               , "mu1pid/I");
     tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/D");
     tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/D");
@@ -1230,10 +1392,11 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("ancphi"               , &ancphi               , "ancphi/D");
 }
 
-void MonoJetTreeMaker::endJob() {
-}
+
+void MonoJetTreeMaker::endJob() {}
 
 void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
     triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
     triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
     triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight");
@@ -1318,39 +1481,41 @@ void MonoJetTreeMaker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void MonoJetTreeMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
-/*
-This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
-*/
+
+//This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
 void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
-    if (particle == 0) {
-        return;
-    }
-    if (abs(particle->pdgId()) == 22) {
-        findFirstNonPhotonMother(particle->mother(0), ancestorid, ancestorpt, ancestoreta, ancestorphi);
-    }
-    else {
-        ancestorid  = particle->pdgId();
-        ancestorpt  = particle->pt();
-        ancestoreta = particle->eta();
-        ancestorphi = particle->phi();
-    }
+
+  if (particle == 0) {
     return;
+  }
+  if (abs(particle->pdgId()) == 22) {
+    findFirstNonPhotonMother(particle->mother(0), ancestorid, ancestorpt, ancestoreta, ancestorphi);
+  }
+  else {
+    ancestorid  = particle->pdgId();
+    ancestorpt  = particle->pt();
+    ancestoreta = particle->eta();
+    ancestorphi = particle->phi();
+  }
+  return;
 }
 
 void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
-    if (particle == 0) {
-        return;
-    }
-    if (abs(particle->pdgId()) == 22) {
-        ancestorid  = particle->pdgId();
-        ancestorpt  = particle->pt();
-        ancestoreta = particle->eta();
-        ancestorphi = particle->phi();
-    }
+  
+  if (particle == 0) {
     return;
+  }
+  if (abs(particle->pdgId()) == 22) {
+    ancestorid  = particle->pdgId();
+    ancestorpt  = particle->pt();
+    ancestoreta = particle->eta();
+    ancestorphi = particle->phi();
+  }
+  return;
 }
 
 double MonoJetTreeMaker::computeMuonIso(const reco::Muon& mu) {
+
     double isoval = mu.pfIsolationR04().sumNeutralHadronEt;
     isoval += mu.pfIsolationR04().sumPhotonEt;
     isoval -= 0.5*mu.pfIsolationR04().sumPUPt;
