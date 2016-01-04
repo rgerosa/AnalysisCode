@@ -1,4 +1,4 @@
-import os
+import os, copy
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetIdCalculator,pileupJetIdEvaluator
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import patJetCorrFactors
@@ -12,6 +12,7 @@ def addPileupJetID(process,collection, postfix, isMC = True):
 
     ## load corrections
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
+
 
     ## in case of puppi
     if "Puppi" in postfix or "puppi" in postfix or "PUPPI" in postfix:
@@ -55,13 +56,17 @@ def addPileupJetID(process,collection, postfix, isMC = True):
         if not hasattr(process, 'patJetsAK4PFPuppi'):
 
             ## corrector
+            puppiJEC = copy.deepcopy(process.JECLevels.labels)
+            puppiJEC.remove('L1FastJet')
             setattr(process,"patJetCorrFactorsAK4Puppi", patJetCorrFactors.clone(
                     src     = cms.InputTag(jetCollection),
-                    levels  = process.JECLevels.labels,
+                    levels  = puppiJEC,
                     primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
                     payload = "AK4PFPuppi"
                     ));
-            
+
+            getattr(process,"patJetCorrFactorsAK4Puppi").useRho = False
+
             ## producer
             setattr(process,'patJetsAK4PFPuppi', patJets.clone(
                     jetSource = cms.InputTag(jetCollection),

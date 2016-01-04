@@ -26,8 +26,8 @@ options.register (
 ## private SQL file for JEC
 options.register (
 	'usePrivateSQlite',True,
-    VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-    'if a private SQL file with JEC to be found in test directory');
+	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'if a private SQL file with JEC to be found in test directory');
 
 ## apply or not L2L3 Residual for data
 options.register (
@@ -60,48 +60,48 @@ options.register (
 ## processName
 options.register (
 	'processName','TREE',
-    VarParsing.multiplicity.singleton,VarParsing.varType.string,
-    'process name to be considered');
-    
+	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'process name to be considered');
+
 ## miniAOD process name    
 options.register (
 	'miniAODProcess','RECO',
-    VarParsing.multiplicity.singleton,VarParsing.varType.string,
-    'process name used for miniAOD production (target is miniAODv2)');
+	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'process name used for miniAOD production (target is miniAODv2)');
 
 ## outputFile Name
 options.register (
 	'outputFileName','tree.root',
-    VarParsing.multiplicity.singleton,VarParsing.varType.string,
-    'output file name created by cmsRun');
+	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'output file name created by cmsRun');
 
 ## GT to be used    
 options.register (
 	'globalTag','74X_dataRun2_Prompt_v4',
-    VarParsing.multiplicity.singleton,VarParsing.varType.string,
-    'gloabl tag to be uses');
-  
+	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'gloabl tag to be uses');
+
 ## JEC    
 options.register (
 	'JECEra','Summer15_25nsV6',
-    VarParsing.multiplicity.singleton,VarParsing.varType.string,
-    'JEC correction era');
-                                    
+	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JEC correction era');
+
 ## Debug options
 options.register (
 	'dropAnalyzerDumpEDM',False,
-    VarParsing.multiplicity.singleton, VarParsing.varType.bool,
-    'not run the analyzer and store an edm file');
+	VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'not run the analyzer and store an edm file');
 
 options.register (
 	'reportEvery',100,
-    VarParsing.multiplicity.singleton, VarParsing.varType.int,
-    'report message logger CMSSW');
+	VarParsing.multiplicity.singleton, VarParsing.varType.int,
+	'report message logger CMSSW');
 
 options.register (
 	'wantSummary',True,
-     VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
-     'report message logger CMSSW');
+	VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
+	'report message logger CMSSW');
 
 ## parsing command line arguments
 options.parseArguments()
@@ -168,11 +168,11 @@ else:
 
 
 ## Set the process options -- Display summary at the end, enable unscheduled execution
-CPUS = os.system('getconf _NPROCESSORS_ONLN')
+CPUS = os.popen('grep -c ^processor /proc/cpuinfo').read()
 process.options = cms.untracked.PSet( 
     allowUnscheduled = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(options.wantSummary),
-    numberOfThreads = cms.untracked.uint32(CPUS),
+    numberOfThreads = cms.untracked.uint32(int(CPUS)),
 )
 
 ## How many events to process
@@ -218,9 +218,12 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
      jets      = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
      jetsPuppi = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),
      electronidveto  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
+     electronidloose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
      electronidtight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
      electronidheep  = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"),
-     photonidloose = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+     photonidloose  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+     photonidmedium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
+     photonidtight  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
      photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
      photonphiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
      photonchiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation")
@@ -257,65 +260,136 @@ if options.addMVAMet:
 
 # Define all the METs corrected for lepton/photon momenta
 process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
-    met   = cms.InputTag("slimmedMETs","","TREE"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
+   met   = cms.InputTag("slimmedMETs","","TREE"),
+   cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
+   isPuppi = cms.bool(False),
+   pfCandidates = cms.InputTag("packedPFCandidates")			
 )
+
 process.t1elmet = cms.EDProducer("ElectronCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs","","TREE"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
+   met = cms.InputTag("slimmedMETs","","TREE"),
+   cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
+   isPuppi = cms.bool(False),
+   pfCandidates = cms.InputTag("packedPFCandidates")			
 )
+
 process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs","","TREE"),
-    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
+   met = cms.InputTag("slimmedMETs","","TREE"),
+   cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
+   isPuppi = cms.bool(False),
+   pfCandidates = cms.InputTag("packedPFCandidates")			
 )
-process.t1taumet = cms.EDProducer("TauCorrectedMETProducer",
-    met = cms.InputTag("slimmedMETs","","TREE"),
-    cands = cms.VInputTag(cms.InputTag("slimmedTaus")),
+
+process.puppit1mumet = process.t1mumet.clone(
+   met   = cms.InputTag("slimmedMETsPuppi","","TREE"),
+   isPuppi = cms.bool(True),
 )
+
+
+process.puppit1elmet = process.t1elmet.clone(
+   met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+   isPuppi = cms.bool(True),
+)
+
+process.puppit1phmet = process.t1phmet.clone(
+   met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+   isPuppi = cms.bool(True),
+)
+
+
+#### substructure sequence
+from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
+JetSubstructure(process,
+		options.isMC,
+		coneSize = 0.8, algo = "AK",
+		pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
+		addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+		addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+		addQGLikelihood = True);
+
+#JetSubstructure(process,
+#		options.isMC,
+#		coneSize = 0.8, algo = "AK",
+#		pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
+#		addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+#		addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+#		addQGLikelihood = True);
 
 # Make the tree 
-#process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
-#    pileup = cms.InputTag("addPileupInfo"),
-#    genevt = cms.InputTag("generator"),
-#    vertices = cms.InputTag("goodVertices"),
-#    gens = cms.InputTag("prunedGenParticles"),
-#    muons = cms.InputTag("selectedObjects", "muons"),
-#    electrons = cms.InputTag("selectedObjects", "electrons"),
-#    photons = cms.InputTag("selectedObjects", "photons"),
-#    tightmuons = cms.InputTag("selectedObjects", "tightmuons"),
-#    tightelectrons = cms.InputTag("selectedObjects", "tightelectrons"),
-#    tightphotons = cms.InputTag("selectedObjects", "tightphotons"),
-#    electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-#    photonLooseId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"),
-#    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"),
-#    photonTightId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"),
-#    photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
-#    taus = cms.InputTag("slimmedTaus"),
-#    jets = cms.InputTag("slimmedJetsRecorrected"),
-#    pfmet = cms.InputTag("pfMet"),
-#    t1pfmet = cms.InputTag("pfMetT1"),
-#    mumet = cms.InputTag("mumet"),
-#    t1mumet = cms.InputTag("t1mumet"),
-#    elmet = cms.InputTag("elmet"),
-#    t1elmet = cms.InputTag("t1elmet"),
-#    phmet = cms.InputTag("phmet"),
-#    t1phmet = cms.InputTag("t1phmet"),
-#    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-#    filterResults = cms.InputTag("TriggerResults", "", miniAODProcess),
-#    hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
-#    hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
-#    hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
-#    xsec = cms.double(0.001),
-#    cleanMuonJet = cms.bool(True),
-#    cleanElectronJet = cms.bool(True),
-#    cleanPhotonJet = cms.bool(True),
-#    applyHLTFilter = cms.bool(filterOnHLT),
-#    uselheweights = cms.bool(False),
-#    isWorZMCSample = cms.bool(False)
-#)
+'''
+process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
+    ## generator info
+    pileup = cms.InputTag("addPileupInfo"),
+    genevt = cms.InputTag("generator"),
+    gens   = cms.InputTag("prunedGenParticles"),
+    ## xsec
+    xsec           = cms.double(0.001),
+    uselheweights  = cms.bool(False),
+    isWorZMCSample = cms.bool(False),
+    ## vertexes			    
+    vertices = cms.InputTag("goodVertices"),
+    ## muons    
+    muons       = cms.InputTag("selectedObjects", "muons"),
+    tightmuons  = cms.InputTag("selectedObjects", "tightmuons"),
+    highptmuons = cms.InputTag("selectedObjects","highptmuons"),
+    ## electrons
+    electrons       = cms.InputTag("selectedObjects", "electrons"),
+    tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
+    heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
+    electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
+    ## photons
+    photons        = cms.InputTag("selectedObjects", "photons"),
+    tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),
+    photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
+    photonLooseId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
+    photonTightId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
+    ## taus
+    taus = cms.InputTag("slimmedTaus"),
+    ## jets
+    jets         = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
+    puppijets    = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),			      
+    addPuppiJets = cms.bool(True),			      
+    ## MET
+    t1met = cms.InputTag("slimmedMETs","","TREE"),
+    t1mumet = cms.InputTag("t1mumet"),
+    t1elmet = cms.InputTag("t1elmet"),
+    t1phmet = cms.InputTag("t1phmet"),
+    ## Puppi MET
+    puppit1met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+    puppit1mumet = cms.InputTag("puppit1mumet"),
+    puppit1elmet = cms.InputTag("puppit1elmet"),
+    puppit1phmet = cms.InputTag("puppit1phmet"),
+    addPuppiMET = cms.bool(True),
+    addMETSystematics = cms.bool(True),    			      
+    ## mvaMet
+    mvaMET = cms.InputTag("mvaMET"),			      
+    ## trigger
+    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+    applyHLTFilter = cms.bool(options.filterOnHLT),
+
+    ## filters
+    filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+    hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
+    hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
+    hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
+
+    ## clean objects
+    cleanMuonJet = cms.bool(True),
+    cleanElectronJet = cms.bool(True),
+    cleanPhotonJet = cms.bool(True)
+)
+
+if options.addPileupJetID == True:
+	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsPUID");
+	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiPUID");
+if options.addQGLikelihood == True:
+	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsQG");
+	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiQG");
+
 
 # Tree for the generator weights
-'''
+
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
@@ -369,6 +443,10 @@ else:
                                       	'drop *_*T2*_*_*'+options.processName+'*',
                                       	'keep *_*slimmed*_*_*'+options.processName+'*',
                                       	'keep *_*slimmedMETs*_*_*',
+                                      	'keep *_patJetsAK8*_*_*',
+                                      	'keep *_genJets*_*_*',
+                                      	'keep *_*Matched_*_*',
+                                      	'keep *_*Packed_*_*',
 					'keep *_*selectedObjects*_*_*',
 					'keep *_*mvaMET*_*_*',
 					'keep *_*t1mumet*_*_*',

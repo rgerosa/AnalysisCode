@@ -1,4 +1,4 @@
-import os
+import os, copy
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
@@ -16,6 +16,13 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 				levels  = process.JECLevels.labels,
 				payload = payloadName
 				));
+
+		if "Puppi" in metCollection or "PUPPI" in metCollection:
+			puppiJEC = copy.deepcopy(process.JECLevels.labels)
+			puppiJEC.remove('L1FastJet')
+			getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).levels = puppiJEC
+			getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).useRho = False
+  
 	if not hasattr(process,"slimmedJetsRecorrected"+payloadName):
 		setattr(process,"slimmedJetsRecorrected"+payloadName,
 			patJetsUpdated.clone(jetSource = cms.InputTag(jetCollection),
