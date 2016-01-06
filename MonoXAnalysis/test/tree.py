@@ -7,112 +7,116 @@ options = VarParsing ('python')
 
 ## data or MC
 options.register (
-	'isMC',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'isMC',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate data or MC');
 
 ## filter or not high MET events
 options.register (
-	'filterHighMETEvents',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'filterHighMETEvents',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not MET filters');
 
 ## filter or not using HLT trigger path
 options.register (
-	'filterOnHLT',True,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'filterOnHLT',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not trigger requirements');
 
 ## private SQL file for JEC
 options.register (
-	'usePrivateSQlite',True,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'usePrivateSQlite',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JEC to be found in test directory');
 
 ## apply or not L2L3 Residual for data
 options.register (
-	'applyL2L3Residuals',True,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'applyL2L3Residuals',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'apply or not L2L3 Residual JEC on data');
 
-## re-compute puppi MET with dedicated JEC
+## add AK4 puppi jets 
 options.register (
-	'doMETSystematics',True,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPuppiJets',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'add PUPPI jets to the output');
+
+## add AK4 puppi met 
+options.register (
+	'addPuppiMET',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'add PUPPI met to the output');
+
+## evaluate met systematics for both PFMET and Puppi
+options.register (
+	'doMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
 ## do substructure for chs jets
 options.register (
-	'doSubstructureCHS',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'doSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8CHS jets (Pruning, softDrop)');
 
 ## do substructure for chs jets
 options.register (
-	'doSubstructurePuppi',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'doSubstructurePuppi',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8Puppi jets (Pruning, softDrop)');
 
 ## re-compute pileup-jet id for AK4 jets
 options.register (
-	'addPileupJetID',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPileupJetID',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	're-compute pileup-jet id for AK4 jets');
 
 options.register (
-	'addQGLikelihood',True,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addQGLikelihood',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'compute QGLikelihood for AK4 jets');
 
 options.register (
-	'addMVAMet',False,
-	VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addMVAMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'compute MVAMet');
   	
 ## processName
 options.register (
-	'processName','TREE',
-	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'processName','TREE',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name to be considered');
 
 ## miniAOD process name    
 options.register (
-	'miniAODProcess','RECO',
-	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
 ## outputFile Name
 options.register (
-	'outputFileName','tree.root',
-	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'outputFileName','tree.root',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'output file name created by cmsRun');
 
 ## GT to be used    
 options.register (
-	'globalTag','74X_dataRun2_Prompt_v4',
-	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','74X_dataRun2_Prompt_v4',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## JEC    
 options.register (
-	'JECEra','Summer15_25nsV6',
-	VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Summer15_25nsV6',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
+
+## use lhe weights (dump from LHE event product)
+options.register (
+	'useLHEWeights',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'Dump LHE weights');
+## dump pdf and scale variations
+options.register(
+	'addQCDPDFWeights', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'Dump weights related to QCD scale and PDF variations');
+## dump gen info for W, Z , Photon and DM particles
+options.register(
+	'isWorZMCSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	' dump gen info for W, Z , Photon and DM particles');
 
 ## Debug options
 options.register (
-	'dropAnalyzerDumpEDM',False,
-	VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'not run the analyzer and store an edm file');
 
 options.register (
-	'reportEvery',100,
-	VarParsing.multiplicity.singleton, VarParsing.varType.int,
+	'reportEvery',100,VarParsing.multiplicity.singleton, VarParsing.varType.int,
 	'report message logger CMSSW');
 
 options.register (
-	'wantSummary',True,
-	VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
+	'wantSummary',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
 	'report message logger CMSSW');
 
 ## parsing command line arguments
@@ -131,6 +135,8 @@ print "Running with filterHighMETEvents = ",options.filterHighMETEvents
 print "Running with filterOnHLT         = ",options.filterOnHLT	
 print "Running with usePrivateSQlite    = ",options.usePrivateSQlite	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
+print "Running with addPuppiJets        = ",options.addPuppiJets
+print "Running with addPuppiMET         = ",options.addPuppiMET
 print "Running with doMETSystematics    = ",options.doMETSystematics	
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
@@ -143,6 +149,11 @@ print "Running with wantSummary         = ",options.wantSummary
 print "Running with addPileupJetID      = ",options.addPileupJetID
 print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addMVAMet           = ",options.addMVAMet
+print "Running with doSubstructureCHS   = ",options.doSubstructureCHS
+print "Running with doSubstructurePuppi = ",options.doSubstructurePuppi
+print "Running with useLHEWeights       = ",options.useLHEWeights
+print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
+print "Running with isWorZMCSample      = ",options.isWorZMCSample
 print "#####################"
 
 ## Define the CMSSW process
@@ -171,7 +182,8 @@ if options.inputFiles == []:
         	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root'
     	)
 	else:
-		process.source.fileNames.append(     'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
+		process.source.fileNames.append(     #'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
+			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
     	)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -217,7 +229,8 @@ from AnalysisCode.MonoXAnalysis.JetMetCorrector_cff import JetMetCorrector
 ## apply JEC and propagation on MET for AK4PFchs
 JetMetCorrector(process,"slimmedJets","slimmedMETs","AK4PFchs",options.isMC, options.applyL2L3Residuals, options.doMETSystematics)
 ## apply JEC and propagation on MET for AK4PFPuppi
-JetMetCorrector(process,"slimmedJetsPuppi","slimmedMETsPuppi","AK4PFPuppi",options.isMC, options.applyL2L3Residuals, options.doMETSystematics)
+if options.addPuppiJets:
+	JetMetCorrector(process,"slimmedJetsPuppi","slimmedMETsPuppi","AK4PFPuppi",options.isMC, options.applyL2L3Residuals, options.doMETSystematics)
 
 # Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
@@ -228,7 +241,6 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
      photons   = cms.InputTag("slimmedPhotons"),
      rho       = cms.InputTag("fixedGridRhoFastjetAll"),
      jets      = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
-     jetsPuppi = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),
      electronidveto  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
      electronidloose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
      electronidtight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
@@ -246,7 +258,8 @@ from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelih
 
 if options.addPileupJetID:  ## so far not working for slimmedJets, so re-clustering and update
 	addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFchs", postfix = "")
-	addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFPuppi", postfix = "Puppi")
+	if options.addPuppiJets:
+		addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFPuppi", postfix = "Puppi")
 	
 if options.addQGLikelihood:
 
@@ -257,7 +270,8 @@ if options.addQGLikelihood:
 		inputJetPuppi += "PUID";
 
 	addQGLikelihood( process,collection = inputJet, postfix = "");
-	addQGLikelihood( process,collection = inputJetPuppi, postfix = "Puppi");
+	if options.addPuppiJets:
+		addQGLikelihood( process,collection = inputJetPuppi, postfix = "Puppi");
 
 
 ## in case run the MVA met producer
@@ -292,22 +306,24 @@ process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
    pfCandidates = cms.InputTag("packedPFCandidates")			
 )
 
-process.puppit1mumet = process.t1mumet.clone(
-   met   = cms.InputTag("slimmedMETsPuppi","","TREE"),
-   isPuppi = cms.bool(True),
-)
+if options.addPuppiMET:
 
-
-process.puppit1elmet = process.t1elmet.clone(
-   met = cms.InputTag("slimmedMETsPuppi","","TREE"),
-   isPuppi = cms.bool(True),
-)
-
-process.puppit1phmet = process.t1phmet.clone(
-   met = cms.InputTag("slimmedMETsPuppi","","TREE"),
-   isPuppi = cms.bool(True),
-)
-
+	process.puppit1mumet = process.t1mumet.clone(
+		met   = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		isPuppi = cms.bool(True),
+		)
+	
+	
+	process.puppit1elmet = process.t1elmet.clone(
+		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		isPuppi = cms.bool(True),
+		)
+	
+	process.puppit1phmet = process.t1phmet.clone(
+		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		isPuppi = cms.bool(True),
+		)
+	
 
 ## Create output file
 if options.dropAnalyzerDumpEDM == False:	
@@ -363,85 +379,94 @@ if options.doSubstructurePuppi:
 			addQGLikelihood = True);
 
 # Make the tree 
-'''
+
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
-    ## generator info
-    pileup = cms.InputTag("addPileupInfo"),
-    genevt = cms.InputTag("generator"),
-    gens   = cms.InputTag("prunedGenParticles"),
-    ## xsec
-    xsec           = cms.double(0.001),
-    uselheweights  = cms.bool(False),
-    isWorZMCSample = cms.bool(False),
-    ## vertexes			    
-    vertices = cms.InputTag("goodVertices"),
-    ## muons    
-    muons       = cms.InputTag("selectedObjects", "muons"),
-    tightmuons  = cms.InputTag("selectedObjects", "tightmuons"),
-    highptmuons = cms.InputTag("selectedObjects","highptmuons"),
-    ## electrons
-    electrons       = cms.InputTag("selectedObjects", "electrons"),
-    tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
-    heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
-    electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-    ## photons
-    photons        = cms.InputTag("selectedObjects", "photons"),
-    tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),
-    photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
-    photonLooseId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
-    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
-    photonTightId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
-    ## taus
-    taus = cms.InputTag("slimmedTaus"),
-    ## jets
-    jets         = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
-    puppijets    = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),			      
-    addPuppiJets = cms.bool(True),			      
-    ## MET
-    t1met = cms.InputTag("slimmedMETs","","TREE"),
-    t1mumet = cms.InputTag("t1mumet"),
-    t1elmet = cms.InputTag("t1elmet"),
-    t1phmet = cms.InputTag("t1phmet"),
-    ## Puppi MET
-    puppit1met = cms.InputTag("slimmedMETsPuppi","","TREE"),
-    puppit1mumet = cms.InputTag("puppit1mumet"),
-    puppit1elmet = cms.InputTag("puppit1elmet"),
-    puppit1phmet = cms.InputTag("puppit1phmet"),
-    addPuppiMET = cms.bool(True),
-    addMETSystematics = cms.bool(True),    			      
-    ## mvaMet
-    mvaMET = cms.InputTag("mvaMET"),			      
-    ## trigger
-    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-    applyHLTFilter = cms.bool(options.filterOnHLT),
-
-    ## filters
-    filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
-    hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
-    hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
-    hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
-
-    ## clean objects
-    cleanMuonJet = cms.bool(True),
-    cleanElectronJet = cms.bool(True),
-    cleanPhotonJet = cms.bool(True)
+   ## gen info			     
+   isMC    = cms.bool(options.isMC),
+   uselheweights  = cms.bool(False),
+   addqcdpdfweights = cms.bool(False),
+   isWorZMCSample = cms.bool(options.isWorZMCSample),
+   pileup  = cms.InputTag("addPileupInfo"),
+   genevt  = cms.InputTag("generator"),
+   gens    = cms.InputTag("prunedGenParticles"),
+   xsec    = cms.double(0.001),   
+   ## trigger info
+   triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+   filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+   hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
+   hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
+   hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
+   ## vertexes			    
+   vertices = cms.InputTag("goodVertices"),
+   ## muons    
+   muons       = cms.InputTag("selectedObjects","muons"),
+   tightmuons  = cms.InputTag("selectedObjects","tightmuons"),
+   highptmuons = cms.InputTag("selectedObjects","highptmuons"),
+   ## electrons
+   electrons       = cms.InputTag("selectedObjects", "electrons"),
+   tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
+   heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
+   electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
+   ## photons
+   photons        = cms.InputTag("selectedObjects", "photons"),
+   tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),
+   photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
+   photonLooseId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+   photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
+   photonTightId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
+   ## taus
+   taus = cms.InputTag("slimmedTaus"),
+   ## jets AK4
+   jets         = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
+   addPuppiJets = cms.bool(options.addPuppiJets),			      
+   puppijets    = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),			      
+   ## MET
+   t1met = cms.InputTag("slimmedMETs","","TREE"),
+   t1mumet = cms.InputTag("t1mumet"),
+   t1elmet = cms.InputTag("t1elmet"),
+   t1phmet = cms.InputTag("t1phmet"),
+   ## Puppi MET
+   addPuppiMET = cms.bool(options.addPuppiMET),
+   puppit1met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+   puppit1mumet = cms.InputTag("puppit1mumet"),
+   puppit1elmet = cms.InputTag("puppit1elmet"),
+   puppit1phmet = cms.InputTag("puppit1phmet"),
+   ## MET systematics
+   addMETSystematics = cms.bool(options.doMETSystematics),    			      
+   ## mvaMet
+   addMVAMet = cms.bool(options.addMVAMet),			     
+   mvaMET = cms.InputTag("mvaMET"),			      
+   ## trigger filter
+   applyHLTFilter = cms.bool(options.filterOnHLT),
+   ## clean objects
+   cleanMuonJet = cms.bool(True),
+   cleanElectronJet = cms.bool(True),
+   cleanPhotonJet = cms.bool(True),
+   ## CHS jet substructure
+   addSubstructureCHS = cms.bool(options.doSubstructureCHS),
+   boostedJetsCHS     = cms.InputTag("packedPatJetsAK8PFJetsCHS"),
+   addSubstructurePuppi = cms.bool(options.doSubstructurePuppi),
+   boostedJetsPuppi     = cms.InputTag("packedPatJetsAK8PFJetsPuppi")			      
 )
 
-if options.addPileupJetID == True:
+
+if options.addPileupJetID == True and options.addQGLikelihood == False:
 	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsPUID");
 	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiPUID");
-if options.addQGLikelihood == True:
+if options.addQGLikelihood == True and options.addPileupJetID == False:
 	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsQG");
 	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiQG");
-
+else:
+	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsPUIDQG");
+	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiPUIDQG");
 
 # Tree for the generator weights
 
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
-    uselheweights = cms.bool(False),
-    addqcdpdfweights = cms.bool(False)
+    uselheweights = cms.bool(options.useLHEWeights),
+    addqcdpdfweights = cms.bool(options.addQCDPDFWeights)
 )
 
 # MET filter
@@ -452,25 +477,26 @@ process.metfilter = cms.EDFilter("CandViewSelector",
 )
 
 # Set up the path
-if options.filterHighMETEvents: 
-   if (options.isMC):
-        process.treePath = cms.Path(process.gentree + 
-				    process.metFilters + 
-				    process.metfilter + 
-				    process.tree)
-    else :
-        process.treePath = cms.Path(process.metFilters + 
-				    process.metfilter + 
-				    process.tree)
-else :
-    if (options.isMC):
-       process.treePath = cms.Path(process.gentree + 
-				   process.metFilters + 
-				   process.tree)
-   else :
-        process.treePath = cms.Path(process.metFilters + 
-				    process.tree)
-'''
+if options.dropAnalyzerDumpEDM == False:
+	if options.filterHighMETEvents: 
+		if (options.isMC):
+			process.treePath = cms.Path(process.gentree + 
+						    process.metFilters + 
+						    process.metfilter + 
+						    process.tree)
+		else :
+			process.treePath = cms.Path(process.metFilters + 
+						    process.metfilter + 
+						    process.tree)
+	else :
+		if (options.isMC):
+			process.treePath = cms.Path(process.gentree + 
+						    process.metFilters + 
+						    process.tree)
+		else :
+			process.treePath = cms.Path(process.metFilters + 
+						    process.tree)
+
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

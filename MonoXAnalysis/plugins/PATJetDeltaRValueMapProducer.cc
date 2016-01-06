@@ -61,15 +61,16 @@ private:
     iEvent.getByToken( srcToken_, h_jets1 );
     edm::Handle< typename edm::View<C> > h_jets2;
     iEvent.getByToken( matchedToken_, h_jets2 );
-    
+
     std::vector<K> values( h_jets1->size(), -99999 );
       std::map<std::string, std::vector<K> > valuesMap;
       if( multiValue_ ){
 	for( size_t i=0; i<valueLabels_.size(); ++i)
 	  valuesMap.insert( std::make_pair( valueLabels_[i], std::vector<K>( h_jets1->size(), -99999 ) ) );
       }
-      std::vector<bool> jets1_locks( h_jets1->size(), false );
       
+      std::vector<bool> jets1_locks( h_jets1->size(), false );
+      	
       for ( typename edm::View<C>::const_iterator ibegin = h_jets2->begin(),
 	      iend = h_jets2->end(), ijet = ibegin;
 	    ijet != iend; ++ijet ){
@@ -90,7 +91,7 @@ private:
 	    matched_index = index;
 	  }
 	}// end loop over src jets
-	  
+
 	if( matched_index>=0 ){
 	  if ( matched_dR2 > distMax_*distMax_ )
 	    edm::LogInfo("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
@@ -100,9 +101,9 @@ private:
 		values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
 	      if( multiValue_ ){
 		for( size_t i=0; i<valueLabels_.size(); ++i)
-		    valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
-		}
-	    }
+		  valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
+	      }
+	  }
 	}
       }// end loop over matched jets
       

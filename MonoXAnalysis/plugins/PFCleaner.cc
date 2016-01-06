@@ -47,7 +47,6 @@ class PFCleaner : public edm::stream::EDProducer<> {
         edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
         edm::EDGetTokenT<edm::View<reco::Candidate> > pfcandsToken;
         edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken;
-        edm::EDGetTokenT<std::vector<pat::Jet> > jetsPuppiToken;
         edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
         edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
         edm::EDGetTokenT<std::vector<pat::Photon> > photonsToken;
@@ -75,7 +74,6 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     verticesToken            (consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
     pfcandsToken             (consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("pfcands"))),
     jetsToken                (consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
-    jetsPuppiToken           (consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jetsPuppi"))),
     muonsToken               (consumes<std::vector<pat::Muon> > (iConfig.getParameter<edm::InputTag>("muons"))), 
     electronsToken           (consumes<std::vector<pat::Electron> > (iConfig.getParameter<edm::InputTag>("electrons"))),
     photonsToken             (consumes<std::vector<pat::Photon> > (iConfig.getParameter<edm::InputTag>("photons"))),
@@ -128,9 +126,6 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     Handle<std::vector<pat::Jet> > jetsH;
     iEvent.getByToken(jetsToken, jetsH);
-
-    Handle<std::vector<pat::Jet> > jetsPuppiH;
-    iEvent.getByToken(jetsPuppiToken, jetsPuppiH);
 
     Handle<std::vector<pat::Muon> > muonsH;
     iEvent.getByToken(muonsToken, muonsH);
