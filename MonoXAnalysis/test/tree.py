@@ -119,6 +119,9 @@ options.register (
 	'wantSummary',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
 	'report message logger CMSSW');
 
+options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
+		  'default number of threads');
+
 ## parsing command line arguments
 options.parseArguments()
 
@@ -154,6 +157,7 @@ print "Running with doSubstructurePuppi = ",options.doSubstructurePuppi
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
 print "Running with isWorZMCSample      = ",options.isWorZMCSample
+print "Running with nThreads            = ",options.nThreads
 print "#####################"
 
 ## Define the CMSSW process
@@ -194,13 +198,19 @@ else:
 
 
 ## Set the process options -- Display summary at the end, enable unscheduled execution
-CPUS = os.popen('grep -c ^processor /proc/cpuinfo').read()
-process.options = cms.untracked.PSet( 
-    allowUnscheduled = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(options.wantSummary),
-    numberOfThreads = cms.untracked.uint32(int(CPUS)-2),
-    numberOfStreams = cms.untracked.uint32(int(CPUS)-2)
-)
+if options.nThreads == 1 or options.nThreads == 0:
+	process.options = cms.untracked.PSet( 
+		allowUnscheduled = cms.untracked.bool(True),
+		wantSummary = cms.untracked.bool(options.wantSummary),
+		)
+else:
+	process.options = cms.untracked.PSet( 
+		allowUnscheduled = cms.untracked.bool(True),
+		wantSummary = cms.untracked.bool(options.wantSummary),
+		numberOfThreads = cms.untracked.uint32(options.nThreads),
+		numberOfStreams = cms.untracked.uint32(options.nThreads)
+		)
+
 
 ## How many events to process
 process.maxEvents = cms.untracked.PSet( 
