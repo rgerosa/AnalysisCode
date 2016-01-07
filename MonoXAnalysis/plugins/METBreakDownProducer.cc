@@ -1,7 +1,7 @@
 #include <memory>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,7 +11,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-class METBreakDownProducer : public edm::EDProducer {
+class METBreakDownProducer : public edm::stream::EDProducer<> {
     public:
         explicit METBreakDownProducer(const edm::ParameterSet&);
         ~METBreakDownProducer();
@@ -19,16 +19,16 @@ class METBreakDownProducer : public edm::EDProducer {
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
     private:
-        virtual void beginJob() override;
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override;
+        virtual void beginJob() ;
+        virtual void produce(edm::Event&, const edm::EventSetup&) ;
+        virtual void endJob() ;
         
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) ;
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
 
-        edm::InputTag candsTag;
+        const edm::InputTag candsTag;
         edm::EDGetTokenT<edm::View<reco::Candidate> > candsToken;
 };
 

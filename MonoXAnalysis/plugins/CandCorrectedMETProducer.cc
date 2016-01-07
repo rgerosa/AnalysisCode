@@ -35,11 +35,11 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   
-  edm::InputTag    metTag;
-  std::vector<edm::InputTag> candTags;
-  edm::InputTag    pfCandidatesTag;
-  bool isPuppiTag;
-  bool useuncorrmet;
+  const edm::InputTag    metTag;
+  const std::vector<edm::InputTag> candTags;
+  const edm::InputTag    pfCandidatesTag;
+  const bool isPuppiTag;
+  const bool useuncorrmet;
   
   edm::EDGetTokenT<edm::View<pat::MET> > metToken;
   edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidateToken; 

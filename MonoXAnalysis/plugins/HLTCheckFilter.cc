@@ -6,14 +6,14 @@
 #include <TPRegexp.h>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class HLTCheckFilter : public edm::EDFilter {
+class HLTCheckFilter : public edm::stream::EDFilter<> {
     public:
         explicit HLTCheckFilter(const edm::ParameterSet&);
         ~HLTCheckFilter();
@@ -21,17 +21,18 @@ class HLTCheckFilter : public edm::EDFilter {
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
     private:
-        virtual void beginJob() override;
-        virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override;
-        
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-        edm::InputTag triggerResultsTag;
-        std::vector<std::string> triggerPathsVector;
+        virtual void beginJob() ;
+        virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+        virtual void endJob() ;
+        
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) ; 
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) ; 
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
+
+        const edm::InputTag triggerResultsTag;
+        const std::vector<std::string> triggerPathsVector;
         std::map<std::string, int> triggerPathsMap;
 
         edm::EDGetTokenT<edm::TriggerResults> triggerToken;
@@ -89,14 +90,11 @@ void HLTCheckFilter::beginRun(edm::Run const& iRun , edm::EventSetup const& iSet
     }
 }
 
-void HLTCheckFilter::endRun(edm::Run const&, edm::EventSetup const&) {
-}
+void HLTCheckFilter::endRun(edm::Run const&, edm::EventSetup const&) {}
 
-void HLTCheckFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
+void HLTCheckFilter::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
-void HLTCheckFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
+void HLTCheckFilter::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
 void HLTCheckFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

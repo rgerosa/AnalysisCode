@@ -40,20 +40,21 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   
   // InputTags
-  edm::InputTag lheInfoTag;
-  edm::InputTag genInfoTag;
+  const edm::InputTag lheInfoTag;
+  const edm::InputTag genInfoTag;
   
   // Tokens
   edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
   
-  bool uselheweights, addqcdpdfweights;
+  const bool uselheweights, addqcdpdfweights;
+
+  TTree* tree;
   
   uint32_t event, run, lumi;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
   double*  wgtpdf;
   double*  wgtqcd;
-  TTree* tree;
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
@@ -70,7 +71,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   wgtpdf = new double[100];
 
   // state that TFileService is used
-  usesResource("TFileService");
+  usesResource();
 
 }
 
@@ -81,6 +82,7 @@ LHEWeightsTreeMaker::~LHEWeightsTreeMaker() {
 }
 
 void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  
   using namespace edm;
   using namespace std;
 

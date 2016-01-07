@@ -10,6 +10,7 @@ from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
 from RecoJets.JetProducers.ECF_cfi import ECF 
 from RecoJets.JetProducers.qjetsadder_cfi import QJetsAdder
 from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
+from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
 
 def runGroomedMethod(process, isMC,
                      jetCollection,
@@ -90,7 +91,6 @@ def runGroomedMethod(process, isMC,
             labelName = jetCollection+postfix,
             jetSource = cms.InputTag(jetCollection+postfix),
             algo = algo,
-#            pfCandidates = cms.InputTag("packedPFCandidates"),
             pfCandidates = cms.InputTag(pfCand),
             rParam = coneSize,
             jetCorrections = (payloadName, JECLevel, 'None'),
@@ -102,35 +102,41 @@ def runGroomedMethod(process, isMC,
             genParticles = cms.InputTag("prunedGenParticles")
             )
 
-        if "Puppi" in pfCand or "puppi" in pfCand:
-            getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
+        getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
 
 
     ## matched fat jet with groomed one adding info as user float                                                                                                            
     if not hasattr(process,jetCollection+postfix+'Matched'):                                                                                                         
         setattr(process,jetCollection+postfix+'Matched',                                                                                                  
-                cms.EDProducer("PATRecoJetDeltaRValueMapProducer",                                                                                       
+                cms.EDProducer("RecoPATJetDeltaRValueMapProducer",                                                                                       
                                ## basic reco::jet ungroomed
                                src = cms.InputTag(jetCollection+"Reduced"),                                                                                       
                                ## mathched groomed pat jet
                                matched = cms.InputTag('patJets'+jetCollection+postfix),                                                                                     
                                distMax = cms.double(coneSize),                                                                                                    
-                               values = cms.vstring("mass","pt","bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')"),                                              
-                               valueLabels = cms.vstring("mass","pt","bTagCSVIVFV2")))            
+                               values = cms.vstring("mass","pt","bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')","eta","phi","correctedP4(0).mass()","correctedP4(0).pt()"),                               
+                               valueLabels = cms.vstring("mass","pt","bTagCSVIVFV2","eta","phi","rawmass","rawpt")))            
             
         if isMC:
-            getattr(process,jetCollection+postfix+'Matched').valueLabels += ["hadronFlavour","partonFlavour","genMass","genPt"]
-            getattr(process,jetCollection+postfix+'Matched').values      += ["hadronFlavour","partonFlavour","genJet().mass","genJet().pt"]
+            getattr(process,jetCollection+postfix+'Matched').valueLabels += ["hadronFlavour","partonFlavour","genMass","genPt","genEta","genPhi"]
+            getattr(process,jetCollection+postfix+'Matched').values      += ["hadronFlavour","partonFlavour","genJet().mass","genJet().pt","genJet().eta","genJet().phi"]
  
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:mass']                                                         
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:pt']                                                          
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:bTagCSVIVFV2']                                                  
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:eta']                                                          
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:phi']                                                          
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawmass']                                                          
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawpt']                                                          
+
 
         if isMC:
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:hadronFlavour']                                       
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:partonFlavour']                     
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genMass']                                              
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genPt']                                                     
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genEta']                                                     
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:genPhi']                                                     
 
         
     ## add QGL --> some tricks are needed
@@ -172,7 +178,7 @@ def runGroomedMethod(process, isMC,
         ## match QGL value with the original jet
         if not hasattr(process,jetCollection+postfix+"QGLMatched"):
             setattr(process,jetCollection+postfix+'QGLMatched',
-                    cms.EDProducer("PATRecoJetDeltaRValueMapProducer",
+                    cms.EDProducer("RecoPATJetDeltaRValueMapProducer",
                                    src = cms.InputTag(jetCollection+"Reduced"),
                                    matched = cms.InputTag('patJets'+jetCollection+postfix+"QGL"),
                                    distMax = cms.double(coneSize),
@@ -201,7 +207,6 @@ def runGroomedMethod(process, isMC,
                 jetSource = cms.InputTag(jetCollection+postfix, 'SubJets'),
                 algo   = algo,  # needed for subjet b tagging
                 rParam = coneSize,  # needed for subjet b tagging
-#                pfCandidates = cms.InputTag("packedPFCandidates"),
                 pfCandidates = cms.InputTag(pfCand),
                 jetCorrections = (payloadNameSubjet, JECLevel, 'None'),
                 pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'), 
@@ -216,8 +221,7 @@ def runGroomedMethod(process, isMC,
                 groomedFatJets=cms.InputTag(jetCollection+postfix), # needed for subjet flavor clustering
                 ) 
 
-            if "Puppi" in pfCand or "puppi" in pfCand:
-                getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
+            getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
 
         ## adding sub-jet QGL
         if addQGLikelihood:
@@ -229,7 +233,7 @@ def runGroomedMethod(process, isMC,
                         ))
                 
                 
-            getattr(process,'patJets'+jetCollection+postfix+"SubJets").userData.userFloats.src += [jetCollection+postfix+'SubJetsQGL:qgLikelihood']
+                getattr(process,'patJets'+jetCollection+postfix+"SubJets").userData.userFloats.src += [jetCollection+postfix+'SubJetsQGL:qgLikelihood']
         
 
         ## Establish references between PATified fat jets and subjets using the BoostedJetMerger
@@ -296,12 +300,13 @@ def JetSubstructure(process,
                                                                  jetAlgorithm = ALGO,
                                                                  jetPtMin = cms.double(100)))
 
-        ## filter only W/Z and Higgs at generator level
+        ## filter only hadronically decaying W/Z and Higgs at generator level
         if not hasattr(process,"genBosons"):
             setattr(process,"genBosons",cms.EDFilter("CandPtrSelector",
                                                      src = cms.InputTag("prunedGenParticles"),
-                                                     cut = cms.string("abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25 ")))
-    
+                                                     cut = cms.string("(abs(pdgId) == 23 || abs(pdgId) == 24 || abs(pdgId) == 25) &&"+ 
+                                                                      "numberOfDaughters > 1 && abs(daughter(0).pdgId) <= 5 && abs(daughter(1).pdgId) <= 5")))
+
     ## b-tag discriminators to be considered
     bTagDiscriminators = [
         'pfTrackCountingHighEffBJetTags',
@@ -323,7 +328,7 @@ def JetSubstructure(process,
 
     ## JEC
     JECLevel = copy.deepcopy(process.JECLevels.labels)
-    if pileupMethod == "Puppi":
+    if pileupMethod == "Puppi" and 'L1FastJet' in JECLevel:
         JECLevel.remove('L1FastJet')
         
     payloadName       = ""
@@ -398,7 +403,6 @@ def JetSubstructure(process,
             jetSource = cms.InputTag(jetCollection+"Reduced"),
             algo   = algo,
             rParam = coneSize,
-#            pfCandidates = cms.InputTag("packedPFCandidates"),
             pfCandidates = cms.InputTag(pfCand),
             jetCorrections = (payloadName, JECLevel, 'None'), 
             svSource = cms.InputTag('slimmedSecondaryVertices'),  
@@ -411,6 +415,26 @@ def JetSubstructure(process,
 
         if "Puppi" in pfCand or "puppi" in pfCand:
             getattr(process,"patJetCorrFactors"+jetCollection).useRho = cms.bool(False)
+
+
+    ## match reco-jets with hadronically decaying genBosons (W,Z,H)
+    if isMC:
+        if not hasattr(process,jetCollection+'GenBosonMatched'):                                                                                                
+            setattr(process,jetCollection+'GenBosonMatched',                                                                                                  
+                    cms.EDProducer("RecoJetCandDeltaRValueMapProducer",                                                                                       
+                                   ## basic reco::jet ungroomed
+                                   src = cms.InputTag(jetCollection+"Reduced"),                                                                                       
+                                   ## mathched groomed pat jet
+                                   matched = cms.InputTag('genBosons'),                                                                                     
+                                   distMax = cms.double(coneSize),                                                                                                    
+                                   values = cms.vstring("pt","eta","phi","mass"),
+                                   valueLabels = cms.vstring("pt","eta","phi","mass")))            
+
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenBosonMatched:pt']
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenBosonMatched:eta']
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenBosonMatched:phi']
+            getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenBosonMatched:mass']
+
 
     ## add QGLikelihood on fat jet
     if addQGLikelihood:
@@ -432,11 +456,11 @@ def JetSubstructure(process,
                      src = cms.InputTag(jetCollection+"Reduced"),
                      cone = cms.double(coneSize)));
          
-         getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['Njettiness'+jetCollection+':tau1',
-                                                                              'Njettiness'+jetCollection+':tau2',
-                                                                              'Njettiness'+jetCollection+':tau3',
-                                                                              'Njettiness'+jetCollection+':tau4',
-                                                                              ]
+             getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['Njettiness'+jetCollection+':tau1',
+                                                                                  'Njettiness'+jetCollection+':tau2',
+                                                                                  'Njettiness'+jetCollection+':tau3',
+                                                                                  'Njettiness'+jetCollection+':tau4',
+                                                                                  ]
 
      ## add ECF
      if addEnergyCorrelation:
@@ -446,9 +470,9 @@ def JetSubstructure(process,
                  Njets = cms.vuint32(1,2,3),
                  ))
 
-         getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf1'];
-         getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf2'];
-         getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf3'];
+             getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf1'];
+             getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf2'];
+             getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf3'];
 
      ## add QJets
      if addQJets:
@@ -458,12 +482,16 @@ def JetSubstructure(process,
                  jeRad = cms.double(coneSize),
                  jetAlgo = cms.string(algo)
                  ))
-         getattr(process,'patJets'+jetCollection).userData.userFloats.src += ["qjets"+jetCollection+":QjetsVolatility"]
+             getattr(process,'patJets'+jetCollection).userData.userFloats.src += ["qjets"+jetCollection+":QjetsVolatility"]
 
             
     ### start with substructure: Pruning (run it on both reco and gen jets):
     Tags = [];
     Labels = [];
+    JECLevelTemp = copy.deepcopy(JECLevel)
+    if 'L1FastJet' in JECLevelTemp:
+        JECLevelTemp.remove('L1FastJet') ## in any case groomers are removing already pileup
+
     if addPruning:        
         runGroomedMethod(process, 
                          isMC = isMC,
@@ -472,7 +500,7 @@ def JetSubstructure(process,
                          algo = algo,
                          payloadName = payloadName, 
                          payloadNameSubjet = payloadNameSubjet,
-                         JECLevel =  JECLevel,
+                         JECLevel =  JECLevelTemp,
                          pfCand = pfCand, 
                          btagDiscriminators = bTagDiscriminators,
                          addSubJets      = addPrunedSubjets,
@@ -494,7 +522,7 @@ def JetSubstructure(process,
                          algo = algo,
                          payloadName = payloadName, 
                          payloadNameSubjet = payloadNameSubjet,
-                         JECLevel =  JECLevel,
+                         JECLevel =  JECLevelTemp,
                          pfCand = pfCand, 
                          btagDiscriminators = bTagDiscriminators,
                          addSubJets      = addSoftDropSubjets,
@@ -516,7 +544,7 @@ def JetSubstructure(process,
                          algo = algo,
                          payloadName = payloadName, 
                          payloadNameSubjet = payloadNameSubjet,
-                         JECLevel =  JECLevel,
+                         JECLevel =  JECLevelTemp,
                          pfCand = pfCand, 
                          btagDiscriminators = bTagDiscriminators,
                          addSubJets      = addTrimmedSubjets,
@@ -539,7 +567,7 @@ def JetSubstructure(process,
                          algo = algo,
                          payloadName = payloadName, 
                          payloadNameSubjet =  payloadNameSubjet,
-                         JECLevel =  JECLevel,
+                         JECLevel =  JECLevelTemp,
                          pfCand = pfCand, 
                          btagDiscriminators = bTagDiscriminators,
                          addSubJets      = addFilteredSubjets,
@@ -568,6 +596,4 @@ def JetSubstructure(process,
 
 
     if not isMC:
-
-        from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
         removeMCMatching(process, names=['Jets'], outputModules=[])

@@ -4,7 +4,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
-class LeptonTnPInfoProducer : public edm::EDProducer {
+class LeptonTnPInfoProducer : public edm::stream::EDProducer<> {
     public:
         explicit LeptonTnPInfoProducer(const edm::ParameterSet&);
         ~LeptonTnPInfoProducer();
@@ -27,38 +27,38 @@ class LeptonTnPInfoProducer : public edm::EDProducer {
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
     private:
-        virtual void beginJob() override;
-        virtual void produce(edm::Event&, const edm::EventSetup&) override;
-        virtual void endJob() override;
+        virtual void beginJob() ;
+        virtual void produce(edm::Event&, const edm::EventSetup&) ;
+        virtual void endJob() ;
         
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) ;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) ;
+        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
+        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) ;
 
-        edm::EDGetTokenT<GenEventInfoProduct> geninfoToken;
-        edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
-        edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
-        edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
-        edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
-        edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
+        const edm::EDGetTokenT<GenEventInfoProduct> geninfoToken;
+        const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
+        const edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
+        const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
+        const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
+        const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
 
-        double loosemuisocut;
-        double tightmuisocut;
-        double tagmuonptcut;
-        double tagmuonetacut;
-        double tagmuontrigmatchdR;
-        bool   requiremuonhlt;
-        std::vector<std::string> tagmuontriggers;
-        double tagelectronptcut;
-        double tagelectronetacut;
-        double tagelectrontrigmatchdR;
-        bool   requireelectronhlt;
-        std::vector<std::string> tagelectrontriggers;
+        const double loosemuisocut;
+        const double tightmuisocut;
+        const double tagmuonptcut;
+        const double tagmuonetacut;
+        const double tagmuontrigmatchdR;
+        const bool   requiremuonhlt;
+        const std::vector<std::string> tagmuontriggers;
+        const double tagelectronptcut;
+        const double tagelectronetacut;
+        const double tagelectrontrigmatchdR;
+        const bool   requireelectronhlt;
+        const std::vector<std::string> tagelectrontriggers;
 };
 
 LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig): 

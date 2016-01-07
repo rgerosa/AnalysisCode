@@ -95,7 +95,7 @@ options.register (
 
 ## use lhe weights (dump from LHE event product)
 options.register (
-	'useLHEWeights',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'useLHEWeights',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'Dump LHE weights');
 ## dump pdf and scale variations
 options.register(
@@ -174,7 +174,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 if options.inputFiles == []:
 
 	process.source = cms.Source("PoolSource", 
-   		 fileNames = cms.untracked.vstring()
+   		 fileNames = cms.untracked.vstring(),
+#		 eventsToProcess = cms.untracked.VEventRange('1:1245-1:1255')          
    	)
 
 	if not options.isMC :
@@ -182,8 +183,9 @@ if options.inputFiles == []:
         	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root'
     	)
 	else:
-		process.source.fileNames.append(     #'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
-			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
+		process.source.fileNames.append( #'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
+			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
     	)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -196,7 +198,8 @@ CPUS = os.popen('grep -c ^processor /proc/cpuinfo').read()
 process.options = cms.untracked.PSet( 
     allowUnscheduled = cms.untracked.bool(True),
     wantSummary = cms.untracked.bool(options.wantSummary),
-    numberOfThreads = cms.untracked.uint32(int(CPUS)),
+    numberOfThreads = cms.untracked.uint32(int(CPUS)-2),
+    numberOfStreams = cms.untracked.uint32(int(CPUS)-2)
 )
 
 ## How many events to process
@@ -386,7 +389,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    uselheweights  = cms.bool(False),
    addqcdpdfweights = cms.bool(False),
    isWorZMCSample = cms.bool(options.isWorZMCSample),
-   pileup  = cms.InputTag("addPileupInfo"),
+   pileup  = cms.InputTag("slimmedAddPileupInfo"),
    genevt  = cms.InputTag("generator"),
    gens    = cms.InputTag("prunedGenParticles"),
    xsec    = cms.double(0.001),   
@@ -445,6 +448,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## CHS jet substructure
    addSubstructureCHS = cms.bool(options.doSubstructureCHS),
    boostedJetsCHS     = cms.InputTag("packedPatJetsAK8PFJetsCHS"),
+   boostedJetsOriginal     = cms.InputTag("slimmedJetsAK8"),
    addSubstructurePuppi = cms.bool(options.doSubstructurePuppi),
    boostedJetsPuppi     = cms.InputTag("packedPatJetsAK8PFJetsPuppi")			      
 )

@@ -110,21 +110,21 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  edm::EDGetTokenT<pat::METCollection> metToken_;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
+  const edm::EDGetTokenT<pat::METCollection> metToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
   edm::EDGetTokenT<std::vector<pat::Jet> >      jetToken_;
   edm::EDGetTokenT<std::vector<pat::Muon> >     muonToken_;
   edm::EDGetTokenT<std::vector<pat::Electron> > electronToken_;
   edm::EDGetTokenT<std::vector<pat::Photon> >   photonToken_;
   edm::EDGetTokenT<std::vector<pat::Tau> >      tauToken_;
-  edm::EDGetTokenT<double>  rhoToken_;
+  const edm::EDGetTokenT<double>  rhoToken_;
 
-  edm::ParameterSet electronPSet_;
-  edm::ParameterSet muonPSet_;
-  edm::ParameterSet photonPSet_;
-  edm::ParameterSet tauPSet_;
-  edm::ParameterSet jetPSet_;
-  edm::ParameterSet unclusteredPSet_;
+  const edm::ParameterSet electronPSet_;
+  const edm::ParameterSet muonPSet_;
+  const edm::ParameterSet photonPSet_;
+  const edm::ParameterSet tauPSet_;
+  const edm::ParameterSet jetPSet_;
+  const edm::ParameterSet unclusteredPSet_;
 
   bool skipJet_;
   bool skipMuon_;
@@ -155,7 +155,7 @@ private:
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
   std::vector<float> unclusteredUnc_;
 
-  edm::InputTag inputMET_;
+  const edm::InputTag inputMET_;
 
 };
 
@@ -170,9 +170,8 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   photonPSet_               (iConfig.getParameter<edm::ParameterSet>("photon")),
   tauPSet_                  (iConfig.getParameter<edm::ParameterSet>("tau")),
   jetPSet_                  (iConfig.getParameter<edm::ParameterSet>("jet")),
-  unclusteredPSet_          (iConfig.getParameter<edm::ParameterSet>("unclustered")){
-
-  inputMET_ = iConfig.getParameter<edm::InputTag>("inputMET");
+  unclusteredPSet_          (iConfig.getParameter<edm::ParameterSet>("unclustered")),
+  inputMET_                 (iConfig.getParameter<edm::InputTag>("inputMET")){
 
   skipJet_  = false;
   skipTau_  = false;

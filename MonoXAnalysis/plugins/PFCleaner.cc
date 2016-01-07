@@ -44,26 +44,26 @@ class PFCleaner : public edm::stream::EDProducer<> {
         //livia 
         bool isPassingPhotonHighPtID(double, double, double, double, double, double, double);
 
-        edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
-        edm::EDGetTokenT<edm::View<reco::Candidate> > pfcandsToken;
-        edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken;
-        edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
-        edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
-        edm::EDGetTokenT<std::vector<pat::Photon> > photonsToken;
+        const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
+        const edm::EDGetTokenT<edm::View<reco::Candidate> > pfcandsToken;
+        const edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken;
+        const edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
+        const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
+        const edm::EDGetTokenT<std::vector<pat::Photon> > photonsToken;
 
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > electronHeepIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > electronHeepIdMapToken;
 
-        edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
-        edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
-        edm::EDGetTokenT<double>  rhoToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
+        const edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
+        const edm::EDGetTokenT<double>  rhoToken;
 
         //livia 
-        edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
-        edm::EDGetTokenT<edm::ValueMap<float> > photonPHisoToken;
-        edm::EDGetTokenT<edm::ValueMap<float> > photonCHisoToken;
+        const edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
+        const edm::EDGetTokenT<edm::ValueMap<float> > photonPHisoToken;
+        const edm::EDGetTokenT<edm::ValueMap<float> > photonCHisoToken;
  
   
         bool userandomphi;

@@ -142,5 +142,11 @@ private:
   std::map<std::string, std::unique_ptr<const StringObjectFunction<C> > >  evaluationMap_;
 };
 
-typedef JetDeltaRValueMapProducerT<reco::Jet,pat::Jet,float> PATRecoJetDeltaRValueMapProducer;
+typedef JetDeltaRValueMapProducerT<reco::Jet,pat::Jet,float>  RecoPATJetDeltaRValueMapProducer;
+DEFINE_FWK_MODULE( RecoPATJetDeltaRValueMapProducer);
+typedef JetDeltaRValueMapProducerT<pat::Jet, reco::Jet,float> PATRecoJetDeltaRValueMapProducer;
 DEFINE_FWK_MODULE( PATRecoJetDeltaRValueMapProducer );
+typedef JetDeltaRValueMapProducerT<reco::Jet,reco::Candidate,float> RecoJetCandDeltaRValueMapProducer;
+DEFINE_FWK_MODULE( RecoJetCandDeltaRValueMapProducer );
+typedef JetDeltaRValueMapProducerT<pat::Jet,reco::Candidate,float> PATJetCandDeltaRValueMapProducer;
+DEFINE_FWK_MODULE( PATJetCandDeltaRValueMapProducer );
