@@ -168,7 +168,6 @@ private:
   const bool addSubstructureCHS;
   const bool addSubstructurePuppi;
   edm::EDGetTokenT<std::vector<pat::Jet> >           boostedJetsToken;
-  edm::EDGetTokenT<std::vector<pat::Jet> >           boostedJetsOriginalToken;
   TString boostedJetsCHSLabel;
   edm::EDGetTokenT<std::vector<pat::Jet> >           boostedPuppiJetsToken;
   TString boostedJetsPuppiLabel;
@@ -477,7 +476,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   if(addSubstructureCHS){
     boostedJetsToken =  consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("boostedJetsCHS"));
-    boostedJetsOriginalToken =  consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("boostedJetsOriginal"));
     boostedJetsCHSLabel = TString::Format(iConfig.getParameter<edm::InputTag>("boostedJetsCHS").label().c_str());
     boostedJetsCHSLabel.ReplaceAll("packed","");
     boostedJetsCHSLabel.ReplaceAll("PatJets","");
@@ -630,10 +628,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // boosted jets
     Handle<vector<pat::Jet> > boostedJetsH;
-    Handle<vector<pat::Jet> > boostedJetsOriginalH;
     if(addSubstructureCHS){
       iEvent.getByToken(boostedJetsToken,boostedJetsH);
-      iEvent.getByToken(boostedJetsOriginalToken,boostedJetsOriginalH);
     }
 
     Handle<vector<pat::Jet> > boostedPuppiJetsH;
@@ -1906,7 +1902,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Substructure CHS
     if(addSubstructureCHS){      
       //sort collection to make sure it is ordered
-      vector<pat::JetRef> jetsBoosted, boostedJetsOriginal;
+      vector<pat::JetRef> jetsBoosted;
       if(boostedJetsH.isValid()){
 	for (auto jets_iter = boostedJetsH->begin(); jets_iter != boostedJetsH->end(); ++jets_iter) {
 	  //clean from leptons                                                                                                                                                  
@@ -1945,47 +1941,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	// sort in pt
 	if(jetsBoosted.size() > 0)
 	  sort(jetsBoosted.begin(), jetsBoosted.end(), jetSorter);
-
-
-	// TMP
-
-	for (auto jets_iter = boostedJetsOriginalH->begin(); jets_iter != boostedJetsOriginalH->end(); ++jets_iter) {
-	  //clean from leptons                                                                                                                                                  
-	  bool skipjet = false;
-	  if(muonsH.isValid()){
-	    for (std::size_t j = 0; j < muons.size(); j++) {
-	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
-		skipjet = true;
-	    }
-	  }
-	  if(electronsH.isValid()){
-	    for (std::size_t j = 0; j < electrons.size(); j++) {
-	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
-		skipjet = true;
-	    }
-	  }
-	  if(photonsH.isValid()){
-	    for (std::size_t j = 0; j < photons.size(); j++) {
-	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
-		skipjet = true;
-	    }
-	  }
-	  
-	  if (skipjet) continue;
-	  
-	  // apply jet id                                                                                                                                                 
-	  bool passjetid = applyJetID(*jets_iter,"loose");
-	  if (!passjetid)
-	    continue;
-	  
-	  pat::JetRef jetref(boostedJetsOriginalH, jets_iter - boostedJetsOriginalH->begin());
-	  if(jetref.isAvailable() and jetref.isNonnull())
-	    boostedJetsOriginal.push_back(jetref);
-	}
-      
-	// sort in pt
-	if(boostedJetsOriginal.size() > 0)
-	  sort(boostedJetsOriginal.begin(), boostedJetsOriginal.end(), jetSorter);
 
 
 	leadBoostedJetpt    = 0.0; leadBoostedJeteta  = 0.0;  
@@ -2035,7 +1990,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	leadSoftDropSubJetptraw_2 = 0.0; leadSoftDropSubJetmraw_2  = 0.0; 
 	
 	if(jetsBoosted.size() > 0){ // basic AK8 info
-
 	
 	  leadBoostedJetpt  = jetsBoosted.front()->pt();
 	  leadBoostedJeteta = jetsBoosted.front()->eta();
@@ -2559,8 +2513,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      leadPuppiPrunedSubJeteta_2 = subjets.at(1)->eta();
 	      leadPuppiPrunedSubJetBtag_2 = subjets.at(1)->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
 
-	      leadPuppiPrunedSubJetptraw_2  = subjets.front()->correctedP4(0).pt(); 
-	      leadPuppiPrunedSubJetmraw_2   = subjets.front()->correctedP4(0).mass(); 
+	      leadPuppiPrunedSubJetptraw_2  = subjets.at(1)->correctedP4(0).pt(); 
+	      leadPuppiPrunedSubJetmraw_2   = subjets.at(1)->correctedP4(0).mass(); 
 	      
 	      if(subjets.at(1)->hasUserFloat(boostedJetsPuppiLabel+"PrunedSubJetsQGL:qgLikelihood"))
 		leadPuppiPrunedSubJetQGL_2 = subjets.at(1)->userFloat(boostedJetsPuppiLabel+"PrunedSubJetsQGL:qgLikelihood");
@@ -2589,8 +2543,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      leadPuppiSoftDropSubJeteta_1 = subjets.front()->eta();
 	      leadPuppiSoftDropSubJetBtag_1 = subjets.front()->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
 
-	      leadPuppiSoftDropSubJetptraw_1  = subjets.at(1)->correctedP4(0).pt(); 
-	      leadPuppiSoftDropSubJetmraw_1   = subjets.at(1)->correctedP4(0).mass(); 
+	      leadPuppiSoftDropSubJetptraw_1  = subjets.front()->correctedP4(0).pt(); 
+	      leadPuppiSoftDropSubJetmraw_1   = subjets.front()->correctedP4(0).mass(); 
 	    
 	      if(subjets.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropSubJetsQGL:qgLikelihood"))
 		leadPuppiSoftDropSubJetQGL_1 = subjets.front()->userFloat(boostedJetsPuppiLabel+"SoftDropSubJetsQGL:qgLikelihood");
