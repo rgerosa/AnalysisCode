@@ -207,7 +207,7 @@ def addQGLikelihood(process,collection,postfix):
         
 
         if re.match("CMSSW_7_6_.*",CMSSW_VERSION) and not hasattr(process,"es_prefer_QGL"):
-            process.es_prefer_QGL = ms.ESPrefer("PoolDBESSource",'QGPoolDBESSource')   
+            process.es_prefer_QGL = cms.ESPrefer("PoolDBESSource",'QGPoolDBESSource')   
 
     ## run evaluator
     from RecoJets.JetProducers.QGTagger_cfi import QGTagger
