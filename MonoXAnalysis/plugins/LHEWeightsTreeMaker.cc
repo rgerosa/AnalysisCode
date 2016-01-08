@@ -71,7 +71,6 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
   for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
   
-
   // state that TFileService is used
   usesResource();
 

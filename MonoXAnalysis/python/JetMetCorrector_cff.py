@@ -231,5 +231,9 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 								       runningOnMiniAOD = cms.bool(True),
 								       src = cms.InputTag("patPFMetT1"+postfix),
 								       t01Variation = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								       tXYUncForRaw = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								       tXYUncForT1 = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								       t1Uncertainties = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								       t1SmearedVarsAndUncs = cms.InputTag(metCollection,"","@skipCurrentProcess")
 								       ))
 				 

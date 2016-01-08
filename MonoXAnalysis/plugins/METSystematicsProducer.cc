@@ -91,7 +91,7 @@ private:
 class METSystematicsProducer : public edm::stream::EDProducer<> {
 public:
   explicit METSystematicsProducer(const edm::ParameterSet&);
-  ~METSystematicsProducer(){};
+  virtual ~METSystematicsProducer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -99,7 +99,7 @@ private:
   virtual void beginJob();
   virtual void endJob();
 
-  void produce(edm::Event&, const edm::EventSetup&) ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   template<typename T>
   reco::Candidate::LorentzVector findParticle(const T & particle, const edm::View<reco::Candidate> & pfCandCollection);
@@ -125,11 +125,15 @@ private:
   const edm::ParameterSet jetPSet_;
   const edm::ParameterSet unclusteredPSet_;
 
+
+  const edm::InputTag inputMET_;
+
   bool skipJet_;
   bool skipMuon_;
   bool skipElectron_;
   bool skipTau_;
   bool skipPhoton_;
+  bool storeSmearedShiftedCollections_;
 
   // in case of binning
   std::vector<StringCutObjectSelector<pat::Muon> > muonSelection_;
@@ -154,11 +158,16 @@ private:
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
   std::vector<float> unclusteredUnc_;
 
-  const edm::InputTag inputMET_;
-
 };
 
 #endif
+
+METSystematicsProducer::~METSystematicsProducer(){
+
+  rand_ ->Delete();
+  jetJERFormula_->Delete();
+}
+
 
 METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig):
   metToken_                 (consumes<pat::METCollection> (iConfig.getParameter<edm::InputTag>("inputMET"))),
@@ -170,7 +179,8 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   tauPSet_                  (iConfig.getParameter<edm::ParameterSet>("tau")),
   jetPSet_                  (iConfig.getParameter<edm::ParameterSet>("jet")),
   unclusteredPSet_          (iConfig.getParameter<edm::ParameterSet>("unclustered")),
-  inputMET_                 (iConfig.getParameter<edm::InputTag>("inputMET")){
+  inputMET_                 (iConfig.getParameter<edm::InputTag>("inputMET")),
+  storeSmearedShiftedCollections_(iConfig.existsAs<bool>("storeSmearedShiftedCollections") ? iConfig.getParameter<bool>("storeSmearedShiftedCollections") : false){
 
   skipJet_  = false;
   skipTau_  = false;
@@ -218,39 +228,49 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label()));
 
   if (skipMuon_ == false){
-    produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"MuonEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"MuonEnDown");
   }
 
   if(not skipElectron_){
-    produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"ElectronEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"ElectronEnDown");
   }
   
   if(not skipPhoton_){
-    produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"PhotonEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"PhotonEnDown");
   }
 
   if(not skipTau_){
-    produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"TauEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"TauEnDown");
   }
 
   if(not skipJet_){
-    produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
-    produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
-    produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
-    produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
+    if(storeSmearedShiftedCollections_ == false){
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");    
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
+    }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnDown");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"Smear");
@@ -361,7 +381,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   std::auto_ptr<pat::METCollection> MET (new pat::METCollection);
   MET->push_back((*metCollection)[0]);
   iEvent.put(MET,inputMET_.label());
-
+  
   std::auto_ptr<pat::MuonCollection> muonEnUp(new pat::MuonCollection);
   std::auto_ptr<pat::MuonCollection> muonEnDown(new pat::MuonCollection);
   CorrMETData corrMuonEnUp;
@@ -492,8 +512,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metMuonEnDown->push_back(metMuonDown);
     }
 
-    iEvent.put(muonEnUp,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    iEvent.put(muonEnDown,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(muonEnUp,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(muonEnDown,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     iEvent.put(metMuonEnUp,std::string(inputMET_.label())+"MuonEnUp");
     iEvent.put(metMuonEnDown,std::string(inputMET_.label())+"MuonEnDown");    
   }
@@ -586,8 +608,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metElectronEnDown->push_back(metElectronDown);
     }
 
-    iEvent.put(electronEnUp,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    iEvent.put(electronEnDown,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(electronEnUp,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(electronEnDown,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     iEvent.put(metElectronEnUp,std::string(inputMET_.label())+"ElectronEnUp");
     iEvent.put(metElectronEnDown,std::string(inputMET_.label())+"ElectronEnDown");
   }
@@ -674,8 +698,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metPhotonEnDown->push_back(metPhotonDown);
     }
 
-    iEvent.put(photonEnUp,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    iEvent.put(photonEnDown,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(photonEnUp,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(photonEnDown,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     iEvent.put(metPhotonEnUp,std::string(inputMET_.label())+"PhotonEnUp");
     iEvent.put(metPhotonEnDown,std::string(inputMET_.label())+"PhotonEnDown");
   }
@@ -749,25 +775,27 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metTauEnDown->push_back(metTauDown);
     }
 
-    iEvent.put(tauEnUp,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    iEvent.put(tauEnDown,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(tauEnUp,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(tauEnDown,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     iEvent.put(metTauEnUp,std::string(inputMET_.label())+"TauEnUp");
     iEvent.put(metTauEnDown,std::string(inputMET_.label())+"TauEnDown");
   }
 
   if(not skipJet_ ){
     
-    JetCorrectionUncertainty* jecUnc;
+    std::auto_ptr<JetCorrectionUncertainty> jecUnc;
     std::vector<reco::CandidatePtr> particlesInJet;
 
     if(jetPSet_.getParameter<bool>("useExternalJECUncertainty") == false){
       edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
       iSetup.get<JetCorrectionsRecord>().get(jetPSet_.getParameter<std::string>("payloadName"),JetCorParColl); 
       JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-      jecUnc = new JetCorrectionUncertainty(JetCorPar);
+      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
     }
     else
-      jecUnc = new JetCorrectionUncertainty(jetJECUncFile_);
+      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_));
     
 
     for(auto jet : *jetColl){
@@ -988,14 +1016,18 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     }
 
-    iEvent.put(jetEnUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-    iEvent.put(jetEnDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(jetEnUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(jetEnDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+    }
     iEvent.put(metJetEnUp,std::string(inputMET_.label())+"JetEnUp");
     iEvent.put(metJetEnDown,std::string(inputMET_.label())+"JetEnDown");    
    
-    iEvent.put(jetSmear,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
-    iEvent.put(jetSmearResUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
-    iEvent.put(jetSmearResDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
+    if(storeSmearedShiftedCollections_ == false){
+      iEvent.put(jetSmear,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
+      iEvent.put(jetSmearResUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
+      iEvent.put(jetSmearResDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
+    }
     iEvent.put(metJetSmear,std::string(inputMET_.label())+"Smear");
     iEvent.put(metJetSmearResUp,std::string(inputMET_.label())+"SmearJetResUp");
     iEvent.put(metJetSmearResDown,std::string(inputMET_.label())+"SmearJetResDown");    

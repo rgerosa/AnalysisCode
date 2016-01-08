@@ -115,6 +115,7 @@ void CandCorrectedMETProducerT<T>::produce(edm::Event& iEvent, const edm::EventS
     output->push_back(*ccmetcand);
 
     iEvent.put(output);
+
 }
 
 template< class T>

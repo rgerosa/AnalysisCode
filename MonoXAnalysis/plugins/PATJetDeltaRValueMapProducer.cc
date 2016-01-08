@@ -117,8 +117,8 @@ void JetDeltaRValueMapProducerT<T,C,K>::produce(edm::Event& iEvent, const edm::E
   }
   
   if( value_!="" ){
-    std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
-    
+
+    std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );    
     typename JetValueMap::Filler filler(*jetValueMap);
     filler.insert(h_jets1, values.begin(), values.end());
     filler.fill();

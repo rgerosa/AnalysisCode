@@ -78,7 +78,7 @@ def runGroomedMethod(process, isMC,
                     src = cms.InputTag('genParticlesForJetsNoNu'),
                     writeCompound = cms.bool(False),
                     useExplicitGhosts = cms.bool(True),
-                    jetPtMin = cms.double(0.),
+                    jetPtMin = cms.double(50.),
                     jetType = cms.string('GenJet'),
                     jetCollInstanceName = cms.string("")
                     ))
@@ -305,7 +305,7 @@ def JetSubstructure(process,
             setattr(process,"genJets"+jetAlgo, ak4GenJets.clone( src = 'genParticlesForJetsNoNu', 
                                                                  rParam       = coneSize, 
                                                                  jetAlgorithm = ALGO,
-                                                                 jetPtMin = cms.double(0.)))
+                                                                 jetPtMin = cms.double(50.)))
 
         ## filter only hadronically decaying W/Z and Higgs at generator level
         if not hasattr(process,"genBosons"):
