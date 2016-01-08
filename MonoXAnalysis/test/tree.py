@@ -189,7 +189,7 @@ if options.inputFiles == []:
 
 	process.source = cms.Source("PoolSource", 
    		 fileNames = cms.untracked.vstring(),
-#		 eventsToProcess = cms.untracked.VEventRange('1:1245-1:1255')          
+#		 eventsToProcess = cms.untracked.VEventRange('1:35303021-1:35303032')          
    	)
 
 	if not options.isMC :
@@ -200,6 +200,7 @@ if options.inputFiles == []:
 		process.source.fileNames.append( #'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
 			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/C0C1B1BA-9C6F-E511-B25B-0025904C51D8.root'
     	)    	
 else:
    process.source = cms.Source("PoolSource",
