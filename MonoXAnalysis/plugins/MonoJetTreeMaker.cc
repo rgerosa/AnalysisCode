@@ -59,7 +59,7 @@
 #include <TLorentzVector.h>
 #include <TPRegexp.h>
 
-class MonoJetTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class MonoJetTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
 
 public:
   explicit MonoJetTreeMaker(const edm::ParameterSet&);
@@ -73,10 +73,8 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   void findMother(const reco::Candidate*, int &, double &, double &, double &);
   void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
@@ -280,13 +278,13 @@ private:
   double   leadBoostedJetpt, leadBoostedJeteta, leadBoostedJetphi, leadBoostedJetm;
   double   leadBoostedJetGenpt, leadBoostedJetGenm, leadBoostedJetGeneta, leadBoostedJetGenphi;
   double   leadBoostedJettau1, leadBoostedJettau2, leadBoostedJettau3, leadBoostedJettau4, leadBoostedJetecf1, leadBoostedJetecf2, leadBoostedJetecf3;
-  double   leadBoostedJetHFlav, leadBoostedJetPFlav, leadBoostedJetQGL, leadBoostedJetBtag;
+  double   leadBoostedJetHFlav, leadBoostedJetPFlav, leadBoostedJetQGL, leadBoostedJetBtag, leadBoostedJetDoubleBtag;
   double   leadBoostedJetBosonpt, leadBoostedJetBosoneta, leadBoostedJetBosonphi, leadBoostedJetBosonm;
   double   leadPrunedJetpt, leadPrunedJetm, leadPrunedJetphi,leadPrunedJeteta,  leadPrunedJetGenpt, leadPrunedJetGenm, leadPrunedJetGeneta,leadPrunedJetGenphi;
   double   leadPrunedJetptraw, leadPrunedJetmraw;
-  double   leadPrunedJetHFlav, leadPrunedJetPFlav, leadPrunedJetQGL, leadPrunedJetBtag;
+  double   leadPrunedJetHFlav, leadPrunedJetPFlav, leadPrunedJetQGL, leadPrunedJetBtag, leadPrunedJetDoubleBtag;
   double   leadSoftDropJetpt, leadSoftDropJetm, leadSoftDropJeteta, leadSoftDropJetphi, leadSoftDropJetGenpt, leadSoftDropJetGenm,leadSoftDropJetGeneta, leadSoftDropJetGenphi;
-  double   leadSoftDropJetHFlav, leadSoftDropJetPFlav, leadSoftDropJetQGL, leadSoftDropJetBtag;
+  double   leadSoftDropJetHFlav, leadSoftDropJetPFlav, leadSoftDropJetQGL, leadSoftDropJetBtag, leadSoftDropJetDoubleBtag;
   double   leadSoftDropJetptraw, leadSoftDropJetmraw;
   double   leadPrunedSubJetpt_1, leadPrunedSubJetm_1,leadPrunedSubJetphi_1, leadPrunedSubJeteta_1, leadPrunedSubJetHFlav_1, leadPrunedSubJetQGL_1, leadPrunedSubJetBtag_1;
   double   leadPrunedSubJetGenpt_1, leadPrunedSubJetGenm_1,leadPrunedSubJetGeneta_1, leadPrunedSubJetGenphi_1, leadPrunedSubJetPFlav_1;
@@ -307,16 +305,16 @@ private:
   double   leadPuppiBoostedJetpt, leadPuppiBoostedJeteta, leadPuppiBoostedJetphi, leadPuppiBoostedJetm;
   double   leadPuppiBoostedJetGenpt, leadPuppiBoostedJetGenm, leadPuppiBoostedJetGeneta, leadPuppiBoostedJetGenphi;
   double   leadPuppiBoostedJettau1, leadPuppiBoostedJettau2, leadPuppiBoostedJettau3, leadPuppiBoostedJettau4, leadPuppiBoostedJetecf1, leadPuppiBoostedJetecf2, leadPuppiBoostedJetecf3;
-  double   leadPuppiBoostedJetHFlav, leadPuppiBoostedJetPFlav, leadPuppiBoostedJetQGL, leadPuppiBoostedJetBtag;
+  double   leadPuppiBoostedJetHFlav, leadPuppiBoostedJetPFlav, leadPuppiBoostedJetQGL, leadPuppiBoostedJetBtag, leadPuppiBoostedJetDoubleBtag;
   double   leadPuppiBoostedJetBosonpt, leadPuppiBoostedJetBosoneta, leadPuppiBoostedJetBosonphi, leadPuppiBoostedJetBosonm;
   double   leadPuppiPrunedJetpt, leadPuppiPrunedJetm, leadPuppiPrunedJeteta, leadPuppiPrunedJetphi;
   double   leadPuppiPrunedJetptraw, leadPuppiPrunedJetmraw;
   double   leadPuppiPrunedJetGenpt, leadPuppiPrunedJetGenm, leadPuppiPrunedJetGenphi, leadPuppiPrunedJetGeneta;
-  double   leadPuppiPrunedJetHFlav, leadPuppiPrunedJetPFlav, leadPuppiPrunedJetQGL, leadPuppiPrunedJetBtag;
+  double   leadPuppiPrunedJetHFlav, leadPuppiPrunedJetPFlav, leadPuppiPrunedJetQGL, leadPuppiPrunedJetBtag, leadPuppiPrunedJetDoubleBtag;
   double   leadPuppiSoftDropJetpt, leadPuppiSoftDropJetm, leadPuppiSoftDropJeteta, leadPuppiSoftDropJetphi;
   double   leadPuppiSoftDropJetptraw, leadPuppiSoftDropJetmraw;
   double   leadPuppiSoftDropJetGenpt, leadPuppiSoftDropJetGenm, leadPuppiSoftDropJetGeneta, leadPuppiSoftDropJetGenphi;
-  double   leadPuppiSoftDropJetHFlav, leadPuppiSoftDropJetPFlav, leadPuppiSoftDropJetQGL, leadPuppiSoftDropJetBtag;
+  double   leadPuppiSoftDropJetHFlav, leadPuppiSoftDropJetPFlav, leadPuppiSoftDropJetQGL, leadPuppiSoftDropJetBtag, leadPuppiSoftDropJetDoubleBtag;
 
   double   leadPuppiPrunedSubJetpt_1, leadPuppiPrunedSubJetm_1,leadPuppiPrunedSubJetphi_1, leadPuppiPrunedSubJeteta_1, leadPuppiPrunedSubJetHFlav_1;
   double   leadPuppiPrunedSubJetQGL_1, leadPuppiPrunedSubJetBtag_1;
@@ -661,6 +659,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(triggerResultsH.isValid()){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;	
+	if(triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]]))
         if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
         if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
         if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
@@ -727,6 +726,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // Which MET filters passed
       for (size_t i = 0; i < filterPathsVector.size(); i++) {
         if (filterPathsMap[filterPathsVector[i]] == -1) continue;
+	if(filterResultsH->accept(filterPathsMap[filterPathsVector[i]]))
         if (i == 0  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagcsctight  = 1; // CSCTightHaloFilter
         if (i == 1  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaghbhenoise = 1; // HBHENoiseFilter
         if (i == 2  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flageebadsc   = 1; // eeBadScFilter
@@ -1951,18 +1951,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	leadBoostedJettau1  = 0.0; leadBoostedJettau2 = 0.0;
 	leadBoostedJettau3  = 0.0; leadBoostedJettau4 = 0.0;
 	leadBoostedJetecf1  = 0.0; leadBoostedJetecf2 = 0.0; leadBoostedJetecf3  = 0.0;
-	leadBoostedJetHFlav = 0.0; leadBoostedJetPFlav = 0.0; leadBoostedJetQGL  = 0.0; leadBoostedJetBtag = 0.0;
+	leadBoostedJetHFlav = 0.0; leadBoostedJetPFlav = 0.0; leadBoostedJetQGL  = 0.0; leadBoostedJetBtag = 0.0, leadBoostedJetDoubleBtag = 0.0;
 	
 	leadBoostedJetBosonpt = 0.0; leadBoostedJetBosoneta = 0.0; leadBoostedJetBosonphi = 0.0; leadBoostedJetBosonm = 0.0;
 	
 	leadPrunedJetpt     = 0.0; leadPrunedJetm      = 0.0; leadPrunedJetGenpt = 0.0; leadPrunedJetGenm  = 0.0;
 	leadPrunedJeteta    = 0.0; leadPrunedJetphi     = 0.0; leadPrunedJetGeneta = 0.0; leadPrunedJetGenphi  = 0.0;
-	leadPrunedJetHFlav  = 0.0; leadPrunedJetPFlav  = 0.0; leadPrunedJetQGL   = 0.0; leadPrunedJetBtag  = 0.0;
+	leadPrunedJetHFlav  = 0.0; leadPrunedJetPFlav  = 0.0; leadPrunedJetQGL   = 0.0; leadPrunedJetBtag  = 0.0; leadPrunedJetDoubleBtag  = 0.0;
 	leadPrunedJetptraw  = 0.0; leadPrunedJetmraw = 0.0;
 
 	leadSoftDropJetpt    = 0.0; leadSoftDropJetm = 0.0; leadSoftDropJetGenpt = 0.0; leadSoftDropJetGenm = 0.0; 
 	leadSoftDropJetphi   = 0.0; leadSoftDropJeteta = 0.0; leadSoftDropJetGenphi = 0.0; leadSoftDropJetGeneta = 0.0; 
-	leadSoftDropJetHFlav = 0.0; leadSoftDropJetPFlav = 0.0; leadSoftDropJetQGL = 0.0; leadSoftDropJetBtag = 0.0;
+	leadSoftDropJetHFlav = 0.0; leadSoftDropJetPFlav = 0.0; leadSoftDropJetQGL = 0.0; leadSoftDropJetBtag = 0.0; leadSoftDropJetDoubleBtag = 0.0;
 	leadSoftDropJetptraw  = 0.0; leadSoftDropJetmraw = 0.0;
 	
 	leadPrunedSubJetpt_1 = 0.0; leadPrunedSubJetm_1  = 0.0; leadPrunedSubJetphi_1 = 0.0; leadPrunedSubJeteta_1 = 0.0;
@@ -1996,6 +1996,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  leadBoostedJetphi = jetsBoosted.front()->phi();
 	  leadBoostedJetm   = jetsBoosted.front()->mass();	
 	  leadBoostedJetBtag = jetsBoosted.front()->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags");
+	  leadBoostedJetDoubleBtag = jetsBoosted.front()->bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags");
 
 	  // N-jettiness
 	  if(jetsBoosted.front()->hasUserFloat("Njettiness"+boostedJetsCHSLabel+":tau1"))
@@ -2068,8 +2069,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"PrunedQGLMatched:qgLikelihood"))
 	    leadPrunedJetQGL = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"PrunedQGLMatched:qgLikelihood");
 
-	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:bTagCSVIVFV2"))
-	    leadPrunedJetBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"PrunedMatched:bTagCSVIVFV2");
+	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags"))
+	    leadPrunedJetBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"PrunedMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags");
+
+	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
+	    leadPrunedJetDoubleBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags");
 
 
 	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"))
@@ -2109,8 +2113,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"SoftDropQGLMatched:qgLikelihood"))
 	    leadSoftDropJetQGL = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"SoftDropQGLMatched:qgLikelihood");
 	  
-	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:bTagCSVIVFV2"))
-	    leadSoftDropJetBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"SoftDropMatched:bTagCSVIVFV2");
+	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags"))
+	    leadSoftDropJetBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"SoftDropMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags");
+
+	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
+	    leadSoftDropJetDoubleBtag = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags");
 
 	  if(jetsBoosted.front()->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass"))
 	    leadSoftDropJetmraw = jetsBoosted.front()->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass");
@@ -2299,17 +2306,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	leadPuppiBoostedJettau1  = 0.0; leadPuppiBoostedJettau2 = 0.0;
 	leadPuppiBoostedJettau3  = 0.0; leadPuppiBoostedJettau4 = 0.0;
 	leadPuppiBoostedJetecf1  = 0.0; leadPuppiBoostedJetecf2 = 0.0; leadPuppiBoostedJetecf3  = 0.0;
-	leadPuppiBoostedJetHFlav = 0.0; leadPuppiBoostedJetPFlav = 0.0; leadPuppiBoostedJetQGL  = 0.0; leadPuppiBoostedJetBtag = 0.0;
+	leadPuppiBoostedJetHFlav = 0.0; leadPuppiBoostedJetPFlav = 0.0; leadPuppiBoostedJetQGL  = 0.0; 
+	leadPuppiBoostedJetBtag = 0.0; leadPuppiBoostedJetDoubleBtag = 0.0;
 	
 	leadPuppiBoostedJetBosonpt = 0.0; leadPuppiBoostedJetBosoneta = 0.0; leadPuppiBoostedJetBosonphi = 0.0; leadPuppiBoostedJetBosonm = 0.0;
 	
 	leadPuppiPrunedJetpt     = 0.0; leadPuppiPrunedJetm      = 0.0; leadPuppiPrunedJetGenpt = 0.0; leadPuppiPrunedJetGenm  = 0.0;
 	leadPuppiPrunedJeteta     = 0.0; leadPuppiPrunedJetphi   = 0.0; leadPuppiPrunedJetGeneta = 0.0; leadPuppiPrunedJetGenphi  = 0.0;
 	leadPuppiPrunedJetHFlav  = 0.0; leadPuppiPrunedJetPFlav  = 0.0; leadPuppiPrunedJetQGL   = 0.0; leadPuppiPrunedJetBtag  = 0.0;
+	leadPuppiPrunedJetDoubleBtag  = 0.0;
 	
 	leadPuppiSoftDropJetpt    = 0.0; leadPuppiSoftDropJetm = 0.0; leadPuppiSoftDropJetGenpt = 0.0; leadPuppiSoftDropJetGenm = 0.0; 
 	leadPuppiSoftDropJeteta    = 0.0; leadPuppiSoftDropJetphi = 0.0; leadPuppiSoftDropJetGeneta = 0.0; leadPuppiSoftDropJetGenphi = 0.0; 
 	leadPuppiSoftDropJetHFlav = 0.0; leadPuppiSoftDropJetPFlav = 0.0; leadPuppiSoftDropJetQGL = 0.0; leadPuppiSoftDropJetBtag = 0.0;
+	leadPuppiSoftDropJetDoubleBtag = 0.0;
 	
 	leadPuppiPrunedSubJetpt_1 = 0.0; leadPuppiPrunedSubJetm_1  = 0.0; leadPuppiPrunedSubJetphi_1 = 0.0; leadPuppiPrunedSubJeteta_1 = 0.0;
 	leadPuppiPrunedSubJetHFlav_1 = 0.0; leadPuppiPrunedSubJetPFlav_1 = 0.0; leadPuppiPrunedSubJetQGL_1 = 0.0; leadPuppiPrunedSubJetBtag_1 = 0.0;
@@ -2343,6 +2353,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  leadPuppiBoostedJetphi = puppiJetsBoosted.front()->phi();
 	  leadPuppiBoostedJetm   = puppiJetsBoosted.front()->mass();
 	  leadPuppiBoostedJetBtag = puppiJetsBoosted.front()->bDiscriminator("pfCombinedSecondaryVertexV2BJetTags");
+	  leadPuppiBoostedJetDoubleBtag = puppiJetsBoosted.front()->bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags");
 	  
 	  
 	  if(puppiJetsBoosted.front()->hasUserFloat("Njettiness"+boostedJetsPuppiLabel+":tau1"))
@@ -2412,8 +2423,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"PrunedQGLMatched:qgLikelihood"))
 	    leadPuppiPrunedJetQGL = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"PrunedQGLMatched:qgLikelihood");
 
-	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:bTagCSVIVFV2"))
-	    leadPuppiPrunedJetBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"PrunedMatched:bTagCSVIVFV2");
+	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags"))
+	    leadPuppiPrunedJetBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"PrunedMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags");
+
+	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
+	    leadPuppiPrunedJetDoubleBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags");
 
 	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass"))
 	    leadPuppiPrunedJetmraw = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass");
@@ -2453,8 +2467,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropQGLMatched:qgLikelihood"))
 	    leadPuppiSoftDropJetQGL = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"SoftDropQGLMatched:qgLikelihood");
 	  
-	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:bTagCSVIVFV2"))
-	    leadPuppiSoftDropJetBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:bTagCSVIVFV2");
+	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags"))
+	    leadPuppiSoftDropJetBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfCombinedInclusiveSecondaryVertexV2BJetTags");
+
+	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
+	    leadPuppiSoftDropJetDoubleBtag = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags");
 
 	  if(puppiJetsBoosted.front()->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass"))
 	    leadPuppiSoftDropJetmraw = puppiJetsBoosted.front()->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass");
@@ -3127,6 +3144,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadBoostedJetPFlav", &leadBoostedJetPFlav, "leadBoostedJetPFlav/D");
     tree->Branch("leadBoostedJetQGL", &leadBoostedJetQGL, "leadBoostedJetQGL/D");
     tree->Branch("leadBoostedJetBtag", &leadBoostedJetBtag, "leadBoostedJetBtag/D");
+    tree->Branch("leadBoostedJetDoubleBtag", &leadBoostedJetDoubleBtag, "leadBoostedJetDoubleBtag/D");
 
     tree->Branch("leadBoostedJettau1", &leadBoostedJettau1, "leadBoostedJettau1/D");
     tree->Branch("leadBoostedJettau2", &leadBoostedJettau2, "leadBoostedJettau2/D");
@@ -3157,6 +3175,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPrunedJetPFlav", &leadPrunedJetPFlav, "leadPrunedJetPFlav/D");
     tree->Branch("leadPrunedJetQGL", &leadPrunedJetQGL, "leadPrunedJetQGL/D");
     tree->Branch("leadPrunedJetBtag", &leadPrunedJetBtag, "leadPrunedJetBtag/D");
+    tree->Branch("leadPrunedJetDoubleBtag", &leadPrunedJetDoubleBtag, "leadPrunedJetDoubleBtag/D");
 
     tree->Branch("leadSoftDropJetpt", &leadSoftDropJetpt, "leadSoftDropJetpt/D");
     tree->Branch("leadSoftDropJetm", &leadSoftDropJetm, "leadSoftDropJetm/D");
@@ -3173,6 +3192,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadSoftDropJetPFlav", &leadSoftDropJetPFlav, "leadSoftDropJetPFlav/D");
     tree->Branch("leadSoftDropJetQGL", &leadSoftDropJetQGL, "leadSoftDropJetQGL/D");
     tree->Branch("leadSoftDropJetBtag", &leadSoftDropJetBtag, "leadSoftDropJetBtag/D");
+    tree->Branch("leadSoftDropJetDoubleBtag", &leadSoftDropJetDoubleBtag, "leadSoftDropJetDoubleBtag/D");
 
     tree->Branch("leadPrunedSubJetpt_1", &leadPrunedSubJetpt_1, "leadPrunedSubJetpt_1/D");
     tree->Branch("leadPrunedSubJeteta_1", &leadPrunedSubJeteta_1, "leadPrunedSubJeteta_1/D");
@@ -3250,6 +3270,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPuppiBoostedJetPFlav", &leadPuppiBoostedJetPFlav, "leadPuppiBoostedJetPFlav/D");
     tree->Branch("leadPuppiBoostedJetQGL", &leadPuppiBoostedJetQGL, "leadPuppiBoostedJetQGL/D");
     tree->Branch("leadPuppiBoostedJetBtag", &leadPuppiBoostedJetBtag, "leadPuppiBoostedJetBtag/D");
+    tree->Branch("leadPuppiBoostedJetBtag", &leadPuppiBoostedJetDoubleBtag, "leadPuppiBoostedJetDoubleBtag/D");
 
     tree->Branch("leadPuppiBoostedJettau1", &leadPuppiBoostedJettau1, "leadPuppiBoostedJettau1/D");
     tree->Branch("leadPuppiBoostedJettau2", &leadPuppiBoostedJettau2, "leadPuppiBoostedJettau2/D");
@@ -3277,6 +3298,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPuppiPrunedJetPFlav", &leadPuppiPrunedJetPFlav, "leadPuppiPrunedJetPFlav/D");
     tree->Branch("leadPuppiPrunedJetQGL", &leadPuppiPrunedJetQGL, "leadPuppiPrunedJetQGL/D");
     tree->Branch("leadPuppiPrunedJetBtag", &leadPuppiPrunedJetBtag, "leadPuppiPrunedJetBtag/D");
+    tree->Branch("leadPuppiPrunedJetDoubleBtag", &leadPuppiPrunedJetDoubleBtag, "leadPuppiPrunedJetDoubleBtag/D");
 
     tree->Branch("leadPuppiSoftDropJetpt", &leadPuppiSoftDropJetpt, "leadPuppiSoftDropJetpt/D");
     tree->Branch("leadPuppiSoftDropJetm", &leadPuppiSoftDropJetm, "leadPuppiSoftDropJetm/D");
@@ -3290,6 +3312,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPuppiSoftDropJetPFlav", &leadPuppiSoftDropJetPFlav, "leadPuppiSoftDropJetPFlav/D");
     tree->Branch("leadPuppiSoftDropJetQGL", &leadPuppiSoftDropJetQGL, "leadPuppiSoftDropJetQGL/D");
     tree->Branch("leadPuppiSoftDropJetBtag", &leadPuppiSoftDropJetBtag, "leadPuppiSoftDropJetBtag/D");
+    tree->Branch("leadPuppiSoftDropJetDoubleBtag", &leadPuppiSoftDropJetDoubleBtag, "leadPuppiSoftDropJetDoubleBtag/D");
 
     tree->Branch("leadPuppiPrunedSubJetpt_1", &leadPuppiPrunedSubJetpt_1, "leadPuppiPrunedSubJetpt_1/D");
     tree->Branch("leadPuppiPrunedSubJeteta_1", &leadPuppiPrunedSubJeteta_1, "leadPuppiPrunedSubJeteta_1/D");
@@ -3357,88 +3380,82 @@ void MonoJetTreeMaker::endJob() {}
 
 void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
-    triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight");
-    triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight");
-    triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned");
-    triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned");
-    triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned");
-    triggerPathsVector.push_back("HLT_PFMET170_v");
-    triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned");
-    triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned");
-    triggerPathsVector.push_back("HLT_PFMET300_v");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight");
-    triggerPathsVector.push_back("HLT_Photon165_HE10");
-    triggerPathsVector.push_back("HLT_Photon175");
-    triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
-    triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
-    triggerPathsVector.push_back("HLT_IsoMu20");
-    triggerPathsVector.push_back("HLT_IsoTkMu20");
-    triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
-    triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
-    triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v");
-    triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v");
-    triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v");
-    triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v");
-
-    HLTConfigProvider hltConfig;
-    bool changedConfig = false;
-    hltConfig.init(iRun, iSetup, triggerResultsTag.process(), changedConfig);
-
-    for (size_t i = 0; i < triggerPathsVector.size(); i++) {
-        triggerPathsMap[triggerPathsVector[i]] = -1;
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight");
+  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight");
+  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned");
+  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned");
+  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned");
+  triggerPathsVector.push_back("HLT_PFMET170_v");
+  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned");
+  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned");
+  triggerPathsVector.push_back("HLT_PFMET300_v");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight");
+  triggerPathsVector.push_back("HLT_Photon165_HE10");
+  triggerPathsVector.push_back("HLT_Photon175");
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
+  triggerPathsVector.push_back("HLT_IsoMu20");
+  triggerPathsVector.push_back("HLT_IsoTkMu20");
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
+  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v");
+  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v");
+  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v");
+  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v");
+  
+  HLTConfigProvider hltConfig;
+  bool changedConfig = false;
+  hltConfig.init(iRun, iSetup, triggerResultsTag.process(), changedConfig);
+  
+  for (size_t i = 0; i < triggerPathsVector.size(); i++) {
+    triggerPathsMap[triggerPathsVector[i]] = -1;
+  }
+  
+  for(size_t i = 0; i < triggerPathsVector.size(); i++){
+    TPRegexp pattern(triggerPathsVector[i]);
+    for(size_t j = 0; j < hltConfig.triggerNames().size(); j++){
+      std::string pathName = hltConfig.triggerNames()[j];
+      if(TString(pathName).Contains(pattern)){
+	triggerPathsMap[triggerPathsVector[i]] = j;
+      }
     }
+  }
+  
+  // MET filter Paths
+  filterPathsVector.push_back("Flag_CSCTightHaloFilter");
+  filterPathsVector.push_back("Flag_HBHENoiseFilter");
+  filterPathsVector.push_back("Flag_eeBadScFilter");
+  
+  HLTConfigProvider fltrConfig;
+  fltrConfig.init(iRun, iSetup, filterResultsTag.process(), changedConfig);
+  
+  for (size_t i = 0; i < filterPathsVector.size(); i++) {
+    filterPathsMap[filterPathsVector[i]] = -1;
+  }
 
-    for(size_t i = 0; i < triggerPathsVector.size(); i++){
-        TPRegexp pattern(triggerPathsVector[i]);
-        for(size_t j = 0; j < hltConfig.triggerNames().size(); j++){
-            std::string pathName = hltConfig.triggerNames()[j];
-            if(TString(pathName).Contains(pattern)){
-                triggerPathsMap[triggerPathsVector[i]] = j;
-            }
-        }
+  for(size_t i = 0; i < filterPathsVector.size(); i++){
+    TPRegexp pattern(filterPathsVector[i]);
+    for(size_t j = 0; j < fltrConfig.triggerNames().size(); j++){
+      std::string pathName = fltrConfig.triggerNames()[j];
+      if(TString(pathName).Contains(pattern)){
+	filterPathsMap[filterPathsVector[i]] = j;
+      }
     }
-
-    // MET filter Paths
-    filterPathsVector.push_back("Flag_CSCTightHaloFilter");
-    filterPathsVector.push_back("Flag_HBHENoiseFilter");
-    filterPathsVector.push_back("Flag_eeBadScFilter");
-
-    HLTConfigProvider fltrConfig;
-    fltrConfig.init(iRun, iSetup, filterResultsTag.process(), changedConfig);
-
-    for (size_t i = 0; i < filterPathsVector.size(); i++) {
-        filterPathsMap[filterPathsVector[i]] = -1;
-    }
-
-    for(size_t i = 0; i < filterPathsVector.size(); i++){
-        TPRegexp pattern(filterPathsVector[i]);
-        for(size_t j = 0; j < fltrConfig.triggerNames().size(); j++){
-            std::string pathName = fltrConfig.triggerNames()[j];
-            if(TString(pathName).Contains(pattern)){
-                filterPathsMap[filterPathsVector[i]] = j;
-            }
-        }
-    }
+  }
 }
 
 void MonoJetTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {
-}
-
-void MonoJetTreeMaker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
-
-void MonoJetTreeMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
 }
 
 

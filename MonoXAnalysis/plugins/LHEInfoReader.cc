@@ -8,7 +8,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
-class LHEInfoReader : public edm::one::EDAnalyzer<> {
+class LHEInfoReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
     public:
         explicit LHEInfoReader(const edm::ParameterSet&);
         ~LHEInfoReader();
@@ -21,7 +21,8 @@ class LHEInfoReader : public edm::one::EDAnalyzer<> {
         virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
         virtual void endJob() override;
         
-        virtual void endRun(edm::Run const&, edm::EventSetup const&);
+        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 };
 
 LHEInfoReader::LHEInfoReader(const edm::ParameterSet& iConfig) {
@@ -31,14 +32,11 @@ LHEInfoReader::LHEInfoReader(const edm::ParameterSet& iConfig) {
 LHEInfoReader::~LHEInfoReader() {
 }
 
-void LHEInfoReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-}
+void LHEInfoReader::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
-void LHEInfoReader::beginJob() {
-}
-
-void LHEInfoReader::endJob() {
-}
+void LHEInfoReader::beginJob() {}
+void LHEInfoReader::endJob() {}
+void LHEInfoReader::beginRun(edm::Run const& iRun, edm::EventSetup const&) {}
 
 void LHEInfoReader::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 

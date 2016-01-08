@@ -97,13 +97,12 @@ public:
 
 private:
   virtual void beginJob();
+  virtual void endJob();
 
   void produce(edm::Event&, const edm::EventSetup&) ;
 
   template<typename T>
   reco::Candidate::LorentzVector findParticle(const T & particle, const edm::View<reco::Candidate> & pfCandCollection);
-
-  virtual void endJob();
 
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;

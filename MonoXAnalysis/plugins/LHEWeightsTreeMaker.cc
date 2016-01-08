@@ -20,7 +20,7 @@
 
 #include <TTree.h>
 
-class LHEWeightsTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class LHEWeightsTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
 
 public:
   explicit LHEWeightsTreeMaker(const edm::ParameterSet&);
@@ -34,10 +34,8 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
   
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // InputTags
   const edm::InputTag lheInfoTag;
@@ -165,20 +163,11 @@ void LHEWeightsTreeMaker::beginJob() {
   }
 }
 
-void LHEWeightsTreeMaker::endJob() {
-}
+void LHEWeightsTreeMaker::endJob() {}
 
-void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-}
+void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
 
-void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {
-}
-
-void LHEWeightsTreeMaker::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
-
-void LHEWeightsTreeMaker::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
+void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 void LHEWeightsTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;

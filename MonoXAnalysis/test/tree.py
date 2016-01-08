@@ -1,4 +1,4 @@
-import os
+import os, re
 import FWCore.ParameterSet.Config as cms
   
 ### CMSSW command line parameter parser
@@ -126,11 +126,21 @@ options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.var
 options.parseArguments()
 
 if options.isMC and 'dataRun2' in options.globalTag:
-	options.globalTag = '74X_mcRun2_asymptotic_v2';
+		options.globalTag = '74X_mcRun2_asymptotic_v2';
 
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 
+## set by default a right environment when 76X is used
+CMSSW_VERSION = os.environ['CMSSW_VERSION'];   
+if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
+	if "74X_mcRun2" in options.globalTag:
+		options.globalTag = '76X_mcRun2_asymptotic_v12'
+	elif "74X_dataRun2" in options.globalTag:
+		options.globalTag = '76X_dataRun2_v15'
+
+	if options.usePrivateSQlite == True:
+		options.usePrivateSQlite = False
 
 print "##### Settings ######"
 print "Running with isMC                = ",options.isMC	

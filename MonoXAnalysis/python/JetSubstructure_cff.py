@@ -114,8 +114,14 @@ def runGroomedMethod(process, isMC,
                                ## mathched groomed pat jet
                                matched = cms.InputTag('patJets'+jetCollection+postfix),                                                                                     
                                distMax = cms.double(coneSize),                                                                                                    
-                               values = cms.vstring("mass","pt","bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')","eta","phi","correctedP4(0).mass()","correctedP4(0).pt()"),                               
-                               valueLabels = cms.vstring("mass","pt","bTagCSVIVFV2","eta","phi","rawmass","rawpt")))            
+                               values = cms.vstring("mass","pt","eta","phi",
+                                                    "bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",
+                                                    "bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",
+                                                    "correctedP4(0).mass()","correctedP4(0).pt()"),                               
+                               valueLabels = cms.vstring("mass","pt","eta","phi",
+                                                         "pfCombinedInclusiveSecondaryVertexV2BJetTags",
+                                                         "pfBoostedDoubleSecondaryVertexAK8BJetTags",
+                                                         "rawmass","rawpt")))            
             
         if isMC:
             getattr(process,jetCollection+postfix+'Matched').valueLabels += ["hadronFlavour","partonFlavour","genMass","genPt","genEta","genPhi"]
@@ -123,7 +129,8 @@ def runGroomedMethod(process, isMC,
  
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:mass']                                                         
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:pt']                                                          
-        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:bTagCSVIVFV2']                                                  
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:pfCombinedInclusiveSecondaryVertexV2BJetTags']                  
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:pfBoostedDoubleSecondaryVertexAK8BJetTags']                  
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:eta']                                                          
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:phi']                                                          
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawmass']                                                          
@@ -309,17 +316,17 @@ def JetSubstructure(process,
 
     ## b-tag discriminators to be considered
     bTagDiscriminators = [
-        'pfTrackCountingHighEffBJetTags',
-        'pfTrackCountingHighPurBJetTags',
-        'pfSimpleSecondaryVertexHighEffBJetTags',
-        'pfSimpleSecondaryVertexHighPurBJetTags',
+        #'pfTrackCountingHighEffBJetTags',
+        #'pfTrackCountingHighPurBJetTags',
+        #'pfSimpleSecondaryVertexHighEffBJetTags',
+        #'pfSimpleSecondaryVertexHighPurBJetTags',
         'pfCombinedSecondaryVertexV2BJetTags',
         'pfCombinedInclusiveSecondaryVertexV2BJetTags',
         'pfBoostedDoubleSecondaryVertexAK8BJetTags' ## new tag for Boosted double b-tagging
         ]
 
-    CMSSW_VERSION = os.environ['CMSSW_VERSION'];
-    if re.match("CMSSW_7_4_.*",CMSSW_VERSION) or re.match("CMSSW_7_5_.*",CMSSW_VERSION):
+    CMSSW_VERSION = os.environ['CMSSW_VERSION'];    
+    if (re.match("CMSSW_7_4_.*",CMSSW_VERSION) and CMSSW_VERSION < "CMSSW_7_4_16") or re.match("CMSSW_7_5_.*",CMSSW_VERSION):
         bTagDiscriminators.remove('pfBoostedDoubleSecondaryVertexAK8BJetTags')
 
     ## jet energy corrections already loaded in JECLevels

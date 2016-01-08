@@ -1,4 +1,4 @@
-import os, copy
+import os, copy, re
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetIdCalculator,pileupJetIdEvaluator
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import patJetCorrFactors
@@ -186,6 +186,8 @@ def addPileupJetID(process,collection, postfix, isMC = True):
 ### QGLikelihood adder
 def addQGLikelihood(process,collection,postfix):
 
+    CMSSW_VERSION = os.environ['CMSSW_VERSION'];
+
     ## connect to the DB
     if not hasattr(process,"QGPoolDBESSource"):
 
@@ -203,6 +205,9 @@ def addQGLikelihood(process,collection,postfix):
                         label  = cms.untracked.string('QGL_'+type)
                         )))
         
+
+        if re.match("CMSSW_7_6_.*",CMSSW_VERSION) and not hasattr(process,"es_prefer_QGL"):
+            process.es_prefer_QGL = ms.ESPrefer("PoolDBESSource",'QGPoolDBESSource')   
 
     ## run evaluator
     from RecoJets.JetProducers.QGTagger_cfi import QGTagger
