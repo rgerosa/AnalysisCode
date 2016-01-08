@@ -68,6 +68,10 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   wgtqcd = new double[8];
   wgtpdf = new double[100];
 
+  for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
+  for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
+  
+
   // state that TFileService is used
   usesResource();
 
@@ -111,28 +115,23 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   wgtpdf4 = 0.0;
   wgtpdf5 = 0.0;
   
-  for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
-  for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
-  
   if (addqcdpdfweights) {
+
       vector<gen::WeightsInfo> weights = lheInfoH->weights();
       for (size_t i = 0; i < weights.size(); i++) {
-	if (weights[i].id == "315") wgtpdf1 = weights[i].wgt; // cteq6l1
-	if (weights[i].id == "316") wgtpdf2 = weights[i].wgt; // MMHT2014lo68cl
-	if (weights[i].id == "370") wgtpdf3 = weights[i].wgt; // HERAPDF15LO
-	if (weights[i].id == "393") wgtpdf4 = weights[i].wgt; // CT10nlo
-	if (weights[i].id == "446") wgtpdf5 = weights[i].wgt; // MMHT2014nlo68cl
-        
-	for (size_t j = 2; j <= 9; j++) {
-	  stringstream ss;
-	  ss << j;
-	  if (weights[i].id == ss.str()) wgtqcd[j-2]  = weights[i].wgt;
-	}
-	for (size_t j = 11; j <= 110; j++) {
-	  stringstream ss;
-	  ss << j;
-	  if (weights[i].id == ss.str()) wgtpdf[j-11] = weights[i].wgt;
-	}
+	
+	if (weights[i].id == "315")      wgtpdf1 = weights[i].wgt; // cteq6l1
+	else if (weights[i].id == "316") wgtpdf2 = weights[i].wgt; // MMHT2014lo68cl
+	else if (weights[i].id == "370") wgtpdf3 = weights[i].wgt; // HERAPDF15LO
+	else if (weights[i].id == "393") wgtpdf4 = weights[i].wgt; // CT10nlo
+	else if (weights[i].id == "446") wgtpdf5 = weights[i].wgt; // MMHT2014nlo68cl
+
+	else if(weights[i].id >= 2 and weights[i].id <=9)
+	  wgtqcd[std::stoi(weights[i].id)-2] = weights[i].wgt;
+	else if(weights[i].id >= 11 and weights[i].id <=110)
+	  wgtpdf[std::stoi(weights[i].id)-11] = weights[i].wgt;
+	else
+	  continue;
       }
   }
   

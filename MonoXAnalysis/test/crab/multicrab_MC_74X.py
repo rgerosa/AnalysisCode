@@ -20,7 +20,7 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=True',
                'globalTag=74X_mcRun2_asymptotic_v2',
                'outputFileName=tree.root',
-               'nThreads=4']
+               'nThreads=6']
 
 config.section_('General')
 config.General.transferLogs = True
@@ -31,13 +31,14 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 4
+config.JobType.maxMemoryMB      = 3000
+config.JobType.numCores         = 6
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 20000
+config.Data.unitsPerJob   = 10000
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/'
 
 config.section_('Site')

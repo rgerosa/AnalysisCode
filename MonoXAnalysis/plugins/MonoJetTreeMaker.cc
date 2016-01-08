@@ -88,7 +88,6 @@ private:
   const bool uselheweights;
   const bool isWorZMCSample;
   const bool isSignalSample;   
-  const bool addqcdpdfweights;   
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
   edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
@@ -345,8 +344,6 @@ private:
   double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
   // weights
   double   wgt, kfact, puwgt;
-  double*  wgtpdf;
-  double*  wgtqcd;
 
   template<typename T> 
   class PatPtSorter{
@@ -375,7 +372,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   isWorZMCSample(iConfig.existsAs<bool>("isWorZMCSample") ? iConfig.getParameter<bool>("isWorZMCSample") : false),
   isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
   // qcd and pdf weights
-  addqcdpdfweights(iConfig.existsAs<bool>("addqcdpdfweights") ? iConfig.getParameter<bool>("addqcdpdfweights") : false),
   xsec(iConfig.getParameter<double>("xsec") * 1000.0),
   ///////////// TRIGGER and filter info INFO
   triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
@@ -431,9 +427,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   usesResource();
   
-  wgtqcd = new double[8];
-  wgtpdf = new double[100];
-
   // only for simulated samples
 
   if( isMC ){
@@ -491,10 +484,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 }
 
 
-MonoJetTreeMaker::~MonoJetTreeMaker() {
-    delete wgtqcd;
-    delete wgtpdf;
-}
+MonoJetTreeMaker::~MonoJetTreeMaker() {}
 
 void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
@@ -745,27 +735,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (uselheweights && genevtInfoH.isValid()) 
       wgt = genevtInfoH->weight();
     else wgt = 1.0;
-
-    for (size_t i = 0; i < 8  ; i++) 
-      wgtqcd[i] = 0.;
-    for (size_t i = 0; i < 100; i++) 
-      wgtpdf[i] = 0.;
-
-    if (addqcdpdfweights && lheInfoH.isValid()) {
-      vector<gen::WeightsInfo> weights = lheInfoH->weights();
-      for (size_t i = 0; i < weights.size(); i++) {
-	for (size_t j = 2; j <= 9; j++) {
-	  stringstream ss;
-	  ss << j;
-	  if (weights[i].id == ss.str()) wgtqcd[j-2]  = weights[i].wgt;
-	}
-	for (size_t j = 11; j <= 110; j++) {
-	  stringstream ss;
-	  ss << j;
-	  if (weights[i].id == ss.str()) wgtpdf[j-11] = weights[i].wgt;
-	}
-      }
-    }
 
     if (pileupInfoH.isValid()) {
       for (auto pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
@@ -2701,11 +2670,6 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("putrue"               , &putrue               , "putrue/I");
   tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
   
-  if (addqcdpdfweights) {
-    tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
-    tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
-  }
-
   // Triggers
   tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
   tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
