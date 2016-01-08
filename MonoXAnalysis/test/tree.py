@@ -522,5 +522,5 @@ if options.dropAnalyzerDumpEDM == False:
 						    process.tree)
 
 
-processDumpFile = open('processDump.py', 'w')
-print >> processDumpFile, process.dumpPython()
+#processDumpFile = open('processDump.py', 'w')
+#print >> processDumpFile, process.dumpPython()
