@@ -31,7 +31,7 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxMemoryMB      = 3000
+#config.JobType.maxMemoryMB      = 2450
 config.JobType.numCores         = 6
 
 

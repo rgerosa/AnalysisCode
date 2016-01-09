@@ -39,6 +39,12 @@ config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'LumiBased'
 config.Data.unitsPerJob   = 150
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/'
+#config.Data.lumiMask      = https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt  
+config.Data.lumiMask      = https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.txt
+
+#config.Data.runRange
+config.Data.publication   = False
+
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
