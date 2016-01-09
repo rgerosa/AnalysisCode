@@ -489,6 +489,7 @@ else:
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     lheinfo = cms.InputTag("externalLHEProducer"),
     geninfo = cms.InputTag("generator"),
+    pileupinfo = cms.InputTag("slimmedAddPileupInfo"),				 
     uselheweights = cms.bool(options.useLHEWeights),
     addqcdpdfweights = cms.bool(options.addQCDPDFWeights)
 )

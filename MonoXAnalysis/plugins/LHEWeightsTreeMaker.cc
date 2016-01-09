@@ -17,6 +17,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 #include <TTree.h>
 
@@ -40,16 +41,19 @@ private:
   // InputTags
   const edm::InputTag lheInfoTag;
   const edm::InputTag genInfoTag;
+  const edm::InputTag pileupInfoTag;
   
   // Tokens
   edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken;
   
   const bool uselheweights, addqcdpdfweights;
 
   TTree* tree;
   
   uint32_t event, run, lumi;
+  double   puobs, putrue;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
   double*  wgtpdf;
   double*  wgtqcd;
@@ -58,13 +62,15 @@ private:
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
   lheInfoTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
   genInfoTag(iConfig.getParameter<edm::InputTag>("geninfo")),
+  pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileupinfo")),
   uselheweights(iConfig.getParameter<bool>("uselheweights")),
   addqcdpdfweights(iConfig.getParameter<bool>("addqcdpdfweights"))
 {
   // Token consumes instructions
   lheInfoToken = consumes<LHEEventProduct>(lheInfoTag);
   genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
-  
+  pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(pileupInfoTag);
+
   wgtqcd = new double[8];
   wgtpdf = new double[100];
 
@@ -96,12 +102,25 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (uselheweights) 
     iEvent.getByToken(genInfoToken, genInfoH);
 
+  Handle<std::vector<PileupSummaryInfo> > pileupInfoH;
+  iEvent.getByToken(pileupInfoToken,pileupInfoH);
+
   // Event, lumi, run info
   event = iEvent.id().event();
   run   = iEvent.id().run();
   lumi  = iEvent.luminosityBlock();
 
-    // Weights info
+  if(pileupInfoH.isValid()) {
+    for (auto pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
+      if (pileupInfo_iter->getBunchCrossing() == 0) {
+	puobs  = pileupInfo_iter->getPU_NumInteractions();
+	putrue = pileupInfo_iter->getTrueNumInteractions();
+      }
+    }
+  }
+  
+
+  // Weights info
   wgtsign = 1.0;
   wgtxsec = 1.0;
   if (uselheweights) {
@@ -150,6 +169,10 @@ void LHEWeightsTreeMaker::beginJob() {
   // Event weights
   tree->Branch("wgtsign"              , &wgtsign              , "wgtsign/D");
   tree->Branch("wgtxsec"              , &wgtxsec              , "wgtxsec/D");
+  // pileup info
+  tree->Branch("puobs"                , &puobs                , "puobs/D");
+  tree->Branch("putrue"               , &putrue               , "putrue/D");
+
   if (addqcdpdfweights) {
     tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");
     tree->Branch("wgtpdf2"              , &wgtpdf2              , "wgtpdf2/D");

@@ -32,6 +32,9 @@ Some useful information:
      Recipe for pileup-reweight:
      	    https://twiki.cern.ch/twiki/bin/view/CMS/PileupJSONFileforData#2015_Pileup_JSON_Files
 
+	    Example:
+	    pileupCalc.py -i Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt --inputLumiJSON pileup_JSON_11-19-2015.txt  --calcMode true --minBiasXsec 69000 --maxPileupBin 50 --numPileupBins 50 Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root
+
      MiniAOD content:
      	    https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookMiniAOD2015
 
