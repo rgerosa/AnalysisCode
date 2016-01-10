@@ -147,13 +147,13 @@ private:
 
   std::string jetJECUncFile_;
   std::string jetJERFile_;
-  TFormula*   jetJERFormula_;
+  std::auto_ptr<TFormula>   jetJERFormula_;
 
   std::vector<StringCutObjectSelector<pat::Jet> > jetJERSelection_;
   std::vector<float> jetJERSF_;
   std::vector<float> jetJERSFUnc_;
   std::vector<JetResolutionTruth> jetResolution_;
-  TRandom3* rand_;
+  std::auto_ptr<TRandom3> rand_;
 
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
   std::vector<float> unclusteredUnc_;
@@ -162,11 +162,7 @@ private:
 
 #endif
 
-METSystematicsProducer::~METSystematicsProducer(){
-
-  rand_ ->Delete();
-  jetJERFormula_->Delete();
-}
+METSystematicsProducer::~METSystematicsProducer(){}
 
 
 METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig):
@@ -318,7 +314,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   
   // file for JER truth
   jetJERFile_    = jetPSet_.getParameter<std::string>("JERFile");
-  jetJERFormula_ = new TFormula("jerFormula",jetPSet_.getParameter<std::string>("JERFormula").c_str());
+  jetJERFormula_ = std::auto_ptr<TFormula>(new TFormula("jerFormula",jetPSet_.getParameter<std::string>("JERFormula").c_str()));
 
   // this setup really depends on the format coded in https://twiki.cern.ch/twiki/pub/CMS/JetResolution/Summer15_25nsV6_MC_PtResolution_AK4PFchs.txt
   std::string line;
@@ -341,7 +337,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     file.close();
   }
 
-  rand_ = new TRandom3();
+  rand_ = std::auto_ptr<TRandom3>(new TRandom3());
   rand_->SetSeed(0);
 }
 

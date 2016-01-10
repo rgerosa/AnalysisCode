@@ -50,13 +50,13 @@ private:
   
   const bool uselheweights, addqcdpdfweights;
 
-  TTree* tree;
+  std::auto_ptr<TTree> tree;
   
   uint32_t event, run, lumi;
   double   puobs, putrue;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
-  double*  wgtpdf;
-  double*  wgtqcd;
+  std::auto_ptr<double>  wgtpdf;
+  std::auto_ptr<double>  wgtqcd;
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
@@ -71,11 +71,11 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
   pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(pileupInfoTag);
 
-  wgtqcd = new double[8];
-  wgtpdf = new double[100];
+  wgtqcd = std::auto_ptr<double> (new double[8]);
+  wgtpdf = std::auto_ptr<double> (new double[100]);
 
-  for (size_t i = 0; i < 8  ; i++) wgtqcd[i] = 0.;
-  for (size_t i = 0; i < 100; i++) wgtpdf[i] = 0.;
+  for (size_t i = 0; i < 8  ; i++) wgtqcd.get()[i] = 0.;
+  for (size_t i = 0; i < 100; i++) wgtpdf.get()[i] = 0.;
   
   // state that TFileService is used
   usesResource();
@@ -83,10 +83,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
 }
 
 
-LHEWeightsTreeMaker::~LHEWeightsTreeMaker() {
-  delete wgtqcd;
-  delete wgtpdf;
-}
+LHEWeightsTreeMaker::~LHEWeightsTreeMaker() {}
 
 void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
@@ -144,10 +141,10 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 	else if (weights[i].id == "393") wgtpdf4 = weights[i].wgt; // CT10nlo
 	else if (weights[i].id == "446") wgtpdf5 = weights[i].wgt; // MMHT2014nlo68cl
 
-	else if(weights[i].id >= 2 and weights[i].id <=9)
-	  wgtqcd[std::stoi(weights[i].id)-2] = weights[i].wgt;
-	else if(weights[i].id >= 11 and weights[i].id <=110)
-	  wgtpdf[std::stoi(weights[i].id)-11] = weights[i].wgt;
+	else if(std::stoi(weights[i].id) >= 2 and std::stoi(weights[i].id) <=9)
+	  wgtqcd.get()[std::stoi(weights[i].id)-2] = weights[i].wgt;
+	else if(std::stoi(weights[i].id) >= 11 and std::stoi(weights[i].id) <=110)
+	  wgtpdf.get()[std::stoi(weights[i].id)-11] = weights[i].wgt;
 	else
 	  continue;
       }
@@ -161,7 +158,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 void LHEWeightsTreeMaker::beginJob() {
 
   edm::Service<TFileService> fs;
-  tree = fs->make<TTree>("gentree"    , "gentree");
+  tree = std::auto_ptr<TTree>(fs->make<TTree>("gentree"    , "gentree"));
   // Run, Lumi, Event info
   tree->Branch("event"                , &event                , "event/i");
   tree->Branch("run"                  , &run                  , "run/i");
@@ -179,8 +176,8 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("wgtpdf3"              , &wgtpdf3              , "wgtpdf3/D");
     tree->Branch("wgtpdf4"              , &wgtpdf4              , "wgtpdf4/D");
     tree->Branch("wgtpdf5"              , &wgtpdf5              , "wgtpdf5/D");
-    tree->Branch("wgtpdf"               ,  wgtpdf               , "wgtpdf[100]/D");
-    tree->Branch("wgtqcd"               ,  wgtqcd               , "wgtqcd[8]/D");
+    tree->Branch("wgtpdf"               ,  wgtpdf.get()         , "wgtpdf[100]/D");
+    tree->Branch("wgtqcd"               ,  wgtqcd.get()         , "wgtqcd[8]/D");
   }
 }
 
