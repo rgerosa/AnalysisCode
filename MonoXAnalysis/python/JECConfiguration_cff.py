@@ -13,7 +13,7 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
    		 	era += "_MC"
   		else :
 			era += "_DATA"    
-  		dBFile = os.path.expandvars("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/"+era+".db")
+  		dBFile = os.path.expandvars("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JEC/"+era+".db")
 
 		## connect to local SQLite file
 		process.jec = cms.ESSource("PoolDBESSource",

@@ -177,7 +177,7 @@ private:
   std::map<std::string, int> filterPathsMap;
 
   // tree
-  std::auto_ptr<TTree> tree;
+  TTree* tree;
 
   // pileup info
   int32_t puobs, putrue; 
@@ -426,6 +426,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false){
 
   usesResource();
+  usesResource("TFileService");
   
   // only for simulated samples
 
@@ -2655,7 +2656,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void MonoJetTreeMaker::beginJob() {
 
   edm::Service<TFileService> fs;
-  tree = std::auto_ptr<TTree>(fs->make<TTree>("tree"       , "tree"));
+  tree = fs->make<TTree>("tree"       , "tree");
 
   // Run, Lumi, Event info
   tree->Branch("event"                , &event                , "event/i");

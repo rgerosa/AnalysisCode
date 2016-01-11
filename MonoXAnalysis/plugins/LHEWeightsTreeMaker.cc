@@ -50,10 +50,10 @@ private:
   
   const bool uselheweights, addqcdpdfweights;
 
-  std::auto_ptr<TTree> tree;
+  TTree* tree;
   
   uint32_t event, run, lumi;
-  double   puobs, putrue;
+  int      puobs, putrue;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
   std::auto_ptr<double>  wgtpdf;
   std::auto_ptr<double>  wgtqcd;
@@ -79,6 +79,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   
   // state that TFileService is used
   usesResource();
+  //  usesResource("TFileService");
 
 }
 
@@ -106,6 +107,9 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   event = iEvent.id().event();
   run   = iEvent.id().run();
   lumi  = iEvent.luminosityBlock();
+
+  puobs = 0;
+  putrue = 0;
 
   if(pileupInfoH.isValid()) {
     for (auto pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
@@ -158,7 +162,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 void LHEWeightsTreeMaker::beginJob() {
 
   edm::Service<TFileService> fs;
-  tree = std::auto_ptr<TTree>(fs->make<TTree>("gentree"    , "gentree"));
+  tree = fs->make<TTree>("gentree"    , "gentree");
   // Run, Lumi, Event info
   tree->Branch("event"                , &event                , "event/i");
   tree->Branch("run"                  , &run                  , "run/i");
@@ -167,8 +171,8 @@ void LHEWeightsTreeMaker::beginJob() {
   tree->Branch("wgtsign"              , &wgtsign              , "wgtsign/D");
   tree->Branch("wgtxsec"              , &wgtxsec              , "wgtxsec/D");
   // pileup info
-  tree->Branch("puobs"                , &puobs                , "puobs/D");
-  tree->Branch("putrue"               , &putrue               , "putrue/D");
+  tree->Branch("puobs"                , &puobs                , "puobs/I");
+  tree->Branch("putrue"               , &putrue               , "putrue/I");
 
   if (addqcdpdfweights) {
     tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");

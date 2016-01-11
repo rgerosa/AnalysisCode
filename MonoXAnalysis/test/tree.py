@@ -515,12 +515,12 @@ if options.dropAnalyzerDumpEDM == False:
 						    process.tree)
 	else :
 		if (options.isMC):
-			process.treePath = cms.Path(process.gentree + 
+			process.treePath = cms.Path(process.gentree+
 						    process.metFilters + 
 						    process.tree)
 		else :
 			process.treePath = cms.Path(process.metFilters + 
-						    process.tree)
+			                            process.tree)
 
 
 #processDumpFile = open('processDump.py', 'w')
