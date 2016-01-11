@@ -110,7 +110,7 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 					       pfCandidate = cms.InputTag("packedPFCandidates"),
 					       muon = cms.PSet(
 						src = cms.InputTag("slimmedMuons"),
-						useExternalUncertainty = cms.bool(False),
+						useExternalUncertainty = cms.bool(True),
 						binning = cms.VPSet(
 							cms.PSet(binSelection = cms.string("pt < 100"),
 								 uncertainty = cms.double(0.002)),
@@ -120,7 +120,7 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 						 ),
 					       electron = cms.PSet(
 						src = cms.InputTag("slimmedElectrons"),
-						useExternalUncertainty = cms.bool(False),
+						useExternalUncertainty = cms.bool(True),
 						binning = cms.VPSet(
 							cms.PSet(binSelection = cms.string("isEB"),
 								 uncertainty = cms.double(0.006)),
@@ -130,7 +130,7 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 						),
 					       photon = cms.PSet(
 						src = cms.InputTag("slimmedPhotons"),
-						useExternalUncertainty = cms.bool(False),
+						useExternalUncertainty = cms.bool(True),
 						binning = cms.VPSet(
 							cms.PSet(binSelection = cms.string('isEB'),
 								 uncertainty = cms.double(0.01)),
