@@ -1,14 +1,24 @@
 #ifndef MAKEHIST4_H
 #define MAKEHIST4_H
 
+// define binnings for the different observables
+int nbins     = 7;
+float bins[]  = {200., 250., 300., 350., 400., 500., 600., 1000.};
+int nrbins    = 7;
+float rbins[] = {200., 250., 300., 350., 400., 500., 600., 1000.};
+
+
 #include <vector>
 
 void makehist4(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vector<TH1*> khists, TH1* rhist=NULL) {
+
     double lumi = 2.11;
 
-    TFile* pufile = new TFile("purwt.root");
-    TH1*   puhist = (TH1*)pufile->Get("puhist");
+    // now pufile not necessary anymore since the info already in the tree
+    //TFile* pufile = new TFile("purwt.root");
+    //TH1*   puhist = (TH1*)pufile->Get("puhist");
 
+    // Lepton ID scale factor from tag and probe: muons, electrons 
     TFile* sffile = new TFile("leptonIDsfs.root");
     TH2*  msflhist = (TH2*)sffile->Get("muon_loose_SF");
     TH2*  msfthist = (TH2*)sffile->Get("muon_tight_SF");
@@ -16,435 +26,295 @@ void makehist4(TTree* tree, TH1* hist, bool isMC, int sample, double scale, vect
     TH2*  esflhist = (TH2*)sffile->Get("electron_veto_SF");
     TH2*  esfthist = (TH2*)sffile->Get("electron_tight_SF");
 
+    // Photon ID scale factor from tag and probe
     TFile* psffile = new TFile("PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
-    TH2*  psfhist = (TH2*)psffile->Get("PhotonSF");
+    TH2*  psfhist  = (TH2*)psffile->Get("PhotonSF");
 
+    // Photon purity -> to estimate QCD in photon + jets final state
     TFile* purfile = new TFile("PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
-    TH2*  purhist = (TH2*)psffile->Get("PhotonPurity");
+    TH2*  purhist  = (TH2*)psffile->Get("PhotonPurity");
 
+    // trigger efficiency correction for single electron trigger
     TFile* trefile = new TFile("leptonTrigsfs.root");
-    TH2*  trehist = (TH2*)trefile->Get("hltel27_SF");
+    TH2*   trehist = (TH2*)trefile->Get("hltel27_SF");
 
+    // trigger efficiency for met trigger
     TFile* trmfile = new TFile("mettrigSF.root");
-    TH1*  trmhist = (TH1*)trefile->Get("mettrigSF");
+    TH1*   trmhist = (TH1*)trefile->Get("mettrigSF");
 
+    // histogram to be filled
     hist->Sumw2();
 
-    TBranch  *brun        = tree->GetBranch("run");
-    TBranch  *bnvtx       = tree->GetBranch("nvtx");
-    TBranch  *bxsec       = tree->GetBranch("xsec");
-    TBranch  *bwgt        = tree->GetBranch("wgt");
-    TBranch  *bwgtsum     = tree->GetBranch("wgtsum"); 
+    // define branches
+    TTreeReader myReader(tree);
+    
+    TTreeReaderValue<int> run (myReader,"run");
+    TTreeReaderValue<int> nvtx (myReader,"nvtx");
+    TTreeReaderValue<double> xsec (myReader,"xsec");
+    TTreeReaderValue<double> wgt (myReader,"wgt");
+    TTreeReaderValue<double> wgtsum (myReader,"wgtsum");
+    TTreeReaderValue<double> wgtpileup (myReader,"wgtpileup");
 
-    TBranch  *bhltm       = tree->GetBranch("hltmet90");
-    TBranch  *bhlte       = tree->GetBranch("hltsingleel");
-    TBranch  *bhltp       = tree->GetBranch("hltphoton165");
-    TBranch  *bhltp2      = tree->GetBranch("hltphoton175");
+    TTreeReaderValue<bool> hltm (myReader,"hltmet90");
+    TTreeReaderValue<bool> hlte (myReader,"hltsingleel");
+    TTreeReaderValue<bool> hltp (myReader,"hltphoton165");
+    TTreeReaderValue<bool> hltp2 (myReader,"hltphoton175");
 
-    TBranch  *bfhbhe      = tree->GetBranch("flaghbheloose");
-    TBranch  *bfhbiso     = tree->GetBranch("flaghbheiso");
-    TBranch  *bfcsc;
-    TBranch  *bfeeb;
-    if (isMC) {
-        bfcsc             = tree->GetBranch("flagcsctight");
-        bfeeb             = tree->GetBranch("flageebadsc");
+    TTreeReaderValue<bool> fhbhe (myReader,"flaghbheloose");
+    TTreeReaderValue<bool> fhbiso (myReader,"flaghbheiso");
+
+    std::string cscname;
+    std::string feebname;
+    if(isMC){
+      cscname  = "flagcsctight";
+      feebname = "flageebadsc";
     }
-    else {
-        bfcsc             = tree->GetBranch("flagcscnew");
-        bfeeb             = tree->GetBranch("flageescnew");
+    else{
+      cscname  = "flagcscnew";
+      feebname = "flageescnew";
     }
 
-    TBranch  *bnjets      = tree->GetBranch("njets");
-    TBranch  *bnbjets     = tree->GetBranch("nbjetslowpt");
-    TBranch  *bjetpt      = tree->GetBranch("signaljetpt");
-    TBranch  *bj1pt       = tree->GetBranch("leadingjetpt");
-    TBranch  *bchfrac     = tree->GetBranch("signaljetCHfrac");
-    TBranch  *bnhfrac     = tree->GetBranch("signaljetNHfrac");
-    TBranch  *bemfrac     = tree->GetBranch("signaljetEMfrac");
+    TTreeReaderValue<bool> fcsc (myReader,cscname.c_str());
+    TTreeReaderValue<bool> feeb (myReader,feebname.c_str());
 
-    TBranch  *bmet        = tree->GetBranch("t1pfmet");
-    TBranch  *bmetphi     = tree->GetBranch("t1pfmetphi");
-    TBranch  *bmmet       = tree->GetBranch("t1mumet");
-    TBranch  *bmmetphi    = tree->GetBranch("t1mumetphi");
-    TBranch  *bemet       = tree->GetBranch("t1elmet");
-    TBranch  *bemetphi    = tree->GetBranch("t1elmetphi");
-    TBranch  *bpmet       = tree->GetBranch("t1phmet");
-    TBranch  *bpmetphi    = tree->GetBranch("t1phmetphi");
-    TBranch  *bjmmdphi    = tree->GetBranch("incjetmetdphimin4");
-    TBranch  *bjemdphi    = tree->GetBranch("incjetelmetdphimin4");
-    TBranch  *bjpmdphi    = tree->GetBranch("incjetphmetdphimin4");
+    TTreeReaderValue<int> njets (myReader,"njets");
+    TTreeReaderValue<int> nbjets (myReader,"nbjetslowpt");
+    TTreeReaderValue<double> jetpt (myReader,"signaljetpt");
+    TTreeReaderValue<double> j1pt (myReader,"leadingjetpt");
+    TTreeReaderValue<double> chfrac (myReader,"signaljetCHfrac");
+    TTreeReaderValue<double> nhfrac (myReader,"signaljetNHfrac");
+    TTreeReaderValue<double> emfrac (myReader,"signaljetEMfrac");
 
-    TBranch  *bmu1pid     = tree->GetBranch("mu1pid");
-    TBranch  *bmu2pid     = tree->GetBranch("mu2pid");
-    TBranch  *bmu1id      = tree->GetBranch("mu1id");
-    TBranch  *bmu2id      = tree->GetBranch("mu2id");
-    TBranch  *bmu1pt      = tree->GetBranch("mu1pt");
-    TBranch  *bmu2pt      = tree->GetBranch("mu2pt");
-    TBranch  *bmu1eta     = tree->GetBranch("mu1eta");
-    TBranch  *bmu2eta     = tree->GetBranch("mu2eta");
-    TBranch  *bel1pid     = tree->GetBranch("el1pid");
-    TBranch  *bel2pid     = tree->GetBranch("el2pid");
-    TBranch  *bel1id      = tree->GetBranch("el1id");
-    TBranch  *bel2id      = tree->GetBranch("el2id");
-    TBranch  *bel1pt      = tree->GetBranch("el1pt");
-    TBranch  *bel2pt      = tree->GetBranch("el2pt");
-    TBranch  *bel1eta     = tree->GetBranch("el1eta");
-    TBranch  *bel2eta     = tree->GetBranch("el2eta");
-    TBranch  *bphid       = tree->GetBranch("phidm");
-    TBranch  *bphpt       = tree->GetBranch("phpt");
-    TBranch  *bpheta      = tree->GetBranch("pheta");
-    TBranch  *bphphi      = tree->GetBranch("phphi");
+    TTreeReaderValue<double> met (myReader,"t1pfmet");
+    TTreeReaderValue<double> metphi (myReader,"t1pfmetphi");
 
-    TBranch  *bwzpt       = tree->GetBranch("wzpt");
-    TBranch  *bwzeta      = tree->GetBranch("wzeta");
-    TBranch  *bzmass      = tree->GetBranch("zmass");
-    TBranch  *bzmmpt      = tree->GetBranch("zpt");
-    TBranch  *bzeept      = tree->GetBranch("zeept");
-    TBranch  *bzmmeta     = tree->GetBranch("zeta");
-    TBranch  *bzeeeta     = tree->GetBranch("zeeeta");
+    TTreeReaderValue<double> mmet (myReader,"t1mumet");
+    TTreeReaderValue<double> mmetphi (myReader,"t1mumetphi");
 
-    UInt_t   run          = 0;
-    UInt_t   nvtx         = 0;
-    Double_t xsec         = 0.0;
-    Double_t wgt          = 0.0;
-    Double_t wgtsum       = 0.0;
+    TTreeReaderValue<double> emet (myReader,"t1elmet");
+    TTreeReaderValue<double> emetphi (myReader,"t1elmetphi");
 
-    UChar_t  hltm         = 0;
-    UChar_t  hlte         = 0;
-    UChar_t  hltp         = 0;
-    UChar_t  hltp2        = 0;
+    TTreeReaderValue<double> pmet (myReader,"t1phmet");
+    TTreeReaderValue<double> pmetphi (myReader,"t1phmetphi");
 
-    UChar_t  fhbhe        = 0;
-    UChar_t  fhbiso       = 0;
-    UChar_t  fcsc         = 0;
-    UChar_t  feeb         = 0;
+    TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
+    TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
+    TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
 
-    UInt_t   njets        = 0;
-    UInt_t   nbjets       = 0;
-    Double_t jetpt        = 0.0;
-    Double_t j1pt         = 0.0;
-    Double_t chfrac       = 0.0;
-    Double_t nhfrac       = 0.0;
-    Double_t emfrac       = 0.0;
+    TTreeReaderValue<int> mu1pid (myReader,"mu1pid");
+    TTreeReaderValue<int> mu2pid (myReader,"mu2pid");
+    TTreeReaderValue<int> mu1id (myReader,"mu1id");
+    TTreeReaderValue<int> mu2id (myReader,"mu2id");
+    TTreeReaderValue<double> mu1pt (myReader,"mu1pt");
+    TTreeReaderValue<double> mu2pt (myReader,"mu2pt");
+    TTreeReaderValue<double> mu1eta (myReader,"mu1eta");
+    TTreeReaderValue<double> mu2eta (myReader,"mu2eta");
 
-    Double_t pfmet        = 0.0;
-    Double_t pfmetphi     = 0.0;
-    Double_t mmet         = 0.0;
-    Double_t mmetphi      = 0.0;
-    Double_t emet         = 0.0;
-    Double_t emetphi      = 0.0;
-    Double_t pmet         = 0.0;
-    Double_t pmetphi      = 0.0;
-    Double_t jmmdphi      = 0.0;
-    Double_t jemdphi      = 0.0;
-    Double_t jpmdphi      = 0.0;
 
-    Int_t    mu1pid       = 0;
-    Int_t    mu2pid       = 0;
-    Int_t    mu1id        = 0;
-    Int_t    mu2id        = 0;
-    Double_t mu1pt        = 0.0;
-    Double_t mu2pt        = 0.0;
-    Double_t mu1eta       = 0.0;
-    Double_t mu2eta       = 0.0;
-    Int_t    el1pid       = 0;
-    Int_t    el2pid       = 0;
-    Int_t    el1id        = 0;
-    Int_t    el2id        = 0;
-    Double_t el1pt        = 0.0;
-    Double_t el2pt        = 0.0;
-    Double_t el1eta       = 0.0;
-    Double_t el2eta       = 0.0;
-    Int_t    phid         = 0;
-    Double_t phpt         = 0.0;
-    Double_t pheta        = 0.0;
-    Double_t phphi        = 0.0;
+    TTreeReaderValue<int> el1pid (myReader,"el1pid");
+    TTreeReaderValue<int> el2pid (myReader,"el2pid");
+    TTreeReaderValue<int> el1id (myReader,"el1id");
+    TTreeReaderValue<int> el2id (myReader,"el2id");
+    TTreeReaderValue<double> el1pt (myReader,"el1pt");
+    TTreeReaderValue<double> el2pt (myReader,"el2pt");
+    TTreeReaderValue<double> el1eta (myReader,"el1eta");
+    TTreeReaderValue<double> el2eta (myReader,"el2eta");
 
-    Double_t wzpt         = 0.0;
-    Double_t wzeta        = 0.0;
-    Double_t zmass        = 0.0;
-    Double_t zmmpt        = 0.0;
-    Double_t zeept        = 0.0;
-    Double_t zmmeta       = 0.0;
-    Double_t zeeeta       = 0.0;
+    TTreeReaderValue<int> phidm (myReader,"phidm");
+    TTreeReaderValue<double> phpt (myReader,"phpt");
+    TTreeReaderValue<double> pheta (myReader,"pheta");
+    TTreeReaderValue<double> phphi (myReader,"phphi");
 
-    brun                  ->SetAddress(&run);
-    bnvtx                 ->SetAddress(&nvtx);
-    bxsec                 ->SetAddress(&xsec);
-    bwgt                  ->SetAddress(&wgt);
-    bwgtsum               ->SetAddress(&wgtsum);
+    TTreeReaderValue<double> wzpt (myReader,"wzpt");
+    TTreeReaderValue<double> wzeta (myReader,"wzeta");
+    TTreeReaderValue<double> zmass (myReader,"zmass");
+    TTreeReaderValue<double> zpt (myReader,"zpt");
+    TTreeReaderValue<double> zmmpt (myReader,"zmmpt");
+    TTreeReaderValue<double> zeept (myReader,"zeept");
+    TTreeReaderValue<double> zeta (myReader,"zeta");
+    TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
+    TTreeReaderValue<double> zmmeta (myReader,"zmmeta");
 
-    bhltm                 ->SetAddress(&hltm);
-    bhlte                 ->SetAddress(&hlte);
-    bhltp                 ->SetAddress(&hltp);
-    bhltp2                ->SetAddress(&hltp2);
-
-    bfhbhe                ->SetAddress(&fhbhe); 
-    bfhbiso               ->SetAddress(&fhbiso);
-    bfcsc                 ->SetAddress(&fcsc);
-    bfeeb                 ->SetAddress(&feeb);
-
-    bnjets                ->SetAddress(&njets);
-    bnbjets               ->SetAddress(&nbjets);
-    bjetpt                ->SetAddress(&jetpt);
-    bj1pt                 ->SetAddress(&j1pt);
-    bchfrac               ->SetAddress(&chfrac);
-    bnhfrac               ->SetAddress(&nhfrac);
-    bemfrac               ->SetAddress(&emfrac);
-
-    bmet                  ->SetAddress(&pfmet);
-    bmetphi               ->SetAddress(&pfmetphi);
-    bmmet                 ->SetAddress(&mmet);
-    bmmetphi              ->SetAddress(&mmetphi);
-    bemet                 ->SetAddress(&emet);
-    bemetphi              ->SetAddress(&emetphi);
-    bpmet                 ->SetAddress(&pmet);
-    bpmetphi              ->SetAddress(&pmetphi);
-    bjmmdphi              ->SetAddress(&jmmdphi);
-    bjemdphi              ->SetAddress(&jemdphi);
-    bjpmdphi              ->SetAddress(&jpmdphi);
-
-    bmu1pid               ->SetAddress(&mu1pid);
-    bmu2pid               ->SetAddress(&mu2pid);
-    bmu1id                ->SetAddress(&mu1id);
-    bmu2id                ->SetAddress(&mu2id);
-    bmu1pt                ->SetAddress(&mu1pt);
-    bmu2pt                ->SetAddress(&mu2pt);
-    bmu1eta               ->SetAddress(&mu1eta);
-    bmu2eta               ->SetAddress(&mu2eta);
-    bel1pid               ->SetAddress(&el1pid);
-    bel2pid               ->SetAddress(&el2pid);
-    bel1id                ->SetAddress(&el1id);
-    bel2id                ->SetAddress(&el2id);
-    bel1pt                ->SetAddress(&el1pt);
-    bel2pt                ->SetAddress(&el2pt);
-    bel1eta               ->SetAddress(&el1eta);
-    bel2eta               ->SetAddress(&el2eta);
-    bphid                 ->SetAddress(&phid);
-    bphpt                 ->SetAddress(&phpt);
-    bpheta                ->SetAddress(&pheta);
-    bphphi                ->SetAddress(&phphi);
-
-    bwzpt                 ->SetAddress(&wzpt);
-    bwzeta                ->SetAddress(&wzeta);
-    bzmass                ->SetAddress(&zmass);
-    bzmmpt                ->SetAddress(&zmmpt);
-    bzeept                ->SetAddress(&zeept);
-    bzmmeta               ->SetAddress(&zmmeta);
-    bzeeeta               ->SetAddress(&zeeeta);
-
-    for (Long64_t i = 0; i < tree->GetEntries(); i++) {
-        brun              ->GetEvent(i);
-        bnvtx             ->GetEvent(i);
-        bxsec             ->GetEvent(i);
-        bwgt              ->GetEvent(i);
-        bwgtsum           ->GetEvent(i);
-
-        bhltm             ->GetEvent(i);
-        bhlte             ->GetEvent(i);
-        bhltp             ->GetEvent(i);
-        bhltp2            ->GetEvent(i);
-
-        bfhbhe            ->GetEvent(i);
-        bfhbiso           ->GetEvent(i);
-        bfcsc             ->GetEvent(i);
-        bfeeb             ->GetEvent(i);
-
-        bnjets            ->GetEvent(i);
-        bnbjets           ->GetEvent(i);
-        bjetpt            ->GetEvent(i);
-        bj1pt             ->GetEvent(i);
-        bchfrac           ->GetEvent(i);
-        bnhfrac           ->GetEvent(i);
-        bemfrac           ->GetEvent(i);
-
-        bmet              ->GetEvent(i);
-        bmetphi           ->GetEvent(i);
-        bmmet             ->GetEvent(i);
-        bmmetphi          ->GetEvent(i);
-        bemet             ->GetEvent(i);
-        bemetphi          ->GetEvent(i);
-        bpmet             ->GetEvent(i);
-        bpmetphi          ->GetEvent(i);
-        bjmmdphi          ->GetEvent(i);
-        bjemdphi          ->GetEvent(i);
-        bjpmdphi          ->GetEvent(i);
-
-        bmu1pid           ->GetEvent(i);
-        bmu2pid           ->GetEvent(i);
-        bmu1id            ->GetEvent(i);
-        bmu2id            ->GetEvent(i);
-        bmu1pt            ->GetEvent(i);
-        bmu2pt            ->GetEvent(i);
-        bmu1eta           ->GetEvent(i);
-        bmu2eta           ->GetEvent(i);
-
-        bel1pid           ->GetEvent(i);
-        bel2pid           ->GetEvent(i);
-        bel1id            ->GetEvent(i);
-        bel2id            ->GetEvent(i);
-        bel1pt            ->GetEvent(i);
-        bel2pt            ->GetEvent(i);
-        bel1eta           ->GetEvent(i);
-        bel2eta           ->GetEvent(i);
-
-        bphid             ->GetEvent(i);
-        bphpt             ->GetEvent(i);
-        bpheta            ->GetEvent(i);
-        bphphi            ->GetEvent(i);
-
-        bwzpt             ->GetEvent(i);
-        bwzeta            ->GetEvent(i);
-        bzmass            ->GetEvent(i);
-        bzmmpt            ->GetEvent(i);
-        bzeept            ->GetEvent(i);
-        bzmmeta           ->GetEvent(i);
-        bzeeeta           ->GetEvent(i);
+    // loop on events
+    while(myReader.Next()){
         
-        Double_t hlt = 0.0;
-        if      (sample == 0 || sample == 1 || sample == 2) hlt = hltm;
-        else if (sample == 3 || sample == 4)                hlt = hlte;
-        else if (sample == 5 || sample == 6)                hlt = hltp;
+      // check trigger
+      Double_t hlt = 0.0;
+      if (sample == 0 || sample == 1 || sample == 2) 
+	hlt = *hltm;
+      else if (sample == 3 || sample == 4)                
+	hlt = *hlte;
+      else if (sample == 5 || sample == 6)            
+	hlt = *hltp;
 
-        if ((sample == 5 || sample == 6) && hltp2 > 0)      hlt = hltp2;
+      // check both photon triggers
+      if ((sample == 5 || sample == 6) && *hltp2 > 0)      
+	hlt = *hltp2;
+	
+      // check dphi jet-met
+      Double_t jmdphi = 0.0;
+      if      (sample == 0 || sample == 1 || sample == 2) 
+	jmdphi = fabs(*jmmdphi);
+      else if (sample == 3 || sample == 4)                
+	jmdphi = fabs(*jemdphi);
+      else if (sample == 5 || sample == 6)                
+	jmdphi = fabs(*jpmdphi);
+      
+      //set met
+      Double_t met = 0.0;
+      if      (sample == 0 || sample == 1 || sample == 2) 
+	met = *mmet;
+      else if (sample == 3 || sample == 4)                
+	met = *emet;
+      else if (sample == 5 || sample == 6)                
+	met = *pmet;
+      
+      // set zpt in case of Zsamples
+      Double_t zpt = 0.0;
+      if      (sample == 1) 
+	zpt = *zmmpt;
+      else if (sample == 3) 
+	zpt = *zeept;
+      else if (sample == 5) 
+	zpt = *phpt;
+      
 
-        Double_t jmdphi = 0.0;
-        if      (sample == 0 || sample == 1 || sample == 2) jmdphi = fabs(jmmdphi);
-        else if (sample == 3 || sample == 4)                jmdphi = fabs(jemdphi);
-        else if (sample == 5 || sample == 6)                jmdphi = fabs(jpmdphi);
+      // set lepton info
+      Int_t    id1   = 0;
+      Int_t    id2   = 0;
+      Double_t pt1   = 0.0;
+      Double_t pt2   = 0.0;
+      Double_t eta1  = 0.0;
+      Double_t eta2  = 0.0;
 
-        Double_t met = 0.0;
-        if      (sample == 0 || sample == 1 || sample == 2) met = mmet;
-        else if (sample == 3 || sample == 4)                met = emet;
-        else if (sample == 5 || sample == 6)                met = pmet;
+      if (sample == 1 || sample == 2) {
+	id1  = *mu1id;
+	id2  = *mu2id;
+	pt1  = *mu1pt;
+	pt2  = *mu2pt;
+	eta1 = fabs(*mu1eta);
+	eta2 = fabs(*mu2eta);
+      }
+      else if (sample == 3 || sample == 4) {
+	id1  = *el1id;
+	id2  = *el2id;
+	pt1  = *el1pt;
+	pt2  = *el2pt;
+	eta1 = fabs(*el1eta);
+	eta2 = fabs(*el2eta);
+      }
+      else if (sample == 5 || sample == 6) {
+	id1  = 1.0;
+	id2  = 1.0;
+	pt1  = *phpt;
+	eta1 = fabs(*pheta);
+      }
+      
+      if (pt1 >= 1000.) 
+	pt1 = 999.0;
+      if (pt2 >= 1000.) 
+	pt2 = 999.0;
 
-        Double_t zpt = 0.0;
-        if      (sample == 1) zpt = zmmpt;
-        else if (sample == 3) zpt = zeept;
-        else if (sample == 5) zpt = phpt;
+      // scale factor for leptons
+      TH2* sflhist = NULL;
+      TH2* sfthist = NULL;
 
-        Double_t puwgt = 0.;
-        if (nvtx <= 35) puwgt = puhist->GetBinContent(nvtx);
-        //puwgt = 1.0;
+      if (sample == 1 || sample == 2) {
+	sflhist = msflhist;
+	sfthist = msfthist;
+      }
+      if (sample == 3 || sample == 4) {
+	sflhist = esflhist;
+	sfthist = esfthist;
+      }
 
-        Int_t    id1   = 0;
-        Int_t    id2   = 0;
-        Double_t pt1   = 0.0;
-        Double_t pt2   = 0.0;
-        Double_t eta1  = 0.0;
-        Double_t eta2  = 0.0;
+      Double_t sfwgt = 1.0;
+      if (isMC && sflhist && sfthist) {
+	if (pt1 > 0.) {
+	  if (id1 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(pt1, eta1)); 
+	  else          sfwgt *= sflhist->GetBinContent(sflhist->FindBin(pt1, eta1)); 
+	}
+	if (pt2 > 0.) {
+	  if (id2 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(pt2, eta2)); 
+	  else          sfwgt *= sflhist->GetBinContent(sflhist->FindBin(pt2, eta2)); 
+	}
+      }
+      
+      // trigger scale factor
+      if (isMC && trehist && sample == 4) {
+	if (pt1 > 0. && id1 == 1) {
+	  sfwgt *= trehist->GetBinContent(trehist->FindBin(pt1, eta1));
+	}
+      }
+      // photon id scale factor
+      if (isMC && psfhist && (sample == 5 || sample == 6)) {
+	if (pt1 > 0. && id1 == 1) {
+	  sfwgt *= psfhist->GetBinContent(psfhist->FindBin(pt1, eta1));
+	}
+      }
+      // photon purity
+      if (!isMC && purhist && sample == 6) {
+	if (pt1 > 175. && id1 == 1) {
+	  sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(pt1, eta1)));
+	}
+      }
+      // met trigger scale factor
+      if (isMC && trmhist && (sample == 0 || sample == 1 || sample == 2)) {
+	sfwgt *= trmhist->GetBinContent(trmhist->FindBin(met));
+      }
 
-        if (sample == 1 || sample == 2) {
-            id1  = mu1id;
-            id2  = mu2id;
-            pt1  = mu1pt;
-            pt2  = mu2pt;
-            eta1 = fabs(mu1eta);
-            eta2 = fabs(mu2eta);
-        }
-        else if (sample == 3 || sample == 4) {
-            id1  = el1id;
-            id2  = el2id;
-            pt1  = el1pt;
-            pt2  = el2pt;
-            eta1 = fabs(el1eta);
-            eta2 = fabs(el2eta);
-        }
-        else if (sample == 5 || sample == 6) {
-            id1  = 1.0;
-            id2  = 1.0;
-            pt1  = phpt;
-            eta1 = fabs(pheta);
-        }
+      // Gen level info --> NLO re-weight
+      Double_t kvar = *wzpt;
+      if (*wzpt < 100. ) 
+	*wzpt = 100.;
+      if (*wzpt > 1000.) 
+	*wzpt = 999.;
+      
+      Double_t rwgt = 1.0;
+      if (rhist) 
+	rwgt = rhist->GetBinContent(rhist->FindBin(*wzpt));
 
-        if (pt1 >= 1000.) pt1 = 999.0;
-        if (pt2 >= 1000.) pt2 = 999.0;
+      Double_t kwgt = 1.0;
+      for (unsigned i = 0; i < khists.size(); i++) {
+	if (isMC && khists[i]) kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
+      }
 
-        TH2* sflhist = NULL;
-        TH2* sfthist = NULL;
+      // selections
+      if (hlt  == 0) continue; // trigger
+      if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue; // met filters
+      if (*chfrac < 0.1) continue; // jet id
+      if (*nhfrac > 0.8) continue; // jet id
+      if (*njets  < 1) continue; //Njets > 1
+      if (*nbjets > 0) continue; // bjets
+      if (*jetpt  < 100.) continue; // jet1 > 100 GeV
+      if (*jetpt  < *j1pt) continue;
+      if (jmdphi < 0.5) continue; // deltaPhi cut
+      if (sample == 1 && *mu1pid == *mu2pid) continue;
+      if (sample == 3 && *el1pid == *el2pid) continue;
+      if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
+      if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
+      if (sample == 4 && met < 50.) continue;
+      if (met < 200.) continue;
 
-        if (sample == 1 || sample == 2) {
-            sflhist = msflhist;
-            sfthist = msfthist;
-        }
-        if (sample == 3 || sample == 4) {
-            sflhist = esflhist;
-            sfthist = esfthist;
-        }
+      // fill met histogram
+      double fillvar = met;
+      if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
+	fillvar = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());
 
-        Double_t sfwgt = 1.0;
-        if (isMC && sflhist && sfthist) {
-            if (pt1 > 0.) {
-                if (id1 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(pt1, eta1)); 
-                else          sfwgt *= sflhist->GetBinContent(sflhist->FindBin(pt1, eta1)); 
-            }
-            if (pt2 > 0.) {
-                if (id2 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(pt2, eta2)); 
-                else          sfwgt *= sflhist->GetBinContent(sflhist->FindBin(pt2, eta2)); 
-            }
-        }
-        if (isMC && trehist && sample == 4) {
-            if (pt1 > 0. && id1 == 1) {
-                sfwgt *= trehist->GetBinContent(trehist->FindBin(pt1, eta1));
-            }
-        }
-        if (isMC && psfhist && (sample == 5 || sample == 6)) {
-            if (pt1 > 0. && id1 == 1) {
-                sfwgt *= psfhist->GetBinContent(psfhist->FindBin(pt1, eta1));
-            }
-        }
-        if (!isMC && purhist && sample == 6) {
-            if (pt1 > 175. && id1 == 1) {
-                sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(pt1, eta1)));
-            }
-        }
-        if (isMC && trmhist && (sample == 0 || sample == 1 || sample == 2)) {
-            sfwgt *= trmhist->GetBinContent(trmhist->FindBin(met));
-        }
+      // total event weight
+      double evtwgt = 1.0;
+      if (isMC) 
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+      if (!isMC && sample == 6) 
+	evtwgt = sfwgt;
 
-        Double_t kvar = wzpt;
-        if (wzpt < 100. ) wzpt = 100.;
-        if (wzpt > 1000.) wzpt = 999.;
-
-        Double_t rwgt = 1.0;
-        if (rhist) rwgt = rhist->GetBinContent(rhist->FindBin(wzpt));
-
-        Double_t kwgt = 1.0;
-        for (unsigned i = 0; i < khists.size(); i++) {
-            if (isMC && khists[i]) kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(wzpt));
-        }
-
-        if (hlt  == 0) continue;
-        if (fhbhe == 0 || fhbiso == 0 || fcsc == 0 || feeb == 0) continue;
-        if (chfrac < 0.1) continue;
-        if (nhfrac > 0.8) continue;
-        if (njets  < 1) continue;
-        if (nbjets > 0) continue;
-        if (jetpt  < 100.) continue;
-        if (jetpt  < j1pt) continue;
-        if (jmdphi < 0.5) continue;
-        if (sample == 1 && mu1pid == mu2pid) continue;
-        if (sample == 3 && el1pid == el2pid) continue;
-        if ((sample == 5 || sample == 6) && phpt < 175.) continue;
-        if ((sample == 5 || sample == 6) && fabs(pheta) > 1.4442) continue;
-        if (sample == 4 && pfmet < 50.) continue;
-        if (met < 200.) continue;
-
-        double fillvar = met;
-        if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) fillvar = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());
-
-        double evtwgt = 1.0;
-        if (isMC) evtwgt = xsec*scale*lumi*wgt*puwgt*sfwgt*rwgt*kwgt/wgtsum;
-        if (!isMC && sample == 6) evtwgt = sfwgt;
-
-        hist->Fill(fillvar, evtwgt);
+      hist->Fill(fillvar, evtwgt);
     }
-
-    pufile  ->Close();
+    
     sffile  ->Close();
     psffile ->Close();
     trefile ->Close();
-
+    
 }
 
 #endif

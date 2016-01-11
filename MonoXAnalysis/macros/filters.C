@@ -15,7 +15,7 @@ double sumwgt(TTree* tree) {
 }
 
 //function to apply pileup re-weight, i.e. return an histogram given by the ratio between pileup in data and mc
-TH1D* pileupwgt(TTree* tree, std::string & scenario){
+TH1D* pileupwgt(TTree* tree, std::string scenario){
 
   if(tree == NULL or tree == 0)
     return 0;
@@ -52,7 +52,7 @@ TH1D* pileupwgt(TTree* tree, std::string & scenario){
 }
 
 // function that take as input a ROOT file
-void sigfilter( std::string & inputFileName,  std::string outputFileName ) {
+void sigfilter( std::string inputFileName,  std::string outputFileName ) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -101,7 +101,7 @@ void sigfilter( std::string & inputFileName,  std::string outputFileName ) {
 }
 
 // function to apply Zmumu selections
-void zmmfilter( std::string & inputFileName,  std::string & outputFileName) {
+void zmmfilter( std::string inputFileName,  std::string outputFileName) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -145,7 +145,7 @@ void zmmfilter( std::string & inputFileName,  std::string & outputFileName) {
 }
 
 // function to apply Zee selections
-void zeefilter( std::string & inputFileName,  std::string & outputFileName) {
+void zeefilter( std::string inputFileName,  std::string outputFileName) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -187,7 +187,7 @@ void zeefilter( std::string & inputFileName,  std::string & outputFileName) {
 }
 
 // function to apply Wmunu selections
-void wmnfilter( std::string & inputFileName,  std::string & outputFileName) {
+void wmnfilter( std::string inputFileName,  std::string outputFileName) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -228,7 +228,7 @@ void wmnfilter( std::string & inputFileName,  std::string & outputFileName) {
 }
 
 // function to apply Wenu selections
-void wenfilter( std::string & inputFileName,  std::string & outputFileName) {
+void wenfilter( std::string inputFileName,  std::string outputFileName) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -269,7 +269,7 @@ void wenfilter( std::string & inputFileName,  std::string & outputFileName) {
 }
 
 // function to apply photon+jets selections
-void gamfilter( std::string & inputFileName,  std::string & outputFileName) {
+void gamfilter( std::string inputFileName,  std::string outputFileName) {
 
   if(inputFileName == "")
     inputFileName = "tree.root";

@@ -733,6 +733,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puobs  = 0;
     putrue = 0;
     puwgt  = 1.;
+
+    // store cross section in case not set from external parameter
+    if(lheInfoH.isValid() and xsec == 1)
+      xsec = lheInfoH->originalXWGTUP()*1000;
+
+
     if (uselheweights && genevtInfoH.isValid()) 
       wgt = genevtInfoH->weight();
     else wgt = 1.0;

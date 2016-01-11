@@ -407,7 +407,7 @@ if options.doSubstructurePuppi:
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## gen info			     
    isMC    = cms.bool(options.isMC),
-   uselheweights  = cms.bool(False),
+   uselheweights  = cms.bool(options.uselheweights),
    isWorZMCSample = cms.bool(options.isWorZMCSample),
    pileup  = cms.InputTag("slimmedAddPileupInfo"),
    genevt  = cms.InputTag("generator"),
