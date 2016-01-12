@@ -1,3 +1,4 @@
+// basic C++ headers
 #include <memory>
 #include <vector>
 #include <map>
@@ -5,6 +6,7 @@
 #include <cmath>
 #include <algorithm>
 
+// FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -12,14 +14,17 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h" 
 
+// HLT info
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h" 
+// Gen Info
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+// DataFormats
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -51,9 +56,16 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
+// Jet corrections
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
+// b-tagging SF
+#include "CondFormats/BTauObjects/interface/BTagCalibration.h"
+#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
+
+
+// ROOT
 #include <TH1F.h>
 #include <TTree.h>
 #include <TLorentzVector.h>
@@ -99,61 +111,61 @@ private:
   const edm::InputTag filterResultsTag;
   
   // trgger and filter tokens
-  const edm::EDGetTokenT<edm::TriggerResults>              triggerResultsToken;
-  const edm::EDGetTokenT<edm::TriggerResults>              filterResultsToken;
-  const edm::EDGetTokenT<bool>                             hbhelooseToken;
-  const edm::EDGetTokenT<bool>                             hbhetightToken;
-  const edm::EDGetTokenT<bool>                             hbheisoToken;
+  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  const edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
+  const edm::EDGetTokenT<bool> hbhelooseToken;
+  const edm::EDGetTokenT<bool> hbhetightToken;
+  const edm::EDGetTokenT<bool> hbheisoToken;
   
   // Vertex
-  const edm::EDGetTokenT<std::vector<reco::Vertex> >       verticesToken;
+  const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
 
   // muons
-  const edm::EDGetTokenT<pat::MuonRefVector>               muonsToken;
-  const edm::EDGetTokenT<pat::MuonRefVector>               tightmuonsToken;
-  const edm::EDGetTokenT<pat::MuonRefVector>               highptmuonsToken;
+  const edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
+  const edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
+  const edm::EDGetTokenT<pat::MuonRefVector> highptmuonsToken;
 
   // electrons
-  const edm::EDGetTokenT<pat::ElectronRefVector>           electronsToken;
-  const edm::EDGetTokenT<pat::ElectronRefVector>           tightelectronsToken;
-  const edm::EDGetTokenT<pat::ElectronRefVector>           heepelectronsToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >             electronLooseIdToken;  
+  const edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
+  const edm::EDGetTokenT<pat::ElectronRefVector>  tightelectronsToken;
+  const edm::EDGetTokenT<pat::ElectronRefVector>  heepelectronsToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
 
   // Photons
-  const edm::EDGetTokenT<pat::PhotonRefVector>             photonsToken;
-  const edm::EDGetTokenT<pat::PhotonRefVector>             tightphotonsToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >             photonLooseIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >             photonMediumIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >             photonTightIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >             photonHighPtIdToken;
+  const edm::EDGetTokenT<pat::PhotonRefVector>    photonsToken;
+  const edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonMediumIdToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonTightIdToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
 
   // Taus
-  const edm::EDGetTokenT<std::vector<pat::Tau> >           tausToken;
+  const edm::EDGetTokenT<std::vector<pat::Tau> >  tausToken;
 
   //Jets AK4
-  const edm::EDGetTokenT<std::vector<pat::Jet> >           jetsToken;
-  edm::EDGetTokenT<std::vector<pat::Jet> >           puppijetsToken;
+  const edm::EDGetTokenT<std::vector<pat::Jet> >  jetsToken;
   const bool addPuppiJets;
+  edm::EDGetTokenT<std::vector<pat::Jet> >  puppijetsToken;
 
   // MET
-  const edm::EDGetTokenT<edm::View<pat::MET> >             t1metToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >             t1mumetToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >             t1elemetToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >             t1phmetToken;
+  const edm::EDGetTokenT<edm::View<pat::MET> >  t1metToken;
+  const edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetToken;
+  const edm::EDGetTokenT<edm::View<pat::MET> >  t1elemetToken;
+  const edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
 
   // Puppi MET
   const bool addPuppiMET;
-  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1metToken;
-  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1mumetToken;
-  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1elemetToken;
-  edm::EDGetTokenT<edm::View<pat::MET> >             puppit1phmetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1metToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1mumetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1phmetToken;
 
   // MET systematics
   const bool addMETSystematics;
 
   // MVA met
   const bool addMVAMet;
-  edm::EDGetTokenT<edm::View<reco::MET> >           mvaMETToken;
+  edm::EDGetTokenT<edm::View<reco::MET> > mvaMETToken;
 
   // inner bools
   const bool applyHLTFilter;
@@ -164,17 +176,24 @@ private:
   // Jet AK8
   const bool addSubstructureCHS;
   const bool addSubstructurePuppi;
-  edm::EDGetTokenT<std::vector<pat::Jet> >           boostedJetsToken;
+  edm::EDGetTokenT<std::vector<pat::Jet> > boostedJetsToken;
   TString boostedJetsCHSLabel;
-  edm::EDGetTokenT<std::vector<pat::Jet> >           boostedPuppiJetsToken;
+  edm::EDGetTokenT<std::vector<pat::Jet> > boostedPuppiJetsToken;
   TString boostedJetsPuppiLabel;
   
-
   // inner vectors
   std::vector<std::string> triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
   std::vector<std::string> filterPathsVector;
   std::map<std::string, int> filterPathsMap;
+
+  // Btag SF 
+  bool addBTagScaleFactor;
+  edm::FileInPath bTagScaleFactorFile;
+  std::auto_ptr<BTagCalibration> calib;
+  std::vector<BTagCalibrationReader> bMedium;
+  std::vector<BTagCalibrationReader> bMediumUp;
+  std::vector<BTagCalibrationReader> bMediumDown;
 
   // tree
   TTree* tree;
@@ -226,49 +245,63 @@ private:
   
   // AK4 CHS jets
   double   leadingjetpt, leadingjeteta, leadingjetphi, leadingjetm; 
+  // leading AK4CHS central jet
   double   signaljetpt , signaljeteta , signaljetphi , signaljetm, signaljetbtag, signaljetRawpt;
   double   signaljetCHfrac, signaljetNHfrac, signaljetEMfrac, signaljetCEMfrac, signaljetmetdphi;
   double   signaljetHFlav, signaljetPFlav, signaljetQGL, signaljetPUID;
   double   signaljetGenpt, signaljetGeneta, signaljetGenphi, signaljetGenm;
-  //
+  double   signaljetBtagSFM, signaljetBtagSFMUp, signaljetBtagSFMDown;
+  // second AK4CHS central jet
   double   secondjetpt , secondjeteta , secondjetphi , secondjetm, secondjetbtag, secondjetRawpt;
   double   secondjetCHfrac, secondjetNHfrac, secondjetEMfrac, secondjetCEMfrac, secondjetmetdphi;
   double   secondjetHFlav, secondjetPFlav, secondjetQGL, secondjetPUID;
   double   secondjetGenpt, secondjetGeneta, secondjetGenphi, secondjetGenm;
-  //
+  double   secondjetBtagSFM, secondjetBtagSFMUp, secondjetBtagSFMDown;
+  // third AK4CHS central jet
   double   thirdjetpt , thirdjeteta , thirdjetphi , thirdjetm, thirdjetbtag, thirdjetRawpt;
   double   thirdjetCHfrac, thirdjetNHfrac, thirdjetEMfrac, thirdjetCEMfrac, thirdjetmetdphi;
   double   thirdjetHFlav, thirdjetPFlav, thirdjetQGL, thirdjetPUID, thirdjetGenpt, thirdjetGeneta, thirdjetGenphi, thirdjetGenm;
-  //
+  double   thridjetBtagSF, thirdjetBtagSFUp, thirdjetBtagDown;
+  double   thirdjetBtagSFM, thirdjetBtagSFMUp, thirdjetBtagSFMDown;
+  // fourth AK4CHS central jet
   double   fourthjetpt , fourthjeteta , fourthjetphi , fourthjetm, fourthjetbtag;
   double   fourthjetCHfrac, fourthjetNHfrac, fourthjetEMfrac, fourthjetCEMfrac, fourthjetmetdphi;
   double   fourthjetHFlav, fourthjetPFlav, fourthjetQGL, fourthjetPUID, fourthjetGenpt, fourthjetGeneta, fourthjetGenphi, fourthjetGenm, fourthjetRawpt;
+  double   fourthjetBtagSF, fourthjetBtagSFUp, fourthjetBtagDown;
+  double   fourthjetBtagSFM, fourthjetBtagSFMUp, fourthjetBtagSFMDown;
   //
   double   jetmetdphimin , incjetmetdphimin , jetmumetdphimin , incjetmumetdphimin, jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
   double   jetmetdphimin4, incjetmetdphimin4, jetmumetdphimin4, incjetmumetdphimin4 , jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
 
   // Puppijet ak4 puppi
   double   leadingPuppijetpt, leadingPuppijeteta, leadingPuppijetphi, leadingPuppijetm; 
-  // leading
+  // leading AK4 Puppi central jet
   double   signalPuppijetpt , signalPuppijeteta , signalPuppijetphi , signalPuppijetm, signalPuppijetbtag;
   double   signalPuppijetCHfrac, signalPuppijetNHfrac, signalPuppijetEMfrac, signalPuppijetCEMfrac, signalPuppijetmetdphi;
   double   signalPuppijetHFlav, signalPuppijetPFlav, signalPuppijetQGL, signalPuppijetPUID;
   double   signalPuppijetGenpt, signalPuppijetGeneta, signalPuppijetGenphi, signalPuppijetGenm, signalPuppijetRawpt;
-  //
+  double   signalPuppijetBtagSFM, signalPuppijetBtagSFMUp, signalPuppijetBtagSFMDown;
+  // second AK4 Puppi central jet
   double   secondPuppijetpt , secondPuppijeteta , secondPuppijetphi , secondPuppijetm, secondPuppijetbtag;
   double   secondPuppijetCHfrac, secondPuppijetNHfrac, secondPuppijetEMfrac, secondPuppijetCEMfrac, secondPuppijetmetdphi;
   double   secondPuppijetHFlav, secondPuppijetPFlav, secondPuppijetQGL, secondPuppijetPUID;
   double   secondPuppijetGenpt, secondPuppijetGeneta, secondPuppijetGenphi, secondPuppijetGenm, secondPuppijetRawpt;
-  //
+  double   secondPuppijetBtagSF, secondPuppijetBtagSFUp, secondPuppijetBtagSFDown;
+  double   secondPuppijetBtagSFM, secondPuppijetBtagSFMUp, secondPuppijetBtagSFMDown;
+  // third AK4 Puppi central jet 
   double   thirdPuppijetpt , thirdPuppijeteta , thirdPuppijetphi , thirdPuppijetm, thirdPuppijetbtag;
   double   thirdPuppijetCHfrac, thirdPuppijetNHfrac, thirdPuppijetEMfrac, thirdPuppijetCEMfrac, thirdPuppijetmetdphi;
   double   thirdPuppijetHFlav, thirdPuppijetPFlav, thirdPuppijetQGL, thirdPuppijetPUID;
   double   thirdPuppijetGenpt, thirdPuppijetGeneta, thirdPuppijetGenphi, thirdPuppijetGenm, thirdPuppijetRawpt;
-  //
+  double   thirdPuppijetBtagSF, thirdPuppijetBtagSFUp, thirdPuppijetBtagSFDown;
+  double   thirdPuppijetBtagSFM, thirdPuppijetBtagSFMUp, thirdPuppijetBtagSFMDown;
+  //fourth AK4 Puppi central jet 
   double   fourthPuppijetpt , fourthPuppijeteta , fourthPuppijetphi , fourthPuppijetm, fourthPuppijetbtag;
   double   fourthPuppijetCHfrac, fourthPuppijetNHfrac, fourthPuppijetEMfrac, fourthPuppijetCEMfrac, fourthPuppijetmetdphi;
   double   fourthPuppijetHFlav, fourthPuppijetPFlav, fourthPuppijetQGL, fourthPuppijetPUID;
   double   fourthPuppijetGenpt, fourthPuppijetGeneta, fourthPuppijetGenphi, fourthPuppijetGenm, fourthPuppijetRawpt;
+  double   fourthPuppijetBtagSF, fourthPuppijetBtagSFUp, fourthPuppijetBtagSFDown;
+  double   fourthPuppijetBtagSFM, fourthPuppijetBtagSFMUp, fourthPuppijetBtagSFMDown;
   //
   double   Puppijetmetdphimin , incPuppijetmetdphimin , Puppijetmumetdphimin , incPuppijetmumetdphimin , Puppijetelmetdphimin , incPuppijetelmetdphimin , Puppijetphmetdphimin , incPuppijetphmetdphimin , PuppijetPuppijetdphi;
   double   Puppijetmetdphimin4, incPuppijetmetdphimin4, Puppijetmumetdphimin4, incPuppijetmumetdphimin4, Puppijetelmetdphimin4, incPuppijetelmetdphimin4, Puppijetphmetdphimin4, incPuppijetphmetdphimin4, Puppiht; 
@@ -423,19 +456,19 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
   // substructure
   addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
-  addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false){
+  addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
+  addBTagScaleFactor(iConfig.existsAs<bool>("addBTagScaleFactor") ? iConfig.getParameter<bool>("addBTagScaleFactor") : false){
 
   usesResource();
   usesResource("TFileService");
   
   // only for simulated samples
-
   if( isMC ){
     if(iConfig.existsAs<edm::InputTag>("pileup"))
       pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
     else
       pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(edm::InputTag("addPileupInfo"));
-
+    
     if(iConfig.existsAs<edm::InputTag>("genevt"))
       genevtInfoToken = consumes<GenEventInfoProduct> (iConfig.getParameter<edm::InputTag>("genevt"));
     else
@@ -453,9 +486,11 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   }
   
+  // consumes puppi jets
   if(addPuppiJets)
     puppijetsToken = consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("puppijets"));
 
+  // consumes puppi met
   if(addPuppiMET){
     puppit1metToken    = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1met"));
     puppit1mumetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1mumet"));
@@ -463,9 +498,11 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     puppit1phmetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1phmet"));		      
   }
   
+  // consumes MVA met
   if(addMVAMet)
     mvaMETToken = consumes<edm::View<reco::MET> > (iConfig.getParameter<edm::InputTag>("mvaMET"));
 
+  // consumes boosted CHS jets
   if(addSubstructureCHS){
     boostedJetsToken =  consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("boostedJetsCHS"));
     boostedJetsCHSLabel = TString::Format(iConfig.getParameter<edm::InputTag>("boostedJetsCHS").label().c_str());
@@ -474,6 +511,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     boostedJetsCHSLabel.ReplaceAll("patJets","");
   }
 
+  // consumes puppi boosted jets
   if(addSubstructurePuppi){
     boostedPuppiJetsToken =  consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("boostedJetsPuppi"));
     boostedJetsPuppiLabel = TString::Format(iConfig.getParameter<edm::InputTag>("boostedJetsPuppi").label().c_str());
@@ -481,6 +519,22 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     boostedJetsPuppiLabel.ReplaceAll("PatJets","");
     boostedJetsPuppiLabel.ReplaceAll("patJets","");
   }
+
+  if(addBTagScaleFactor){
+    bTagScaleFactorFile = iConfig.getParameter<edm::FileInPath>("bTagScaleFactorFile");
+    if ( bTagScaleFactorFile.location()!=edm::FileInPath::Local)
+      throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFile << " !!\n";
+
+    calib = std::auto_ptr<BTagCalibration>(new BTagCalibration("CSVv2",bTagScaleFactorFile.fullPath()));
+
+    bMedium.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"comb","central")); // for light flavor
+    bMedium.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"mujets","central")); // for b and c-jets
+    bMediumUp.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"comb","up"));
+    bMediumUp.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"mujets","up"));
+    bMediumDown.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"comb","down"));
+    bMediumDown.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"mujets","down"));
+  }
+
 
 }
 
@@ -979,25 +1033,30 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       signaljetNHfrac    = 0.0; signaljetEMfrac    = 0.0; signaljetCEMfrac   = 0.0; signaljetmetdphi   = 0.0;
       signaljetHFlav     = 0.0; signaljetPFlav     = 0.0; signaljetQGL       = 0.0; signaljetPUID      = 0.0;
       signaljetGenpt     = 0.0; signaljetGeneta    = 0.0; signaljetGenphi    = 0.0; signaljetGenm      = 0.0; signaljetRawpt = 0.0;
-      signaljetm = 0.0;
+      signaljetm = 0.0; 
+      signaljetBtagSFM = 1.0; signaljetBtagSFMUp = 1.0; signaljetBtagSFMDown = 1.0;
+
 
       secondjetpt        = 0.0; secondjeteta       = 0.0; secondjetphi       = 0.0; secondjetbtag      = 0.0; secondjetCHfrac    = 0.0;
       secondjetNHfrac    = 0.0; secondjetEMfrac    = 0.0; secondjetCEMfrac   = 0.0; secondjetmetdphi   = 0.0;
       secondjetHFlav     = 0.0; secondjetPFlav     = 0.0; secondjetQGL       = 0.0; secondjetPUID      = 0.0;
       secondjetGenpt     = 0.0; secondjetGeneta    = 0.0; secondjetGenphi    = 0.0; secondjetGenm      = 0.0; secondjetRawpt = 0.0;
       secondjetm = 0.0;
+      secondjetBtagSFM = 1.0; secondjetBtagSFMUp = 1.0; secondjetBtagSFMDown = 1.0;
       
       thirdjetpt        = 0.0; thirdjeteta       = 0.0; thirdjetphi       = 0.0; thirdjetbtag      = 0.0; thirdjetCHfrac    = 0.0;
       thirdjetNHfrac    = 0.0; thirdjetEMfrac    = 0.0; thirdjetCEMfrac   = 0.0; thirdjetmetdphi   = 0.0;
       thirdjetHFlav     = 0.0; thirdjetPFlav     = 0.0; thirdjetQGL       = 0.0; thirdjetPUID      = 0.0;
       thirdjetGenpt     = 0.0; thirdjetGeneta    = 0.0; thirdjetGenphi    = 0.0; thirdjetGenm      = 0.0; thirdjetRawpt = 0.0;
       thirdjetm = 0.0;
+      thirdjetBtagSFM = 1.0; thirdjetBtagSFMUp = 1.0; thirdjetBtagSFMDown = 1.0;
       
       fourthjetpt        = 0.0; fourthjeteta       = 0.0; fourthjetphi       = 0.0; fourthjetbtag      = 0.0; fourthjetCHfrac    = 0.0;
       fourthjetNHfrac    = 0.0; fourthjetEMfrac    = 0.0; fourthjetCEMfrac   = 0.0; fourthjetmetdphi   = 0.0;
       fourthjetHFlav     = 0.0; fourthjetPFlav     = 0.0; fourthjetQGL       = 0.0; fourthjetPUID      = 0.0;
       fourthjetGenpt     = 0.0; fourthjetGeneta    = 0.0; fourthjetGenphi    = 0.0; fourthjetGenm      = 0.0; fourthjetRawpt = 0.0;
       fourthjetm = 0.0;
+      fourthjetBtagSFM = 1.0; fourthjetBtagSFMUp = 1.0; fourthjetBtagSFMDown = 1.0;
       
       // only central jets  
       if (njets > 0) {
@@ -1030,9 +1089,60 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    signaljetGenphi  = jets[0]->genJet()->phi(); 
 	    signaljetGenm    = jets[0]->genJet()->mass(); 
 	  }
+
+	  // b-tag SF for jets
+	  if(addBTagScaleFactor){
+	    float MaxBJetPt = 670.;
+	    float minBJetPt = 30.;
+	    float maxEta    = 2.4;
+	    
+	    if(signaljetHFlav == 0){
+	      MaxBJetPt = 1000.;
+	      minBJetPt = 20.;
+	    }
+	    
+	    float jetPt = jets[0]->pt();
+	    bool  doubleUncertainty = false;
+	    if(jetPt > MaxBJetPt){
+	      jetPt = MaxBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    if(jetPt < minBJetPt){
+	      jetPt = minBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    
+	    float jetEta = jets[0]->eta();
+	    if(jetEta > maxEta){
+	      jetEta = maxEta;
+	      doubleUncertainty = true;
+	    }
+
+	    if(signaljetHFlav == 5){
+	      signaljetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);	      
+	      signaljetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      signaljetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      
+	    }
+	    if(signaljetHFlav == 4){
+	      signaljetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      signaljetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      signaljetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	    }
+	    else{
+	      signaljetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      signaljetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      signaljetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      
+	    }
+	    
+	    if(doubleUncertainty){
+	      signaljetBtagSFMUp = 2*(signaljetBtagSFMUp-signaljetBtagSFM)+signaljetBtagSFM;
+	      signaljetBtagSFMDown = 2*(signaljetBtagSFMDown-signaljetBtagSFM)+signaljetBtagSFM;
+	    }
+	  }
 	}
-      }
-      
+      }      
 
       if (njets > 1) {
         secondjetpt      = jets[1]->pt();
@@ -1063,6 +1173,59 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    secondjetGeneta    = jets[1]->genJet()->eta(); 
 	    secondjetGenphi    = jets[1]->genJet()->phi(); 
 	    secondjetGenm      = jets[1]->genJet()->mass(); 
+	  }
+
+	  // b-tag SF for jets
+	  if(addBTagScaleFactor){
+	    // b-tag SF for jets
+	    float MaxBJetPt = 670.;
+	    float minBJetPt = 30.;
+	    float maxEta    = 2.4;
+	    
+	    if(secondjetHFlav == 0){
+	      MaxBJetPt = 1000.;
+	      minBJetPt = 20.;
+	    }
+	    
+	    float jetPt = jets[1]->pt();
+	    bool  doubleUncertainty = false;
+	    if(jetPt > MaxBJetPt){
+	      jetPt = MaxBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    if(jetPt < minBJetPt){
+	      jetPt = minBJetPt;
+	    doubleUncertainty = true;
+	    }
+	    
+	    float jetEta = jets[1]->eta();
+	    if(jetEta > maxEta){
+	      jetEta = maxEta;
+	      doubleUncertainty = true;
+	    }
+	    
+	    if(secondjetHFlav == 5){
+	      secondjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      secondjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      secondjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+
+	    }
+	    if(secondjetHFlav == 4){
+	      secondjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);	      
+	      secondjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      secondjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	    }
+	    else{
+	      secondjetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      secondjetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      secondjetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      
+	    }
+	    
+	    if(doubleUncertainty){
+	      secondjetBtagSFMUp = 2*(secondjetBtagSFMUp-secondjetBtagSFM)+secondjetBtagSFM;
+	      secondjetBtagSFMDown = 2*(secondjetBtagSFMDown-secondjetBtagSFM)+secondjetBtagSFM;
+	    }
 	  }
 	}
       }
@@ -1097,6 +1260,56 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    thirdjetGenphi  = jets[2]->genJet()->phi(); 
 	    thirdjetGenm    = jets[2]->genJet()->mass(); 
 	  }
+
+	  if(addBTagScaleFactor){
+	    // b-tag SF for jets
+	    float MaxBJetPt = 670.;
+	    float minBJetPt = 30.;
+	    float maxEta    = 2.4;
+	    
+	    if(thirdjetHFlav == 0){
+	      MaxBJetPt = 1000.;
+	      minBJetPt = 20.;
+	    }
+	    
+	    float jetPt = jets[2]->pt();
+	    bool  doubleUncertainty = false;
+	    if(jetPt > MaxBJetPt){
+	      jetPt = MaxBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    if(jetPt < minBJetPt){
+	      jetPt = minBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    
+	    float jetEta = jets[2]->eta();
+	    if(jetEta > maxEta){
+	      jetEta = maxEta;
+	      doubleUncertainty = true;
+	    }
+	    
+	    if(thirdjetHFlav == 5){
+	      thirdjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      thirdjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      thirdjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	    }
+	    if(thirdjetHFlav == 4){
+	      thirdjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      thirdjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      thirdjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	    }
+	    else{
+	      thirdjetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      thirdjetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      thirdjetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	    }
+
+	    if(doubleUncertainty){
+	      thirdjetBtagSFMUp = 2*(thirdjetBtagSFMUp-thirdjetBtagSFM)+thirdjetBtagSFM;
+	      thirdjetBtagSFMDown = 2*(thirdjetBtagSFMDown-thirdjetBtagSFM)+thirdjetBtagSFM;
+	    }
+	  }
 	}
       }
 
@@ -1129,9 +1342,59 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    fourthjetGenphi  = jets[3]->genJet()->phi(); 
 	    fourthjetGenm    = jets[3]->genJet()->mass(); 
 	  }
+
+	  if(addBTagScaleFactor){
+	    // b-tag SF for jets
+	    float MaxBJetPt = 670.;
+	    float minBJetPt = 30.;
+	    float maxEta    = 2.4;
+	    
+	    if(secondjetHFlav == 0){
+	      MaxBJetPt = 1000.;
+	      minBJetPt = 20.;
+	    }
+	    
+	    float jetPt = jets[3]->pt();
+	    bool  doubleUncertainty = false;
+	    if(jetPt > MaxBJetPt){
+	      jetPt = MaxBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    if(jetPt < minBJetPt){
+	      jetPt = minBJetPt;
+	      doubleUncertainty = true;
+	    }
+	    
+	    float jetEta = jets[3]->eta();
+	    if(jetEta > maxEta){
+	      jetEta = maxEta;
+	      doubleUncertainty = true;
+	    }
+	    
+	    if(fourthjetHFlav == 5){
+	      fourthjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      fourthjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      fourthjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	    }
+	    if(fourthjetHFlav == 4){
+	      fourthjetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      fourthjetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      fourthjetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	    }
+	    else{
+	      fourthjetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      fourthjetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      fourthjetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	    }
+	    
+	    if(doubleUncertainty){
+	      fourthjetBtagSFMUp = 2*(fourthjetBtagSFMUp-fourthjetBtagSFM)+fourthjetBtagSFM;
+	      fourthjetBtagSFMDown = 2*(fourthjetBtagSFMDown-fourthjetBtagSFM)+fourthjetBtagSFM;
+	    }
+	  }
 	}
        }
-      
+    
       
       jetjetdphi         = 0.0;   
       signaljetmetdphi   = 0.0;   secondjetmetdphi = 0.0; thirdjetmetdphi = 0.0; fourthjetmetdphi = 0.0; 
@@ -1358,21 +1621,25 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	signalPuppijetNHfrac    = 0.0; signalPuppijetEMfrac    = 0.0; signalPuppijetCEMfrac   = 0.0; signalPuppijetmetdphi   = 0.0;
 	signalPuppijetHFlav     = 0.0; signalPuppijetPFlav     = 0.0; signalPuppijetQGL       = 0.0; signalPuppijetPUID      = 0.0;
 	signalPuppijetGenpt     = 0.0; signalPuppijetGeneta    = 0.0; signalPuppijetGenphi    = 0.0; signalPuppijetGenm      = 0.0; signalPuppijetRawpt = 0.0;
+	signalPuppijetBtagSFM   = 1.0; signalPuppijetBtagSFMUp = 1.0; signalPuppijetBtagSFMDown = 1.0;
 
 	secondPuppijetpt        = 0.0; secondPuppijeteta       = 0.0; secondPuppijetphi       = 0.0; secondPuppijetbtag      = 0.0; secondPuppijetCHfrac    = 0.0;
 	secondPuppijetNHfrac    = 0.0; secondPuppijetEMfrac    = 0.0; secondPuppijetCEMfrac   = 0.0; secondPuppijetmetdphi   = 0.0;
 	secondPuppijetHFlav     = 0.0; secondPuppijetPFlav     = 0.0; secondPuppijetQGL       = 0.0; secondPuppijetPUID      = 0.0;
 	secondPuppijetGenpt     = 0.0; secondPuppijetGeneta    = 0.0; secondPuppijetGenphi    = 0.0; secondPuppijetGenm      = 0.0; secondPuppijetRawpt = 0.0;
+	secondPuppijetBtagSFM   = 1.0; secondPuppijetBtagSFMUp = 1.0; secondPuppijetBtagSFMDown = 1.0;
 
 	thirdPuppijetpt        = 0.0; thirdPuppijeteta       = 0.0; thirdPuppijetphi       = 0.0; thirdPuppijetbtag      = 0.0; thirdPuppijetCHfrac    = 0.0;
 	thirdPuppijetNHfrac    = 0.0; thirdPuppijetEMfrac    = 0.0; thirdPuppijetCEMfrac   = 0.0; thirdPuppijetmetdphi   = 0.0;
 	thirdPuppijetHFlav     = 0.0; thirdPuppijetPFlav     = 0.0; thirdPuppijetQGL       = 0.0; thirdPuppijetPUID      = 0.0;
 	thirdPuppijetGenpt     = 0.0; thirdPuppijetGeneta    = 0.0; thirdPuppijetGenphi    = 0.0; thirdPuppijetGenm      = 0.0; thirdPuppijetRawpt = 0.0;
+	thirdPuppijetBtagSFM   = 1.0; thirdPuppijetBtagSFMUp = 1.0; thirdPuppijetBtagSFMDown  = 1.0;
 	
 	fourthPuppijetpt        = 0.0; fourthPuppijeteta       = 0.0; fourthPuppijetphi       = 0.0; fourthPuppijetbtag      = 0.0; fourthPuppijetCHfrac    = 0.0;
 	fourthPuppijetNHfrac    = 0.0; fourthPuppijetEMfrac    = 0.0; fourthPuppijetCEMfrac   = 0.0; fourthPuppijetmetdphi   = 0.0;
 	fourthPuppijetHFlav     = 0.0; fourthPuppijetPFlav     = 0.0; fourthPuppijetQGL       = 0.0; fourthPuppijetPUID      = 0.0;
 	fourthPuppijetGenpt     = 0.0; fourthPuppijetGeneta    = 0.0; fourthPuppijetGenphi    = 0.0; fourthPuppijetGenm      = 0.0; fourthPuppijetRawpt = 0.0;
+	fourthPuppijetBtagSFM       = 1.0; fourthPuppijetBtagSFMUp     = 1.0; fourthPuppijetBtagSFMDown     = 1.0;
 	
 	// only central jets  
 	if (npuppijets > 0) {
@@ -1404,7 +1671,57 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      signalPuppijetGenphi    = Puppijets[0]->genJet()->phi(); 
 	      signalPuppijetGenm      = Puppijets[0]->genJet()->mass();
 	    }
-	  } 
+	  
+	    if(addBTagScaleFactor){
+	      // b-tag SF for jets
+	      float MaxBJetPt = 670.;
+	      float minBJetPt = 30.;
+	      float maxEta    = 2.4;
+	      
+	      if(signaljetHFlav == 0){
+		MaxBJetPt = 1000.;
+		minBJetPt = 20.;
+	      }
+	    
+	      float jetPt = Puppijets[0]->pt();
+	      bool  doubleUncertainty = false;
+	      if(jetPt > MaxBJetPt){
+		jetPt = MaxBJetPt;
+		doubleUncertainty = true;
+	      }
+	      if(jetPt < minBJetPt){
+		jetPt = minBJetPt;
+		doubleUncertainty = true;
+	      }
+	      
+	      float jetEta = Puppijets[0]->eta();
+	      if(jetEta > maxEta){
+		jetEta = maxEta;
+		doubleUncertainty = true;
+	      }
+	      
+	      if(signalPuppijetHFlav == 5){
+		signalPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		signalPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		signalPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);		
+	      }
+	      if(signalPuppijetHFlav == 4){
+		signalPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		signalPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		signalPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      }
+	      else{
+		signalPuppijetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		signalPuppijetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		signalPuppijetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      }
+	      
+	      if(doubleUncertainty){
+		signalPuppijetBtagSFMUp = 2*(signalPuppijetBtagSFMUp-signalPuppijetBtagSFM)+signalPuppijetBtagSFM;
+		signalPuppijetBtagSFMDown = 2*(signalPuppijetBtagSFMDown-signalPuppijetBtagSFM)+signalPuppijetBtagSFM;
+	      }
+	    }
+	  }
 	}
       	
 	if (npuppijets > 1) {
@@ -1436,6 +1753,57 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      secondPuppijetGenphi    = Puppijets[1]->genJet()->phi(); 
 	      secondPuppijetGenm      = Puppijets[1]->genJet()->mass(); 
 	    }
+	    
+	    if(addBTagScaleFactor){ 
+	      // b-tag SF for jets
+	      float MaxBJetPt = 670.;
+	      float minBJetPt = 30.;
+	      float maxEta    = 2.4;
+	      
+	      if(signaljetHFlav == 0){
+		MaxBJetPt = 1000.;
+		minBJetPt = 20.;
+	      }
+	      
+	      float jetPt = Puppijets[1]->pt();
+	      bool  doubleUncertainty = false;
+	      if(jetPt > MaxBJetPt){
+		jetPt = MaxBJetPt;
+		doubleUncertainty = true;
+	      }
+	      if(jetPt < minBJetPt){
+		jetPt = minBJetPt;
+		doubleUncertainty = true;
+	      }
+	      
+	      float jetEta = Puppijets[1]->eta();
+	      if(jetEta > maxEta){
+		jetEta = maxEta;
+		doubleUncertainty = true;
+	      }
+	      
+	      if(secondPuppijetHFlav == 5){
+		secondPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		secondPuppijetBtagSFMUp   = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		secondPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		
+	      }
+	      if(secondPuppijetHFlav == 4){
+		secondPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		secondPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		secondPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      }
+	      else{
+		secondPuppijetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		secondPuppijetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		secondPuppijetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      }
+	      
+	      if(doubleUncertainty){
+		secondPuppijetBtagSFMUp = 2*(secondPuppijetBtagSFMUp-secondPuppijetBtagSFM)+secondPuppijetBtagSFM;
+		secondPuppijetBtagSFMDown = 2*(secondPuppijetBtagSFMDown-secondPuppijetBtagSFM)+secondPuppijetBtagSFM;
+	      }
+	    } 
 	  }
 	}
       
@@ -1467,6 +1835,56 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      thirdPuppijetGeneta    = Puppijets[2]->genJet()->eta(); 
 	      thirdPuppijetGenphi    = Puppijets[2]->genJet()->phi(); 
 	      thirdPuppijetGenm      = Puppijets[2]->genJet()->mass();
+	    }
+
+	    if(addBTagScaleFactor){
+	      // b-tag SF for jets
+	      float MaxBJetPt = 670.;
+	      float minBJetPt = 30.;
+	      float maxEta    = 2.4;
+	      
+	      if(signaljetHFlav == 0){
+		MaxBJetPt = 1000.;
+		minBJetPt = 20.;
+	      }
+	      
+	      float jetPt = Puppijets[2]->pt();
+	      bool  doubleUncertainty = false;
+	      if(jetPt > MaxBJetPt){
+		jetPt = MaxBJetPt;
+		doubleUncertainty = true;
+	      }
+	      if(jetPt < minBJetPt){
+		jetPt = minBJetPt;
+		doubleUncertainty = true;
+	      }
+	      
+	      float jetEta = Puppijets[2]->eta();
+	      if(jetEta > maxEta){
+		jetEta = maxEta;
+		doubleUncertainty = true;
+	      }
+	      
+	      if(thirdPuppijetHFlav == 5){
+		thirdPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		thirdPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		thirdPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      }
+	      if(thirdPuppijetHFlav == 4){
+		thirdPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		thirdPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		thirdPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      }
+	      else{
+		thirdPuppijetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		thirdPuppijetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		thirdPuppijetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      }
+
+	      if(doubleUncertainty){
+		thirdPuppijetBtagSFMUp = 2*(thirdPuppijetBtagSFMUp-thirdPuppijetBtagSFM)+thirdPuppijetBtagSFM;
+		thirdPuppijetBtagSFMDown = 2*(thirdPuppijetBtagSFMDown-thirdPuppijetBtagSFM)+thirdPuppijetBtagSFM;
+	      }
 	    }
 	  } 
 	}
@@ -1500,6 +1918,56 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	    fourthPuppijetHFlav   = Puppijets[3]->hadronFlavour(); 
 	    fourthPuppijetPFlav   = Puppijets[3]->partonFlavour(); 
+
+	    if(addBTagScaleFactor){
+	      // b-tag SF for jets
+	      float MaxBJetPt = 670.;
+	      float minBJetPt = 30.;
+	      float maxEta    = 2.4;
+	      
+	      if(signaljetHFlav == 0){
+		MaxBJetPt = 1000.;
+		minBJetPt = 20.;
+	      }
+	      
+	      float jetPt = Puppijets[3]->pt();
+	      bool  doubleUncertainty = false;
+	      if(jetPt > MaxBJetPt){
+		jetPt = MaxBJetPt;
+		doubleUncertainty = true;
+	      }
+	      if(jetPt < minBJetPt){
+	      jetPt = minBJetPt;
+	      doubleUncertainty = true;
+	      }
+	      
+	      float jetEta = Puppijets[3]->eta();
+	      if(jetEta > maxEta){
+		jetEta = maxEta;
+		doubleUncertainty = true;
+	      }
+	      
+	      if(fourthPuppijetHFlav == 5){
+		fourthPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		fourthPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+		fourthPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt);
+	      }
+	      if(fourthPuppijetHFlav == 4){
+		fourthPuppijetBtagSFM = bMedium[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		fourthPuppijetBtagSFMUp = bMediumUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+		fourthPuppijetBtagSFMDown = bMediumDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt);
+	      }
+	      else{
+		fourthPuppijetBtagSFM = bMedium[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		fourthPuppijetBtagSFMUp = bMediumUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+		fourthPuppijetBtagSFMDown = bMediumDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt);
+	      }
+	      
+	      if(doubleUncertainty){
+		fourthPuppijetBtagSFMUp = 2*(fourthPuppijetBtagSFMUp-fourthPuppijetBtagSFM)+fourthPuppijetBtagSFM;
+		fourthPuppijetBtagSFMDown = 2*(fourthPuppijetBtagSFMDown-fourthPuppijetBtagSFM)+fourthPuppijetBtagSFM;
+	      }
+	    }
 	  }
 	}
 	
@@ -2825,6 +3293,9 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("signaljetGenphi"      , &signaljetGenphi      , "signaljetGenphi/D");
   tree->Branch("signaljetGenm"        , &signaljetGenm        , "signaljetGenm/D");
   tree->Branch("signaljetRawpt"       , &signaljetRawpt       , "signaljetRawpt/D");
+  tree->Branch("signaljetBtagSFM"     , &signaljetBtagSFM     , "signaljetBtagSFM/D");
+  tree->Branch("signaljetBtagSFMUp"   , &signaljetBtagSFMUp     , "signaljetBtagSFMUp/D");
+  tree->Branch("signaljetBtagSFMDown" , &signaljetBtagSFMDown     , "signaljetBtagSFMDown/D");
 
 
   tree->Branch("secondjetpt"          , &secondjetpt          , "secondjetpt/D");
@@ -2845,6 +3316,9 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("secondjetGenphi"      , &secondjetGenphi      , "secondjetGenphi/D");
   tree->Branch("secondjetGenm"        , &secondjetGenm        , "secondjetGenm/D");
   tree->Branch("secondjetRawpt"       , &secondjetRawpt       , "secondjetRawpt/D");
+  tree->Branch("secondjetBtagSFM"     , &secondjetBtagSFM     , "secondjetBtagSFM/D");
+  tree->Branch("secondjetBtagSFMUp"   , &secondjetBtagSFMUp     , "secondjetBtagSFMUp/D");
+  tree->Branch("secondjetBtagSFMDown" , &secondjetBtagSFMDown     , "secondjetBtagSFMDown/D");
 
   tree->Branch("thirdjetpt"           , &thirdjetpt           , "thirdjetpt/D");
   tree->Branch("thirdjeteta"          , &thirdjeteta          , "thirdjeteta/D");
@@ -2864,6 +3338,9 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("thirdjetGenphi"       , &thirdjetGenphi       , "thirdjetGenphi/D");
   tree->Branch("thirdjetGenm"         , &thirdjetGenm         , "thirdjetGenm/D");
   tree->Branch("thirdjetRawpt"        , &thirdjetRawpt        , "thirdjetRawpt/D");
+  tree->Branch("thirdjetBtagSFM"      , &thirdjetBtagSFM     , "thirdjetBtagSFM/D");
+  tree->Branch("thirdjetBtagSFMUp"    , &thirdjetBtagSFMUp     , "thirdjetBtagSFMUp/D");
+  tree->Branch("thirdjetBtagSFMDown"  , &thirdjetBtagSFMDown     , "thirdjetBtagSFMDown/D");
 
   tree->Branch("fourthjetpt"           , &fourthjetpt           , "fourthjetpt/D");
   tree->Branch("fourthjeteta"          , &fourthjeteta          , "fourthjeteta/D");
@@ -2883,6 +3360,9 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("fourthjetGenphi"       , &fourthjetGenphi       , "fourthjetGenphi/D");
   tree->Branch("fourthjetGenm"         , &fourthjetGenm         , "fourthjetGenm/D");
   tree->Branch("fourthjetRawpt"        , &fourthjetRawpt        , "fourthjetRawpt/D");
+  tree->Branch("fourthjetBtagSFM"      , &fourthjetBtagSFM     , "fourthjetBtagSFM/D");
+  tree->Branch("fourthjetBtagSFMUp"    , &fourthjetBtagSFMUp     , "fourthjetBtagSFMUp/D");
+  tree->Branch("fourthjetBtagSFMDown"  , &fourthjetBtagSFMDown     , "fourthjetBtagSFMDown/D");
 
 
   tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
@@ -2932,6 +3412,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("signalPuppijetGenphi"      , &signalPuppijetGenphi      , "signalPuppijetGenphi/D");
     tree->Branch("signalPuppijetGenm"        , &signalPuppijetGenm        , "signalPuppijetGenm/D");
     tree->Branch("signalPuppijetRawpt"       , &signalPuppijetRawpt       , "signalPuppijetRawpt/D");
+    tree->Branch("signalPuppijetBtagSFM"      , &signalPuppijetBtagSFM     , "signalPuppijetBtagSFM/D");
+    tree->Branch("signalPuppijetBtagSFMUp"    , &signalPuppijetBtagSFMUp     , "signalPuppijetBtagSFMUp/D");
+    tree->Branch("signalPuppijetBtagSFMDown"  , &signalPuppijetBtagSFMDown     , "signalPuppijetBtagSFMDown/D");
     
     tree->Branch("secondPuppijetpt"          , &secondPuppijetpt          , "secondPuppijetpt/D");
     tree->Branch("secondPuppijeteta"         , &secondPuppijeteta         , "secondPuppijeteta/D");
@@ -2951,6 +3434,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("secondPuppijetGenphi"      , &secondPuppijetGenphi      , "secondPuppijetGenphi/D");
     tree->Branch("secondPuppijetGenm"        , &secondPuppijetGenm        , "secondPuppijetGenm/D");
     tree->Branch("secondPuppijetRawpt"       , &secondPuppijetRawpt       , "secondPuppijetRawpt/D");
+    tree->Branch("secondPuppijetBtagSFM"      , &secondPuppijetBtagSFM     , "secondPuppijetBtagSFM/D");
+    tree->Branch("secondPuppijetBtagSFMUp"    , &secondPuppijetBtagSFMUp     , "secondPuppijetBtagSFMUp/D");
+    tree->Branch("secondPuppijetBtagSFMDown"  , &secondPuppijetBtagSFMDown     , "secondPuppijetBtagSFMDown/D");
 
     tree->Branch("thirdPuppijetpt"           , &thirdPuppijetpt           , "thirdPuppijetpt/D");
     tree->Branch("thirdPuppijeteta"          , &thirdPuppijeteta          , "thirdPuppijeteta/D");
@@ -2970,6 +3456,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("thirdPuppijetGenphi"       , &thirdPuppijetGenphi       , "thirdPuppijetGenphi/D");
     tree->Branch("thirdPuppijetGenm"         , &thirdPuppijetGenm         , "thirdPuppijetGenm/D");
     tree->Branch("thirdPuppijetRawpt"        , &thirdPuppijetRawpt        , "thirdPuppijetRawpt/D");
+    tree->Branch("thirdPuppijetBtagSFM"      , &thirdPuppijetBtagSFM     , "thirdPuppijetBtagSFM/D");
+    tree->Branch("thirdPuppijetBtagSFMUp"    , &thirdPuppijetBtagSFMUp     , "thirdPuppijetBtagSFMUp/D");
+    tree->Branch("thirdPuppijetBtagSFMDown"  , &thirdPuppijetBtagSFMDown     , "thirdPuppijetBtagSFMDown/D");
 
     tree->Branch("fourthPuppijetpt"           , &fourthPuppijetpt        , "fourthPuppijetpt/D");
     tree->Branch("fourthPuppijeteta"          , &fourthPuppijeteta       , "fourthPuppijeteta/D");
@@ -2989,6 +3478,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("fourthPuppijetGenphi"       , &fourthPuppijetGenphi    , "fourthPuppijetGenphi/D");
     tree->Branch("fourthPuppijetGenm"         , &fourthPuppijetGenm      , "fourthPuppijetGenm/D");
     tree->Branch("fourthPuppijetRawpt"        , &fourthPuppijetRawpt     , "fourthPuppijetRawpt/D");
+    tree->Branch("fourthPuppijetBtagSFM"      , &fourthPuppijetBtagSFM     , "fourthPuppijetBtagSFM/D");
+    tree->Branch("fourthPuppijetBtagSFMUp"    , &fourthPuppijetBtagSFMUp     , "fourthPuppijetBtagSFMUp/D");
+    tree->Branch("fourthPuppijetBtagSFMDown"  , &fourthPuppijetBtagSFMDown     , "fourthPuppijetBtagSFMDown/D");
     
     tree->Branch("PuppijetPuppijetdphi"      , &PuppijetPuppijetdphi      , "PuppijetPuppijetdphi/D");
 
@@ -3010,7 +3502,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("incPuppijetelmetdphimin4"  , &incPuppijetelmetdphimin4  , "incPuppijetelmetdphimin4/D");
     tree->Branch("Puppijetphmetdphimin4"     , &Puppijetphmetdphimin4     , "Puppijetphmetdphimin4/D");
     tree->Branch("incPuppijetphmetdphimin4"  , &incPuppijetphmetdphimin4  , "incPuppijetphmetdphimin4/D");
-    tree->Branch("ht"                   , &ht                   , "ht/D");
+    tree->Branch("Puppiht"                   , &Puppiht                   , "Puppiht/D");
     
   }
   

@@ -1,3 +1,4 @@
+// basic C++ headers
 #include <memory>
 #include <vector>
 #include <map>
@@ -7,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 
+// FWCore headers
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,11 +16,14 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+// additional
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
+// ROOT headers
 #include <TTree.h>
 
 class LHEWeightsTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
@@ -79,7 +84,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   
   // state that TFileService is used
   usesResource();
-  //  usesResource("TFileService");
+  usesResource("TFileService");
 
 }
 

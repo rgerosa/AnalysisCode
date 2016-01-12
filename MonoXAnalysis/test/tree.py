@@ -125,6 +125,7 @@ options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.var
 ## parsing command line arguments
 options.parseArguments()
 
+### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
 		options.globalTag = '74X_mcRun2_asymptotic_v2';
 
@@ -188,46 +189,37 @@ process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
 if options.inputFiles == []:
 
 	process.source = cms.Source("PoolSource", 
-   		 fileNames = cms.untracked.vstring(),
-#		 eventsToProcess = cms.untracked.VEventRange('1:15060773-1:15060999')          
-   	)
+   		 fileNames = cms.untracked.vstring())
 
 	if not options.isMC :
 		process.source.fileNames.append(
-        	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root'
-    	)
+        	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root')
 	else:
 		process.source.fileNames.append( 
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
-			'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
-    	)    	
+			'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root')    	
 else:
    process.source = cms.Source("PoolSource",
-   	  fileNames = cms.untracked.vstring(options.inputFiles)	
-	)
+   	  fileNames = cms.untracked.vstring(options.inputFiles))
 
 
 ## Set the process options -- Display summary at the end, enable unscheduled execution
 if options.nThreads == 1 or options.nThreads == 0:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
-		wantSummary = cms.untracked.bool(options.wantSummary),
-		)
+		wantSummary = cms.untracked.bool(options.wantSummary))
 else:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
 		wantSummary = cms.untracked.bool(options.wantSummary),
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
-		numberOfStreams = cms.untracked.uint32(options.nThreads)
-		)
-
+		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 ## How many events to process
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(options.maxEvents)
-)
+    input = cms.untracked.int32(options.maxEvents))
 
 # Set the global tag depending on the sample type
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -254,7 +246,7 @@ from AnalysisCode.MonoXAnalysis.JetMetCorrector_cff import JetMetCorrector
 ## apply JEC and propagation on MET for AK4PFchs
 JetMetCorrector(process,"slimmedJets","slimmedMETs","AK4PFchs",options.isMC, options.applyL2L3Residuals, options.doMETSystematics)
 ## apply JEC and propagation on MET for AK4PFPuppi
-if options.addPuppiJets:
+if options.addPuppiJets or options.addPuppiMET:
 	JetMetCorrector(process,"slimmedJetsPuppi","slimmedMETsPuppi","AK4PFPuppi",options.isMC, options.applyL2L3Residuals, options.doMETSystematics)
 
 # Create a set of objects to read from
@@ -287,15 +279,12 @@ if options.addPileupJetID:  ## so far not working for slimmedJets, so re-cluster
 		addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFPuppi", postfix = "Puppi")
 	
 if options.addQGLikelihood:
-
 	inputJet = "slimmedJetsRecorrectedAK4PFchs";
 	inputJetPuppi = "slimmedJetsRecorrectedAK4PFPuppi";
+	addQGLikelihood( process,collection = inputJet, postfix = "");
 	if options.addPileupJetID:
 		inputJet += "PUID";
 		inputJetPuppi += "PUID";
-
-	addQGLikelihood( process,collection = inputJet, postfix = "");
-	if options.addPuppiJets:
 		addQGLikelihood( process,collection = inputJetPuppi, postfix = "Puppi");
 
 
@@ -314,40 +303,33 @@ process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
    met   = cms.InputTag("slimmedMETs","","TREE"),
    cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
    isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates")			
-)
+   pfCandidates = cms.InputTag("packedPFCandidates"))
 
 process.t1elmet = cms.EDProducer("ElectronCorrectedMETProducer",
    met = cms.InputTag("slimmedMETs","","TREE"),
    cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
    isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates")			
-)
+   pfCandidates = cms.InputTag("packedPFCandidates"))
 
 process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
    met = cms.InputTag("slimmedMETs","","TREE"),
    cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
    isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates")			
-)
+   pfCandidates = cms.InputTag("packedPFCandidates"))
 
 if options.addPuppiMET:
 
 	process.puppit1mumet = process.t1mumet.clone(
 		met   = cms.InputTag("slimmedMETsPuppi","","TREE"),
-		isPuppi = cms.bool(True),
-		)
-	
-	
+		isPuppi = cms.bool(True))
+
 	process.puppit1elmet = process.t1elmet.clone(
 		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
-		isPuppi = cms.bool(True),
-		)
-	
+		isPuppi = cms.bool(True))
+
 	process.puppit1phmet = process.t1phmet.clone(
 		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
-		isPuppi = cms.bool(True),
-		)
+		isPuppi = cms.bool(True))
 	
 
 ## Create output file
@@ -376,11 +358,9 @@ else:
 					'keep *_*t1elmet*_*_*',
 					'keep *_*t1phmet*_*_*',
 					'keep *_*t1taumet*_*_*',
-                                      	),
-                                    )
+                                      	))
 
    process.output = cms.EndPath(process.out)
-
 
 #### substructure sequence
 from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
@@ -404,7 +384,6 @@ if options.doSubstructurePuppi:
 			addQGLikelihood = True);
 
 # Make the tree 
-
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## gen info			     
    isMC    = cms.bool(options.isMC),
@@ -471,7 +450,10 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    boostedJetsCHS     = cms.InputTag("packedPatJetsAK8PFJetsCHS"),
    boostedJetsOriginal     = cms.InputTag("slimmedJetsAK8"),
    addSubstructurePuppi = cms.bool(options.doSubstructurePuppi),
-   boostedJetsPuppi     = cms.InputTag("packedPatJetsAK8PFJetsPuppi")			      
+   boostedJetsPuppi     = cms.InputTag("packedPatJetsAK8PFJetsPuppi"),
+   ## b-tag scale factors
+   addBTagScaleFactor  = cms.bool(True),
+   bTagScaleFactorFile = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_74X.csv') 			      
 )
 
 jetColl      = "slimmedJetsRecorrectedAK4PFchs"
@@ -500,8 +482,7 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     geninfo = cms.InputTag("generator"),
     pileupinfo = cms.InputTag("slimmedAddPileupInfo"),				 
     uselheweights = cms.bool(options.useLHEWeights),
-    addqcdpdfweights = cms.bool(options.addQCDPDFWeights)
-)
+    addqcdpdfweights = cms.bool(options.addQCDPDFWeights))
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
@@ -518,26 +499,18 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 				 ptBins  = cms.vdouble(20,30,40,50,60,80,110,150,1000),
 				 etaBins = cms.vdouble(0.,0.5,1.,1.5,2.0,2.4),
 				 bDiscriminatorInfo = cms.VPSet(
-		cms.PSet(
-			discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-			wpLabel = cms.string("Loose"),
-			wpValue = cms.double(0.605),
-			),
+		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+			 wpLabel = cms.string("Loose"),
+			 wpValue = cms.double(0.605)),
 
-		cms.PSet(
-			discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-			wpLabel = cms.string("Medium"),
-			wpValue = cms.double(0.89),
-			),
+		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+			 wpLabel = cms.string("Medium"),
+			 wpValue = cms.double(0.89)),
 
-		cms.PSet(
-			discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-			wpLabel = cms.string("Tight"),
-			wpValue = cms.double(0.97),
-			)
-		)
-
-				 )
+		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+			 wpLabel = cms.string("Tight"),
+			 wpValue = cms.double(0.97))
+		))
 				 
 
 if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
@@ -548,14 +521,13 @@ if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
 if options.addPuppiJets:
 	setattr(process,"btageffPuppi",process.btageff.clone(
 			srcJets = cms.InputTag(jetCollPuppi)))
-			
+	
 
 # MET filter
 process.metfilter = cms.EDFilter("CandViewSelector",
     src = cms.InputTag("t1mumet"),
     cut = cms.string("et > 200"),
-    filter = cms.bool(True)
-)
+    filter = cms.bool(True))
 
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
@@ -567,10 +539,13 @@ if options.dropAnalyzerDumpEDM == False:
 						    process.metfilter + 
 						    process.tree)
 			if(options.addPuppiJets):
-				process.treePath.remove(process.tree)
-				process.treePath += process.btageffPuppi
-				process.treePath += process.tree
-				
+				process.treePath = cms.Path(process.gentree +
+							    process.btageff+
+							    process.btageffPuppi+
+							    process.metFilters +
+							    process.metfilter +
+							    process.tree)
+			
 		else :
 			process.treePath = cms.Path(process.metFilters + 
 						    process.metfilter + 
@@ -583,9 +558,11 @@ if options.dropAnalyzerDumpEDM == False:
 						    process.tree)
 
 			if(options.addPuppiJets):
-				process.treePath.remove(process.tree)
-				process.treePath += process.btageffPuppi
-				process.treePath += process.tree
+				process.treePath = cms.Path(process.gentree+
+							    process.metFilters + 
+							    process.btageff+
+							    process.btageffPuppi+
+							    process.tree)
 		else :
 			process.treePath = cms.Path(process.metFilters + 
 			                            process.tree)
