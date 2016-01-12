@@ -983,13 +983,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
 	if (skipjet) continue;
       
-	if (jets_iter->pt() > leadingjetpt) {
-	  leadingjetpt  = jets_iter->pt() ;
-	  leadingjeteta = jets_iter->eta();
-	  leadingjetphi = jets_iter->phi();
-	  leadingjetm   = jets_iter->mass();
-	}
-	            
 	// apply jet id
 	bool passjetid = applyJetID(*jets_iter,"loose");            
 	if (!passjetid) 
@@ -999,7 +992,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	bool passpuid = applyPileupJetID(*jets_iter,"medium",false);
 	if (!passpuid) 
 	  continue;
-	
+
+	if (jets_iter->pt() > leadingjetpt) {
+	  leadingjetpt  = jets_iter->pt() ;
+	  leadingjeteta = jets_iter->eta();
+	  leadingjetphi = jets_iter->phi();
+	  leadingjetm   = jets_iter->mass();
+	}
+	            	
 	pat::JetRef jetref(jetsH, jets_iter - jetsH->begin());	
 	if(jetref.isAvailable() and jetref.isNonnull())
 	  incjets.push_back(jetref);
@@ -1572,13 +1572,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  
 	  if (skipjet) continue;
 	  
-	  if (jets_iter->pt() > leadingPuppijetpt) {
-	    leadingPuppijetpt  = jets_iter->pt() ;
-	    leadingPuppijeteta = jets_iter->eta();
-	    leadingPuppijetphi = jets_iter->phi();
-	    leadingPuppijetm   = jets_iter->mass();
-	  }
-	  
 	  // apply jet id
 	  bool passjetid = applyJetID(*jets_iter,"loose");            
 	  if (!passjetid) 
@@ -1587,7 +1580,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  //apply pileup jet id
 	  bool passpuid = applyPileupJetID(*jets_iter,"medium",true);
 	  if (!passpuid) continue;
-	  
+
+	  if (jets_iter->pt() > leadingPuppijetpt) {
+	    leadingPuppijetpt  = jets_iter->pt() ;
+	    leadingPuppijeteta = jets_iter->eta();
+	    leadingPuppijetphi = jets_iter->phi();
+	    leadingPuppijetm   = jets_iter->mass();
+	  }
+	  	  
 	  pat::JetRef jetref(jetsPuppiH, jets_iter - jetsPuppiH->begin());
 	  if(jetref.isAvailable() and jetref.isNonnull())
 	    incPuppijets.push_back(jetref);
@@ -2758,12 +2758,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	leadPuppiPrunedJetpt     = 0.0; leadPuppiPrunedJetm      = 0.0; leadPuppiPrunedJetGenpt = 0.0; leadPuppiPrunedJetGenm  = 0.0;
 	leadPuppiPrunedJeteta     = 0.0; leadPuppiPrunedJetphi   = 0.0; leadPuppiPrunedJetGeneta = 0.0; leadPuppiPrunedJetGenphi  = 0.0;
 	leadPuppiPrunedJetHFlav  = 0.0; leadPuppiPrunedJetPFlav  = 0.0; leadPuppiPrunedJetQGL   = 0.0; leadPuppiPrunedJetBtag  = 0.0;
-	leadPuppiPrunedJetDoubleBtag  = 0.0;
+	leadPuppiPrunedJetDoubleBtag  = 0.0; leadPuppiPrunedJetmraw = 0.0; leadPuppiPrunedJetptraw = 0.0;
 	
+
 	leadPuppiSoftDropJetpt    = 0.0; leadPuppiSoftDropJetm = 0.0; leadPuppiSoftDropJetGenpt = 0.0; leadPuppiSoftDropJetGenm = 0.0; 
 	leadPuppiSoftDropJeteta    = 0.0; leadPuppiSoftDropJetphi = 0.0; leadPuppiSoftDropJetGeneta = 0.0; leadPuppiSoftDropJetGenphi = 0.0; 
 	leadPuppiSoftDropJetHFlav = 0.0; leadPuppiSoftDropJetPFlav = 0.0; leadPuppiSoftDropJetQGL = 0.0; leadPuppiSoftDropJetBtag = 0.0;
-	leadPuppiSoftDropJetDoubleBtag = 0.0;
+	leadPuppiSoftDropJetDoubleBtag = 0.0; leadPuppiSoftDropJetmraw = 0.0; leadPuppiSoftDropJetptraw = 0.0;
 	
 	leadPuppiPrunedSubJetpt_1 = 0.0; leadPuppiPrunedSubJetm_1  = 0.0; leadPuppiPrunedSubJetphi_1 = 0.0; leadPuppiPrunedSubJeteta_1 = 0.0;
 	leadPuppiPrunedSubJetHFlav_1 = 0.0; leadPuppiPrunedSubJetPFlav_1 = 0.0; leadPuppiPrunedSubJetQGL_1 = 0.0; leadPuppiPrunedSubJetBtag_1 = 0.0;
@@ -3762,6 +3763,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPuppiPrunedJetQGL", &leadPuppiPrunedJetQGL, "leadPuppiPrunedJetQGL/D");
     tree->Branch("leadPuppiPrunedJetBtag", &leadPuppiPrunedJetBtag, "leadPuppiPrunedJetBtag/D");
     tree->Branch("leadPuppiPrunedJetDoubleBtag", &leadPuppiPrunedJetDoubleBtag, "leadPuppiPrunedJetDoubleBtag/D");
+    tree->Branch("leadPuppiPrunedJetptraw", &leadPuppiPrunedJetptraw, "leadPuppiPrunedJetptraw/D");
+    tree->Branch("leadPuppiPrunedJetmraw", &leadPuppiPrunedJetmraw, "leadPuppiPrunedJetmraw/D");
 
     tree->Branch("leadPuppiSoftDropJetpt", &leadPuppiSoftDropJetpt, "leadPuppiSoftDropJetpt/D");
     tree->Branch("leadPuppiSoftDropJetm", &leadPuppiSoftDropJetm, "leadPuppiSoftDropJetm/D");
@@ -3776,6 +3779,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("leadPuppiSoftDropJetQGL", &leadPuppiSoftDropJetQGL, "leadPuppiSoftDropJetQGL/D");
     tree->Branch("leadPuppiSoftDropJetBtag", &leadPuppiSoftDropJetBtag, "leadPuppiSoftDropJetBtag/D");
     tree->Branch("leadPuppiSoftDropJetDoubleBtag", &leadPuppiSoftDropJetDoubleBtag, "leadPuppiSoftDropJetDoubleBtag/D");
+    tree->Branch("leadPuppiSoftDropJetptraw", &leadPuppiSoftDropJetptraw, "leadPuppiSoftDropJetptraw/D");
+    tree->Branch("leadPuppiSoftDropJetmraw", &leadPuppiSoftDropJetmraw, "leadPuppiSoftDropJetmraw/D");
 
     tree->Branch("leadPuppiPrunedSubJetpt_1", &leadPuppiPrunedSubJetpt_1, "leadPuppiPrunedSubJetpt_1/D");
     tree->Branch("leadPuppiPrunedSubJeteta_1", &leadPuppiPrunedSubJeteta_1, "leadPuppiPrunedSubJeteta_1/D");
@@ -4058,22 +4063,22 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
 
   // https://indico.cern.ch/event/450785/contribution/2/attachments/1167545/1683858/151008_JMAR_pileupJetIDtraining.pdf
   if(level == "loose"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval > -0.82) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.81) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.57) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.36) passpuid = true;
+    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval > -0.826) passpuid = true;
+    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.813) passpuid = true;
+    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.574) passpuid = true;
+    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.363) passpuid = true;
   }
-  else if(level == "medium"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval > -0.48) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.66) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.44) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.29) passpuid = true;    
+  else if(level == "medium"){ // left as done in EXO-15-003 for the time being
+    if (jetabseta >= 0.00 && jetabseta < 2.50 && puidval > -0.63) passpuid = true;
+    if (jetabseta >= 2.50 && jetabseta < 2.75 && puidval > -0.60) passpuid = true;
+    if (jetabseta >= 2.75 && jetabseta < 3.00 && puidval > -0.55) passpuid = true;
+    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.45) passpuid = true;
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval >  0.29) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.30) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.37) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.25) passpuid = true;    
+    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval >  0.291) passpuid = true;
+    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.306) passpuid = true;
+    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.369) passpuid = true;
+    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.247) passpuid = true;    
 
   }
   return passpuid;

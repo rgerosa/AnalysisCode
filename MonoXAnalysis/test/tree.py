@@ -187,9 +187,12 @@ if options.inputFiles == []:
 	else:
 		process.source.fileNames.append( 
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
-			'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root')    	
+			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
+			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
+			#'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/18F237DA-CF6D-E511-B4A3-00221981B410.root'
+
+			)    	
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -271,10 +274,12 @@ if options.addPileupJetID:  ## so far not working for slimmedJets, so re-cluster
 if options.addQGLikelihood:
 	inputJet = "slimmedJetsRecorrectedAK4PFchs";
 	inputJetPuppi = "slimmedJetsRecorrectedAK4PFPuppi";
-	addQGLikelihood( process,collection = inputJet, postfix = "");
 	if options.addPileupJetID:
 		inputJet += "PUID";
 		inputJetPuppi += "PUID";
+
+	addQGLikelihood( process,collection = inputJet, postfix = "");
+	if options.addPuppiJets:
 		addQGLikelihood( process,collection = inputJetPuppi, postfix = "Puppi");
 
 

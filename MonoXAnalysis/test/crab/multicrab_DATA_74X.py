@@ -7,6 +7,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=False',
+               'filterOnHLT=True',
                'filterHighMETEvents=False',
                'usePrivateSQlite=False',
                'applyL2L3Residuals=True',
@@ -17,10 +18,10 @@ pyCfgParams = ['isMC=False',
                'doSubstructurePuppi=True',
                'addQGLikelihood=True',
                'addPileupJetID=False',
-               'addMVAMet=True',
+               'addMVAMet=False',
                'globalTag=74X_dataRun2_asymptotic_v2',
                'outputFileName=tree.root'
-               'nThreads=4']
+               'nThreads=6']
 
 config.section_('General')
 config.General.transferLogs = True

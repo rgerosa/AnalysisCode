@@ -796,6 +796,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     else{
       if(not jetJECUncFile_.location())
 	throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJECUncFile_ << " !!\n";
+
       jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
     
     }
@@ -867,7 +868,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}
 	    
 	sigmaPt = jetJERFormula_->Eval(jet.pt());
-	
 	// apply smearing to jet 4V
 	float smearingWidth     = sqrt(jerSF*jerSF-1)*sigmaPt;
 	float smearingWidthUp   = sqrt((jerSF+jerSFUnc)*(jerSF+jerSFUnc)-1)*sigmaPt;

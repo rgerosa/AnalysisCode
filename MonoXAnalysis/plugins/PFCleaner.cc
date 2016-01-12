@@ -201,9 +201,9 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if (passeskincuts) {
 	  if (muon::isLooseMuon(*muons_iter) && isoval < 0.2) 
 	    outputmuons->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-	  if (muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval < 0.15) 
+	  if (muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval < 0.12) 
 	    outputtightmuons->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-	  if (muon::isHighPtMuon(*muons_iter, *(verticesH->begin())) && isoval < 0.15)
+	  if (muon::isHighPtMuon(*muons_iter, *(verticesH->begin())) && isoval < 0.12)
 	    outputhighptmuons->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
 	}
     }

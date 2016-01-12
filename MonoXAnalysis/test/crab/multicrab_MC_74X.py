@@ -17,7 +17,7 @@ pyCfgParams = ['isMC=True',
                'doSubstructurePuppi=True',
                'addQGLikelihood=True',
                'addPileupJetID=False',
-               'addMVAMet=True',
+               'addMVAMet=False',
                'globalTag=74X_mcRun2_asymptotic_v2',
                'outputFileName=tree.root',
                'nThreads=6']

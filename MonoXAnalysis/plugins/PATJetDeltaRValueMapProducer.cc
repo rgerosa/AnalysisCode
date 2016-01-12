@@ -250,6 +250,8 @@ void JetDeltaRValueMapProducerT<T,pat::Jet,K>::produce(edm::Event& iEvent, const
 	    if((*ijet).genJet())
 	      values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
 	  }
+	  else
+	      values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
 	}
 	if( multiValue_ ){
 	  for( size_t i=0; i<valueLabels_.size(); ++i){	
@@ -257,6 +259,8 @@ void JetDeltaRValueMapProducerT<T,pat::Jet,K>::produce(edm::Event& iEvent, const
 	      if((*ijet).genJet())
 		valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
 	    }
+	    else
+	      valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
 	  }
 	}
       }
