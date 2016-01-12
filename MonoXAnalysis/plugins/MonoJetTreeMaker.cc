@@ -1113,7 +1113,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	    
 	    float jetEta = jets[0]->eta();
-	    if(jetEta > maxEta){
+	    if(fabs(jetEta) > maxEta){
 	      jetEta = maxEta;
 	      doubleUncertainty = true;
 	    }
@@ -1199,7 +1199,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	    
 	    float jetEta = jets[1]->eta();
-	    if(jetEta > maxEta){
+	    if(fabs(jetEta) > maxEta){
 	      jetEta = maxEta;
 	      doubleUncertainty = true;
 	    }
@@ -1284,7 +1284,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	    
 	    float jetEta = jets[2]->eta();
-	    if(jetEta > maxEta){
+	    if(fabs(jetEta) > maxEta){
 	      jetEta = maxEta;
 	      doubleUncertainty = true;
 	    }
@@ -1366,7 +1366,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    }
 	    
 	    float jetEta = jets[3]->eta();
-	    if(jetEta > maxEta){
+	    if(fabs(jetEta) > maxEta){
 	      jetEta = maxEta;
 	      doubleUncertainty = true;
 	    }
@@ -1695,7 +1695,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      }
 	      
 	      float jetEta = Puppijets[0]->eta();
-	      if(jetEta > maxEta){
+	      if(fabs(jetEta) > maxEta){
 		jetEta = maxEta;
 		doubleUncertainty = true;
 	      }
@@ -1777,7 +1777,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      }
 	      
 	      float jetEta = Puppijets[1]->eta();
-	      if(jetEta > maxEta){
+	      if(fabs(jetEta) > maxEta){
 		jetEta = maxEta;
 		doubleUncertainty = true;
 	      }
@@ -1860,7 +1860,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      }
 	      
 	      float jetEta = Puppijets[2]->eta();
-	      if(jetEta > maxEta){
+	      if(fabs(jetEta) > maxEta){
 		jetEta = maxEta;
 		doubleUncertainty = true;
 	      }
@@ -1942,7 +1942,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      }
 	      
 	      float jetEta = Puppijets[3]->eta();
-	      if(jetEta > maxEta){
+	      if(fabs(jetEta) > maxEta){
 		jetEta = maxEta;
 		doubleUncertainty = true;
 	      }

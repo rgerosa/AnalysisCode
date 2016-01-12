@@ -145,8 +145,8 @@ private:
   std::vector<StringCutObjectSelector<pat::Tau> > tauSelection_;
   std::vector<float> tauScaleUnc_;
 
-  std::string jetJECUncFile_;
-  std::string jetJERFile_;
+  edm::FileInPath jetJECUncFile_;
+  edm::FileInPath jetJERFile_;
   std::auto_ptr<TFormula>   jetJERFormula_;
 
   std::vector<StringCutObjectSelector<pat::Jet> > jetJERSelection_;
@@ -303,7 +303,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
 
   // file for JEC unc
-  jetJECUncFile_ = jetPSet_.getParameter<std::string>("JECUncFile");
+  jetJECUncFile_ = jetPSet_.getParameter<edm::FileInPath>("JECUncFile");
 
   // JER SF
   for(auto bin : jetPSet_.getParameter<std::vector<edm::ParameterSet> >("binningJERSF")){
@@ -313,12 +313,15 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
   
   // file for JER truth
-  jetJERFile_    = jetPSet_.getParameter<std::string>("JERFile");
+  jetJERFile_    = jetPSet_.getParameter<edm::FileInPath>("JERFile");
+  if(not jetJERFile_.location())
+    throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
+
   jetJERFormula_ = std::auto_ptr<TFormula>(new TFormula("jerFormula",jetPSet_.getParameter<std::string>("JERFormula").c_str()));
 
   // this setup really depends on the format coded in https://twiki.cern.ch/twiki/pub/CMS/JetResolution/Summer15_25nsV6_MC_PtResolution_AK4PFchs.txt
   std::string line;
-  std::ifstream file(jetJERFile_);
+  std::ifstream file(jetJERFile_.fullPath());
   if(file.is_open()){
     while(getline(file,line)){
       if(line.at(0)=='{')
@@ -791,7 +794,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
     }
     else
-      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_));
+      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
     
 
     for(auto jet : *jetColl){

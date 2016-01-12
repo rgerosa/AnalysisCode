@@ -150,10 +150,9 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 						payloadName = cms.string(payloadNameUnc),
 						src = cms.InputTag(jetCollection),
 						useExternalJECUncertainty = cms.bool(False),
-						useExternalJERUncertainty = cms.bool(False),
-						JECUncFile = cms.string("../data/Summer15_25nsV6_DATA_Uncertainty_AK4PFchs.txt"),
+						JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Summer15_25nsV6_DATA_Uncertainty_AK4PFchs.txt"),
 						#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-						JERFile    = cms.string("../data/Summer15_25nsV6_MC_PtResolution_AK4PFchs.txt"),
+						JERFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Summer15_25nsV6_MC_PtResolution_AK4PFchs.txt"),
 						JERFormula = cms.string("TMath::Sqrt([0]*TMath::Abs([0])/(x*x)+[1]*[1]*TMath::Power(x,[3])+[2]*[2])"),
 						binningJERSF = cms.VPSet(
 							#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
@@ -207,8 +206,7 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 				)
 				
 			if isMC:
-				getattr(process,"metSysProducer"+postfix).JECUncFile = cms.string("../data/Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt");
-
+				getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt");
 
 			## final slimmed MET
 			setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",

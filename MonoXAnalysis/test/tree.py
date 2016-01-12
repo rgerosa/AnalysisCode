@@ -22,7 +22,7 @@ options.register (
 
 ## private SQL file for JEC
 options.register (
-	'usePrivateSQlite',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'usePrivateSQlite',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JEC to be found in test directory');
 
 ## apply or not L2L3 Residual for data
@@ -99,7 +99,7 @@ options.register (
 	'Dump LHE weights');
 ## dump pdf and scale variations
 options.register(
-	'addQCDPDFWeights', False, VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'addQCDPDFWeights',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'Dump weights related to QCD scale and PDF variations');
 ## dump gen info for W, Z , Photon and DM particles
 options.register(
@@ -110,14 +110,6 @@ options.register(
 options.register (
 	'dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'not run the analyzer and store an edm file');
-
-options.register (
-	'reportEvery',100,VarParsing.multiplicity.singleton, VarParsing.varType.int,
-	'report message logger CMSSW');
-
-options.register (
-	'wantSummary',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool, 
-	'report message logger CMSSW');
 
 options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
 		  'default number of threads');
@@ -158,8 +150,6 @@ print "Running with outputFileName      = ",options.outputFileName
 print "Running with globalTag           = ",options.globalTag	
 print "Running with JEC Era             = ",options.JECEra	
 print "Running with dropAnalyzerDumpEDM = ",options.dropAnalyzerDumpEDM	
-print "Running with reportEvery         = ",options.reportEvery	    
-print "Running with wantSummary         = ",options.wantSummary	
 print "Running with addPileupJetID      = ",options.addPileupJetID
 print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addMVAMet           = ",options.addMVAMet
@@ -183,7 +173,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 ## Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = options.reportEvery
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 ## Define the input source
 if options.inputFiles == []:
@@ -209,11 +199,11 @@ else:
 if options.nThreads == 1 or options.nThreads == 0:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
-		wantSummary = cms.untracked.bool(options.wantSummary))
+		wantSummary = cms.untracked.bool(True))
 else:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
-		wantSummary = cms.untracked.bool(options.wantSummary),
+		wantSummary = cms.untracked.bool(True),
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 

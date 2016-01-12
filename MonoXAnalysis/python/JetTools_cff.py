@@ -13,12 +13,13 @@ def addPileupJetID(process,collection, postfix, isMC = True):
     ## load corrections
     process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
-
     ## in case of puppi
     if "Puppi" in postfix or "puppi" in postfix or "PUPPI" in postfix:
         ## filter out puppi particles
         if not hasattr(process,'puppi'):
-            setattr(process, 'puppi', cms.EDFilter('CandPtrSelector', src = cms.InputTag("packedPFCandidates"), cut = cms.string('puppiWeight > 0')) )
+            setattr(process, 'puppi', cms.EDFilter('CandPtrSelector', 
+                                                   src = cms.InputTag("packedPFCandidates"), 
+                                                   cut = cms.string('puppiWeight > 0')) )
 
         ## cluster particles
         if not hasattr(process,'ak4PFJetsPuppi'):
@@ -27,13 +28,10 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                     src = cms.InputTag('puppi'),
                     doAreaFastjet = cms.bool(True),
                     rParam = cms.double(0.4),
-                    jetAlgorithm = cms.string("AntiKt"),
-                    )
-                    )
-
+                    jetAlgorithm = cms.string("AntiKt")))
 
             jetCollection = 'ak4PFJetsPuppi'
-
+            
         ## generate objects for JEC
         if not hasattr(process,'ak4PFPuppiL1FastjetCorrector'):
             process.ak4PFPuppiL1FastjetCorrector = process.ak4PFCHSL1FastjetCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
@@ -43,14 +41,12 @@ def addPileupJetID(process,collection, postfix, isMC = True):
             process.ak4PFPuppiL3AbsoluteCorrector = process.ak4PFCHSL3AbsoluteCorrector.clone(algorithm   = cms.string('AK4PFPuppi'))
         if not hasattr(process,'ak4PFPuppiL1FastL2L3Corrector'):
             process.ak4PFPuppiL1FastL2L3Corrector = process.ak4PFCHSL1FastL2L3Corrector.clone(
-                correctors = cms.VInputTag("ak4PFPuppiL1FastjetCorrector", "ak4PFPuppiL2RelativeCorrector", "ak4PFPuppiL3AbsoluteCorrector")
-                )
+                correctors = cms.VInputTag("ak4PFPuppiL1FastjetCorrector", "ak4PFPuppiL2RelativeCorrector", "ak4PFPuppiL3AbsoluteCorrector"))
         if not hasattr(process,'ak4PFPuppiResidualCorrector'):
             process.ak4PFPuppiResidualCorrector = process.ak4PFResidualCorrector.clone( algorithm = 'AK4PFPuppi' )
         if not hasattr(process,'ak4PFPuppiL1FastL2L3ResidualCorrector'):
             process.ak4PFPuppiL1FastL2L3ResidualCorrector = process.ak4PFCHSL1FastL2L3ResidualCorrector.clone( 
-                correctors = cms.VInputTag("ak4PFPuppiL1FastjetCorrector", "ak4PFPuppiL2RelativeCorrector", "ak4PFPuppiL3AbsoluteCorrector", "ak4PFPuppiResidualCorrector")
-                )
+                correctors = cms.VInputTag("ak4PFPuppiL1FastjetCorrector", "ak4PFPuppiL2RelativeCorrector", "ak4PFPuppiL3AbsoluteCorrector", "ak4PFPuppiResidualCorrector"))
 
         ## move from reco to patjets
         if not hasattr(process, 'patJetsAK4PFPuppi'):
@@ -62,8 +58,7 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                     src     = cms.InputTag(jetCollection),
                     levels  = puppiJEC,
                     primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    payload = "AK4PFPuppi"
-                    ));
+                    payload = "AK4PFPuppi"));
 
             getattr(process,"patJetCorrFactorsAK4Puppi").useRho = False
 
@@ -81,10 +76,8 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                     addGenJetMatch      = cms.bool(False),
                     embedGenJetMatch    = cms.bool(False),
                     getJetMCFlavour    = cms.bool(False),
-                    addJetFlavourInfo  = cms.bool(False)
-                    )
-                    )
-                                      
+                    addJetFlavourInfo  = cms.bool(False)))
+            
             jetCollectionPAT = 'patJetsAK4PFPuppi'
 
     else:
@@ -99,19 +92,16 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                     doAreaFastjet = cms.bool(True),
                     rParam = cms.double(0.4),
                     jetAlgorithm = cms.string("AntiKt"),
-                    )
-                )
+                    ))
 
             jetCollection = 'ak4PFJetsCHS'
-
 
             ## corrector
             setattr(process,"patJetCorrFactorsAK4CHS", patJetCorrFactors.clone(
                     src     = cms.InputTag(jetCollection),
                     levels  = process.JECLevels.labels,
                     primaryVertices = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                    payload = "AK4PFchs"
-                    ));
+                    payload = "AK4PFchs"));
             
             ## producer
             setattr(process,'patJetsAK4PFCHS', patJets.clone(
@@ -127,12 +117,9 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                     addGenJetMatch      = cms.bool(False),
                     embedGenJetMatch    = cms.bool(False),
                     getJetMCFlavour    = cms.bool(False),
-                    addJetFlavourInfo  = cms.bool(False)
-                    )
-                    )
-
+                    addJetFlavourInfo  = cms.bool(False)))
+                    
             jetCollectionPAT = 'patJetsAK4PFCHS'
-
         
     ## add pileup jet id modules
     setattr(process,'pileupJetIdCalculator'+postfix,
@@ -141,16 +128,14 @@ def addPileupJetID(process,collection, postfix, isMC = True):
             rho  = cms.InputTag("fixedGridRhoFastjetAll"),
             vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
             applyJec = cms.bool(True),
-            inputIsCorrected = cms.bool(False))
-            )
+            inputIsCorrected = cms.bool(False)))
 
     setattr(process,'pileupJetIdEvaluator'+postfix,
             pileupJetIdEvaluator.clone(
             jetids = cms.InputTag('pileupJetIdCalculator'+postfix),
             jets = cms.InputTag(jetCollection),
             rho = cms.InputTag("fixedGridRhoFastjetAll"),
-            vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"))            
-            )
+            vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")))
 
     if "Puppi" in postfix or "puppi" in postfix or "PUPPI" in postfix:
         getattr(process,'pileupJetIdCalculator'+postfix).jec = cms.string("AK4PFPuppi")
@@ -167,8 +152,7 @@ def addPileupJetID(process,collection, postfix, isMC = True):
                                                   distMax = cms.double(0.4),
                                                   values = cms.vstring("userFloat('pileupJetIdEvaluator"+postfix+":fullDiscriminant')"),
                                                   valueLabels = cms.vstring("fullDiscriminant")
-                                                  )
-            )
+                                                  ))
     
     ## update original jets
     setattr(process,collection+"PUID",
@@ -179,8 +163,7 @@ def addPileupJetID(process,collection, postfix, isMC = True):
 
         
     getattr(process,collection+"PUID").userData.userFloats = cms.PSet(
-        src = cms.VInputTag("puid"+postfix+":fullDiscriminant")
-        )
+        src = cms.VInputTag("puid"+postfix+":fullDiscriminant"))
                             
 
 ### QGLikelihood adder
@@ -194,8 +177,7 @@ def addQGLikelihood(process,collection,postfix):
         process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
                                                 CondDBSetup,
                                                 toGet = cms.VPSet(),
-                                                connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
-                                                )
+                                                connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'))
         qgDatabaseVersion = 'v1'
 
         for type in ['AK4PFchs','AK4PFchs_antib']:
@@ -224,9 +206,7 @@ def addQGLikelihood(process,collection,postfix):
         setattr(process,collection+"QG",
                 patJetsUpdated.clone(jetSource = cms.InputTag(collection),
                                      addJetCorrFactors = cms.bool(False),
-                                     jetCorrFactorsSource = cms.VInputTag())
-                )
-
+                                     jetCorrFactorsSource = cms.VInputTag()))
 
 
         getattr(process,collection+"QG").userData.userFloats = cms.PSet(

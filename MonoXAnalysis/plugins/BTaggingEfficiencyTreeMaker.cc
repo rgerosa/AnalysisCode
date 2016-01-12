@@ -50,7 +50,6 @@ private:
   bool applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi);
 
   // ----------member data ---------------------------
-  const std::string   dirName;
   const edm::InputTag srcJets;		       
   const edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken;
   const double dRClean;
@@ -76,7 +75,6 @@ private:
 };
 
 BTaggingEfficiencyTreeMaker::BTaggingEfficiencyTreeMaker(const edm::ParameterSet& iConfig) :
-  dirName(iConfig.getParameter<std::string>("directoryName")),
   srcJets(iConfig.getParameter<edm::InputTag>("srcJets")),
   jetsToken(consumes<std::vector<pat::Jet> >(srcJets)),	  
   dRClean(iConfig.getParameter<double>("dRClean")),
@@ -218,21 +216,27 @@ void BTaggingEfficiencyTreeMaker::beginJob(){
 
     std::string name = "eff_"+discriminatorName+"_"+wpLabel+"_Denom_b";
     eff_histo_Denom_b[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Denom_b[name] -> Sumw2();
 
     name = "eff_"+discriminatorName+"_"+wpLabel+"_Denom_c";
     eff_histo_Denom_c[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Denom_c[name] -> Sumw2();
 
     name = "eff_"+discriminatorName+"_"+wpLabel+"_Denom_ucsdg";
     eff_histo_Denom_ucsdg[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Denom_ucsdg[name] -> Sumw2();
 
     name = "eff_"+discriminatorName+"_"+wpLabel+"_Num_b";
     eff_histo_Num_b[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Num_b[name] -> Sumw2();
 
     name = "eff_"+discriminatorName+"_"+wpLabel+"_Num_c";
     eff_histo_Num_c[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Num_c[name] -> Sumw2();
 
     name = "eff_"+discriminatorName+"_"+wpLabel+"_Num_ucsdg";
     eff_histo_Num_ucsdg[name] = fs->make<TH2F>(name.c_str(),"", ptBins.size()-1, &ptBins[0], etaBins.size()-1,&etaBins[0]);
+    eff_histo_Num_ucsdg[name] -> Sumw2();
   }
   
 }
