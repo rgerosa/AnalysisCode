@@ -793,10 +793,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
       jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
     }
-    else
+    else{
+      if(not jetJECUncFile_.location())
+	throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJECUncFile_ << " !!\n";
       jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
     
-
+    }
     for(auto jet : *jetColl){
       //set eta and pt
       jecUnc->setJetEta(jet.eta());

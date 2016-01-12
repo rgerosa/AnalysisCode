@@ -206,7 +206,7 @@ def JetMetCorrector(process, jetCollection, metCollection, payloadName, isMC, ap
 				)
 				
 			if isMC:
-				getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt");
+				getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Summer15_25nsV6_MC_Uncertainty_AK4PFchs.txt");
 
 			## final slimmed MET
 			setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
