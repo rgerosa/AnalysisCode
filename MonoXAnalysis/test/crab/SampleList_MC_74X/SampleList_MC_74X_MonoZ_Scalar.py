@@ -1,4 +1,0 @@
-/DM_ScalarZHLL_Mphi-500_Mchi-1_gSM-1p0_gDM-1p0_13TeV-JHUGen/RunIISpring15MiniAODv2-Asympt25ns_74X_mcRun2_asymptotic_v2-v1/MINIAODSIM
-/DM_ScalarZHLL_Mphi-500_Mchi-50_gSM-1p0_gDM-1p0_13TeV-JHUGen/RunIISpring15MiniAODv2-Asympt25ns_74X_mcRun2_asymptotic_v2-v1/MINIAODSIM
-/DM_ScalarZHLL_Mphi-50_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen/RunIISpring15MiniAODv2-Asympt25ns_74X_mcRun2_asymptotic_v2-v1/MINIAODSIM
-/DM_ScalarZHLL_Mphi-50_Mchi-1_gSM-1p0_gDM-1p0_13TeV-JHUGen/RunIISpring15MiniAODv2-Asympt25ns_74X_mcRun2_asymptotic_v2-v1/MINIAODSIM

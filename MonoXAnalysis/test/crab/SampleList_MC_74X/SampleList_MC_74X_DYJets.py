@@ -1,4 +1,5 @@
-##DYJets LL samples LO                                                                                                                                                           
+##DYJets LL samples LO                                                                                                                                                       
+
 samples['DYJetsToLL_M-50_HT-100To200']  = ['/DYJetsToLL_M-50_HT-100to200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZMCSample=True','crossSection=148']]
 samples['DYJetsToLL_M-50_HT-200To400']  = ['/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
