@@ -106,6 +106,10 @@ options.register(
 	'isWorZMCSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	' dump gen info for W, Z , Photon and DM particles');
 
+## input cross section in case you want to store a different value wrt to the LHE file
+options.register(
+	'crossSection',-1.,VarParsing.multiplicity.singleton, VarParsing.varType.float,
+	'external value for sample cross section, in case of data it is fixed to 0.001');
 ## Debug options
 options.register (
 	'dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
@@ -123,6 +127,9 @@ if options.isMC and 'dataRun2' in options.globalTag:
 
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
+
+if not options.isMC:
+	options.crossSection = -1.;
 
 ## set by default a right environment when 76X is used
 CMSSW_VERSION = os.environ['CMSSW_VERSION'];   
@@ -387,7 +394,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    pileup  = cms.InputTag("slimmedAddPileupInfo"),
    genevt  = cms.InputTag("generator"),
    gens    = cms.InputTag("prunedGenParticles"),
-   xsec    = cms.double(0.001),   
+   xsec    = cms.double(options.crossSection),   
    ## trigger info
    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
    filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),

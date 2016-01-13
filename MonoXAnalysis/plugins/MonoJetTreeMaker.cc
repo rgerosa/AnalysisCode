@@ -789,14 +789,17 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puwgt  = 1.;
 
     // store cross section in case not set from external parameter
-    if(lheInfoH.isValid() and xsec == 1)
-      xsec = lheInfoH->originalXWGTUP()*1000;
-
+    if(xsec < 0){
+      if(lheInfoH.isValid() and isMC)
+	xsec = lheInfoH->originalXWGTUP()*1000;
+      else
+	xsec = 1.;
+    }
 
     if (uselheweights && genevtInfoH.isValid()) 
       wgt = genevtInfoH->weight();
     else wgt = 1.0;
-
+    
     if (pileupInfoH.isValid()) {
       for (auto pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
 	if (pileupInfo_iter->getBunchCrossing() == 0) {
