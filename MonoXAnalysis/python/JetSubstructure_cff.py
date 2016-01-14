@@ -299,7 +299,11 @@ def JetSubstructure(process,
             setattr( process, 'genParticlesForJetsNoNu', 
                      cms.EDFilter("CandPtrSelector", 
                                   src = cms.InputTag("packedGenParticles"), 
-                                  cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16")))
+                                  cut = cms.string("abs(pdgId) != 12 && abs(pdgId) != 14 && abs(pdgId) != 16 && abs(pdgId) != 1000022 && abs(pdgId) != 1000012 &&"+
+                                                   "abs(pdgId) != 1000014 && abs(pdgId) != 1000016 && abs(pdgId) != 2000012 && abs(pdgId) != 2000014 &&"+
+                                                   "abs(pdgId) != 2000016 && abs(pdgId) != 1000039 && abs(pdgId) != 5100039 && abs(pdgId) != 4000012 &&"+
+                                                   "abs(pdgId) != 4000014 && abs(pdgId) != 4000016 && abs(pdgId) != 9900012 && abs(pdgId) != 9900014 &&"+
+                                                   "abs(pdgId) != 9900016 && abs(pdgId) != 39 && abs(pdgId) != 9100012")))
 
         if not hasattr(process,"genJets"+jetAlgo):
             setattr(process,"genJets"+jetAlgo, ak4GenJets.clone( src = 'genParticlesForJetsNoNu', 
