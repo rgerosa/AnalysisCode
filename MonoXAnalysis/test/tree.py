@@ -103,7 +103,7 @@ options.register(
 	'Dump weights related to QCD scale and PDF variations');
 ## dump gen info for W, Z , Photon and DM particles
 options.register(
-	'isWorZMCSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'isWorZorSignalMCSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	' dump gen info for W, Z , Photon and DM particles');
 
 ## input cross section in case you want to store a different value wrt to the LHE file
@@ -164,7 +164,7 @@ print "Running with doSubstructureCHS   = ",options.doSubstructureCHS
 print "Running with doSubstructurePuppi = ",options.doSubstructurePuppi
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
-print "Running with isWorZMCSample      = ",options.isWorZMCSample
+print "Running with isWorZorSignalMCSample  = ",options.isWorZorSignalMCSample
 print "Running with nThreads            = ",options.nThreads
 print "#####################"
 
@@ -195,10 +195,10 @@ if options.inputFiles == []:
 		process.source.fileNames.append( 
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
-			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
 			#'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/18F237DA-CF6D-E511-B4A3-00221981B410.root'
-
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/CC4E0ADB-3E75-E511-9CB6-00259029E87C.root'
+			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/10000/627C548E-298D-E511-82FD-002590725380.root'
 			)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -390,7 +390,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## gen info			     
    isMC    = cms.bool(options.isMC),
    uselheweights  = cms.bool(options.useLHEWeights),
-   isWorZMCSample = cms.bool(options.isWorZMCSample),
+   isWorZorSignalMCSample = cms.bool(options.isWorZorSignalMCSample),
    pileup  = cms.InputTag("slimmedAddPileupInfo"),
    genevt  = cms.InputTag("generator"),
    gens    = cms.InputTag("prunedGenParticles"),
