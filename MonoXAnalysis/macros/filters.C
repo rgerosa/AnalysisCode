@@ -1,41 +1,56 @@
-// function that takes in input a tree and counts the total of negative and positive signs
+// function tht takes in input a tree and counts the total of negative and positive signs
 double sumwgt(TTree* tree) {
 
   if(tree == NULL or tree == 0)
     return 1.;
-  
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"sumwgt function --> loop on gentree"<<std::endl;
+
   TTreeReader treeReader(tree);
   TTreeReaderValue<double> wgtsign (treeReader,"wgtsign");
 
   double weightsum = 0.;
-  while(treeReader.Next()){
+  float nEvents = 0;
+  while(treeReader.Next()){    
+    if(int(nEvents) %10000 == 0){
+      std::cout<<"Events "<<nEvents/tree->GetEntries()*100<<"%"<<std::endl;
+    }
     weightsum += (*wgtsign);
+    nEvents++;
   }
+
+  std::cout<<"sumwgt function --> end"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
+  
   return weightsum;
 }
 
 //function to apply pileup re-weight, i.e. return an histogram given by the ratio between pileup in data and mc
-TH1D* pileupwgt(TTree* tree, std::string scenario){
+TH1D* pileupwgt(TTree* tree, std::string scenario = ""){
 
   if(tree == NULL or tree == 0)
     return 0;
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"pileupwgt function --> start"<<std::endl;
   
   // PU data  
   TH1D* histoPUData;
   TFile* fileInputData;
-
+  
   if(scenario == "silver"){
     fileInputData = TFile::Open("../data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.root");
-    histoPUData = (TH1D*) fileInputData->Get("pileup");
+    histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
   else{
     fileInputData = TFile::Open("../data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root");
-    histoPUData = (TH1D*) fileInputData->Get("pileup");
+    histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
   histoPUData->SetName("histoPUData");
   // scale to unit
   histoPUData->Scale(1./histoPUData->Integral());
-
+  
   // PU MC
   TH1D* histoPUMC = (TH1D*) histoPUData->Clone("histoPUMC");
   // fill an histogram with the same binning and properties of data one
@@ -47,12 +62,223 @@ TH1D* pileupwgt(TTree* tree, std::string scenario){
   TH1D* puRatio = (TH1D*) histoPUData->Clone("histoRatio");
   puRatio->Divide(histoPUMC);
 
+  std::cout<<"pileupwgt function --> end"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
+
   return puRatio;
 
 }
 
+//function to return the pileup weights
+void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"btagWeights function --> start"<<std::endl;
+
+  
+  // make up and down variations
+  TH2F* eff_b_errUp = (TH2F*) eff_b->Clone("eff_b_errUp");
+  TH2F* eff_c_errUp = (TH2F*) eff_c->Clone("eff_c_errUp");
+  TH2F* eff_ucsdg_errUp = (TH2F*) eff_ucsdg->Clone("eff_ucsdg_errUp");
+
+  TH2F* eff_b_errDown = (TH2F*) eff_b->Clone("eff_b_errDown");
+  TH2F* eff_c_errDown = (TH2F*) eff_c->Clone("eff_c_errDown");
+  TH2F* eff_ucsdg_errDown = (TH2F*) eff_ucsdg->Clone("eff_ucsdg_errDown");
+
+  for(int iBinX = 0; iBinX < eff_b_errUp->GetNbinsX(); iBinX++){
+    for(int iBinY = 0; iBinY < eff_b_errUp->GetNbinsY(); iBinY++){
+      // check consistentcy
+      if(eff_b->GetBinContent(iBinX+1,iBinY+1)+eff_b->GetBinError(iBinX+1,iBinY+1) < 1.)
+	eff_b_errUp->SetBinContent(iBinX+1,iBinY+1,eff_b->GetBinContent(iBinX+1,iBinY+1)+eff_b->GetBinError(iBinX+1,iBinY+1));
+      else
+	eff_b_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
+
+      if(eff_c->GetBinContent(iBinX+1,iBinY+1)+eff_c->GetBinError(iBinX+1,iBinY+1) < 1.)
+	eff_c_errUp->SetBinContent(iBinX+1,iBinY+1,eff_c->GetBinContent(iBinX+1,iBinY+1)+eff_c->GetBinError(iBinX+1,iBinY+1));      
+      else
+	eff_c_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
+      
+      if(eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)+eff_ucsdg->GetBinError(iBinX+1,iBinY+1) < 1)
+	eff_ucsdg_errUp->SetBinContent(iBinX+1,iBinY+1,eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)+eff_ucsdg->GetBinError(iBinX+1,iBinY+1));
+      else
+	eff_ucsdg_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
+
+      if(eff_b->GetBinContent(iBinX+1,iBinY+1)-eff_b->GetBinError(iBinX+1,iBinY+1) > 0.)
+	eff_b_errDown->SetBinContent(iBinX+1,iBinY+1,eff_b->GetBinContent(iBinX+1,iBinY+1)-eff_b->GetBinError(iBinX+1,iBinY+1));
+      else
+	eff_b_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
+
+      if(eff_c->GetBinContent(iBinX+1,iBinY+1)-eff_c->GetBinError(iBinX+1,iBinY+1) > 0.)
+	eff_c_errDown->SetBinContent(iBinX+1,iBinY+1,eff_c->GetBinContent(iBinX+1,iBinY+1)-eff_c->GetBinError(iBinX+1,iBinY+1));
+      else
+	eff_c_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
+
+      if(eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)-eff_ucsdg->GetBinError(iBinX+1,iBinY+1) > 0.)
+	eff_ucsdg_errDown->SetBinContent(iBinX+1,iBinY+1,eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)-eff_ucsdg->GetBinError(iBinX+1,iBinY+1));
+      else
+	eff_ucsdg_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
+
+    }
+  }
+  
+  // smooth input histograms to deal with low statistics
+  eff_b->Smooth();
+  eff_c->Smooth();
+  eff_ucsdg->Smooth();
+
+  eff_b_errUp->Smooth();
+  eff_c_errUp->Smooth();
+  eff_ucsdg_errUp->Smooth();
+
+  eff_b_errDown->Smooth();
+  eff_c_errDown->Smooth();
+  eff_ucsdg_errDown->Smooth();
+
+  // make graph 2D for interpolation for central values
+  TGraph2D* graph_b = new TGraph2D(eff_b);
+  TGraph2D* graph_c = new TGraph2D(eff_c);
+  TGraph2D* graph_ucsdg = new TGraph2D(eff_ucsdg);
+
+
+  TGraph2D* graph_b_errUp = new TGraph2D(eff_b_errUp);
+  TGraph2D* graph_c_errUp = new TGraph2D(eff_c_errUp);
+  TGraph2D* graph_ucsdg_errUp = new TGraph2D(eff_ucsdg_errUp);
+
+
+  TGraph2D* graph_b_errDown = new TGraph2D(eff_b_errDown);
+  TGraph2D* graph_c_errDown = new TGraph2D(eff_c_errDown);
+  TGraph2D* graph_ucsdg_errDown = new TGraph2D(eff_ucsdg_errDown);
+
+  double jetPtMin  = 20;
+  double jetEtaMax = 2.4;
+  double btagWP    = 0.89; // medium working point
+  
+  // decleare reader
+  TTreeReader myReader(tree);
+  TTreeReaderValue<std::vector<double> > centraljetpt         (myReader,"centraljetpt");
+  TTreeReaderValue<std::vector<double> > centraljeteta        (myReader,"centraljeteta");
+  TTreeReaderValue<std::vector<double> > centraljetHFlav      (myReader,"centraljetHFlav");
+  TTreeReaderValue<std::vector<double> > centraljetbtag       (myReader,"centraljetbtag");
+  TTreeReaderValue<std::vector<double> > centraljetBtagSF     (myReader,"centraljetBtagSF");
+  TTreeReaderValue<std::vector<double> > centraljetBtagSFUp   (myReader,"centraljetBtagSFUp");
+  TTreeReaderValue<std::vector<double> > centraljetBtagSFDown (myReader,"centraljetBtagSFDown");
+
+
+  // add a b-tag weight branch for medium wp
+  double wgtbtag, wgtbtagUp, wgtbtagDown;
+  TBranch* bwgtbtag     = tree->Branch("wgtbtag", &wgtbtag, "wgtbtag/D");  
+  TBranch* bwgtbtagUp   = tree->Branch("wgtbtagUp", &wgtbtagUp, "wgtbtagUp/D");  
+  TBranch* bwgtbtagDown = tree->Branch("wgtbtagDown", &wgtbtagDown, "wgtbtagDown/D");  
+
+  int nEvents = 0;
+
+  while(myReader.Next()){
+
+    // recipe for b-tag weight on https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
+    double PMC = 1.;
+    double PMCUp = 1.;
+    double PMCDown = 1.;
+    double PDATA = 1.;
+    double PDATAUp = 1.;
+    double PDATADown = 1.;
+    double efficiency     = 1.;
+    double efficiencyUp   = 1.;
+    double efficiencyDown = 1.;
+    
+    if(nEvents %10000 == 0){
+      std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
+    }      
+    
+    // take only events in the acceptance region for b-tagging
+    for(size_t iJet = 0; iJet < centraljetpt->size(); iJet++){
+            
+      if(centraljetpt->at(iJet) > jetPtMin and fabs(centraljeteta->at(iJet)) < jetEtaMax){
+	// get efficiency
+	if(centraljetHFlav->at(iJet) == 5){
+	  efficiency     = graph_b->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
+	  efficiencyUp   = graph_b_errUp->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
+	  efficiencyDown = graph_b_errDown->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
+	}
+	else if(centraljetHFlav->at(iJet) == 4){
+	  efficiency     = graph_c->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	  efficiencyUp   = graph_c_errUp->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	  efficiencyDown = graph_c_errDown->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	}
+	else{
+	  efficiency     = graph_ucsdg->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	  efficiencyUp   = graph_ucsdg_errUp->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	  efficiencyDown = graph_ucsdg_errDown->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	}
+
+	//checks
+	if(efficiencyUp > 1)
+	  efficiencyUp = 1;
+	if(efficiencyDown < 0)
+	  efficiencyDown = 0;
+	
+	// check b-tag value
+	if(centraljetbtag->at(iJet) > btagWP){
+	  PMC    *= efficiency;
+	  PDATA  *= efficiency*(centraljetBtagSF->at(iJet));		  
+	  PMCUp     *= efficiencyUp; 
+	  PMCDown   *= efficiencyDown; 
+	  PDATAUp   *= efficiencyUp*(centraljetBtagSFUp->at(iJet));
+	  PDATADown *= efficiencyDown*(centraljetBtagSFDown->at(iJet));
+	}
+	else{
+	  PMC       *= (1-efficiency);
+	  PMCUp     *= (1-efficiencyUp);
+	  PMCDown   *= (1-efficiencyDown);
+	  PDATA     *= (1-efficiency*(centraljetBtagSF->at(iJet)));
+	  PDATAUp   *= (1-efficiencyUp*(centraljetBtagSFUp->at(iJet)));
+	  PDATADown *= (1-efficiencyDown*(centraljetBtagSFDown->at(iJet)));
+	}	
+      }
+    }
+
+    // Fill branch
+    if(PMC != 0)
+      wgtbtag = PDATA/PMC;
+    else
+      wgtbtag = 1.;
+
+    std::vector<double> ratios;
+    if(PMCUp!=0){
+      ratios.push_back(PDATAUp/PMCUp);
+      ratios.push_back(PDATADown/PMCUp);
+    }
+    if(PMCDown!=0){
+      ratios.push_back(PDATADown/PMCDown);
+      ratios.push_back(PDATAUp/PMCDown);
+    }
+
+    if(ratios.size()>=2){
+      wgtbtagUp   = *std::max_element(ratios.begin(),ratios.end());
+      wgtbtagDown = *std::min_element(ratios.begin(),ratios.end());
+    }
+    else{
+      wgtbtagUp = wgtbtag;
+      wgtbtagDown = wgtbtag;
+    }
+
+    bwgtbtag->Fill();
+    bwgtbtagUp->Fill();
+    bwgtbtagDown->Fill();
+    
+    nEvents++;
+  }
+
+  std::cout<<"btagWeights function --> end"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
+
+}
+
+
 // function that take as input a ROOT file
-void sigfilter( std::string inputFileName,  std::string outputFileName ) {
+void sigfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"sigfilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -60,48 +286,95 @@ void sigfilter( std::string inputFileName,  std::string outputFileName ) {
     outputFileName = "sigtree.root";
 
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-
-  // calculate sum of weights
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
- 
- double wgtpileup = 0;
+  TTree* intree;
+  TH1D*  puRatio;
+  double wgtsum;
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    // calculate sum of weights
+    wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
 
   // accept signal region event if loose muons, electrons, taus and phototns == 0 and triggered by hltmet90
   const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && hltmet90 > 0";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
-  TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
+  TDirectoryFile* treedir = new TDirectoryFile("tree", "tree"); 
   treedir->cd();
   // copy the tree applying a selection
+  std::cout<<"sigfilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"sigfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
+
   
   // add a weight sum branch  
-  TBranch* bwgtsum    = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  // add a pileup weight branch
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+  TBranch* bwgtsum, *bwgtpileup;
+  double wgtpileup = 1;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");      
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
+    
+    std::cout<<"sigfilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) 
+	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
+      bwgtsum->Fill();
+      wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
+      bwgtpileup->Fill();    
+      nEvents++;
+    }
+  }
 
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
+  
+  if(applyBTagWeights and isMC){
 
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+    std::cout<<"sigfilter --> apply btag-weight"<<std::endl; 
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }
   
   // write tree in the file
-  outfile->Write();
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
   
 }
 
 // function to apply Zmumu selections
-void zmmfilter( std::string inputFileName,  std::string outputFileName) {
+void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"zmmfilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -109,43 +382,92 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName) {
     outputFileName = "zmmtree.root";
   
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
+  TTree* intree;
+  double wgtsum;
+  TH1D*  puRatio;
+  double wgtpileup = 1;
 
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
-  double wgtpileup = 0;
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    double wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
     
   // Selections 2 loose muons, 0 loose ele, taus and photons, m(mumu) = m(z) [60,120], mupt > 20, one of the two tight ... no trigger requirement
-  const char* cut = "nmuons == 2 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && zmass > 60 && zmass < 120 && mu1pt > 20 && (mu1id == 1 || mu2id == 1)";
+  const char* cut = "nmuons == 2 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && zmass > 60 && zmass < 120 && mu1pt > 20 && (mu1id >= 1 || mu2id >= 1)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
+  std::cout<<"zmmfilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"zmmfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
 
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
-
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+    std::cout<<"zmmfilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) 
+	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
+      bwgtsum->Fill();
+      wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
+      bwgtpileup->Fill();    
+      nEvents++;
+    }
   }
 
+  if(applyBTagWeights and isMC){
+    
+    std::cout<<"zmmfilter --> apply btag-weight"<<std::endl;
+ 
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
 
-  outfile->Write();
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
 
 }
 
 // function to apply Zee selections
-void zeefilter( std::string inputFileName,  std::string outputFileName) {
+void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"zeefilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -153,41 +475,93 @@ void zeefilter( std::string inputFileName,  std::string outputFileName) {
     outputFileName = "zeetree.root";
 
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
+
+  TTree* intree;
+  double wgtsum;
+  TH1D*  puRatio;
+  double wgtpileup = 1;
+
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    double wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
   
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
-  double wgtpileup = 0;
-  
-  const char* cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id == 1 || el2id == 1)";
+  const char* cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1)";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
+  std::cout<<"zeefilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
-  
-  TBranch* bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+  std::cout<<"zeefilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
 
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
+
+    std::cout<<"zeefilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) 
+	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
+      bwgtsum->Fill();
+      wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
+      bwgtpileup->Fill();    
+      nEvents++;
+    }
   }
 
-  outfile->Write();
+  if(applyBTagWeights and isMC){
+    
+    std::cout<<"zeefilter --> apply btag-weight"<<std::endl;
+
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
 
 }
 
 // function to apply Wmunu selections
-void wmnfilter( std::string inputFileName,  std::string outputFileName) {
+void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"wmnfilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -195,40 +569,91 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName) {
     outputFileName = "wmntree.root";
   
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
-  double wgtpileup = 0;
+  TTree* intree;
+  double wgtsum;
+  TH1D*  puRatio;
+  double wgtpileup = 1;
 
-  const char* cut = "nmuons == 1 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && mu1pt > 20 && mu1id == 1";
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    double wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
+
+  const char* cut = "nmuons == 1 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && mu1pt > 20 && mu1id >= 1";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
+  std::cout<<"wmnfilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"wmnfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
-
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
-
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);    
+    TTreeReaderValue<int> putrue(myReader,"putrue");
+    std::cout<<"wmnfilter --> apply sumwgt and puweight"<<std::endl;    
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) 
+	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
+      bwgtsum->Fill();
+      wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
+      bwgtpileup->Fill();          
+      nEvents++;      
+    }    
   }
-  outfile->Write();
-  
+
+  if(applyBTagWeights and isMC){
+
+    std::cout<<"wmnfilter --> apply btag-weight"<<std::endl;
+
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+
+  }
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
+
 }
 
 // function to apply Wenu selections
-void wenfilter( std::string inputFileName,  std::string outputFileName) {
+void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"wenfilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -236,40 +661,89 @@ void wenfilter( std::string inputFileName,  std::string outputFileName) {
     outputFileName = "wentree.root";
 
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
-  double wgtpileup = 0;
-  
-  const char* cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id == 1";
+  TTree* intree;
+  double wgtsum;
+  TH1D*  puRatio;
+  double wgtpileup = 1;
+
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    double wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
+
+  const char* cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
+  std::cout<<"wenfilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"wenfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
 
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
-
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+    std::cout<<"wenfilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
+	bwgtsum->Fill();
+	wgtpileup = puRatio->GetBinContent(*putrue);
+	bwgtpileup->Fill();    
+	nEvents++;
+    }
   }
 
-  outfile->Write();
+  if(applyBTagWeights and isMC){
+    
+    std::cout<<"wenfilter --> apply btag-weight"<<std::endl;
+
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
 }
 
 // function to apply photon+jets selections
-void gamfilter( std::string inputFileName,  std::string outputFileName) {
+void gamfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"gamfilter --> start function"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -277,14 +751,18 @@ void gamfilter( std::string inputFileName,  std::string outputFileName) {
     outputFileName = "gamtree.root";
   
   TFile* infile = TFile::Open(inputFileName.c_str());
-  TTree* intree = (TTree*)infile->Get("gentree/gentree");
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  
-  double wgtsum = sumwgt(intree);
-  // caluclate puweight
-  std::string scenario = "silver";
-  TH1D*  puRatio = pileupwgt(intree,scenario);
-  double wgtpileup = 0;
+  TTree* intree;
+  double wgtsum;
+  TH1D*  puRatio;
+  double wgtpileup = 1;
+
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    double wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
 
   // medium id + pt + veto
   const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 1 && phpt > 175 && phidm == 1";
@@ -293,21 +771,63 @@ void gamfilter( std::string inputFileName,  std::string outputFileName) {
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
+  std::cout<<"gamfilter --> apply signal region preselection"<<std::endl;
   TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"gamfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-  TBranch* bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
 
-  TTreeReader myReader(outtree);
-  TTreeReaderValue<int> putrue(myReader,"putrue");
-
-  while(myReader.Next()){
-    bwgtsum->Fill();
-    wgtpileup = puRatio->GetBinContent(*putrue);
-    bwgtpileup->Fill();
+    std::cout<<"gamfilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %10000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
+	bwgtsum->Fill();
+	wgtpileup = puRatio->GetBinContent(*putrue);
+	bwgtpileup->Fill();    
+	nEvents++;
+    }
   }
-  
-  outfile->Write();
+
+  if(applyBTagWeights and isMC){
+    
+    std::cout<<"gamfilter --> apply btag-weight"<<std::endl;
+
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }  
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
 
 }
 
