@@ -13,7 +13,7 @@ double sumwgt(TTree* tree) {
   double weightsum = 0.;
   float nEvents = 0;
   while(treeReader.Next()){    
-    if(int(nEvents) %10000 == 0){
+    if(int(nEvents) %100000 == 0){
       std::cout<<"Events "<<nEvents/tree->GetEntries()*100<<"%"<<std::endl;
     }
     weightsum += (*wgtsign);
@@ -40,11 +40,11 @@ TH1D* pileupwgt(TTree* tree, std::string scenario = ""){
   TFile* fileInputData;
   
   if(scenario == "silver"){
-    fileInputData = TFile::Open("../data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.root");
+    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.root");
     histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
   else{
-    fileInputData = TFile::Open("../data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root");
+    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root");
     histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
   histoPUData->SetName("histoPUData");
@@ -185,7 +185,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     double efficiencyUp   = 1.;
     double efficiencyDown = 1.;
     
-    if(nEvents %10000 == 0){
+    if(nEvents %100000 == 0){
       std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
     }      
     
@@ -323,7 +323,7 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"sigfilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) 
+      if(nEvents %100000 == 0) 
 	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
@@ -417,7 +417,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"zmmfilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) 
+      if(nEvents %100000 == 0) 
 	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
@@ -511,7 +511,7 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"zeefilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) 
+      if(nEvents %100000 == 0) 
 	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
@@ -602,7 +602,7 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"wmnfilter --> apply sumwgt and puweight"<<std::endl;    
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) 
+      if(nEvents %100000 == 0) 
 	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
@@ -695,7 +695,7 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"wenfilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
+      if(nEvents %100000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
 	bwgtsum->Fill();
 	wgtpileup = puRatio->GetBinContent(*putrue);
 	bwgtpileup->Fill();    
@@ -786,7 +786,7 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
     std::cout<<"gamfilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
     while(myReader.Next()){
-      if(nEvents %10000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
+      if(nEvents %100000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
 	bwgtsum->Fill();
 	wgtpileup = puRatio->GetBinContent(*putrue);
 	bwgtpileup->Fill();    

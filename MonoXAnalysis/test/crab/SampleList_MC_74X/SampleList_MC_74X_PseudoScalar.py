@@ -2,14 +2,14 @@
 samples['DMS_Pseudoscalar_Mphi-10_Mchi-1']   = ['/DMS_NNPDF30_Pseudoscalar_Mphi-10_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=2601.52']]
 #####
-samples['DMS_Pseudoscalar_Mphi-10_Mchi-10']  = ['/DMS_NNPDF30_Pseudoscalar_Mphi-10_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM'
+samples['DMS_Pseudoscalar_Mphi-10_Mchi-10']  = ['/DMS_NNPDF30_Pseudoscalar_Mphi-10_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=33.7587']]
 #####
 samples['DMS_Pseudoscalar_Mphi-20_Mchi-1']   = ['/DMS_NNPDF30_Pseudoscalar_Mphi-20_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=1626.06']]
 #####
 samples['DMS_Pseudoscalar_Mphi-20_Mchi-10']  = ['/DMS_NNPDF30_Pseudoscalar_Mphi-20_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                         ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=45.7554']]
+                                         ['Uselheweights-=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=45.7554']]
 #####
 samples['DMS_Pseudoscalar_Mphi-50_Mchi-1']   = ['/DMS_NNPDF30_Pseudoscalar_Mphi-50_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=644.099']]

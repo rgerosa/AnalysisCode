@@ -1,4 +1,3 @@
-
 import os, sys
 from multiprocessing import Process
 from WMCore.Configuration import Configuration
@@ -24,7 +23,7 @@ pyCfgParams = ['isMC=True',
                'nThreads=6']
 
 config.section_('General')
-config.General.transferLogs = True
+config.General.transferLogs = False
 config.General.workArea     = 'crab_projects_MC_74X'  # Make sure you set this parameter
 
 config.section_('JobType')
@@ -39,8 +38,9 @@ config.JobType.numCores         = 6
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 10000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/'
+config.Data.unitsPerJob   = 7000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
+config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
