@@ -275,7 +275,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
 
 
 // function that take as input a ROOT file
-void sigfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void sigfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sigfilter --> start function"<<std::endl;
@@ -371,7 +371,7 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Zmumu selections
-void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"zmmfilter --> start function"<<std::endl;
@@ -416,7 +416,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
     std::cout<<"zmmfilter --> apply sumwgt and puweight"<<std::endl;
     int nEvents=0;
-    while(myReader.Next()){
+    while(myReader.Next()){    
       if(nEvents %100000 == 0) 
 	std::cout<<"Events "<<float(nEvents)/outtree->GetEntries()*100<<"%"<<std::endl;
       bwgtsum->Fill();
@@ -464,7 +464,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Zee selections
-void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"zeefilter --> start function"<<std::endl;
@@ -558,7 +558,7 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Wmunu selections
-void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"wmnfilter --> start function"<<std::endl;
@@ -650,7 +650,7 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Wenu selections
-void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"wenfilter --> start function"<<std::endl;
@@ -740,7 +740,7 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply photon+jets selections
-void gamfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree) {
+void gamfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"gamfilter --> start function"<<std::endl;

@@ -55,47 +55,72 @@ if __name__ == '__main__':
         os.system("mkdir -p "+options.outputDIR);
 
 
+    ## fix options
+    storeGenTree = 0;
+    if options.storeGenTree:
+        storeGenTree = 1;
+
+    isMC = 0;
+    if not options.isMC:
+        isMC = 1;
+
+    applyBTagSF = 0;
+    if not options.applyBTagSF:
+        applyBTagSF = 1;
+
     #######################
     for ifile in fileList:        
 
         ########
         if options.filterName == "sigfilter" or options.filterName == "all":
-
-            ROOT.gROOT.ProcessLine("sigfilter(\""+ifile+"\",\""+"sig_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            
+            command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"sig_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p sigfilter")
             os.system("mv sig_"+ifile+" sigfilter/")
 
         ########
         if options.filterName == "zmmfilter"  or options.filterName == "all":
 
-            ROOT.gROOT.ProcessLine("zmmfilter(\""+ifile+"\",\""+"zmm_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"zmm_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p zmmfilter")
             os.system("mv zmm_"+ifile+" zmmfilter/")
 
         ########
         if options.filterName == "zeefilter" or  options.filterName == "all":
 
-            ROOT.gROOT.ProcessLine("zeefilter(\""+ifile+"\",\""+"zee_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p zeefilter")
             os.system("mv zee_"+ifile+" zeefilter/")
 
         ########
         if options.filterName == "wmnfilter" or  options.filterName == "all":
 
-            ROOT.gROOT.ProcessLine("wmnfilter(\""+ifile+"\",\""+"wmn_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"wmn_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p wmnfilter")
             os.system("mv wmn_"+ifile+" wmnfilter/")
 
         ########
         if options.filterName == "wenfilter" or  options.filterName == "all":
 
-            ROOT.gROOT.ProcessLine("wenfilter(\""+ifile+"\",\""+"wen_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p wenfilter")
             os.system("mv wen_"+ifile+" wenfilter/")
 
         ########
         if options.filterName == "gamfilter" or  options.filterName == "all":
 
-            ROOT.gROOT.ProcessLine("gamfilter(\""+ifile+"\",\""+"gam_"+ifile+"\",\""+str(options.isMC)+"\",\""+str(options.applyBTagSF)+"\",\""+str(options.storeGenTree)+"\")");
+            command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"gam_"+ifile,isMC,applyBTagSF,storeGenTree))
+            print command
+            ROOT.gROOT.ProcessLine(command.Data());
             os.system("mkdir -p gamfilter")
             os.system("mv gam_"+ifile+" gamfilter/")
