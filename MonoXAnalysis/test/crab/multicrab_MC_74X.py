@@ -20,7 +20,7 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=74X_mcRun2_asymptotic_v2',
                'outputFileName=tree.root',
-               'nThreads=6']
+               'nThreads=4']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -32,18 +32,19 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 #config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 6
+config.JobType.numCores         = 1
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 7000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Synchronization/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
+config.Site.blacklist = ['T2_UK_SGrid_Bristol']
 
 ## multicrab section
 if __name__ == '__main__':

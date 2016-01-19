@@ -75,7 +75,7 @@ options.register (
 
 ## miniAOD process name    
 options.register (
-	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'miniAODProcess','PAT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
 ## outputFile Name
