@@ -1,3 +1,4 @@
+#python scripts/mergeFile.py --inputDIR /home/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/QCD/ --outputName tree
 import os
 import glob
 import math

@@ -1,3 +1,15 @@
+#include <vector>
+#include <string>
+
+#include "TTree.h"
+#include "TFile.h"
+#include "TTreeReader.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TGraph2D.h"
+
+void filters(){}
+
 // function tht takes in input a tree and counts the total of negative and positive signs
 double sumwgt(TTree* tree) {
 
@@ -287,8 +299,8 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree;
-  TH1D*  puRatio;
+  TTree* intree = NULL;
+  TH1D*  puRatio = NULL;
   double wgtsum;
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -383,9 +395,9 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
   
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree;
+  TTree* intree =  NULL;
   double wgtsum;
-  TH1D*  puRatio;
+  TH1D*  puRatio = NULL;
   double wgtpileup = 1;
 
   if(isMC){
@@ -477,9 +489,9 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
 
-  TTree* intree;
+  TTree* intree =  NULL;
   double wgtsum;
-  TH1D*  puRatio;
+  TH1D*  puRatio = NULL;
   double wgtpileup = 1;
 
   if(isMC){
@@ -570,9 +582,9 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
   
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree;
+  TTree* intree =  NULL;
   double wgtsum;
-  TH1D*  puRatio;
+  TH1D*  puRatio = NULL;
   double wgtpileup = 1;
 
   if(isMC){
@@ -662,9 +674,9 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree;
+  TTree* intree = NULL;
   double wgtsum;
-  TH1D*  puRatio;
+  TH1D*  puRatio = NULL;
   double wgtpileup = 1;
 
   if(isMC){
@@ -752,9 +764,9 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
   
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree;
+  TTree* intree = NULL;
   double wgtsum;
-  TH1D*  puRatio;
+  TH1D*  puRatio = NULL;
   double wgtpileup = 1;
 
   if(isMC){
