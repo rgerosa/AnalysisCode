@@ -1,6 +1,7 @@
 ## Di-boson:                                                                                                                                                                    
 #samples['WW_pythia']        = ['/WW_TuneCUETP8M1_13TeV-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
 #                               ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=117.8']]
+
 samples['WWTo2L2Nu_powheg'] = ['/WWTo2L2Nu_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=12.178']]
 samples['WWTo4q_powheg'] = ['/WWTo4Q_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v2/MINIAODSIM',
