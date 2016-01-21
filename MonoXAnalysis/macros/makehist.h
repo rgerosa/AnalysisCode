@@ -1,33 +1,41 @@
 #ifndef MAKEHIST4_H
 #define MAKEHIST4_H
 
-// define binnings for the different observables
-int nbins     = 7;
-float bins[]  = {200., 250., 300., 350., 400., 500., 600., 1000.};
-
-int nrbins    = 7;
-float rbins[] = {200., 250., 300., 350., 400., 500., 600., 1000.};
-
 #include <vector>
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TTreeReader.h"
+#include "TTreeReaderArray.h"
+
+
+// define binnings for the different observables
+int   nbins_monoV     = 7;
+float bins_monoV[]    = {200., 250., 300., 350., 400., 500., 600., 1000.};
+int   nbins_monoJet   = 7;
+float bins_monoJet[]  = {200., 250., 300., 350., 400., 500., 600., 1000.};
 
 void makehist4(TTree* tree, /*input tree*/ 
 	       TH1* hist, /* MET histogram */ 
-	       bool isMC, int sample, double scale, 
+	       bool isMC, 
+	       int sample, 
+	       int category,
+	       bool reweightNVTX,
+	       double scale, 
 	       vector<TH1*> khists, 
-	       bool reweightNVTX = false,
 	       TH1* rhist=NULL) {
 
-  double lumi = 2.11;
-
+  Double_t lumi = 2.11;
   
   // now pufile not necessary anymore since the info already in the tree
   TFile* pufile;
-  TH1*   puhist;
+  TH1*   puhist = NULL;
   if(reweightNVTX){
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
     puhist = (TH1*) pufile->Get("puhist");
   }
-  
+    
   // Lepton ID scale factor from tag and probe: muons, electrons 
   TFile* sffile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");
   
@@ -39,10 +47,7 @@ void makehist4(TTree* tree, /*input tree*/
   
   // Photon ID scale factor from tag and probe
   TFile* psffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
-  TH2*  psfhist  = (TH2*)psffile->Get("PhotonSF");
-  
-  // Photon purity -> to estimate QCD in photon + jets final state
-  TFile* purfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonPurity/PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
+  TH2*  psfhist  = (TH2*)psffile->Get("PhotonSF");  
   TH2*  purhist  = (TH2*)psffile->Get("PhotonPurity");
   
   // trigger efficiency correction for single electron trigger
@@ -58,21 +63,23 @@ void makehist4(TTree* tree, /*input tree*/
   
   // define branches
   TTreeReader myReader(tree);
-  
-  TTreeReaderValue<int> run          (myReader,"run");
-  TTreeReaderValue<int> nvtx         (myReader,"nvtx");
+
+  // general info
+  TTreeReaderValue<unsigned int> run          (myReader,"run");
+  TTreeReaderValue<unsigned int> nvtx         (myReader,"nvtx");
   TTreeReaderValue<double> xsec      (myReader,"xsec");
   TTreeReaderValue<double> wgt       (myReader,"wgt");
   TTreeReaderValue<double> wgtsum    (myReader,"wgtsum");
   TTreeReaderValue<double> wgtpileup (myReader,"wgtpileup");
   TTreeReaderValue<double> wgtbtag   (myReader,"wgtbtag");
   
-  TTreeReaderValue<bool> hltm (myReader,"hltmet90");
-  TTreeReaderValue<bool> hlte (myReader,"hltsingleel");
-  TTreeReaderValue<bool> hltp (myReader,"hltphoton165");
-  TTreeReaderValue<bool> hltp2 (myReader,"hltphoton175");
-  TTreeReaderValue<bool> fhbhe (myReader,"flaghbheloose");
-  TTreeReaderValue<bool> fhbiso (myReader,"flaghbheiso");
+  // trigger
+  TTreeReaderValue<UChar_t> hltm (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hlte (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltp (myReader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp2 (myReader,"hltphoton175");
+  TTreeReaderValue<UChar_t> fhbhe (myReader,"flaghbheloose");
+  TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   
   std::string cscname;
   std::string feebname;
@@ -86,18 +93,25 @@ void makehist4(TTree* tree, /*input tree*/
     feebname = "flageescnew";
   }
   
-  TTreeReaderValue<bool> fcsc (myReader,cscname.c_str());
-  TTreeReaderValue<bool> feeb (myReader,feebname.c_str());
+  TTreeReaderValue<UChar_t> fcsc (myReader,cscname.c_str());
+  TTreeReaderValue<UChar_t> feeb (myReader,feebname.c_str());
   
-  TTreeReaderValue<int>    njets  (myReader,"njets");
-  TTreeReaderValue<int>    nbjets (myReader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int>    njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int>    nbjets (myReader,"nbjetslowpt");
   TTreeReaderValue<double> j1pt   (myReader,"leadingjetpt");
   
   TTreeReaderValue<std::vector<double> > jetpt  (myReader,"centraljetpt");
   TTreeReaderValue<std::vector<double> > chfrac (myReader,"centraljetCHfrac");
   TTreeReaderValue<std::vector<double> > nhfrac (myReader,"centraljetNHfrac");
   TTreeReaderValue<std::vector<double> > emfrac (myReader,"centraljetEMfrac");
-  
+
+  // AK8 jet
+  TTreeReaderValue<std::vector<double> > boostedJetpt    (myReader,"boostedJetpt");
+  TTreeReaderValue<std::vector<double> > prunedJetm      (myReader,"prunedJetm");
+  TTreeReaderValue<std::vector<double> > boostedJettau2  (myReader,"boostedJettau2");
+  TTreeReaderValue<std::vector<double> > boostedJettau1  (myReader,"boostedJettau1");
+
+  // met
   TTreeReaderValue<double> met (myReader,"t1pfmet");
   TTreeReaderValue<double> metphi (myReader,"t1pfmetphi");
   
@@ -110,10 +124,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> pmet (myReader,"t1phmet");
   TTreeReaderValue<double> pmetphi (myReader,"t1phmetphi");
   
+  // dphi
   TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
   TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
   TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
-  
+
   TTreeReaderValue<int> mu1pid (myReader,"mu1pid");
   TTreeReaderValue<int> mu2pid (myReader,"mu2pid");
   TTreeReaderValue<int> mu1id (myReader,"mu1id");
@@ -141,16 +156,14 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> wzpt (myReader,"wzpt");
   TTreeReaderValue<double> wzeta (myReader,"wzeta");
   TTreeReaderValue<double> zmass (myReader,"zmass");
-  TTreeReaderValue<double> zpt (myReader,"zpt");
-  TTreeReaderValue<double> zmmpt (myReader,"zmmpt");
-  TTreeReaderValue<double> zeept (myReader,"zeept");
-  TTreeReaderValue<double> zeta (myReader,"zeta");
+  TTreeReaderValue<double> zmmpt (myReader,"zpt");
+  TTreeReaderArray<double> zeept (myReader,"zeept.zeeept");
   TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
-  TTreeReaderValue<double> zmmeta (myReader,"zmmeta");
+  TTreeReaderValue<double> zmmeta (myReader,"zeta");
 
   // loop on events
   while(myReader.Next()){
-    
+
     // check trigger
     Double_t hlt = 0.0;
     if (sample == 0 || sample == 1 || sample == 2) 
@@ -164,7 +177,7 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == 5 || sample == 6) && *hltp2 > 0)      
       hlt = *hltp2;
     
-      // check dphi jet-met
+    // check dphi jet-met
     Double_t jmdphi = 0.0;
     if (sample == 0 || sample == 1 || sample == 2) 
       jmdphi = fabs(*jmmdphi);
@@ -179,19 +192,18 @@ void makehist4(TTree* tree, /*input tree*/
       met = *mmet;
     else if (sample == 3 || sample == 4)                
       met = *emet;
-      else if (sample == 5 || sample == 6)                
-	met = *pmet;
+    else if (sample == 5 || sample == 6)                
+      met = *pmet;
     
     // set zpt in case of Zsamples
     Double_t zpt = 0.0;
     if (sample == 1) 
       zpt = *zmmpt;
     else if (sample == 3) 
-      zpt = *zeept;
+      zpt = zeept[0];
     else if (sample == 5) 
       zpt = *phpt;
-    
-    
+
     // set lepton info
     Int_t    id1   = 0;
     Int_t    id2   = 0;
@@ -228,7 +240,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (pt2 >= 1000.) 
       pt2 = 999.0;
 
-      // scale factor for leptons
+    // scale factor for leptons
     TH2* sflhist = NULL;
     TH2* sfthist = NULL;
     
@@ -258,7 +270,7 @@ void makehist4(TTree* tree, /*input tree*/
       if (pt1 > 0. && id1 == 1) {
 	sfwgt *= trehist->GetBinContent(trehist->FindBin(pt1, eta1));
       }
-      }
+    }
     // photon id scale factor
     if (isMC && psfhist && (sample == 5 || sample == 6)) {
       if (pt1 > 0. && id1 == 1) {
@@ -275,8 +287,8 @@ void makehist4(TTree* tree, /*input tree*/
     if (isMC && trmhist && (sample == 0 || sample == 1 || sample == 2)) {
       sfwgt *= trmhist->GetBinContent(trmhist->FindBin(met));
     }
-    
-      // Gen level info --> NLO re-weight
+
+    // Gen level info --> NLO re-weight
     Double_t kvar = *wzpt;
     if (*wzpt < 100. ) 
       *wzpt = 100.;
@@ -291,10 +303,11 @@ void makehist4(TTree* tree, /*input tree*/
       for (unsigned i = 0; i < khists.size(); i++) {
 	if (isMC && khists[i]) kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
       }
-      
-      // selections
+     
+      // common selections
       if (hlt  == 0) continue; // trigger
-      if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue; // met filters
+      //      if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue; // met filters
+      if (chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue;
       if (chfrac->at(0) < 0.1) continue; // jet id
       if (nhfrac->at(0) > 0.8) continue; // jet id
       if (*njets  < 1) continue; //Njets > 1
@@ -302,13 +315,52 @@ void makehist4(TTree* tree, /*input tree*/
       if (jetpt->at(0)  < 100.) continue; // jet1 > 100 GeV
       if (jetpt->at(0)  < *j1pt) continue;
       if (jmdphi < 0.5) continue; // deltaPhi cut
+
+      // control regions with leptons or photons
       if (sample == 1 && *mu1pid == *mu2pid) continue;
       if (sample == 3 && *el1pid == *el2pid) continue;
       if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
       if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
       if (sample == 4 && met < 50.) continue;
+
       if (met < 200.) continue;
 
+      if(category != 0){
+	
+	// boosted category and monojet
+	// So far MonoJet = jet pt < 200 + jetPt > 200 && pruned mass < 40
+	bool goodMonoJet = false;
+	bool goodMonoV   = false;
+
+	if(category == 1){
+	  if(boostedJetpt->size()  == 0)
+	    goodMonoJet = true;
+	  if(boostedJetpt->size() > 0){
+	    if(boostedJetpt->at(0) < 200)
+	      goodMonoJet = true;
+	    else{
+	      if(prunedJetm->at(0)   < 40)
+		goodMonoJet= true;
+	    }
+	  }
+	}
+
+	if(category == 1 and not goodMonoJet) continue;
+
+	if(category == 2){
+	  
+	  if(boostedJetpt->size()  > 0){
+	    if(boostedJetpt->at(0) > 200){
+	      if(sample <= 6 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.45)
+		goodMonoV   = true;
+	      if(sample >= 7 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65) and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.45)
+		goodMonoV   = true;
+	    }
+	  }	  
+	}	      
+      
+	if(category == 2 and not goodMonoV) continue;
+      }
       // fill met histogram
       double fillvar = met;
       if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
@@ -316,24 +368,24 @@ void makehist4(TTree* tree, /*input tree*/
       
       // total event weight
       double evtwgt = 1.0;
+      Double_t puwgt = 0.;
       if (isMC and not reweightNVTX) 
 	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       else if (isMC and reweightNVTX){
-	Double_t puwgt = 0.;
-        if (*nvtx <= 35) 
+	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
 	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*sfwgt*rwgt*kwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
-
+      
       hist->Fill(fillvar, evtwgt);
-    }
-    
-    sffile  ->Close();
-    psffile ->Close();
-    trefile ->Close();
-    
+  }
+  
+  sffile  ->Close();
+  psffile ->Close();
+  trefile ->Close();
+  
 }
 
 #endif
