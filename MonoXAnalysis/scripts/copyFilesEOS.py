@@ -1,4 +1,6 @@
 #python ../../scripts/copyFilesEOS.py --inputDIR /store/user/rgerosa/MONOJET_ANALYSIS/Production-14-11-2016/PhotonJets/Jets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8 --outputDIR /home/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/PhotonJets/
+
+# file rename: ls | grep root | awk '{print "mv "$1"  "$1}' | sed 's/ScalarWH/MonoW_Scalar/2' | /bin/sh
 import os
 import glob
 import math

@@ -1,3 +1,4 @@
+//monoV_signalAnalysis("/store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/",1,"Pseudoscalar","Plots_MonoW_Pseudoscalar")
 #include <iostream>
 #include <vector>
 #include <string>
@@ -19,7 +20,11 @@
 using namespace std;
 
 vector<string> Mphi = {"100","200","500","1000"};
+//vector<string> Mphi = {"100","200","500","2000"};
+//vector<string> Mphi = {"100","1000"};
+
 vector<string> Mchi = {"1","1","1","1","1"};
+//vector<string> Mchi = {"50","50"};
 
 vector<pair<string,string> > selectionsSig;
 vector<pair<string,string> > selectionsWmn;
@@ -31,7 +36,7 @@ void makeEfficiencyPlots(TCanvas* cCanvas, unordered_map<string,TH1F*> eff_sig, 
 			 TLegend* legend, string outputDirectory, string plotName, bool isRelative);
 void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList, TLegend* legend, string outputDirectory, string plotName, string xAxisTile);
   		       		 
-void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionModel, string outputDirectory){
+void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionModel, string generator, string outputDirectory){
 
   gROOT->SetBatch(1);
 
@@ -87,7 +92,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   selectionsZee.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
   selectionsZee.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
   selectionsZee.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
-  selectionsZee.push_back(make_pair("lepcharge","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200 && el1pid != el2pid"));
+  selectionsZee.push_back(make_pair("lepcharge","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1elmet > 200 && el1pid != el2pid"));
 
   // take input files
   string bosonMode;
@@ -101,7 +106,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   vector<TTree*> treeMonoV;  
     
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-    fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+    fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
     if(fileMonoV.back() and not fileMonoV.back()->IsZombie()){
       treeMonoV.push_back((TTree*) fileMonoV.back()->Get("tree/tree"));
     }
@@ -113,7 +118,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   vector<TTree*> treeMonoV_Sig;  
     
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-    fileMonoV_Sig.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/sig_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+    fileMonoV_Sig.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/sig_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
     if(fileMonoV_Sig.back() and not fileMonoV_Sig.back()->IsZombie())
       treeMonoV_Sig.push_back((TTree*) fileMonoV_Sig.back()->Get("tree/tree"));
   }
@@ -128,13 +133,13 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 
     //"nmuons == 1 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && mu1pt > 20 && mu1id >= 1"
     for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/wmnfilter/wmn_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/wmnfilter/wmn_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
       if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
 	treeMonoV_CRm.push_back((TTree*) fileMonoV_CRm.back()->Get("tree/tree"));      
     }
 
     for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/wenfilter/wen_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/wenfilter/wen_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
       if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
 	treeMonoV_CRe.push_back((TTree*) fileMonoV_CRe.back()->Get("tree/tree"));
     }
@@ -144,13 +149,13 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 
     //"nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1"
     for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zmmfilter/zmm_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zmmfilter/zmm_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
       if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
 	treeMonoV_CRm.push_back((TTree*) fileMonoV_CRm.back()->Get("tree/tree"));
     }
 
     for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zeefilter/zee_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zeefilter/zee_tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
       if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
 	treeMonoV_CRe.push_back((TTree*) fileMonoV_CRe.back()->Get("tree/tree"));
     }
@@ -172,19 +177,19 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
 
-    // declare histograms for efficiency
+    ////////// declare histograms for efficiency ////////
     eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = new TH1F(("eff_sig_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);
 
     eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
 
 
     eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = new TH1F(("eff_sig_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);
 
     eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
 
-
+    /////////////////////
     if(isW){
       temp_CRm = new TH1F(("eff_wmn_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWmn.size()+1,0,selectionsWmn.size()+1);
       temp_CRe = new TH1F(("eff_wen_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWen.size()+1,0,selectionsWen.size()+1);
@@ -209,16 +214,16 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
     
     // set first bin    
     eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
     
     eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
 
     eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
     
     eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-    eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"object veto");
+    eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
     
     // apply signal selections
     int iselection = 1;
@@ -227,7 +232,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
       eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
       eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
-      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries()*eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1)));
+      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
       eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
     }
     
@@ -238,7 +243,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
 	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
-	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries()*eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1)));
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
 	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
       }
      
@@ -248,7 +253,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
 	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
-	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries()*eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1)));
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
 	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
       }      
     }
@@ -260,7 +265,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
 	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
-	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries()*eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1)));
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
 	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
       }
@@ -271,7 +276,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
 	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
 
-	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries()*eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1)));
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
 	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
       }      
     }    
@@ -292,7 +297,6 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   cCanvas->SetRightMargin(0.05);
   cCanvas->SetBottomMargin(0.12);
   cCanvas->SetFrameBorderMode(0);
-
 
   TLegend* legend = new TLegend(0.25,0.68,0.7,0.89);
   legend->SetBorderSize(0);
@@ -321,17 +325,19 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   vector<TH1F*> leadingSoftDropJetm;
   vector<TH1F*> leadingSoftDropJetptraw;
   vector<TH1F*> leadingSoftDropJetmraw;
-
   vector<TH1F*> dRGenJet;
   vector<TH1F*> dRVboson;
-
+  vector<TH1F*> subjetPtRatio;
   vector<TH1F*> responseLeadJetPt;
   vector<TH1F*> responseLeadPrunedJetMass;
   vector<TH1F*> responseLeadPrunedJetMassRaw;
   vector<TH1F*> responseLeadSoftDropJetMass;
   vector<TH1F*> responseLeadSoftDropJetMassRaw;
-
   vector<TH1F*> boostedNJet;
+  vector<TH1F*> subjetPtRatio_pr;
+  vector<TH1F*> responseLeadPrunedJetMass_pr;
+  vector<TH1F*> responseLeadPrunedJetMassRaw_pr;
+  vector<TH1F*> leadingJetTau2Tau1_pr;
   
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
     string cut;
@@ -346,7 +352,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
     leadingJetEta.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetEta").c_str(),"",20,-2.5,2.5));
     treeMonoV_Sig.at(iMass)->Draw(("boostedJeteta[0] >> "+string(leadingJetEta.back()->GetName())).c_str(),cut.c_str(),"goff");
 
-    leadingJetTau2tau1.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2tau1").c_str(),"",25,0,1));
+    leadingJetTau2tau1.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2tau1").c_str(),"",20,0,1));
     treeMonoV_Sig.at(iMass)->Draw(("boostedJettau2[0]/boostedJettau1[0] >> "+string(leadingJetTau2tau1.back()->GetName())).c_str(),cut.c_str(),"goff");
 
     leadingPrunedJetpt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingPrunedJetpt").c_str(),"",30,150,650));
@@ -398,21 +404,40 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
     dRVboson.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_dRVboson").c_str(),"",50,0,0.8));
     treeMonoV_Sig.at(iMass)->Draw(("sqrt((boostedJeteta[0]-boostedJetBosoneta[0])*(boostedJeteta[0]-boostedJetBosoneta[0]) + (boostedJetphi[0]-boostedJetBosonphi[0])*(boostedJetphi[0]-boostedJetBosonphi[0])) >> "+string(dRVboson.back()->GetName())).c_str(),cut.c_str(),"goff");    
 
-    responseLeadJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadJetPt").c_str(),"",30,-0.3,0.3));
-    treeMonoV_Sig.at(iMass)->Draw(("(boostedJetpt[0]-boostedJetGenpt[0])/boostedJetpt[0] >> "+string(responseLeadJetPt.back()->GetName())).c_str(),cut.c_str(),"goff");    
+    responseLeadJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadJetPt").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("boostedJetpt[0]/boostedJetGenpt[0] >> "+string(responseLeadJetPt.back()->GetName())).c_str(),cut.c_str(),"goff");    
 
-    responseLeadPrunedJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMass").c_str(),"",30,-0.3,0.3));
-    treeMonoV_Sig.at(iMass)->Draw(("(prunedJetm[0]-prunedJetGenm[0])/prunedJetm[0] >> "+string(responseLeadPrunedJetMass.back()->GetName())).c_str(),cut.c_str(),"goff");    
+    responseLeadPrunedJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMass").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("prunedJetm[0]/prunedJetGenm[0] >> "+string(responseLeadPrunedJetMass.back()->GetName())).c_str(),cut.c_str(),"goff");    
 
-    responseLeadPrunedJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMassRaw").c_str(),"",30,-0.3,0.3));
-    treeMonoV_Sig.at(iMass)->Draw(("(prunedJetmraw[0]-prunedJetGenm[0])/prunedJetmraw[0] >> "+string(responseLeadPrunedJetMassRaw.back()->GetName())).c_str(),cut.c_str(),"goff");    
+    responseLeadPrunedJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMassRaw").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("(prunedJetmraw[0]/prunedJetGenm[0]) >> "+string(responseLeadPrunedJetMassRaw.back()->GetName())).c_str(),cut.c_str(),"goff");    
 
 
-    responseLeadSoftDropJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMass").c_str(),"",30,-0.3,0.3));
-    treeMonoV_Sig.at(iMass)->Draw(("(softDropJetm[0]-softDropJetGenm[0])/softDropJetm[0] >> "+string(responseLeadSoftDropJetMass.back()->GetName())).c_str(),cut.c_str(),"goff");    
+    responseLeadSoftDropJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMass").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("(softDropJetm[0]/softDropJetGenm[0]) >> "+string(responseLeadSoftDropJetMass.back()->GetName())).c_str(),cut.c_str(),"goff");    
 
-    responseLeadSoftDropJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMassRaw").c_str(),"",30,-0.3,0.3));
-    treeMonoV_Sig.at(iMass)->Draw(("(softDropJetmraw[0]-softDropJetGenm[0])/softDropJetmraw[0] >> "+string(responseLeadSoftDropJetMassRaw.back()->GetName())).c_str(),cut.c_str(),"goff");    
+    responseLeadSoftDropJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMassRaw").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("(softDropJetmraw[0]/softDropJetGenm[0]) >> "+string(responseLeadSoftDropJetMassRaw.back()->GetName())).c_str(),cut.c_str(),"goff");    
+
+    subjetPtRatio.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_subjetPtRatio").c_str(),"",30,0,2));
+    treeMonoV_Sig.at(iMass)->Draw(("(prunedSubJetpt_2[0]/prunedSubJetpt_1[0]) >> "+string(subjetPtRatio.back()->GetName())).c_str(),cut.c_str(),"goff");
+
+    //
+    string cut_pr = cut + " && prunedJetm[0] > 65 && prunedJetm[0] < 105";
+
+    responseLeadPrunedJetMass_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMass_pr").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("(prunedJetm[0]/prunedJetGenm[0]) >> "+string(responseLeadPrunedJetMass_pr.back()->GetName())).c_str(),cut_pr.c_str(),"goff");    
+
+    responseLeadPrunedJetMassRaw_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMassRaw_pr").c_str(),"",30,0.5,1.5));
+    treeMonoV_Sig.at(iMass)->Draw(("(prunedJetmraw[0]/prunedJetGenm[0]) >> "+string(responseLeadPrunedJetMassRaw_pr.back()->GetName())).c_str(),cut_pr.c_str(),"goff");    
+
+    subjetPtRatio_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_subjetPtRatio_PR").c_str(),"",30,0,2));
+    treeMonoV_Sig.at(iMass)->Draw(("(prunedSubJetpt_2[0]/prunedSubJetpt_1[0]) >> "+string(subjetPtRatio_pr.back()->GetName())).c_str(),cut_pr.c_str(),"goff");
+
+    leadingJetTau2Tau1_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2Tau1_pr").c_str(),"",20,0,1));
+    treeMonoV_Sig.at(iMass)->Draw(("boostedJettau2[0]/boostedJettau1[0] >> "+string(leadingJetTau2Tau1_pr.back()->GetName())).c_str(),cut_pr.c_str(),"goff");    
+
 
   }
 
@@ -431,12 +456,18 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   makeShapePlots(cCanvas,boostedNJet,legend,outputDirectory,"NJet","N_{jet}^{AK8} (GeV)");
   makeShapePlots(cCanvas,dRGenJet,legend,outputDirectory,"dRGenJet","#DeltaR(reco,gen)");
   makeShapePlots(cCanvas,dRVboson,legend,outputDirectory,"dRVboson","#DeltaR(reco,V)");
+  makeShapePlots(cCanvas,subjetPtRatio,legend,outputDirectory,"SubJetPtRatio","#Pt ratio");
 
-  makeShapePlots(cCanvas,responseLeadJetPt,legend,outputDirectory,"ResponsePt","(p_{T}^{reco}-p_{T}^{gen})/p_{T}^{reco} (GeV)");
-  makeShapePlots(cCanvas,responseLeadPrunedJetMass,legend,outputDirectory,"ResponsePrunedJetMass","(m_{pr}^{reco}-m_{pr}^{gen})/m_{pr}^{reco} (GeV)");
-  makeShapePlots(cCanvas,responseLeadPrunedJetMassRaw,legend,outputDirectory,"ResponsePrunedJetMassRaw","(m_{pr}^{reco}-m_{pr}^{gen})/m_{pr}^{reco} raw (GeV)");
-  makeShapePlots(cCanvas,responseLeadSoftDropJetMass,legend,outputDirectory,"ResponseSoftDropJetMass","(m_{sd}^{reco}-m_{sd}^{gen})/m_{sd}^{reco} (GeV)");
-  makeShapePlots(cCanvas,responseLeadSoftDropJetMassRaw,legend,outputDirectory,"ResponseSoftDropJetMassRaw","(m_{sd}^{reco}-m_{sd}^{gen})/m_{sd}^{reco} raw (GeV)");
+  makeShapePlots(cCanvas,responseLeadJetPt,legend,outputDirectory,"ResponsePt","p_{T}^{reco}-p_{T}^{gen} (GeV)");
+  makeShapePlots(cCanvas,responseLeadPrunedJetMass,legend,outputDirectory,"ResponsePrunedJetMass","m_{pr}^{reco}-m_{pr}^{gen} (GeV)");
+  makeShapePlots(cCanvas,responseLeadPrunedJetMassRaw,legend,outputDirectory,"ResponsePrunedJetMassRaw","m_{pr}^{reco}-m_{pr}^{gen} raw (GeV)");
+  makeShapePlots(cCanvas,responseLeadSoftDropJetMass,legend,outputDirectory,"ResponseSoftDropJetMass","m_{sd}^{reco}-m_{sd}^{gen} (GeV)");
+  makeShapePlots(cCanvas,responseLeadSoftDropJetMassRaw,legend,outputDirectory,"ResponseSoftDropJetMassRaw","m_{sd}^{reco}-m_{sd}^{gen} raw (GeV)");
+
+  makeShapePlots(cCanvas,responseLeadPrunedJetMass_pr,legend,outputDirectory,"ResponsePrunedJetMass_pr","m_{pr}^{reco}-m_{pr}^{gen} (GeV)");
+  makeShapePlots(cCanvas,responseLeadPrunedJetMassRaw_pr,legend,outputDirectory,"ResponsePrunedJetMassRaw_pr","m_{pr}^{reco}-m_{pr}^{gen} raw (GeV)");
+  makeShapePlots(cCanvas,subjetPtRatio_pr,legend,outputDirectory,"SubJetPtRatio_pr","p_{T} ratio");
+  makeShapePlots(cCanvas,leadingJetTau2Tau1_pr,legend,outputDirectory,"jetTau2tau1_pr","#tau_{2}/#tau_{1}");
 
   return;
 
