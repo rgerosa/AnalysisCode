@@ -1,18 +1,27 @@
 #include "makehist.h"
 
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  std::string  kFactorFile) {
+void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  std::string  kFactorFile, int category, std::string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
   TFile* dfile  = TFile::Open(zmumuFile.c_str());
 
-  TTree* ntree = (TTree*) nfile->Get("tree");
-  TTree* dtree = (TTree*) dfile->Get("tree");
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F nhist("nhist", "", nrbins, rbins);
-  TH1F dhist("dhist", "", nrbins, rbins);
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
 
   // k-factors file from generator lebel                                                                                                                                       
   TFile kffile(kFactorFile.c_str());
@@ -28,18 +37,19 @@ void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  st
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
 
-  // loop over ntree and dtree events isMC=true, sample 0 == Znunu, sample 1 == Zmumu,                                                                                          
-  makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-  makehist4(dtree, &dhist,  true, 1, 1.00, zhists, NULL);
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  makehist4(dtree, dhist,  true, 1, category, true, 1.00, zhists, NULL);
 
-  string name = string("zmmcor");
+  string name = string("zmmcor")+ext;
+
   // divide the two                                                                                                                                                          
-  nhist.Divide(&dhist);
+  nhist->Divide(dhist);
 
   // create output file                                                                                                                                                        
   TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist.SetName((name+"hist" ).c_str());
-  nhist.Write();
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
   outfile.Close();
 
   nfile->Close();
@@ -50,58 +60,78 @@ void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  st
 
 
 // make histograms for Z->ee to signal region correction                                                                                                                       
-void makezeecorhist( std::string  signalRegionFile,  std::string  zeeFile,  std::string  kFactorFile) {
+void makezeecorhist( std::string  signalRegionFile,  std::string  zeeFile,  std::string  kFactorFile, int category, std::string ext = "") {
   
    TFile*  nfile = TFile::Open(signalRegionFile.c_str());
    TFile*  dfile = TFile::Open(zeeFile.c_str());
 
-   TTree* ntree = (TTree*)nfile->Get("tree");
-   TTree* dtree = (TTree*)dfile->Get("tree");
+   TTree* ntree = (TTree*)nfile->Get("tree/tree");
+   TTree* dtree = (TTree*)dfile->Get("tree/tree");
 
-   TH1F nhist("nhist", "", nrbins, rbins);
-   TH1F dhist("dhist", "", nrbins, rbins);
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
 
-   TFile kffile(kFactorFile.c_str());
-   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
-   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
-   TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
 
-   znlohist->Divide(zlohist);
+  TFile kffile(kFactorFile.c_str());
+  TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
+  TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
+  TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
+  
+  znlohist->Divide(zlohist);
+  
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+  zhists.push_back(znlohist);
+  zhists.push_back(zewkhist);
+  
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  // sample = 3 means di-electron                                                                                                                                              
+  makehist4(ntree, dhist,  true, 3, category, true, 1.00, zhists, NULL);
 
-   vector<TH1*> ehists;
-   vector<TH1*> zhists;
-   zhists.push_back(znlohist);
-   zhists.push_back(zewkhist);
-
-   makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-   // sample = 3 means Zee                                                                                                                                                     
-   makehist4(dtree, &dhist,  true, 3, 1.00, zhists, NULL);
-
-   string name = string("zeecor");
-
-   nhist.Divide(&dhist);
-   TFile outfile((name+".root").c_str(), "RECREATE");
-   nhist.SetName((name+"hist" ).c_str());
-   nhist.Write();
-   outfile.Close();
-
-   nfile->Close();
-   dfile->Close();
-
-   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
+  string name = string("zeecor")+ext;
+  
+  nhist->Divide(dhist);
+  TFile outfile((name+".root").c_str(), "RECREATE");
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
+  outfile.Close();
+  
+  nfile->Close();
+  dfile->Close();
+  
+  cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
 
 // make histograms for W->munu to signal region correction                                                                                                                     
-void makewmncorhist( std::string  signalRegionFile,  std::string  wmunuFile,  std::string  kFactorFile) {
+void makewmncorhist( std::string  signalRegionFile,  std::string  wmunuFile,  std::string  kFactorFile, int category, std::string ext = "") {
 
   TFile*  nfile = TFile::Open(signalRegionFile.c_str());
   TFile*  dfile = TFile::Open(wmunuFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree");
-  TTree* dtree = (TTree*)dfile->Get("tree");
+  TTree* ntree = (TTree*)nfile->Get("tree/tree");
+  TTree* dtree = (TTree*)dfile->Get("tree/tree");
 
-  TH1F nhist("nhist", "", nrbins, rbins);
-  TH1F dhist("dhist", "", nrbins, rbins);
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
 
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
@@ -115,16 +145,17 @@ void makewmncorhist( std::string  signalRegionFile,  std::string  wmunuFile,  st
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
 
-  makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-  // sample = 2 means Wmunu                                                                                                                                                    
-  makehist4(dtree, &dhist,  true, 2, 1.00, zhists, NULL);
 
-  string name = string("wmncor");
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  // sample = 2 means single mu                                                                                                                                            
+  makehist4(ntree, dhist,  true, 2, category, true, 1.00, zhists, NULL);
 
-  nhist.Divide(&dhist);
+  string name = string("wmncor")+ext;
+
+  nhist->Divide(dhist);
   TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist.SetName((name+"hist" ).c_str());
-  nhist.Write();
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
   outfile.Close();
 
   nfile->Close();
@@ -133,17 +164,84 @@ void makewmncorhist( std::string  signalRegionFile,  std::string  wmunuFile,  st
   cout << "W(munu)->W+jets transfer factor computed ..." << endl;
 }
 
+
+// make histograms for W->munu to signal region correction                                                                                                                     
+void makewencorhist( std::string  signalRegionFile,  std::string  wmunuFile,  std::string  kFactorFile, int category,std::string ext = "") {
+
+  TFile*  nfile = TFile::Open(signalRegionFile.c_str());
+  TFile*  dfile = TFile::Open(wmunuFile.c_str());
+
+  TTree* ntree = (TTree*)nfile->Get("tree/tree");
+  TTree* dtree = (TTree*)dfile->Get("tree/tree");
+
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
+
+  TFile kffile(kFactorFile.c_str());
+  TH1* znlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
+  TH1*  zlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
+  TH1* zewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+
+  znlohist->Divide(zlohist);
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+  zhists.push_back(znlohist);
+  zhists.push_back(zewkhist);
+
+
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  // sample = 4 means single ele                                                                                                                                            
+  makehist4(ntree, dhist,  true, 4, category, true, 1.00, zhists, NULL);
+
+  string name = string("wencor")+ext;
+
+  nhist->Divide(dhist);
+  TFile outfile((name+".root").c_str(), "RECREATE");
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
+  outfile.Close();
+
+  nfile->Close();
+  dfile->Close();
+
+  cout << "W(enu)->W+jets transfer factor computed ..." << endl;
+}
+
+
+
 // make ratio between Z->nunu and W->munu in the signal region                                                                                                                 
-void makewzmcorhist( std::string  znunuFile,  std::string  wmunuFile,  std::string  kFactorFile) {
+void makewzmcorhist( std::string  znunuFile,  std::string  wmunuFile,  std::string  kFactorFile, int category,std::string ext = "") {
 
   TFile*  nfile = TFile::Open(znunuFile.c_str());
   TFile*  dfile = TFile::Open(wmunuFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree");
-  TTree* dtree = (TTree*)dfile->Get("tree");
+  TTree* ntree = (TTree*)nfile->Get("tree/tree");
+  TTree* dtree = (TTree*)dfile->Get("tree/tree");
 
-  TH1F nhist("nhist", "", nrbins, rbins);
-  TH1F dhist("dhist", "", nrbins, rbins);
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
+
 
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
@@ -164,16 +262,15 @@ void makewzmcorhist( std::string  znunuFile,  std::string  wmunuFile,  std::stri
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
-  // sample 0 means Znunu                                                                                                                                                      
-  makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-  // sample 2 means Wmunu                                                                                                                                                      
-  makehist4(dtree, &dhist,  true, 2, 1.00, whists, NULL);
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  // sample = 2 single mu                                                                                                                                                    
+  makehist4(ntree, dhist,  true, 2, category, true, 1.00, zhists, NULL);
 
-  string name = string("wzmcor");
-  nhist.Divide(&dhist);
+  string name = string("wzmcor")+ext;
+  nhist->Divide(dhist);
   TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist.SetName((name+"hist" ).c_str());
-  nhist.Write();
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
   outfile.Close();
 
   nfile->Close();
@@ -184,16 +281,27 @@ void makewzmcorhist( std::string  znunuFile,  std::string  wmunuFile,  std::stri
 
 
 // W+jets to Znunu correction factor in the signal region                                                                                                                      
-void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::string  kFactorFile,string ext="", int kfact=0) {
+void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::string  kFactorFile, int category, string ext="", int kfact=0) {
 
   TFile*  nfile =  TFile::Open(znunuFile.c_str());
   TFile*  dfile =  TFile::Open(wlnuFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree");
-  TTree* dtree = (TTree*)dfile->Get("tree");
+  TTree* ntree = (TTree*)nfile->Get("tree/tree");
+  TTree* dtree = (TTree*)dfile->Get("tree/tree");
 
-  TH1F nhist("nhist", "", nrbins, rbins);
-  TH1F dhist("dhist", "", nrbins, rbins);
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
+
 
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
@@ -215,61 +323,54 @@ void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::strin
   // nlo correction for the PDF                                                                                                                                                
   zpdfhist->Divide(znlohist);
   wpdfhist->Divide(wnlohist);
-
-  // Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                             
+  // Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                          
   re1hist->Divide(nomhist);
-  // Z/W NLO QCD re EWK up / Z/W NLO QCD                                                                                                                                         
+  // Z/W NLO QCD re EWK up / Z/W NLO QCD                                                                                                                                       
   re2hist->Divide(nomhist);
-  // Z/W NLO QCD fac  up / Z/W NLO QCD                                                                                                                                           
+  // Z/W NLO QCD fac  up / Z/W NLO QCD                                                                                                                                         
   fa1hist->Divide(nomhist);
-  // Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                        
+  // Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                       
   fa2hist->Divide(nomhist);
 
-  // central value                                                                                                                                                               
+  // central value                                                                                                                                                              
   znlohist->Divide(zlohist);
   wnlohist->Divide(wlohist);
 
   vector<TH1*> zhists;
   vector<TH1*> whists;
 
-  //kfact == 1 --> Znunu corrected for by NLO QCD, Wlnu by NLO QCD                                                                                                               
+  //kfact == 1 --> Znunu corrected for by NLO QCD, Wlnu by NLO QCD                                                                                                              
   if (kfact == 1) zhists.push_back(znlohist);
   if (kfact == 1) whists.push_back(wnlohist);
-
-  //kfact == 2 --> Znunu corrected for by NLO QCD+EWK, Wlnu by NLO QCD+EWK                                                                                                       
+  //kfact == 2 --> Znunu corrected for by NLO QCD+EWK, Wlnu by NLO QCD+EWK                                                                                                      
   if (kfact == 2) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
   if (kfact == 2) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
-
-  //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                         
+  //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
   if (kfact == 3) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
   if (kfact == 3) whists.push_back(wnlohist);
-
-  //kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                         
+  //kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                        
   if (kfact == 4) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
   if (kfact == 4) whists.push_back(wnlohist);
-
-  //kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                         
+  //kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                        
   if (kfact == 5) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
   if (kfact == 5) whists.push_back(wnlohist);
-
-  //kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                         
+  //kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                        
   if (kfact == 6) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
   if (kfact == 6) whists.push_back(wnlohist);
-
-  //kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                               
+  //kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                              
   if (kfact == 7) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
   if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
 
-  // sample = 0 means signal region cuts                                                                                                                                         
-  makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-  makehist4(dtree, &dhist,  true, 0, 1.00, whists, NULL);
+  // sample = 0 means signal region cuts                                                                                                                                        
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  makehist4(ntree, dhist,  true, 0, category, true, 1.00, zhists, NULL);
 
   string name = string("zwjcor")+ext;
 
-  nhist.Divide(&dhist);
+  nhist->Divide(dhist);
   TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist.SetName((name+"hist" ).c_str());
-  nhist.Write();
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
   outfile.Close();
 
   nfile->Close();
@@ -281,16 +382,26 @@ void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::strin
 
 
 // Photon+jets / Znunu signal region                                                                                                                                            
-void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::string  kFactorFile,  std::string  fPfile, string ext="", int kfact=0) {
+void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::string  kFactorFile,  std::string  fPfile, int category, string ext="", int kfact=0) {
 
   TFile*  nfile = TFile::Open(znunuFile.c_str());
   TFile*  dfile = TFile::Open(photonFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree");
-  TTree* dtree = (TTree*)dfile->Get("tree");
+  TTree* ntree = (TTree*)nfile->Get("tree/tree");
+  TTree* dtree = (TTree*)dfile->Get("tree/tree");
 
-  TH1F nhist("nhist", "", nrbins, rbins);
-  TH1F dhist("dhist", "", nrbins, rbins);
+  // create histograms                                                                                                                                                         
+  TH1F* nhist = NULL;
+  TH1F* dhist = NULL;
+
+  if(category <=1){
+    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
+    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+  }
+  else{
+    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
+    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+  }
 
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
@@ -308,9 +419,10 @@ void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::str
   TH1* re2hist  = (TH1*)kffile.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
   TH1* fa1hist  = (TH1*)kffile.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
   TH1* fa2hist  = (TH1*)kffile.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
-
+  
   // ZNLO PDF UP / ZNLO                                                                                                                                                        
   zpdfhist->Divide(znlohist);
+
   // gamma NLO PDF UP / gamma NLO                                                                                                                                             
   apdfhist->Divide(anlohist);
   // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
@@ -363,16 +475,17 @@ void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::str
   if (kfact == 8) zhists.push_back(znlohist);
   if (kfact == 8) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
 
-  makehist4(ntree, &nhist,  true, 0, 1.00, zhists, NULL);
-  // sample 5 means gamma+jets                                                                                                                                                  
-  makehist4(dtree, &dhist,  true, 5, 1.00, ahists, NULL);
+  // sample = 0 means signal region cuts                                                                                                                                        
+  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
+  makehist4(ntree, dhist,  true, 5, category, true, 1.00, zhists, NULL);
+
 
   string name = string("gamcor")+ext;
   
-  nhist.Divide(&dhist);
+  nhist->Divide(dhist);
   TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist.SetName((name+"hist" ).c_str());
-  nhist.Write();
+  nhist->SetName((name+"hist" ).c_str());
+  nhist->Write();
   outfile.Close();
 
   nfile->Close();
@@ -381,6 +494,3 @@ void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::str
 
   cout << "gamma+jets->Z(inv) transfer factor computed ..." << endl;
 }
-
-
-
