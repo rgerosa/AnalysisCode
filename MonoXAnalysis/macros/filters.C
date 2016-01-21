@@ -402,7 +402,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
-    double wgtsum = sumwgt(intree);
+    wgtsum = sumwgt(intree);
     // caluclate puweight
     puRatio = pileupwgt(intree);
   }
@@ -496,7 +496,7 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
-    double wgtsum = sumwgt(intree);
+    wgtsum = sumwgt(intree);
     // caluclate puweight
     puRatio = pileupwgt(intree);
   }
@@ -589,7 +589,7 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
-    double wgtsum = sumwgt(intree);
+    wgtsum = sumwgt(intree);
     // caluclate puweight
     puRatio = pileupwgt(intree);
   }
@@ -681,7 +681,7 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
-    double wgtsum = sumwgt(intree);
+    wgtsum = sumwgt(intree);
     // caluclate puweight
     puRatio = pileupwgt(intree);
   }
@@ -771,7 +771,7 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
-    double wgtsum = sumwgt(intree);
+    wgtsum = sumwgt(intree);
     // caluclate puweight
     puRatio = pileupwgt(intree);
   }
