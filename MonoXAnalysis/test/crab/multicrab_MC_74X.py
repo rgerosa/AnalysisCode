@@ -38,7 +38,7 @@ config.JobType.numCores         = 1
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 15000
+config.Data.unitsPerJob   = 10000
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/MonoZ_Pseudoscalar/'
 config.Data.allowNonValidInputDataset = True
 
