@@ -436,9 +436,12 @@ void rtopmu(string fileName, string observable) {
     TFile* file = new TFile(fileName.c_str());
 
     TH1F*  hist = (TH1F*)file->Get(("topmucorhist_"+observable).c_str());
+    TH1F*  histbUp = (TH1F*)file->Get(("mubUp"));
+    TH1F*  histbDown = (TH1F*)file->Get(("mubDown"));
+
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 1.0, "");
+    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 0.25, "");
     frame->GetYaxis()->SetTitle("R_{top,#mu}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
@@ -461,7 +464,8 @@ void rtopmu(string fileName, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-        err += pow(hist->GetBinContent(i)*0.05,2);
+        err += pow(hist->GetBinContent(i)*0.02,2);
+        err += pow(fabs(histbUp->GetBinContent(i)+histbDown->GetBinContent(i))*hist->GetBinContent(i),2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -499,9 +503,11 @@ void rtopel(string fileName, string observable) {
     TFile* file = new TFile(fileName.c_str());
 
     TH1F*  hist = (TH1F*)file->Get(("topelcorhist_"+observable).c_str());
+    TH1F*  histbUp = (TH1F*)file->Get(("elbUp"));
+    TH1F*  histbDown = (TH1F*)file->Get(("elbDown"));
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 1., "");
+    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 0.25, "");
     frame->GetYaxis()->SetTitle("R_{top,el}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
@@ -524,7 +530,9 @@ void rtopel(string fileName, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-        err += pow(hist->GetBinContent(i)*0.05,2);
+        err += pow(hist->GetBinContent(i)*0.02,2);
+        err += pow(histbUp->GetBinContent(i)*hist->GetBinContent(i),2);
+        err += pow(histbDown->GetBinContent(i)*hist->GetBinContent(i),2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -586,7 +594,7 @@ void rsidebandZ(string fileName, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-        err += pow(hist->GetBinContent(i)*0.05,2);
+        err += pow(hist->GetBinContent(i)*0.10,2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -648,7 +656,7 @@ void rsidebandW(string fileName, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-        err += pow(hist->GetBinContent(i)*0.05,2);
+        err += pow(hist->GetBinContent(i)*0.10,2);
         ehist->SetBinError(i, sqrt(err));
     }
 

@@ -106,7 +106,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   vector<TTree*> treeMonoV;  
     
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-    fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
+    fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/tree_"+interactionModel+bosonMode+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_gSM-1p0_gDM-1p0_13TeV-"+generator+".root").c_str()));
     if(fileMonoV.back() and not fileMonoV.back()->IsZombie()){
       treeMonoV.push_back((TTree*) fileMonoV.back()->Get("tree/tree"));
     }
@@ -123,7 +123,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
       treeMonoV_Sig.push_back((TTree*) fileMonoV_Sig.back()->Get("tree/tree"));
   }
 
-  // start taking input files in the signal region
+  // start taking input files in the signal region  
   vector<TFile*> fileMonoV_CRm;  
   vector<TTree*> treeMonoV_CRm;  
   vector<TFile*> fileMonoV_CRe;  
@@ -224,7 +224,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
     
     eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
     eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-    
+
     // apply signal selections
     int iselection = 1;
     for(auto iSel = selectionsSig.begin(); iSel != selectionsSig.end(); iSel++){
@@ -235,7 +235,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
       eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
       eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
     }
-    
+
     if(isW){
       iselection = 1;
       for(auto iSel = selectionsWmn.begin(); iSel != selectionsWmn.end(); iSel++){
@@ -279,16 +279,15 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
 	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
       }      
-    }    
+    } 
   }
-
   // plotting efficiencies: signal region
   system(("mkdir "+outputDirectory).c_str());
   system(("mkdir "+outputDirectory+"/efficiency/").c_str());
   system(("mkdir "+outputDirectory+"/shapes/").c_str());
   TFile* outputEfficiency = new TFile((outputDirectory+"/efficiency.root").c_str(),"RECREATE");
   outputEfficiency->cd();
-
+  
   TCanvas *cCanvas = new TCanvas("cCanvas","",180,52,550,550);
   cCanvas->SetTicks();
   cCanvas->SetFillColor(0);
@@ -308,7 +307,6 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   makeEfficiencyPlots(cCanvas,eff_sig_relative,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency_rel",true);
   makeEfficiencyPlots(cCanvas,eff_CRm_relative,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency_rel",true);
   makeEfficiencyPlots(cCanvas,eff_CRe_relative,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency_rel",true);
-
   makeEfficiencyPlots(cCanvas,eff_sig,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency",false);
   makeEfficiencyPlots(cCanvas,eff_CRm,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency",false);
   makeEfficiencyPlots(cCanvas,eff_CRe,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency",false);
@@ -338,6 +336,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   vector<TH1F*> responseLeadPrunedJetMass_pr;
   vector<TH1F*> responseLeadPrunedJetMassRaw_pr;
   vector<TH1F*> leadingJetTau2Tau1_pr;
+  vector<TH1F*> leadingJetTau2Tau1_sb;
   
   for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
     string cut;
@@ -438,6 +437,11 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
     leadingJetTau2Tau1_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2Tau1_pr").c_str(),"",20,0,1));
     treeMonoV_Sig.at(iMass)->Draw(("boostedJettau2[0]/boostedJettau1[0] >> "+string(leadingJetTau2Tau1_pr.back()->GetName())).c_str(),cut_pr.c_str(),"goff");    
 
+    string cut_sb = cut + " && prunedJetm[0] > 40 && prunedJetm[0] <65";
+
+    leadingJetTau2Tau1_sb.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2Tau1_sb").c_str(),"",20,0,1));
+    treeMonoV_Sig.at(iMass)->Draw(("boostedJettau2[0]/boostedJettau1[0] >> "+string(leadingJetTau2Tau1_sb.back()->GetName())).c_str(),cut_sb.c_str(),"goff");    
+
 
   }
 
@@ -468,6 +472,8 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   makeShapePlots(cCanvas,responseLeadPrunedJetMassRaw_pr,legend,outputDirectory,"ResponsePrunedJetMassRaw_pr","m_{pr}^{reco}-m_{pr}^{gen} raw (GeV)");
   makeShapePlots(cCanvas,subjetPtRatio_pr,legend,outputDirectory,"SubJetPtRatio_pr","p_{T} ratio");
   makeShapePlots(cCanvas,leadingJetTau2Tau1_pr,legend,outputDirectory,"jetTau2tau1_pr","#tau_{2}/#tau_{1}");
+
+  makeShapePlots(cCanvas,leadingJetTau2Tau1_sb,legend,outputDirectory,"jetTau2tau1_sb","#tau_{2}/#tau_{1}");
 
   return;
 

@@ -16,43 +16,34 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   TFile* ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root");
   TFile* qcdfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/sigfilter/sig_tree_QCD.root");
   TFile* dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/sigfilter/sig_tree_DiBoson.root");
-  TFile* sifile = NULL;
-  TFile* sialtfile = NULL;
 
-  if(category <= 1){
-    if(interaction == "Vector")
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    else if(interaction == "Axial")
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    else if(interaction == "Scalar")
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    else if(interaction == "Pseudoscalar")
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-  }
+  TFile* monoJfile = NULL;
+  TFile* monoWfile = NULL;
+  TFile* monoZfile = NULL;
 
-  else if(category == 2 or category == 3){
-    if(interaction == "Vector"){
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
-      sialtfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
-    }
-    else if(interaction == "Axial"){
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
-      sialtfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
-    }
-    else if(interaction == "Scalar"){
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    }
-    else if(interaction == "Pseudoscalar"){
-      sifile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-      sialtfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    }
+  if(interaction == "Vector"){
+    monoJfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+    monoWfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
+    monoZfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
   }
-  else
-    cerr<<"sigdatamchist: Wrong category "<<endl;
- 
+  else if(interaction == "Axial"){
+    monoJfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+    monoWfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
+    monoZfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str());
+  }
+  else if(interaction == "Scalar"){
+    monoJfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+    monoWfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+  }
+  else if(interaction == "Pseudoscalar"){
+    monoJfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+    monoWfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    monoZfile = TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+mediatorMass+"_Mchi-"+DMMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+  }
+  
 
   //data
-  TFile* dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/sigfilter/sig_tree_crab_MET-Run2015_new.root");
+  TFile* dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/sigfilter/sig_tree_crab_MET-Run2015.root");
 
   // make met histograms
   vector<TH1*> znhist;
@@ -61,23 +52,25 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   vector<TH1*> tthist;
   vector<TH1*> dihist;
   vector<TH1*> qcdhist;
-  vector<TH1*> sihist;
-  vector<TH1*> sialthist;
+  vector<TH1*> monoJhist;
+  vector<TH1*> monoWhist;
+  vector<TH1*> monoZhist;
   vector<TH1*> dthist;
   
   if(category <= 1){
 
     for(auto obs : observables){
 
-      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* sihist_temp = new TH1F(("sig1hist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* sialthist_temp = new TH1F(("sig1hist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
-      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", bins_monoJ.size(), &bins_monoJ[0]);
+      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
       
       znhist.push_back(dynamic_cast<TH1*>(znhist_temp));
       wlhist.push_back(dynamic_cast<TH1*>(wlhist_temp));
@@ -85,8 +78,9 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
       qcdhist.push_back(dynamic_cast<TH1*>(qcdhist_temp));
       dihist.push_back(dynamic_cast<TH1*>(dihist_temp));
-      sihist.push_back(dynamic_cast<TH1*>(sihist_temp));
-      sialthist.push_back(dynamic_cast<TH1*>(sialthist_temp));
+      monoJhist.push_back(dynamic_cast<TH1*>(monoJhist_temp));
+      monoWhist.push_back(dynamic_cast<TH1*>(monoWhist_temp));
+      monoZhist.push_back(dynamic_cast<TH1*>(monoZhist_temp));
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
     }
   }
@@ -94,15 +88,16 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
 
     for(auto obs : observables){
       
-      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* sihist_temp = new TH1F(("sig1hist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* sialthist_temp = new TH1F(("sig1hist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
-      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", bins_monoV.size(), &bins_monoV[0]);
+      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
       
       znhist.push_back(dynamic_cast<TH1*>(znhist_temp));
       wlhist.push_back(dynamic_cast<TH1*>(wlhist_temp));
@@ -110,8 +105,9 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
       qcdhist.push_back(dynamic_cast<TH1*>(qcdhist_temp));
       dihist.push_back(dynamic_cast<TH1*>(dihist_temp));
-      sihist.push_back(dynamic_cast<TH1*>(sihist_temp));
-      sialthist.push_back(dynamic_cast<TH1*>(sialthist_temp));
+      monoJhist.push_back(dynamic_cast<TH1*>(monoJhist_temp));
+      monoWhist.push_back(dynamic_cast<TH1*>(monoWhist_temp));
+      monoZhist.push_back(dynamic_cast<TH1*>(monoZhist_temp));
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
     }
   }
@@ -122,8 +118,10 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   vector<TH2*> tthist_2D;
   vector<TH2*> dihist_2D;
   vector<TH2*> qcdhist_2D;
-  vector<TH2*> sihist_2D;
-  vector<TH2*> sialthist_2D;
+  vector<TH2*> monoJhist_2D;
+  vector<TH2*> monoWhist_2D;
+  vector<TH2*> monoZhist_2D;
+
   vector<TH2*> dthist_2D;
 
 
@@ -134,9 +132,18 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   TTree* tttree = (TTree*)ttfile->Get("tree/tree");
   TTree* ditree = (TTree*)dbfile->Get("tree/tree");
   TTree* qcdtree = (TTree*)qcdfile->Get("tree/tree");
-  TTree* sitree = (TTree*)sifile->Get("tree/tree");
-  TTree* sialttree = (TTree*)sialtfile->Get("tree/tree");
-  TTree* dttree = (TTree*)dtfile->Get("tree/tree");
+  TTree* monoJtree = NULL;
+  TTree* monoWtree = NULL;
+  TTree* monoZtree = NULL;
+
+  if(monoJfile)
+    monoJtree = (TTree*) monoJfile->Get("tree/tree");
+  if(monoWfile)
+    monoWtree = (TTree*) monoWfile->Get("tree/tree");
+  if(monoZfile)
+    monoZtree = (TTree*) monoZfile->Get("tree/tree");
+
+  TTree* dttree = (TTree*)dtfile->Get("tree");
 
   // get k-factors NLO
   TFile kffile(kFactorFile.c_str());
@@ -159,21 +166,25 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   whists.push_back(wnlohist); whists.push_back(wewkhist);
 
   bool isWJet = false;
-  if(category >= 2)
+  if(category == 2 or category == 3)
     isWJet = true;
 
   // make histograms for the signal region
-  makehist4(zntree, znhist,  znhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
-  makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(tttree, tthist,  tthist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, true, NULL);
-  makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, true, NULL);
-  makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, ehists, true, NULL);
-  makehist4(sitree, sihist,  sihist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, true, NULL);
-  if(sialttree)
-    makehist4(sialttree, sialthist,  sialthist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, true, NULL);
-
-  makehist4(dttree, dthist,  dthist_2D, false, 0, category, false, 1.00, lumi, ehists, true, NULL);
+  makehist4(zntree, znhist,  znhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi, ehists, "", true, NULL);
+  makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, "", true, NULL);
+  makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, ehists, "", true, NULL);
+  // signals
+  if(monoJtree)
+    makehist4(monoJtree, monoJhist,  monoJhist_2D,  true, 0, category, false, 1.00, lumi, ehists, "",  true, NULL);
+  if(monoWtree)
+    makehist4(monoWtree, monoWhist,  monoWhist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, "", true, NULL);
+  if(monoZtree)
+    makehist4(monoZtree, monoZhist,  monoZhist_2D,  true, 0, category, isWJet, 1.00, lumi, ehists, "", true, NULL);
+  // data
+  makehist4(dttree, dthist,  dthist_2D, false, 0, category, false, 1.00, lumi, ehists, "", true, NULL);
 
 
   if (blind) {
@@ -206,7 +217,6 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
     }
   }
 
-  
   outfile->cd();
   // store histograms
   for(auto hist : znhist)
@@ -221,9 +231,11 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
     hist->Write();
   for(auto hist : qcdhist)
     hist->Write();
-  for(auto hist : sihist)
+  for(auto hist : monoJhist)
     hist->Write();
-  for(auto hist : sialthist)
+  for(auto hist : monoWhist)
+    hist->Write();
+  for(auto hist : monoZhist)
     hist->Write();
   for(auto hist : dthist)
     hist->Write();
@@ -240,9 +252,11 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
     hist_2D->Write();
   for(auto hist_2D : qcdhist_2D)
     hist_2D->Write();
-  for(auto hist_2D : sihist_2D)
+  for(auto hist_2D : monoJhist_2D)
     hist_2D->Write();
-  for(auto hist_2D : sialthist_2D)
+  for(auto hist_2D : monoWhist_2D)
+    hist_2D->Write();
+  for(auto hist_2D : monoZhist_2D)
     hist_2D->Write();
   for(auto hist_2D : dthist_2D)
     hist_2D->Write();
@@ -253,86 +267,197 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   ttfile->Close();
   dbfile->Close();
   qcdfile->Close();
-  sifile->Close();
-  dtfile->Close();
-  
+  if(monoJfile)
+    monoJfile->Close();
+  if(monoWfile)
+    monoWfile->Close();
+  if(monoZfile)
+    monoZfile->Close();
+  dtfile->Close();  
   kffile.Close();
 
   cout << "Templates for the signal region computed ..." << endl;
 }
-/*
+
 // build templates for photon+jets control region
-void gamdatamchist(TFile* outfile, string photonFile) {
+void gamdatamchist(TFile* outfile, string photonFile,
+		   int category, vector<string> observables,
+		   double lumi = 2.11) {
 
-  TFile dtfile =  TFile::Open(photonFile.c_str());
 
-  TH1F dthist("datahistgam", "", nbins, bins);
-  TH1F qchist("qbkghistgam", "", nbins, bins);
-  
+  TFile* dtfile =  TFile::Open(photonFile.c_str());
+
+  vector<TH1*> dthist;
+  vector<TH1*> qcdhist;
+
+  vector<TH2*> dthist_2D;
+  vector<TH2*> qcdhist_2D;
+
+  if(category <=1){
+    for(auto obs : observables){
+      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      qcdhist.push_back(dynamic_cast<TH1*>(qchist_temp));      
+    }
+
+  }
+  else{
+    for(auto obs : observables){
+      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      qcdhist.push_back(dynamic_cast<TH1*>(qchist_temp));      
+    }
+  }
+
+
   TTree* dttree = (TTree*)dtfile->Get("tree");
-
   vector<TH1*> ehists;
   
-  makehist4(dttree, &dthist, false, 5, 1.00, ehists, NULL);
+
+  makehist4(dttree, dthist, dthist_2D, false, 5, category, false, 1.00, lumi, ehists, "", true, NULL);
   // QCD template for photon + jets derived from photon purity
-  makehist4(dttree, &qchist, false, 6, 1.00, ehists, NULL);
-
+  makehist4(dttree, qcdhist, qcdhist_2D, false, 6, category, false, 1.00, lumi, ehists, "", true, NULL);
+  
   outfile->cd();
-  dthist.Write();
-  qchist.Write();
 
+  for(auto hist : dthist)
+    hist->Write();
+  for(auto hist : qcdhist)
+    hist->Write();
+  for(auto hist : dthist_2D)
+    hist->Write();
+  for(auto hist : qcdhist_2D)
+    hist->Write();
+  
   dtfile->Close();
   
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
 
+
 //build templates for Zmumu, Zee, Wenu, Wmunu
-void lepdatamchist(TFile* outfile, int sample, string kFactorFile) {
+void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi=2.11) {
 
   if (sample != 1 && sample != 2 && sample != 3 && sample != 4) return;
-  
-  string filename;
-  if      (sample == 1)   filename = "zmmtree.root";
-  else if (sample == 2)   filename = "wmntree.root";
-  else if (sample == 3)   filename = "zeetree.root";
-  else if (sample == 4)   filename = "wentree.root";
 
-  string vlfilename;
-  if      (sample == 1) vlfilename = "wln100toinf/";
-  else if (sample == 2) vlfilename = "zll100toinf/";
-  else if (sample == 3) vlfilename = "wln100toinf/";
-  else if (sample == 4) vlfilename = "zll100toinf/";
-  
-  string dtfilename;
-  if      (sample == 1) dtfilename = "met/";
-  else if (sample == 2) dtfilename = "met/";
-  else if (sample == 3) dtfilename = "singleel/";
-  else if (sample == 4) dtfilename = "singleel/";
-  
+  TFile* ttfile  = NULL;
+  TFile* dbfile  = NULL;
+  TFile* qcfile  = NULL;
+  TFile* vlfile  = NULL;
+  TFile* vllfile = NULL;
+  TFile* dtfile  = NULL;
+
   string suffix;
-  if      (sample == 1) suffix = "zmm";
-  else if (sample == 2) suffix = "wmn";
-  else if (sample == 3) suffix = "zee";
-  else if (sample == 4) suffix = "wen";
 
-  TFile* ttfile = TFile::Open((string("/Users/avartak/CMS/MonoX/FinalTrees/top/")          + filename).c_str());
-  TFile* dbfile = TFile::Open((string("/Users/avartak/CMS/MonoX/FinalTrees/dibosons/")     + filename).c_str());
-  TFile* qcfile = TFile::Open((string("/Users/avartak/CMS/MonoX/FinalTrees/qcd/")          + filename).c_str());
-  TFile* vlfile = TFile::Open((string("/Users/avartak/CMS/MonoX/FinalTrees/") + vlfilename + filename).c_str());
-  TFile* dtfile = TFile::Open((string("/Users/avartak/CMS/MonoX/FinalTrees/") + dtfilename + filename).c_str());
+  if(sample == 1){
 
-  TH1F dthist((string("datahist")+suffix).c_str(), "", nbins, bins);
-  TH1F vlhist((string("lbkghist")+suffix).c_str(), "", nbins, bins);
-  TH1F tthist((string("tbkghist")+suffix).c_str(), "", nbins, bins);
-  TH1F dihist((string("dbkghist")+suffix).c_str(), "", nbins, bins);
-  TH1F qchist((string("qbkghist")+suffix).c_str(), "", nbins, bins);
+    suffix = "zmm";
+
+    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root");
+    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/zmmfilter/zmm_tree_WJetsToLNu.root");
+    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/zmmfilter/zmm_tree_QCD.root");
+    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/zmmfilter/zmm_tree_DiBoson.root");
+    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/zmmfilter/zmm_tree_Top.root");
+    
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/zmmfilter/zmm_tree_crab_MET-Run2015.root");
+  }
+  else if(sample == 2){
+
+    suffix = "wmn";
+
+    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/wmnfilter/wmn_tree_DYJetsToLL_M-50.root");
+    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wmnfilter/wmn_tree_WJetsToLNu.root");
+    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/wmnfilter/wmn_tree_QCD.root");
+    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/wmnfilter/wmn_tree_DiBoson.root");
+    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/wmnfilter/wmn_tree_Top.root");
+
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/wmnfilter/wmn_tree_crab_MET-Run2015.root");
+  }
+  else if(sample == 3){
+
+    suffix = "zee";
+
+    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root");
+    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/zeefilter/zee_tree_WJetsToLNu.root");
+    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/zeefilter/zee_tree_QCD.root");
+    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/zeefilter/zee_tree_DiBoson.root");
+    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/zeefilter/zee_tree_Top.root");
+
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SingleElectron/zeefilter/zee_tree_crab_SingleEle-Run2015.root");
+  }
+  else if(sample == 4){
+
+    suffix = "wen";
+
+    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/wenfilter/wen_tree_DYJetsToLL_M-50.root");
+    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wenfilter/wen_tree_WJetsToLNu.root");
+    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/wenfilter/wen_tree_QCD.root");
+    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/wenfilter/wen_tree_DiBoson.root");
+    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/wenfilter/wen_tree_Top.root");
+
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SingleElectron/wenfilter/wen_tree_crab_SingleEle-Run2015.root");
+  }
+
+  vector<TH1*> dthist;
+  vector<TH1*> tthist;
+  vector<TH1*> qchist;
+  vector<TH1*> dbhist;
+  vector<TH1*> vlhist;
+  vector<TH1*> vllhist;
+  
+  if(category <=1){
+    
+    for(auto obs : observables){      
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+      dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
+      qchist.push_back(dynamic_cast<TH1*>(qchist_temp));
+      vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
+      vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
+
+    }
+  }
+  else{
+    for(auto obs : observables){      
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+      dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
+      qchist.push_back(dynamic_cast<TH1*>(qchist_temp));
+      vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
+      vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
+    }
+  }
+
+  vector<TH2*> dthist_2D;
+  vector<TH2*> tthist_2D;
+  vector<TH2*> qchist_2D;
+  vector<TH2*> dbhist_2D;
+  vector<TH2*> vlhist_2D;
+  vector<TH2*> vllhist_2D;
 
   TTree* dttree = (TTree*)dtfile->Get("tree");
-  TTree* vltree = (TTree*)vlfile->Get("tree");
-  TTree* tttree = (TTree*)ttfile->Get("tree");
-  TTree* ditree = (TTree*)dbfile->Get("tree");
-  TTree* qctree = (TTree*)qcfile->Get("tree");
-  
+  TTree* vltree = (TTree*)vlfile->Get("tree/tree");
+  TTree* vlltree = (TTree*)vllfile->Get("tree/tree");
+  TTree* tttree = (TTree*)ttfile->Get("tree/tree");
+  TTree* dbtree = (TTree*)dbfile->Get("tree/tree");
+  TTree* qctree = (TTree*)qcfile->Get("tree/tree");
+
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
@@ -343,35 +468,180 @@ void lepdatamchist(TFile* outfile, int sample, string kFactorFile) {
   
   znlohist->Divide(zlohist);
   wnlohist->Divide(wlohist);
-    
+
   vector<TH1*> ehists;
-  vector<TH1*> vhists;
+  vector<TH1*> vlhists;
+  vector<TH1*> vllhists;
   // apply NLO QCD and EWK corrections for Zll and Wlnu
-  if (vlfilename == "wln100toinf/") {vhists.push_back(wnlohist); vhists.push_back(wewkhist);}
-  if (vlfilename == "zll100toinf/") {vhists.push_back(znlohist); vhists.push_back(zewkhist);}
+  vlhists.push_back(wnlohist); 
+  vlhists.push_back(wewkhist);
+  vllhists.push_back(znlohist); 
+  vllhists.push_back(zewkhist);
 
-  makehist4(dttree, &dthist, false, sample, 1.00, ehists, NULL);
-  makehist4(vltree, &vlhist,  true, sample, 1.00, ehists, NULL);
-  makehist4(tttree, &tthist,  true, sample, 1.00, ehists, NULL);
-  makehist4(ditree, &dihist,  true, sample, 1.00, ehists, NULL);
-  makehist4(qctree, &qchist,  true, sample, 1.00, ehists, NULL);
+  bool isWJet = false;
+  if(category == 2 or category == 3)
+    isWJet = true;
 
-  outfile->cd();
-  dthist.Write();
-  tthist.Write();
-  dihist.Write();
-  qchist.Write();
-  vlhist.Write();
+  makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, ehists, "", true, NULL);
+  makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(vltree, vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, vlhists, "", true, NULL);
+  makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, vllhists, "", true, NULL);
+  makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, ehists, "", true, NULL);
   
+  outfile->cd();
+  for(auto hist :  dthist)
+    hist->Write();
+  for(auto hist :  tthist)
+    hist->Write();
+  for(auto hist :  dbhist)
+    hist->Write();
+  for(auto hist :  qchist)
+    hist->Write();
+  for(auto hist :  vlhist)
+    hist->Write();
+  for(auto hist :  vllhist)
+    hist->Write();
+
   dtfile->Close();
   vlfile->Close();
+  vllfile->Close();
   ttfile->Close();
   dbfile->Close();
   qcfile->Close();
   
   cout << "Templates for the lepton control region computed ..." << endl;
 }
-*/
+
+
+
+
+//build templates for Zmumu, Zee, Wenu, Wmunu
+void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi=2.11) {
+
+  if (sample != 7 && sample != 8) return;
+
+  TFile* ttfile  = NULL;
+  TFile* dbfile  = NULL;
+  TFile* qcfile  = NULL;
+  TFile* vlfile  = NULL;
+  TFile* vllfile = NULL;
+  TFile* dtfile  = NULL;
+
+  string suffix;
+
+  if(sample == 7)    
+    suffix = "topmu";
+  else if(sample == 8)
+    suffix = "topel";
+  
+  vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/topfilter/top_tree_DYJetsToLL_M-50.root");
+  vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/topfilter/top_tree_WJetsToLNu.root");
+  qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/topfilter/top_tree_QCD.root");
+  dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/topfilter/top_tree_DiBoson.root");
+  ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root");
+    
+  if(sample == 7)
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/topfilter/top_tree_crab_MET-Run2015.root");
+  else if(sample == 8)
+    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SingleElectron/topfilter/top_tree_crab_SingleEle-Run2015.root");
+
+  vector<TH1*> dthist;
+  vector<TH1*> tthist;
+  vector<TH1*> qchist;
+  vector<TH1*> dbhist;
+  vector<TH1*> vlhist;
+  vector<TH1*> vllhist;
+  
+  if(category <=1){
+    
+    for(auto obs : observables){      
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+      dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
+      qchist.push_back(dynamic_cast<TH1*>(qchist_temp));
+      vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
+      vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
+
+    }
+  }
+  else{
+    for(auto obs : observables){      
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+      tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+      dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
+      qchist.push_back(dynamic_cast<TH1*>(qchist_temp));
+      vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
+      vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
+    }
+  }
+
+  vector<TH2*> dthist_2D;
+  vector<TH2*> tthist_2D;
+  vector<TH2*> qchist_2D;
+  vector<TH2*> dbhist_2D;
+  vector<TH2*> vlhist_2D;
+  vector<TH2*> vllhist_2D;
+
+  TTree* dttree = (TTree*)dtfile->Get("tree");
+  TTree* vltree = (TTree*)vlfile->Get("tree/tree");
+  TTree* vlltree = (TTree*)vllfile->Get("tree/tree");
+  TTree* tttree = (TTree*)ttfile->Get("tree/tree");
+  TTree* dbtree = (TTree*)dbfile->Get("tree/tree");
+  TTree* qctree = (TTree*)qcfile->Get("tree/tree");
+  
+  vector<TH1*> ehists;
+
+  bool isWJet = false;
+  if(category == 2 or category == 3)
+    isWJet = true;
+
+  makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, ehists, "", true, NULL);
+  makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, ehists, "", true, NULL);
+  
+  outfile->cd();
+  for(auto hist :  dthist)
+    hist->Write();
+  for(auto hist :  tthist)
+    hist->Write();
+  for(auto hist :  dbhist)
+    hist->Write();
+  for(auto hist :  qchist)
+    hist->Write();
+  for(auto hist :  vlhist)
+    hist->Write();
+  for(auto hist :  vllhist)
+    hist->Write();
+
+  dtfile->Close();
+  vlfile->Close();
+  vllfile->Close();
+  ttfile->Close();
+  dbfile->Close();
+  qcfile->Close();
+  
+  cout << "Templates for the top control region computed ..." << endl;
+}
+
+
 // Run the final analysis:
 // 1) Store all corrections templates from input files (complient to combine)
 // 2) Make data and expected yields templates for all the other processes
@@ -383,12 +653,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
   system(("mkdir -p "+outDir).c_str());
 
   if(doCorrectionHistograms){
-
-    if(category > 3){
-      cout<<" sideband are ment only for control region in the monoV .. please use: 0 == incluisve monojet, 1 == monojet + V-jet veto, 2 or 3 as mono-V"<<endl;
-      return;
-    }
-
     cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
     makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
@@ -400,7 +664,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 		   outDir,
     		   ext); 
     cout<<"make correction histogram for Zee to Znn"<<endl;
-
     makezeecorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
 		   kfactorFile,
@@ -431,7 +694,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     		   ext);
    
     cout<<"make correction histogram for Gam+jets to Znn"<<endl;
-
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root", 
 		   kfactorFile,
@@ -443,7 +705,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 		   ext);
 
     cout<<"make Z/W ratio"<<endl;
-
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   kfactorFile,
@@ -474,8 +735,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 
     if(category == 2 or category == 3){
 
-      cout<<"make sideband ration for Zvv "<<std::endl;
-      
+      cout<<"make sideband ratio for Zvv "<<std::endl;      
       makesidebandcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 			  "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 			  category,
@@ -485,8 +745,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 			  outDir,
 			  ext+"Z");
 
-      cout<<"make sideband ration for W+jets "<<std::endl;
-      
+      cout<<"make sideband ratio for W+jets "<<std::endl;      
       makesidebandcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 			  "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 			  category,
@@ -658,6 +917,45 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 		   outDir,
 		   "pdf"+ext,7);
 
+    cout<<"systematics on top+mu ratio"<<endl;
+    maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
+		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
+		     category,
+		     observables,
+		     lumi,
+		     outDir,
+		     "btagUp",
+		     ext+"bUp");
+
+
+    maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
+		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
+		     category,
+		     observables,
+		     lumi,
+		     outDir,
+		     "btagDown",
+		     ext+"bDown");
+
+    cout<<"systematics on top+el ratio"<<endl;
+    maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
+		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
+		     category,
+		     observables,
+		     lumi,
+		     outDir,
+		     "btagUp",		     
+		     ext+"bUp");
+
+    maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
+		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
+		     category,
+		     observables,
+		     lumi,
+		     outDir,
+		     "btagDown",		     
+		     ext+"bDown");
+
   }
 
   
@@ -698,6 +996,12 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
   TFile* zwjcorfa2file = TFile::Open((outDir+"/zwjcorfa2"+ext+".root").c_str());
   TFile* zwjcorpdffile = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
 
+  // Top btag up and down
+  TFile* topmucorbupfile   = TFile::Open((outDir+"/topmucor"+ext+"bUp.root").c_str());
+  TFile* topmucorbdownfile = TFile::Open((outDir+"/topmucor"+ext+"bDown.root").c_str());
+  TFile* topelcorbupfile   = TFile::Open((outDir+"/topelcor"+ext+"bUp.root").c_str());
+  TFile* topelcorbdownfile = TFile::Open((outDir+"/topelcor"+ext+"bDown.root").c_str());
+
   // get histograms  
   vector<TH1*> zmmcorhist;
   vector<TH1*> zeecorhist;
@@ -727,6 +1031,11 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 
   vector<TH1F*> sidebandZhist;
   vector<TH1F*> sidebandWhist;
+
+  vector<TH1*> topmucorbuphist;
+  vector<TH1*> topmucorbdownhist;
+  vector<TH1*> topelcorbuphist;
+  vector<TH1*> topelcorbdownhist;
 
   for(auto obs : observables){
 
@@ -846,7 +1155,38 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++) 
       zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
     zwjuncpdfhist->SetName("ZW_PDF");
-  
+
+    // make b-tagging top
+    cout<<"Make top sys histograms"<<endl;
+    topmucorbuphist .push_back( (TH1*) topmucorbupfile->Get(("topmucor"+ext+"bUphist_"+obs).c_str()));    
+    topmucorbdownhist .push_back( (TH1*) topmucorbdownfile->Get(("topmucor"+ext+"bDownhist_"+obs).c_str()));    
+    topelcorbuphist .push_back( (TH1*) topelcorbupfile->Get(("topelcor"+ext+"bUphist_"+obs).c_str()));    
+    topelcorbdownhist .push_back( (TH1*) topelcorbdownfile->Get(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
+
+    TH1* topmucoruncbuphist = (TH1*) topmucorbuphist.back()->Clone(("topmucoruncbup"+ext+"hist_"+obs).c_str());    
+    topmucoruncbuphist->Divide(topmucorhist.back());
+    for (int i = 1; i <= topmucoruncbuphist->GetNbinsX(); i++) 
+      topmucoruncbuphist->SetBinContent(i, fabs(topmucoruncbuphist->GetBinContent(i)-1.0));
+    topmucoruncbuphist->SetName("mubUp");
+
+    TH1* topmucoruncbdownhist = (TH1*) topmucorbdownhist.back()->Clone(("topmucoruncbdown"+ext+"hist_"+obs).c_str());    
+    topmucoruncbdownhist->Divide(topmucorhist.back());
+    for (int i = 1; i <= topmucoruncbdownhist->GetNbinsX(); i++) 
+      topmucoruncbdownhist->SetBinContent(i, fabs(topmucoruncbdownhist->GetBinContent(i)-1.0));
+    topmucoruncbdownhist->SetName("mubDown");
+
+    TH1* topelcoruncbuphist = (TH1*) topelcorbuphist.back()->Clone(("topelcoruncbup"+ext+"hist_"+obs).c_str());    
+    topelcoruncbuphist->Divide(topelcorhist.back());
+    for (int i = 1; i <= topelcoruncbuphist->GetNbinsX(); i++) 
+      topelcoruncbuphist->SetBinContent(i, fabs(topelcoruncbuphist->GetBinContent(i)-1.0));
+    topelcoruncbuphist->SetName("elbUp");
+
+    TH1* topelcoruncbdownhist = (TH1*) topelcorbdownhist.back()->Clone(("topelcoruncbdown"+ext+"hist_"+obs).c_str());    
+    topelcoruncbdownhist->Divide(topelcorhist.back());
+    for (int i = 1; i <= topelcoruncbdownhist->GetNbinsX(); i++) 
+      topelcoruncbdownhist->SetBinContent(i, fabs(topelcoruncbdownhist->GetBinContent(i)-1.0));
+    topelcoruncbdownhist->SetName("elbDown");
+
     // output file
     TFile outfile((outDir+"/templates"+ext+"_"+obs+".root").c_str(), "RECREATE");
     outfile.cd();
@@ -897,14 +1237,36 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     zwjuncre2hist->Write();
     zwjuncfa2hist->Write();
     zwjuncpdfhist->Write();
-    /*
-      sigdatamchist(&outfile);
-      gamdatamchist(&outfile);
-      lepdatamchist(&outfile, 1);
-      lepdatamchist(&outfile, 2);
-      lepdatamchist(&outfile, 3);
-      lepdatamchist(&outfile, 4);
-    */
+
+    topmucoruncbuphist->Write();
+    topmucoruncbdownhist->Write();
+    topelcoruncbuphist->Write();
+    topelcoruncbdownhist->Write();
+
+    // signal region templates
+    cout<<"start signal region data"<<endl;
+    sigdatamchist(&outfile,kfactorFile,category,observables,"Vector","1000","100",lumi,true);
+    // gamma + jets
+    cout<<"start gamma+jets region data"<<endl;
+    gamdatamchist(&outfile,"/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root",
+		  category,observables,
+		  lumi);
+
+    // lepton control regions
+    cout<<"start zmumu region data"<<endl;
+    lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi); 
+    cout<<"start wmunu region data"<<endl;
+    lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi); 
+    cout<<"start zee region data"<<endl;
+    lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi); 
+    cout<<"start wenu region data"<<endl;
+    lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi);     
+    // top control regions
+    cout<<"start top+mu region data"<<endl;
+    topdatamchist(&outfile,kfactorFile,7,category,observables,lumi);
+    cout<<"start Top+el region data"<<endl;
+    topdatamchist(&outfile,kfactorFile,8,category,observables,lumi);
+
     outfile.Close();
   }
 }

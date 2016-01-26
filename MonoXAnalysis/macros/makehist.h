@@ -31,6 +31,7 @@ void makehist4(TTree* tree, /*input tree*/
 	       double scale,
 	       double lumi,	       
 	       vector<TH1*> khists, 
+	       string sysName,
 	       bool reweightNVTX = true,
 	       TH1* rhist = NULL) {
 
@@ -78,9 +79,32 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
   TTreeReaderValue<double> xsec      (myReader,"xsec");
   TTreeReaderValue<double> wgt       (myReader,"wgt");
-  TTreeReaderValue<double> wgtsum    (myReader,"wgtsum");
-  TTreeReaderValue<double> wgtpileup (myReader,"wgtpileup");
-  TTreeReaderValue<double> wgtbtag   (myReader,"wgtbtag");
+
+  // create dummys for data
+  string wgtname;
+  string wgtpileupname;
+  string btagname;
+  if(isMC){
+    wgtname = "wgtsum";
+    wgtpileupname = "wgtpileup";
+    if(sysName == "btagUp")
+      btagname = "wgtbtagUp";
+    else if(sysName == "btagDown")
+      btagname = "wgtbtagDown";
+    else
+      btagname = "wgtbtag";
+  }
+  else{
+    wgtname  = "wgt";
+    btagname = "wgt";
+    wgtpileupname = "wgt";
+  }
+
+  TTreeReaderValue<double> wgtsum    (myReader,wgtname.c_str());
+  TTreeReaderValue<double> wgtpileup (myReader,wgtpileupname.c_str());
+
+
+  TTreeReaderValue<double> wgtbtag   (myReader,btagname.c_str());
   
   // trigger
   TTreeReaderValue<UChar_t> hltm (myReader,"hltmet90");
@@ -104,7 +128,7 @@ void makehist4(TTree* tree, /*input tree*/
   else{
     cscname    = "flagcscnew";
     feebname   = "flageescnew";
-    fmutrkname = "flagmutrack";
+    fmutrkname = "flagmuontrack";
     fbtrkname  = "flagbadtrack";
   }
   
@@ -197,8 +221,6 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == 3 || sample == 4 || sample == 8)  hlt = *hlte;
     else if (sample == 5 || sample == 6)                 hlt = *hltp;
 
-    if(hlt > 1) continue; // reject fully leptonic ttbar events with OF (mue or emu)
-
     // check both photon triggers
     if ((sample == 5 || sample == 6) && *hltp2 > 0)  hlt = *hltp2;
     
@@ -233,12 +255,16 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t eta2  = 0.0;
     Double_t phi1  = 0.0;
     Double_t phi2  = 0.0;
+    int pid1  = 0;
+    int pid2  = 0;
 
     if (sample == 1 || sample == 2 || sample == 7) {
       id1  = *mu1id;
       id2  = *mu2id;
       pt1  = *mu1pt;
       pt2  = *mu2pt;
+      pid1 = *mu1pid;
+      pid2 = *mu2pid;
       eta1 = fabs(*mu1eta);
       eta2 = fabs(*mu2eta);
       phi1 = fabs(*el1phi);
@@ -253,6 +279,8 @@ void makehist4(TTree* tree, /*input tree*/
       eta2 = fabs(*el2eta);
       phi1 = fabs(*el1phi);
       phi2 = fabs(*el2phi);
+      pid1 = *el1pid;
+      pid2 = *el2pid;
     }
     else if (sample == 5 || sample == 6) {
       id1  = 1.0;
@@ -320,16 +348,40 @@ void makehist4(TTree* tree, /*input tree*/
 
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == 2 && isWJet){
-      if(tau2tau1 == 0.45)
-	sfwgt *= 0.692;
-      else if(tau2tau1 == 0.6)
-	sfwgt *= 1.031;
+      if(tau2tau1 == 0.45){
+	if(sysName == "VtagUp")
+	  sfwgt *= (0.692+0.144);
+	else if(sysName == "VtagDown")
+	  sfwgt *= (0.692-0.144);
+	else
+	  sfwgt *= 0.692;
+      }
+      else if(tau2tau1 == 0.6){
+	if(sysName == "VtagUp")
+	  sfwgt *= (1.031+0.129);
+	else if(sysName == "VtagDown")
+	  sfwgt *= (1.031-0.129);
+	else
+	  sfwgt *= 1.031;
+      }
     }
     else if(isMC && category == 3 && isWJet){
-      if(tau2tau1 == 0.45)
-	sfwgt *= 1.458;
-      else if(tau2tau1 == 0.6)
-	sfwgt *= 0.881;
+      if(tau2tau1 == 0.45){
+	if(sysName == "VtagUp")
+	  sfwgt *= (1.458+0.381);
+	else if(sysName == "VtagDown")
+	  sfwgt *= (1.458-0.381);
+	else
+	  sfwgt *= 1.458;
+      }
+      else if(tau2tau1 == 0.6){
+	if(sysName == "VtagUp")
+	  sfwgt *= (0.881+0.490);
+	else if(sysName == "VtagDown")
+	  sfwgt *= (0.881-0.490);
+	else
+	  sfwgt *= 0.881;
+      }
     }
       
     // Gen level info --> NLO re-weight
@@ -363,16 +415,17 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
     if (sample == 4 && *met < 50.) continue;
     if ((sample == 7 || sample == 8) && *nbjets < 1) continue;
-    if (sample == 7 || sample == 8){ // Z-veto in case of more than one lepton
-
+    if (sample == 7 || sample == 8){ // Z-veto in case of more than one lepton    
+      if(pt1 <=0) continue;
       if(pt1 > 0 && pt2 > 0){
 	TLorentzVector lep1, lep2;
 	lep1.SetPtEtaPhiM(pt1,eta1,phi1,0.);
 	lep2.SetPtEtaPhiM(pt2,eta2,phi2,0.);
 	if((lep1+lep2).M() > 81. && (lep1+lep2).M() < 101.) continue;
+	if(fabs(pid1) != fabs(pid2)) continue;
       }
-
     }
+
     // met selection
     if (pfmet < 200.) continue;
 
@@ -433,6 +486,8 @@ void makehist4(TTree* tree, /*input tree*/
 	//after match apply jetid on leading ak4
 	if (chfrac->at(0) < 0.1) continue;   // jet id                                                                                                                       
 	if (nhfrac->at(0) > 0.8) continue;   // jet id                                                                                                                        
+	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
+	if (jetpt->at(0)  < *j1pt) continue;
 
 	// jet met dphi
 	TLorentzVector met4V;
@@ -450,9 +505,12 @@ void makehist4(TTree* tree, /*input tree*/
 	else if(category == 4 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65) and 
 		boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
-	// category 4 means LP mono-V sideband
+	// category 5 means LP mono-V sideband
 	else if(category == 5 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65) and 
 		boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75)
+	  goodMonoV   = true;
+	// category 6 means mono-V sideband
+	else if(category == 6 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65))
 	  goodMonoV   = true;	
 	if(not goodMonoV) continue;
       }
@@ -460,6 +518,10 @@ void makehist4(TTree* tree, /*input tree*/
                
     // fill 1D histogram
     double fillvar = 0;
+    double btagw = *wgtbtag;
+    if(*wgtbtag > 2 || *wgtbtag < 0)
+      btagw = 1;
+
     for(auto hist : hist1D){
       TString name(hist->GetName());
       
@@ -483,11 +545,11 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX) 
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*sfwgt*rwgt*kwgt/(*wgtsum);
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*sfwgt*rwgt*kwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
@@ -526,18 +588,19 @@ void makehist4(TTree* tree, /*input tree*/
       // total event weight
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
-      if (isMC and not reweightNVTX) 
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(*wgtbtag)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+
+      if (isMC and not reweightNVTX)
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(*wgtbtag)*sfwgt*rwgt*kwgt/(*wgtsum);
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*sfwgt*rwgt*kwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
-
+      
       hist->Fill(fillvarX,fillvarY,evtwgt);      
-
+      
     }
   }
 

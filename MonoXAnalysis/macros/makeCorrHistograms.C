@@ -50,8 +50,8 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
   zhists.push_back(zewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, zhists, "", true, NULL);
 
   string name = string("zmmcor")+ext;
 
@@ -131,8 +131,8 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
   zhists.push_back(zewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "",true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, zhists, "",true, NULL);
 
   string name = string("zeecor")+ext;
 
@@ -212,8 +212,8 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, whists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, whists, "", true, NULL);
 
   string name = string("wmncor")+ext;
 
@@ -295,8 +295,8 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, whists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, whists, "", true, NULL);
 
   string name = string("wencor")+ext;
 
@@ -424,8 +424,8 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
   if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
 
   string name = string("zwjcor")+ext;
 
@@ -565,8 +565,8 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, ahists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, ahists, "", true, NULL);
 
   string name = string("gamcor")+ext;
 
@@ -597,7 +597,7 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
 }
 
 // correction for top
-void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string sys = "", string ext = ""){
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -634,8 +634,8 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, sys, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, zhists, sys, true, NULL);
 
   string name = string("topmucor")+ext;
 
@@ -667,7 +667,7 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
 
 
 // correction for top
-void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string sys = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -704,8 +704,8 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, sys, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, zhists, sys, true, NULL);
 
   string name = string("topelcor")+ext;
 
@@ -769,8 +769,8 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, lumi, zhists, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, lumi, zhists, "", true, NULL);
 
   string name = string("sidebandcor")+ext;
 
