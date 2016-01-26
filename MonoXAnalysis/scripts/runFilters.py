@@ -113,11 +113,11 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_sig_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/sigfilter/\n");
-                jobscript.write("xrdcp sig_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/sigfilter/");
+                jobscript.write("xrdcp -f sig_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/sigfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_sig_"+subdirName))
                 
@@ -156,11 +156,11 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_zmm_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/zmmfilter/\n");
-                jobscript.write("xrdcp zmm_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/zmmfilter/");
+                jobscript.write("xrdcp -f zmm_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/zmmfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_zmm_"+subdirName))
                 
@@ -197,11 +197,11 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_zee_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/zeefilter/\n");
-                jobscript.write("xrdcp zee_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/zeefilter/");
+                jobscript.write("xrdcp -f zee_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/zeefilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_zee_"+subdirName))
                 
@@ -238,11 +238,11 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_wmn_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/wmnfilter/\n");
-                jobscript.write("xrdcp wmn_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/wmnfilter/");
+                jobscript.write("xrdcp -f wmn_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/wmnfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_wmn_"+subdirName))
                 
@@ -279,11 +279,11 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_wen_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/wenfilter/\n");
-                jobscript.write("xrdcp wen_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/wenfilter/");
+                jobscript.write("xrdcp -f wen_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/wenfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_wen_"+subdirName))
                 
@@ -320,13 +320,55 @@ if __name__ == '__main__':
                 jobscript.write('cd %s \n'%currentDIR)
                 jobscript.write('eval ` scramv1 runtime -sh ` \n')
                 jobscript.write('cd - \n')
-                jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_gam_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
                 jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/gamfilter/\n");
-                jobscript.write("xrdcp gam_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/gamfilter/");
+                jobscript.write("xrdcp -f gam_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/gamfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_gam_"+subdirName))
                 
                 if options.submit:
                     os.system('bsub -q %s -o %s/%s/%s/job.log -e %s/%s/%s/job.err %s/%s/%s/job.sh'%(options.queque,currentDIR,options.jobDIR,"JOB_gam_"+subdirName,currentDIR,options.jobDIR,"JOB_gam_"+subdirName,currentDIR,options.jobDIR,"JOB_gam_"+subdirName))
+
+
+        ########
+        if options.filterName == "topfilter" or  options.filterName == "all":
+
+            if not options.batchMode:
+
+                command = ROOT.TString("topfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,storeGenTree))
+                print command
+                ROOT.gROOT.ProcessLine(command.Data());
+                os.system("mkdir -p topfilter")
+                os.system("mv top_"+ifile+" topfilter/")
+
+            else:
+
+                ## make job directory
+                subdirName = ifile.replace(".root","");
+                os.system("mkdir -p "+options.jobDIR)
+                os.system("mkdir -p "+options.jobDIR+"/"+"JOB_top_"+subdirName);
+
+                ## write job sh file
+                jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_top_"+subdirName),'w')
+                jobmacro.write("{\n");
+                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("}\n");
+                jobmacro.close();
+
+                jobscript = open('%s/%s/job.sh'%(options.jobDIR,"JOB_top_"+subdirName),'w')
+                jobscript.write('cd %s \n'%currentDIR)
+                jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                jobscript.write('cd - \n')
+                jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+ifile+" ./\n")
+                jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_top_"+subdirName))
+                jobscript.write('root -l -b -q job.C\n');
+                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.inputDIR+"/topfilter/\n");
+                jobscript.write("xrdcp -f top_"+ifile+" root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/topfilter/");
+
+                os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_top_"+subdirName))
+                
+                if options.submit:
+                    os.system('bsub -q %s -o %s/%s/%s/job.log -e %s/%s/%s/job.err %s/%s/%s/job.sh'%(options.queque,currentDIR,options.jobDIR,"JOB_top_"+subdirName,currentDIR,options.jobDIR,"JOB_top_"+subdirName,currentDIR,options.jobDIR,"JOB_top_"+subdirName))
