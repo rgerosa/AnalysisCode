@@ -843,3 +843,97 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
 }
 
+
+
+// function to apply photon+jets selections
+void topfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"topfilter --> start function"<<std::endl;
+
+  if(inputFileName == "")
+    inputFileName = "tree.root";
+  if(outputFileName == "")
+    outputFileName = "toptree.root";
+  
+  TFile* infile = TFile::Open(inputFileName.c_str());
+  TTree* frtree = (TTree*)infile->Get("tree/tree");
+  TTree* intree = NULL;
+  double wgtsum;
+  TH1D*  puRatio = NULL;
+  double wgtpileup = 1;
+
+  if(isMC){
+    intree = (TTree*)infile->Get("gentree/gentree");
+    wgtsum = sumwgt(intree);
+    // caluclate puweight
+    puRatio = pileupwgt(intree);
+  }
+
+  // medium id + pt + veto
+  const char* cut = "(nmuons > 0 || nelectrons > 0) && ntaus == 0 && nphotons == 0 && nbjets > 0 && (el1id >= 1 || mu1id >=1)";
+  
+  TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
+  outfile->cd();
+  TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
+  treedir->cd();
+  std::cout<<"topfilter --> apply signal region preselection"<<std::endl;
+  TTree* outtree = frtree->CopyTree(cut);
+  std::cout<<"topfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
+
+  TBranch* bwgtsum;
+  TBranch* bwgtpileup ;
+  if(isMC){
+    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    TTreeReader myReader(outtree);
+    TTreeReaderValue<int> putrue(myReader,"putrue");
+
+    std::cout<<"topfilter --> apply sumwgt and puweight"<<std::endl;
+    int nEvents=0;
+    while(myReader.Next()){
+      if(nEvents %100000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
+	bwgtsum->Fill();
+	wgtpileup = puRatio->GetBinContent(*putrue);
+	bwgtpileup->Fill();    
+	nEvents++;
+    }
+  }
+
+  if(applyBTagWeights and isMC){
+    
+    std::cout<<"topfilter --> apply btag-weight"<<std::endl;
+
+    // applying b-tag weights
+    // take numerators for b-tag
+    TH2F*  eff_Num_b, *eff_Num_c, *eff_Num_ucsdg;
+    TH2F*  eff_Denom_b, *eff_Denom_c, *eff_Denom_ucsdg;
+    eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
+    eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
+    eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
+    // take denominators
+    eff_Denom_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"); 
+    eff_Denom_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c"); 
+    eff_Denom_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"); 
+
+    // compute efficiency
+    TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
+    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
+    eff_b->Divide(eff_Denom_b);
+    eff_c->Divide(eff_Denom_c);
+    eff_ucsdg->Divide(eff_Denom_ucsdg);
+    
+    btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }  
+
+  outfile->cd();
+  if(storeGenTree)
+    intree->CloneTree()->Write();
+  treedir->cd();
+  outtree->Write();
+  outfile->Close();
+  std::cout<<"###################################"<<std::endl;
+
+}
+

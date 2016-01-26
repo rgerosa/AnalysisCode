@@ -1,7 +1,9 @@
 #include "makehist.h"
 
+using namespace std;
+
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  std::string  kFactorFile, int category, std::string ext = "") {
+void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -11,19 +13,29 @@ void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  st
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
 
   if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
   else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
 
-  // k-factors file from generator lebel                                                                                                                                       
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
@@ -38,20 +50,31 @@ void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  st
   zhists.push_back(zewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  makehist4(dtree, dhist,  true, 1, category, true, 1.00, zhists, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, zhists, true, NULL);
 
   string name = string("zmmcor")+ext;
 
   // divide the two                                                                                                                                                          
-  nhist->Divide(dhist);
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
 
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
   // create output file                                                                                                                                                        
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
-  outfile.Close();
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
 
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
   nfile->Close();
   dfile->Close();
 
@@ -59,249 +82,287 @@ void makezmmcorhist( std::string  signalRegionFile,  std::string  zmumuFile,  st
 }
 
 
-// make histograms for Z->ee to signal region correction                                                                                                                       
-void makezeecorhist( std::string  signalRegionFile,  std::string  zeeFile,  std::string  kFactorFile, int category, std::string ext = "") {
-  
-   TFile*  nfile = TFile::Open(signalRegionFile.c_str());
-   TFile*  dfile = TFile::Open(zeeFile.c_str());
+// make histograms for Z->ee to signal region correction                                                                                                                   
+void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
 
-   TTree* ntree = (TTree*)nfile->Get("tree/tree");
-   TTree* dtree = (TTree*)dfile->Get("tree/tree");
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(zeeFile.c_str());
+
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
 
   if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
   else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
 
+
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
   TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
-  
+
+  // Divide NLO/LO                                                                                                                                                             
   znlohist->Divide(zlohist);
-  
+
   vector<TH1*> ehists;
   vector<TH1*> zhists;
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
-  
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  // sample = 3 means di-electron                                                                                                                                              
-  makehist4(ntree, dhist,  true, 3, category, true, 1.00, zhists, NULL);
+
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, zhists, true, NULL);
 
   string name = string("zeecor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
   
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
   outfile.Close();
-  
   nfile->Close();
   dfile->Close();
-  
+
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
 
-// make histograms for W->munu to signal region correction                                                                                                                     
-void makewmncorhist( std::string  signalRegionFile,  std::string  wmunuFile,  std::string  kFactorFile, int category, std::string ext = "") {
-
-  TFile*  nfile = TFile::Open(signalRegionFile.c_str());
-  TFile*  dfile = TFile::Open(wmunuFile.c_str());
-
-  TTree* ntree = (TTree*)nfile->Get("tree/tree");
-  TTree* dtree = (TTree*)dfile->Get("tree/tree");
-
-  // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
-
-  if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
-  }
-  else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
-  }
-
-  TFile kffile(kFactorFile.c_str());
-  TH1* znlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
-  TH1*  zlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
-  TH1* zewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
-
-  znlohist->Divide(zlohist);
-
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-  zhists.push_back(znlohist);
-  zhists.push_back(zewkhist);
 
 
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  // sample = 2 means single mu                                                                                                                                            
-  makehist4(ntree, dhist,  true, 2, category, true, 1.00, zhists, NULL);
+// make histograms for W->mnu to signal region correction                                                                                                                   
+void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
 
-  string name = string("wmncor")+ext;
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(wmnFile.c_str());
 
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
-  outfile.Close();
-
-  nfile->Close();
-  dfile->Close();
-
-  cout << "W(munu)->W+jets transfer factor computed ..." << endl;
-}
-
-
-// make histograms for W->munu to signal region correction                                                                                                                     
-void makewencorhist( std::string  signalRegionFile,  std::string  wmunuFile,  std::string  kFactorFile, int category,std::string ext = "") {
-
-  TFile*  nfile = TFile::Open(signalRegionFile.c_str());
-  TFile*  dfile = TFile::Open(wmunuFile.c_str());
-
-  TTree* ntree = (TTree*)nfile->Get("tree/tree");
-  TTree* dtree = (TTree*)dfile->Get("tree/tree");
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
 
   if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
   else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
 
+
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
-  TH1* znlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
-  TH1*  zlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
-  TH1* zewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
-
-  znlohist->Divide(zlohist);
-
-  vector<TH1*> ehists;
-  vector<TH1*> zhists;
-  zhists.push_back(znlohist);
-  zhists.push_back(zewkhist);
-
-
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  // sample = 4 means single ele                                                                                                                                            
-  makehist4(ntree, dhist,  true, 4, category, true, 1.00, zhists, NULL);
-
-  string name = string("wencor")+ext;
-
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
-  outfile.Close();
-
-  nfile->Close();
-  dfile->Close();
-
-  cout << "W(enu)->W+jets transfer factor computed ..." << endl;
-}
-
-
-
-// make ratio between Z->nunu and W->munu in the signal region                                                                                                                 
-void makewzmcorhist( std::string  znunuFile,  std::string  wmunuFile,  std::string  kFactorFile, int category,std::string ext = "") {
-
-  TFile*  nfile = TFile::Open(znunuFile.c_str());
-  TFile*  dfile = TFile::Open(wmunuFile.c_str());
-
-  TTree* ntree = (TTree*)nfile->Get("tree/tree");
-  TTree* dtree = (TTree*)dfile->Get("tree/tree");
-
-  // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
-
-  if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
-  }
-  else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
-  }
-
-
-  TFile kffile(kFactorFile.c_str());
-  TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
-  TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
-  TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
-
   TH1* wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
   TH1*  wlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
   TH1* wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
 
-  znlohist->Divide(zlohist);
   wnlohist->Divide(wlohist);
 
-  vector<TH1*> zhists;
+  vector<TH1*> ehists;
   vector<TH1*> whists;
-  zhists.push_back(znlohist);
-  zhists.push_back(zewkhist);
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  // sample = 2 single mu                                                                                                                                                    
-  makehist4(ntree, dhist,  true, 2, category, true, 1.00, zhists, NULL);
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, whists, true, NULL);
 
-  string name = string("wzmcor")+ext;
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
+  string name = string("wmncor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
   outfile.Close();
-
   nfile->Close();
-  dfile->Close();
+  // dfile->Close();
 
-  cout << "W(munu)->Z(inv) transfer factor computed ..." << endl;
+  cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
 
 
-// W+jets to Znunu correction factor in the signal region                                                                                                                      
-void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::string  kFactorFile, int category, string ext="", int kfact=0) {
+// make histograms for W->enu to signal region correction                                                                                                                   
+void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
 
-  TFile*  nfile =  TFile::Open(znunuFile.c_str());
-  TFile*  dfile =  TFile::Open(wlnuFile.c_str());
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(wenFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree/tree");
-  TTree* dtree = (TTree*)dfile->Get("tree/tree");
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
+
 
   if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
   else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
 
+
+
+
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
+  TFile kffile(kFactorFile.c_str());
+  TH1* wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
+  TH1*  wlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
+  TH1* wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+
+  wnlohist->Divide(wlohist);
+
+  vector<TH1*> ehists;
+  vector<TH1*> whists;
+  whists.push_back(wnlohist);
+  whists.push_back(wewkhist);
+
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, whists, true, NULL);
+
+  string name = string("wencor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
+  nfile->Close();
+  //dfile->Close();
+
+  cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
+}
+
+
+// make Z/W ratio
+void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "",string ext = "",int kfact = 0) {
+
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(znunuFile.c_str());
+  TFile* dfile  = TFile::Open(wlnuFile.c_str());
+
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
+
+  // create histograms                                                                                                                                                         
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
+
+
+  if(category <=1){
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+  else{
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+
+
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
 
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
@@ -319,6 +380,7 @@ void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::strin
   TH1* re2hist  = (TH1*)kffile.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
   TH1* fa1hist  = (TH1*)kffile.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
   TH1* fa2hist  = (TH1*)kffile.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
+
 
   // nlo correction for the PDF                                                                                                                                                
   zpdfhist->Divide(znlohist);
@@ -361,48 +423,74 @@ void makezwjcorhist( std::string  znunuFile,  std::string  wlnuFile,  std::strin
   if (kfact == 7) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
   if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
 
-  // sample = 0 means signal region cuts                                                                                                                                        
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  makehist4(ntree, dhist,  true, 0, category, true, 1.00, zhists, NULL);
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, whists, true, NULL);
 
   string name = string("zwjcor")+ext;
 
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
-  outfile.Close();
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
 
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile.Close();
 
-  cout << "W+jets->Z(inv) transfer factor computed ..." << endl;
+  cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
 
 
-// Photon+jets / Znunu signal region                                                                                                                                            
-void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::string  kFactorFile,  std::string  fPfile, int category, string ext="", int kfact=0) {
+// make Z/gamma ratio
+void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFile,  string  fPfile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "",int kfact = 0) {
 
-  TFile*  nfile = TFile::Open(znunuFile.c_str());
-  TFile*  dfile = TFile::Open(photonFile.c_str());
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(znunuFile.c_str());
+  TFile* dfile  = TFile::Open(photonFile.c_str());
 
-  TTree* ntree = (TTree*)nfile->Get("tree/tree");
-  TTree* dtree = (TTree*)dfile->Get("tree/tree");
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
-  TH1F* nhist = NULL;
-  TH1F* dhist = NULL;
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
 
   if(category <=1){
-    nhist = new TH1F("nhist", "", nbins_monoJet, bins_monoJet);
-    dhist = new TH1F("dhist", "", nbins_monoJet, bins_monoJet);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
   else{
-    nhist = new TH1F("nhist", "", nbins_monoV, bins_monoV);
-    dhist = new TH1F("dhist", "", nbins_monoV, bins_monoV);
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
   }
 
+
+  // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
@@ -475,22 +563,239 @@ void makegamcorhist( std::string  znunuFile,  std::string  photonFile,  std::str
   if (kfact == 8) zhists.push_back(znlohist);
   if (kfact == 8) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
 
-  // sample = 0 means signal region cuts                                                                                                                                        
-  makehist4(ntree, nhist,  true, 0, category, true, 1.00, zhists, NULL);
-  makehist4(ntree, dhist,  true, 5, category, true, 1.00, zhists, NULL);
 
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, ahists, true, NULL);
 
   string name = string("gamcor")+ext;
-  
-  nhist->Divide(dhist);
-  TFile outfile((name+".root").c_str(), "RECREATE");
-  nhist->SetName((name+"hist" ).c_str());
-  nhist->Write();
-  outfile.Close();
 
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile.Close();
 
-  cout << "gamma+jets->Z(inv) transfer factor computed ..." << endl;
+  cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
+}
+
+// correction for top
+void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(topFile.c_str());
+
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
+
+  // create histograms                                                                                                                                                         
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
+
+
+  if(category <=1){
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+  else{
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, zhists, true, NULL);
+
+  string name = string("topmucor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
+  nfile->Close();
+  dfile->Close();
+
+  cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
+}
+
+
+// correction for top
+void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(topFile.c_str());
+
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
+
+  // create histograms                                                                                                                                                         
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
+
+
+  if(category <=1){
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+  else{
+    for(auto obs : observables){
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    }
+  }
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, zhists, true, NULL);
+
+  string name = string("topelcor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
+  nfile->Close();
+  dfile->Close();
+
+  cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
+}
+
+
+// correction for Z(nunu) or W+jets mass sidebaand
+void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int category_num, int category_den, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+
+  // open files                                                                                                                                                                
+  TFile* nfile  = TFile::Open(signalRegionFile.c_str());
+  TFile* dfile  = TFile::Open(sidebandFile.c_str());
+
+  TTree* ntree = (TTree*) nfile->Get("tree/tree");
+  TTree* dtree = (TTree*) dfile->Get("tree/tree");
+
+  // create histograms                                                                                                                                                         
+  vector<TH1*> nhist;
+  vector<TH1*> dhist;
+  vector<TH2*> nhist_2D;
+  vector<TH2*> dhist_2D;
+
+  if(category_num <=1 or category_den <=1){
+    cerr<<"Wrong category number --> exit "<<endl;
+    return;
+  }
+
+
+  for(auto obs : observables){
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+  }
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, lumi, zhists, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, lumi, zhists, true, NULL);
+
+  string name = string("sidebandcor")+ext;
+
+  // divide the two                                                                                                                                                          
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Divide(dhist.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  
+  // create output file                                                                                                                                                        
+  TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist.at(ihist)->Write();
+  }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->Write();
+  }
+
+  outfile.Close();
+  nfile->Close();
+  dfile->Close();
+
+  cout << "Sideband->Signal region transfer factor computed ..." << endl;
 }
