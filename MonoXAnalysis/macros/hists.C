@@ -56,21 +56,28 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   vector<TH1*> monoWhist;
   vector<TH1*> monoZhist;
   vector<TH1*> dthist;
+
+  vector<float> bins;
   
   if(category <= 1){
 
     for(auto obs : observables){
 
-      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+      if(obs == "met")
+        bins = bins_monoJ;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       
       znhist.push_back(dynamic_cast<TH1*>(znhist_temp));
       wlhist.push_back(dynamic_cast<TH1*>(wlhist_temp));
@@ -87,17 +94,22 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
   else{
 
     for(auto obs : observables){
+
+      if(obs == "met")
+        bins = bins_monoV;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
       
-      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+      TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       
       znhist.push_back(dynamic_cast<TH1*>(znhist_temp));
       wlhist.push_back(dynamic_cast<TH1*>(wlhist_temp));
@@ -293,10 +305,18 @@ void gamdatamchist(TFile* outfile, string photonFile,
   vector<TH2*> dthist_2D;
   vector<TH2*> qcdhist_2D;
 
+  vector<float> bins;
+
   if(category <=1){
     for(auto obs : observables){
-      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+        bins = bins_monoJ;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       qcdhist.push_back(dynamic_cast<TH1*>(qchist_temp));      
     }
@@ -304,8 +324,14 @@ void gamdatamchist(TFile* outfile, string photonFile,
   }
   else{
     for(auto obs : observables){
-      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+        bins = bins_monoV;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F(("datahistgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       qcdhist.push_back(dynamic_cast<TH1*>(qchist_temp));      
     }
@@ -406,16 +432,24 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   vector<TH1*> dbhist;
   vector<TH1*> vlhist;
   vector<TH1*> vllhist;
+
+  vector<float> bins;
   
   if(category <=1){
     
     for(auto obs : observables){      
-      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+        bins = bins_monoJ;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -428,12 +462,18 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   }
   else{
     for(auto obs : observables){      
-      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+        bins = bins_monoV;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -552,16 +592,24 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   vector<TH1*> dbhist;
   vector<TH1*> vlhist;
   vector<TH1*> vllhist;
+
+  vector<float> bins;
   
   if(category <=1){
     
     for(auto obs : observables){      
-      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+        bins = bins_monoJ;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -574,12 +622,18 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   }
   else{
     for(auto obs : observables){      
-      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+        bins = bins_monoV;
+      else
+        cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
       tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -653,6 +707,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
   system(("mkdir -p "+outDir).c_str());
 
   if(doCorrectionHistograms){
+
     cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
     makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
@@ -731,7 +786,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 		     lumi,
 		     outDir,
 		     ext);
-    
 
     if(category == 2 or category == 3){
 
@@ -756,7 +810,6 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 			  ext+"W");
     }
     
-
     // systematics
     cout<<"systematics on Z/gamma ratio "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
@@ -954,10 +1007,8 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 		     lumi,
 		     outDir,
 		     "btagDown",		     
-		     ext+"bDown");
-
+  		     ext+"bDown");
   }
-
   
   // take correction files --> central value
   cout<<"Re-open file for correction histo"<<endl;
@@ -1163,29 +1214,29 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     topelcorbuphist .push_back( (TH1*) topelcorbupfile->Get(("topelcor"+ext+"bUphist_"+obs).c_str()));    
     topelcorbdownhist .push_back( (TH1*) topelcorbdownfile->Get(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
 
-    TH1* topmucoruncbuphist = (TH1*) topmucorbuphist.back()->Clone(("topmucoruncbup"+ext+"hist_"+obs).c_str());    
-    topmucoruncbuphist->Divide(topmucorhist.back());
-    for (int i = 1; i <= topmucoruncbuphist->GetNbinsX(); i++) 
-      topmucoruncbuphist->SetBinContent(i, fabs(topmucoruncbuphist->GetBinContent(i)-1.0));
-    topmucoruncbuphist->SetName("mubUp");
+    // make symmetrization
+    TH1* topmucorbuphist_tmp = (TH1*) topmucorbuphist.back()->Clone(("topmucorbup_tmp"+ext+"hist_"+obs).c_str());    
+    topmucorbuphist_tmp->Divide(topmucorhist.back());
+    TH1* topmucorbdownhist_tmp = (TH1*) topmucorbdownhist.back()->Clone(("topmucorbdown_tmp"+ext+"hist_"+obs).c_str());    
+    topmucorbdownhist_tmp->Divide(topmucorhist.back());
+    
+    TH1* topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());    
+    for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) {      
+      topmucoruncbhist->SetBinContent(i, fabs(topmucorbuphist_tmp->GetBinContent(i)-1.0)+fabs(topmucorbdownhist_tmp->GetBinContent(i))-1.0);
+    }
+    topmucoruncbhist->SetName("TOP_MU_B");
 
-    TH1* topmucoruncbdownhist = (TH1*) topmucorbdownhist.back()->Clone(("topmucoruncbdown"+ext+"hist_"+obs).c_str());    
-    topmucoruncbdownhist->Divide(topmucorhist.back());
-    for (int i = 1; i <= topmucoruncbdownhist->GetNbinsX(); i++) 
-      topmucoruncbdownhist->SetBinContent(i, fabs(topmucoruncbdownhist->GetBinContent(i)-1.0));
-    topmucoruncbdownhist->SetName("mubDown");
-
-    TH1* topelcoruncbuphist = (TH1*) topelcorbuphist.back()->Clone(("topelcoruncbup"+ext+"hist_"+obs).c_str());    
-    topelcoruncbuphist->Divide(topelcorhist.back());
-    for (int i = 1; i <= topelcoruncbuphist->GetNbinsX(); i++) 
-      topelcoruncbuphist->SetBinContent(i, fabs(topelcoruncbuphist->GetBinContent(i)-1.0));
-    topelcoruncbuphist->SetName("elbUp");
-
-    TH1* topelcoruncbdownhist = (TH1*) topelcorbdownhist.back()->Clone(("topelcoruncbdown"+ext+"hist_"+obs).c_str());    
-    topelcoruncbdownhist->Divide(topelcorhist.back());
-    for (int i = 1; i <= topelcoruncbdownhist->GetNbinsX(); i++) 
-      topelcoruncbdownhist->SetBinContent(i, fabs(topelcoruncbdownhist->GetBinContent(i)-1.0));
-    topelcoruncbdownhist->SetName("elbDown");
+    // make symmetrization
+    TH1* topelcorbuphist_tmp = (TH1*) topelcorbuphist.back()->Clone(("topelcorbup_tmp"+ext+"hist_"+obs).c_str());    
+    topelcorbuphist_tmp->Divide(topelcorhist.back());
+    TH1* topelcorbdownhist_tmp = (TH1*) topelcorbdownhist.back()->Clone(("topelcorbdown_tmp"+ext+"hist_"+obs).c_str());    
+    topelcorbdownhist_tmp->Divide(topelcorhist.back());
+    
+    TH1* topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());    
+    for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) {      
+      topelcoruncbhist->SetBinContent(i, fabs(topelcorbuphist_tmp->GetBinContent(i)-1)+fabs(topelcorbdownhist_tmp->GetBinContent(i)-1.0));
+    }
+    topelcoruncbhist->SetName("TOP_EL_B");
 
     // output file
     TFile outfile((outDir+"/templates"+ext+"_"+obs+".root").c_str(), "RECREATE");
@@ -1238,10 +1289,8 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     zwjuncfa2hist->Write();
     zwjuncpdfhist->Write();
 
-    topmucoruncbuphist->Write();
-    topmucoruncbdownhist->Write();
-    topelcoruncbuphist->Write();
-    topelcoruncbdownhist->Write();
+    topmucoruncbhist->Write();
+    topelcoruncbhist->Write();
 
     // signal region templates
     cout<<"start signal region data"<<endl;

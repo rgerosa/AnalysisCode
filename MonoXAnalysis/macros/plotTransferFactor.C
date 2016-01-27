@@ -435,9 +435,8 @@ void rtopmu(string fileName, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("topmucorhist_"+observable).c_str());
-    TH1F*  histbUp = (TH1F*)file->Get(("mubUp"));
-    TH1F*  histbDown = (TH1F*)file->Get(("mubDown"));
+    TH1F*  hist  = (TH1F*)file->Get(("topmucorhist_"+observable).c_str());
+    TH1F*  histb = (TH1F*)file->Get(("TOP_MU_B"));
 
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
@@ -465,7 +464,7 @@ void rtopmu(string fileName, string observable) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
         err += pow(hist->GetBinContent(i)*0.02,2);
-        err += pow(fabs(histbUp->GetBinContent(i)+histbDown->GetBinContent(i))*hist->GetBinContent(i),2);
+        err += pow(fabs(histb->GetBinContent(i))*hist->GetBinContent(i),2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -502,12 +501,11 @@ void rtopel(string fileName, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("topelcorhist_"+observable).c_str());
-    TH1F*  histbUp = (TH1F*)file->Get(("elbUp"));
-    TH1F*  histbDown = (TH1F*)file->Get(("elbDown"));
+    TH1F*  hist  = (TH1F*)file->Get(("topelcorhist_"+observable).c_str());
+    TH1F*  histb = (TH1F*)file->Get(("TOP_EL_B"));
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 0.25, "");
+    TH1* frame = canvas->DrawFrame(xmin, 0., xmax, 1.25, "");
     frame->GetYaxis()->SetTitle("R_{top,el}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
@@ -531,8 +529,7 @@ void rtopel(string fileName, string observable) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
         err += pow(hist->GetBinContent(i)*0.02,2);
-        err += pow(histbUp->GetBinContent(i)*hist->GetBinContent(i),2);
-        err += pow(histbDown->GetBinContent(i)*hist->GetBinContent(i),2);
+        err += pow(histb->GetBinContent(i)*hist->GetBinContent(i),2);
         ehist->SetBinError(i, sqrt(err));
     }
 

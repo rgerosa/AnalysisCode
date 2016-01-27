@@ -2,6 +2,46 @@
 
 using namespace std;
 
+void smoothEmptyBins(TH1* hist, int nsteps = 2){
+
+  for(int iBin = 1 ; iBin <= hist->GetNbinsX(); iBin++){
+    if(hist->GetBinContent(iBin) == 0){
+      float average = 0.;
+      for(int jBin = iBin -nsteps; jBin < iBin+nsteps; jBin++){
+	if(jBin == iBin) continue;
+	if(jBin > 0 and jBin <= hist->GetNbinsX()){
+	  average += hist->GetBinContent(jBin);
+	}
+      }
+      hist->SetBinContent(iBin,average/(nsteps*2)); 
+      hist->SetBinError(iBin,hist->GetBinContent(iBin)*2); 
+    }
+  }
+}
+
+
+void smoothEmptyBins(TH2* hist, int nsteps = 1){
+
+  for(int xBin = 1 ; xBin <= hist->GetNbinsX(); xBin++){
+    for(int yBin = 1 ; yBin <= hist->GetNbinsY(); yBin++){
+      if(hist->GetBinContent(xBin,yBin) == 0){
+	float average = 0.;
+	for(int jBin = xBin -nsteps; jBin < xBin+nsteps; jBin++){
+	  for(int kBin = yBin -nsteps; kBin < yBin+nsteps; kBin++){
+	    if(jBin == xBin and kBin == yBin) continue;
+	    if((jBin > 0 and jBin <= hist->GetNbinsX()) and (kBin > 0 and kBin <= hist->GetNbinsY())){
+	      average += hist->GetBinContent(jBin,kBin);
+	    }
+	  }
+	}
+	hist->SetBinContent(xBin,yBin,average/((nsteps*2+1)*(nsteps*2+1)-1)); 
+	hist->SetBinError(xBin,yBin,hist->GetBinContent(xBin,yBin)*2); 
+      }
+    }
+  }
+}
+
+
 // make histograms for Z->mumu to signal region correction                                                                                                                   
 void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
 
@@ -18,20 +58,36 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
+
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+      
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+      
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
     }
   }
 
@@ -61,6 +117,15 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
+
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -98,18 +163,32 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
+
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -142,6 +221,13 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -174,6 +260,8 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
+  vector<float> bins;
+
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
@@ -182,16 +270,28 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
 
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -223,6 +323,13 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -260,21 +367,36 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
 
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
     }
   }
 
@@ -306,6 +428,13 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -343,19 +472,32 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
 
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -435,6 +577,13 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -472,18 +621,32 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
+
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -576,6 +739,13 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -612,19 +782,32 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
 
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -645,6 +828,13 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -682,19 +872,32 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
 
   if(category <=1){
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoJ.size()-1), &bins_monoJ[0]);
+
+      if(obs == "met")
+	bins = bins_monoJ;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
   }
   else{
     for(auto obs : observables){
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+
+      if(obs == "met")
+	bins = bins_monoV;
+      else
+	cout<<"No binning for this observable --> please define it"<<endl;
+
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -715,6 +918,13 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -752,6 +962,8 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+  vector<float> bins;
+
   if(category_num <=1 or category_den <=1){
     cerr<<"Wrong category number --> exit "<<endl;
     return;
@@ -759,8 +971,14 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
 
 
   for(auto obs : observables){
-    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
-    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins_monoV.size()-1), &bins_monoV[0]);
+    
+    if(obs == "met")
+      bins = bins_monoJ;
+    else
+      cout<<"No binning for this observable --> please define it"<<endl;
+    
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
   }
@@ -780,6 +998,13 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+
+  //check for empty bins and apply smoothing
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    smoothEmptyBins(nhist.at(ihist),2);
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    smoothEmptyBins(nhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
