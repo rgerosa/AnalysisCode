@@ -4,12 +4,10 @@
 
 using namespace std;
 
-double defaultVal = 1e-10;
-
 // function to create a RooDataHist from TH1F and import it in a workspace
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {
   RooDataHist rhist(procname.c_str(), "", varlist, hist);
-  ws.import(rhist);
+  ws.import(rhist,RooFit::Silence());
 }
 
 // Make list of bins of a TH1F as RooArgList of RooRealVar and building the RooParametricHist (to be Run in the release with combine)
@@ -20,15 +18,17 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
     stringstream binss;
     binss << procname << "_bin" << i;
     RooRealVar* binvar;
+
     // make a RooRealVar for each bin [0,2*binContent]
-    if (!setConst) 
-      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i), 0., hist->GetBinContent(i)*2.0);
-    else           
+    if (!setConst && hist->GetBinContent(i) != 0)
+      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i), 0., hist->GetBinContent(i)*10.0);
+    else if(setConst && hist->GetBinContent(i) != 0)          
       binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i));
-
-    if(hist->GetBinContent(i) == 0)
-      binvar->setVal(defaultVal);
-
+    else if(!setConst && hist->GetBinContent(i) == 0)
+      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i-1), -100., 100.);
+    else if(setConst && hist->GetBinContent(i) == 0)
+      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i-1));
+    
     binlist.add(*binvar);
   }
   
@@ -39,8 +39,8 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
   RooParametricHist phist(procname.c_str(), "", var, binlist, *hist);
   RooAddition norm(normss.str().c_str(), "", binlist);
 
-  ws.import(phist,RooFit::RecycleConflictNodes());
-  ws.import(norm, RooFit::RecycleConflictNodes());
+  ws.import(phist,RooFit::RecycleConflictNodes(),RooFit::Silence());
+  ws.import(norm, RooFit::RecycleConflictNodes(),RooFit::Silence());
 }
 
 // make connections betweem signal region and control region
@@ -53,21 +53,20 @@ void makeConnectedBinList(string procname, RooRealVar& var,
     crbinlist = new RooArgList();
 
   // Loop on ratio hist
+  float extreme_tmp = 5;
   for (int i = 1; i <= rhist->GetNbinsX(); i++) {
     stringstream rbinss;
     rbinss << "r_" << procname << "_bin" << i;
     // Fixed value for each bin of the ratio
     RooRealVar* rbinvar = new RooRealVar(rbinss.str().c_str(), "", rhist->GetBinContent(i));
 
-    if(rhist->GetBinContent(i) == 0)
-      rbinvar->setVal(defaultVal);
-    
     // uncertainty histograms for systematics
     stringstream rerrbinss;
     rerrbinss << procname << "_bin" << i << "_Runc";
-    // Nuisance for the Final fit for each bin (bin-by-bin unc)
-    RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -5., 5.);
-    
+    // Nuisance for the Final fit for each bin (bin-by-bin unc) --> avoid negative values
+    float extreme = std::min(5,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
+    RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
+    rerrbinvar->Print();
     stringstream binss;
     binss << procname << "_bin" << i;
 
@@ -81,28 +80,33 @@ void makeConnectedBinList(string procname, RooRealVar& var,
     fobinlist.add(*rerrbinvar);
     
     // bin [i] (CR) = bin [i] (SR) /( Rbin [i] *(1+RhistError[i]/Rbin[i]*Rbin_Err[i] )) --> statstical uncertainty
-    double err_stat = 10e-6;
-    if(rhist->GetBinContent(i) != 0)
-      err_stat = rhist->GetBinError(i)/rhist->GetBinContent(i);
-
     stringstream formss;
     formss << "@0/";
     formss << "(";
     formss << "@1";
-    formss << "*(1+" << err_stat << "*@2)";
+    formss << "*(abs(1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2))";
     // systemaitc uncertainty
     for (int j = 0; j < syst.size(); j++) {
       stringstream systbinss;
       if (syst[j].first == NULL) { // add bin by bin
 	systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
-	RooRealVar* systbinvar = new RooRealVar(systbinss.str().c_str(), "", 0., -5., 5.);
+	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
+	RooRealVar* systbinvar = new RooRealVar(systbinss.str().c_str(), "", 0., -extreme, extreme);
+	systbinvar->Print();
 	// Add all the systeamtics as new Multiplicative Nuisance for each bin
 	fobinlist.add(*systbinvar);
       }
-      else 
+      else{ 
+	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i));
+	if( extreme < extreme_tmp){
+	  syst[j].first->setMin(-extreme);
+	  syst[j].first->setMax(extreme);
+	  extreme_tmp = extreme;
+	}	
 	fobinlist.add(*syst[j].first);
-      
-      formss << "*(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << ")";
+	syst[j].first->Print();
+      }
+      formss << "*(abs(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << "))";
     }
     formss << ")";
     
@@ -118,14 +122,14 @@ void makeConnectedBinList(string procname, RooRealVar& var,
   RooParametricHist phist(procname.c_str(), "", var, *crbinlist, *rhist);
   RooAddition norm(normss.str().c_str(),"", *crbinlist);
   
-  ws.import(phist,RooFit::RecycleConflictNodes());
-  ws.import(norm, RooFit::RecycleConflictNodes());
+  ws.import(phist,RooFit::RecycleConflictNodes(),RooFit::Silence());
+  ws.import(norm, RooFit::RecycleConflictNodes(),RooFit::Silence());
 }
 
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName, int category, 
-		     string outputName = "workspace.root", string observable = "met", float scaleQCD = 2, bool connectWZ = true){
+		     string outputName = "workspace.root", string observable = "met", float scaleQCD = 2, bool connectWZ = true, bool connectTop = true){
 
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
 
@@ -141,11 +145,11 @@ void createWorkspace(string inputName, int category,
   double xMax = 0.;
   if(observable == "met" && category <=1){
     xMin = 200.;
-    xMax = 1090.;
+    xMax = 1190.;
   }
   else if(observable == "met" && category >1){
     xMin = 200.;
-    xMax = 1000.;
+    xMax = 1100.;
   }
   else
     cout<<"Binning not implemented for the observable "<<observable<<" --> please define it "<<endl;
@@ -187,9 +191,19 @@ void createWorkspace(string inputName, int category,
   makeBinList("Znunu_SR", met, wspace, znn_SR_hist, znn_SR_bins);
 
   // Top background --> to be extracted from CRs
-  TH1F* top_SR_hist = (TH1F*) templatesfile->Get(("tbkghist_"+observable).c_str());
-  RooArgList top_SR_bins; 
-  makeBinList("Top_SR", met, wspace, top_SR_hist, top_SR_bins);
+  RooArgList top_SR_bins;
+  TH1F* top_SR_hist = NULL;
+
+  if(connectTop){
+    top_SR_hist = (TH1F*) templatesfile->Get(("tbkghist_"+observable).c_str());
+    RooArgList top_SR_bins; 
+    makeBinList("Top_SR", met, wspace, top_SR_hist, top_SR_bins);
+  }
+  else{
+    addTemplate("Top_SR",
+		vars, wspace,
+		(TH1F*)templatesfile->Get(("tbkghist_"+observable).c_str()));
+  }
 
   // WJets background --> to be extracted from CRs, with connection to Z->nunu
   TH1F* wln_SR_hist = (TH1F*) templatesfile->Get(("wjethist_"+observable).c_str());
@@ -313,44 +327,46 @@ void createWorkspace(string inputName, int category,
   addTemplate("QCD_WE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistwen_"+observable).c_str()));
   addTemplate("Dibosons_WE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistwen_"+observable).c_str()));
 
-  /////////////////////////////////////
-  // -------- CR Top-Muon  -------- //
-  ////////////////////////////////////
-  cout<<"Make CR Top-mu  templates ..."<<endl;
+  if(connectTop){
+    
+    /////////////////////////////////////
+    // -------- CR Top-Muon  -------- //
+    ////////////////////////////////////
+    cout<<"Make CR Top-mu  templates ..."<<endl;
 
-  addTemplate("data_obs_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
-  // connect tt->mu+b with tt SR
-  vector<pair<RooRealVar*, TH1*> > top_TM_syst;
-  RooRealVar* top_TM_btag   = new RooRealVar("top_TM_btag" , "", 0., -5., 5.);
-  top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_MU_B")));
+    addTemplate("data_obs_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
+    // connect tt->mu+b with tt SR
+    vector<pair<RooRealVar*, TH1*> > top_TM_syst;
+    RooRealVar* top_TM_btag   = new RooRealVar("top_TM_btag" , "", 0., -5., 5.);
+    top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_MU_B")));
+    
+    makeConnectedBinList("Top_TM", met, wspace, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
+    
+    // Other MC backgrounds in single electron control region
+    addTemplate("ZJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopmu_"+observable).c_str()));
+    addTemplate("WJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopmu_"+observable).c_str()));
+    addTemplate("QCD_TM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopmu_"+observable).c_str()));
+    addTemplate("Dibosons_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopmu_"+observable).c_str()));
 
-  makeConnectedBinList("Top_TM", met, wspace, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
-  
-  // Other MC backgrounds in single electron control region
-  //  addTemplate("ZJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopmu_"+observable).c_str()));
-  //  addTemplate("WJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopmu_"+observable).c_str()));
-  //  addTemplate("QCD_TM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopmu_"+observable).c_str()));
-  //  addTemplate("Dibosons_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopmu_"+observable).c_str()));
-  /*
-  /////////////////////////////////////
-  // -------- CR Top-Electron-------- //
-  ////////////////////////////////////
-  cout<<"Make CR Top-el  templates ..."<<endl;
-
-  addTemplate("data_obs_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopel_"+observable).c_str()));
-  // connect tt->mu+b with tt SR
-  vector<pair<RooRealVar*, TH1*> > top_TE_syst;
-  RooRealVar* top_TE_btag   = new RooRealVar("top_TE_btag" , "", 0., -5., 5.);
-  top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_EL_B")));
-
-  makeConnectedBinList("Top_TE", met, wspace, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins);
-  
-  // Other MC backgrounds in single electron control region
-  addTemplate("ZJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopel_"+observable).c_str()));
-  addTemplate("WJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopel_"+observable).c_str()));
-  addTemplate("QCD_TE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopel_"+observable).c_str()));
-  addTemplate("Dibosons_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopel_"+observable).c_str()));
-  */    
+    /////////////////////////////////////
+    // -------- CR Top-Electron-------- //
+    ////////////////////////////////////
+    cout<<"Make CR Top-el  templates ..."<<endl;
+    
+    addTemplate("data_obs_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopel_"+observable).c_str()));
+    // connect tt->mu+b with tt SR
+    vector<pair<RooRealVar*, TH1*> > top_TE_syst;
+    RooRealVar* top_TE_btag   = new RooRealVar("top_TE_btag" , "", 0., -5., 5.);
+    top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_EL_B")));
+    
+    makeConnectedBinList("Top_TE", met, wspace, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins);
+    
+    // Other MC backgrounds in single electron control region
+    addTemplate("ZJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopel_"+observable).c_str()));
+    addTemplate("WJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopel_"+observable).c_str()));
+    addTemplate("QCD_TE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopel_"+observable).c_str()));
+    addTemplate("Dibosons_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopel_"+observable).c_str()));
+  }
   // ---------------------------- Write out the workspace -----------------------------------------------------------------//
   outfile->cd();
   wspace.Write();

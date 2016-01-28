@@ -16,7 +16,8 @@ using namespace std;
 
 // define binnings for the different observables
 vector<float> bins_monoV = {200., 250., 300., 350., 400., 500., 600., 1000.};
-vector<float> bins_monoJ = {200, 230, 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090};
+vector<float> bins_monoJ = {200., 250., 300., 350., 400., 500., 600., 1000.};
+//vector<float> bins_monoJ = {200, 230, 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090};
 
 const float ptMax     = 1000.;
 const float tau2tau1  = 0.6;
@@ -53,7 +54,7 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  esfthist = (TH2*)sffile->Get("electron_tight_SF");
   
   // Photon ID scale factor from tag and probe
-  TFile* psffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
+  TFile* psffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p6fb_2301.root");
   TH2*  psfhist  = (TH2*)psffile->Get("PhotonSF");  
   TH2*  purhist  = (TH2*)psffile->Get("PhotonPurity");
   
@@ -411,6 +412,10 @@ void makehist4(TTree* tree, /*input tree*/
     // control regions with leptons or photons (2mu or 2ele, or one high pt photon)
     if (sample == 1 && *mu1pid == *mu2pid) continue;
     if (sample == 3 && *el1pid == *el2pid) continue;
+    // take only leading tight leptons in the lepton control sample
+    if ((sample == 1 || sample == 3) && not (id1 == 1 or id2 == 1)) continue;
+    if ((sample == 2 || sample == 4) && id1 != 1) continue;
+    //
     if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
     if (sample == 4 && *met < 50.) continue;

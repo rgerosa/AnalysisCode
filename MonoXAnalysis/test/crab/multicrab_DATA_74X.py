@@ -22,7 +22,7 @@ pyCfgParams = ['isMC=False',
                'addMVAMet=False',
                'globalTag=74X_dataRun2_Prompt_v4',
                'outputFileName=tree.root',
-               'nThreads=4']
+               'nThreads=3']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -33,13 +33,13 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 4
-config.JobType.maxMemoryMB      = 2300
+config.JobType.numCores         = 3
+config.JobType.maxMemoryMB      = 2500
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
-config.Data.splitting     = 'LumiBased'
-config.Data.unitsPerJob   = 20
+config.Data.splitting     = 'EventAwareLumiBased'
+config.Data.unitsPerJob   = 30000
 config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/ecalMIBI/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'  
 

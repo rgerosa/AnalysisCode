@@ -1222,7 +1222,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     
     TH1* topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());    
     for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) {      
-      topmucoruncbhist->SetBinContent(i, fabs(topmucorbuphist_tmp->GetBinContent(i)-1.0)+fabs(topmucorbdownhist_tmp->GetBinContent(i))-1.0);
+      topmucoruncbhist->SetBinContent(i, fabs(fabs(topmucorbuphist_tmp->GetBinContent(i)+topmucorbdownhist_tmp->GetBinContent(i))/2-1.0));
     }
     topmucoruncbhist->SetName("TOP_MU_B");
 
@@ -1234,7 +1234,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
     
     TH1* topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());    
     for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) {      
-      topelcoruncbhist->SetBinContent(i, fabs(topelcorbuphist_tmp->GetBinContent(i)-1)+fabs(topelcorbdownhist_tmp->GetBinContent(i)-1.0));
+      topelcoruncbhist->SetBinContent(i, fabs(fabs(topelcorbuphist_tmp->GetBinContent(i)+topelcorbdownhist_tmp->GetBinContent(i))/2-1.0));
     }
     topelcoruncbhist->SetName("TOP_EL_B");
 
@@ -1294,7 +1294,7 @@ void hists(bool doCorrectionHistograms = false, int category = 0, double lumi = 
 
     // signal region templates
     cout<<"start signal region data"<<endl;
-    sigdatamchist(&outfile,kfactorFile,category,observables,"Vector","1000","100",lumi,true);
+    sigdatamchist(&outfile,kfactorFile,category,observables,"Vector","1000","100",lumi,false);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
     gamdatamchist(&outfile,"/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root",
