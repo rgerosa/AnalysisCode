@@ -24,10 +24,6 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
       binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i), 0., hist->GetBinContent(i)*10.0);
     else if(setConst && hist->GetBinContent(i) != 0)          
       binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i));
-    else if(!setConst && hist->GetBinContent(i) == 0)
-      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i-1), -100., 100.);
-    else if(setConst && hist->GetBinContent(i) == 0)
-      binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i-1));
     
     binlist.add(*binvar);
   }

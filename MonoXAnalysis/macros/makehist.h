@@ -422,6 +422,8 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == 7 || sample == 8) && *nbjets < 1) continue;
     if (sample == 7 || sample == 8){ // Z-veto in case of more than one lepton    
       if(pt1 <=0) continue;
+      if(abs(pid1) == 13 && pt1 < 20. ) continue;
+      if(abs(pid1) == 11 && pt1 < 40. ) continue;
       if(pt1 > 0 && pt2 > 0){
 	TLorentzVector lep1, lep2;
 	lep1.SetPtEtaPhiM(pt1,eta1,phi1,0.);
