@@ -13,14 +13,77 @@
 
 using namespace std;
 
-
 // define binnings for the different observables
-vector<float> bins_monoV = {200., 250., 300., 350., 400., 500., 600., 1000.};
-vector<float> bins_monoJ = {200., 250., 300., 350., 400., 500., 600., 1000.};
-//vector<float> bins_monoJ = {200, 230, 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090};
+vector<float> bins_monoV_met = {250., 300., 350., 400., 500., 600., 1000.};
+vector<float> bins_monoJ_met = {200., 230., 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090, 1160, 1250};
 
-const float ptMax     = 1000.;
-const float tau2tau1  = 0.6;
+vector<float> bins_monoV_mpr = {0.,5.,10.,15.,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.};
+vector<float> bins_monoJ_mpr = {0.,5.,10.,15.,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.};
+
+vector<float> bins_monoV_njet = {0.,1.,2.,3.,4.,5.,6.};
+vector<float> bins_monoJ_njet = {0.,1.,2.,3.,4.,5.,6.};
+
+vector<float> bins_monoV_nbjet = {0.,1.,2.,3.,4.};
+vector<float> bins_monoJ_nbjet = {0.,1.,2.,3.,4.};
+
+vector<float> bins_monoV_jetPt = {200.,225.,250., 300., 350., 400., 500., 600., 1000.};
+vector<float> bins_monoJ_jetPt = {200., 230., 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090, 1160, 1250};
+
+vector<float> bins_monoV_bosonPt = {250., 300., 350., 400., 500., 600., 1000.};
+vector<float> bins_monoJ_bosonPt = {200., 230., 260, 290, 320, 350, 390, 430, 470, 510, 550, 590, 640, 690, 740, 790, 840, 900, 960, 1020, 1090, 1160, 1250.};
+
+vector<float> bins_monoV_QGL = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.92,1.};
+vector<float> bins_monoJ_QGL = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.92,1.};
+
+vector<float> bins_monoV_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
+vector<float> bins_monoJ_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
+
+// binning selections
+vector<float> selectBinning (string observable, int category){
+  
+  if(observable == "met" and category <= 1)
+    return bins_monoJ_met;
+  else if(observable == "met" and category > 1)
+    return bins_monoV_met;
+  else if(observable == "mpruned" and category <=1)
+    return bins_monoJ_mpr;
+  else if(observable == "mpruned" and category > 1)
+    return bins_monoV_mpr;
+  else if(observable == "tau2tau1" and category <= 1)
+    return bins_monoJ_tau2tau1;
+  else if(observable == "tau2tau1" and category > 1)
+    return bins_monoV_tau2tau1;
+  else if(observable == "njet" and category <= 1)
+    return bins_monoJ_njet;
+  else if(observable == "njet" and category > 1)
+    return bins_monoV_njet;
+  else if(observable == "nbjet" and category <= 1)
+    return bins_monoJ_nbjet;
+  else if(observable == "nbjet" and category > 1)
+    return bins_monoV_nbjet;
+  else if(observable == "bosonPt" and category <= 1)
+    return bins_monoJ_bosonPt;
+  else if(observable == "bosonPt" and category > 1)
+    return bins_monoV_bosonPt;
+  else if((observable == "jetPt" or observable == "boostedJetPt") and category <= 1)
+    return bins_monoJ_jetPt;
+  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 1)
+    return bins_monoV_jetPt;
+  else if(observable == "QGL" and category <= 1)
+    return bins_monoJ_QGL;
+  else if(observable == "QGL" and category > 1)
+    return bins_monoV_QGL;
+
+  vector<float> dummy;
+  return dummy;
+  
+}
+
+
+// some basic cut values
+const float tau2tau1      = 0.6;
+const float prunedMassMin = 65.;
+const float ptJetMinAK8   = 250.;
 
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
@@ -35,6 +98,7 @@ void makehist4(TTree* tree, /*input tree*/
 	       string sysName,
 	       bool reweightNVTX = true,
 	       TH1* rhist = NULL) {
+
 
   // in case you want to weight the NVTX distribution
   TFile* pufile;
@@ -81,7 +145,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> xsec      (myReader,"xsec");
   TTreeReaderValue<double> wgt       (myReader,"wgt");
 
-  // create dummys for data
+  // take some wgt for MC events
   string wgtname;
   string wgtpileupname;
   string btagname;
@@ -103,8 +167,6 @@ void makehist4(TTree* tree, /*input tree*/
 
   TTreeReaderValue<double> wgtsum    (myReader,wgtname.c_str());
   TTreeReaderValue<double> wgtpileup (myReader,wgtpileupname.c_str());
-
-
   TTreeReaderValue<double> wgtbtag   (myReader,btagname.c_str());
   
   // trigger
@@ -115,6 +177,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> fhbhe (myReader,"flaghbheloose");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   
+  // MET filters
   string cscname;
   string feebname;
   string fmutrkname;
@@ -144,8 +207,10 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> j1pt   (myReader,"leadingjetpt");
   
   TTreeReaderValue<vector<double> > jetpt  (myReader,"centraljetpt");
+  TTreeReaderValue<vector<double> > jetQGL (myReader,"centraljetQGL");
   TTreeReaderValue<vector<double> > jeteta (myReader,"centraljeteta");
   TTreeReaderValue<vector<double> > jetphi (myReader,"centraljetphi");
+  TTreeReaderValue<vector<double> > jetbtag (myReader,"centraljetbtag");
   TTreeReaderValue<vector<double> > jetm   (myReader,"centraljetm");
   TTreeReaderValue<vector<double> > chfrac (myReader,"centraljetCHfrac");
   TTreeReaderValue<vector<double> > nhfrac (myReader,"centraljetNHfrac");
@@ -161,9 +226,39 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
 
   // met
-  TTreeReaderValue<double> met (myReader,"t1pfmet");
-  TTreeReaderValue<double> metphi (myReader,"t1pfmetphi");
+  string metSuffix = "";
+  if(sysName == "muUp")
+    sysName = "MuEnUp";
+  else if(sysName == "muDown")
+    sysName = "MuEnDown";
+  else if(sysName == "elUp")
+    sysName = "ElEnUp";
+  else if(sysName == "elDown")
+    sysName = "ElEnDown";
+  else if(sysName == "phoUp")
+    sysName = "PhoEnUp";
+  else if(sysName == "phoDown")
+    sysName = "PhoEnDown";
+  else if(sysName == "tauUp")
+    sysName = "TauEnUp";
+  else if(sysName == "tauDown")
+    sysName = "TauEnDown";
+ else if(sysName == "jesUp")
+    sysName = "JetEnUp";
+  else if(sysName == "jesDown")
+    sysName = "JetEnDown";
+ else if(sysName == "jerUp")
+    sysName = "JeeResUp";
+  else if(sysName == "jerDown")
+    sysName = "JetResDown";
+ else if(sysName == "uncUp")
+    sysName = "UncEnUp";
+  else if(sysName == "uncDown")
+    sysName = "UncEnDown";
   
+
+  TTreeReaderValue<double> met (myReader,("t1pfmet"+sysName).c_str());
+  TTreeReaderValue<double> metphi (myReader,"t1pfmetphi");
   TTreeReaderValue<double> mmet (myReader,"t1mumet");
   TTreeReaderValue<double> mmetphi (myReader,"t1mumetphi");
   
@@ -219,8 +314,11 @@ void makehist4(TTree* tree, /*input tree*/
     // check trigger depending on the sample
     Double_t hlt = 0.0;
     if (sample == 0 || sample == 1 || sample == 2 || sample == 7)  hlt = *hltm;
-    else if (sample == 3 || sample == 4 || sample == 8)  hlt = *hlte;
-    else if (sample == 5 || sample == 6)                 hlt = *hltp;
+    else if (sample == 3 || sample == 4 || sample == 8) {
+      hlt = *hlte;
+      if(*hlte == 0) hlt =  *hltp;
+    }
+    else if (sample == 5 || sample == 6) hlt = *hltp;
 
     // check both photon triggers
     if ((sample == 5 || sample == 6) && *hltp2 > 0)  hlt = *hltp2;
@@ -238,14 +336,8 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == 0 || sample == 1 || sample == 2 || sample == 7){ pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == 3 || sample == 4 || sample == 8)          { pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == 5 || sample == 6)          { pfmet = *pmet; pfmetphi = *pmetphi;}
-    else if (sample == 7 and *hlte)               { pfmet = *emet; pfmetphi = *emetphi;}
+    else if (sample == 7 and (*hlte or *hltp))    { pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == 7 and not *hlte)           { pfmet = *mmet; pfmetphi = *mmetphi;}
-
-    // set zpt in case of Zsamples
-    Double_t zpt = 0.0;
-    if (sample == 1)      zpt = *zmmpt;
-    else if (sample == 3) zpt = zeept[0];
-    else if (sample == 5) zpt = *phpt;
 
     // set lepton info
     Int_t    id1   = 0;
@@ -290,10 +382,23 @@ void makehist4(TTree* tree, /*input tree*/
       eta1 = fabs(*pheta);
     }
     
-    if (pt1 >= ptMax) 
+    if (pt1 >= 1000.) 
       pt1 = 999.0;
-    if (pt2 >= ptMax) 
+    if (pt2 >= 1000.) 
       pt2 = 999.0;
+
+
+    // set zpt in case of Zsamples
+    Double_t bosonPt = 0.0;
+    if (sample == 1)      bosonPt = *zmmpt; // di-muon CR
+    else if (sample == 3) bosonPt = zeept[0]; // di-electron CR
+    else if (sample == 5) bosonPt = *phpt; // gamma+jets
+    else if (sample == 2 or sample == 4){ // single muon or single ele
+      TLorentzVector lep, met;
+      lep.SetPtEtaPhiM(pt1,eta1,phi1,0.);
+      met.SetPtEtaPhiM(pfmet,0.,pfmetphi,0.);
+      bosonPt = (lep+met).Pt();
+    }
 
     // scale factor for leptons
     TH2* sflhist = NULL;
@@ -401,29 +506,40 @@ void makehist4(TTree* tree, /*input tree*/
       if (isMC && khists[i]) kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
     }
     
-    // common selections (trigger + MET filter + Njets + b-veto)
+    // Trigger Selection
     if (hlt  == 0) continue; // trigger
+    // MET Filters
     if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue;
+    // Additional met filters
     if (not isMC){
       if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters
     }
-    if (*njets  < 1) continue; //Njets > 1
-    if (*nbjets > 0 and sample != 7 and sample != 8) continue; // bjets
-    // control regions with leptons or photons (2mu or 2ele, or one high pt photon)
+    // N-jets
+    if (*njets  < 1) continue; 
+    // B-veto, not for top control sample
+    if (*nbjets > 0 and sample != 7 and sample != 8) continue; 
+    // control regions with two leptons --> opposite charge
     if (sample == 1 && *mu1pid == *mu2pid) continue;
     if (sample == 3 && *el1pid == *el2pid) continue;
-    // take only leading tight leptons in the lepton control sample
+    // control regions with two leptons --> one should be tight
     if ((sample == 1 || sample == 3) && not (id1 == 1 or id2 == 1)) continue;
+    // control regions wit one lepton --> tight requirement 
     if ((sample == 2 || sample == 4) && id1 != 1) continue;
-    //
+    // photon control sample
     if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
+    // Wenu kill QCD
     if (sample == 4 && *met < 50.) continue;
-    if ((sample == 7 || sample == 8) && *nbjets < 1) continue;
-    if (sample == 7 || sample == 8){ // Z-veto in case of more than one lepton    
+    // n-bjets cut for unboosted categories
+    if ((sample == 7 || sample == 8) && (category !=2 and category !=3)  && *nbjets < 1) continue;
+    if ( sample == 7 || sample == 8){ // Z-veto in case of more than one lepton    
+      // at least one lepton in the plateau region
       if(pt1 <=0) continue;
       if(abs(pid1) == 13 && pt1 < 20. ) continue;
       if(abs(pid1) == 11 && pt1 < 40. ) continue;
+      // met cut
+      if(*met < 50.) continue;
+      // z mas veto and same flavor
       if(pt1 > 0 && pt2 > 0){
 	TLorentzVector lep1, lep2;
 	lep1.SetPtEtaPhiM(pt1,eta1,phi1,0.);
@@ -432,20 +548,23 @@ void makehist4(TTree* tree, /*input tree*/
 	if(fabs(pid1) != fabs(pid2)) continue;
       }
     }
-
+    
     // met selection
-    if (pfmet < 200.) continue;
+    if(category <= 1){
+      if (pfmet < 200.) continue;
+    }
+    else{
+      if(pfmet < 250.) continue;
+    }
 
-
-    if(category == 0){ // inclusive mono-jet analysis
-
+    // inclusive mono-jet analysis 
+    if(category == 0){ 
       if (chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue; // at least one leading jet
       if (chfrac->at(0) < 0.1) continue;   // jet id
       if (nhfrac->at(0) > 0.8) continue;   // jet id
       if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV
       if (jetpt->at(0)  < *j1pt) continue; 
       if (jmdphi < 0.5) continue; // deltaPhi cut
-
     }
     else{
 
@@ -463,44 +582,81 @@ void makehist4(TTree* tree, /*input tree*/
 	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
 	if (jetpt->at(0)  < *j1pt) continue;
 	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                          
-
+	
 	if(boostedJetpt->size()  == 0) // no boosted jets (AK8 pT > 200 GeV)
 	  goodMonoJet = true;
 	if(boostedJetpt->size() > 0){ // in case one boosted jet
-	  if(boostedJetpt->at(0) < 200) // check pT
+	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
 	    goodMonoJet = true;
 	  else{ // if high pT check pruned mass
-	    if(prunedJetm->at(0)   < 40)
+
+	    TLorentzVector jetak4, jetak8;
+	    jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	    jetak8.SetPtEtaPhiM(boostedJetpt->at(0),boostedJeteta->at(0),boostedJetphi->at(0),boostedJetm->at(0));
+
+	    if(jetak4.DeltaR(jetak8) > 0.8) continue;
+	    	    
+	    // jet met dphi     
+	    float deltaPhi = 0.;	    
+	    if(fabs(pfmetphi-jetak8.Phi()) > TMath::Pi())
+	      deltaPhi = fabs(2*TMath::Pi() - fabs(pfmetphi-jetak8.Phi()));
+	    else
+	      deltaPhi = fabs(pfmetphi-jetak8.Phi());
+		
+	    if (deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	    
+
+	    // pruned mass selection
+	    if(prunedJetm->at(0)   < prunedMassMin)
 	      goodMonoJet= true;
 	  }
 	}      	
 	if(not goodMonoJet) continue;
       }
-
+      
       else if(category >= 2){
-
+	
 	if(chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue; 	
 	if(boostedJetpt->size() == 0) continue;
-	if(boostedJetpt->at(0) < 200) continue;
+	if(boostedJetpt->at(0) < ptJetMinAK8) continue;
+	if(fabs(boostedJeteta->at(0)) > 2.4) continue;
 
 	TLorentzVector jetak4, jetak8;
 	jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jetak8.SetPtEtaPhiM(boostedJetpt->at(0),boostedJeteta->at(0),boostedJetphi->at(0),boostedJetm->at(0));
-
+	
 	// match leading ak4 and leading ak8 within 0.4 cone
-	if(jetak4.DeltaR(jetak8) > 0.4) continue;
+	if(jetak4.DeltaR(jetak8) > 0.8) continue;
 	
 	//after match apply jetid on leading ak4
 	if (chfrac->at(0) < 0.1) continue;   // jet id                                                                                                                       
 	if (nhfrac->at(0) > 0.8) continue;   // jet id                                                                                                                        
 	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
 	if (jetpt->at(0)  < *j1pt) continue;
+	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                                        
 
-	// jet met dphi
-	TLorentzVector met4V;
-	met4V.SetPtEtaPhiM(pfmet,0.,pfmetphi,0);
-	if (met4V.DeltaPhi(jetak8) < 0.5) continue; // deltaPhi cut                                                                                                          
+
+	// jet met dphi     
+	float deltaPhi = 0.;	    
+	if(fabs(pfmetphi-jetak8.Phi()) > TMath::Pi())
+	  deltaPhi = fabs(2*TMath::Pi() - fabs(pfmetphi-jetak8.Phi()));
+	else
+	  deltaPhi = fabs(pfmetphi-jetak8.Phi());
 	
+	if (deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	    
+	
+
+	// no overlap between b-jet and v-jet
+	if (sample == 7 || sample == 8){ 
+	  int nbjets = 0;
+	  for(size_t ijet = 0 ; ijet < jetbtag->size(); ijet++)
+	    if(jetbtag->at(ijet) > 0.89){
+	      jetak4.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	      if(jetak4.DeltaR(jetak8) > 1.2)
+		nbjets++;
+	    }
+	  if(nbjets < 1) continue;
+	}
+
 	// category 2 means HP mono-V
 	if(category == 2      and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
@@ -509,17 +665,17 @@ void makehist4(TTree* tree, /*input tree*/
 		boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75)
 	  goodMonoV   = true;
 	// category 4 means HP mono-V sideband
-	else if(category == 4 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65) and 
+	else if(category == 4 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65) and 
 		boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
 	// category 5 means LP mono-V sideband
-	else if(category == 5 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65) and 
+	else if(category == 5 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65) and 
 		boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75)
 	  goodMonoV   = true;
 	// category 6 means mono-V sideband
-	else if(category == 6 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 65))
+	else if(category == 6 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65))
 	  goodMonoV   = true;	
-	if(not goodMonoV) continue;
+	if(not goodMonoV) continue;	
       }
     }
                
@@ -530,24 +686,53 @@ void makehist4(TTree* tree, /*input tree*/
       btagw = 1;
 
     for(auto hist : hist1D){
-      TString name(hist->GetName());
-      
-      if(name.Contains("met") or name.Contains("pfmet") or name.Contains("MET"))
+
+      TString name(hist->GetName());      
+      if(name.Contains("met")){
 	fillvar = pfmet;
-      else if(name.Contains("jetpt") or name.Contains("jetPT"))
+      }
+      else if(name.Contains("jetPt")){
 	fillvar = jetpt->at(0);
-      else if(name.Contains("zpt") or name.Contains("wzpt"))
-	fillvar = zpt;
+      }
+      else if(name.Contains("boostedJetPt")){
+	if(boostedJetpt->size() > 0)
+	  fillvar = boostedJetpt->at(0);
+	else
+	  fillvar = 0.;
+      }      
       else if(name.Contains("mT")){
 	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
 	if(deltaPhi > TMath::Pi())
-	  deltaPhi = 2*TMath::Pi() - deltaPhi;
+	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
 	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }    
-	// overflow bin
+      else if(name.Contains("njet")){
+	  fillvar = *njets;
+      }
+      else if(name.Contains("nbjet")){
+	  fillvar = *nbjets;
+      }      
+      else if(name.Contains("bosonPt")){
+	fillvar = bosonPt;
+      }
+      else if(name.Contains("QGL")){
+	fillvar = jetQGL->at(0);
+      }
+      else if(name.Contains("mpruned")){
+	if( prunedJetm->size() > 0)
+	  fillvar = prunedJetm->at(0);	
+	else fillvar = 0.;
+      }
+      else if(name.Contains("tau2tau1")){
+	if( boostedJettau1->size() > 0 and boostedJettau2->size() > 0)
+	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);	
+	else fillvar = 0.;
+      }
+
+      // overflow bin
       if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
 	fillvar = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());
-
+      
       // total event weight
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
@@ -571,15 +756,15 @@ void makehist4(TTree* tree, /*input tree*/
     for(auto hist: hist2D){
       TString name(hist->GetName());
 
-      if(name.Contains("met_jetpt") or name.Contains("pfmet_jetpt")){ 
+      if(name.Contains("met_jetPt")){ 
 	fillvarX = pfmet;
 	fillvarY = jetpt->at(0);
       }
-      else if(name.Contains("met_zpt") or name.Contains("pfmet_zpt") or name.Contains("met_wzpt") or name.Contains("pfmet_wzpt")){
+      else if(name.Contains("met_bosonPt")){
 	fillvarX = pfmet;
-	fillvarY = zpt;
+	fillvarY = bosonPt;
       }
-      else if(name.Contains("met_mT") or name.Contains("pfmet_mT")){	
+      else if(name.Contains("met_mT")){	
 	fillvarX = pfmet;
 	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
 	if(deltaPhi > TMath::Pi())

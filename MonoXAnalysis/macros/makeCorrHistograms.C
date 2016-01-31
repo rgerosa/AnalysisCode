@@ -59,36 +59,16 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
-
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
       
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-    }
-  }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-      
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-
-    }
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
@@ -164,34 +144,16 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
 
 
@@ -260,41 +222,23 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
-  vector<float> bins;
-
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
-  if(category <=1){
-    for(auto obs : observables){
+  vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
 
 
@@ -368,40 +312,17 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-
-    }
   }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-
-    }
-  }
-
-
-
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
@@ -473,39 +394,19 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-
   TFile kffile(kFactorFile.c_str());
   TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
   TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
@@ -622,36 +523,17 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile(kFactorFile.c_str());
@@ -783,34 +665,16 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
 
   vector<TH1*> ehists;
@@ -873,34 +737,16 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH2*> dhist_2D;
 
   vector<float> bins;
+  for(auto obs : observables){
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+      
+    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
 
-  if(category <=1){
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoJ;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
-  }
-  else{
-    for(auto obs : observables){
-
-      if(obs == "met")
-	bins = bins_monoV;
-      else
-	cout<<"No binning for this observable --> please define it"<<endl;
-
-      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-    }
   }
 
   vector<TH1*> ehists;
@@ -962,25 +808,18 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
 
+
+
   vector<float> bins;
-
-  if(category_num <=1 or category_den <=1){
-    cerr<<"Wrong category number --> exit "<<endl;
-    return;
-  }
-
-
   for(auto obs : observables){
-    
-    if(obs == "met")
-      bins = bins_monoJ;
-    else
+    bins = selectBinning(obs,category_num);
+    if(bins.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
     
-    TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-    TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-    nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
-    dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+      TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
+      dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
   }
 
   vector<TH1*> ehists;
