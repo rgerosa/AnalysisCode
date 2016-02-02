@@ -1,9 +1,16 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void makeControlPlots(string templateFileName, int category, string observable, string observableLatex, string controlRegion, bool blind, bool isLog) {
+void makeControlPlots(string templateFileName, 
+		      int category, 
+		      string observable, string observableLatex, 
+		      string controlRegion, 
+		      bool blind, bool isLog,
+		      string mediatorMass = "1000",
+		      string DMMass = "50") {
 
   gROOT->SetBatch(kTRUE);
+  gROOT->ForceStyle(kTRUE);
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx();
@@ -15,7 +22,7 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   pad1->SetTickx();
   pad1->SetTicky();
 
-  TPad *pad2 = new TPad("pad2","pad2",0,0.09,1,0.28);
+  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.28);
   pad2->SetTickx();
   pad2->SetTicky();
 
@@ -29,6 +36,10 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   TH1* dbhist   = NULL;
   TH1* tophist  = NULL;
   TH1* gamhist  = NULL;
+
+  TH1* monoJhist  = NULL;
+  TH1* monoWhist  = NULL;
+  TH1* monoZhist  = NULL;
 
   // take the templates
   if(controlRegion == "gam"){
@@ -89,9 +100,13 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     qcdhist  = (TH1*)inputFile->Get(("qbkghist_"+observable).c_str());
     tophist  = (TH1*)inputFile->Get(("tbkghist_"+observable).c_str());
     vlhist   = (TH1*)inputFile->Get(("wjethist_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("zllhist_"+observable).c_str());
-    vnnhist  = (TH1*)inputFile->Get(("znnhist_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->Get(("zjethist_"+observable).c_str());
+    vnnhist  = (TH1*)inputFile->Get(("zinvhist_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghist_"+observable).c_str());  
+    
+    monoJhist = (TH1*)inputFile->Get(("monoJhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    monoWhist = (TH1*)inputFile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    monoZhist = (TH1*)inputFile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
   }
 
   // BLIND OPTION
@@ -127,7 +142,14 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     dbhist->Scale(1.0,"width");
   if(gamhist)
     gamhist->Scale(1.0,"width");
-  
+
+  if(monoJhist)
+    monoJhist->Scale(1.0,"width");
+  if(monoWhist)
+    monoWhist->Scale(1.0,"width");
+  if(monoZhist)
+    monoZhist->Scale(1.0,"width");
+
   // set colors
 
   if(datahist){
@@ -151,11 +173,11 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     vlhist->SetLineColor(kBlack);
   }
   if(tophist){
-    tophist->SetFillColor(kViolet);
+    tophist->SetFillColor(kBlue);
     tophist->SetLineColor(kBlack);
   }
   if(dbhist){
-    dbhist->SetFillColor(kBlue);
+    dbhist->SetFillColor(kViolet);
     dbhist->SetLineColor(kBlack);
   }
   if(qcdhist) {
@@ -166,6 +188,30 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     gamhist->SetFillColor(kOrange);
     gamhist->SetLineColor(kBlack);
   }
+
+  if(monoJhist){
+    monoJhist->SetFillColor(0);
+    monoJhist->SetFillStyle(0);
+    monoJhist->SetLineColor(kBlack);
+    monoJhist->SetLineWidth(2);
+  }
+
+  if(monoWhist){
+    monoWhist->SetFillColor(0);
+    monoWhist->SetFillStyle(0);
+    monoWhist->SetLineColor(kBlack);
+    monoWhist->SetLineWidth(2);
+    monoWhist->SetLineStyle(7);
+  }
+
+  if(monoZhist){
+    monoZhist->SetFillColor(0);
+    monoZhist->SetFillStyle(0);
+    monoZhist->SetLineColor(kBlack);
+    monoZhist->SetLineWidth(2);
+    monoZhist->SetLineStyle(4);
+  }
+
 
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
@@ -211,10 +257,14 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   pad1->Draw();
   pad1->cd();
 
-  if(category <= 1)
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), 80000.0, "");
+  if(category <= 1 and isLog)
+    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1000, "");
+  else if(category <= 1 and not isLog)
+    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1.5, "");
+  else if(category > 1 and isLog)
+    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1000, "");
   else
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), 15000.0, "");
+    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1.5, "");
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   frame->GetYaxis()->SetTitle("Events / GeV");
@@ -225,17 +275,32 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   frame->GetYaxis()->SetTitleSize(0.050);
   
   frame ->Draw();
-  CMS_lumi(pad1, 4, 0,false);
+  CMS_lumi(pad1, 4, 0, true);
   stack ->Draw("HIST SAME");
   datahist->Draw("P SAME");
-  
+
+  if(controlRegion == "SR"){
+    monoJhist->Draw("hist same");
+    monoWhist->Draw("hist same");
+    monoZhist->Draw("hist same");
+  }
+
   TLegend* leg = NULL;
   if(controlRegion == "gam")
-   leg = new TLegend(0.58, 0.66, 0.85, 0.92);
+    leg = new TLegend(0.58, 0.66, 0.85, 0.92);
+  else if(controlRegion == "SR" and isLog){
+    leg = new TLegend(0.32, 0.42, 0.85, 0.92);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*10000);
+  }
+  else if(controlRegion == "SR" and not isLog){
+    leg = new TLegend(0.32, 0.42, 0.85, 0.92);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*2.5);
+  }
   else
-   leg = new TLegend(0.58, 0.42, 0.85, 0.92);
+    leg = new TLegend(0.58, 0.42, 0.85, 0.92);
 
   leg->SetFillColor(0);
+  leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 
   if(controlRegion == "gam"){
@@ -245,8 +310,8 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   }
   else if(controlRegion == "zmm"){
     leg->AddEntry(datahist, "Data");
-    leg->AddEntry(vllhist, "Z#to #mu#mu","F");
-    leg->AddEntry(vlhist, "W #to #mu#nu","F");
+    leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
+    leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(qcdhist, "QCD","F");
@@ -294,6 +359,7 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     leg->AddEntry(qcdhist, "QCD","F");
   }
   else if(controlRegion == "SR"){
+    leg->SetNColumns(2);
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
     leg->AddEntry(vlhist, "W(l#nu)", "F");
@@ -301,6 +367,10 @@ void makeControlPlots(string templateFileName, int category, string observable, 
     leg->AddEntry(tophist, "Top", "F");
     leg->AddEntry(dbhist, "Dibosons", "F");
     leg->AddEntry(qcdhist, "QCD", "F");
+    TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
+    leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
+    leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)).c_str(), "L");
+    leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)).c_str(), "L");    
   }  
 
   leg->Draw("SAME");
@@ -308,33 +378,40 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   pad1->RedrawAxis("sameaxis");
   if(isLog)
     pad1->SetLogy();
-  
+
   // make data/MC ratio plot
   canvas->cd();
-  pad2->SetTopMargin(0.08);
+  pad2->SetTopMargin(0.04);
+  pad2->SetBottomMargin(0.35);
   pad2->SetRightMargin(0.075);
   pad2->SetGridy();
   pad2->Draw();
   pad2->cd();
 
   TH1* frame2 = NULL;
-  if(category <= 1)
+  if(category <= 1 and controlRegion != "zmm" and controlRegion != "zee")
     frame2 =  pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
-  else
+  else if(category <= 1 and (controlRegion == "zmm" or controlRegion == "zee"))
+    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+  else if(category > 1 and controlRegion != "zmm" and controlRegion != "zee")
     frame2 =  pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+  else if(category > 1 and (controlRegion == "zmm" or controlRegion == "zee"))
+    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
 
 
-  frame2->GetXaxis()->SetLabelSize(0.15);
+  frame2->GetXaxis()->SetLabelSize(0.10);
   frame2->GetXaxis()->SetLabelOffset(0.03);
-  frame2->GetXaxis()->SetTitleSize(0.18);
-  frame2->GetYaxis()->SetLabelSize(0.12);
-  frame2->GetYaxis()->SetTitleSize(0.18);
+  frame2->GetXaxis()->SetTitleSize(0.13);
+  frame2->GetXaxis()->SetTitleOffset(1.05);
+  frame2->GetYaxis()->SetLabelSize(0.08);
+  frame2->GetYaxis()->SetTitleSize(0.10);
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
   frame2->GetYaxis()->SetNdivisions(504, false);
   frame2->GetYaxis()->SetTitle("Data/Pred.");
+  frame2->GetYaxis()->SetTitleOffset(0.5);
+  frame2->Draw();
   
-   
-  
+
   TH1* nhist = (TH1*) datahist->Clone("datahist_tot");
   TH1* unhist = (TH1*) datahist->Clone("unhist");
   TH1* dhist = (TH1*) stack->GetStack()->At(stack->GetNhists()-1)->Clone("mchist_tot");
@@ -372,7 +449,7 @@ void makeControlPlots(string templateFileName, int category, string observable, 
   pad1->RedrawAxis();
   pad2->RedrawAxis("sameaxis");
 
-  canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
+  canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
 }
 

@@ -5,7 +5,7 @@ using namespace std;
 void smoothEmptyBins(TH1* hist, int nsteps = 2){
 
   for(int iBin = 1 ; iBin <= hist->GetNbinsX(); iBin++){
-    if(hist->GetBinContent(iBin) == 0){
+    if(hist->GetBinContent(iBin) <= 0){
       float average = 0.;
       for(int jBin = iBin -nsteps; jBin < iBin+nsteps; jBin++){
 	if(jBin == iBin) continue;
@@ -24,7 +24,7 @@ void smoothEmptyBins(TH2* hist, int nsteps = 1){
 
   for(int xBin = 1 ; xBin <= hist->GetNbinsX(); xBin++){
     for(int yBin = 1 ; yBin <= hist->GetNbinsY(); yBin++){
-      if(hist->GetBinContent(xBin,yBin) == 0){
+      if(hist->GetBinContent(xBin,yBin) <= 0){
 	float average = 0.;
 	for(int jBin = xBin -nsteps; jBin < xBin+nsteps; jBin++){
 	  for(int kBin = yBin -nsteps; kBin < yBin+nsteps; kBin++){
@@ -43,7 +43,8 @@ void smoothEmptyBins(TH2* hist, int nsteps = 1){
 
 
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
+		     string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -85,24 +86,30 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
 
-  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, zhists, "", true, NULL);
+  // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, select the right QGL re-weight
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
+  
 
   string name = string("zmmcor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
-
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     smoothEmptyBins(nhist.at(ihist),2);
-
+  
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
 
@@ -128,7 +135,8 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
 
 
 // make histograms for Z->ee to signal region correction                                                                                                                   
-void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
+		     string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -172,17 +180,22 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
   zhists.push_back(zewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "",true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, zhists, "",true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,true, NULL);
 
   string name = string("zeecor")+ext;
 
-  // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -213,7 +226,8 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
 
 
 // make histograms for W->mnu to signal region correction                                                                                                                   
-void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
+		     string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -256,17 +270,22 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
 
   string name = string("wmncor")+ext;
 
-  // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -296,7 +315,8 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
 
 
 // make histograms for W->enu to signal region correction                                                                                                                   
-void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
+		     string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -338,17 +358,23 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
 
   string name = string("wencor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -378,7 +404,8 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
 
 
 // make Z/W ratio
-void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, string outDir = "",string ext = "",int kfact = 0) {
+void  makezwjcorhist( string znunuFile,  string wlnuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
+		      string outDir = "", string sysName = "", string ext = "",int kfact = 0) {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(znunuFile.c_str());
@@ -467,17 +494,23 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
   if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, whists, "", true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
 
   string name = string("zwjcor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -507,7 +540,8 @@ void  makezwjcorhist( string  znunuFile,  string  wlnuFile,  string  kFactorFile
 
 
 // make Z/gamma ratio
-void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFile,  string  fPfile, int category, vector<string> observables, double lumi, string outDir = "", string ext = "",int kfact = 0) {
+void makegamcorhist( string znunuFile,   string photonFile,   string kFactorFile,  string  fPfile, int category, vector<string> observables, double lumi, 
+		     string outDir = "", string sysName = "", string ext = "",     int kfact = 0) {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(znunuFile.c_str());
@@ -610,17 +644,23 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, ahists, "", true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", true, NULL);
 
   string name = string("gamcor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -649,20 +689,38 @@ void makegamcorhist( string  znunuFile,  string  photonFile,  string  kFactorFil
 }
 
 // correction for top
-void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string sys = "", string ext = ""){
+void maketopmucorhist( string signalRegionFile,  string  topFile,
+		       int category, vector<string> observables, double lumi,
+		       string signalRegionFile_alt = "", string topFile_alt = "",
+		       string outDir = "", string sysName = "", string ext = ""){
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
   TFile* dfile  = TFile::Open(topFile.c_str());
+  
+  TFile* nfile_alt = TFile::Open(signalRegionFile_alt.c_str());
+  TFile* dfile_alt = TFile::Open(topFile_alt.c_str());
 
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
+  TTree* ntree_alt = NULL;
+  TTree* dtree_alt = NULL;
+
+  if(nfile_alt)
+    ntree_alt = (TTree*) nfile->Get("tree/tree");
+  if(dfile_alt)
+    dtree_alt = (TTree*) nfile->Get("tree/tree");
+  
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> nhist_alt;
+  vector<TH1*> dhist_alt;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> nhist_2D_alt;
+  vector<TH2*> dhist_2D_alt;
 
   vector<float> bins;
   for(auto obs : observables){
@@ -672,8 +730,12 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
       
     TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* nhist_alt_temp = new TH1F(("nhist_alt_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_alt_temp = new TH1F(("dhist_alt_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
+    dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
 
   }
 
@@ -681,17 +743,39 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, sys, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, zhists, sys, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
 
   string name = string("topmucor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
+    if(nhist_alt.size() >= ihist){
+      smoothEmptyBins(nhist_alt.at(ihist),2);
+      smoothEmptyBins(dhist_alt.at(ihist),2);
+      nhist.at(ihist)->Add(nhist_alt.at(ihist));
+      dhist.at(ihist)->Add(dhist_alt.at(ihist));
+    }
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
+    if(nhist_2D_alt.size() >= ihist){
+      smoothEmptyBins(nhist_2D_alt.at(ihist),2);
+      smoothEmptyBins(dhist_2D_alt.at(ihist),2);
+      nhist_2D.at(ihist)->Add(nhist_2D_alt.at(ihist));
+      dhist_2D.at(ihist)->Add(dhist_2D_alt.at(ihist));
+    }
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
+
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -699,7 +783,7 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
-  
+
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -721,20 +805,38 @@ void maketopmucorhist( string  signalRegionFile,  string  topFile,  int category
 
 
 // correction for top
-void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, string outDir = "", string sys = "", string ext = "") {
-
+void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, 
+		       string signalRegionFile_alt = "", string topFile_alt = "",
+		       string outDir = "", string sysName = "", string ext = "") {
+  
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
   TFile* dfile  = TFile::Open(topFile.c_str());
 
+  
+  TFile* nfile_alt = TFile::Open(signalRegionFile_alt.c_str());
+  TFile* dfile_alt = TFile::Open(topFile_alt.c_str());
+
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
+
+  TTree* ntree_alt = NULL;
+  TTree* dtree_alt = NULL;
+
+  if(nfile_alt)
+    ntree_alt = (TTree*) nfile->Get("tree/tree");
+  if(dfile_alt)
+    dtree_alt = (TTree*) nfile->Get("tree/tree");
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> nhist_alt;
+  vector<TH1*> dhist_alt;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> nhist_2D_alt;
+  vector<TH2*> dhist_2D_alt;
 
   vector<float> bins;
   for(auto obs : observables){
@@ -744,8 +846,12 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
       
     TH1F* nhist_temp = new TH1F(("nhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* nhist_alt_temp = new TH1F(("nhist_alt_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* dhist_alt_temp = new TH1F(("dhist_alt_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+    nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
+    dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
 
   }
 
@@ -753,17 +859,39 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, zhists, sys, true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, zhists, sys, true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+  makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
 
   string name = string("topelcor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
+    if(nhist_alt.size() >= ihist){
+      smoothEmptyBins(nhist_alt.at(ihist),2);
+      smoothEmptyBins(dhist_alt.at(ihist),2);
+      nhist.at(ihist)->Add(nhist_alt.at(ihist));
+      dhist.at(ihist)->Add(dhist_alt.at(ihist));
+    }
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
+    if(nhist_2D_alt.size() >= ihist){
+      smoothEmptyBins(nhist_2D_alt.at(ihist),2);
+      smoothEmptyBins(dhist_2D_alt.at(ihist),2);
+      nhist_2D.at(ihist)->Add(nhist_2D_alt.at(ihist));
+      dhist_2D.at(ihist)->Add(dhist_2D_alt.at(ihist));
+    }
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
+
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
@@ -793,7 +921,8 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
 
 
 // correction for Z(nunu) or W+jets mass sidebaand
-void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int category_num, int category_den, vector<string> observables, double lumi, string outDir = "", string ext = "") {
+void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int category_num, int category_den, vector<string> observables, double lumi, 
+			  string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -826,17 +955,23 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
   vector<TH1*> zhists;
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
-  makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, lumi, zhists, "", true, NULL);
-  makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, lumi, zhists, "", true, NULL);
+  makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", true, NULL);
+  makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", true, NULL);
 
   string name = string("sidebandcor")+ext;
 
   // divide the two                                                                                                                                                          
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
+    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(dhist.at(ihist),2);
     nhist.at(ihist)->Divide(dhist.at(ihist));
+  }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
+    smoothEmptyBins(nhist_2D.at(ihist),2);
+    smoothEmptyBins(dhist_2D.at(ihist),2);
     nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+  }
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
