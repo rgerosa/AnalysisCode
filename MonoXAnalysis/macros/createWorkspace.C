@@ -125,10 +125,20 @@ void makeConnectedBinList(string procname, RooRealVar& var,
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName, int category, 
-		     string outputName = "workspace.root", string observable = "met", float scaleQCD = 2, bool connectWZ = true, bool connectTop = true){
+		     string outputName = "workspace.root",
+		     string observable = "met", 
+		     string mediatorMass = "1000", string DMMass = "50", 
+		     float scaleQCD = 2, bool connectWZ = true, bool connectTop = true){
 
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
 
+  // for templates and sys naming
+  string suffix;
+  if(category <=1)
+    suffix = "monoJ";
+  else
+    suffix = "monoV";
+    
   // create the output workspace
   cout<<"Create output file ..."<<endl;
   TFile *outfile = new TFile(outputName.c_str(),"RECREATE");
@@ -141,11 +151,19 @@ void createWorkspace(string inputName, int category,
   double xMax = 0.;
   if(observable == "met" && category <=1){
     xMin = 200.;
-    xMax = 1190.;
+    xMax = 1250.;
   }
   else if(observable == "met" && category >1){
-    xMin = 200.;
-    xMax = 1100.;
+    xMin = 250.;
+    xMax = 1000.;
+  }
+  else if(observable == "mpruned" && category <=1){
+    xMin = 0.;
+    xMax = 40.;
+  }
+  else if(observable == "mpruned" && category >1){
+    xMin = 65.;
+    xMax = 105.;
   }
   else
     cout<<"Binning not implemented for the observable "<<observable<<" --> please define it "<<endl;
@@ -163,28 +181,28 @@ void createWorkspace(string inputName, int category,
   cout<<"Make SR templates ..."<<endl;
 
   // Data
-  addTemplate("data_obs_SR", 
+  addTemplate("data_obs_"+suffix+"_SR", 
 	      vars, wspace, 
 	      (TH1F*)templatesfile->Get(("datahist_"+observable).c_str()));
-
+  
   // Signal shape
-  addTemplate("MonoJ_SR", 
+  addTemplate("MonoJ_"+suffix+"_SR", 
 	      vars, wspace, 
-	      (TH1F*)templatesfile->Get(("monoJhist_"+observable).c_str()));
+	      (TH1F*)templatesfile->Get(("monoJhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
 
-  addTemplate("MonoW_SR", 
+  addTemplate("MonoW_"+suffix+"_SR", 
 	      vars, wspace, 
-	      (TH1F*)templatesfile->Get(("monoWhist_"+observable).c_str()));
+	      (TH1F*)templatesfile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
 
-  addTemplate("MonoZ_SR", 
+  addTemplate("MonoZ_"+suffix+"_SR", 
 	      vars, wspace, 
-	      (TH1F*)templatesfile->Get(("monoZhist_"+observable).c_str()));
+	      (TH1F*)templatesfile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
 
   // Zvv background --> to be extracted from CRs
   TH1F* znn_SR_hist = (TH1F*) templatesfile->Get(("zinvhist_"+observable).c_str());
   RooArgList znn_SR_bins; 
   // create a RooParametric hist with one RooRealVar per bin 
-  makeBinList("Znunu_SR", met, wspace, znn_SR_hist, znn_SR_bins);
+  makeBinList("Znunu_"+suffix+"_SR", met, wspace, znn_SR_hist, znn_SR_bins);
 
   // Top background --> to be extracted from CRs
   RooArgList top_SR_bins;
@@ -193,10 +211,10 @@ void createWorkspace(string inputName, int category,
   if(connectTop){
     top_SR_hist = (TH1F*) templatesfile->Get(("tbkghist_"+observable).c_str());
     RooArgList top_SR_bins; 
-    makeBinList("Top_SR", met, wspace, top_SR_hist, top_SR_bins);
+    makeBinList("Top_"+suffix+"_SR", met, wspace, top_SR_hist, top_SR_bins);
   }
   else{
-    addTemplate("Top_SR",
+    addTemplate("Top_"+suffix+"_SR",
 		vars, wspace,
 		(TH1F*)templatesfile->Get(("tbkghist_"+observable).c_str()));
   }
@@ -206,122 +224,119 @@ void createWorkspace(string inputName, int category,
   RooArgList wln_SR_bins;
   // set of correlated systematic uncertainties for the Z/W ratio
   vector<pair<RooRealVar*, TH1*> > wln_SR_syst;
-  RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_RenScale1" , "", 0., -5., 5.);
-  RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_FactScale1", "", 0., -5., 5.);
-  RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_RenScale2" , "", 0., -5., 5.);
-  RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2", "", 0., -5., 5.);
-  RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF"       , "", 0., -5., 5.);
+  RooRealVar* wln_SR_re1 = new RooRealVar(("WJets_"+suffix+"_SR_RenScale1").c_str() , "", 0., -5., 5.);
+  RooRealVar* wln_SR_fa1 = new RooRealVar(("WJets_"+suffix+"_SR_FactScale1").c_str() , "", 0., -5., 5.);
+  RooRealVar* wln_SR_re2 = new RooRealVar(("WJets_"+suffix+"_SR_RenScale2").c_str()  , "", 0., -5., 5.);
+  RooRealVar* wln_SR_fa2 = new RooRealVar(("WJets_"+suffix+"_SR_FactScale2").c_str() , "", 0., -5., 5.);
+  RooRealVar* wln_SR_pdf = new RooRealVar(("WJets_"+suffix+"_SR_PDF").c_str()        , "", 0., -5., 5.);
   // NULL means bin-by-bin
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get("ZW_EWK")));
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re1, (TH1F*)templatesfile->Get("ZW_RenScale1")));
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa1, (TH1F*)templatesfile->Get("ZW_FactScale1")));
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re2, (TH1F*)templatesfile->Get("ZW_RenScale2")));
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa2, (TH1F*)templatesfile->Get("ZW_FactScale2")));
-  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_pdf, (TH1F*)templatesfile->Get("ZW_PDF")));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get(("ZW_EWK_"+observable).c_str())));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re1, (TH1F*)templatesfile->Get(("ZW_RenScale1_"+observable).c_str())));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa1, (TH1F*)templatesfile->Get(("ZW_FactScale1_"+observable).c_str())));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re2, (TH1F*)templatesfile->Get(("ZW_RenScale2_"+observable).c_str())));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_fa2, (TH1F*)templatesfile->Get(("ZW_FactScale2_"+observable).c_str())));
+  wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_pdf, (TH1F*)templatesfile->Get(("ZW_PDF_"+observable).c_str())));
   if (!connectWZ) 
-    makeBinList("WJets_SR", met, wspace, wln_SR_hist, wln_SR_bins);
+    makeBinList("WJets_"+suffix+"_SR", met, wspace, wln_SR_hist, wln_SR_bins);
   else   
-    makeConnectedBinList("WJets_SR", met, wspace, (TH1F*)templatesfile->Get(("zwjcorewkhist_"+observable).c_str()), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
+    makeConnectedBinList("WJets_"+suffix+"_SR", met, wspace, (TH1F*)templatesfile->Get(("zwjcorewkhist_"+observable).c_str()), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
   
   // Other MC backgrounds
-  addTemplate("ZJets_SR"     , vars, wspace, (TH1F*)templatesfile->Get(("zjethist_"+observable).c_str()));
-  addTemplate("Dibosons_SR"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghist_"+observable).c_str()));
-  // QCD background
+  addTemplate("ZJets_"+suffix+"_SR"     , vars, wspace, (TH1F*)templatesfile->Get(("zjethist_"+observable).c_str()));
+  addTemplate("Dibosons_"+suffix+"_SR"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghist_"+observable).c_str()));
   TH1F* qcdhist = (TH1F*)templatesfile->Get(("qbkghist_"+observable).c_str());
-  qcdhist->Scale(2.0);  
-  addTemplate("QCD_SR"       , vars, wspace, qcdhist);
+  qcdhist->Scale(scaleQCD);  
+  addTemplate("QCD_"+suffix+"_SR"       , vars, wspace, qcdhist);
 
   ////////////////////////////////////
   // -------- CR Di-Muon  -------- //
   ///////////////////////////////////
   cout<<"Make CR Di-Muon  templates ..."<<endl;
 
-  addTemplate("data_obs_ZM", vars, wspace, (TH1F*)templatesfile->Get(("datahistzmm_"+observable).c_str()));
+  addTemplate("data_obs_"+suffix+"_ZM", vars, wspace, (TH1F*)templatesfile->Get(("datahistzmm_"+observable).c_str()));
   // Z->mumu connected with Z->nunu SR
-  vector<pair<RooRealVar*, TH1*> >   znn_ZM_syst;
-  makeConnectedBinList("Znunu_ZM", met, wspace, (TH1F*)templatesfile->Get(("zmmcorhist_"+observable).c_str()), znn_ZM_syst, znn_SR_bins);
+  vector<pair<RooRealVar*, TH1*> >   znn_syst;
+  makeConnectedBinList("Znunu_"+suffix+"_ZM", met, wspace, (TH1F*)templatesfile->Get(("zmmcorhist_"+observable).c_str()), znn_syst, znn_SR_bins);
   
   // Other MC backgrounds in dimuon control region
-  addTemplate("WJets_ZM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghistzmm_"+observable).c_str()));
-  addTemplate("Top_ZM"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistzmm_"+observable).c_str()));
-  addTemplate("QCD_ZM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistzmm_"+observable).c_str()));
-  addTemplate("Dibosons_ZM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistzmm_"+observable).c_str()));
+  addTemplate("WJets_"+suffix+"_ZM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghistzmm_"+observable).c_str()));
+  addTemplate("Top_"+suffix+"_ZM"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistzmm_"+observable).c_str()));
+  addTemplate("QCD_"+suffix+"_ZM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistzmm_"+observable).c_str()));
+  addTemplate("Dibosons_"+suffix+"_ZM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistzmm_"+observable).c_str()));
 
   ////////////////////////////////////////
   // -------- CR Di-Electron  -------- //
   ///////////////////////////////////////
   cout<<"Make CR Di-Electron  templates ..."<<endl;
 
-  addTemplate("data_obs_ZE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistzee_"+observable).c_str()));
+  addTemplate("data_obs_"+suffix+"_ZE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistzee_"+observable).c_str()));
   // Z->ee connected with Z->nunu SR
   vector<pair<RooRealVar*, TH1*> > znn_ZE_syst;
-  makeConnectedBinList("Znunu_ZE", met, wspace, (TH1F*)templatesfile->Get(("zeecorhist_"+observable).c_str()), znn_ZE_syst, znn_SR_bins);
+  makeConnectedBinList("Znunu_"+suffix+"_ZE", met, wspace, (TH1F*)templatesfile->Get(("zeecorhist_"+observable).c_str()), znn_ZE_syst, znn_SR_bins);
   
   // Other MC backgrounds in dielectron control region
-  addTemplate("WJets_ZE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghistzee_"+observable).c_str()));
-  addTemplate("Top_ZE"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistzee_"+observable).c_str()));
-  addTemplate("QCD_ZE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistzee_"+observable).c_str()));
-  addTemplate("Dibosons_ZE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistzee_"+observable).c_str()));
+  addTemplate("WJets_"+suffix+"_ZE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghistzee_"+observable).c_str()));
+  addTemplate("Top_"+suffix+"_ZE"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistzee_"+observable).c_str()));
+  addTemplate("QCD_"+suffix+"_ZE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistzee_"+observable).c_str()));
+  addTemplate("Dibosons_"+suffix+"_ZE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistzee_"+observable).c_str()));
 
   ///////////////////////////////////////
   // -------- CR Gamma+jets  -------- //
   //////////////////////////////////////
   cout<<"Make CR Gamma+jets  templates ..."<<endl;
 
-  addTemplate("data_obs_GJ"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistgam_"+observable).c_str()));
+  addTemplate("data_obs_"+suffix+"_GJ"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistgam_"+observable).c_str()));
   // Gamma+jets --> connected with Z->nunu
   vector<pair<RooRealVar*, TH1*> > znn_GJ_syst;
-  RooRealVar* znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1" , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1", "", 0., -5., 5.);
-  RooRealVar* znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2" , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2", "", 0., -5., 5.);
-  RooRealVar* znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"       , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint" , "", 0., -5., 5.);
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get("ZG_EWK")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re1, (TH1F*)templatesfile->Get("ZG_RenScale1")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa1, (TH1F*)templatesfile->Get("ZG_FactScale1")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re2, (TH1F*)templatesfile->Get("ZG_RenScale2")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa2, (TH1F*)templatesfile->Get("ZG_FactScale2")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_pdf, (TH1F*)templatesfile->Get("ZG_PDF")));
-  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fpc, (TH1F*)templatesfile->Get("ZG_Footprint")));
+  RooRealVar* znn_GJ_re1 = new RooRealVar(("Znunu_"+suffix+"_GJ_RenScale1").c_str()  , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fa1 = new RooRealVar(("Znunu_"+suffix+"_GJ_FactScale1").c_str() , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_re2 = new RooRealVar(("Znunu_"+suffix+"_GJ_RenScale2").c_str() , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fa2 = new RooRealVar(("Znunu_"+suffix+"_GJ_FactScale2").c_str() , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_pdf = new RooRealVar(("Znunu_"+suffix+"_GJ_PDF").c_str()        , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fpc = new RooRealVar(("Znunu_"+suffix+"_GJ_Footprint").c_str()  , "", 0., -5., 5.);
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get(("ZG_EWK_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re1, (TH1F*)templatesfile->Get(("ZG_RenScale1_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa1, (TH1F*)templatesfile->Get(("ZG_FactScale1_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re2, (TH1F*)templatesfile->Get(("ZG_RenScale2_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa2, (TH1F*)templatesfile->Get(("ZG_FactScale2_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_pdf, (TH1F*)templatesfile->Get(("ZG_PDF_"+observable).c_str())));
+  znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fpc, (TH1F*)templatesfile->Get(("ZG_Footprint_"+observable).c_str())));
 
-  makeConnectedBinList("Znunu_GJ", met, wspace, (TH1F*)templatesfile->Get(("gamcorewkhist_"+observable).c_str()), znn_GJ_syst, znn_SR_bins);
-  
+  makeConnectedBinList("Znunu_"+suffix+"_GJ", met, wspace, (TH1F*)templatesfile->Get(("gamcorewkhist_"+observable).c_str()), znn_GJ_syst, znn_SR_bins);  
   // Other MC backgrounds photon+jets control region
-  addTemplate("QCD_GJ"     , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistgam_"+observable).c_str()));
+  addTemplate("QCD_"+suffix+"_GJ"     , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistgam_"+observable).c_str()));
   
-
   ///////////////////////////////////////
   // -------- CR Single-Muon  -------- //
   //////////////////////////////////////
   cout<<"Make CR Single-Mu  templates ..."<<endl;
 
-  addTemplate("data_obs_WM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistwmn_"+observable).c_str()));
+  addTemplate("data_obs_"+suffix+"_WM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistwmn_"+observable).c_str()));
   // connected W->munu with W+jets SR
   vector<pair<RooRealVar*, TH1*> > wln_WM_syst;
-  makeConnectedBinList("WJets_WM", met, wspace, (TH1F*)templatesfile->Get(("wmncorhist_"+observable).c_str()), wln_WM_syst, wln_SR_bins);
+  makeConnectedBinList("WJets_"+suffix+"_WM", met, wspace, (TH1F*)templatesfile->Get(("wmncorhist_"+observable).c_str()), wln_WM_syst, wln_SR_bins);
 		       
   // Other MC backgrounds in single muon control region
-  addTemplate("ZJets_WM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghistwmn_"+observable).c_str()));
-  addTemplate("Top_WM"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistwmn_"+observable).c_str()));
-  addTemplate("QCD_WM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistwmn_"+observable).c_str()));
-  addTemplate("Dibosons_WM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistwmn_"+observable).c_str()));
+  addTemplate("ZJets_"+suffix+"_WM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghistwmn_"+observable).c_str()));
+  addTemplate("Top_"+suffix+"_WM"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistwmn_"+observable).c_str()));
+  addTemplate("QCD_"+suffix+"_WM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistwmn_"+observable).c_str()));
+  addTemplate("Dibosons_"+suffix+"_WM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistwmn_"+observable).c_str()));
   
   //////////////////////////////////..../////
   // -------- CR Single-Electron  -------- //
   //////////////////////////////////////////
   cout<<"Make CR Single-El  templates ..."<<endl;
 
-  addTemplate("data_obs_WE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistwen_"+observable).c_str()));
+  addTemplate("data_obs_"+suffix+"_WE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahistwen_"+observable).c_str()));
   // connected W->enu with W+jets SR 
   vector<pair<RooRealVar*, TH1*> > wln_WE_syst;
-  makeConnectedBinList("WJets_WE", met, wspace, (TH1F*)templatesfile->Get(("wencorhist_"+observable).c_str()), wln_WE_syst, wln_SR_bins);
+  makeConnectedBinList("WJets_"+suffix+"_WE", met, wspace, (TH1F*)templatesfile->Get(("wencorhist_"+observable).c_str()), wln_WE_syst, wln_SR_bins);
   
   // Other MC backgrounds in single electron control region
-  addTemplate("ZJets_WE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghistwen_"+observable).c_str()));
-  addTemplate("Top_WE"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistwen_"+observable).c_str()));
-  addTemplate("QCD_WE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistwen_"+observable).c_str()));
-  addTemplate("Dibosons_WE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistwen_"+observable).c_str()));
+  addTemplate("ZJets_"+suffix+"_WE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghistwen_"+observable).c_str()));
+  addTemplate("Top_"+suffix+"_WE"       , vars, wspace, (TH1F*)templatesfile->Get(("tbkghistwen_"+observable).c_str()));
+  addTemplate("QCD_"+suffix+"_WE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghistwen_"+observable).c_str()));
+  addTemplate("Dibosons_"+suffix+"_WE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghistwen_"+observable).c_str()));
 
   if(connectTop){
     
@@ -330,38 +345,37 @@ void createWorkspace(string inputName, int category,
     ////////////////////////////////////
     cout<<"Make CR Top-mu  templates ..."<<endl;
 
-    addTemplate("data_obs_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
+    addTemplate("data_obs_"+suffix+"_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TM_syst;
-    RooRealVar* top_TM_btag   = new RooRealVar("top_TM_btag" , "", 0., -5., 5.);
-    top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_MU_B")));
+    RooRealVar* top_btag   = new RooRealVar(("top_"+suffix+"_btag").c_str()  , "", 0., -5., 5.);
+    top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->Get(("TOP_MU_B_"+observable).c_str())));
     
-    makeConnectedBinList("Top_TM", met, wspace, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
+    makeConnectedBinList("Top_"+suffix+"_TM", met, wspace, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
     
     // Other MC backgrounds in single electron control region
-    addTemplate("ZJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopmu_"+observable).c_str()));
-    addTemplate("WJets_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopmu_"+observable).c_str()));
-    addTemplate("QCD_TM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopmu_"+observable).c_str()));
-    addTemplate("Dibosons_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopmu_"+observable).c_str()));
+    addTemplate("ZJets_"+suffix+"_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopmu_"+observable).c_str()));
+    addTemplate("WJets_"+suffix+"_TM"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopmu_"+observable).c_str()));
+    addTemplate("QCD_"+suffix+"_TM"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopmu_"+observable).c_str()));
+    addTemplate("Dibosons_"+suffix+"_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopmu_"+observable).c_str()));
 
     /////////////////////////////////////
     // -------- CR Top-Electron-------- //
     ////////////////////////////////////
     cout<<"Make CR Top-el  templates ..."<<endl;
     
-    addTemplate("data_obs_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopel_"+observable).c_str()));
+    addTemplate("data_obs_"+suffix+"_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopel_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TE_syst;
-    RooRealVar* top_TE_btag   = new RooRealVar("top_TE_btag" , "", 0., -5., 5.);
-    top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_TM_btag, (TH1F*)templatesfile->Get("TOP_EL_B")));
+    top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->Get(("TOP_EL_B_"+observable.c_str()))));
     
-    makeConnectedBinList("Top_TE", met, wspace, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins);
+    makeConnectedBinList("Top_"+suffix+"_TE", met, wspace, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins);
     
     // Other MC backgrounds in single electron control region
-    addTemplate("ZJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopel_"+observable).c_str()));
-    addTemplate("WJets_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopel_"+observable).c_str()));
-    addTemplate("QCD_TE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopel_"+observable).c_str()));
-    addTemplate("Dibosons_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopel_"+observable).c_str()));
+    addTemplate("ZJets_"+suffix+"_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vllbkghisttopel_"+observable).c_str()));
+    addTemplate("WJets_"+suffix+"_TE"     , vars, wspace, (TH1F*)templatesfile->Get(("vlbkghisttopel_"+observable).c_str()));
+    addTemplate("QCD_"+suffix+"_TE"       , vars, wspace, (TH1F*)templatesfile->Get(("qbkghisttopel_"+observable).c_str()));
+    addTemplate("Dibosons_"+suffix+"_TE"  , vars, wspace, (TH1F*)templatesfile->Get(("dbkghisttopel_"+observable).c_str()));
   }
   // ---------------------------- Write out the workspace -----------------------------------------------------------------//
   outfile->cd();

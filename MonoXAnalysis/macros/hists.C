@@ -833,7 +833,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","fpc"+ext,7);
+		   category,observables,lumi,outDir,"","fpc"+ext,8);
     
     //
     cout<<"systematics on Z/W ratio "<<endl;
