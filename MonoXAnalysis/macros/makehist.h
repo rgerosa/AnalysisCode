@@ -39,6 +39,15 @@ vector<float> bins_monoJ_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,
 vector<float> bins_monoV_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
 vector<float> bins_monoJ_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
 
+vector<float> bins_monoV_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
+vector<float> bins_monoJ_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
+
+vector<float> bins_monoV_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoJ_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+
+vector<float> bins_monoV_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoJ_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+
 // binning selections
 vector<float> selectBinning (string observable, int category){
   
@@ -62,6 +71,22 @@ vector<float> selectBinning (string observable, int category){
     return bins_monoJ_HT;
   else if(observable == "ht" and category > 1)
     return bins_monoV_HT;
+  else if(observable == "nvtx" and category <= 1)
+    return bins_monoJ_nvtx;
+  else if(observable == "nvtx" and category > 1)
+    return bins_monoV_nvtx;
+  else if(observable == "chfrac" and category <= 1)
+    return bins_monoJ_chfrac;
+  else if(observable == "chfrac" and category > 1)
+    return bins_monoV_chfrac;
+  else if(observable == "nhfrac" and category <= 1)
+    return bins_monoJ_nhfrac;
+  else if(observable == "nhfrac" and category > 1)
+    return bins_monoV_nhfrac;
+  else if(observable == "nvtx" and category <= 1)
+    return bins_monoJ_nvtx;
+  else if(observable == "nvtx" and category > 1)
+    return bins_monoV_nvtx;
   else if(observable == "bosonPt" and category <= 1)
     return bins_monoJ_bosonPt;
   else if(observable == "bosonPt" and category > 1)
@@ -124,7 +149,7 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  esfthist = (TH2*)sffile->Get("electron_tight_SF");
   
   // Photon ID scale factor from tag and probe
-  TFile* psffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p6fb_2301.root");
+  TFile* psffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_0202.root");
   TH2*  psfhist  = (TH2*)psffile->Get("PhotonSF");  
   TH2*  purhist  = (TH2*)psffile->Get("PhotonPurity");
   
@@ -326,7 +351,6 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> mu1phi (myReader,"mu1phi");
   TTreeReaderValue<double> mu2phi (myReader,"mu2phi");
 
-
   TTreeReaderValue<int> el1pid (myReader,"el1pid");
   TTreeReaderValue<int> el2pid (myReader,"el2pid");
   TTreeReaderValue<int> el1id (myReader,"el1id");
@@ -436,10 +460,10 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == 3) bosonPt = zeept[0]; // di-electron CR
     else if (sample == 5) bosonPt = *phpt; // gamma+jets
     else if (sample == 2 or sample == 4){ // single muon or single ele
-      TLorentzVector lep, met;
-      lep.SetPtEtaPhiM(pt1,eta1,phi1,0.);
-      met.SetPtEtaPhiM(pfmet,0.,pfmetphi,0.);
-      bosonPt = (lep+met).Pt();
+      TLorentzVector lep4V, met4V;
+      lep4V.SetPtEtaPhiM(pt1,eta1,phi1,0.);
+      met4V.SetPtEtaPhiM(*met,0.,*metphi,0.);
+      bosonPt = (lep4V+met4V).Pt();
     }
 
     // scale factor for leptons
@@ -496,7 +520,8 @@ void makehist4(TTree* tree, /*input tree*/
     // QGL weight    
     if(isMC and weightHist){
       if(jetQGL->size() > 0)
-	sfwgt *= weightHist->GetBinContent(weightHist->FindBin(jetpt->at(0),jetQGL->at(0)));
+	sfwgt *= 1.;
+	//	sfwgt *= weightHist->GetBinContent(weightHist->FindBin(jetpt->at(0),jetQGL->at(0)));
       else
 	sfwgt *= 1.;
     }
@@ -572,7 +597,21 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == 1 && *mu1pid == *mu2pid) continue;
     if (sample == 3 && *el1pid == *el2pid) continue;
     // control regions with two leptons --> one should be tight
-    if ((sample == 1 || sample == 3) && not (id1 == 1 or id2 == 1)) continue;
+    if ((sample == 1 || sample == 3)){
+	if(sample == 1 and id1 == 1){
+	  if(pt1 < 20) continue;
+	}
+	else if(sample == 1 and id2 == 1){
+	  if(pt2 < 20) continue;
+	}
+
+	if(sample == 3 and id1 == 1){
+	  if(pt1 < 40) continue;
+	}
+	else if(sample == 3 and id2 == 1){
+	  if(pt2 < 40) continue;
+	}	
+    }
     // control regions wit one lepton --> tight requirement 
     if ((sample == 2 || sample == 4) && id1 != 1) continue;
     // photon control sample
@@ -635,7 +674,9 @@ void makehist4(TTree* tree, /*input tree*/
 	
 	if(boostedJetpt->size()  == 0) // no boosted jets (AK8 pT > 200 GeV)
 	  goodMonoJet = true;
+
 	if(boostedJetpt->size() > 0){ // in case one boosted jet
+
 	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
 	    goodMonoJet = true;
 	  else{ // if high pT check pruned mass
@@ -658,9 +699,15 @@ void makehist4(TTree* tree, /*input tree*/
 	    // pruned mass selection
 	    if(prunedJetm->at(0)   < prunedMassMin)
 	      goodMonoJet= true;
+
+	    // tau2tau1 selection
+	    if(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
+	      goodMonoJet= true;
 	  }
-	}      	
+	}
+      	
 	if(not goodMonoJet) continue;
+
       }
       
       else if(category >= 2){
@@ -683,7 +730,6 @@ void makehist4(TTree* tree, /*input tree*/
 	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
 	if (jetpt->at(0)  < *j1pt) continue;
 	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                                        
-
 
 	// jet met dphi     
 	float deltaPhi = 0.;	    
@@ -737,6 +783,8 @@ void makehist4(TTree* tree, /*input tree*/
                
     // fill 1D histogram
     double fillvar = 0;
+    
+    // b-tag weight
     double btagw = *wgtbtag;
     if(*wgtbtag > 2 || *wgtbtag < 0)
       btagw = 1;
@@ -746,6 +794,15 @@ void makehist4(TTree* tree, /*input tree*/
       TString name(hist->GetName());      
       if(name.Contains("met")){
 	fillvar = pfmet;
+      }
+      if(name.Contains("nvtx")){
+	fillvar = *nvtx;
+      }
+      if(name.Contains("chfrac")){
+	fillvar = chfrac->at(0);
+      }
+      if(name.Contains("nhfrac")){
+	fillvar = nhfrac->at(0);
       }
       else if(name.Contains("jetPt")){
 	fillvar = jetpt->at(0);

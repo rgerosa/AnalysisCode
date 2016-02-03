@@ -390,11 +390,11 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = NULL;
   if(category <= 1 and controlRegion != "zmm" and controlRegion != "zee")
-    frame2 =  pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
   else if(category <= 1 and (controlRegion == "zmm" or controlRegion == "zee"))
     frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
   else if(category > 1 and controlRegion != "zmm" and controlRegion != "zee")
-    frame2 =  pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
   else if(category > 1 and (controlRegion == "zmm" or controlRegion == "zee"))
     frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
 
@@ -444,12 +444,10 @@ void makeControlPlots(string templateFileName,
   unhist->Draw("SAME");
   nhist->Draw("PE SAME");
   
-  pad1->cd();
-  pad1->Draw();
-  pad1->RedrawAxis();
   pad2->RedrawAxis("sameaxis");
 
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
+  canvas->SaveAs((observable+"_"+controlRegion+".root").c_str());
 }
 

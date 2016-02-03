@@ -7,7 +7,7 @@ using namespace std;
 // function to create a RooDataHist from TH1F and import it in a workspace
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {
   RooDataHist rhist(procname.c_str(), "", varlist, hist);
-  ws.import(rhist,RooFit::Silence());
+  ws.import(rhist);
 }
 
 // Make list of bins of a TH1F as RooArgList of RooRealVar and building the RooParametricHist (to be Run in the release with combine)
@@ -20,9 +20,9 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
     RooRealVar* binvar;
 
     // make a RooRealVar for each bin [0,2*binContent]
-    if (!setConst && hist->GetBinContent(i) != 0)
+    if (!setConst)
       binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i), 0., hist->GetBinContent(i)*10.0);
-    else if(setConst && hist->GetBinContent(i) != 0)          
+    else         
       binvar = new RooRealVar(binss.str().c_str(), "", hist->GetBinContent(i));
     
     binlist.add(*binvar);
@@ -86,8 +86,10 @@ void makeConnectedBinList(string procname, RooRealVar& var,
       stringstream systbinss;
       if (syst[j].first == NULL) { // add bin by bin
 	systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
+	TString nameSys (systbinss.str());
+	nameSys.ReplaceAll(("_"+string(var.GetName())).c_str(),"");
 	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
-	RooRealVar* systbinvar = new RooRealVar(systbinss.str().c_str(), "", 0., -extreme, extreme);
+	RooRealVar* systbinvar = new RooRealVar(nameSys.Data(), "", 0., -extreme, extreme);
 	systbinvar->Print();
 	// Add all the systeamtics as new Multiplicative Nuisance for each bin
 	fobinlist.add(*systbinvar);
@@ -224,11 +226,13 @@ void createWorkspace(string inputName, int category,
   RooArgList wln_SR_bins;
   // set of correlated systematic uncertainties for the Z/W ratio
   vector<pair<RooRealVar*, TH1*> > wln_SR_syst;
-  RooRealVar* wln_SR_re1 = new RooRealVar(("WJets_"+suffix+"_SR_RenScale1").c_str() , "", 0., -5., 5.);
-  RooRealVar* wln_SR_fa1 = new RooRealVar(("WJets_"+suffix+"_SR_FactScale1").c_str() , "", 0., -5., 5.);
+  
+  RooRealVar* wln_SR_re1 = new RooRealVar(("WJets_"+suffix+"_SR_RenScale1").c_str(), "", 0., -5., 5.);
+  RooRealVar* wln_SR_fa1 = new RooRealVar(("WJets_"+suffix+"_SR_FactScale1").c_str(), "", 0., -5., 5.);
   RooRealVar* wln_SR_re2 = new RooRealVar(("WJets_"+suffix+"_SR_RenScale2").c_str()  , "", 0., -5., 5.);
   RooRealVar* wln_SR_fa2 = new RooRealVar(("WJets_"+suffix+"_SR_FactScale2").c_str() , "", 0., -5., 5.);
   RooRealVar* wln_SR_pdf = new RooRealVar(("WJets_"+suffix+"_SR_PDF").c_str()        , "", 0., -5., 5.);
+
   // NULL means bin-by-bin
   wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get(("ZW_EWK_"+observable).c_str())));
   wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(wln_SR_re1, (TH1F*)templatesfile->Get(("ZW_RenScale1_"+observable).c_str())));
@@ -290,7 +294,7 @@ void createWorkspace(string inputName, int category,
   vector<pair<RooRealVar*, TH1*> > znn_GJ_syst;
   RooRealVar* znn_GJ_re1 = new RooRealVar(("Znunu_"+suffix+"_GJ_RenScale1").c_str()  , "", 0., -5., 5.);
   RooRealVar* znn_GJ_fa1 = new RooRealVar(("Znunu_"+suffix+"_GJ_FactScale1").c_str() , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_re2 = new RooRealVar(("Znunu_"+suffix+"_GJ_RenScale2").c_str() , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_re2 = new RooRealVar(("Znunu_"+suffix+"_GJ_RenScale2").c_str()  , "", 0., -5., 5.);
   RooRealVar* znn_GJ_fa2 = new RooRealVar(("Znunu_"+suffix+"_GJ_FactScale2").c_str() , "", 0., -5., 5.);
   RooRealVar* znn_GJ_pdf = new RooRealVar(("Znunu_"+suffix+"_GJ_PDF").c_str()        , "", 0., -5., 5.);
   RooRealVar* znn_GJ_fpc = new RooRealVar(("Znunu_"+suffix+"_GJ_Footprint").c_str()  , "", 0., -5., 5.);
@@ -348,7 +352,7 @@ void createWorkspace(string inputName, int category,
     addTemplate("data_obs_"+suffix+"_TM"  , vars, wspace, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TM_syst;
-    RooRealVar* top_btag   = new RooRealVar(("top_"+suffix+"_btag").c_str()  , "", 0., -5., 5.);
+    RooRealVar* top_btag   = new RooRealVar(("top_btag").c_str()  , "", 0., -5., 5.);
     top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->Get(("TOP_MU_B_"+observable).c_str())));
     
     makeConnectedBinList("Top_"+suffix+"_TM", met, wspace, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
