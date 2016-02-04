@@ -15,89 +15,146 @@
 using namespace std;
 
 // define binnings for the different observables
-vector<float> bins_monoV_met = {250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_met = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
+vector<float> bins_monoV_met        = {250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_substructure_met = {250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoJ_met        = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
-vector<float> bins_monoV_mpr = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
-vector<float> bins_monoJ_mpr = {0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.};
+vector<float> bins_monoV_mT        = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_substructure_mT = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoJ_mT        = {50.,80.,110.,140.,170,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
-vector<float> bins_monoV_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
-vector<float> bins_monoJ_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
+vector<float> bins_monoV_mpr        = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
+vector<float> bins_monoJ_mpr        = {0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.};
+vector<float> bins_substructure_mpr = {0.,5.,10.,15,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.,120.,125.,130.,135.,140.,145.,150.,155.,160.,165};
+
+vector<float> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
+vector<float> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
+vector<float> bins_substructure_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 
 vector<float> bins_monoV_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
 vector<float> bins_monoJ_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<float> bins_substructure_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
 
 vector<float> bins_monoV_jetPt = {200.,225.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
+vector<float> bins_substructure_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
 vector<float> bins_monoV_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
+vector<float> bins_substructure_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
 
 vector<float> bins_monoV_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_monoJ_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_substructure_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 
 vector<float> bins_monoV_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
-vector<float> bins_monoJ_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
+vector<float> bins_monoJ_tau2tau1 = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
+vector<float> bins_substructure_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
 
 vector<float> bins_monoV_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
 vector<float> bins_monoJ_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
+vector<float> bins_substructure_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
 
 vector<float> bins_monoV_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_monoJ_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_substructure_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 
 vector<float> bins_monoV_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_monoJ_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 
 // binning selections
 vector<float> selectBinning (string observable, int category){
   
   if(observable == "met" and category <= 1)
     return bins_monoJ_met;
-  else if(observable == "met" and category > 1)
+  else if(observable == "met" and category > 1 and category <=3)
     return bins_monoV_met;
+  else if(observable == "met" and category > 3)
+    return bins_substructure_met;
+
+  if(observable == "mT" and category <= 1)
+    return bins_monoJ_mT;
+  else if(observable == "mT" and category > 1 and category <=3)
+    return bins_monoV_mT;
+  else if(observable == "mT" and category > 3)
+    return bins_substructure_mT;
+
   else if(observable == "mpruned" and category <=1)
     return bins_monoJ_mpr;
-  else if(observable == "mpruned" and category > 1)
+  else if(observable == "mpruned" and category > 1 and category <=3)
     return bins_monoV_mpr;
+  else if(observable == "mpruned" and category > 3)
+    return bins_substructure_mpr;
+
   else if(observable == "tau2tau1" and category <= 1)
     return bins_monoJ_tau2tau1;
-  else if(observable == "tau2tau1" and category > 1)
+  else if(observable == "tau2tau1" and category > 1 and category <=3)
     return bins_monoV_tau2tau1;
+  else if(observable == "tau2tau1" and category > 1)
+    return bins_substructure_tau2tau1;
+
   else if(observable == "njet" and category <= 1)
     return bins_monoJ_njet;
-  else if(observable == "njet" and category > 1)
+  else if(observable == "njet" and category > 1 and category <= 3)
     return bins_monoV_njet;
+  else if(observable == "njet" and category > 3)
+    return bins_substructure_njet;
+
+  else if(observable == "nbjet" and category <= 1)
+    return bins_monoJ_njet;
+  else if(observable == "nbjet" and category > 1 and category <= 3)
+    return bins_monoV_njet;
+  else if(observable == "nbjet" and category > 3)
+    return bins_substructure_njet;
+
   else if(observable == "ht" and category <= 1)
     return bins_monoJ_HT;
-  else if(observable == "ht" and category > 1)
+  else if(observable == "ht" and category > 1 and category <= 3)
     return bins_monoV_HT;
+  else if(observable == "ht" and category > 3)
+    return bins_substructure_HT;
+  
   else if(observable == "nvtx" and category <= 1)
     return bins_monoJ_nvtx;
-  else if(observable == "nvtx" and category > 1)
+  else if(observable == "nvtx" and category > 1 and category <= 3)
     return bins_monoV_nvtx;
+  else if(observable == "nvtx" and category > 3)
+    return bins_substructure_nvtx;
+
   else if(observable == "chfrac" and category <= 1)
     return bins_monoJ_chfrac;
-  else if(observable == "chfrac" and category > 1)
+  else if(observable == "chfrac" and category > 1 and category <= 3)
     return bins_monoV_chfrac;
+  else if(observable == "chfrac" and category > 3)
+    return bins_substructure_chfrac;
+
   else if(observable == "nhfrac" and category <= 1)
     return bins_monoJ_nhfrac;
-  else if(observable == "nhfrac" and category > 1)
+  else if(observable == "nhfrac" and category > 1 and category <= 3)
     return bins_monoV_nhfrac;
-  else if(observable == "nvtx" and category <= 1)
-    return bins_monoJ_nvtx;
-  else if(observable == "nvtx" and category > 1)
-    return bins_monoV_nvtx;
+  else if(observable == "nhfrac" and category > 3)
+    return bins_substructure_nhfrac;
+
   else if(observable == "bosonPt" and category <= 1)
     return bins_monoJ_bosonPt;
-  else if(observable == "bosonPt" and category > 1)
+  else if(observable == "bosonPt" and category > 1 and category <= 3)
     return bins_monoV_bosonPt;
+  else if(observable == "bosonPt" and category > 3)
+    return bins_substructure_bosonPt;
+
   else if((observable == "jetPt" or observable == "boostedJetPt") and category <= 1)
     return bins_monoJ_jetPt;
-  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 1)
+  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 1 and category <= 3)
     return bins_monoV_jetPt;
+  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 3)
+    return bins_substructure_jetPt;
+
   else if(TString(observable).Contains("QGL") and category <= 1)
     return bins_monoJ_QGL;
-  else if(TString(observable).Contains("QGL") and category > 1)
+  else if(TString(observable).Contains("QGL") and category > 1 and category <= 3)
+    return bins_monoV_QGL;
+  else if(TString(observable).Contains("QGL") and category > 3)
     return bins_monoV_QGL;
 
   vector<float> dummy;
@@ -163,37 +220,36 @@ void makehist4(TTree* tree, /*input tree*/
 
   // QGL rewight
   TFile* QGLReweight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QGLWeight/QGLWeight.root ");
-  TH2* weightHist = NULL;
+  TH2* QGLWeightHist = NULL;
 
   if(QGLweight == 1 and sysName != "QGLup" and sysName != "QGLdw") // zmumu
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_Z");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_Z");
   else if(QGLweight == 1 and sysName == "QGLup")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_Z_up");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_Z_up");
   else if(QGLweight == 1 and sysName == "QGLdw")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_Z_dw");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_Z_dw");
 
   if(QGLweight == 2 and sysName != "QGLup" and sysName != "QGLdw") // zmumu
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_W");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_W");
   else if(QGLweight == 3 and sysName == "QGLup")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_W_up");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_W_up");
   else if(QGLweight == 3 and sysName == "QGLdw")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_W_dw");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_W_dw");
   
   if(QGLweight == 3 and sysName != "QGLup" and sysName != "QGLdw") // zmumu
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_G");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_G");
   else if(QGLweight == 3 and sysName == "QGLup")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_G_up");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_G_up");
   else if(QGLweight == 3 and sysName == "QGLdw")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_G_dw");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_G_dw");
 
   if(QGLweight == 4 and sysName != "QGLup" and sysName != "QGLdw") // zmumu
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_T");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_T");
   else if(QGLweight == 4 and sysName == "QGLup")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_T_up");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_T_up");
   else if(QGLweight == 4 and sysName == "QGLdw")
-    weightHist = (TH2*) QGLReweight->Get("QGL_weight_T_dw");
+    QGLWeightHist = (TH2*) QGLReweight->Get("QGL_weight_T_dw");
 
-  
   // histogram to be filled
   for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++)
     hist1D.at(ihist)->Sumw2();
@@ -291,6 +347,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm");
   TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
+  TTreeReaderValue<vector<double> > boostedJetBosoneta  (myReader,"boostedJetBosoneta");
+  TTreeReaderValue<vector<double> > boostedJetBosonphi  (myReader,"boostedJetBosonphi");
 
   // met
   string metSuffix = "";
@@ -518,15 +576,13 @@ void makehist4(TTree* tree, /*input tree*/
     }
 
     // QGL weight    
-    if(isMC and weightHist){
+    if(isMC and QGLWeightHist and QGLweight != 0){
       if(jetQGL->size() > 0)
-	sfwgt *= 1.;
-	//	sfwgt *= weightHist->GetBinContent(weightHist->FindBin(jetpt->at(0),jetQGL->at(0)));
+	sfwgt *= QGLWeightHist->GetBinContent(QGLWeightHist->FindBin(jetpt->at(0),jetQGL->at(0)));
       else
 	sfwgt *= 1.;
     }
     
-
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == 2 && isWJet){
       if(tau2tau1 == 0.45){
@@ -621,21 +677,15 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == 4 && *met < 50.) continue;
     // n-bjets cut for unboosted categories
     if ((sample == 7 || sample == 8) && (category !=2 and category !=3)  && *nbjets < 1) continue;
-    if ( sample == 7 || sample == 8){ // Z-veto in case of more than one lepton    
+    if ( sample == 7 || sample == 8){ // select only events with one lepton
       // at least one lepton in the plateau region
-      if(pt1 <=0) continue;
+      if(pt1 <=0 or id1 != 1) continue;
       if(abs(pid1) == 13 && pt1 < 20. ) continue;
       if(abs(pid1) == 11 && pt1 < 40. ) continue;
       // met cut
-      if(*met < 50.) continue;
-      // z mas veto and same flavor
-      if(pt1 > 0 && pt2 > 0){
-	TLorentzVector lep1, lep2;
-	lep1.SetPtEtaPhiM(pt1,eta1,phi1,0.);
-	lep2.SetPtEtaPhiM(pt2,eta2,phi2,0.);
-	if((lep1+lep2).M() > 81. && (lep1+lep2).M() < 101.) continue;
-	if(fabs(pid1) != fabs(pid2)) continue;
-      }
+      if(sample == 8 && *met < 50.) continue;
+      // veto di-lepton events
+      if(pt2 > 0) continue;
     }
     
     // met selection
@@ -707,7 +757,6 @@ void makehist4(TTree* tree, /*input tree*/
 	}
       	
 	if(not goodMonoJet) continue;
-
       }
       
       else if(category >= 2){
@@ -721,7 +770,7 @@ void makehist4(TTree* tree, /*input tree*/
 	jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jetak8.SetPtEtaPhiM(boostedJetpt->at(0),boostedJeteta->at(0),boostedJetphi->at(0),boostedJetm->at(0));
 	
-	// match leading ak4 and leading ak8 within 0.4 cone
+	// match leading ak4 and leading ak8 within 0.8 cone
 	if(jetak4.DeltaR(jetak8) > 0.8) continue;
 	
 	//after match apply jetid on leading ak4
@@ -761,23 +810,17 @@ void makehist4(TTree* tree, /*input tree*/
 	else if(category == 3 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and 
 		(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75))
 	  goodMonoV   = true;
-	// category 4 means HP mono-V sideband
-	else if(category == 4 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65) and 
-		boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	// apply only pruned mass cut in a loose region --> useful for ttbar
+	else if(category == 4 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 200))
 	  goodMonoV   = true;
-	// category 5 means LP mono-V sideband
-	else if(category == 5 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65) and 
-		boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75)
+	// apply only n-subjettiness
+	else if(category == 5 and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
-	// category 6 means mono-V sideband
-	else if(category == 6 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < 65))
-	  goodMonoV   = true;	
-
+	// apply only inverted n-subjettiness
+	else if(category == 6 and boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
+	  goodMonoV   = true;
+	  	
 	if(not goodMonoV) continue;	
-
-	/*	if(isMC)
-	  myfile<<" event "<<*event<<" run "<<" mass "<<*zmass<<" boosted jet pt "<<boostedJetpt->at(0)<<" boosted jet eta "<<boostedJeteta->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" recoil "<<pfmet<<" jet pt "<<jetpt->at(0)<<endl;
-	*/
       }
     }
                
@@ -789,24 +832,20 @@ void makehist4(TTree* tree, /*input tree*/
     if(*wgtbtag > 2 || *wgtbtag < 0)
       btagw = 1;
 
+    // fill the histograms
     for(auto hist : hist1D){
 
       TString name(hist->GetName());      
-      if(name.Contains("met")){
-	fillvar = pfmet;
-      }
-      if(name.Contains("nvtx")){
+      if(name.Contains("met"))
+	fillvar = pfmet;      
+      if(name.Contains("nvtx"))
 	fillvar = *nvtx;
-      }
-      if(name.Contains("chfrac")){
+      if(name.Contains("chfrac"))
 	fillvar = chfrac->at(0);
-      }
-      if(name.Contains("nhfrac")){
+      if(name.Contains("nhfrac"))
 	fillvar = nhfrac->at(0);
-      }
-      else if(name.Contains("jetPt")){
+      else if(name.Contains("jetPt"))
 	fillvar = jetpt->at(0);
-      }
       else if(name.Contains("boostedJetPt")){
 	if(boostedJetpt->size() > 0)
 	  fillvar = boostedJetpt->at(0);
@@ -819,15 +858,12 @@ void makehist4(TTree* tree, /*input tree*/
 	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
 	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }    
-      else if(name.Contains("njet")){
-	  fillvar = *njets;
-      }
-      else if(name.Contains("nbjet")){
+      else if(name.Contains("njet"))
+	  fillvar = *njets;      
+      else if(name.Contains("nbjet"))
 	  fillvar = *nbjets;
-      }      
-      else if(name.Contains("bosonPt")){
+      else if(name.Contains("bosonPt"))
 	fillvar = bosonPt;
-      }
       else if(name.Contains("QGL_1")){
 	if(jetpt->at(0) < 175.)
 	  fillvar = jetQGL->at(0);
@@ -861,9 +897,8 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = prunedJetm->at(0);	
 	else fillvar = 0.;
       }
-      else if(name.Contains("ht")){
-	fillvar = *ht;
-      }
+      else if(name.Contains("ht"))
+	fillvar = *ht;      
       else if(name.Contains("tau2tau1")){
 	if( boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
 	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);	

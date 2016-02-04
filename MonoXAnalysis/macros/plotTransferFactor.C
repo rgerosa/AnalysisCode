@@ -693,23 +693,23 @@ void plotTransferFactor(string fileName, int category, string observable, bool a
 
   gROOT->SetBatch(kTRUE);
 
-  //  rzmm(fileName,category,observable);
+  rzmm(fileName,category,observable);
   rzee(fileName,category,observable);
-  //  rwmn(fileName,category,observable);
-  //  rwen(fileName,category,observable);
-  //  rgam(fileName,category,observable);
-  //  rzwj(fileName,category,observable);
-
-  //  if(addtop){
-    //    rtopmu(fileName,category,observable);
-    //    rtopel(fileName,category,observable);
-    //  }
-
-  //  if(addsideband){
-  //    rsidebandZ(fileName,category,observable);
-  //    rsidebandW(fileName,category,observable);
-  //  }
-
+  rwmn(fileName,category,observable);
+  rwen(fileName,category,observable);
+  rgam(fileName,category,observable);
+  rzwj(fileName,category,observable);
+  
+  if(addtop){
+    rtopmu(fileName,category,observable);
+    rtopel(fileName,category,observable);
+  }
+  
+  if(addsideband){
+    rsidebandZ(fileName,category,observable);
+    rsidebandW(fileName,category,observable);
+  }
+  
 }
 
 

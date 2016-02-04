@@ -4,10 +4,14 @@
 using namespace std;
 
 // Build templates for the signal region
-void sigdatamchist(TFile* outfile, string kFactorFile, int category, 		   
+void sigdatamchist(TFile* outfile, 
+		   string kFactorFile, 
+		   int category, 		   
 		   vector<string> observables,
-		   string interaction, vector<pair<string,string> > massPoint = {make_pair("100","1")}, 
-		   double lumi = 2.11, 
+		   string interaction, 
+		   vector<pair<string,string> > massPoint = {make_pair("100","1")}, 
+		   double lumi = 2.24, 
+		   bool applyQGLReweight = false,
 		   bool blind = false) {
   
   // Files for Znunu, Wlnu, Zll, top, qcd , diboson, signal, data
@@ -192,13 +196,23 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
     isWJet = true;
 
   // make histograms for the signal region
-  makehist4(zntree, znhist,  znhist_2D,  true, 0, category, false, 1.00, lumi,    1, zhists, "", true, NULL);
-  makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi,    2, whists, "", true, NULL);
-  makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi,    1, zhists, "", true, NULL);
-  makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    4, ehists, "", true, NULL);
-  makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi,   0, ehists, "", true, NULL);
-  makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, 0,  ehists, "", true, NULL);
-						
+  if(applyQGLReweight){
+    makehist4(zntree, znhist,  znhist_2D,  true, 0, category, false, 1.00, lumi,    1, zhists, "", true, NULL);
+    makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi,    2, whists, "", true, NULL);
+    makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi,    1, zhists, "", true, NULL);
+    makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    4, ehists, "", true, NULL);
+    makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi,   0, ehists, "", true, NULL);
+    makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, 0,  ehists, "", true, NULL);
+  }
+  else{
+    makehist4(zntree, znhist,  znhist_2D,  true, 0, category, false, 1.00, lumi,    0, zhists, "", true, NULL);
+    makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi,    0, whists, "", true, NULL);
+    makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi,    0, zhists, "", true, NULL);
+    makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "", true, NULL);
+    makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi,   0, ehists, "", true, NULL);
+    makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, 0,  ehists, "", true, NULL);
+  }
+
   int itree = 0;
   for(auto tree : monoJtree){    
     // signals
@@ -337,9 +351,13 @@ void sigdatamchist(TFile* outfile, string kFactorFile, int category,
 }
 
 // build templates for photon+jets control region
-void gamdatamchist(TFile* outfile, string kFactorFile,
-		   int category, vector<string> observables,
-		   double lumi = 2.11) {
+void gamdatamchist(TFile* outfile, 
+		   string kFactorFile,
+		   int category, 
+		   vector<string> observables,
+		   double lumi = 2.24,
+		   bool applyQGLReweight = false
+		   ) {
 
 
   TFile* dtfile =  TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root");
@@ -370,7 +388,6 @@ void gamdatamchist(TFile* outfile, string kFactorFile,
   }
 
 
-
   TTree* dttree = (TTree*)dtfile->Get("tree");
   TTree* gmtree = (TTree*)gmfile->Get("tree/tree");
 
@@ -387,10 +404,16 @@ void gamdatamchist(TFile* outfile, string kFactorFile,
   ahists.push_back(anlohist);
   ahists.push_back(aewkhist);
 
-  makehist4(dttree, dthist, dthist_2D, false, 5, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
-  makehist4(gmtree, gmhist, gmhist_2D, true,  5, category, false, 1.00, lumi, 3, ahists, "", true, NULL);
-  // QCD template for photon + jets derived from photon purity
-  makehist4(dttree, qcdhist, qcdhist_2D, false, 6, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
+  if(applyQGLReweight){
+    makehist4(dttree, dthist, dthist_2D, false, 5, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(gmtree, gmhist, gmhist_2D, true,  5, category, false, 1.00, lumi, 3, ahists, "", true, NULL);
+    makehist4(dttree, qcdhist, qcdhist_2D, false, 6, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
+  }
+  else{
+    makehist4(dttree, dthist, dthist_2D, false, 5, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(gmtree, gmhist, gmhist_2D, true,  5, category, false, 1.00, lumi, 0, ahists, "", true, NULL);
+    makehist4(dttree, qcdhist, qcdhist_2D, false, 6, category, false, 1.00, lumi, 0, ehists, "", true, NULL);
+  }
   
   outfile->cd();
 
@@ -414,7 +437,7 @@ void gamdatamchist(TFile* outfile, string kFactorFile,
 
 
 //build templates for Zmumu, Zee, Wenu, Wmunu
-void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi=2.11) {
+void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi=2.24, bool applyQGLReweight=false) {
 
   if (sample != 1 && sample != 2 && sample != 3 && sample != 4) return;
 
@@ -545,13 +568,23 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   if(category == 2 or category == 3)
     isWJet = true;
 
-  makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
-  makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
-  makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
-  makehist4(vltree, vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 2, vlhists, "", true, NULL);
-  makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 1, vllhists, "", true, NULL);
-  makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
-  
+  if(applyQGLReweight){
+    makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
+    makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(vltree, vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 2, vlhists, "", true, NULL);
+    makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 1, vllhists, "", true, NULL);
+    makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+  }
+  else{
+    makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(vltree, vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 0, vlhists, "", true, NULL);
+    makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 0, vllhists, "", true, NULL);
+    makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+  }
+
   outfile->cd();
   for(auto hist :  dthist)
     hist->Write();
@@ -580,7 +613,7 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
 
 //build templates for Zmumu, Zee, Wenu, Wmunu
-void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi=2.11) {
+void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi = 2.24, bool applyQGLReweight = false) {
 
   if (sample != 7 && sample != 8) return;
 
@@ -660,13 +693,23 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   if(category == 2 or category == 3)
     isWJet = true;
 
-  makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
-  makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
-  makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
-  makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 2, ehists, "", true, NULL);
-  makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 1, ehists, "", true, NULL);
-  makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
-  
+  if(applyQGLReweight){
+    makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
+    makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 2, ehists, "", true, NULL);
+    makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 1, ehists, "", true, NULL);
+    makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+  }
+  else{
+    makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+  }
+
   outfile->cd();
   for(auto hist :  dthist)
     hist->Write();
@@ -696,8 +739,15 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 // 1) Store all corrections templates from input files (complient to combine)
 // 2) Make data and expected yields templates for all the other processes
 
-void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = false, 
-	   int category = 0, double lumi = 2.11, string outDir = "", string templateSuffix = "", vector<string> observables = {"met"}, string ext ="") {
+void hists(bool doCorrectionHistograms = false, 
+	   bool skipCorrectionHistograms = false, 
+	   int category  = 0, 
+	   double lumi   = 2.24, 
+	   string outDir = "", 
+	   string templateSuffix = "", 
+	   vector<string> observables = {"met"}, 
+	   bool applyQGLReweight = false,
+	   string ext ="") {
 
   string kfactorFile  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
   system(("mkdir -p "+outDir).c_str());
@@ -724,34 +774,34 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
     // make central values
     makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
     		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
-    		   kfactorFile,category,observables,lumi,outDir,"",ext); 
+    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Zee to Znn"<<endl;
     makezeecorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
-    		   kfactorFile,category,observables,lumi,outDir,"",ext); 
+    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wmn to WJets"<<endl;
     makewmncorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,outDir,"",ext); 
+    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wen to WJets"<<endl;
     makewencorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wenfilter/wen_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,outDir,"",ext); 
+    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
    
     cout<<"make correction histogram for Gam+jets to Znn"<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root", 
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"",ext);
+		   category,observables,lumi,applyQGLReweight,outDir,"",ext);
 
     cout<<"make Z/W ratio"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,outDir,"",ext); 
+    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make top mu ratio"<<endl;
     maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
@@ -759,7 +809,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"",ext);
+		     applyQGLReweight,outDir,"",ext);
 
     cout<<"make top el ratio"<<endl;
     maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
@@ -767,7 +817,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"",ext);
+		     applyQGLReweight,outDir,"",ext);
 
     /*
     if(category == 2 or category == 3){
@@ -790,87 +840,87 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","qcd"+ext,1);
+		   category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","ewk"+ext,2);
+		   category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
     
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","re1"+ext,3);
+		   category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","fa1"+ext,4);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
     
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","re2"+ext,5);
+		   category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","fa2"+ext,6);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","pdf"+ext,7);
+		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
 		   kfactorFile,
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,observables,lumi,outDir,"","fpc"+ext,8);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
     
     //
     cout<<"systematics on Z/W ratio "<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","qcd"+ext,1);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","ewk"+ext,2);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",		   
-		   kfactorFile,category,observables,lumi,outDir,"","re1"+ext,3);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","fa1"+ext,4);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
 
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","re2"+ext,5);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","fa2"+ext,6);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","pdf"+ext,7);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,outDir,"","fpc"+ext,8);
+		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
 
     //////////////////
     cout<<"systematics on top+mu ratio"<<endl;
@@ -879,7 +929,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"btagUp",ext+"bUp");
+		     applyQGLReweight,outDir,"btagUp",ext+"bUp");
 
 
     maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
@@ -887,7 +937,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"btagDown",ext+"bDown");
+		     applyQGLReweight,outDir,"btagDown",ext+"bDown");
 
     cout<<"systematics on top+el ratio"<<endl;
     maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
@@ -895,14 +945,14 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"btagUp",ext+"bUp");
+		     applyQGLReweight,outDir,"btagUp",ext+"bUp");
 
     maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
-		     outDir,"btagDown",ext+"bDown");
+		     applyQGLReweight,outDir,"btagDown",ext+"bDown");
   }
 
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
@@ -919,6 +969,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
     TFile* gamcorfile = TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
     TFile* topmucorfile = TFile::Open((outDir+"/topmucor"+ext+".root").c_str());
     TFile* topelcorfile = TFile::Open((outDir+"/topelcor"+ext+".root").c_str());
+
     /*
     TFile* sidebandfileZ = NULL;
     TFile* sidebandfileW = NULL;
@@ -1001,12 +1052,14 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
       gamcorhist .push_back( (TH1*)gamcorfile->Get(("gamcor"+ext+"hist_"+obs).c_str()));    
       topmucorhist .push_back( (TH1*)topmucorfile->Get(("topmucor"+ext+"hist_"+obs).c_str()));    
       topelcorhist .push_back( (TH1*)topelcorfile->Get(("topelcor"+ext+"hist_"+obs).c_str()));    
+
       /*
       if(category == 2 or category == 3){
 	sidebandZhist.push_back((TH1F*) sidebandfileZ->Get(("sidebandcor"+ext+"Zhist_"+obs).c_str()));
 	sidebandWhist.push_back((TH1F*) sidebandfileW->Get(("sidebandcor"+ext+"Whist_"+obs).c_str()));
       }
       */
+
       // get histograms Z/gamma
       cout<<"Make Z/gamma sys histograms"<<endl;
       gamcorewkhist .push_back( (TH1*)gamcorewkfile->Get(("gamcor"+ext+"ewkhist_"+obs).c_str()));    
@@ -1156,7 +1209,6 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 	sidebandWhist.back()->Write();
       }
       */
-
       gamcorqcdhist.back()->Write();
       gamcorewkhist.back()->Write();
       gamcorre1hist.back()->Write();
@@ -1196,7 +1248,7 @@ void hists(bool doCorrectionHistograms = false, bool skipCorrectionHistograms = 
 
   // signal region templates
   cout<<"start signal region data"<<endl;
-  sigdatamchist(&outfile,kfactorFile,category,observables,"Vector",signalMassPoint,lumi,false);
+  sigdatamchist(&outfile,kfactorFile,category,observables,"Vector",signalMassPoint,lumi,applyQGLReweight,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
   gamdatamchist(&outfile,kfactorFile,category,observables,lumi);

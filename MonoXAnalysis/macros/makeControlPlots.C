@@ -1,13 +1,16 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
+float minTau2Tau1 = 0.1;
+
 void makeControlPlots(string templateFileName, 
 		      int category, 
 		      string observable, string observableLatex, 
 		      string controlRegion, 
 		      bool blind, bool isLog,
 		      string mediatorMass = "1000",
-		      string DMMass = "50") {
+		      string DMMass = "50",
+		      int signalScale = 100) {
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -143,15 +146,19 @@ void makeControlPlots(string templateFileName,
   if(gamhist)
     gamhist->Scale(1.0,"width");
 
-  if(monoJhist)
+  if(monoJhist){
     monoJhist->Scale(1.0,"width");
-  if(monoWhist)
+  }
+  if(monoWhist){
     monoWhist->Scale(1.0,"width");
-  if(monoZhist)
+    monoWhist->Scale(signalScale);
+  }
+  if(monoZhist){
     monoZhist->Scale(1.0,"width");
+    monoZhist->Scale(signalScale);
+  }
 
   // set colors
-
   if(datahist){
     datahist->SetLineColor(kBlack);
     datahist->SetLineWidth(2);
@@ -257,14 +264,19 @@ void makeControlPlots(string templateFileName,
   pad1->Draw();
   pad1->cd();
 
+  float xMin = bins.front();
+  if(observable == "tau2tau1")
+    xMin = minTau2Tau1;
+  float xMax = bins.back();
+
   if(category <= 1 and isLog)
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1000, "");
+    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1000000, "");
   else if(category <= 1 and not isLog)
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1.5, "");
+    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1.5, "");
   else if(category > 1 and isLog)
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1000, "");
+    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1000000, "");
   else
-    frame =  pad1->DrawFrame(bins.front(), 1.5e-4, bins.back(), datahist->GetMaximum()*1.5, "");
+    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*2.5, "");
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   frame->GetYaxis()->SetTitle("Events / GeV");
@@ -290,7 +302,10 @@ void makeControlPlots(string templateFileName,
     leg = new TLegend(0.58, 0.66, 0.85, 0.92);
   else if(controlRegion == "SR" and isLog){
     leg = new TLegend(0.32, 0.42, 0.85, 0.92);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*10000);
+    if(observable != "njet")
+      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
+    else
+      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000000);
   }
   else if(controlRegion == "SR" and not isLog){
     leg = new TLegend(0.32, 0.42, 0.85, 0.92);
@@ -369,8 +384,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(qcdhist, "QCD", "F");
     TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
     leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
-    leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)).c_str(), "L");
-    leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)).c_str(), "L");    
+    leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+    leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");    
   }  
 
   leg->Draw("SAME");
@@ -390,13 +405,13 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = NULL;
   if(category <= 1 and controlRegion != "zmm" and controlRegion != "zee")
-    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
   else if(category <= 1 and (controlRegion == "zmm" or controlRegion == "zee"))
-    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
   else if(category > 1 and controlRegion != "zmm" and controlRegion != "zee")
-    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
   else if(category > 1 and (controlRegion == "zmm" or controlRegion == "zee"))
-    frame2 =  pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
 
 
   frame2->GetXaxis()->SetLabelSize(0.10);
@@ -422,6 +437,7 @@ void makeControlPlots(string templateFileName,
   nhist->SetMarkerColor(kBlack);
   nhist->SetMarkerSize(1.0);
 
+  // set to zero for plotting reasons of error bar and error band
   for (int i = 1; i <= dhist->GetNbinsX(); i++) dhist->SetBinError(i, 0);
 
   nhist->Divide(dhist);
@@ -448,6 +464,6 @@ void makeControlPlots(string templateFileName,
 
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
-  canvas->SaveAs((observable+"_"+controlRegion+".root").c_str());
+  //  canvas->SaveAs((observable+"_"+controlRegion+".root").c_str());
 }
 
