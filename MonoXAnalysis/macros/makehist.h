@@ -1,5 +1,5 @@
-#ifndef MAKEHIST4_H
-#define MAKEHIST4_H
+#ifndef MAKEHIST_H
+#define MAKEHIST_H
 
 #include <vector>
 #include <fstream>
@@ -12,156 +12,9 @@
 #include "TLorentzVector.h"
 #include "TString.h"
 
+#include "histoUtils.h"
+
 using namespace std;
-
-// define binnings for the different observables
-vector<float> bins_monoV_met        = {250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_substructure_met = {250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_met        = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-
-vector<float> bins_monoV_mT        = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_substructure_mT = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_mT        = {50.,80.,110.,140.,170,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-
-vector<float> bins_monoV_mpr        = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
-vector<float> bins_monoJ_mpr        = {0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.};
-vector<float> bins_substructure_mpr = {0.,5.,10.,15,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100.,105.,110.,115.,120.,125.,130.,135.,140.,145.,150.,155.,160.,165};
-
-vector<float> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
-vector<float> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
-vector<float> bins_substructure_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
-
-vector<float> bins_monoV_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<float> bins_monoJ_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<float> bins_substructure_HT = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-
-vector<float> bins_monoV_jetPt = {200.,225.,250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-vector<float> bins_substructure_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-
-vector<float> bins_monoV_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
-vector<float> bins_substructure_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
-
-vector<float> bins_monoV_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_substructure_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
-
-vector<float> bins_monoV_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
-vector<float> bins_monoJ_tau2tau1 = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
-vector<float> bins_substructure_tau2tau1 = {0.,0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.90,1.};
-
-vector<float> bins_monoV_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
-vector<float> bins_monoJ_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
-vector<float> bins_substructure_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
-
-vector<float> bins_monoV_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_substructure_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-
-vector<float> bins_monoV_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-
-// binning selections
-vector<float> selectBinning (string observable, int category){
-  
-  if(observable == "met" and category <= 1)
-    return bins_monoJ_met;
-  else if(observable == "met" and category > 1 and category <=3)
-    return bins_monoV_met;
-  else if(observable == "met" and category > 3)
-    return bins_substructure_met;
-
-  if(observable == "mT" and category <= 1)
-    return bins_monoJ_mT;
-  else if(observable == "mT" and category > 1 and category <=3)
-    return bins_monoV_mT;
-  else if(observable == "mT" and category > 3)
-    return bins_substructure_mT;
-
-  else if(observable == "mpruned" and category <=1)
-    return bins_monoJ_mpr;
-  else if(observable == "mpruned" and category > 1 and category <=3)
-    return bins_monoV_mpr;
-  else if(observable == "mpruned" and category > 3)
-    return bins_substructure_mpr;
-
-  else if(observable == "tau2tau1" and category <= 1)
-    return bins_monoJ_tau2tau1;
-  else if(observable == "tau2tau1" and category > 1 and category <=3)
-    return bins_monoV_tau2tau1;
-  else if(observable == "tau2tau1" and category > 1)
-    return bins_substructure_tau2tau1;
-
-  else if(observable == "njet" and category <= 1)
-    return bins_monoJ_njet;
-  else if(observable == "njet" and category > 1 and category <= 3)
-    return bins_monoV_njet;
-  else if(observable == "njet" and category > 3)
-    return bins_substructure_njet;
-
-  else if(observable == "nbjet" and category <= 1)
-    return bins_monoJ_njet;
-  else if(observable == "nbjet" and category > 1 and category <= 3)
-    return bins_monoV_njet;
-  else if(observable == "nbjet" and category > 3)
-    return bins_substructure_njet;
-
-  else if(observable == "ht" and category <= 1)
-    return bins_monoJ_HT;
-  else if(observable == "ht" and category > 1 and category <= 3)
-    return bins_monoV_HT;
-  else if(observable == "ht" and category > 3)
-    return bins_substructure_HT;
-  
-  else if(observable == "nvtx" and category <= 1)
-    return bins_monoJ_nvtx;
-  else if(observable == "nvtx" and category > 1 and category <= 3)
-    return bins_monoV_nvtx;
-  else if(observable == "nvtx" and category > 3)
-    return bins_substructure_nvtx;
-
-  else if(observable == "chfrac" and category <= 1)
-    return bins_monoJ_chfrac;
-  else if(observable == "chfrac" and category > 1 and category <= 3)
-    return bins_monoV_chfrac;
-  else if(observable == "chfrac" and category > 3)
-    return bins_substructure_chfrac;
-
-  else if(observable == "nhfrac" and category <= 1)
-    return bins_monoJ_nhfrac;
-  else if(observable == "nhfrac" and category > 1 and category <= 3)
-    return bins_monoV_nhfrac;
-  else if(observable == "nhfrac" and category > 3)
-    return bins_substructure_nhfrac;
-
-  else if(observable == "bosonPt" and category <= 1)
-    return bins_monoJ_bosonPt;
-  else if(observable == "bosonPt" and category > 1 and category <= 3)
-    return bins_monoV_bosonPt;
-  else if(observable == "bosonPt" and category > 3)
-    return bins_substructure_bosonPt;
-
-  else if((observable == "jetPt" or observable == "boostedJetPt") and category <= 1)
-    return bins_monoJ_jetPt;
-  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 1 and category <= 3)
-    return bins_monoV_jetPt;
-  else if((observable == "jetPt" or observable == "boostedJetPt") and category > 3)
-    return bins_substructure_jetPt;
-
-  else if(TString(observable).Contains("QGL") and category <= 1)
-    return bins_monoJ_QGL;
-  else if(TString(observable).Contains("QGL") and category > 1 and category <= 3)
-    return bins_monoV_QGL;
-  else if(TString(observable).Contains("QGL") and category > 3)
-    return bins_monoV_QGL;
-
-  vector<float> dummy;
-  return dummy;
-  
-}
-
 
 // some basic cut values
 const float tau2tau1      = 0.6;
@@ -180,8 +33,10 @@ void makehist4(TTree* tree, /*input tree*/
 	       int    QGLweight,
 	       vector<TH1*> khists, 
 	       string sysName,	       
-	       bool   reweightNVTX = true,
-	       TH1* rhist = NULL) {
+	       bool   reweightNVTX      = true,
+	       TH1* rhist = NULL,
+	       int    resonantSelection = 0
+	       ) {
 
   if(not tree){
     cout<<" empty tree --> skip process "<<endl;
@@ -261,10 +116,10 @@ void makehist4(TTree* tree, /*input tree*/
 
   // general info
   TTreeReaderValue<unsigned int> run    (myReader,"run");
-  TTreeReaderValue<unsigned int> event    (myReader,"event");
+  TTreeReaderValue<unsigned int> event  (myReader,"event");
   TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
-  TTreeReaderValue<double> xsec      (myReader,"xsec");
-  TTreeReaderValue<double> wgt       (myReader,"wgt");
+  TTreeReaderValue<double> xsec         (myReader,"xsec");
+  TTreeReaderValue<double> wgt          (myReader,"wgt");
 
   // take some wgt for MC events
   string wgtname;
@@ -291,11 +146,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> wgtbtag   (myReader,btagname.c_str());
   
   // trigger
-  TTreeReaderValue<UChar_t> hltm (myReader,"hltmet90");
-  TTreeReaderValue<UChar_t> hlte (myReader,"hltsingleel");
-  TTreeReaderValue<UChar_t> hltp (myReader,"hltphoton165");
-  TTreeReaderValue<UChar_t> hltp2 (myReader,"hltphoton175");
-  TTreeReaderValue<UChar_t> fhbhe (myReader,"flaghbheloose");
+  TTreeReaderValue<UChar_t> hltm   (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hlte   (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltp   (myReader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp2  (myReader,"hltphoton175");
+  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbheloose");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   
   // MET filters
@@ -305,8 +160,8 @@ void makehist4(TTree* tree, /*input tree*/
   string fbtrkname;
 
   if(isMC){
-    cscname  = "flagcsctight";
-    feebname = "flageebadsc";
+    cscname    = "flagcsctight";
+    feebname   = "flageebadsc";
     fmutrkname = "flagcsctight";
     fbtrkname  = "flagcsctight";
   }
@@ -321,22 +176,23 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> feeb (myReader,feebname.c_str());
 
   TTreeReaderValue<UChar_t> fmutrk (myReader,fmutrkname.c_str());
-  TTreeReaderValue<UChar_t> fbtrk (myReader,fbtrkname.c_str());
+  TTreeReaderValue<UChar_t> fbtrk  (myReader,fbtrkname.c_str());
 
-  TTreeReaderValue<unsigned int>    njets  (myReader,"njets");
-  TTreeReaderValue<unsigned int>    nbjets (myReader,"nbjetslowpt");
-  TTreeReaderValue<double> j1pt   (myReader,"leadingjetpt");
-  TTreeReaderValue<double> ht     (myReader,"ht");
+  TTreeReaderValue<unsigned int> njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int> nbjets (myReader,"nbjetslowpt");
+
+  TTreeReaderValue<double> j1pt (myReader,"leadingjetpt");
+  TTreeReaderValue<double> ht   (myReader,"ht");
   
-  TTreeReaderValue<vector<double> > jetpt  (myReader,"centraljetpt");
-  TTreeReaderValue<vector<double> > jetQGL (myReader,"centraljetQGL");
-  TTreeReaderValue<vector<double> > jeteta (myReader,"centraljeteta");
-  TTreeReaderValue<vector<double> > jetphi (myReader,"centraljetphi");
+  TTreeReaderValue<vector<double> > jetpt   (myReader,"centraljetpt");
+  TTreeReaderValue<vector<double> > jetQGL  (myReader,"centraljetQGL");
+  TTreeReaderValue<vector<double> > jeteta  (myReader,"centraljeteta");
+  TTreeReaderValue<vector<double> > jetphi  (myReader,"centraljetphi");
   TTreeReaderValue<vector<double> > jetbtag (myReader,"centraljetbtag");
-  TTreeReaderValue<vector<double> > jetm   (myReader,"centraljetm");
-  TTreeReaderValue<vector<double> > chfrac (myReader,"centraljetCHfrac");
-  TTreeReaderValue<vector<double> > nhfrac (myReader,"centraljetNHfrac");
-  TTreeReaderValue<vector<double> > emfrac (myReader,"centraljetEMfrac");
+  TTreeReaderValue<vector<double> > jetm    (myReader,"centraljetm");
+  TTreeReaderValue<vector<double> > chfrac  (myReader,"centraljetCHfrac");
+  TTreeReaderValue<vector<double> > nhfrac  (myReader,"centraljetNHfrac");
+  TTreeReaderValue<vector<double> > emfrac  (myReader,"centraljetEMfrac");
 
   // AK8 jet
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
@@ -349,6 +205,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
   TTreeReaderValue<vector<double> > boostedJetBosoneta  (myReader,"boostedJetBosoneta");
   TTreeReaderValue<vector<double> > boostedJetBosonphi  (myReader,"boostedJetBosonphi");
+  TTreeReaderValue<vector<double> > boostedJetBosonpt   (myReader,"boostedJetBosonpt");
+  TTreeReaderValue<vector<double> > boostedJetBosonm    (myReader,"boostedJetBosonm");
 
   // met
   string metSuffix = "";
@@ -582,6 +440,11 @@ void makehist4(TTree* tree, /*input tree*/
       else
 	sfwgt *= 1.;
     }
+
+    // b-tag weight
+    double btagw = *wgtbtag;
+    if(*wgtbtag > 2 || *wgtbtag < 0)
+      btagw = 1;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == 2 && isWJet){
@@ -639,19 +502,25 @@ void makehist4(TTree* tree, /*input tree*/
     
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
+
     // MET Filters
     if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue;
+
     // Additional met filters
     if (not isMC){
       if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters
     }
+
     // N-jets
     if (*njets  < 1) continue; 
+
     // B-veto, not for top control sample
     if (*nbjets > 0 and sample != 7 and sample != 8) continue; 
+
     // control regions with two leptons --> opposite charge
     if (sample == 1 && *mu1pid == *mu2pid) continue;
     if (sample == 3 && *el1pid == *el2pid) continue;
+
     // control regions with two leptons --> one should be tight
     if ((sample == 1 || sample == 3)){
 	if(sample == 1 and id1 == 1){
@@ -668,13 +537,17 @@ void makehist4(TTree* tree, /*input tree*/
 	  if(pt2 < 40) continue;
 	}	
     }
+
     // control regions wit one lepton --> tight requirement 
     if ((sample == 2 || sample == 4) && id1 != 1) continue;
+
     // photon control sample
     if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
+
     // Wenu kill QCD
     if (sample == 4 && *met < 50.) continue;
+
     // n-bjets cut for unboosted categories
     if ((sample == 7 || sample == 8) && (category !=2 and category !=3)  && *nbjets < 1) continue;
     if ( sample == 7 || sample == 8){ // select only events with one lepton
@@ -707,12 +580,10 @@ void makehist4(TTree* tree, /*input tree*/
     }
     else{
 
-      
       // boosted category and monojet
-      // So far MonoJet = jet pt < 200 + jetPt > 200 && pruned mass < 40
       bool goodMonoJet = false;
       bool goodMonoV   = false;
-
+      
       if(category == 1){ // mono jet + V-jet veto
 
 	if (chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue; // at least one leading jet                                                         
@@ -726,7 +597,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  goodMonoJet = true;
 
 	if(boostedJetpt->size() > 0){ // in case one boosted jet
-
+	  
 	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
 	    goodMonoJet = true;
 	  else{ // if high pT check pruned mass
@@ -758,7 +629,7 @@ void makehist4(TTree* tree, /*input tree*/
       	
 	if(not goodMonoJet) continue;
       }
-      
+
       else if(category >= 2){
 	
 	if(chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue; 	
@@ -789,7 +660,6 @@ void makehist4(TTree* tree, /*input tree*/
 	
 	if (deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	    
 	
-
 	// no overlap between b-jet and v-jet
 	if (sample == 7 || sample == 8){ 
 	  int nbjets = 0;
@@ -803,6 +673,20 @@ void makehist4(TTree* tree, /*input tree*/
 	  if(nbjets < 1) continue;
 	}
 
+	// split among resonant and non resonant wrt gen level
+	if(resonantSelection != 0 and isMC){
+	  TLorentzVector Wboson4V;
+	  if(boostedJetBosonpt->size() > 0 and boostedJetBosonpt->at(0) > 0){
+	    Wboson4V.SetPtEtaPhiM(boostedJetBosonpt->at(0),boostedJetBosoneta->at(0),boostedJetBosonphi->at(0),boostedJetBosonm->at(0));
+	    if(jetak8.DeltaR(Wboson4V) > 0.4 and resonantSelection == 1)
+	      continue;
+	    else if(jetak8.DeltaR(Wboson4V) < 0.4 and resonantSelection == 2)
+	      continue;
+	  }
+	  else if(resonantSelection == 1)
+	    continue;
+	}
+
 	// category 2 means HP mono-V
 	if(category == 2 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
@@ -810,8 +694,8 @@ void makehist4(TTree* tree, /*input tree*/
 	else if(category == 3 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and 
 		(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75))
 	  goodMonoV   = true;
-	// apply only pruned mass cut in a loose region --> useful for ttbar
-	else if(category == 4 and (prunedJetm->at(0) > 40 and prunedJetm->at(0) < 200))
+	// apply no pruned mass cut --> show full shapes
+	else if(category == 4 and (prunedJetm->at(0) > 0 and prunedJetm->at(0) < 200))
 	  goodMonoV   = true;
 	// apply only n-subjettiness
 	else if(category == 5 and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
@@ -819,7 +703,7 @@ void makehist4(TTree* tree, /*input tree*/
 	// apply only inverted n-subjettiness
 	else if(category == 6 and boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
 	  goodMonoV   = true;
-	  	
+	
 	if(not goodMonoV) continue;	
       }
     }
@@ -827,11 +711,6 @@ void makehist4(TTree* tree, /*input tree*/
     // fill 1D histogram
     double fillvar = 0;
     
-    // b-tag weight
-    double btagw = *wgtbtag;
-    if(*wgtbtag > 2 || *wgtbtag < 0)
-      btagw = 1;
-
     // fill the histograms
     for(auto hist : hist1D){
 
@@ -851,19 +730,19 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = boostedJetpt->at(0);
 	else
 	  fillvar = 0.;
-      }      
+      }
       else if(name.Contains("mT")){
 	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
 	if(deltaPhi > TMath::Pi())
 	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
 	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
-      }    
+      }   
       else if(name.Contains("njet"))
 	  fillvar = *njets;      
       else if(name.Contains("nbjet"))
 	  fillvar = *nbjets;
       else if(name.Contains("bosonPt"))
-	fillvar = bosonPt;
+	fillvar = bosonPt;    
       else if(name.Contains("QGL_1")){
 	if(jetpt->at(0) < 175.)
 	  fillvar = jetQGL->at(0);
@@ -891,7 +770,7 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = -1.;
       }
-
+      
       else if(name.Contains("mpruned")){
 	if( prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
 	  fillvar = prunedJetm->at(0);	
@@ -976,4 +855,5 @@ void makehist4(TTree* tree, /*input tree*/
   psffile ->Close();
   trefile ->Close();
 }
+
 #endif

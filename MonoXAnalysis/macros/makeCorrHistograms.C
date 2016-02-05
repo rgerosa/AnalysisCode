@@ -2,49 +2,11 @@
 
 using namespace std;
 
-void smoothEmptyBins(TH1* hist, int nsteps = 2){
-
-  for(int iBin = 1 ; iBin <= hist->GetNbinsX(); iBin++){
-    if(hist->GetBinContent(iBin) <= 0){
-      float average = 0.;
-      for(int jBin = iBin -nsteps; jBin < iBin+nsteps; jBin++){
-	if(jBin == iBin) continue;
-	if(jBin > 0 and jBin <= hist->GetNbinsX()){
-	  average += hist->GetBinContent(jBin);
-	}
-      }
-      hist->SetBinContent(iBin,average/(nsteps*2)); 
-      hist->SetBinError(iBin,hist->GetBinContent(iBin)*2); 
-    }
-  }
-}
-
-
-void smoothEmptyBins(TH2* hist, int nsteps = 1){
-
-  for(int xBin = 1 ; xBin <= hist->GetNbinsX(); xBin++){
-    for(int yBin = 1 ; yBin <= hist->GetNbinsY(); yBin++){
-      if(hist->GetBinContent(xBin,yBin) <= 0){
-	float average = 0.;
-	for(int jBin = xBin -nsteps; jBin < xBin+nsteps; jBin++){
-	  for(int kBin = yBin -nsteps; kBin < yBin+nsteps; kBin++){
-	    if(jBin == xBin and kBin == yBin) continue;
-	    if((jBin > 0 and jBin <= hist->GetNbinsX()) and (kBin > 0 and kBin <= hist->GetNbinsY())){
-	      average += hist->GetBinContent(jBin,kBin);
-	    }
-	  }
-	}
-	hist->SetBinContent(xBin,yBin,average/((nsteps*2+1)*(nsteps*2+1)-1)); 
-	hist->SetBinError(xBin,yBin,hist->GetBinContent(xBin,yBin)*2); 
-      }
-    }
-  }
-}
-
-
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFactorFile, int category, vector<string> observables, double lumi, 
-		     bool applyQGLReweight, string outDir = "", string sysName = "", string ext = "") {
+void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  
+		     string  kFactorFile, 
+		     int category, vector<string> observables, double lumi, bool applyQGLReweight, 
+		     string outDir = "", string sysName = "", string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -100,8 +62,8 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
 
   // divide the two                                                                                                                                                          
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    smoothEmptyBins(nhist.at(ihist),2);
-    smoothEmptyBins(dhist.at(ihist),2);
+    smoothEmptyBins(nhist.at(ihist),2); // smooth numerator in case
+    smoothEmptyBins(dhist.at(ihist),2); // smooth denominator in case
     nhist.at(ihist)->Divide(dhist.at(ihist));
   }
 
@@ -113,7 +75,7 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  string  kFac
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+    smoothEmptyBins(nhist.at(ihist),2); // smooth ratio
   
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
@@ -795,35 +757,43 @@ void maketopmucorhist( string signalRegionFile,  string  topFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
+    nhist.at(ihist)->Divide(dhist.at(ihist));
     if(nhist_alt.size() >= ihist){
       smoothEmptyBins(nhist_alt.at(ihist),2);
       smoothEmptyBins(dhist_alt.at(ihist),2);
-      nhist.at(ihist)->Add(nhist_alt.at(ihist));
-      dhist.at(ihist)->Add(dhist_alt.at(ihist));
+      nhist_alt.at(ihist)->Divide(dhist_alt.at(ihist));
     }
-    nhist.at(ihist)->Divide(dhist.at(ihist));
   }
 
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
     if(nhist_2D_alt.size() >= ihist){
       smoothEmptyBins(nhist_2D_alt.at(ihist),2);
       smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      nhist_2D.at(ihist)->Add(nhist_2D_alt.at(ihist));
-      dhist_2D.at(ihist)->Add(dhist_2D_alt.at(ihist));
+      nhist_2D_alt.at(ihist)->Divide(dhist_2D_alt.at(ihist));
     }
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
   }
 
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     smoothEmptyBins(nhist.at(ihist),2);
-
+  for(size_t ihist = 0; ihist < nhist_alt.size(); ihist++)
+    smoothEmptyBins(nhist_alt.at(ihist),2);
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < nhist_2D_alt.size(); ihist++)
+    smoothEmptyBins(nhist_2D_alt.at(ihist),1);
+
+  // make average
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    makeAverage(nhist.at(ihist),nhist_alt.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    makeAverage(nhist_2D.at(ihist),nhist_2D_alt.at(ihist));
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
@@ -916,38 +886,47 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   string name = string("topelcor")+ext;
 
   // divide the two                                                                                                                                                          
+  // divide the two                                                                                                                                                          
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
+    nhist.at(ihist)->Divide(dhist.at(ihist));
     if(nhist_alt.size() >= ihist){
       smoothEmptyBins(nhist_alt.at(ihist),2);
       smoothEmptyBins(dhist_alt.at(ihist),2);
-      nhist.at(ihist)->Add(nhist_alt.at(ihist));
-      dhist.at(ihist)->Add(dhist_alt.at(ihist));
+      nhist_alt.at(ihist)->Divide(dhist_alt.at(ihist));
     }
-    nhist.at(ihist)->Divide(dhist.at(ihist));
   }
 
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
+    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
     if(nhist_2D_alt.size() >= ihist){
       smoothEmptyBins(nhist_2D_alt.at(ihist),2);
       smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      nhist_2D.at(ihist)->Add(nhist_2D_alt.at(ihist));
-      dhist_2D.at(ihist)->Add(dhist_2D_alt.at(ihist));
+      nhist_2D_alt.at(ihist)->Divide(dhist_2D_alt.at(ihist));
     }
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
   }
 
 
   //check for empty bins and apply smoothing
   for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     smoothEmptyBins(nhist.at(ihist),2);
-
+  for(size_t ihist = 0; ihist < nhist_alt.size(); ihist++)
+    smoothEmptyBins(nhist_alt.at(ihist),2);
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < nhist_2D_alt.size(); ihist++)
+    smoothEmptyBins(nhist_2D_alt.at(ihist),1);
+
+  // make average
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    makeAverage(nhist.at(ihist),nhist_alt.at(ihist));
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    makeAverage(nhist_2D.at(ihist),nhist_2D_alt.at(ihist));
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");

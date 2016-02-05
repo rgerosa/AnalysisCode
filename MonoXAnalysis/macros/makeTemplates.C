@@ -10,17 +10,18 @@ void sigdatamchist(TFile* outfile,
 		   vector<string> observables,
 		   string interaction, 
 		   vector<pair<string,string> > massPoint = {make_pair("100","1")}, 
-		   double lumi = 2.24, 
+		   double lumi           = 2.24, 
 		   bool applyQGLReweight = false,
 		   bool blind = false) {
   
   // Files for Znunu, Wlnu, Zll, top, qcd , diboson, signal, data
-  TFile* znfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root");
-  TFile* wlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root");
-  TFile* zlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/sigfilter/sig_tree_DYJetsToLL_M-50.root");
-  TFile* ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root");
+  TFile* znfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root");
+  TFile* wlfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root");
+  TFile* zlfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/sigfilter/sig_tree_DYJetsToLL_M-50.root");
+  TFile* ttfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root");
+  TFile* ttfile_alt  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root");
   TFile* qcdfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/sigfilter/sig_tree_QCD.root");
-  TFile* dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/sigfilter/sig_tree_DiBoson.root");
+  TFile* dbfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/sigfilter/sig_tree_DiBoson.root");
 
   vector<TFile*> monoJfile;
   vector<TFile*> monoWfile;
@@ -64,6 +65,7 @@ void sigdatamchist(TFile* outfile,
   vector<TH1*> wlhist;
   vector<TH1*> zlhist;
   vector<TH1*> tthist;
+  vector<TH1*> tthist_alt;
   vector<TH1*> dihist;
   vector<TH1*> qcdhist;
   vector< vector<TH1*> > monoJhist;
@@ -83,6 +85,7 @@ void sigdatamchist(TFile* outfile,
     TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* zlhist_temp = new TH1F(("zjethist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* tthist_temp = new TH1F(("tbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* tthist_alt_temp = new TH1F(("tbkghist_alt_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* dihist_temp = new TH1F(("dbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
@@ -91,6 +94,7 @@ void sigdatamchist(TFile* outfile,
     wlhist.push_back(dynamic_cast<TH1*>(wlhist_temp));
     zlhist.push_back(dynamic_cast<TH1*>(zlhist_temp));
     tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+    tthist_alt.push_back(dynamic_cast<TH1*>(tthist_alt_temp));
     qcdhist.push_back(dynamic_cast<TH1*>(qcdhist_temp));
     dihist.push_back(dynamic_cast<TH1*>(dihist_temp));
     dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
@@ -124,6 +128,7 @@ void sigdatamchist(TFile* outfile,
   vector<TH2*> wlhist_2D;
   vector<TH2*> zlhist_2D;
   vector<TH2*> tthist_2D;
+  vector<TH2*> tthist_alt_2D;
   vector<TH2*> dihist_2D;
   vector<TH2*> qcdhist_2D;
   vector< vector<TH2*> > monoJhist_2D;
@@ -141,6 +146,10 @@ void sigdatamchist(TFile* outfile,
   TTree* wltree = (TTree*)wlfile->Get("tree/tree");
   TTree* zltree = (TTree*)zlfile->Get("tree/tree");
   TTree* tttree = (TTree*)ttfile->Get("tree/tree");
+  TTree* tttree_alt = NULL;
+  if(ttfile_alt)
+    tttree_alt = (TTree*)ttfile_alt->Get("tree/tree");
+
   TTree* ditree = (TTree*)dbfile->Get("tree/tree");
   TTree* qcdtree = (TTree*)qcdfile->Get("tree/tree");
   vector<TTree* > monoJtree;
@@ -201,6 +210,8 @@ void sigdatamchist(TFile* outfile,
     makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi,    2, whists, "", true, NULL);
     makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi,    1, zhists, "", true, NULL);
     makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    4, ehists, "", true, NULL);
+    //alternative ttbar
+    makehist4(tttree_alt, tthist_alt,  tthist_alt_2D,  true, 0, category, false, 1.00, lumi,    4, ehists, "", true, NULL);
     makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi,   0, ehists, "", true, NULL);
     makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, 0,  ehists, "", true, NULL);
   }
@@ -209,10 +220,18 @@ void sigdatamchist(TFile* outfile,
     makehist4(wltree, wlhist,  wlhist_2D,  true, 0, category, false, 1.00, lumi,    0, whists, "", true, NULL);
     makehist4(zltree, zlhist,  zlhist_2D,  true, 0, category, false, 1.00, lumi,    0, zhists, "", true, NULL);
     makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "", true, NULL);
+    makehist4(tttree_alt, tthist_alt,  tthist_alt_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "", true, NULL);
     makehist4(ditree, dihist,  dihist_2D,  true, 0, category, isWJet, 1.00, lumi,   0, ehists, "", true, NULL);
     makehist4(qcdtree, qcdhist,  qcdhist_2D,  true, 0, category, false, 1.00, lumi, 0,  ehists, "", true, NULL);
   }
 
+  // take average of ttbar
+  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++)
+    makeAverage(tthist.at(iHisto),tthist_alt.at(iHisto));
+  
+  for(size_t iHisto = 0; iHisto < tthist_2D.size(); iHisto++)
+    makeAverage(tthist_2D.at(iHisto),tthist_alt_2D.at(iHisto));
+  
   int itree = 0;
   for(auto tree : monoJtree){    
     // signals
@@ -458,8 +477,7 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/zmmfilter/zmm_tree_WJetsToLNu.root");
     qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/zmmfilter/zmm_tree_QCD.root");
     dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/zmmfilter/zmm_tree_DiBoson.root");
-    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/zmmfilter/zmm_tree_Top_amc.root");
-    
+    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/zmmfilter/zmm_tree_Top_amc.root");    
     dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/zmmfilter/zmm_tree_crab_MET-Run2015.root");
   }
   else if(sample == 2){
@@ -471,7 +489,6 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/wmnfilter/wmn_tree_QCD.root");
     dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/wmnfilter/wmn_tree_DiBoson.root");
     ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/wmnfilter/wmn_tree_Top_amc.root");
-
     dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/wmnfilter/wmn_tree_crab_MET-Run2015.root");
   }
   else if(sample == 3){
@@ -483,7 +500,6 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/zeefilter/zee_tree_QCD.root");
     dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/zeefilter/zee_tree_DiBoson.root");
     ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/zeefilter/zee_tree_Top_amc.root");
-
     dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SingleElectron/zeefilter/zee_tree_crab_SingleEle-Run2015.root");
   }
   else if(sample == 4){
@@ -495,7 +511,6 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/wenfilter/wen_tree_QCD.root");
     dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/wenfilter/wen_tree_DiBoson.root");
     ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/wenfilter/wen_tree_Top_amc.root");
-
     dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/SingleElectron/wenfilter/wen_tree_crab_SingleEle-Run2015.root");
   }
 
@@ -613,11 +628,12 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
 
 //build templates for Zmumu, Zee, Wenu, Wmunu
-void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi = 2.24, bool applyQGLReweight = false) {
+void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi = 2.24, bool applyQGLReweight = false, bool makeResonantSelection = false) {
 
   if (sample != 7 && sample != 8) return;
 
-  TFile* ttfile  = NULL;
+  TFile* ttfile      = NULL;
+  TFile* ttfile_alt  = NULL;
   TFile* dbfile  = NULL;
   TFile* qcfile  = NULL;
   TFile* vlfile  = NULL;
@@ -636,6 +652,7 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/QCD/topfilter/top_tree_QCD.root");
   dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DiBoson/topfilter/top_tree_DiBoson.root");
   ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top_amc.root");
+  ttfile_alt = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root");
     
   if(sample == 7)
     dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MET/topfilter/top_tree_crab_MET-Run2015.root");
@@ -644,10 +661,16 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
   vector<TH1*> dthist;
   vector<TH1*> tthist;
+  vector<TH1*> tthist_alt;
   vector<TH1*> qchist;
   vector<TH1*> dbhist;
   vector<TH1*> vlhist;
   vector<TH1*> vllhist;
+
+  vector<TH1*> tthist_matched;
+  vector<TH1*> tthist_matched_alt;
+  vector<TH1*> tthist_unmatched;
+  vector<TH1*> tthist_unmatched_alt;
 
   vector<float> bins;
 
@@ -658,32 +681,58 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
       cout<<"No binning for this observable --> please define it"<<endl;
 
       TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 
       dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
-      tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
       dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
       qchist.push_back(dynamic_cast<TH1*>(qchist_temp));
       vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
       vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
 
+      if(makeResonantSelection){
+	TH1F* tthist_matched_temp = new TH1F((string("tbkghist_matched")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* tthist_matched_alt_temp = new TH1F((string("tbkghist_matched_alt")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* tthist_unmatched_temp = new TH1F((string("tbkghist_unmatched")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* tthist_unmatched_alt_temp = new TH1F((string("tbkghist_unmatched_alt")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+
+	tthist_matched.push_back(dynamic_cast<TH1*>(tthist_matched_temp));
+	tthist_matched_alt.push_back(dynamic_cast<TH1*>(tthist_matched_alt_temp));
+	tthist_unmatched.push_back(dynamic_cast<TH1*>(tthist_unmatched_temp));
+	tthist_unmatched_alt.push_back(dynamic_cast<TH1*>(tthist_unmatched_alt_temp));
+		
+      }
+      else{    
+	TH1F* tthist_temp = new TH1F((string("tbkghist")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* tthist_alt_temp = new TH1F((string("tbkghist_alt")+suffix+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+	tthist_alt.push_back(dynamic_cast<TH1*>(tthist_alt_temp));
+      }
   }
 
   vector<TH2*> dthist_2D;
   vector<TH2*> tthist_2D;
+  vector<TH2*> tthist_alt_2D;
   vector<TH2*> qchist_2D;
   vector<TH2*> dbhist_2D;
   vector<TH2*> vlhist_2D;
   vector<TH2*> vllhist_2D;
 
-  TTree* dttree = (TTree*)dtfile->Get("tree");
-  TTree* vltree = (TTree*)vlfile->Get("tree/tree");
+  vector<TH2*> tthist_matched_2D;
+  vector<TH2*> tthist_matched_alt_2D;
+  vector<TH2*> tthist_unmatched_2D;
+  vector<TH2*> tthist_unmatched_alt_2D;
+
+  TTree* dttree  = (TTree*)dtfile->Get("tree");
+  TTree* vltree  = (TTree*)vlfile->Get("tree/tree");
   TTree* vlltree = (TTree*)vllfile->Get("tree/tree");
-  TTree* tttree = (TTree*)ttfile->Get("tree/tree");
+  TTree* tttree  = (TTree*)ttfile->Get("tree/tree");
+  TTree* tttree_alt = NULL;
+  if(ttfile_alt)
+    tttree_alt = (TTree*) ttfile_alt->Get("tree/tree");
+
   TTree* dbtree = (TTree*)dbfile->Get("tree/tree");
   TTree* qctree = (TTree*)qcfile->Get("tree/tree");
   
@@ -694,7 +743,16 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     isWJet = true;
 
   if(applyQGLReweight){
-    makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
+    if(not makeResonantSelection){
+      makehist4(tttree,     tthist,     tthist_2D,      true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
+      makehist4(tttree_alt, tthist_alt, tthist_alt_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL);
+    }
+    else{
+      makehist4(tttree,     tthist_matched,     tthist_matched_2D,      true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL,1);
+      makehist4(tttree_alt, tthist_matched_alt, tthist_matched_alt_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL,1);
+      makehist4(tttree,     tthist_unmatched,   tthist_unmatched_2D,    true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL,2);
+      makehist4(tttree_alt, tthist_unmatched_alt,  tthist_unmatched_alt_2D,  true,  sample, category, false,  1.00, lumi, 4, ehists, "", true, NULL,2);
+    }
     makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 2, ehists, "", true, NULL);
@@ -702,18 +760,53 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
   }
   else{
-    makehist4(tttree,  tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    if(not makeResonantSelection){
+      makehist4(tttree,     tthist,     tthist_2D,      true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+      makehist4(tttree_alt, tthist_alt, tthist_alt_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+    }
+    else{
+      makehist4(tttree,     tthist_matched,     tthist_matched_2D,      true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL,1);
+      makehist4(tttree_alt, tthist_matched_alt, tthist_matched_alt_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL,1);
+      makehist4(tttree,     tthist_unmatched,   tthist_unmatched_2D,    true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL,2);
+      makehist4(tttree_alt, tthist_unmatched_alt,  tthist_unmatched_alt_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL,2);
+    }
+
     makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
     makehist4(dttree,  dthist,  dthist_2D,  false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
+
   }
+
+  // take average of ttbar
+  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++)
+    makeAverage(tthist.at(iHisto),tthist_alt.at(iHisto));
+  
+  for(size_t iHisto = 0; iHisto < tthist_2D.size(); iHisto++)
+    makeAverage(tthist_2D.at(iHisto),tthist_alt_2D.at(iHisto));
+
+  for(size_t iHisto = 0; iHisto < tthist_matched.size(); iHisto++)
+    makeAverage(tthist_matched.at(iHisto),tthist_matched_alt.at(iHisto));
+  
+  for(size_t iHisto = 0; iHisto < tthist_matched_2D.size(); iHisto++)
+    makeAverage(tthist_matched_2D.at(iHisto),tthist_matched_alt_2D.at(iHisto));
+
+  for(size_t iHisto = 0; iHisto < tthist_unmatched.size(); iHisto++)
+    makeAverage(tthist_unmatched.at(iHisto),tthist_unmatched_alt.at(iHisto));
+  
+  for(size_t iHisto = 0; iHisto < tthist_unmatched_2D.size(); iHisto++)
+    makeAverage(tthist_unmatched_2D.at(iHisto),tthist_unmatched_alt_2D.at(iHisto));
+  
 
   outfile->cd();
   for(auto hist :  dthist)
     hist->Write();
   for(auto hist :  tthist)
+    hist->Write();
+  for(auto hist :  tthist_matched)
+    hist->Write();
+  for(auto hist :  tthist_unmatched)
     hist->Write();
   for(auto hist :  dbhist)
     hist->Write();
@@ -739,15 +832,16 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 // 1) Store all corrections templates from input files (complient to combine)
 // 2) Make data and expected yields templates for all the other processes
 
-void hists(bool doCorrectionHistograms = false, 
-	   bool skipCorrectionHistograms = false, 
-	   int category  = 0, 
-	   double lumi   = 2.24, 
-	   string outDir = "", 
-	   string templateSuffix = "", 
-	   vector<string> observables = {"met"}, 
-	   bool applyQGLReweight = false,
-	   string ext ="") {
+void makeTemplates(bool doCorrectionHistograms = false, 
+		   bool skipCorrectionHistograms = false, 
+		   int category  = 0, 
+		   double lumi   = 2.24, 
+		   string outDir = "", 
+		   string templateSuffix = "", 
+		   vector<string> observables = {"met"}, 
+		   bool applyQGLReweight      = false,
+		   bool makeResonantSelection = false,
+		   string ext ="") {
 
   string kfactorFile  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
   system(("mkdir -p "+outDir).c_str());
@@ -771,6 +865,7 @@ void hists(bool doCorrectionHistograms = false,
   if(doCorrectionHistograms){
 
     cout<<"make correction histogram for Zmm to Znn"<<endl;
+
     // make central values
     makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
     		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
@@ -924,6 +1019,7 @@ void hists(bool doCorrectionHistograms = false,
 
     //////////////////
     cout<<"systematics on top+mu ratio"<<endl;
+
     maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
@@ -953,6 +1049,7 @@ void hists(bool doCorrectionHistograms = false,
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagDown",ext+"bDown");
+
   }
 
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
@@ -1209,6 +1306,7 @@ void hists(bool doCorrectionHistograms = false,
 	sidebandWhist.back()->Write();
       }
       */
+
       gamcorqcdhist.back()->Write();
       gamcorewkhist.back()->Write();
       gamcorre1hist.back()->Write();
@@ -1247,26 +1345,27 @@ void hists(bool doCorrectionHistograms = false,
   }
 
   // signal region templates
+  /*
   cout<<"start signal region data"<<endl;
   sigdatamchist(&outfile,kfactorFile,category,observables,"Vector",signalMassPoint,lumi,applyQGLReweight,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
-  gamdatamchist(&outfile,kfactorFile,category,observables,lumi);
+  gamdatamchist(&outfile,kfactorFile,category,observables,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi); 
+  lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi,applyQGLReweight); 
   cout<<"start wmunu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi); 
+  lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi,applyQGLReweight); 
   cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi); 
+  lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi,applyQGLReweight); 
   cout<<"start wenu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi);     
+  lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi,applyQGLReweight);     
   // top control regions
+  */
   cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,7,category,observables,lumi);
+  topdatamchist(&outfile,kfactorFile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection);
   cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,8,category,observables,lumi);
+  topdatamchist(&outfile,kfactorFile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection);
 
   outfile.Close();
-
 }

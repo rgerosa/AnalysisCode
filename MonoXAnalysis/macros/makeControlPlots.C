@@ -8,6 +8,7 @@ void makeControlPlots(string templateFileName,
 		      string observable, string observableLatex, 
 		      string controlRegion, 
 		      bool blind, bool isLog,
+		      bool plotResonant = false,
 		      string mediatorMass = "1000",
 		      string DMMass = "50",
 		      int signalScale = 100) {
@@ -38,6 +39,8 @@ void makeControlPlots(string templateFileName,
   TH1* vlhist   = NULL;
   TH1* dbhist   = NULL;
   TH1* tophist  = NULL;
+  TH1* tophist_matched   = NULL;
+  TH1* tophist_unmatched = NULL;
   TH1* gamhist  = NULL;
 
   TH1* monoJhist  = NULL;
@@ -82,7 +85,16 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->Get(("vllbkghistwen_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghistwen_"+observable).c_str());  
   }
-  else if(controlRegion == "topmu"){
+  else if(controlRegion == "topmu" and plotResonant){
+    datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopmu_"+observable).c_str());
+    tophist_matched   = (TH1*)inputFile->Get(("tbkghist_matchedtopmu_"+observable).c_str());
+    tophist_unmatched = (TH1*)inputFile->Get(("tbkghist_unmatchedtopmu_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopmu_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
+  }
+  else if(controlRegion == "topmu" and not plotResonant){
     datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
     qcdhist  = (TH1*)inputFile->Get(("qbkghisttopmu_"+observable).c_str());
     tophist  = (TH1*)inputFile->Get(("tbkghisttopmu_"+observable).c_str());
@@ -90,7 +102,8 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
   }
-  else if(controlRegion == "topel"){
+
+  else if(controlRegion == "topel" and not plotResonant){
     datahist = (TH1*)inputFile->Get(("datahisttopel_"+observable).c_str());
     qcdhist  = (TH1*)inputFile->Get(("qbkghisttopel_"+observable).c_str());
     tophist  = (TH1*)inputFile->Get(("tbkghisttopel_"+observable).c_str());
@@ -98,6 +111,17 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
   }
+
+  else if(controlRegion == "topel" and plotResonant){
+    datahist = (TH1*)inputFile->Get(("datahisttopel_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopel_"+observable).c_str());
+    tophist_matched   = (TH1*)inputFile->Get(("tbkghist_matchedtopel_"+observable).c_str());
+    tophist_unmatched = (TH1*)inputFile->Get(("tbkghist_unmatchedtopel_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopel_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
+  }
+
   else if(controlRegion == "SR"){
     datahist = (TH1*)inputFile->Get(("datahist_"+observable).c_str());
     qcdhist  = (TH1*)inputFile->Get(("qbkghist_"+observable).c_str());
@@ -111,7 +135,7 @@ void makeControlPlots(string templateFileName,
     monoWhist = (TH1*)inputFile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
     monoZhist = (TH1*)inputFile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
   }
-
+  
   // BLIND OPTION
   if(blind and controlRegion == "SR"){
 
@@ -135,6 +159,10 @@ void makeControlPlots(string templateFileName,
     qcdhist->Scale(1.0,"width");
   if(tophist)
     tophist->Scale(1.0,"width");
+  if(tophist_matched)
+    tophist_matched->Scale(1.0,"width");
+  if(tophist_unmatched)
+    tophist_unmatched->Scale(1.0,"width");
   if(vlhist)
     vlhist->Scale(1.0,"width");
   if(vllhist)
@@ -183,6 +211,14 @@ void makeControlPlots(string templateFileName,
     tophist->SetFillColor(kBlue);
     tophist->SetLineColor(kBlack);
   }
+  if(tophist_matched){
+    tophist_matched->SetFillColor(kBlue);
+    tophist_matched->SetLineColor(kBlack);
+  }
+  if(tophist_unmatched){
+    tophist_unmatched->SetFillColor(kOrange);
+    tophist_unmatched->SetLineColor(kBlack);
+  }
   if(dbhist){
     dbhist->SetFillColor(kViolet);
     dbhist->SetLineColor(kBlack);
@@ -219,7 +255,6 @@ void makeControlPlots(string templateFileName,
     monoZhist->SetLineStyle(4);
   }
 
-
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
     stack->Add(qcdhist);
@@ -239,12 +274,20 @@ void makeControlPlots(string templateFileName,
     stack->Add(dbhist);
     stack->Add(vlhist);
   }
-  else if(controlRegion == "topmu" or controlRegion == "topel"){
+  else if((controlRegion == "topmu" or controlRegion == "topel") and not plotResonant){
     stack->Add(qcdhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist);    
+  }
+  else if((controlRegion == "topmu" or controlRegion == "topel") and plotResonant){
+    stack->Add(qcdhist);
+    stack->Add(vllhist);
+    stack->Add(dbhist);
+    stack->Add(vlhist);
+    stack->Add(tophist_unmatched);    
+    stack->Add(tophist_matched);    
   }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
@@ -285,7 +328,7 @@ void makeControlPlots(string templateFileName,
   frame->GetXaxis()->SetLabelOffset(1.10);
   frame->GetXaxis()->SetTitleSize(0.);
   frame->GetYaxis()->SetTitleSize(0.050);
-  
+
   frame ->Draw();
   CMS_lumi(pad1, 4, 0, true);
   stack ->Draw("HIST SAME");
@@ -297,7 +340,7 @@ void makeControlPlots(string templateFileName,
     monoZhist->Draw("hist same");
   }
 
-  TLegend* leg = NULL;
+ TLegend* leg = NULL;
   if(controlRegion == "gam")
     leg = new TLegend(0.58, 0.66, 0.85, 0.92);
   else if(controlRegion == "SR" and isLog){
@@ -323,6 +366,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
+
   else if(controlRegion == "zmm"){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
@@ -331,6 +375,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
+
   else if(controlRegion == "zee"){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
@@ -348,6 +393,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
+
   else if(controlRegion == "wen"){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
@@ -357,7 +403,17 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
-  else if(controlRegion == "topmu"){
+  else if(controlRegion == "topmu" and plotResonant){
+    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(tophist_matched, "Top Resonant","F");
+    leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
+    leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
+    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
+    leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(qcdhist, "QCD","F");
+  }
+
+  else if(controlRegion == "topmu" and not plotResonant){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
@@ -365,7 +421,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
-  else if(controlRegion == "topel"){
+
+  else if(controlRegion == "topel" and not plotResonant){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
@@ -373,6 +430,17 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
+
+  else if(controlRegion == "topel" and plotResonant){
+    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(tophist_matched, "Top Resonant","F");
+    leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
+    leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
+    leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
+    leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(qcdhist, "QCD","F");
+  }
+
   else if(controlRegion == "SR"){
     leg->SetNColumns(2);
     leg->AddEntry(datahist, "Data");
@@ -404,14 +472,10 @@ void makeControlPlots(string templateFileName,
   pad2->cd();
 
   TH1* frame2 = NULL;
-  if(category <= 1 and controlRegion != "zmm" and controlRegion != "zee")
+  if(category <= 1)
     frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
-  else if(category <= 1 and (controlRegion == "zmm" or controlRegion == "zee"))
-    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
-  else if(category > 1 and controlRegion != "zmm" and controlRegion != "zee")
-    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
-  else if(category > 1 and (controlRegion == "zmm" or controlRegion == "zee"))
-    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
+  else if(category > 1)
+    frame2 =  pad2->DrawFrame(xMin, 0.0, xMax, 2.0, "");
 
 
   frame2->GetXaxis()->SetLabelSize(0.10);

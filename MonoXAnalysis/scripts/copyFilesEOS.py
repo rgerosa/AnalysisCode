@@ -44,7 +44,7 @@ if __name__ == '__main__':
         options.outputDIR = options.outputDIR.replace('eos/cms/','');
 
     if options.toEOS:
-        os.system('xrdcp -r -S '+str(options.nStreams)+' '+options.inputDIR+' root://eoscms.cern.ch//eos/cms'+options.outputDIR);
+        os.system('xrdcp -r -f -S '+str(options.nStreams)+' '+options.inputDIR+' root://eoscms.cern.ch//eos/cms'+options.outputDIR);
         
     else:
-        os.system('xrdcp -r -S '+str(options.nStreams)+' root://eoscms.cern.ch//eos/cms'+options.inputDIR+' '+options.outputDIR);
+        os.system('xrdcp -r -f -S '+str(options.nStreams)+' root://eoscms.cern.ch//eos/cms'+options.inputDIR+' '+options.outputDIR);
