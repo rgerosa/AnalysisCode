@@ -96,6 +96,7 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  kffile.Close();
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -191,6 +192,7 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,  string  kFacto
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  kffile.Close();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -286,7 +288,8 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,  string  kFacto
 
   outfile.Close();
   nfile->Close();
-  // dfile->Close();
+  dfile->Close();
+  kffile.Close();
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -381,7 +384,8 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,  string  kFacto
 
   outfile.Close();
   nfile->Close();
-  //dfile->Close();
+  dfile->Close();
+  kffile.Close();
 
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -524,6 +528,7 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,  string  kFactorFile, 
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  kffile.Close();
 
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -679,6 +684,8 @@ void makegamcorhist( string znunuFile,   string photonFile,   string kFactorFile
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  kffile.Close();
+  fpfile.Close();
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -810,6 +817,8 @@ void maketopmucorhist( string signalRegionFile,  string  topFile,
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  if(nfile_alt) nfile_alt->Close();
+  if(dfile_alt) dfile_alt->Close();
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -943,6 +952,8 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
   outfile.Close();
   nfile->Close();
   dfile->Close();
+  if(nfile_alt) nfile_alt->Close();
+  if(dfile_alt) dfile_alt->Close();
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
