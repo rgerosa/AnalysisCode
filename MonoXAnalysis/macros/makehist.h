@@ -44,12 +44,8 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
   // in case you want to weight the NVTX distribution
-  TFile* pufile;
-  TH1*   puhist = NULL;
-  if(reweightNVTX){
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
-    puhist = (TH1*) pufile->Get("puhist");
-  }
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+  TH1*   puhist = (TH1*) pufile->Get("puhist");
     
   // Lepton ID scale factor from tag and probe: muons, electrons 
   TFile* sffile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");
@@ -71,7 +67,7 @@ void makehist4(TTree* tree, /*input tree*/
   
   // trigger efficiency for met trigger
   TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF/mettrigSF.root");
-  TH1*   trmhist = (TH1*)trefile->Get("mettrigSF");
+  TH1*   trmhist = (TH1*) trmfile->Get("mettrigSF");
 
   // QGL rewight
   TFile* QGLReweight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QGLWeight/QGLWeight.root ");
@@ -231,7 +227,7 @@ void makehist4(TTree* tree, /*input tree*/
   else if(sysName == "jesDown")
     metSuffix = "JetEnDown";
  else if(sysName == "jerUp")
-    metSuffix = "JeeResUp";
+    metSuffix = "JetResUp";
   else if(sysName == "jerDown")
     metSuffix = "JetResDown";
  else if(sysName == "uncUp")
@@ -315,7 +311,8 @@ void makehist4(TTree* tree, /*input tree*/
     //set met
     Double_t pfmet = 0.0;
     Double_t pfmetphi = 0.0;
-    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){ pfmet = *mmet; pfmetphi = *mmetphi;}
+    if (sample == 0) {pfmet = *met; pfmetphi = *metphi;}
+    else if (sample == 1 || sample == 2 || sample == 7){ pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == 3 || sample == 4 || sample == 8)          { pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == 5 || sample == 6)          { pfmet = *pmet; pfmetphi = *pmetphi;}
     else if (sample == 7 and (*hlte or *hltp))    { pfmet = *emet; pfmetphi = *emetphi;}
@@ -854,6 +851,9 @@ void makehist4(TTree* tree, /*input tree*/
   sffile  ->Close();
   psffile ->Close();
   trefile ->Close();
+  pufile  ->Close();
+  trmfile ->Close();
+  QGLReweight ->Close();
 }
 
 #endif

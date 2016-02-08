@@ -545,18 +545,18 @@ void makeTemplates(bool doCorrectionHistograms = false,
   gamdatamchist(&outfile,kfactorFile,category,observables,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi,applyQGLReweight); 
+  lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wmunu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi,applyQGLReweight); 
+  lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi,applyQGLReweight); 
+  lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wenu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi,applyQGLReweight);     
+  lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
   // top control regions
   cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection);
+  topdatamchist(&outfile,kfactorFile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection);
+  topdatamchist(&outfile,kfactorFile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
 
   outfile.Close();
 }
