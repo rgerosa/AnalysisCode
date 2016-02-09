@@ -21,6 +21,9 @@ const float tau2tau1      = 0.6;
 const float prunedMassMin = 65.;
 const float ptJetMinAK8   = 250.;
 
+string kfactorFileNew  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_24bins.root";
+string kfactorFileOld  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
 	       vector<TH2*> hist2D, /* set of 2D histogram */ 
@@ -121,25 +124,32 @@ void makehist4(TTree* tree, /*input tree*/
   string wgtname;
   string wgtpileupname;
   string btagname;
+  string btagnameOrig;
+
   if(isMC){
     wgtname = "wgtsum";
     wgtpileupname = "wgtpileup";
-    if(sysName == "btagUp")
+
+    if(sysName == "btagUp" or sysName == "bUp")
       btagname = "wgtbtagUp";
-    else if(sysName == "btagDown")
+    else if(sysName == "btagDown" or sysName == "btagDw" or sysName == "bDown" or sysName == "bDw")
       btagname = "wgtbtagDown";
     else
       btagname = "wgtbtag";
+
+    btagnameOrig = "wgtbtag";
   }
   else{
-    wgtname  = "wgt";
-    btagname = "wgt";
+    wgtname       = "wgt";
+    btagname      = "wgt";
     wgtpileupname = "wgt";
+    btagnameOrig  = "wgt";
   }
 
-  TTreeReaderValue<double> wgtsum    (myReader,wgtname.c_str());
-  TTreeReaderValue<double> wgtpileup (myReader,wgtpileupname.c_str());
-  TTreeReaderValue<double> wgtbtag   (myReader,btagname.c_str());
+  TTreeReaderValue<double> wgtsum       (myReader,wgtname.c_str());
+  TTreeReaderValue<double> wgtpileup    (myReader,wgtpileupname.c_str());
+  TTreeReaderValue<double> wgtbtag      (myReader,btagname.c_str());
+  TTreeReaderValue<double> wgtbtagOrig  (myReader,btagnameOrig.c_str());
   
   // trigger
   TTreeReaderValue<UChar_t> hltm   (myReader,"hltmet90");
@@ -208,44 +218,42 @@ void makehist4(TTree* tree, /*input tree*/
   string metSuffix = "";
   if(sysName == "muUp")
     metSuffix = "MuEnUp";
-  else if(sysName == "muDown")
+  else if(sysName == "muDown" or sysName == "muDw")
     metSuffix = "MuEnDown";
   else if(sysName == "elUp")
     metSuffix = "ElEnUp";
-  else if(sysName == "elDown")
+  else if(sysName == "elDown" or sysName == "elDw")
     metSuffix = "ElEnDown";
   else if(sysName == "phoUp")
     metSuffix = "PhoEnUp";
-  else if(sysName == "phoDown")
+  else if(sysName == "phoDown" or sysName == "phoDw")
     metSuffix = "PhoEnDown";
   else if(sysName == "tauUp")
     metSuffix = "TauEnUp";
-  else if(sysName == "tauDown")
+  else if(sysName == "tauDown" or sysName == "tauDw")
     metSuffix = "TauEnDown";
  else if(sysName == "jesUp")
     metSuffix = "JetEnUp";
-  else if(sysName == "jesDown")
+  else if(sysName == "jesDown" or sysName == "jesDw")
     metSuffix = "JetEnDown";
  else if(sysName == "jerUp")
     metSuffix = "JetResUp";
-  else if(sysName == "jerDown")
+  else if(sysName == "jerDown" or sysName == "jerDw")
     metSuffix = "JetResDown";
  else if(sysName == "uncUp")
     metSuffix = "UncEnUp";
-  else if(sysName == "uncDown")
+  else if(sysName == "uncDown" or sysName == "uncDw")
     metSuffix = "UncEnDown";
-  
 
-  TTreeReaderValue<double> met (myReader,("t1pfmet"+metSuffix).c_str());
-  TTreeReaderValue<double> metphi (myReader,"t1pfmetphi");
-  TTreeReaderValue<double> mmet (myReader,"t1mumet");
-  TTreeReaderValue<double> mmetphi (myReader,"t1mumetphi");
-  
-  TTreeReaderValue<double> emet (myReader,"t1elmet");
-  TTreeReaderValue<double> emetphi (myReader,"t1elmetphi");
-  
-  TTreeReaderValue<double> pmet (myReader,"t1phmet");
-  TTreeReaderValue<double> pmetphi (myReader,"t1phmetphi");
+  TTreeReaderValue<double> met         (myReader,("t1pfmet"+metSuffix).c_str());
+  TTreeReaderValue<double> metOriginal (myReader,"t1pfmet");
+  TTreeReaderValue<double> metphi      (myReader,"t1pfmetphi");
+  TTreeReaderValue<double> mmet        (myReader,"t1mumet");
+  TTreeReaderValue<double> mmetphi     (myReader,"t1mumetphi");
+  TTreeReaderValue<double> emet        (myReader,"t1elmet");
+  TTreeReaderValue<double> emetphi     (myReader,"t1elmetphi"); 
+  TTreeReaderValue<double> pmet        (myReader,"t1phmet");
+  TTreeReaderValue<double> pmetphi     (myReader,"t1phmetphi");
   
   // dphi
   TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
@@ -317,6 +325,12 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == 5 || sample == 6)          { pfmet = *pmet; pfmetphi = *pmetphi;}
     else if (sample == 7 and (*hlte or *hltp))    { pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == 7 and not *hlte)           { pfmet = *mmet; pfmetphi = *mmetphi;}
+
+    // propagate met systeamtics on the recoil
+    if(metSuffix != "" and sample !=0){
+      pfmet += (*met-*metOriginal);
+    }
+    
 
     // set lepton info
     Int_t    id1   = 0;
@@ -440,9 +454,10 @@ void makehist4(TTree* tree, /*input tree*/
 
     // b-tag weight
     double btagw = *wgtbtag;
-    if(*wgtbtag > 2 || *wgtbtag < 0)
-      btagw = 1;
-    
+    if(fabs(*wgtbtag-*wgtbtagOrig)/(*wgtbtagOrig) > 0.20){
+      btagw = *wgtbtagOrig;
+    }
+          
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == 2 && isWJet){
       if(tau2tau1 == 0.45){
@@ -573,7 +588,7 @@ void makehist4(TTree* tree, /*input tree*/
       if (nhfrac->at(0) > 0.8) continue;   // jet id
       if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV
       if (jetpt->at(0)  < *j1pt) continue; 
-      if (jmdphi < 0.5) continue; // deltaPhi cut
+      if (sample != 4 and jmdphi < 0.5) continue; // deltaPhi cut
     }
     else{
 
@@ -588,8 +603,8 @@ void makehist4(TTree* tree, /*input tree*/
 	if (nhfrac->at(0) > 0.8) continue;   // jet id                                                                                                                        
 	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
 	if (jetpt->at(0)  < *j1pt) continue;
-	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                          
-	
+	if (sample !=4 and jmdphi < 0.5) continue; // deltaPhi cut                                                                                                          
+
 	if(boostedJetpt->size()  == 0) // no boosted jets (AK8 pT > 200 GeV)
 	  goodMonoJet = true;
 
@@ -612,7 +627,7 @@ void makehist4(TTree* tree, /*input tree*/
 	    else
 	      deltaPhi = fabs(pfmetphi-jetak8.Phi());
 		
-	    if (deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	    
+	    if (sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                  
 
 	    // pruned mass selection
 	    if(prunedJetm->at(0)   < prunedMassMin)
@@ -646,7 +661,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if (nhfrac->at(0) > 0.8) continue;   // jet id                                                                                                                        
 	if (jetpt->at(0)  < 100.) continue;  // jet1 > 100 GeV                                                                                                             
 	if (jetpt->at(0)  < *j1pt) continue;
-	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                                        
+	if (sample != 4 and jmdphi < 0.5) continue; // deltaPhi cut                                                                                                       
 
 	// jet met dphi     
 	float deltaPhi = 0.;	    
@@ -655,8 +670,7 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  deltaPhi = fabs(pfmetphi-jetak8.Phi());
 	
-	if (deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	    
-	
+	if(sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	
 	// no overlap between b-jet and v-jet
 	if (sample == 7 || sample == 8){ 
 	  int nbjets = 0;

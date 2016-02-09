@@ -20,7 +20,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
 		   bool makeResonantSelection = false,
 		   string ext ="") {
 
-  string kfactorFile  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
   system(("mkdir -p "+outDir).c_str());
 
   vector<pair<string,string> > signalMassPoint = {
@@ -46,85 +45,76 @@ void makeTemplates(bool doCorrectionHistograms = false,
     // make central values
     makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
     		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
-    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
+    		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Zee to Znn"<<endl;
     makezeecorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
-    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
+    		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wmn to WJets"<<endl;
     makewmncorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
+    		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wen to WJets"<<endl;
     makewencorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/wenfilter/wen_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
+    		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
    
     cout<<"make correction histogram for Gam+jets to Znn"<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root", 
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root", 		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"",ext);
 
 
     cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
     
     cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
     cout<<"systematics on Z/gamma ratio --> FA 1 "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
 
 
     cout<<"systematics on Z/gamma ratio --> RE 2 "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
     cout<<"systematics on Z/gamma ratio --> FA 2 "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     cout<<"systematics on Z/gamma ratio --> PDF "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     cout<<"systematics on Z/gamma ratio --> FP "<<endl;
     makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",
-		   kfactorFile,
+		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
 
@@ -132,50 +122,50 @@ void makeTemplates(bool doCorrectionHistograms = false,
     cout<<"make Z/W ratio"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-    		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"",ext); 
+    		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"systematics on Z/W ratio --> NLO QCD"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
+		   category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     cout<<"systematics on Z/W ratio --> NLO EWK"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
+		   category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
 
     cout<<"systematics on Z/W ratio --> RE 1"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",		   
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
+		   category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
 
     cout<<"systematics on Z/W ratio --> FA 1"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
 
 
     cout<<"systematics on Z/W ratio --> RE 2"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
+		   category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
 
     cout<<"systematics on Z/W ratio --> FA 2"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     cout<<"systematics on Z/W ratio --> PDF"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
+		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     cout<<"systematics on Z/W ratio --> FP"<<endl;
     makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   kfactorFile,category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
+		   category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
 
 
     cout<<"make TOP+MU ratio"<<endl;
@@ -539,24 +529,24 @@ void makeTemplates(bool doCorrectionHistograms = false,
 
   // signal region templates
   cout<<"start signal region data"<<endl;
-  sigdatamchist(&outfile,category,kfactorFile,observables,lumi,applyQGLReweight,doShapeSystematics,true,"Vector",signalMassPoint,false);
+  sigdatamchist(&outfile,category,observables,lumi,applyQGLReweight,doShapeSystematics,true,"Vector",signalMassPoint,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
-  gamdatamchist(&outfile,kfactorFile,category,observables,lumi,applyQGLReweight);
+  gamdatamchist(&outfile,category,observables,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wmunu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,2,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,2,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wenu region data"<<endl;
-  lepdatamchist(&outfile,kfactorFile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
+  lepdatamchist(&outfile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
   // top control regions
   cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  topdatamchist(&outfile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,kfactorFile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  topdatamchist(&outfile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
 
   outfile.Close();
 }

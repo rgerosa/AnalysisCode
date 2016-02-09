@@ -1,6 +1,6 @@
 #include <cmath>
 #include "CMS_lumi.h"
-#include "makehist.h"
+#include "histoUtils.h"
 
 using namespace std;
 

@@ -6,12 +6,11 @@ using namespace std;
 // Build templates for the signal region                                                                                                                                       
 void sigdatamchist(TFile* outfile,
                    int category,
-                   string kFactorFile,
                    vector<string> observables,
                    double lumi              = 2.24,
                    bool applyQGLReweight    = false,
 		   bool doShapeSystematics  = false,
-		   bool doAlternativeTop   = false,
+		   bool doAlternativeTop    = false,
                    string interaction       = "Vector",
                    vector<pair<string,string> > massPoint = {make_pair("100","1")},
                    bool blind = false) {
@@ -524,13 +523,24 @@ void sigdatamchist(TFile* outfile,
   TTree* dttree = (TTree*)dtfile->Get("tree");
 
   // get k-factors NLO                                                                                                                                                         
-  TFile kffile(kFactorFile.c_str());
-  TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
-  TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
-  TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
-  TH1* wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
-  TH1*  wlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
-  TH1* wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+  TFile kffile_1 (kfactorFileNew.c_str());
+  TH1* znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
+  TH1* zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
+  TH1* wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+
+  TFile kffile_2 (kfactorFileOld.c_str());
+  if(not znlohist)
+    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
+  if(not zlohist)
+    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
+  if(not wnlohist)
+    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
+  if(not wlohist)
+    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
+
+  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
+  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
 
   // NLO corrections for Z and W base mc                                                                                                                                       
   znlohist->Divide(zlohist);
@@ -583,7 +593,7 @@ void sigdatamchist(TFile* outfile,
   if(doShapeSystematics){
     cout<<"signal region analysis --> do top shape sys "<<endl;
     makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp", true, NULL);
-    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDw", true, NULL);
+    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", true, NULL);
     makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", true, NULL);
     makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", true, NULL);
     makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", true, NULL);
@@ -594,7 +604,7 @@ void sigdatamchist(TFile* outfile,
     if(doAlternativeTop){
       cout<<"signal region analysis --> do top alternative shape sys "<<endl;
       makehist4(tttree_alt, tthist_alt_bUp,       tthist_alt_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp", true, NULL);
-      makehist4(tttree_alt, tthist_alt_bDw,       tthist_alt_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDw", true, NULL);
+      makehist4(tttree_alt, tthist_alt_bDw,       tthist_alt_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", true, NULL);
       makehist4(tttree_alt, tthist_alt_metJetUp,  tthist_alt_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", true, NULL);
       makehist4(tttree_alt, tthist_alt_metJetDw,  tthist_alt_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", true, NULL);
       makehist4(tttree_alt, tthist_alt_metResUp,  tthist_alt_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", true, NULL);
@@ -605,24 +615,24 @@ void sigdatamchist(TFile* outfile,
 
 
     cout<<"signal region analysis --> do diboson shape sys "<<endl;
-    makehist4(tttree, dihist_bUp,  dihist_bUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "btagUp", true, NULL);
-    makehist4(tttree, dihist_bDw,  dihist_bDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "btagDw", true, NULL);
-    makehist4(tttree, dihist_metJetUp,  dihist_metJetUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jesUp", true, NULL);
-    makehist4(tttree, dihist_metJetDw,  dihist_metJetDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jesDw", true, NULL);
-    makehist4(tttree, dihist_metResUp,  dihist_metResUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jerUp", true, NULL);
-    makehist4(tttree, dihist_metResDw,  dihist_metResDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jerDw", true, NULL);
-    makehist4(tttree, dihist_metUncUp,  dihist_metUncUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "uncUp", true, NULL);
-    makehist4(tttree, dihist_metUncDw,  dihist_metUncDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "uncDw", true, NULL);
+    makehist4(ditree, dihist_bUp,  dihist_bUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "btagUp", true, NULL);
+    makehist4(ditree, dihist_bDw,  dihist_bDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "btagDown", true, NULL);
+    makehist4(ditree, dihist_metJetUp,  dihist_metJetUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jesUp", true, NULL);
+    makehist4(ditree, dihist_metJetDw,  dihist_metJetDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jesDw", true, NULL);
+    makehist4(ditree, dihist_metResUp,  dihist_metResUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jerUp", true, NULL);
+    makehist4(ditree, dihist_metResDw,  dihist_metResDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "jerDw", true, NULL);
+    makehist4(ditree, dihist_metUncUp,  dihist_metUncUp_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "uncUp", true, NULL);
+    makehist4(ditree, dihist_metUncDw,  dihist_metUncDw_2D,  true, 0, category, isWJet, 1.00, lumi,    0, ehists, "uncDw", true, NULL);
 
     cout<<"signal region analysis --> do DYJets shape sys "<<endl;
-    makehist4(tttree, zlhist_bUp,  zlhist_bUp_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "btagUp", true, NULL);
-    makehist4(tttree, zlhist_bDw,  zlhist_bDw_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "btagDw", true, NULL);
-    makehist4(tttree, zlhist_metJetUp,  zlhist_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "jesUp", true, NULL);
-    makehist4(tttree, zlhist_metJetDw,  zlhist_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "jesDw", true, NULL);
-    makehist4(tttree, zlhist_metResUp,  zlhist_metResUp_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "jerUp", true, NULL);
-    makehist4(tttree, zlhist_metResDw,  zlhist_metResDw_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "jerDw", true, NULL);
-    makehist4(tttree, zlhist_metUncUp,  zlhist_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "uncUp", true, NULL);
-    makehist4(tttree, zlhist_metUncDw,  zlhist_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    0, ehists, "uncDw", true, NULL);
+    makehist4(zltree, zlhist_bUp,  zlhist_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "btagUp", true, NULL);
+    makehist4(zltree, zlhist_bDw,  zlhist_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "btagDown", true, NULL);
+    makehist4(zltree, zlhist_metJetUp,  zlhist_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "jesUp", true, NULL);
+    makehist4(zltree, zlhist_metJetDw,  zlhist_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "jesDw", true, NULL);
+    makehist4(zltree, zlhist_metResUp,  zlhist_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "jerUp", true, NULL);
+    makehist4(zltree, zlhist_metResDw,  zlhist_metResDw_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "jerDw", true, NULL);
+    makehist4(zltree, zlhist_metUncUp,  zlhist_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "uncUp", true, NULL);
+    makehist4(zltree, zlhist_metUncDw,  zlhist_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    QGLZ_index, zhists, "uncDw", true, NULL);
     
   }
 
@@ -630,27 +640,154 @@ void sigdatamchist(TFile* outfile,
   if(doAlternativeTop){
 
     for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++)
-      makeAverage(tthist.at(iHisto),tthist_alt.at(iHisto));    
+      makeAverage(tthist.at(iHisto),tthist_alt.at(iHisto));      
+
     for(size_t iHisto = 0; iHisto < tthist_2D.size(); iHisto++)
       makeAverage(tthist_2D.at(iHisto),tthist_alt_2D.at(iHisto));
 
-    if(doShapeSystematics){
+    if(doShapeSystematics)
       for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++)
 	makeAverage(tthist_bUp.at(iHisto),tthist_alt_bUp.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++)
-	makeAverage(tthist_bDw.at(iHisto),tthist_alt_bDw.at(iHisto)); 
+	makeAverage(tthist_bDw.at(iHisto),tthist_alt_bDw.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++)
 	makeAverage(tthist_metJetUp.at(iHisto),tthist_alt_metJetUp.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++)
 	makeAverage(tthist_metJetDw.at(iHisto),tthist_alt_metJetDw.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++)
 	makeAverage(tthist_metResUp.at(iHisto),tthist_alt_metResUp.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++)
 	makeAverage(tthist_metResDw.at(iHisto),tthist_alt_metResDw.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++)
 	makeAverage(tthist_metUncUp.at(iHisto),tthist_alt_metUncUp.at(iHisto));
+
       for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++)
 	makeAverage(tthist_metUncDw.at(iHisto),tthist_alt_metUncDw.at(iHisto));	
+  }
+
+  //smooth
+  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
+    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(tthist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < dihist.size(); iHisto++){
+    if(TString(dihist.at(iHisto)->GetName()).Contains("_met"))      
+      smoothEmptyBins(dihist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < zlhist.size(); iHisto++){
+    if(TString(zlhist.at(iHisto)->GetName()).Contains("_met"))          
+      smoothEmptyBins(zlhist.at(iHisto),2);
+  }
+
+  if(doShapeSystematics){
+
+    for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++){
+      if(TString(tthist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++){
+      if(TString(tthist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++){
+      if(TString(tthist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++){
+      if(TString(tthist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++){
+      if(TString(tthist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++){
+      if(TString(tthist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++){
+      if(TString(tthist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++){
+      if(TString(tthist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < dihist_bUp.size(); iHisto++){
+      if(TString(dihist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dihist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_bDw.size(); iHisto++){
+      if(TString(dihist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dihist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metJetUp.size(); iHisto++){
+      if(TString(dihist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dihist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metJetDw.size(); iHisto++){
+      if(TString(dihist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dihist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metResUp.size(); iHisto++){
+      if(TString(dihist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dihist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metResDw.size(); iHisto++){
+      if(TString(dihist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dihist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metUncUp.size(); iHisto++){
+      if(TString(dihist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dihist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dihist_metUncDw.size(); iHisto++){
+      if(TString(dihist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dihist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < zlhist_bUp.size(); iHisto++){
+      if(TString(zlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(zlhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_bDw.size(); iHisto++){
+      if(TString(zlhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(zlhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metJetUp.size(); iHisto++){
+      if(TString(zlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(zlhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metJetDw.size(); iHisto++){
+      if(TString(zlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(zlhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metResUp.size(); iHisto++){
+      if(TString(zlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(zlhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metResDw.size(); iHisto++){
+      if(TString(zlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(zlhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metUncUp.size(); iHisto++){
+      if(TString(zlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(zlhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < zlhist_metUncDw.size(); iHisto++){
+      if(TString(zlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(zlhist_metUncDw.at(iHisto),2);
     }
   }
 
@@ -663,10 +800,10 @@ void sigdatamchist(TFile* outfile,
       makehist4(tree, monoJhist.at(itree),  monoJhist_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "",  true, NULL);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoJ sys "<<endl;
-	makehist4(tree, monoJhist_bUp.at(itree),  monoJhist_bUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "bUp",  true, NULL);
-	makehist4(tree, monoJhist_bDw.at(itree),  monoJhist_bDw_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "bDw",  true, NULL);
-	makehist4(tree, monoJhist_metJetUp.at(itree),  monoJhist_metJetUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jecUp",  true, NULL);
-	makehist4(tree, monoJhist_metJetDw.at(itree),  monoJhist_metJetDw_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jecDw",  true, NULL);
+	makehist4(tree, monoJhist_bUp.at(itree),  monoJhist_bUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "btagUp",  true, NULL);
+	makehist4(tree, monoJhist_bDw.at(itree),  monoJhist_bDw_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "btagDown",  true, NULL);
+	makehist4(tree, monoJhist_metJetUp.at(itree),  monoJhist_metJetUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jesUp",  true, NULL);
+	makehist4(tree, monoJhist_metJetDw.at(itree),  monoJhist_metJetDw_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jesDw",  true, NULL);
 	makehist4(tree, monoJhist_metResUp.at(itree),  monoJhist_metResUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jerUp",  true, NULL);
 	makehist4(tree, monoJhist_metResDw.at(itree),  monoJhist_metResDw_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "jerDw",  true, NULL);
 	makehist4(tree, monoJhist_metUncUp.at(itree),  monoJhist_metUncUp_2D.at(itree),  true, 0, category, false, 1.00, lumi, 0, ehists, "uncUp",  true, NULL);
@@ -683,10 +820,10 @@ void sigdatamchist(TFile* outfile,
       makehist4(tree, monoWhist.at(itree),  monoWhist_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoW sys "<<endl;
-	makehist4(tree, monoWhist_bUp.at(itree),  monoWhist_bUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "bUp",  true, NULL);
-	makehist4(tree, monoWhist_bDw.at(itree),  monoWhist_bDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "bDw",  true, NULL);
-	makehist4(tree, monoWhist_metJetUp.at(itree),  monoWhist_metJetUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jecUp",  true, NULL);
-	makehist4(tree, monoWhist_metJetDw.at(itree),  monoWhist_metJetDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jecDw",  true, NULL);
+	makehist4(tree, monoWhist_bUp.at(itree),  monoWhist_bUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "btagUp",  true, NULL);
+	makehist4(tree, monoWhist_bDw.at(itree),  monoWhist_bDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "btagDown",  true, NULL);
+	makehist4(tree, monoWhist_metJetUp.at(itree),  monoWhist_metJetUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jesUp",  true, NULL);
+	makehist4(tree, monoWhist_metJetDw.at(itree),  monoWhist_metJetDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jesDw",  true, NULL);
 	makehist4(tree, monoWhist_metResUp.at(itree),  monoWhist_metResUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jerUp",  true, NULL);
 	makehist4(tree, monoWhist_metResDw.at(itree),  monoWhist_metResDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jerDw",  true, NULL);
 	makehist4(tree, monoWhist_metUncUp.at(itree),  monoWhist_metUncUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "uncUp",  true, NULL);
@@ -703,10 +840,10 @@ void sigdatamchist(TFile* outfile,
       makehist4(tree, monoZhist.at(itree),  monoZhist_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoZ sys "<<endl;
-	makehist4(tree, monoZhist_bUp.at(itree),  monoZhist_bUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "bUp",  true, NULL);
-	makehist4(tree, monoZhist_bDw.at(itree),  monoZhist_bDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "bDw",  true, NULL);
-	makehist4(tree, monoZhist_metJetUp.at(itree),  monoZhist_metJetUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jecUp",  true, NULL);
-	makehist4(tree, monoZhist_metJetDw.at(itree),  monoZhist_metJetDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jecDw",  true, NULL);
+	makehist4(tree, monoZhist_bUp.at(itree),  monoZhist_bUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "btagUp",  true, NULL);
+	makehist4(tree, monoZhist_bDw.at(itree),  monoZhist_bDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "btagDown",  true, NULL);
+	makehist4(tree, monoZhist_metJetUp.at(itree),  monoZhist_metJetUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jesUp",  true, NULL);
+	makehist4(tree, monoZhist_metJetDw.at(itree),  monoZhist_metJetDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jesDw",  true, NULL);
 	makehist4(tree, monoZhist_metResUp.at(itree),  monoZhist_metResUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jerUp",  true, NULL);
 	makehist4(tree, monoZhist_metResDw.at(itree),  monoZhist_metResDw_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "jerDw",  true, NULL);
 	makehist4(tree, monoZhist_metUncUp.at(itree),  monoZhist_metUncUp_2D.at(itree),  true, 0, category, isWJet, 1.00, lumi, 0, ehists, "uncUp",  true, NULL);
@@ -844,7 +981,8 @@ void sigdatamchist(TFile* outfile,
   for(auto file : monoWfile){ if(file) file->Close();}
   for(auto file : monoZfile){ if(file) file->Close();}
   dtfile->Close();
-  kffile.Close();
+  kffile_1.Close();
+  kffile_2.Close();
   if(ttfile_alt) ttfile_alt->Close();
 
   cout << "Templates for the signal region computed ..." << endl;
@@ -853,8 +991,7 @@ void sigdatamchist(TFile* outfile,
 
 // build templates for photon+jets control region                                                                                                                           
 void gamdatamchist(TFile* outfile,
-                   string kFactorFile,
-                   int category,
+                  int category,
                    vector<string> observables,
                    double lumi           = 2.24,
                    bool applyQGLReweight = false
@@ -892,11 +1029,19 @@ void gamdatamchist(TFile* outfile,
   TTree* gmtree = (TTree*)gmfile->Get("tree/tree");
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                           
-  TFile kffile(kFactorFile.c_str());
-  TH1* anlohist = (TH1*)kffile.Get("anlo1/anlo1_nominal");
-  TH1*  alohist = (TH1*)kffile.Get("alo/alo_nominal");
-  TH1* aewkhist = (TH1*)kffile.Get("a_ewkcorr/a_ewkcorr");
+  // get k-factors NLO                                                                                                                                                        
+  TFile kffile_1 (kfactorFileNew.c_str());
+  TH1* anlohist = (TH1*) kffile_1.Get("GJets_1j_NLO/nominal_G");
+  TH1* alohist  = (TH1*) kffile_1.Get("GJets_LO/inv_pt_G");
 
+  TFile kffile_2 (kfactorFileOld.c_str());
+  if(not anlohist)
+    anlohist = (TH1*) kffile_2.Get("anlo012/anlo012_nominal");
+  if(not alohist)
+    alohist  = (TH1*) kffile_2.Get("alo/alo_nominal");
+
+  TH1* aewkhist = (TH1*) kffile_2.Get("a_ewkcorr/a_ewkcorr");
+  
   vector<TH1*> ahists;
   vector<TH1*> ehists;
 
@@ -932,13 +1077,15 @@ void gamdatamchist(TFile* outfile,
 
   dtfile->Close();
   gmfile->Close();
+  kffile_1.Close();
+  kffile_2.Close();
 
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
 
 
 //build templates for Zmumu, Zee, Wenu, Wmunu                                                                                                                                  
-void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, 
+void lepdatamchist(TFile* outfile, int sample, int category, vector<string> observables, 
 		   double lumi = 2.24, bool applyQGLReweight = false, bool doShapeSystematics = false) {
 
   if (sample != 1 && sample != 2 && sample != 3 && sample != 4) return;
@@ -1185,13 +1332,25 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   TTree* dbtree = (TTree*)dbfile->Get("tree/tree");
   TTree* qctree = (TTree*)qcfile->Get("tree/tree");
 
-  TFile kffile(kFactorFile.c_str());
-  TH1* znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
-  TH1*  zlohist = (TH1*)kffile.Get("zlo/zlo_nominal");
-  TH1* zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
-  TH1* wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
-  TH1*  wlohist = (TH1*)kffile.Get("wlo/wlo_nominal");
-  TH1* wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+
+  TFile kffile_1(kfactorFileNew.c_str());  
+  TH1* znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
+  TH1* zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
+  TH1* wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+
+  TFile kffile_2(kfactorFileOld.c_str());
+  if(not znlohist)
+    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
+  if(not zlohist)
+    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
+  if(not wnlohist)
+    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
+  if(not wlohist)
+    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
+
+  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
+  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
 
   znlohist->Divide(zlohist);
   wnlohist->Divide(wlohist);
@@ -1225,15 +1384,15 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists, "", true, NULL);
   cout<<"lepton+jets control region --> top"<<endl;
   makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,   "", true, NULL);
-  cout<<"lepton+jets control region --> Diboson"<<endl;
+ cout<<"lepton+jets control region --> Diboson"<<endl;
   makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", true, NULL);
   cout<<"lepton+jets control region --> QCD"<<endl;
   makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
 
   if(doShapeSystematics and (sample == 1 or sample == 3)){
     cout<<"lepton +jets region --> systematics for W+jets"<<endl;
-    makehist4(vltree, vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "bUp", true, NULL);
-    makehist4(vltree, vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "bDw", true, NULL);
+    makehist4(vltree, vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "btagUp", true, NULL);
+    makehist4(vltree, vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "btagDown", true, NULL);
     makehist4(vltree, vlhist_metJetUp,  vlhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "jesUp", true, NULL);
     makehist4(vltree, vlhist_metJetDw,  vlhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "jesDw", true, NULL);
     makehist4(vltree, vlhist_metResUp,  vlhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_W, vlhists,  "jerUp", true, NULL);
@@ -1243,8 +1402,8 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   }
   else if(doShapeSystematics and (sample == 2 or sample == 4)){
     cout<<"lepton +jets region --> systematics for Z+jets"<<endl;
-    makehist4(vlltree, vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "bUp", true, NULL);
-    makehist4(vlltree, vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "bDw", true, NULL);
+    makehist4(vlltree, vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "btagUp", true, NULL);
+    makehist4(vlltree, vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "btagDown", true, NULL);
     makehist4(vlltree, vllhist_metJetUp,  vllhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "jesUp", true, NULL);
     makehist4(vlltree, vllhist_metJetDw,  vllhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "jesDw", true, NULL);
     makehist4(vlltree, vllhist_metResUp,  vllhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists,  "jerUp", true, NULL);
@@ -1256,8 +1415,8 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
   if(doShapeSystematics){
 
     cout<<"lepton +jets region --> systematics for top"<<endl;
-    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "bUp", true, NULL);
-    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "bDw", true, NULL);
+    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagUp", true, NULL);
+    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagDown", true, NULL);
     makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesUp", true, NULL);
     makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesDw", true, NULL);
     makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jerUp", true, NULL);
@@ -1266,8 +1425,8 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     makehist4(tttree, tthist_metUncDw,  tthist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "uncDw", true, NULL);
 
     cout<<"lepton +jets region --> systematics for di-boson"<<endl;
-    makehist4(dbtree, dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "bUp", true, NULL);
-    makehist4(dbtree, dbhist_bDw,  dbhist_bDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "bDw", true, NULL);
+    makehist4(dbtree, dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "btagUp", true, NULL);
+    makehist4(dbtree, dbhist_bDw,  dbhist_bDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "btagDown", true, NULL);
     makehist4(dbtree, dbhist_metJetUp,  dbhist_metJetUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "jesUp", true, NULL);
     makehist4(dbtree, dbhist_metJetDw,  dbhist_metJetDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "jesDw", true, NULL);
     makehist4(dbtree, dbhist_metResUp,  dbhist_metResUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "jerUp", true, NULL);
@@ -1275,10 +1434,172 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     makehist4(dbtree, dbhist_metUncUp,  dbhist_metUncUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "uncUp", true, NULL);
     makehist4(dbtree, dbhist_metUncDw,  dbhist_metUncDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "uncDw", true, NULL);
   }
+
   
+
   cout<<"lepton+jets control region --> Data"<<endl;
   makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, 0, ehists, "", true, NULL);
 
+
+  //smooth
+  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
+    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(tthist.at(iHisto),2);
+  }
+  for(size_t iHisto = 0; iHisto < dbhist.size(); iHisto++){
+    if(TString(dbhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(dbhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
+    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(vlhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < vllhist.size(); iHisto++){
+    if(TString(vllhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(vllhist.at(iHisto),2);
+  }
+
+  if(doShapeSystematics){
+
+    for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++){
+      if(TString(tthist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++){
+      if(TString(tthist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++){
+      if(TString(tthist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++){
+      if(TString(tthist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++){
+      if(TString(tthist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(tthist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++){
+      if(TString(tthist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++){
+      if(TString(tthist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++){
+      if(TString(tthist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(tthist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < dbhist_bUp.size(); iHisto++){
+      if(TString(dbhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_bDw.size(); iHisto++){
+      if(TString(dbhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metJetUp.size(); iHisto++){
+      if(TString(dbhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metJetDw.size(); iHisto++){
+      if(TString(dbhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metResUp.size(); iHisto++){
+      if(TString(dbhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metResDw.size(); iHisto++){
+      if(TString(dbhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metUncUp.size(); iHisto++){
+      if(TString(dbhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metUncDw.size(); iHisto++){
+      if(TString(dbhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < vlhist_bUp.size(); iHisto++){
+      if(TString(vlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_bDw.size(); iHisto++){
+      if(TString(vlhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metJetUp.size(); iHisto++){
+      if(TString(vlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metJetDw.size(); iHisto++){
+      if(TString(vlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metResUp.size(); iHisto++){
+      if(TString(vlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metResDw.size(); iHisto++){
+      if(TString(vlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metUncUp.size(); iHisto++){
+      if(TString(vlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metUncDw.size(); iHisto++){
+      if(TString(vlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < vllhist_bUp.size(); iHisto++){
+      if(TString(vllhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_bDw.size(); iHisto++){
+      if(TString(vllhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metJetUp.size(); iHisto++){
+      if(TString(vllhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metJetDw.size(); iHisto++){
+      if(TString(vllhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metResUp.size(); iHisto++){
+      if(TString(vllhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metResDw.size(); iHisto++){
+      if(TString(vllhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metUncUp.size(); iHisto++){
+      if(TString(vllhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metUncDw.size(); iHisto++){
+      if(TString(vllhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metUncDw.at(iHisto),2);
+    }
+  }
+
+  //
   outfile->cd();
   for(auto hist :  dthist) hist->Write();
   for(auto hist :  tthist) hist->Write();
@@ -1338,7 +1659,7 @@ void lepdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
 
 //build template for tt
-void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category, vector<string> observables, double lumi = 2.24, bool applyQGLReweight = false,
+void topdatamchist(TFile* outfile, int sample, int category, vector<string> observables, double lumi = 2.24, bool applyQGLReweight = false,
 		   bool makeResonantSelection = false, bool doShapeSystematics = false) {
 
   if (sample != 7 && sample != 8) return;
@@ -1599,8 +1920,8 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
   if(doShapeSystematics){
     cout<<"top+jets control region -->  shape systematics for W+Jets"<<endl;
-    makehist4(vltree,  vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "bUp", true, NULL);
-    makehist4(vltree,  vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "bDw", true, NULL);
+    makehist4(vltree,  vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "btagUp", true, NULL);
+    makehist4(vltree,  vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "btagDown", true, NULL);
     makehist4(vltree,  vlhist_metJetUp,  vlhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jesUp", true, NULL);
     makehist4(vltree,  vlhist_metJetDw,  vlhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jesDw", true, NULL);
     makehist4(vltree,  vlhist_metResUp,  vlhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jerUp", true, NULL);
@@ -1609,8 +1930,8 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     makehist4(vltree,  vlhist_metUncDw,  vlhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "uncDw", true, NULL);
 
     cout<<"top+jets control region -->  shape systematics for Z+Jets"<<endl;
-    makehist4(vlltree,  vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "bUp", true, NULL);
-    makehist4(vlltree,  vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "bDw", true, NULL);
+    makehist4(vlltree,  vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "btagUp", true, NULL);
+    makehist4(vlltree,  vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "btagDown", true, NULL);
     makehist4(vlltree,  vllhist_metJetUp,  vllhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jesUp", true, NULL);
     makehist4(vlltree,  vllhist_metJetDw,  vllhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jesDw", true, NULL);
     makehist4(vlltree,  vllhist_metResUp,  vllhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jerUp", true, NULL);
@@ -1619,8 +1940,8 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
     makehist4(vlltree,  vllhist_metUncDw,  vllhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "uncDw", true, NULL);
 
     cout<<"top+jets control region -->  shape systematics for Dibosons"<<endl;
-    makehist4(dbtree,  dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "bUp", true, NULL);
-    makehist4(dbtree,  dbhist_bDw,  dbhist_bDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "bDw", true, NULL);
+    makehist4(dbtree,  dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "btagUp", true, NULL);
+    makehist4(dbtree,  dbhist_bDw,  dbhist_bDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "btagDown", true, NULL);
     makehist4(dbtree,  dbhist_metJetUp,  dbhist_metJetUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "jesUp", true, NULL);
     makehist4(dbtree,  dbhist_metJetDw,  dbhist_metJetDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "jesDw", true, NULL);
     makehist4(dbtree,  dbhist_metResUp,  dbhist_metResUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "jerUp", true, NULL);
@@ -1651,6 +1972,134 @@ void topdatamchist(TFile* outfile, string kFactorFile, int sample, int category,
 
   for(size_t iHisto = 0; iHisto < tthist_unmatched_2D.size(); iHisto++)
     makeAverage(tthist_unmatched_2D.at(iHisto),tthist_unmatched_alt_2D.at(iHisto));
+
+
+  //smooth
+  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
+    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(tthist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < dbhist.size(); iHisto++){
+    if(TString(dbhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(dbhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
+    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(vlhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < vllhist.size(); iHisto++){
+    if(TString(vllhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(vllhist.at(iHisto),2);
+  }
+
+  if(doShapeSystematics){
+
+    for(size_t iHisto = 0; iHisto < dbhist_bUp.size(); iHisto++){
+      if(TString(dbhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(dbhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_bDw.size(); iHisto++){
+      if(TString(dbhist_bDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metJetUp.size(); iHisto++){
+      if(TString(dbhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metJetDw.size(); iHisto++){
+      if(TString(dbhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metResUp.size(); iHisto++){
+      if(TString(dbhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metResDw.size(); iHisto++){
+      if(TString(dbhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metUncUp.size(); iHisto++){
+      if(TString(dbhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < dbhist_metUncDw.size(); iHisto++){
+      if(TString(dbhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(dbhist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < vlhist_bUp.size(); iHisto++){
+      if(TString(vlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vlhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_bDw.size(); iHisto++){
+      if(TString(vlhist_bDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metJetUp.size(); iHisto++){
+      if(TString(vlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metJetDw.size(); iHisto++){
+      if(TString(vlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metResUp.size(); iHisto++){
+      if(TString(vlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metResDw.size(); iHisto++){
+      if(TString(vlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metUncUp.size(); iHisto++){
+      if(TString(vlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vlhist_metUncDw.size(); iHisto++){
+      if(TString(vlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vlhist_metUncDw.at(iHisto),2);
+    }
+
+
+    for(size_t iHisto = 0; iHisto < vllhist_bUp.size(); iHisto++){
+      if(TString(vllhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
+	smoothEmptyBins(vllhist_bUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_bDw.size(); iHisto++){
+      if(TString(vllhist_bDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_bDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metJetUp.size(); iHisto++){
+      if(TString(vllhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metJetUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metJetDw.size(); iHisto++){
+      if(TString(vllhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metJetDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metResUp.size(); iHisto++){
+      if(TString(vllhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metResUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metResDw.size(); iHisto++){
+      if(TString(vllhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metResDw.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metUncUp.size(); iHisto++){
+      if(TString(vllhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metUncUp.at(iHisto),2);
+    }
+    for(size_t iHisto = 0; iHisto < vllhist_metUncDw.size(); iHisto++){
+      if(TString(vllhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
+	smoothEmptyBins(vllhist_metUncDw.at(iHisto),2);
+    }
+
+  }
+
 
   outfile->cd();
   for(auto hist :  dthist) hist->Write();

@@ -200,6 +200,9 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     if(nEvents %100000 == 0){
       std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
     }      
+
+    vector<double> uncertiantyUp;
+    vector<double> uncertiantyDw;
     
     // take only events in the acceptance region for b-tagging
     for(size_t iJet = 0; iJet < centraljetpt->size(); iJet++){
@@ -210,6 +213,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
 	  efficiency     = graph_b->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
 	  efficiencyUp   = graph_b_errUp->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
 	  efficiencyDown = graph_b_errDown->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
+	
 	}
 	else if(centraljetHFlav->at(iJet) == 4){
 	  efficiency     = graph_c->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
@@ -269,7 +273,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
       wgtbtagDown = *std::min_element(ratios.begin(),ratios.end());
     }
     else{
-      wgtbtagUp = wgtbtag;
+      wgtbtagUp   = wgtbtag;
       wgtbtagDown = wgtbtag;
     }
 
