@@ -66,8 +66,6 @@ void rzmm(string fileName, int category, string observable) {
 
     canvas->SaveAs("rzmm.pdf");
     canvas->SaveAs("rzmm.png");
-
-    //file->Close();
 }
 
 
@@ -133,8 +131,6 @@ void rzee(string fileName, int category, string observable) {
 
     canvas->SaveAs("rzee.pdf");
     canvas->SaveAs("rzee.png");
-
-    //file->Close();
 }
 
 void rwmn(string fileName, int category, string observable) {
@@ -198,8 +194,6 @@ void rwmn(string fileName, int category, string observable) {
 
     canvas->SaveAs("rwmn.pdf");
     canvas->SaveAs("rwmn.png");
-
-    //file->Close();
 }
 
 void rwen(string fileName, int category, string observable) {
@@ -265,8 +259,6 @@ void rwen(string fileName, int category, string observable) {
 
     canvas->SaveAs("rwen.pdf");
     canvas->SaveAs("rwen.png");
-
-    //file->Close();
 }
 
 void rgam(string fileName, int category, string observable) {
@@ -289,7 +281,8 @@ void rgam(string fileName, int category, string observable) {
     TH1F*  pdfhist = (TH1F*)file->Get(("ZG_PDF_"+observable).c_str());
     TH1F*  fophist = (TH1F*)file->Get(("ZG_Footprint_"+observable).c_str());
 
-    TH1F* ehist = (TH1F*)hist->Clone("ehist");
+    TH1F* ehistEWK    = (TH1F*)hist->Clone("ehistEWK");
+    TH1F* ehist       = (TH1F*)hist->Clone("ehist");
 
     vector<float> bins = selectBinning(observable,category);
 
@@ -310,20 +303,22 @@ void rgam(string fileName, int category, string observable) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
 
-    ehist->SetFillColor(kOrange+1);
+    ehistEWK->SetFillColor(kOrange+1);
+    ehistEWK->SetLineColor(kBlack);
+    ehist->SetFillColor(kGreen+1);
     ehist->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
         err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+        ehistEWK->SetBinError(i, sqrt(err));
         err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);
-
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -331,6 +326,7 @@ void rgam(string fileName, int category, string observable) {
     CMS_lumi(canvas, 4, 0, true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
+    ehistEWK->Draw("E2 SAME");
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
@@ -339,13 +335,12 @@ void rgam(string fileName, int category, string observable) {
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(hist  , "R_{#gamma} Stat. Unc.","pl");
-    leg->AddEntry(ehist , "Stat. + Syst. Uncertainty", "F");
+    leg->AddEntry(ehistEWK, "Stat. + Syst. (EWK)", "F");
+    leg->AddEntry(ehist, "Stat. + Syst. (QCD+EWK+PDF)", "F");
     leg->Draw("SAME");
 
     canvas->SaveAs("rgam.pdf");
     canvas->SaveAs("rgam.png");
-
-    //file->Close();
 }
 
 void rzwj(string fileName, int category, string observable) {
@@ -367,7 +362,8 @@ void rzwj(string fileName, int category, string observable) {
     TH1F*  fa2hist = (TH1F*)file->Get(("ZW_FactScale2_"+observable).c_str());
     TH1F*  pdfhist = (TH1F*)file->Get(("ZW_PDF_"+observable).c_str());
 
-    TH1F* ehist = (TH1F*)hist->Clone("ehist");
+    TH1F* ehist    = (TH1F*)hist->Clone("ehist");
+    TH1F* ehistEWK = (TH1F*)hist->Clone("ehistEWK");
 
     vector<float> bins = selectBinning(observable,category);
 
@@ -388,19 +384,21 @@ void rzwj(string fileName, int category, string observable) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
 
-    ehist->SetFillColor(kOrange+1);
+    ehist->SetFillColor(kGreen+1);
     ehist->SetLineColor(kBlack);
+    ehistEWK->SetFillColor(kOrange+1);
+    ehistEWK->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
         err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	ehistEWK->SetBinError(i, sqrt(err));
         err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -408,6 +406,7 @@ void rzwj(string fileName, int category, string observable) {
     CMS_lumi(canvas, 4, 0, true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
+    ehistEWK->Draw("E2 SAME");
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
@@ -415,13 +414,12 @@ void rzwj(string fileName, int category, string observable) {
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(hist  , "R(Z/W) Stat. Unc.","pl");
-    leg->AddEntry(ehist , "Stat. + Syst. Uncertainty", "F");
+    leg->AddEntry(ehistEWK, "Stat. + Syst. (EWK)", "F");
+    leg->AddEntry(ehist, "Stat. + Syst. (QCD+EWK+PDF)", "F");
     leg->Draw("SAME");
 
     canvas->SaveAs("rzwj.pdf");
     canvas->SaveAs("rzwj.png");
-
-    //file->Close();
 }
 
 
@@ -489,8 +487,6 @@ void rtopmu(string fileName, int category, string observable) {
 
     canvas->SaveAs("rtopmu.pdf");
     canvas->SaveAs("rtopmu.png");
-
-    //file->Close();
 }
 
 
@@ -555,8 +551,6 @@ void rtopel(string fileName, int category, string observable) {
 
     canvas->SaveAs("rtopel.pdf");
     canvas->SaveAs("rtopel.png");
-
-    //file->Close();
 }
 
 void rsidebandZ(string fileName, int category, string observable) {
@@ -618,8 +612,6 @@ void rsidebandZ(string fileName, int category, string observable) {
 
     canvas->SaveAs("rsidebandZ.pdf");
     canvas->SaveAs("rsidebandZ.png");
-
-    //file->Close();
 }
 
 
@@ -682,8 +674,6 @@ void rsidebandW(string fileName, int category, string observable) {
 
     canvas->SaveAs("rsidebandW.pdf");
     canvas->SaveAs("rsidebandW.png");
-
-    //file->Close();
 }
 
 

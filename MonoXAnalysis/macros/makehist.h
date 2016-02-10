@@ -124,7 +124,6 @@ void makehist4(TTree* tree, /*input tree*/
   string wgtname;
   string wgtpileupname;
   string btagname;
-  string btagnameOrig;
 
   if(isMC){
     wgtname = "wgtsum";
@@ -136,20 +135,16 @@ void makehist4(TTree* tree, /*input tree*/
       btagname = "wgtbtagDown";
     else
       btagname = "wgtbtag";
-
-    btagnameOrig = "wgtbtag";
   }
   else{
     wgtname       = "wgt";
     btagname      = "wgt";
     wgtpileupname = "wgt";
-    btagnameOrig  = "wgt";
   }
 
   TTreeReaderValue<double> wgtsum       (myReader,wgtname.c_str());
   TTreeReaderValue<double> wgtpileup    (myReader,wgtpileupname.c_str());
   TTreeReaderValue<double> wgtbtag      (myReader,btagname.c_str());
-  TTreeReaderValue<double> wgtbtagOrig  (myReader,btagnameOrig.c_str());
   
   // trigger
   TTreeReaderValue<UChar_t> hltm   (myReader,"hltmet90");
@@ -454,10 +449,9 @@ void makehist4(TTree* tree, /*input tree*/
 
     // b-tag weight
     double btagw = *wgtbtag;
-    if(fabs(*wgtbtag-*wgtbtagOrig)/(*wgtbtagOrig) > 0.20){
-      btagw = *wgtbtagOrig;
-    }
-          
+    if( btagw > 2 || btagw < 0)
+      btagw = 1;
+    
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == 2 && isWJet){
       if(tau2tau1 == 0.45){

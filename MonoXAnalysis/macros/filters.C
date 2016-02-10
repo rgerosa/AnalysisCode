@@ -87,79 +87,16 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   std::cout<<"###################################"<<std::endl;
   std::cout<<"btagWeights function --> start"<<std::endl;
 
-  
-  // make up and down variations
-  TH2F* eff_b_errUp = (TH2F*) eff_b->Clone("eff_b_errUp");
-  TH2F* eff_c_errUp = (TH2F*) eff_c->Clone("eff_c_errUp");
-  TH2F* eff_ucsdg_errUp = (TH2F*) eff_ucsdg->Clone("eff_ucsdg_errUp");
-
-  TH2F* eff_b_errDown = (TH2F*) eff_b->Clone("eff_b_errDown");
-  TH2F* eff_c_errDown = (TH2F*) eff_c->Clone("eff_c_errDown");
-  TH2F* eff_ucsdg_errDown = (TH2F*) eff_ucsdg->Clone("eff_ucsdg_errDown");
-
-  for(int iBinX = 0; iBinX < eff_b_errUp->GetNbinsX(); iBinX++){
-    for(int iBinY = 0; iBinY < eff_b_errUp->GetNbinsY(); iBinY++){
-      // check consistentcy
-      if(eff_b->GetBinContent(iBinX+1,iBinY+1)+eff_b->GetBinError(iBinX+1,iBinY+1) < 1.)
-	eff_b_errUp->SetBinContent(iBinX+1,iBinY+1,eff_b->GetBinContent(iBinX+1,iBinY+1)+eff_b->GetBinError(iBinX+1,iBinY+1));
-      else
-	eff_b_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
-
-      if(eff_c->GetBinContent(iBinX+1,iBinY+1)+eff_c->GetBinError(iBinX+1,iBinY+1) < 1.)
-	eff_c_errUp->SetBinContent(iBinX+1,iBinY+1,eff_c->GetBinContent(iBinX+1,iBinY+1)+eff_c->GetBinError(iBinX+1,iBinY+1));      
-      else
-	eff_c_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
-      
-      if(eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)+eff_ucsdg->GetBinError(iBinX+1,iBinY+1) < 1)
-	eff_ucsdg_errUp->SetBinContent(iBinX+1,iBinY+1,eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)+eff_ucsdg->GetBinError(iBinX+1,iBinY+1));
-      else
-	eff_ucsdg_errUp->SetBinContent(iBinX+1,iBinY+1,1.);
-
-      if(eff_b->GetBinContent(iBinX+1,iBinY+1)-eff_b->GetBinError(iBinX+1,iBinY+1) > 0.)
-	eff_b_errDown->SetBinContent(iBinX+1,iBinY+1,eff_b->GetBinContent(iBinX+1,iBinY+1)-eff_b->GetBinError(iBinX+1,iBinY+1));
-      else
-	eff_b_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
-
-      if(eff_c->GetBinContent(iBinX+1,iBinY+1)-eff_c->GetBinError(iBinX+1,iBinY+1) > 0.)
-	eff_c_errDown->SetBinContent(iBinX+1,iBinY+1,eff_c->GetBinContent(iBinX+1,iBinY+1)-eff_c->GetBinError(iBinX+1,iBinY+1));
-      else
-	eff_c_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
-
-      if(eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)-eff_ucsdg->GetBinError(iBinX+1,iBinY+1) > 0.)
-	eff_ucsdg_errDown->SetBinContent(iBinX+1,iBinY+1,eff_ucsdg->GetBinContent(iBinX+1,iBinY+1)-eff_ucsdg->GetBinError(iBinX+1,iBinY+1));
-      else
-	eff_ucsdg_errDown->SetBinContent(iBinX+1,iBinY+1,0.);
-
-    }
-  }
-  
   // smooth input histograms to deal with low statistics
   eff_b->Smooth();
   eff_c->Smooth();
   eff_ucsdg->Smooth();
 
-  eff_b_errUp->Smooth();
-  eff_c_errUp->Smooth();
-  eff_ucsdg_errUp->Smooth();
-
-  eff_b_errDown->Smooth();
-  eff_c_errDown->Smooth();
-  eff_ucsdg_errDown->Smooth();
 
   // make graph 2D for interpolation for central values
   TGraph2D* graph_b = new TGraph2D(eff_b);
   TGraph2D* graph_c = new TGraph2D(eff_c);
   TGraph2D* graph_ucsdg = new TGraph2D(eff_ucsdg);
-
-
-  TGraph2D* graph_b_errUp = new TGraph2D(eff_b_errUp);
-  TGraph2D* graph_c_errUp = new TGraph2D(eff_c_errUp);
-  TGraph2D* graph_ucsdg_errUp = new TGraph2D(eff_ucsdg_errUp);
-
-
-  TGraph2D* graph_b_errDown = new TGraph2D(eff_b_errDown);
-  TGraph2D* graph_c_errDown = new TGraph2D(eff_c_errDown);
-  TGraph2D* graph_ucsdg_errDown = new TGraph2D(eff_ucsdg_errDown);
 
   double jetPtMin  = 20;
   double jetEtaMax = 2.4;
@@ -187,90 +124,78 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   while(myReader.Next()){
 
     // recipe for b-tag weight on https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
-    double PMC = 1.;
-    double PMCUp = 1.;
-    double PMCDown = 1.;
-    double PDATA = 1.;
-    double PDATAUp = 1.;
-    double PDATADown = 1.;
-    double efficiency     = 1.;
-    double efficiencyUp   = 1.;
-    double efficiencyDown = 1.;
-    
+    vector<double> PMC;
+    vector<double> PDATA ;
+    vector<double> PDATAErrUp ;
+    vector<double> PDATAErrDw ;
+    double efficiency = 1.;
+
     if(nEvents %100000 == 0){
       std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
     }      
 
-    vector<double> uncertiantyUp;
-    vector<double> uncertiantyDw;
-    
-    // take only events in the acceptance region for b-tagging
-    for(size_t iJet = 0; iJet < centraljetpt->size(); iJet++){
-            
+    // take only events in the acceptance region for b-tagging   
+    for(size_t iJet = 0; iJet < centraljetpt->size(); iJet++){            
       if(centraljetpt->at(iJet) > jetPtMin and fabs(centraljeteta->at(iJet)) < jetEtaMax){
 	// get efficiency
-	if(centraljetHFlav->at(iJet) == 5){
+	if(centraljetHFlav->at(iJet) == 5)
 	  efficiency     = graph_b->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
-	  efficiencyUp   = graph_b_errUp->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
-	  efficiencyDown = graph_b_errDown->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
-	
-	}
-	else if(centraljetHFlav->at(iJet) == 4){
+	else if(centraljetHFlav->at(iJet) == 4)
 	  efficiency     = graph_c->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	  efficiencyUp   = graph_c_errUp->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	  efficiencyDown = graph_c_errDown->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	}
-	else{
+	else
 	  efficiency     = graph_ucsdg->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	  efficiencyUp   = graph_ucsdg_errUp->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	  efficiencyDown = graph_ucsdg_errDown->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
-	}
 
 	//checks
-	if(efficiencyUp > 1)
-	  efficiencyUp = 1;
-	if(efficiencyDown < 0)
-	  efficiencyDown = 0;
+	if(efficiency > 1) efficiency = 1;
+	if(efficiency < 0) efficiency = 0;
 	
 	// check b-tag value
 	if(centraljetbtag->at(iJet) > btagWP){
-	  PMC    *= efficiency;
-	  PDATA  *= efficiency*(centraljetBtagSF->at(iJet));		  
-	  PMCUp     *= efficiencyUp; 
-	  PMCDown   *= efficiencyDown; 
-	  PDATAUp   *= efficiencyUp*(centraljetBtagSFUp->at(iJet));
-	  PDATADown *= efficiencyDown*(centraljetBtagSFDown->at(iJet));
+	  PMC.push_back(efficiency);
+	  PDATA.push_back(efficiency*(centraljetBtagSF->at(iJet)));		  
+	  PDATAErrUp.push_back(efficiency*(centraljetBtagSFUp->at(iJet)));
+	  PDATAErrDw.push_back(efficiency*(centraljetBtagSFDown->at(iJet)));
 	}
 	else{
-	  PMC       *= (1-efficiency);
-	  PMCUp     *= (1-efficiencyUp);
-	  PMCDown   *= (1-efficiencyDown);
-	  PDATA     *= (1-efficiency*(centraljetBtagSF->at(iJet)));
-	  PDATAUp   *= (1-efficiencyUp*(centraljetBtagSFUp->at(iJet)));
-	  PDATADown *= (1-efficiencyDown*(centraljetBtagSFDown->at(iJet)));
+	  PMC.push_back((1-efficiency));
+	  PDATA.push_back((1-efficiency*(centraljetBtagSF->at(iJet))));
+	  PDATAErrUp.push_back(1-efficiency*(centraljetBtagSFUp->at(iJet)));
+	  PDATAErrDw.push_back(1-efficiency*(centraljetBtagSFDown->at(iJet)));
 	}	
       }
     }
 
     // Fill branch
-    if(PMC != 0)
-      wgtbtag = PDATA/PMC;
+    double Num = 1.;
+    double Den = 1.;
+
+    for(size_t iJet = 0; iJet < PMC.size(); iJet++){
+      Num *= PDATA.at(iJet);
+      Den *= PMC.at(iJet);
+    }
+
+    if(Den != 0)
+      wgtbtag = Num/Den;
     else
       wgtbtag = 1.;
 
-    std::vector<double> ratios;
-    if(PMCUp!=0){
-      ratios.push_back(PDATAUp/PMCUp);
-      ratios.push_back(PDATADown/PMCUp);
-    }
-    if(PMCDown!=0){
-      ratios.push_back(PDATADown/PMCDown);
-      ratios.push_back(PDATAUp/PMCDown);
+    vector<double> wbtagErr;
+    double NumMax = 1.;
+    double NumMin = 1.;
+    for(size_t iErr = 0; iErr < PDATAErrUp.size(); iErr++){
+      if(PDATAErrUp.at(iErr) > PDATAErrDw.at(iErr)){
+	NumMax *= PDATAErrUp.at(iErr);
+	NumMin *= PDATAErrDw.at(iErr);
+      }
+      else{
+	NumMax *= PDATAErrDw.at(iErr);
+	NumMin *= PDATAErrUp.at(iErr);	
+      }
     }
 
-    if(ratios.size()>=2){
-      wgtbtagUp   = *std::max_element(ratios.begin(),ratios.end());
-      wgtbtagDown = *std::min_element(ratios.begin(),ratios.end());
+    if(Den != 0){
+      wgtbtagUp   = NumMax/Den;
+      wgtbtagDown = NumMin/Den;
     }
     else{
       wgtbtagUp   = wgtbtag;
