@@ -18,6 +18,7 @@ using namespace std;
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
+//vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
 vector<float> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -66,7 +67,7 @@ vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,
 // binning selections                                                                                                                                                          
 vector<float> selectBinning (string observable, int category){
 
-  if(observable == "met" and category <= 1)
+  if(observable == "met" and category <= 1 and category >= 0)
     return bins_monoJ_met;
   else if(observable == "met" and category > 1 and category <=3)
     return bins_monoV_met;
@@ -223,5 +224,15 @@ void makeAverage(TH2* histo, TH2* histo_2){
   }
 }
 
+
+
+void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float xValue){
+
+  for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
+    
+    if(iBin >= nominalHisto->FindBin(xPoint))
+      sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);   
+  }
+}
 
 #endif
