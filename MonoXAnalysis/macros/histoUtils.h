@@ -14,11 +14,11 @@
 
 using namespace std;
 
-// define binnings for the different observables                                                                                                                                 
+// define binnings for the different observables                                                                                                                              
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-//vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
+//vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
+vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
 vector<float> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};

@@ -162,12 +162,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
 		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
-    cout<<"systematics on Z/W ratio --> FP"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
-
-
     cout<<"make TOP+MU ratio"<<endl;
     maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/sigfilter/sig_tree_Top_amc.root",
 		     "/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/Top/topfilter/top_tree_Top_amc.root",
@@ -529,24 +523,24 @@ void makeTemplates(bool doCorrectionHistograms = false,
 
   // signal region templates
   cout<<"start signal region data"<<endl;
-  sigdatamchist(&outfile,category,observables,lumi,applyQGLReweight,doShapeSystematics,true,"Vector",signalMassPoint,false);
+  //sigdatamchist(&outfile,category,observables,lumi,applyQGLReweight,doShapeSystematics,true,"Vector",signalMassPoint,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
-  gamdatamchist(&outfile,category,observables,lumi,applyQGLReweight);
+  //  gamdatamchist(&outfile,category,observables,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  //  lepdatamchist(&outfile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wmunu region data"<<endl;
   lepdatamchist(&outfile,2,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  //  lepdatamchist(&outfile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wenu region data"<<endl;
-  lepdatamchist(&outfile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
+  //  lepdatamchist(&outfile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
   // top control regions
   cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  //  topdatamchist(&outfile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  //  topdatamchist(&outfile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
 
   outfile.Close();
 }

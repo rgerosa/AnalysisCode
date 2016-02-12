@@ -2,11 +2,11 @@
 
 using namespace std;
 
-
 // Build templates for the signal region                                                                                                                                       
 void sigdatamchist(TFile* outfile,
                    int category,
                    vector<string> observables,
+                   vector<string> observables_2D,
                    double lumi              = 2.24,
                    bool applyQGLReweight    = false,
 		   bool doShapeSystematics  = false,
@@ -523,27 +523,28 @@ void sigdatamchist(TFile* outfile,
   TTree* dttree = (TTree*)dtfile->Get("tree");
 
   // get k-factors NLO                                                                                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1* znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1* zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
-  TH1* wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
-  TH1* wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+  TFile kffile (kfactorFile.c_str());
+  TH1* znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1* zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* zewkhist = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1* wewkhist = (TH1*) kffile.Get("EWKcorr/W");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not znlohist)
-    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist)
-    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-  if(not wnlohist)
-    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  if(not wlohist)
-    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
-
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
+  /*  
+  TH1* znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+  TH1* zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+  TH1* wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
+  TH1* wlohist  = (TH1*) kffile.Get("wlo/wlo_nominal");
+    
+  TH1* zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+  TH1* wewkhist = (TH1*) kffile.Get("w_ewkcorr/w_ewkcorr");
+  */
 
   // NLO corrections for Z and W base mc                                                                                                                                       
+  zewkhist->Divide(znlohist);
   znlohist->Divide(zlohist);
+  wewkhist->Divide(wnlohist);
   wnlohist->Divide(wlohist);
 
   vector<TH1*> ehists;
@@ -981,8 +982,7 @@ void sigdatamchist(TFile* outfile,
   for(auto file : monoWfile){ if(file) file->Close();}
   for(auto file : monoZfile){ if(file) file->Close();}
   dtfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
   if(ttfile_alt) ttfile_alt->Close();
 
   cout << "Templates for the signal region computed ..." << endl;
@@ -1030,22 +1030,17 @@ void gamdatamchist(TFile* outfile,
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                           
   // get k-factors NLO                                                                                                                                                        
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1* anlohist = (TH1*) kffile_1.Get("GJets_1j_NLO/nominal_G");
-  TH1* alohist  = (TH1*) kffile_1.Get("GJets_LO/inv_pt_G");
-
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not anlohist)
-    anlohist = (TH1*) kffile_2.Get("anlo012/anlo012_nominal");
-  if(not alohist)
-    alohist  = (TH1*) kffile_2.Get("alo/alo_nominal");
-
-  TH1* aewkhist = (TH1*) kffile_2.Get("a_ewkcorr/a_ewkcorr");
+  TFile kffile (kfactorFile.c_str());
+  TH1* anlohist = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1* alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1* aewkhist = (TH1*) kffile.Get("EWKcorr/photon");
   
   vector<TH1*> ahists;
   vector<TH1*> ehists;
 
+  aewkhist->Divide(anlohist);
   anlohist->Divide(alohist);
+
   ahists.push_back(anlohist);
   ahists.push_back(aewkhist);
 
@@ -1077,8 +1072,7 @@ void gamdatamchist(TFile* outfile,
 
   dtfile->Close();
   gmfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
 
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
@@ -1333,26 +1327,26 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   TTree* qctree = (TTree*)qcfile->Get("tree/tree");
 
 
-  TFile kffile_1(kfactorFileNew.c_str());  
-  TH1* znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1* zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
-  TH1* wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
-  TH1* wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+  TFile kffile(kfactorFile.c_str());  
+  TH1* znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1* zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
 
-  TFile kffile_2(kfactorFileOld.c_str());
-  if(not znlohist)
-    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist)
-    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-  if(not wnlohist)
-    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  if(not wlohist)
-    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
+  TH1* zewkhist = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1* wewkhist = (TH1*) kffile.Get("EWKcorr/W");
+  /*
+  TH1* znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+  TH1* zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+  TH1* wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
+  TH1* wlohist  = (TH1*) kffile.Get("wlo/wlo_nominal");
 
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
-
+  TH1* zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+  TH1* wewkhist = (TH1*) kffile.Get("w_ewkcorr/w_ewkcorr");
+  */
+  zewkhist->Divide(znlohist);
   znlohist->Divide(zlohist);
+  wewkhist->Divide(wnlohist);
   wnlohist->Divide(wlohist);
 
   vector<TH1*> ehists;
