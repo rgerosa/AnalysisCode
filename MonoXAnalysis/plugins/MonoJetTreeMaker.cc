@@ -14,6 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 
 // HLT info
@@ -50,6 +51,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -111,6 +113,7 @@ private:
   
   // trgger and filter tokens
   const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  const edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken;
   const edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
   const edm::EDGetTokenT<bool> hbhelooseToken;
   const edm::EDGetTokenT<bool> hbhetightToken;
@@ -220,7 +223,7 @@ private:
 
   // trigger and met filters flags 
   uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
-  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
+  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltphoton120, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
   uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
 
   // muon info
@@ -382,6 +385,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
   filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
   triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
+  triggerPrescalesToken(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
   filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
   hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
   hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
@@ -524,6 +528,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // TRIGGER and FILTERS
     Handle<TriggerResults> triggerResultsH;
     iEvent.getByToken(triggerResultsToken, triggerResultsH);
+    Handle<pat::PackedTriggerPrescales> triggerPrescalesH;
+    iEvent.getByToken(triggerPrescalesToken, triggerPrescalesH);
     Handle<TriggerResults> filterResultsH;
     iEvent.getByToken(filterResultsToken, filterResultsH);
     Handle<bool> hbhelooseH;
@@ -667,6 +673,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltjetmet120    = 0;
     hltphoton165    = 0;
     hltphoton175    = 0;
+    hltphoton120    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
     hltdoubleel     = 0;
@@ -700,16 +707,17 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
         if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
         if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
-        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
         if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
         if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
         if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
       }
     }
 
@@ -724,11 +732,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltjetmet120    == 1) triggered = true;
     if (hltphoton165    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
+    if (hltphoton120    == 1) triggered = true;
     if (hltdoublemu     == 1) triggered = true;
     if (hltsinglemu     == 1) triggered = true;
     if (hltdoubleel     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
+
+    puwgt = 1.0;
+    const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
+    for (size_t i = 0; i < triggerResultsH->size(); i++) {
+        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) puwgt = triggerPrescalesH->getPrescaleForIndex(i);
+    }
 
     // MET filter info
     flagcsctight  = 0;
@@ -758,7 +773,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     puobs  = 0;
     putrue = 0;
-    puwgt  = 1.;
+    //puwgt  = 1.;
 
     // store cross section in case not set from external parameter
     if(xsec < 0){
@@ -2749,6 +2764,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
   tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
   tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
   tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
   tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
   tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
@@ -3425,6 +3441,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight");
   triggerPathsVector.push_back("HLT_Photon165_HE10");
   triggerPathsVector.push_back("HLT_Photon175");
+  triggerPathsVector.push_back("HLT_Photon120_v");
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
   triggerPathsVector.push_back("HLT_IsoMu20");
