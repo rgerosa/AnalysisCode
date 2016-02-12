@@ -20,7 +20,7 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=74X_mcRun2_asymptotic_v2',
                'outputFileName=tree.root',
-               'nThreads=4']
+               'nThreads=3']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -38,8 +38,8 @@ config.JobType.numCores         = 1
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 10000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/MonoZ_Pseudoscalar/'
+config.Data.unitsPerJob   = 5000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/DiBoson/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
