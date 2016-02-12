@@ -1,4 +1,5 @@
 #include "makehist.h"
+#include "TF1.h"
 
 using namespace std;
 
@@ -34,19 +35,14 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1*  zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
-
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not znlohist)
-    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist) 
-    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-    
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-    
-  // Divide NLO/LO                                                                                                                                                             
+  TFile kffile (kfactorFile.c_str());
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
+      
+  // Divide NLO+QCD+EWK/NLO QCD
+  zewkhist->Divide(znlohist);
+  // Divide NLO/LO QCD                                                                                                                                                   
   znlohist->Divide(zlohist);
 
   vector<TH1*> ehists;
@@ -102,8 +98,7 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -141,18 +136,12 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
 
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1*  zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
+  TFile kffile (kfactorFile.c_str());
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not znlohist)
-      znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist)
-    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-
+  zewkhist->Divide(znlohist);
   // Divide NLO/LO                                                                                                                                                             
   znlohist->Divide(zlohist);
 
@@ -206,8 +195,7 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -246,18 +234,12 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
 
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+  TFile kffile (kfactorFile.c_str());
+  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not wnlohist)
-      wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  if(not wlohist)
-    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
-
-  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
-
+  wewkhist->Divide(wnlohist);
   wnlohist->Divide(wlohist);
 
   vector<TH1*> ehists;
@@ -311,8 +293,7 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -349,18 +330,12 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  wnlohist = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+  TFile kffile (kfactorFile.c_str());
+  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not wnlohist)
-    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  if(not wlohist)
-    wlohist  = (TH1*) kffile_2.Get("wlo/wlo_nominal");
-
-  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
-
+  wewkhist->Divide(wnlohist);
   wnlohist->Divide(wlohist);
 
   vector<TH1*> ehists;
@@ -415,8 +390,7 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
 
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -453,40 +427,34 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1*  zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
-  TH1* wnlohist  = (TH1*) kffile_1.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile_1.Get("WJets_LO/inv_pt");
+  TFile kffile (kfactorFile.c_str());
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* wnlohist  = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not znlohist)
-    znlohist = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist)
-    zlohist  = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-  if(not wnlohist)
-    wnlohist = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  if(not wnlohist)
-    wlohist = (TH1*) kffile_2.Get("wnlo/wnlo_nominal");
-  
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-  TH1* wewkhist = (TH1*) kffile_2.Get("w_ewkcorr/w_ewkcorr");
-
+  TH1* zpdfhist  = (TH1*) kffile.Get("ZJets_012j_NLO/PDF"); 
+  TH1* wpdfhist  = (TH1*) kffile.Get("WJets_012j_NLO/PDF"); 
+  TF1* shift     = new TF1("shift","1",zpdfhist->GetBinLowEdge(1),zpdfhist->GetBinLowEdge(zpdfhist->GetNbinsX()+1));
+  zpdfhist->Add(shift);
+  wpdfhist->Add(shift);
+ 
   // in order to make uncertainties use the old file
-  TH1* znlohist_orig = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  TH1* wnlohist_orig = (TH1*) kffile_2.Get("wnlo012/wnlo012_nominal");
-  TH1* zpdfhist = (TH1*) kffile_2.Get("znlo012/znlo012_pdfUp");
-  TH1* wpdfhist = (TH1*) kffile_2.Get("wnlo012/wnlo012_pdfUp");
+  TFile kffileUnc (kfactorFileUnc.c_str());
+  TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1");
+  TH1* re1hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renCorrUp");
+  TH1* re2hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
+  TH1* fa1hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
+  TH1* fa2hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
 
-  TH1* nomhist  = (TH1*) kffile_2.Get("znlo1_over_wnlo1/znlo1_over_wnlo1");
-  TH1* re1hist  = (TH1*) kffile_2.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renCorrUp");
-  TH1* re2hist  = (TH1*) kffile_2.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
-  TH1* fa1hist  = (TH1*) kffile_2.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
-  TH1* fa2hist  = (TH1*) kffile_2.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
+  // central value                                                                                                                                                              
+  zewkhist->Divide(znlohist);
+  znlohist->Divide(zlohist);
+  wewkhist->Divide(wnlohist);
+  wnlohist->Divide(wlohist);
 
-  // nlo correction for the PDF                                                                                                                                                
-  zpdfhist->Divide(znlohist_orig);
-  wpdfhist->Divide(wnlohist_orig);
   // Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                          
   re1hist->Divide(nomhist);
   // Z/W NLO QCD re EWK up / Z/W NLO QCD                                                                                                                                       
@@ -495,10 +463,6 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   fa1hist->Divide(nomhist);
   // Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                       
   fa2hist->Divide(nomhist);
-
-  // central value                                                                                                                                                              
-  znlohist->Divide(zlohist);
-  wnlohist->Divide(wlohist);
 
   vector<TH1*> zhists;
   vector<TH1*> whists;
@@ -572,8 +536,8 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
+  kffileUnc.Close();
 
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -610,41 +574,32 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile_1 (kfactorFileNew.c_str());
-  TH1*  znlohist = (TH1*) kffile_1.Get("ZJets_012j_NLO/nominal");
-  TH1*  zlohist  = (TH1*) kffile_1.Get("ZJets_LO/inv_pt");
-  TH1* anlohist  = (TH1*) kffile_1.Get("GJets_1j_NLO/nominal_G");
-  TH1*  alohist  = (TH1*) kffile_1.Get("GJets_LO/inv_pt_G");
+  TFile kffile (kfactorFile.c_str());
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
 
-  TFile kffile_2 (kfactorFileOld.c_str());
-  if(not znlohist)
-    znlohist  = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  if(not zlohist)
-    zlohist   = (TH1*) kffile_2.Get("zlo/zlo_nominal");
-  if(not anlohist)
-    anlohist  = (TH1*) kffile_2.Get("anlo1/anlo1_nominal");
-  if(not alohist)
-    alohist   = (TH1*) kffile_2.Get("alo/alo_nominal");
+  TH1* zpdfhist  = (TH1*) kffile.Get("ZJets_012j_NLO/PDF"); 
+  TH1* apdfhist  = (TH1*) kffile.Get("GJets_1j_NLO/PDF"); 
+  TF1* shift     = new TF1("shift","1",zpdfhist->GetBinLowEdge(1),zpdfhist->GetBinLowEdge(zpdfhist->GetNbinsX()+1));
+  zpdfhist->Add(shift);
+  apdfhist->Add(shift);
 
-  TH1* zewkhist = (TH1*) kffile_2.Get("z_ewkcorr/z_ewkcorr");
-  TH1* aewkhist = (TH1*) kffile_2.Get("a_ewkcorr/a_ewkcorr");
+  TFile kffileUnc (kfactorFileUnc.c_str());
+  TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1");
+  TH1* re1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
+  TH1* re2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
+  TH1* fa1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
+  TH1* fa2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
 
-  TH1* znlohist_orig = (TH1*) kffile_2.Get("znlo012/znlo012_nominal");
-  TH1* anlohist_orig = (TH1*) kffile_2.Get("anlo1/anlo1_nominal");
-
-  TH1* zpdfhist = (TH1*) kffile_2.Get("znlo012/znlo012_pdfUp");
-  TH1* apdfhist = (TH1*) kffile_2.Get("anlo1/anlo1_pdfUp");
-
-  TH1* nomhist  = (TH1*) kffile_2.Get("znlo1_over_anlo1/znlo1_over_anlo1");
-  TH1* re1hist  = (TH1*) kffile_2.Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
-  TH1* re2hist  = (TH1*) kffile_2.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
-  TH1* fa1hist  = (TH1*) kffile_2.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
-  TH1* fa2hist  = (TH1*) kffile_2.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
-  
-  // ZNLO PDF UP / ZNLO                                                                                                                                                        
-  zpdfhist->Divide(znlohist_orig);
-  // gamma NLO PDF UP / gamma NLO                                                                                                                                             
-  apdfhist->Divide(anlohist_orig);
+  zewkhist->Divide(znlohist);
+  znlohist->Divide(zlohist);
+  aewkhist->Divide(anlohist);
+  anlohist->Divide(alohist);  
+    
   // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
   re1hist->Divide(nomhist);
   // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        
@@ -654,9 +609,6 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
   // Z/gam NLO fact EWK Up / Z/gamma NLO                                                                                                                                      
   fa2hist->Divide(nomhist);
 
-  znlohist->Divide(zlohist);
-  anlohist->Divide(alohist);
-  
   TFile fpfile(fPfile.c_str());
   TH1* afpchist = (TH1*)fpfile.Get("FP_Down");
 
@@ -743,8 +695,8 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
   outfile.Close();
   nfile->Close();
   dfile->Close();
-  kffile_1.Close();
-  kffile_2.Close();
+  kffile.Close();
+  kffileUnc.Close();
   fpfile.Close();
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;

@@ -21,8 +21,10 @@ const float tau2tau1      = 0.6;
 const float prunedMassMin = 65.;
 const float ptJetMinAK8   = 250.;
 
-string kfactorFileNew  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_24bins.root";
-string kfactorFileOld  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wnocuts_8bins.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
@@ -314,7 +316,7 @@ void makehist4(TTree* tree, /*input tree*/
     //set met
     Double_t pfmet = 0.0;
     Double_t pfmetphi = 0.0;
-    if (sample == 0) {pfmet = *met; pfmetphi = *metphi;}
+    if (sample == 0) {pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == 1 || sample == 2 || sample == 7){ pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == 3 || sample == 4 || sample == 8)          { pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == 5 || sample == 6)          { pfmet = *pmet; pfmetphi = *pmetphi;}
@@ -322,7 +324,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == 7 and not *hlte)           { pfmet = *mmet; pfmetphi = *mmetphi;}
 
     // propagate met systeamtics on the recoil
-    if(metSuffix != "" and sample !=0){
+    if(metSuffix != ""){
       pfmet += (*met-*metOriginal);
     }
     
@@ -546,7 +548,7 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == 2 || sample == 4) && id1 != 1) continue;
-
+    
     // photon control sample
     if ((sample == 5 || sample == 6) && *phpt < 175.) continue;
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
@@ -830,7 +832,24 @@ void makehist4(TTree* tree, /*input tree*/
 	if(deltaPhi > TMath::Pi())
 	  deltaPhi = 2*TMath::Pi() - deltaPhi;
 	fillvarY = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
-      }    
+      }
+      if(name.Contains("met_mpruned") and boostedJetpt->at(0) > ptJetMinAK8 ){
+	fillvarX = pfmet;
+	if(prunedJetm->size() > 0)
+	  fillvarY = prunedJetm->at(0);	
+      }
+      if(name.Contains("met_tau2tau1") and boostedJetpt->at(0) > ptJetMinAK8){
+	fillvarX = pfmet;
+	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
+	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);		
+      }
+      if(name.Contains("mpruned_tau2tau1") and boostedJetpt->at(0) > ptJetMinAK8){
+	if(prunedJetm->size() > 0)
+          fillvarX = prunedJetm->at(0);
+	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
+	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);			
+      }
+      
       // overflow bin
       if (fillvarX >= hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX())+hist->GetXaxis()->GetBinWidth(hist->GetNbinsX())) 
 	fillvarX = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());

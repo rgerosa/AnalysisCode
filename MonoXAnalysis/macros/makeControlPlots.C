@@ -174,6 +174,9 @@ void makeControlPlots(string templateFileName,
   if(gamhist)
     gamhist->Scale(1.0,"width");
 
+  if(controlRegion == "SR")
+    qcdhist->Scale(2.);
+
   if(monoJhist){
     monoJhist->Scale(1.0,"width");
   }
@@ -291,9 +294,9 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
-    stack->Add(vllhist);
     stack->Add(dbhist);
     stack->Add(tophist);
+    stack->Add(vllhist);
     stack->Add(vlhist);
     stack->Add(vnnhist);
   }
@@ -473,9 +476,9 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = NULL;
   if(category <= 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.5, xMax, 1.5, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.8, xMax, 1.2, "");
   else if(category > 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.0, xMax, 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
 
 
   frame2->GetXaxis()->SetLabelSize(0.10);

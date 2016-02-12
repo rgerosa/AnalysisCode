@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
                'miniAODProcess=RECO',
                'filterHighMETEvents=False',
-               'usePrivateSQlite=False',
+               'usePrivateSQlite=True',
                'applyL2L3Residuals=True',
                'addPuppiJets=True',
                'addPuppiMET=True',
@@ -26,7 +26,7 @@ pyCfgParams = ['isMC=False',
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_74X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_74X_v2'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -35,12 +35,14 @@ config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.numCores         = 3
 config.JobType.maxMemoryMB      = 2500
+config.JobType.inputFiles       = ['Summer15_25nsV6_DATA.db']
+
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/dpg_ecal/alca_ecalcalib/ecalMIBI/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'  
 
 #config.Data.runRange
