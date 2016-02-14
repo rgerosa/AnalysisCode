@@ -353,7 +353,7 @@ private:
   int      dmid, dmX1id, dmX2id;
 
   // weights
-  double   wgt, kfact, puwgt;
+  double   wgt, kfact, puwgt, pswgt;
 
   template<typename T> 
   class PatPtSorter{
@@ -740,10 +740,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltsingleel     == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
 
-    puwgt = 1.0;
+    pswgt = 1.0;
     const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
     for (size_t i = 0; i < triggerResultsH->size(); i++) {
-        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) puwgt = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt = triggerPrescalesH->getPrescaleForIndex(i);
     }
 
     // MET filter info
@@ -774,7 +774,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     puobs  = 0;
     putrue = 0;
-    //puwgt  = 1.;
+    puwgt  = 1.;
 
     // store cross section in case not set from external parameter
     if(xsec < 0){
@@ -2816,6 +2816,7 @@ void MonoJetTreeMaker::beginJob() {
   // Event weights
   tree->Branch("xsec"                 , &xsec                 , "xsec/D");
   tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+  tree->Branch("pswgt"                , &pswgt                , "pswgt/D");
   // Pileup info
   tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
   tree->Branch("puobs"                , &puobs                , "puobs/I");
