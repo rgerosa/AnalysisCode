@@ -223,7 +223,7 @@ private:
 
   // trigger and met filters flags 
   uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
-  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltphoton120, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel;
+  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltphoton120, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel, hltelnoiso;
   uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
 
   // muon info
@@ -679,6 +679,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltsinglemu     = 0;
     hltdoubleel     = 0;
     hltsingleel     = 0;
+    hltelnoiso      = 0;
 
     // Which triggers fired
     if(triggerResultsH.isValid()){
@@ -719,6 +720,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
       }
     }
 
@@ -738,6 +741,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltsinglemu     == 1) triggered = true;
     if (hltdoubleel     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
+    if (hltelnoiso      == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
 
     pswgt = 1.0;
@@ -2839,6 +2843,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
   tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
   tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
+  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
 
   // MET filters
   tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
@@ -3532,6 +3537,8 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v");
   triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v");
   triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v");
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v");
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v");
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
