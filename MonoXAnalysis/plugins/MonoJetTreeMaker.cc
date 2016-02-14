@@ -272,6 +272,7 @@ private:
 
   double   jetmetdphimin , incjetmetdphimin , jetmumetdphimin , incjetmumetdphimin, jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
   double   jetmetdphimin4, incjetmetdphimin4, jetmumetdphimin4, incjetmumetdphimin4 , jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
+  double   alljetmetdphimin, alljetmetdphimin4, alljetmumetdphimin, alljetmumetdphimin4, alljetelmetdphimin, alljetelmetdphimin4, alljetphmetdphimin, alljetphmetdphimin4;
 
   // Puppijet ak4 puppi
   double   leadingPuppijetpt, leadingPuppijeteta, leadingPuppijetphi, leadingPuppijetm; 
@@ -946,6 +947,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     leadingjetphi = 0.0;
     leadingjetm   = 0.0;
 
+    vector<pat::JetRef> alljets;
     vector<pat::JetRef> incjets;
     vector<pat::JetRef> forwardjets;
     vector<pat::JetRef> jets;
@@ -976,6 +978,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
 	if (skipjet) continue;
       
+	pat::JetRef jetref(jetsH, jets_iter - jetsH->begin());	
+	if(jetref.isAvailable() and jetref.isNonnull()) alljets.push_back(jetref);
+
 	// apply jet id
 	bool passjetid = applyJetID(*jets_iter,"loose");            
 	if (!passjetid) 
@@ -993,7 +998,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  leadingjetm   = jets_iter->mass();
 	}
 	            	
-	pat::JetRef jetref(jetsH, jets_iter - jetsH->begin());	
 	if(jetref.isAvailable() and jetref.isNonnull())
 	  incjets.push_back(jetref);
       }
@@ -1026,6 +1030,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       float minJetPtCount = 30.;
 
       centraljetpt        .clear(); centraljeteta       .clear(); centraljetphi       .clear(); centraljetbtag      .clear(); centraljetCHfrac    .clear();
+      centraljetNHfrac    .clear(); centraljetEMfrac    .clear(); centraljetCEMfrac   .clear(); centraljetmetdphi   .clear();
       centraljetNHfrac    .clear(); centraljetEMfrac    .clear(); centraljetCEMfrac   .clear(); centraljetmetdphi   .clear();
       centraljetHFlav     .clear(); centraljetPFlav     .clear(); centraljetQGL       .clear(); centraljetPUID      .clear();
       centraljetGenpt     .clear(); centraljetGeneta    .clear(); centraljetGenphi    .clear(); centraljetGenm      .clear(); 
@@ -1173,19 +1178,49 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       
       jetjetdphi         = 0.0;   
-      jetmetdphimin      = 0.0;   incjetmetdphimin    = 0.0;
-      jetmumetdphimin    = 0.0;   incjetmumetdphimin  = 0.0; 
-      jetelmetdphimin    = 0.0;   incjetelmetdphimin  = 0.0;
-      jetphmetdphimin    = 0.0;   incjetphmetdphimin  = 0.0;
-      jetmetdphimin4     = 0.0;   incjetmetdphimin4   = 0.0;
-      jetmumetdphimin4   = 0.0;   incjetmumetdphimin4 = 0.0;
-      jetelmetdphimin4   = 0.0;   incjetelmetdphimin4 = 0.0;
-      jetphmetdphimin4   = 0.0;   incjetphmetdphimin4 = 0.0;
+      jetmetdphimin      = 0.0;   incjetmetdphimin    = 0.0; alljetmetdphimin    = 0.0;
+      jetmumetdphimin    = 0.0;   incjetmumetdphimin  = 0.0; alljetmumetdphimin  = 0.0;
+      jetelmetdphimin    = 0.0;   incjetelmetdphimin  = 0.0; alljetelmetdphimin  = 0.0;
+      jetphmetdphimin    = 0.0;   incjetphmetdphimin  = 0.0; alljetphmetdphimin  = 0.0;
+      jetmetdphimin4     = 0.0;   incjetmetdphimin4   = 0.0; alljetmetdphimin4   = 0.0;
+      jetmumetdphimin4   = 0.0;   incjetmumetdphimin4 = 0.0; alljetmumetdphimin4 = 0.0;
+      jetelmetdphimin4   = 0.0;   incjetelmetdphimin4 = 0.0; alljetelmetdphimin4 = 0.0;
+      jetphmetdphimin4   = 0.0;   incjetphmetdphimin4 = 0.0; alljetphmetdphimin4 = 0.0;
 
       // delta phi between jets
       if (centraljetphi.size() > 1)
 	jetjetdphi = deltaPhi(centraljetphi[0], centraljetphi[1]);
 
+      std::vector<double> alljetmetdphiminvector;
+      std::vector<double> alljetmetdphimin4vector;
+      std::vector<double> alljetmumetdphiminvector;
+      std::vector<double> alljetmumetdphimin4vector;
+      std::vector<double> alljetelmetdphiminvector;
+      std::vector<double> alljetelmetdphimin4vector;
+      std::vector<double> alljetphmetdphiminvector;
+      std::vector<double> alljetphmetdphimin4vector;
+      for (size_t i = 0; i < alljets.size(); i++) {
+    if (alljets[i]->pt() > minJetPtCount) {
+	  double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
+	  alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
+	  alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
+	  alljetelmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
+	  alljetphmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
+	  if (i < 4) alljetmetdphimin4vector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
+	  if (i < 4) alljetmumetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
+	  if (i < 4) alljetelmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
+	  if (i < 4) alljetphmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
+        }
+      }
+      if (alljetmetdphiminvector   .size() > 0) alljetmetdphimin    = *min_element(alljetmetdphiminvector   .begin(), alljetmetdphiminvector   .end());
+      if (alljetmumetdphiminvector .size() > 0) alljetmumetdphimin  = *min_element(alljetmumetdphiminvector .begin(), alljetmumetdphiminvector .end());
+      if (alljetelmetdphiminvector .size() > 0) alljetelmetdphimin  = *min_element(alljetelmetdphiminvector .begin(), alljetelmetdphiminvector .end());
+      if (alljetphmetdphiminvector .size() > 0) alljetphmetdphimin  = *min_element(alljetphmetdphiminvector .begin(), alljetphmetdphiminvector .end());
+      if (alljetmetdphimin4vector  .size() > 0) alljetmetdphimin4   = *min_element(alljetmetdphimin4vector  .begin(), alljetmetdphimin4vector  .end());
+      if (alljetmumetdphimin4vector.size() > 0) alljetmumetdphimin4 = *min_element(alljetmumetdphimin4vector.begin(), alljetmumetdphimin4vector.end());
+      if (alljetelmetdphimin4vector.size() > 0) alljetelmetdphimin4 = *min_element(alljetelmetdphimin4vector.begin(), alljetelmetdphimin4vector.end());
+      if (alljetphmetdphimin4vector.size() > 0) alljetphmetdphimin4 = *min_element(alljetphmetdphimin4vector.begin(), alljetphmetdphimin4vector.end());
+      
       // delta phi jet-met      
       std::vector<double> jetmetdphiminvector;
       std::vector<double> jetmetdphimin4vector;
@@ -2975,6 +3010,11 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
   tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
 
+  tree->Branch("alljetmetdphimin"     , &alljetmetdphimin     , "alljetmetdphimin/D");
+  tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/D");
+  tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/D");
+  tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/D");
+
   tree->Branch("jetmetdphimin4"       , &jetmetdphimin4       , "jetmetdphimin4/D");
   tree->Branch("jetmumetdphimin4"     , &jetmumetdphimin4     , "jetmumetdphimin4/D");
   tree->Branch("jetelmetdphimin4"     , &jetelmetdphimin4     , "jetelmetdphimin4/D");
@@ -2984,6 +3024,11 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("incjetmumetdphimin4"  , &incjetmumetdphimin4  , "incjetmumetdphimin4/D");
   tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/D");
   tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/D");
+
+  tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/D");
+  tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/D");
+  tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/D");
+  tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/D");
 
   tree->Branch("ht"                   , &ht                   , "ht/D");
 
