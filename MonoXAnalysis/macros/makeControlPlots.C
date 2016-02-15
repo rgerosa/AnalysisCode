@@ -9,12 +9,14 @@ void makeControlPlots(string templateFileName,
 		      string controlRegion, 
 		      bool blind, bool isLog,
 		      bool plotResonant = false,
+		      string interaction = "Vector",
 		      string mediatorMass = "1000",
 		      string DMMass = "50",
 		      int signalScale = 100) {
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
+  gStyle->SetOptStat(0);
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx();
@@ -131,9 +133,9 @@ void makeControlPlots(string templateFileName,
     vnnhist  = (TH1*)inputFile->Get(("zinvhist_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghist_"+observable).c_str());  
     
-    monoJhist = (TH1*)inputFile->Get(("monoJhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    monoWhist = (TH1*)inputFile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    monoZhist = (TH1*)inputFile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
+    monoJhist = (TH1*)inputFile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    monoWhist = (TH1*)inputFile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    monoZhist = (TH1*)inputFile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
   }
   
   // BLIND OPTION
@@ -476,7 +478,7 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = NULL;
   if(category <= 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.8, xMax, 1.2, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
   else if(category > 1)
     frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
 
@@ -488,7 +490,7 @@ void makeControlPlots(string templateFileName,
   frame2->GetYaxis()->SetLabelSize(0.08);
   frame2->GetYaxis()->SetTitleSize(0.10);
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
-  frame2->GetYaxis()->SetNdivisions(504, false);
+  frame2->GetYaxis()->SetNdivisions(503, false);
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->SetTitleOffset(0.5);
   frame2->Draw();
@@ -531,6 +533,6 @@ void makeControlPlots(string templateFileName,
 
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
-  //  canvas->SaveAs((observable+"_"+controlRegion+".root").c_str());
+  canvas->SaveAs((observable+"_"+controlRegion+".C").c_str());
 }
 

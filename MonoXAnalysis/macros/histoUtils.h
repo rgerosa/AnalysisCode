@@ -17,8 +17,8 @@ using namespace std;
 // define binnings for the different observables                                                                                                                              
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
-//vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
+//vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
 vector<float> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -63,6 +63,11 @@ vector<float> bins_substructure_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,
 vector<float> bins_monoV_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_monoJ_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+
+vector<float> bins_met_2D      = {250.,300.,350.,400.,450.,500.,600.,1000.};
+vector<float> bins_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
+vector<float> bins_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
+
 
 // binning selections                                                                                                                                                          
 vector<float> selectBinning (string observable, int category){
@@ -162,6 +167,37 @@ vector<float> selectBinning (string observable, int category){
   return dummy;
 
 }
+
+struct bin2D {
+  
+  vector<float> binX;
+  vector<float> binY;
+
+};
+
+bin2D selectBinning2D (string observable, int category){
+
+  bin2D bins;
+
+  if(observable == "met_mpruned"){
+    bins.binX = bins_met_2D;
+    bins.binY = bins_mpruned_2D;
+    return bins;
+  }
+  else if(observable == "met_tau2tau1"){
+    bins.binX = bins_met_2D;
+    bins.binY = bins_tau2tau1_2D;
+    return bins;
+  }
+  else if(observable == "mpruned_tau2tau1"){
+    bins.binX = bins_mpruned_2D;
+    bins.binY = bins_tau2tau1_2D;
+    return bins;
+  }
+
+  return bins;
+}
+
 
 void smoothEmptyBins(TH1* hist, int nsteps = 2){
 
