@@ -350,6 +350,7 @@ else:
                                       	'drop *_*T0*_*_*'+options.processName+'*',
                                       	'drop *_*T2*_*_*'+options.processName+'*',
                                       	'keep *_*slimmed*_*_*'+options.processName+'*',
+					'keep *_*slimmedJets*_*_*',
                                       	'keep *_*slimmedMETs*_*_*',
                                       	'keep *_patJetsAK8*_*_*',
                                       	'keep *_*Matched_*_*',
@@ -570,5 +571,5 @@ if options.dropAnalyzerDumpEDM == False:
 			                            process.tree)
 
 
-#processDumpFile = open('processDump.py', 'w')
-#print >> processDumpFile, process.dumpPython()
+processDumpFile = open('processDump.py', 'w')
+print >> processDumpFile, process.dumpPython()
