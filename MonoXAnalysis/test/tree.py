@@ -198,7 +198,8 @@ if options.inputFiles == []:
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
 			#'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/CC4E0ADB-3E75-E511-9CB6-00259029E87C.root'
-			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/10000/627C548E-298D-E511-82FD-002590725380.root'
+			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/10000/627C548E-298D-E511-82FD-002590725380.root'
+			'/store/mc/RunIISpring15MiniAODv2/GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/0002EB7B-E76D-E511-8AD6-00269E95B17C.root'
 			)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -213,7 +214,7 @@ if options.nThreads == 1 or options.nThreads == 0:
 else:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
-		wantSummary = cms.untracked.bool(True),
+		wantSummary = cms.untracked.bool(False),
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
@@ -398,6 +399,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    xsec    = cms.double(options.crossSection),   
    ## trigger info
    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+   prescales = cms.InputTag("patTrigger"),    
    filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
    hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
    hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
