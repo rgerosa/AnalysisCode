@@ -38,13 +38,20 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
   TFile kffile (kfactorFile.c_str());
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
   TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
-  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
-      
-  // Divide NLO+QCD+EWK/NLO QCD
-  zewkhist->Divide(znlohist);
-  // Divide NLO/LO QCD                                                                                                                                                   
-  znlohist->Divide(zlohist);
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");    
 
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+  
+  if(not znlohist or not zlohist or not zewkhist){
+    znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+    zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+    zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+    znlohist->Divide(zlohist);
+  }
+  
   vector<TH1*> ehists;
   vector<TH1*> zhists;
   zhists.push_back(znlohist);
@@ -141,9 +148,17 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
   TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
   TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
 
-  zewkhist->Divide(znlohist);
-  // Divide NLO/LO                                                                                                                                                             
-  znlohist->Divide(zlohist);
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+
+  if(not znlohist or not zlohist or not zewkhist){
+    znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+    zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+    zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+    znlohist->Divide(zlohist);
+  }
 
   vector<TH1*> ehists;
   vector<TH1*> zhists;
@@ -239,8 +254,18 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
   TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  wewkhist->Divide(wnlohist);
-  wnlohist->Divide(wlohist);
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  if(not wnlohist or not wlohist or not wewkhist){
+    wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
+    wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
+    wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+    wnlohist->Divide(wlohist);
+  }
+
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
@@ -335,8 +360,17 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
   TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  wewkhist->Divide(wnlohist);
-  wnlohist->Divide(wlohist);
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  if(not wnlohist or not wlohist or not wewkhist){
+    wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
+    wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
+    wewkhist = (TH1*)kffile.Get("w_ewkcorr/w_ewkcorr");
+    wnlohist->Divide(wlohist);
+  }
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
@@ -430,30 +464,49 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   TFile kffile (kfactorFile.c_str());
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
   TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
-  TH1* wnlohist  = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
-  TH1* zpdfhist  = (TH1*) kffile.Get("ZJets_012j_NLO/PDF"); 
-  TH1* wpdfhist  = (TH1*) kffile.Get("WJets_012j_NLO/PDF"); 
-  TF1* shift     = new TF1("shift","1",zpdfhist->GetBinLowEdge(1),zpdfhist->GetBinLowEdge(zpdfhist->GetNbinsX()+1));
-  zpdfhist->Add(shift);
-  wpdfhist->Add(shift);
- 
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  if(not wnlohist or not wlohist or not wewkhist){
+    wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
+    wlohist  = (TH1*) kffile.Get("wlo/wlo_nominal");
+    wewkhist = (TH1*) kffile.Get("w_ewkcorr/w_ewkcorr");
+    wnlohist->Divide(wlohist);
+  }
+
+  if(not znlohist or not zlohist or not zewkhist){
+    znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+    zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+    zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+    znlohist->Divide(zlohist);
+  }
+
   // in order to make uncertainties use the old file
   TFile kffileUnc (kfactorFileUnc.c_str());
+  TH1* zpdfhist = (TH1*) kffileUnc.Get("znlo012/znlo012_pdfUp");
+  TH1* wpdfhist = (TH1*) kffileUnc.Get("wnlo012/wnlo012_pdfUp");
   TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1");
   TH1* re1hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renCorrUp");
   TH1* re2hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_renAcorrUp");
   TH1* fa1hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facCorrUp");
   TH1* fa2hist  = (TH1*) kffileUnc.Get("znlo1_over_wnlo1/znlo1_over_wnlo1_facAcorrUp");
 
-  // central value                                                                                                                                                              
-  zewkhist->Divide(znlohist);
-  znlohist->Divide(zlohist);
-  wewkhist->Divide(wnlohist);
-  wnlohist->Divide(wlohist);
+  TH1* znloOrig = (TH1*) kffileUnc.Get("znlo012/znlo012_nominal");
+  TH1* wnloOrig = (TH1*) kffileUnc.Get("wnlo012/wnlo012_nominal");
+
+  zpdfhist->Divide(znloOrig);
+  wpdfhist->Divide(wnloOrig);
 
   // Z/W NLO QCD re up / Z/W NLO QCD                                                                                                                                          
   re1hist->Divide(nomhist);
@@ -582,24 +635,45 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
   TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
   TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
 
-  TH1* zpdfhist  = (TH1*) kffile.Get("ZJets_012j_NLO/PDF"); 
-  TH1* apdfhist  = (TH1*) kffile.Get("GJets_1j_NLO/PDF"); 
-  TF1* shift     = new TF1("shift","1",zpdfhist->GetBinLowEdge(1),zpdfhist->GetBinLowEdge(zpdfhist->GetNbinsX()+1));
-  zpdfhist->Add(shift);
-  apdfhist->Add(shift);
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+  if(aewkhist)
+    aewkhist->Divide(anlohist);
+  if(anlohist)
+    anlohist->Divide(alohist);
+
+  if(not znlohist or not zlohist or not zewkhist){
+    znlohist = (TH1*)kffile.Get("znlo012/znlo012_nominal");
+    zlohist  = (TH1*)kffile.Get("zlo/zlo_nominal");
+    zewkhist = (TH1*)kffile.Get("z_ewkcorr/z_ewkcorr");
+    znlohist->Divide(zlohist);
+  }
+
+  if(not anlohist or not alohist or not aewkhist){
+    anlohist = (TH1*)kffile.Get("anlo1/anlo1_nominal");
+    alohist  = (TH1*)kffile.Get("alo/alo_nominal");
+    aewkhist = (TH1*)kffile.Get("a_ewkcorr/a_ewkcorr");
+    anlohist->Divide(alohist);
+  }
 
   TFile kffileUnc (kfactorFileUnc.c_str());
   TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1");
+  TH1* zpdfhist = (TH1*) kffileUnc.Get("znlo012/znlo012_pdfUp");
+  TH1* apdfhist = (TH1*) kffileUnc.Get("anlo1/anlo1_pdfUp");
   TH1* re1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
   TH1* re2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
   TH1* fa1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
   TH1* fa2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
 
-  zewkhist->Divide(znlohist);
-  znlohist->Divide(zlohist);
-  aewkhist->Divide(anlohist);
-  anlohist->Divide(alohist);  
-    
+  TH1* znloOrig = (TH1*) kffileUnc.Get("znlo012/znlo012_nominal");
+  TH1* anloOrig = (TH1*) kffileUnc.Get("anlo1/anlo1_nominal");
+
+
+  zpdfhist->Divide(znloOrig);
+  apdfhist->Divide(anloOrig);
+
   // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
   re1hist->Divide(nomhist);
   // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        

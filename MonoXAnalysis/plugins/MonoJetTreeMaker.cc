@@ -614,6 +614,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // AK4 Jets
     Handle<vector<pat::Jet> > jetsH;
     iEvent.getByToken(jetsToken, jetsH);
+
     Handle<vector<pat::Jet> > jetsPuppiH;
     if(addPuppiJets)
       iEvent.getByToken(puppijetsToken, jetsPuppiH);
@@ -958,7 +959,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(jetsH.isValid()){
       
       for (auto jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
-	
+
 	//clean from leptons
 	bool skipjet = false;
 	if(muonsH.isValid()){

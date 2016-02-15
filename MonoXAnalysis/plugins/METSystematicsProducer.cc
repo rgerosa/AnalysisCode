@@ -380,7 +380,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   std::auto_ptr<pat::METCollection> MET (new pat::METCollection);
   MET->push_back((*metCollection)[0]);
   iEvent.put(MET,inputMET_.label());
-  
+
   std::auto_ptr<pat::MuonCollection> muonEnUp(new pat::MuonCollection);
   std::auto_ptr<pat::MuonCollection> muonEnDown(new pat::MuonCollection);
   CorrMETData corrMuonEnUp;

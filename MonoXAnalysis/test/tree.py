@@ -85,7 +85,7 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','74X_dataRun2_Prompt_v4',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','74X_dataRun2_v5',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## JEC    

@@ -22,8 +22,8 @@ const float prunedMassMin = 65.;
 const float ptJetMinAK8   = 250.;
 
 string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wnocuts_8bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_8bins.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors.root";
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 
 void makehist4(TTree* tree, /*input tree*/ 
@@ -492,20 +492,23 @@ void makehist4(TTree* tree, /*input tree*/
       }
     }
       
-    // Gen level info --> NLO re-weight
-    Double_t kvar = *wzpt;
-    if (*wzpt < 100. ) 
-      *wzpt = 100.;
-    if (*wzpt > 1000.) 
-      *wzpt = 999.;
-    
+    //Gen level info --> NLO re-weight
     Double_t rwgt = 1.0;
     if (rhist) 
       rwgt = rhist->GetBinContent(rhist->FindBin(*wzpt));
     
     Double_t kwgt = 1.0;
+    
     for (unsigned i = 0; i < khists.size(); i++) {
-      if (isMC && khists[i]) kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
+      if (isMC && khists[i]){
+	if(*wzpt < khists[i]->GetBinLowEdge(1)){
+	  *wzpt  = khists[i]->GetBinLowEdge(1)+1.;
+	}
+	else if(*wzpt > khists[i]->GetBinLowEdge(khists[i]->GetNbinsX()+1)){
+	  *wzpt = khists[i]->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1.;
+	}
+	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
+      }
     }
     
     // Trigger Selection
@@ -817,7 +820,6 @@ void makehist4(TTree* tree, /*input tree*/
 
     for(auto hist: hist2D){
       TString name(hist->GetName());
-
       if(name.Contains("met_jetPt")){ 
 	fillvarX = pfmet;
 	fillvarY = jetpt->at(0);
@@ -833,17 +835,17 @@ void makehist4(TTree* tree, /*input tree*/
 	  deltaPhi = 2*TMath::Pi() - deltaPhi;
 	fillvarY = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }
-      if(name.Contains("met_mpruned") and boostedJetpt->at(0) > ptJetMinAK8 ){
+      if(name.Contains("met_mpruned") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 ){
 	fillvarX = pfmet;
 	if(prunedJetm->size() > 0)
 	  fillvarY = prunedJetm->at(0);	
       }
-      if(name.Contains("met_tau2tau1") and boostedJetpt->at(0) > ptJetMinAK8){
+      if(name.Contains("met_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
 	fillvarX = pfmet;
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
 	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);		
       }
-      if(name.Contains("mpruned_tau2tau1") and boostedJetpt->at(0) > ptJetMinAK8){
+      if(name.Contains("mpruned_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
 	if(prunedJetm->size() > 0)
           fillvarX = prunedJetm->at(0);
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
