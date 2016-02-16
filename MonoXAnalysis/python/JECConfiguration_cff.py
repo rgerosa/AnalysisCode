@@ -13,7 +13,7 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
    		 	era += "_MC"
   		else :
 			era += "_DATA"    
-  		dBFile = os.path.expandvars("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JEC/"+era+".db")
+  		dBFile = os.path.expandvars(era+".db")
 
 		## connect to local SQLite file
 		process.jec = cms.ESSource("PoolDBESSource",
@@ -36,19 +36,19 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
             	cms.PSet(
                	 record = cms.string("JetCorrectionsRecord"),
                	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFPuppi"),
-               	 label= cms.untracked.string("_AK4PFPuppi")
+               	 label= cms.untracked.string("AK4PFPuppi")
             	),		
 	            ## AK8PFchs corrections            
    		        cms.PSet(
                  record = cms.string("JetCorrectionsRecord"),
                	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFchs"),
-                 label= cms.untracked.string("_AK8PFchs")
+                 label= cms.untracked.string("AK8PFchs")
             	),	
 	            ## AK8PFPuppi corrections            
    		        cms.PSet(
                  record = cms.string("JetCorrectionsRecord"),
                	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFPuppi"),
-                 label= cms.untracked.string("_AK8PFchs")
+                 label= cms.untracked.string("AK8PFPuppi")
             	),	
         	)
      	)

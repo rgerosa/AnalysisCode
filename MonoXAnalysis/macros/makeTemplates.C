@@ -14,7 +14,8 @@ void makeTemplates(bool doCorrectionHistograms = false,
 		   double lumi   = 2.24, 
 		   string outDir = "", 
 		   string templateSuffix = "", 
-		   vector<string> observables = {"met"}, 
+		   vector<string> observables    = {"met"}, 
+		   vector<string> observables_2D = {}, 
 		   bool applyQGLReweight      = false,
 		   bool doShapeSystematics    = false,
 		   bool makeResonantSelection = false,
@@ -23,19 +24,15 @@ void makeTemplates(bool doCorrectionHistograms = false,
   system(("mkdir -p "+outDir).c_str());
 
   vector<pair<string,string> > signalMassPoint = {
-    make_pair("10","1"),
-    make_pair("10","10"),
-    make_pair("100","1"),
-    make_pair("100","10"),
-    make_pair("200","1"),
-    make_pair("200","50"),
-    make_pair("300","10"),
-    make_pair("300","100"),
     make_pair("500","1"),
+    make_pair("500","10"),
     make_pair("500","150"),
     make_pair("1000","50"),
     make_pair("1000","150"),
-    make_pair("2000","100")
+    make_pair("2000","1"),
+    make_pair("2000","50"),
+    make_pair("2000","100"),
+    make_pair("2000","105")
   };
 
 
@@ -522,25 +519,30 @@ void makeTemplates(bool doCorrectionHistograms = false,
   }
 
   // signal region templates
+  cout<<"start signal region shapes for signal"<<endl;
+  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Vector",signalMassPoint);
+  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Axial",signalMassPoint);
+  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Scalar",signalMassPoint);
+  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Pseudoscalar",signalMassPoint);
   cout<<"start signal region data"<<endl;
-  //sigdatamchist(&outfile,category,observables,lumi,applyQGLReweight,doShapeSystematics,true,"Vector",signalMassPoint,false);
+  sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
-  //  gamdatamchist(&outfile,category,observables,lumi,applyQGLReweight);
+  gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  //  lepdatamchist(&outfile,1,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wmunu region data"<<endl;
-  lepdatamchist(&outfile,2,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start zee region data"<<endl;
-  //  lepdatamchist(&outfile,3,category,observables,lumi,applyQGLReweight,doShapeSystematics); 
+  lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wenu region data"<<endl;
-  //  lepdatamchist(&outfile,4,category,observables,lumi,applyQGLReweight,doShapeSystematics);     
+  lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics);     
   // top control regions
   cout<<"start top+mu region data"<<endl;
-  //  topdatamchist(&outfile,7,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   cout<<"start Top+el region data"<<endl;
-  //  topdatamchist(&outfile,8,category,observables,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
 
   outfile.Close();
 }

@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
                'miniAODProcess=RECO',
                'filterHighMETEvents=False',
-               'usePrivateSQlite=True',
+               'usePrivateSQlite=False',
                'applyL2L3Residuals=True',
                'addPuppiJets=True',
                'addPuppiMET=True',
@@ -20,7 +20,7 @@ pyCfgParams = ['isMC=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
                'addMVAMet=False',
-               'globalTag=74X_dataRun2_Prompt_v4',
+               'globalTag=74X_dataRun2_v5',
                'outputFileName=tree.root',
                'nThreads=3']
 
@@ -41,7 +41,7 @@ config.JobType.inputFiles       = ['Summer15_25nsV6_DATA.db']
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 30000
+config.Data.unitsPerJob   = 25000
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'  
 
@@ -51,7 +51,6 @@ config.Data.publication   = False
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
-config.Site.blacklist = ['T2_UK_SGrid_Bristol']
 
 ## multicrab section
 if __name__ == '__main__':
