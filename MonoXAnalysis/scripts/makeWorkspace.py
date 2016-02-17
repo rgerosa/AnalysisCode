@@ -26,6 +26,7 @@ parser.add_option('--observable',   action="store", type="string", dest="observa
 parser.add_option('--shapeSys',     action="store", type=int     , dest="shapeSys",      default=0,     help="input directory where files are located")
 parser.add_option('--connectWZ',    action="store", type=int     , dest="connectWZ",     default=1,     help="input directory where files are located")
 parser.add_option('--connectTop',   action="store", type=int     , dest="connectTop",    default=0,     help="input directory where files are located")
+parser.add_option('--scaleQCD',     action="store", type=float   , dest="scaleQCD",      default=2,     help="input directory where files are located")
 
 ### batch submission
 parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
@@ -115,7 +116,7 @@ if __name__ == '__main__':
 
             os.system("mkdir -p "+options.outputDIR);
     
-            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",\"%s\",\"%s\",\"%s\",2,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.connectWZ,options.connectTop,options.shapeSys))
+            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
             ROOT.gROOT.ProcessLine(command.Data());
         else:
             
@@ -128,7 +129,7 @@ if __name__ == '__main__':
             jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",2,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.connectWZ,options.connectTop,options.shapeSys))
+            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],oprions.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
             jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
             jobmacro.write("}\n");
             jobmacro.close();

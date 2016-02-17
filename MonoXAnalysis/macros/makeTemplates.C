@@ -551,5 +551,47 @@ void makeTemplates(bool doCorrectionHistograms = false,
   cout<<"start Top+el region data"<<endl;
   topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
 
+  //add qcd data templates
+  TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
+  if(qcdfile_data){
+    cout<<"Take templates QCD from data"<<endl;
+    vector<float> met_bins = selectBinning("met",category);
+    TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
+    TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
+    TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
+
+    
+    TH1F* temp = NULL;
+    if(category <= 1)
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_nominal");
+    else
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_nominal");
+
+    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+      qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+    
+    if(category <= 1)
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllUp");
+    else
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllUp");
+
+    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+      qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+
+    if(category <= 1)
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllDown");
+    else
+      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllDown");
+
+    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+      qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+
+    outfile.cd();
+    qcd_nominal->Write();
+    qcd_nominal_up->Write();
+    qcd_nominal_dw->Write();
+
+  }
+
   outfile.Close();
 }

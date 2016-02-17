@@ -102,7 +102,6 @@ void makeConnectedBinList(string procname, RooRealVar& var,
     // Nuisance for the Final fit for each bin (bin-by-bin unc) --> avoid negative values
     float extreme = std::min(5,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
     RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
-    rerrbinvar->Print();
     stringstream binss;
     binss << procname << "_bin" << i;
 
@@ -130,7 +129,6 @@ void makeConnectedBinList(string procname, RooRealVar& var,
 	nameSys.ReplaceAll(("_"+string(var.GetName())).c_str(),"");
 	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
 	RooRealVar* systbinvar = new RooRealVar(nameSys.Data(), "", 0., -extreme, extreme);
-	systbinvar->Print();
 	// Add all the systeamtics as new Multiplicative Nuisance for each bin
 	fobinlist.add(*systbinvar);
       }
@@ -142,7 +140,6 @@ void makeConnectedBinList(string procname, RooRealVar& var,
 	  extreme_tmp = extreme;
 	}	
 	fobinlist.add(*syst[j].first);
-	syst[j].first->Print();
       }
       formss << "*(abs(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << "))";
     }
@@ -179,6 +176,8 @@ void createWorkspace(string inputName,
 		     bool addShapeSystematics = false){
 
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
+  RooMsgService::instance().setSilentMode(kTRUE); 
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
   // for templates and sys naming
   string suffix;
@@ -492,9 +491,17 @@ void createWorkspace(string inputName,
     generateStatTemplate("Dibosons_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("dbkghist_"+observable).c_str()));
   }
 
-  TH1F* qcdhist = (TH1F*)templatesfile->Get(("qbkghist_"+observable).c_str());
-  qcdhist->Scale(scaleQCD);  
-  addTemplate("QCD_SR_"+suffix, vars, wspace_SR, qcdhist);
+  // look for DD qcd background, otherwise MC scaled by a factor 2
+  TH1F* qcdhist = (TH1F*)templatesfile->Get(("qbkghistDD_"+observable).c_str());
+  if(qcdhist){
+    addTemplate("QCD_SR_"+suffix, vars, wspace_SR, qcdhist);
+  }
+  else{
+    qcdhist = (TH1F*)templatesfile->Get(("qbkghist_"+observable).c_str());
+    qcdhist->Scale(scaleQCD);  
+    addTemplate("QCD_SR_"+suffix, vars, wspace_SR, qcdhist);
+  }
+
 
   ////////////////////////////////////
   // -------- CR Di-Muon  -------- //
