@@ -2,7 +2,7 @@
 #include "histoUtils.h"
 
 void drawCorrelationPlots(string inputFileName, string controlRegion, vector<string> observables2D, vector<string> observablesLatex2D_X, vector<string> observablesLatex2D_Y,
-			  string mediatorMass = "1000", string DMMass = "50",bool isLog = true){
+			  string mediatorMass = "1000", string DMMass = "50",bool isLog = false){
 
 
   gROOT->SetBatch(kTRUE);
@@ -104,7 +104,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
 
       TH2* hist = graph2D_1->GetHistogram(); // make sure to fill all the bins
 
-      TProfile* profileX = monoJhist.at(iObs)->ProfileX("_pfx",1,monoJhist.at(iObs)->GetNbinsX());
+      TProfile* profileX = monoJhist.at(iObs)->ProfileX("_pfx");
       profileX->SetMarkerStyle(20);
       profileX->SetMarkerSize(0.8);
       profileX->SetMarkerColor(kBlack);
@@ -139,7 +139,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
 
       graph2D_2->GetHistogram()->Draw("colz same");
 
-      profileX = monoWhist.at(iObs)->ProfileX("_pfx",1,monoWhist.at(iObs)->GetNbinsX());
+      profileX = monoWhist.at(iObs)->ProfileX("_pfx");
       profileX->SetMarkerStyle(20);
       profileX->SetMarkerSize(0.8);
       profileX->SetMarkerColor(kBlack);
@@ -155,7 +155,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
 
       frame->Draw();
       CMS_lumi(canvas,4, 0, true);
-      profileX = monoZhist.at(iObs)->ProfileX("_pfx",1,monoZhist.at(iObs)->GetNbinsX());
+      profileX = monoZhist.at(iObs)->ProfileX("_pfx");
       profileX->SetMarkerStyle(20);
       profileX->SetMarkerSize(0.8);
       profileX->SetMarkerColor(kBlack);
