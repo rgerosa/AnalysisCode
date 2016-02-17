@@ -23,18 +23,25 @@ void makeTemplates(bool doCorrectionHistograms = false,
 
   system(("mkdir -p "+outDir).c_str());
 
-  vector<pair<string,string> > signalMassPoint = {
-    make_pair("500","1"),
-    make_pair("500","10"),
-    make_pair("500","150"),
-    make_pair("1000","50"),
-    make_pair("1000","150"),
-    make_pair("2000","1"),
-    make_pair("2000","50"),
-    make_pair("2000","100"),
-    make_pair("2000","105")
-  };
+  vector<signalSample> signalMassPoint;
+  signalMassPoint.push_back(signalSample("Vector","500","1"));
+  signalMassPoint.push_back(signalSample("Vector","500","10"));
+  signalMassPoint.push_back(signalSample("Vector","1000","50"));
+  signalMassPoint.push_back(signalSample("Vector","2000","10"));
 
+  signalMassPoint.push_back(signalSample("Axial","500","1"));
+  signalMassPoint.push_back(signalSample("Axial","500","10"));
+  signalMassPoint.push_back(signalSample("Axial","1000","10"));
+  signalMassPoint.push_back(signalSample("Axial","2000","1"));
+
+  signalMassPoint.push_back(signalSample("Scalar","100","50"));
+  signalMassPoint.push_back(signalSample("Scalar","1000","10"));
+  signalMassPoint.push_back(signalSample("Scalar","2000","10"));
+
+  signalMassPoint.push_back(signalSample("Pseudoscalar","100","1"));
+  signalMassPoint.push_back(signalSample("Pseudoscalar","200","1"));
+  signalMassPoint.push_back(signalSample("Pseudoscalar","500","1"));
+  signalMassPoint.push_back(signalSample("Pseudoscalar","1000","1"));
 
   if(doCorrectionHistograms){
 
@@ -520,10 +527,10 @@ void makeTemplates(bool doCorrectionHistograms = false,
 
   // signal region templates
   cout<<"start signal region shapes for signal"<<endl;
-  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Vector",signalMassPoint);
-  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Axial",signalMassPoint);
-  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Scalar",signalMassPoint);
-  signalmchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"Pseudoscalar",signalMassPoint);
+  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Vector",lumi,doShapeSystematics);
+  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Axial",lumi,doShapeSystematics);
+  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Scalar",lumi,doShapeSystematics);
+  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Pseudoscalar",lumi,doShapeSystematics);
   cout<<"start signal region data"<<endl;
   sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false);
   // gamma + jets

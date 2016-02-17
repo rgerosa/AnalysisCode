@@ -14,6 +14,21 @@
 
 using namespace std;
 
+class signalSample{
+  
+ public:
+  signalSample(string a,string b, string c){
+    interaction = a;
+    mediatorMass = b;
+    dmMass = c;
+  }
+  
+
+  string interaction;
+  string mediatorMass;
+  string dmMass;
+};
+
 // define binnings for the different observables                                                                                                                              
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};

@@ -2,61 +2,55 @@
 
 using namespace std;
 
+
 // Build templates for the signal region                                                                                                                                       
 void signalmchist(TFile* outfile,
 		  int category,
 		  vector<string> observables,
 		  vector<string> observables_2D,
-		  double lumi              = 2.24,
-		  bool doShapeSystematics  = false,
+		  vector<signalSample> massPoint,
 		  string interaction       = "Vector",
-		  vector<pair<string,string> > massPoint = {make_pair("100","1")}){
+		  double lumi              = 2.24,
+		  bool doShapeSystematics  = false){
 
   
   vector<TFile*> monoJfile;
   vector<TFile*> monoWfile;
   vector<TFile*> monoZfile;
 
-  if(interaction == "Vector" or interaction == "All"){
-    for(size_t iPoint = 0; iPoint < massPoint.size(); iPoint++){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+  for(auto iPoint : massPoint){
+    if(iPoint.interaction == interaction and interaction == "Vector"){
+      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
-  }
-
-  else if(interaction == "Axial" or interaction == "All"){
-    for(size_t iPoint = 0; iPoint < massPoint.size(); iPoint++){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+    else if(iPoint.interaction == interaction and interaction == "Axial"){
+      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
-  }
-  else if(interaction == "Scalar" or interaction == "All"){
-    for(size_t iPoint = 0; iPoint < massPoint.size(); iPoint++){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+massPoint.at(iPoint).first+
-					"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+    else if(iPoint.interaction == interaction and interaction == "Scalar"){
+      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+      
     }
-  }
-  else if(interaction == "Pseudoscalar" or interaction == "All"){
-    for(size_t iPoint = 0; iPoint < massPoint.size(); iPoint++){
+    else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
       monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+
-					massPoint.at(iPoint).first+"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
       monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+
-					massPoint.at(iPoint).first+"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
       monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+
-					massPoint.at(iPoint).first+"_Mchi-"+massPoint.at(iPoint).second+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
     }
   }
-
 
   vector< vector<TH1*> > monoJhist;
   vector< vector<TH1*> > monoWhist;
@@ -119,81 +113,82 @@ void signalmchist(TFile* outfile,
 
   int imass = 0;
   vector<float> bins;
-  for( auto massp : massPoint){
+  for(auto iPoint : massPoint){
+    if(iPoint.interaction != interaction) continue;
+    
     for(auto obs : observables){
-
+      
       bins = selectBinning(obs,category);
       if(bins.empty())
         cout<<"No binning for this observable --> please define it"<<endl;
  
-      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoJhist_temp = new TH1F(("monoJhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoWhist_temp = new TH1F(("monoWhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* monoZhist_temp = new TH1F(("monoZhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       monoJhist.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_temp));
       monoWhist.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_temp));
       monoZhist.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_temp));
 
       if(doShapeSystematics){
 
-	TH1F* monoJhist_bUp_temp = new TH1F(("monoJhist_bUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_bUp_temp = new TH1F(("monoWhist_bUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_bUp_temp = new TH1F(("monoZhist_bUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_bUp_temp = new TH1F(("monoJhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_bUp_temp = new TH1F(("monoWhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_bUp_temp = new TH1F(("monoZhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_bUp_temp));
 	monoWhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_bUp_temp));
 	monoZhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_bUp_temp));
 
-	TH1F* monoJhist_bDw_temp = new TH1F(("monoJhist_bDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_bDw_temp = new TH1F(("monoWhist_bDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_bDw_temp = new TH1F(("monoZhist_bDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_bDw_temp = new TH1F(("monoJhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_bDw_temp = new TH1F(("monoWhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_bDw_temp = new TH1F(("monoZhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_bDw_temp));
 	monoWhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_bDw_temp));
 	monoZhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_bDw_temp));
 
 
-	TH1F* monoJhist_metJetUp_temp = new TH1F(("monoJhist_metJetUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metJetUp_temp = new TH1F(("monoWhist_metJetUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metJetUp_temp = new TH1F(("monoZhist_metJetUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metJetUp_temp = new TH1F(("monoJhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metJetUp_temp = new TH1F(("monoWhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metJetUp_temp = new TH1F(("monoZhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metJetUp.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metJetUp_temp));
 	monoWhist_metJetUp.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metJetUp_temp));
 	monoZhist_metJetUp.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metJetUp_temp));
 
-	TH1F* monoJhist_metJetDw_temp = new TH1F(("monoJhist_metJetDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metJetDw_temp = new TH1F(("monoWhist_metJetDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metJetDw_temp = new TH1F(("monoZhist_metJetDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metJetDw_temp = new TH1F(("monoJhist_metJetDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metJetDw_temp = new TH1F(("monoWhist_metJetDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metJetDw_temp = new TH1F(("monoZhist_metJetDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metJetDw.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metJetDw_temp));
 	monoWhist_metJetDw.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metJetDw_temp));
 	monoZhist_metJetDw.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metJetDw_temp));
 
-	TH1F* monoJhist_metResUp_temp = new TH1F(("monoJhist_metResUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metResUp_temp = new TH1F(("monoWhist_metResUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metResUp_temp = new TH1F(("monoZhist_metResUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metResUp_temp = new TH1F(("monoJhist_metResUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metResUp_temp = new TH1F(("monoWhist_metResUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metResUp_temp = new TH1F(("monoZhist_metResUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metResUp.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metResUp_temp));
 	monoWhist_metResUp.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metResUp_temp));
 	monoZhist_metResUp.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metResUp_temp));
 
-	TH1F* monoJhist_metResDw_temp = new TH1F(("monoJhist_metResDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metResDw_temp = new TH1F(("monoWhist_metResDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metResDw_temp = new TH1F(("monoZhist_metResDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metResDw_temp = new TH1F(("monoJhist_metResDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metResDw_temp = new TH1F(("monoWhist_metResDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metResDw_temp = new TH1F(("monoZhist_metResDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metResDw.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metResDw_temp));
 	monoWhist_metResDw.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metResDw_temp));
 	monoZhist_metResDw.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metResDw_temp));
 
-	TH1F* monoJhist_metUncUp_temp = new TH1F(("monoJhist_metUncUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metUncUp_temp = new TH1F(("monoWhist_metUncUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metUncUp_temp = new TH1F(("monoZhist_metUncUp_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metUncUp_temp = new TH1F(("monoJhist_metUncUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metUncUp_temp = new TH1F(("monoWhist_metUncUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metUncUp_temp = new TH1F(("monoZhist_metUncUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metUncUp.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metUncUp_temp));
 	monoWhist_metUncUp.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metUncUp_temp));
 	monoZhist_metUncUp.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metUncUp_temp));
 
-	TH1F* monoJhist_metUncDw_temp = new TH1F(("monoJhist_metUncDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoWhist_metUncDw_temp = new TH1F(("monoWhist_metUncDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-	TH1F* monoZhist_metUncDw_temp = new TH1F(("monoZhist_metUncDw_"+interaction+"_"+massp.first+"_"+massp.second+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoJhist_metUncDw_temp = new TH1F(("monoJhist_metUncDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoWhist_metUncDw_temp = new TH1F(("monoWhist_metUncDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* monoZhist_metUncDw_temp = new TH1F(("monoZhist_metUncDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	monoJhist_metUncDw.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_metUncDw_temp));
 	monoWhist_metUncDw.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_metUncDw_temp));
 	monoZhist_metUncDw.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_metUncDw_temp));
-
-      }
-
+	
+      }      
     }
     imass++;
   }
@@ -263,16 +258,17 @@ void signalmchist(TFile* outfile,
 
   imass = 0;
 
-  for( auto massp : massPoint){
+  for(auto iPoint : massPoint){
+    if(iPoint.interaction != interaction) continue;
     for(auto obs : observables_2D){
 
       bin2D bins = selectBinning2D(obs,category);      
      if(bins.binX.empty() or bins.binY.empty())
         cout<<"No binning for this observable --> please define it"<<endl;
 
-      TH2F* monoJhist_temp = new TH2F(("monoJhist_"+interaction+"_"+massp.first+"_"+massp.second+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* monoWhist_temp = new TH2F(("monoWhist_"+interaction+"_"+massp.first+"_"+massp.second+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* monoZhist_temp = new TH2F(("monoZhist_"+interaction+"_"+massp.first+"_"+massp.second+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* monoJhist_temp = new TH2F(("monoJhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* monoWhist_temp = new TH2F(("monoWhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* monoZhist_temp = new TH2F(("monoZhist_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       monoJhist_2D.at(imass).push_back(dynamic_cast<TH2*>(monoJhist_temp));
       monoWhist_2D.at(imass).push_back(dynamic_cast<TH2*>(monoWhist_temp));
       monoZhist_2D.at(imass).push_back(dynamic_cast<TH2*>(monoZhist_temp));
