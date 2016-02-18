@@ -196,12 +196,12 @@ if options.inputFiles == []:
 		process.source.fileNames.append( 
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
+			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
 			#'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/CC4E0ADB-3E75-E511-9CB6-00259029E87C.root'
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/10000/627C548E-298D-E511-82FD-002590725380.root'
 #			'/store/mc/RunIISpring15MiniAODv2/GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/0002EB7B-E76D-E511-8AD6-00269E95B17C.root'
-			' /store/mc/RunIISpring15MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/B0DBDF7A-A16D-E511-AFCB-001EC9ADE690.root'
+#			' /store/mc/RunIISpring15MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/B0DBDF7A-A16D-E511-AFCB-001EC9ADE690.root'
 			)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -216,7 +216,7 @@ if options.nThreads == 1 or options.nThreads == 0:
 else:
 	process.options = cms.untracked.PSet( 
 		allowUnscheduled = cms.untracked.bool(True),
-		wantSummary = cms.untracked.bool(False),
+		wantSummary = cms.untracked.bool(True),
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
@@ -541,15 +541,15 @@ if options.dropAnalyzerDumpEDM == False:
 	if options.filterHighMETEvents: 
 		if (options.isMC):
 			process.treePath = cms.Path(process.gentree + 
-						    process.btageff+
 						    process.metFilters + 
+						    process.btageff+
 						    process.metfilter + 
 						    process.tree)
 			if(options.addPuppiJets):
 				process.treePath = cms.Path(process.gentree +
+							    process.metFilters +
 							    process.btageff+
 							    process.btageffPuppi+
-							    process.metFilters +
 							    process.metfilter +
 							    process.tree)
 			

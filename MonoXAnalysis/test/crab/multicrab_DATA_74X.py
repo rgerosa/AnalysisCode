@@ -26,7 +26,7 @@ pyCfgParams = ['isMC=False',
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_74X_v2'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_74X_v3'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'

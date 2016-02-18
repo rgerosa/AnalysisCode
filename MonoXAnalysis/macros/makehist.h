@@ -22,8 +22,8 @@ const float prunedMassMin = 65.;
 const float ptJetMinAK8   = 250.;
 
 string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_8bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors.root";
+//string kfactorFile   = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_8bins.root";
+//string kfactorFile   = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors.root";
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 
 void makehist4(TTree* tree, /*input tree*/ 
@@ -669,7 +669,8 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  deltaPhi = fabs(pfmetphi-jetak8.Phi());
 	
-	if(sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                           	
+	if(sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                               	
+
 	// no overlap between b-jet and v-jet
 	if (sample == 7 || sample == 8){ 
 	  int nbjets = 0;
