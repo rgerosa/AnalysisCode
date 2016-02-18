@@ -7,7 +7,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=True',
-               'filterOnHLT=True',
+               'filterOnHLT=False',
                'usePrivateSQlite=False',
                'applyL2L3Residuals=False',
                'addPuppiJets=True',
