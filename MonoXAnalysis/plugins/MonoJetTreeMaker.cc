@@ -2709,25 +2709,25 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    continue;
 	  
 	  if(!foundfirst) { // first DM particle
-	    dm1vec.SetPtEtaPhiE(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->p());
+	    dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	    dmX1id = gens_iter->pdgId();
 	    foundfirst = true;
 	  }
 	  else{
-	    dm2vec.SetPtEtaPhiE(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->p());
+	    dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	    dmX2id = gens_iter->pdgId();
 	    break;
 	  }
       }
 
-      dmX1pt = dm1vec.Pt();
-      dmX1eta = dm1vec.Eta();
-      dmX1phi = dm1vec.Phi();
+      dmX1pt   = dm1vec.Pt();
+      dmX1eta  = dm1vec.Eta();
+      dmX1phi  = dm1vec.Phi();
       dmX1mass = dm1vec.M();
       
-      dmX2pt = dm2vec.Pt();
-      dmX2eta = dm2vec.Eta();
-      dmX2phi = dm2vec.Phi();
+      dmX2pt   = dm2vec.Pt();
+      dmX2eta  = dm2vec.Eta();
+      dmX2phi  = dm2vec.Phi();
       dmX2mass = dm2vec.M();
       
       TLorentzVector medvec(dm1vec);
