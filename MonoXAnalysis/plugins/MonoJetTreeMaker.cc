@@ -295,7 +295,8 @@ private:
   // AK8 CHS jets
   std::vector<double> boostedJetpt, boostedJeteta, boostedJetphi, boostedJetm;
   std::vector<double> boostedJetGenpt, boostedJetGenm, boostedJetGeneta, boostedJetGenphi;
-  std::vector<double> boostedJettau1, boostedJettau2, boostedJettau3, boostedJettau4, boostedJetecf1, boostedJetecf2, boostedJetecf3;
+  std::vector<double> boostedJettau1, boostedJettau2, boostedJettau3, boostedJettau4, boostedJetecf1, boostedJetecf2, boostedJetecf3;  
+  std::vector<double> boostedJetGentau1,boostedJetGentau2,boostedJetGentau3, boostedJetGentau4;
   std::vector<double> boostedJetHFlav, boostedJetPFlav, boostedJetQGL, boostedJetBtag, boostedJetDoubleBtag;
   std::vector<double> boostedJetBosonpt, boostedJetBosoneta, boostedJetBosonphi, boostedJetBosonm;
   std::vector<double> prunedJetpt, prunedJetm, prunedJetphi,prunedJeteta,  prunedJetGenpt, prunedJetGenm, prunedJetGeneta,prunedJetGenphi;
@@ -323,6 +324,7 @@ private:
   std::vector<double> boostedPuppiJetpt, boostedPuppiJeteta, boostedPuppiJetphi, boostedPuppiJetm;
   std::vector<double> boostedPuppiJetGenpt, boostedPuppiJetGenm, boostedPuppiJetGeneta, boostedPuppiJetGenphi;
   std::vector<double> boostedPuppiJettau1, boostedPuppiJettau2, boostedPuppiJettau3, boostedPuppiJettau4, boostedPuppiJetecf1, boostedPuppiJetecf2, boostedPuppiJetecf3;
+  std::vector<double> boostedPuppiJetGentau1, boostedPuppiJetGentau2, boostedPuppiJetGentau3, boostedPuppiJetGentau4;
   std::vector<double> boostedPuppiJetHFlav, boostedPuppiJetPFlav, boostedPuppiJetQGL, boostedPuppiJetBtag, boostedPuppiJetDoubleBtag;
   std::vector<double> boostedPuppiJetBosonpt, boostedPuppiJetBosoneta, boostedPuppiJetBosonphi, boostedPuppiJetBosonm;
   std::vector<double> prunedPuppiJetpt, prunedPuppiJetm, prunedPuppiJetphi,prunedPuppiJeteta,  prunedPuppiJetGenpt, prunedPuppiJetGenm, prunedPuppiJetGeneta,prunedPuppiJetGenphi;
@@ -1985,6 +1987,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	boostedJettau1  .clear(); boostedJettau2 .clear();
 	boostedJettau3  .clear(); boostedJettau4 .clear();
+	boostedJetGentau1  .clear(); boostedJetGentau2 .clear();
+	boostedJetGentau3  .clear(); boostedJetGentau4 .clear();
 	boostedJetecf1  .clear(); boostedJetecf2 .clear(); boostedJetecf3  .clear();
 	boostedJetHFlav .clear(); boostedJetPFlav .clear(); boostedJetQGL  .clear(); boostedJetBtag .clear(), boostedJetDoubleBtag .clear();
 	
@@ -2035,7 +2039,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	  // N-jettiness
 	  if(jetsBoosted[i]->hasUserFloat("Njettiness"+boostedJetsCHSLabel+":tau1"))
-	    boostedJettau1 .push_back( jetsBoosted[i]->userFloat("NjettinessAK8PFJetsCHS:tau1"));
+	    boostedJettau1 .push_back( jetsBoosted[i]->userFloat("Njettiness"+boostedJetsCHSLabel+":tau1"));
 	  
 	  if(jetsBoosted[i]->hasUserFloat("Njettiness"+boostedJetsCHSLabel+":tau2"))
 	    boostedJettau2 .push_back( jetsBoosted[i]->userFloat("Njettiness"+boostedJetsCHSLabel+":tau2"));
@@ -2045,6 +2049,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	  if(jetsBoosted[i]->hasUserFloat("Njettiness"+boostedJetsCHSLabel+":tau4"))
 	    boostedJettau4 .push_back( jetsBoosted[i]->userFloat("Njettiness"+boostedJetsCHSLabel+":tau4"));
+
+	  // Gen n-subjettiness
+	  if(isMC){
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau1"))
+	      boostedJetGentau1 .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau1"));
+
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau2"))
+	      boostedJetGentau2 .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau2"));
+
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau3"))
+	      boostedJetGentau3 .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau3"));
+
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau4"))
+	      boostedJetGentau4 .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenNjettinessMatched:tau4"));
+	  }
 
 	  // ecf
 	  if(jetsBoosted[i]->hasUserFloat("ecf"+boostedJetsCHSLabel+":ecf1"))
@@ -2062,7 +2081,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      boostedJetGenpt .push_back( jetsBoosted[i]->genJet()->pt());
 	      boostedJetGenm  .push_back( jetsBoosted[i]->genJet()->mass());
 	      boostedJetGeneta  .push_back( jetsBoosted[i]->genJet()->eta());
-	      boostedJetGenphi  .push_back( jetsBoosted[i]->genJet()->phi());
+	      boostedJetGenphi  .push_back( jetsBoosted[i]->genJet()->phi());	      
 	    }
 	    boostedJetHFlav .push_back( jetsBoosted[i]->hadronFlavour());
 	    boostedJetPFlav .push_back( jetsBoosted[i]->partonFlavour());	  
@@ -2071,21 +2090,22 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  // QGL 
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"QGL:qgLikelihood"))
 	    boostedJetQGL .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"QGL:qgLikelihood"));
-	  
-	  
+
+	 	  
 	  // matched gen boson
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:pt"))
-	    boostedJetBosonpt .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:pt"));
-
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:eta"))
-	    boostedJetBosoneta .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:eta"));
-
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:phi"))
-	    boostedJetBosonphi .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:phi"));
-
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:mass"))
-	    boostedJetBosonm .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:mass"));
-
+	  if(isMC){
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:pt"))
+	      boostedJetBosonpt .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:pt"));
+	    
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:eta"))
+	      boostedJetBosoneta .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:eta"));
+	    
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:phi"))
+	      boostedJetBosonphi .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:phi"));
+	    
+	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"GenBosonMatched:mass"))
+	      boostedJetBosonm .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"GenBosonMatched:mass"));
+	  }
 
 	  // pruned matched jet
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:mass"))
@@ -2109,7 +2129,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
 	    prunedJetDoubleBtag .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"));
 
-
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"))
 	    prunedJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"));
 
@@ -2129,7 +2148,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      prunedJetGeneta  .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:genEta"));	
 	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:genPhi"))
 	      prunedJetGenphi  .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:genPhi"));	
-	  }
+	  }	
 
 	  // soft drop matched jet
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:mass"))
@@ -2339,6 +2358,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	boostedPuppiJetGeneta .clear(); boostedPuppiJetGenphi .clear();
 	boostedPuppiJettau1  .clear(); boostedPuppiJettau2 .clear();
 	boostedPuppiJettau3  .clear(); boostedPuppiJettau4 .clear();
+	boostedPuppiJetGentau1  .clear(); boostedPuppiJetGentau2 .clear();
+	boostedPuppiJetGentau3  .clear(); boostedPuppiJetGentau4 .clear();
 	boostedPuppiJetecf1  .clear(); boostedPuppiJetecf2 .clear(); boostedPuppiJetecf3  .clear();
 	boostedPuppiJetHFlav .clear(); boostedPuppiJetPFlav .clear(); boostedPuppiJetQGL  .clear(); 
 	boostedPuppiJetBtag .clear(); boostedPuppiJetDoubleBtag .clear();
@@ -2427,6 +2448,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"QGL:qgLikelihood"))
 	    boostedPuppiJetQGL .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"QGL:qgLikelihood"));
+	  
+	  if(isMC){
+	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau1"))
+	      boostedPuppiJetGentau1 .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau1"));
+	    
+	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau2"))
+	      boostedPuppiJetGentau2 .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau2"));
+	    
+	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau3"))
+	      boostedPuppiJetGentau3 .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau3"));
+	    
+	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau4"))
+	      boostedPuppiJetGentau4 .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"GenNjettinessMatched:tau4"));
+	  }
 	  
 	  // matched gen boson	  
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"GenBosonMatched:pt"))
@@ -3257,6 +3292,11 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("boostedJettau3", "std::vector<double>", &boostedJettau3);
     tree->Branch("boostedJettau4", "std::vector<double>", &boostedJettau4);
 
+    tree->Branch("boostedJetGentau1", "std::vector<double>", &boostedJetGentau1);
+    tree->Branch("boostedJetGentau2", "std::vector<double>", &boostedJetGentau2);
+    tree->Branch("boostedJetGentau3", "std::vector<double>", &boostedJetGentau3);
+    tree->Branch("boostedJetGentau4", "std::vector<double>", &boostedJetGentau4);
+
     tree->Branch("boostedJetecf1", "std::vector<double>", &boostedJetecf1);
     tree->Branch("boostedJetecf2", "std::vector<double>", &boostedJetecf2);
     tree->Branch("boostedJetecf3", "std::vector<double>", &boostedJetecf3);
@@ -3388,6 +3428,11 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("boostedPuppiJettau2", "std::vector<double>", &boostedPuppiJettau2);
     tree->Branch("boostedPuppiJettau3", "std::vector<double>", &boostedPuppiJettau3);
     tree->Branch("boostedPuppiJettau4", "std::vector<double>", &boostedPuppiJettau4);
+
+    tree->Branch("boostedPuppiJetGentau1", "std::vector<double>", &boostedPuppiJetGentau1);
+    tree->Branch("boostedPuppiJetGentau2", "std::vector<double>", &boostedPuppiJetGentau2);
+    tree->Branch("boostedPuppiJetGentau3", "std::vector<double>", &boostedPuppiJetGentau3);
+    tree->Branch("boostedPuppiJetGentau4", "std::vector<double>", &boostedPuppiJetGentau4);
 
     tree->Branch("boostedPuppiJetecf1", "std::vector<double>", &boostedPuppiJetecf1);
     tree->Branch("boostedPuppiJetecf2", "std::vector<double>", &boostedPuppiJetecf2);

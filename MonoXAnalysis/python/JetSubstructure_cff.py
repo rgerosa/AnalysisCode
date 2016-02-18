@@ -472,6 +472,59 @@ def JetSubstructure(process,
                                                                                   'Njettiness'+jetCollection+':tau3',
                                                                                   'Njettiness'+jetCollection+':tau4',
                                                                                   ]
+         ## on gen jets
+         if isMC:
+             if not hasattr(process,"NjettinessGenJets"+jetAlgo):
+                 setattr(process,"NjettinessGenJets"+jetAlgo,
+                         Njettiness.clone(
+                         src = cms.InputTag("genJets"+jetAlgo),
+                         cone = cms.double(coneSize)));
+
+                 ## pattify gen jets
+
+                 if not hasattr(process,'patGenJets'+jetAlgo):
+                     setattr(process,'patGenJets'+jetAlgo, patJets.clone(
+                             jetSource = cms.InputTag("genJets"+jetAlgo),
+                             addJetCorrFactors     = cms.bool(False),
+                             addBTagInfo           = cms.bool(False),
+                             addDiscriminators     = cms.bool(False),
+                             discriminatorSources  = cms.VInputTag('None'),
+                             addAssociatedTracks   = cms.bool(False),
+                             addJetCharge          = cms.bool(False),
+                             addGenPartonMatch     = cms.bool(False),
+                             embedGenPartonMatch   = cms.bool(False),
+                             addGenJetMatch        = cms.bool(False),
+                             embedGenJetMatch      = cms.bool(False),
+                             getJetMCFlavour       = cms.bool(False),
+                             addJetFlavourInfo     = cms.bool(False)))
+
+                     getattr(process,'patGenJets'+jetAlgo).userData.userFloats.src += ["NjettinessGenJets"+jetAlgo+':tau1']
+                     getattr(process,'patGenJets'+jetAlgo).userData.userFloats.src += ["NjettinessGenJets"+jetAlgo+':tau2']
+                     getattr(process,'patGenJets'+jetAlgo).userData.userFloats.src += ["NjettinessGenJets"+jetAlgo+':tau3']
+                     getattr(process,'patGenJets'+jetAlgo).userData.userFloats.src += ["NjettinessGenJets"+jetAlgo+':tau4']
+                     
+
+             if not hasattr(process,jetCollection+'GenNjettinessMatched'):
+                 setattr(process,jetCollection+'GenNjettinessMatched',
+                         cms.EDProducer("RecoPATJetDeltaRValueMapProducer",
+                                        ## basic reco::jet ungroomed                                                                                                         
+                                        src = cms.InputTag(jetCollection+"Reduced"),
+                                        ## mathched groomed pat jet                                                                                                       
+                                        matched = cms.InputTag('patGenJets'+jetAlgo),
+                                        distMax = cms.double(coneSize),
+                                        values = cms.vstring("userFloat('NjettinessGenJets"+jetAlgo+":tau1')",
+                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau2')",
+                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau3')",
+                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau4')"),
+                                        valueLabels = cms.vstring("tau1","tau2","tau3","tau4")))
+
+                  
+                 getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenNjettinessMatched:tau1',
+                                                                                      jetCollection+'GenNjettinessMatched:tau2',
+                                                                                      jetCollection+'GenNjettinessMatched:tau3',
+                                                                                      jetCollection+'GenNjettinessMatched:tau4',
+                                                                                      ]
+     
 
      ## add ECF
      if addEnergyCorrelation:

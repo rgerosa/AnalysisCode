@@ -24,16 +24,16 @@ samples['DMV_Axial_Mphi-100_Mchi-100'] = ['/DMV_NNPDF30_Axial_Mphi-100_Mchi-100_
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=418.432']]
 ####
 samples['DMV_Axial_Mphi-200_Mchi-1']   = ['/DMV_NNPDF30_Axial_Mphi-200_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
-####
-samples['DMV_Axial_Mphi-200_Mchi-10']  = ['/DMV_NNPDF30_Axial_Mphi-200_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=12289.9']]
 ####
+samples['DMV_Axial_Mphi-200_Mchi-10']  = ['/DMV_NNPDF30_Axial_Mphi-200_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
+####
 samples['DMV_Axial_Mphi-200_Mchi-50']  = ['/DMV_NNPDF30_Axial_Mphi-200_Mchi-50_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-200_Mchi-100'] = ['/DMV_NNPDF30_Axial_Mphi-200_Mchi-100_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-300_Mchi-1']   = ['/DMV_NNPDF30_Axial_Mphi-300_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=3729.71']]
@@ -75,16 +75,16 @@ samples['DMV_Axial_Mphi-1000_Mchi-10']   = ['/DMV_NNPDF30_Axial_Mphi-1000_Mchi-1
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=48.0154']]
 ####
 samples['DMV_Axial_Mphi-1000_Mchi-50']  = ['/DMV_NNPDF30_Axial_Mphi-1000_Mchi-50_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-1000_Mchi-100']  = ['/DMV_NNPDF30_Axial_Mphi-1000_Mchi-100_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-1000_Mchi-150'] = ['/DMV_NNPDF30_Axial_Mphi-1000_Mchi-150_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=31.2181']]
 ########
 samples['DMV_Axial_Mphi-2000_Mchi-1']   = ['/DMV_NNPDF30_Axial_Mphi-2000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-2000_Mchi-100'] = ['/DMV_NNPDF30_Axial_Mphi-2000_Mchi-100_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=2.3861']]
@@ -111,7 +111,7 @@ samples['DMV_Axial_Mphi-5000_Mchi-500'] = ['/DMV_NNPDF30_Axial_Mphi-5000_Mchi-50
                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.0120676']]
 #####
 samples['DMV_Axial_Mphi-10000_Mchi-1']  = ['/DMV_NNPDF30_Axial_Mphi-10000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                         ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.001']]
+                                         ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=-1']]
 ####
 samples['DMV_Axial_Mphi-10000_Mchi-10'] = ['/DMV_NNPDF30_Axial_Mphi-10000_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                          ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.00289934']]

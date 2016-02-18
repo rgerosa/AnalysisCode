@@ -27,7 +27,7 @@ public:
     valueLabels_( params.existsAs<std::vector<std::string> >("valueLabels") ? params.getParameter<std::vector<std::string> >("valueLabels") : std::vector<std::string>() ),
     lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false ),
     multiValue_(false){
-
+    
     if( value_!="" ){
       evaluationMap_.insert( std::make_pair( value_, std::unique_ptr<StringObjectFunction<C> >( new StringObjectFunction<C>( value_, lazyParser_ ) ) ) );
       produces< JetValueMap >();
@@ -98,7 +98,7 @@ void JetDeltaRValueMapProducerT<T,C,K>::produce(edm::Event& iEvent, const edm::E
       if ( temp_dR2 < matched_dR2 ){
 	matched_dR2 = temp_dR2;
 	matched_index = index;
-	  }
+      }
     }// end loop over src jets
     
     if( matched_index>=0 ){
@@ -254,7 +254,7 @@ void JetDeltaRValueMapProducerT<T,pat::Jet,K>::produce(edm::Event& iEvent, const
 	      values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
 	}
 	if( multiValue_ ){
-	  for( size_t i=0; i<valueLabels_.size(); ++i){	
+	  for( size_t i=0; i<valueLabels_.size(); ++i){	       
 	    if(TString(values_[i]).Contains("genJet()")){
 	      if((*ijet).genJet())
 		valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);

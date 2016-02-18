@@ -89,4 +89,3 @@ samples['PseudoscalarWH_Mphi-10000_Mchi-500'] = ['/DM_PseudoscalarWH_Mphi-10000_
                                       ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=637800']]
 samples['PseudoscalarWH_Mphi-10000_Mchi-1000'] = ['/DM_PseudoscalarWH_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-JHUGen/RunIISpring15MiniAODv2-Asympt25ns_74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                       ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=636400']]
-

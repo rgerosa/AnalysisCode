@@ -3,13 +3,13 @@ samples['VectorMonoW_Mphi-10_Mchi-1']    = ['/VectorMonoW_Mphi-10_Mchi-1_gSM-1p0
                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=95.11']]
 #####W##
 samples['VectorMonoW_Mphi-10_Mchi-10']   = ['/VectorMonoW_Mphi-10_Mchi-10_gSM-1p0_gDM-1p0_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=63.45']]
+                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=63.45']]
 #####W##
 samples['VectorMonoW_Mphi-10_Mchi-50']   = ['/VectorMonoW_Mphi-10_Mchi-50_gSM-1p0_gDM-1p0_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=4.812']]
 #####W##
 samples['VectorMonoW_Mphi-10_Mchi-100']  = ['/VectorMonoW_Mphi-10_Mchi-100_gSM-1p0_gDM-1p0_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
-                                           ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=1.131']]
+                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=1.131']]
 #####W##
 samples['VectorMonoW_Mphi-10_Mchi-150']  = ['/VectorMonoW_Mphi-10_Mchi-150_gSM-1p0_gDM-1p0_13TeV-madgraph/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                            ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=0.1426']]
