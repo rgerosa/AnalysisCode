@@ -48,6 +48,11 @@ void makehist4(TTree* tree, /*input tree*/
     return;
   }
 
+
+ 
+  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");
+  
+
   // in case you want to weight the NVTX distribution
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
@@ -149,7 +154,13 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> wgtbtag      (myReader,btagname.c_str());
   
   // trigger
-  TTreeReaderValue<UChar_t> hltm   (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
+
   TTreeReaderValue<UChar_t> hlte   (myReader,"hltsingleel");
   TTreeReaderValue<UChar_t> hltp   (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp2  (myReader,"hltphoton175");
@@ -296,10 +307,11 @@ void makehist4(TTree* tree, /*input tree*/
   while(myReader.Next()){
     // check trigger depending on the sample
     Double_t hlt = 0.0;
-    if (sample == 0 || sample == 1 || sample == 2 || sample == 7)  hlt = *hltm;
+    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){
+      hlt = *hltm90+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
+    }
     else if (sample == 3 || sample == 4 || sample == 8) {
-      hlt = *hlte;
-      if(*hlte == 0) hlt =  *hltp;
+      hlt = *hlte+*hltp;
     }
     else if (sample == 5 || sample == 6) hlt = *hltp;
 
@@ -513,7 +525,6 @@ void makehist4(TTree* tree, /*input tree*/
     
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
-
     // MET Filters
     if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue;
 
@@ -716,6 +727,10 @@ void makehist4(TTree* tree, /*input tree*/
 	  goodMonoV   = true;
 	
 	if(not goodMonoV) continue;	
+
+	//	if(not isMC)
+	  //	  dump<< "event id "<<*event<<" run "<<*run<<"jet pt "<<jetpt->at(0)<<" dphi "<<jmdphi<<" boosted jet pt "<<boostedJetpt->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" met "<<pfmet<<" \n";
+
       }
     }
                
@@ -877,6 +892,8 @@ void makehist4(TTree* tree, /*input tree*/
       
     }
   }
+
+  //  dump.close();
 
   sffile  ->Close();
   psffile ->Close();

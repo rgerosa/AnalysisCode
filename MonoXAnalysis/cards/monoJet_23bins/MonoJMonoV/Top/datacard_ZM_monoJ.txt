@@ -1,0 +1,51 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+----------------------------------------------------------------------------------
+shapes data_obs      dimuon   workspace_MJ.root ZM_MJ:data_obs_ZM_MJ
+shapes Znunu         dimuon   workspace_MJ.root ZM_MJ:Znunu_ZM_MJ
+shapes WJets_ZM      dimuon   workspace_MJ.root ZM_MJ:WJets_ZM_MJ    ZM_MJ:WJets_ZM_MJ_$SYSTEMATIC
+shapes Dibosons      dimuon   workspace_MJ.root ZM_MJ:Dibosons_ZM_MJ ZM_MJ:Dibosons_ZM_MJ_$SYSTEMATIC
+shapes Top_ZM	     dimuon   workspace_MJ.root ZM_MJ:Top_ZM_MJ      ZM_MJ:Top_ZM_MJ_$SYSTEMATIC
+----------------------------------------------------------------------------------
+bin         dimuon
+observation -1
+----------------------------------------------------------------------------------
+bin                                 dimuon      dimuon      dimuon          dimuon
+process                             Znunu       WJets_ZM    Dibosons        Top_ZM  
+process                             1           2           4               5     
+rate                                1          -1           -1              -1    
+----------------------------------------------------------------------------------
+Lumi                      lnN       -           1.046       1.046           1.046
+Uncertainty_MUSF          lnN       1.020       1.020       1.020           1.020
+Estimate_WJets_ZM         lnN       -           1.200       -               -     
+Estimate_DIBOSONS         lnN       -           -           1.200           -     
+Estimate_TOP		  lnN       -           -           -               1.100 
+CMS_btag                  shapeN2   -           1           1               1            
+CMS_jes                   shapeN2   -           1           1               1            
+CMS_jer                   shapeN2   -           1           1               1            
+CMS_unc                   shapeN2   -           1           1               1           
+Znunu_ZM_MJ_bin1_Runc     param     0     1
+Znunu_ZM_MJ_bin2_Runc     param     0     1
+Znunu_ZM_MJ_bin3_Runc     param     0     1
+Znunu_ZM_MJ_bin4_Runc     param     0     1
+Znunu_ZM_MJ_bin5_Runc     param     0     1
+Znunu_ZM_MJ_bin6_Runc     param     0     1
+Znunu_ZM_MJ_bin7_Runc     param     0     1
+Znunu_ZM_MJ_bin8_Runc     param     0     1
+Znunu_ZM_MJ_bin9_Runc     param     0     1
+Znunu_ZM_MJ_bin10_Runc     param     0     1
+Znunu_ZM_MJ_bin11_Runc     param     0     1
+Znunu_ZM_MJ_bin12_Runc     param     0     1
+Znunu_ZM_MJ_bin13_Runc     param     0     1
+Znunu_ZM_MJ_bin14_Runc     param     0     1
+Znunu_ZM_MJ_bin15_Runc     param     0     1
+Znunu_ZM_MJ_bin16_Runc     param     0     1
+Znunu_ZM_MJ_bin17_Runc     param     0     1
+Znunu_ZM_MJ_bin18_Runc     param     0     1
+Znunu_ZM_MJ_bin19_Runc     param     0     1
+Znunu_ZM_MJ_bin20_Runc     param     0     1
+Znunu_ZM_MJ_bin21_Runc     param     0     1
+Znunu_ZM_MJ_bin22_Runc     param     0     1
+----------------------------------------------------------------------------------
+

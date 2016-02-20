@@ -1,0 +1,39 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      onemuon   workspace_MV.root WM_MV:data_obs_WM_MV
+shapes WJets         onemuon   workspace_MV.root WM_MV:WJets_WM_MV
+shapes ZJets_WM      onemuon   workspace_MV.root WM_MV:ZJets_WM_MV    WM_MV:ZJets_WM_MV_$SYSTEMATIC
+shapes Dibosons      onemuon   workspace_MV.root WM_MV:Dibosons_WM_MV WM_MV:Dibosons_WM_MV_$SYSTEMATIC
+shapes Top           onemuon   workspace_MV.root WM_MV:Top_WM_MV      WM_MV:Top_WM_MV_$SYSTEMATIC
+shapes QCD_WM        onemuon   workspace_MV.root WM_MV:QCD_WM_MV
+------------------------------------------------------------------------------------------------
+bin         onemuon
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 onemuon     onemuon     onemuon         onemuon       onemuon
+process                             WJets       ZJets_WM    Dibosons        Top           QCD_WM
+process                             2           3           4               5             6
+rate                                1          -1           -1              -1            -1
+------------------------------------------------------------------------------------------------
+Lumi                      lnN       -           1.046       1.046           1.046         1.046
+Uncertainty_MUSF          lnN       1.010       1.010       1.010           1.010         1.010
+Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
+Estimate_ZJets_WM         lnN       -           1.200       -               -             -
+Estimate_DIBOSONS         lnN       -           -           1.200           -             -
+Estimate_TOP              lnN       -           -           -               1.100         -
+Estimate_QCD_WM           lnN       -           -           -               -             1.500
+CMS_btag                  shapeN2   -           1           1               1             -
+CMS_jes                   shapeN2   -           1           1               1             -
+CMS_jer                   shapeN2   -           1           1               1             -
+CMS_unc                   shapeN2   -           1           1               1             -
+WJets_WM_MV_bin1_Runc     param     0     1
+WJets_WM_MV_bin2_Runc     param     0     1
+WJets_WM_MV_bin3_Runc     param     0     1
+WJets_WM_MV_bin4_Runc     param     0     1
+WJets_WM_MV_bin5_Runc     param     0     1
+WJets_WM_MV_bin6_Runc     param     0     1
+------------------------------------------------------------------------------------------------
+

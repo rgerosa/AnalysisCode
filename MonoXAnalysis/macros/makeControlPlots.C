@@ -62,6 +62,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghistzmm_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghistzmm_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghistzmm_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghistzmm_"+observable).c_str());
   }
   else if(controlRegion == "zee"){
     datahist = (TH1*)inputFile->Get(("datahistzee_"+observable).c_str());
@@ -70,6 +71,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghistzee_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghistzee_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghistzee_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghistzee_"+observable).c_str());
   }
   else if(controlRegion == "wmn"){
     datahist = (TH1*)inputFile->Get(("datahistwmn_"+observable).c_str());
@@ -78,6 +80,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghistwmn_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghistwmn_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghistwmn_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghistwmn_"+observable).c_str());
   }
   else if(controlRegion == "wen"){
     datahist = (TH1*)inputFile->Get(("datahistwen_"+observable).c_str());
@@ -86,6 +89,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghistwen_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghistwen_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghistwen_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghistwen_"+observable).c_str());
   }
   else if(controlRegion == "topmu" and plotResonant){
     datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
@@ -95,6 +99,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghisttopmu_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghisttopmu_"+observable).c_str());
   }
   else if(controlRegion == "topmu" and not plotResonant){
     datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
@@ -103,6 +108,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghisttopmu_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghisttopmu_"+observable).c_str());
   }
 
   else if(controlRegion == "topel" and not plotResonant){
@@ -112,6 +118,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghisttopel_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghisttopel_"+observable).c_str());
   }
 
   else if(controlRegion == "topel" and plotResonant){
@@ -122,6 +129,7 @@ void makeControlPlots(string templateFileName,
     vlhist   = (TH1*)inputFile->Get(("vlbkghisttopel_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghisttopel_"+observable).c_str());
   }
 
   else if(controlRegion == "SR"){
@@ -132,6 +140,7 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->Get(("zjethist_"+observable).c_str());
     vnnhist  = (TH1*)inputFile->Get(("zinvhist_"+observable).c_str());
     dbhist   = (TH1*)inputFile->Get(("dbkghist_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->Get(("gbkghist_"+observable).c_str());
     
     monoJhist = (TH1*)inputFile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
     monoWhist = (TH1*)inputFile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
@@ -149,6 +158,7 @@ void makeControlPlots(string templateFileName,
       yield += dbhist->GetBinContent(i);
       yield += qcdhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);
+      yield += gamhist->GetBinContent(i);
       datahist->SetBinContent(i, yield);
       datahist->SetBinError(i, 0.);
     }
@@ -267,6 +277,7 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "zmm" or controlRegion == "zee"){
     stack->Add(qcdhist);
+    stack->Add(gamhist);
     stack->Add(vlhist);
     stack->Add(tophist);
     stack->Add(dbhist);
@@ -274,6 +285,7 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "wmn" or controlRegion == "wen"){
     stack->Add(qcdhist);
+    stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
@@ -281,6 +293,7 @@ void makeControlPlots(string templateFileName,
   }
   else if((controlRegion == "topmu" or controlRegion == "topel") and not plotResonant){
     stack->Add(qcdhist);
+    stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
     stack->Add(vlhist);
@@ -288,6 +301,7 @@ void makeControlPlots(string templateFileName,
   }
   else if((controlRegion == "topmu" or controlRegion == "topel") and plotResonant){
     stack->Add(qcdhist);
+    stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
     stack->Add(vlhist);
@@ -296,6 +310,7 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
+    stack->Add(gamhist);
     stack->Add(dbhist);
     stack->Add(tophist);
     stack->Add(vllhist);
@@ -378,6 +393,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -387,6 +403,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow e #nu","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -396,6 +413,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -405,6 +423,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -415,6 +434,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -424,6 +444,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -433,6 +454,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -443,6 +465,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -454,6 +477,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(vllhist, "Z(ll)", "F");
     leg->AddEntry(tophist, "Top", "F");
     leg->AddEntry(dbhist, "Dibosons", "F");
+    leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
     TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
     leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");

@@ -1,0 +1,34 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+----------------------------------------------------------------------------------
+shapes data_obs      dielectron  workspace_MV.root ZE_MV:data_obs_ZE_MV
+shapes Znunu         dielectron  workspace_MV.root ZE_MV:Znunu_ZE_MV
+shapes WJets_ZE      dielectron  workspace_MV.root ZE_MV:WJets_ZE_MV
+shapes Dibosons      dielectron  workspace_MV.root ZE_MV:Dibosons_ZE_MV
+shapes Top           dielectron  workspace_MV.root ZE_MV:Top_ZE_MV
+----------------------------------------------------------------------------------
+bin         dielectron
+observation -1
+----------------------------------------------------------------------------------
+bin                                 dielectron  dielectron  dielectron      dielectron
+process                             Znunu       WJets_ZE    Dibosons        Top   
+process                             1           2           4               5     
+rate                                1          -1           -1              -1    
+----------------------------------------------------------------------------------
+Lumi                      lnN       -           1.046       1.046           1.046
+Uncertainty_ELSF          lnN       1.040       1.040       1.040           1.040             
+Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010             
+Estimate_WJets_ZE         lnN       -           1.200       -               -     
+Estimate_DIBOSONS         lnN       -           -           1.200           -     
+Estimate_TOP              lnN       -           -           -               1.100 
+MET                       lnN       -           1.040       1.040           1.040 
+Bveto                     lnN       -           1.020       1.020           1.060 
+Znunu_ZE_MV_bin1_Runc        param     0     1
+Znunu_ZE_MV_bin2_Runc        param     0     1
+Znunu_ZE_MV_bin3_Runc        param     0     1
+Znunu_ZE_MV_bin4_Runc        param     0     1
+Znunu_ZE_MV_bin5_Runc        param     0     1
+Znunu_ZE_MV_bin6_Runc        param     0     1
+----------------------------------------------------------------------------------

@@ -24,6 +24,7 @@ parser.add_option('--filterName',   action="store", type="string", dest="filterN
 parser.add_option('--isMC',         action="store_true", dest="isMC",         help="isMC")
 parser.add_option('--applyBTagSF',  action="store_true", dest="applyBTagSF",  help="applyBTagSF")
 parser.add_option('--storeGenTree', action="store_true", dest="storeGenTree", help="storeGenTree")
+parser.add_option('--isSinglePhoton', action="store_true", dest="isSinglePhoton", help="isSinglePhoton")
 
 ##  for submitting jobs in lxbatch
 parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
@@ -79,6 +80,9 @@ if __name__ == '__main__':
     if options.applyBTagSF:
         applyBTagSF = 1;
 
+    isSinglePhoton = 0;
+    if options.isSinglePhoton:
+        isSinglePhoton = 1;
 
     #######################
     for ifile in fileList:        
@@ -172,7 +176,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p zeefilter")
@@ -189,7 +193,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zee_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -254,7 +258,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p wenfilter")
@@ -271,7 +275,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wen_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 

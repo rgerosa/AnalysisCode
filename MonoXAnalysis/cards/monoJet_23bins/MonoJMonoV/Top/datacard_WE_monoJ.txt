@@ -1,0 +1,63 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      oneel   workspace_MJ.root WE_MJ:data_obs_WE_MJ
+shapes WJets         oneel   workspace_MJ.root WE_MJ:WJets_WE_MJ
+shapes ZJets_WE      oneel   workspace_MJ.root WE_MJ:ZJets_WE_MJ    WE_MJ:ZJets_WE_MJ_$SYSTEMATIC
+shapes Dibosons      oneel   workspace_MJ.root WE_MJ:Dibosons_WE_MJ WE_MJ:Dibosons_WE_MJ_$SYSTEMATIC
+shapes Top_WE        oneel   workspace_MJ.root WE_MJ:Top_WE_MJ      WE_MJ:Top_WE_MJ_$SYSTEMATIC
+shapes QCD_WE        oneel   workspace_MJ.root WE_MJ:QCD_WE_MJ
+------------------------------------------------------------------------------------------------
+bin         oneel
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 oneel       oneel       oneel           oneel         oneel
+process                             WJets       ZJets_WE    Dibosons        Top_WE        QCD_WE
+process                             2           3           4               5             6
+rate                                1          -1           -1             -1            -1
+------------------------------------------------------------------------------------------------
+Lumi                      lnN       -           1.046       1.046           1.046         1.046
+Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020         1.020
+Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010         1.010
+Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
+Estimate_ZJets_WE         lnN       -           1.200       -               -             -
+Estimate_DIBOSONS         lnN       -           -           1.200           -             -
+Estimate_TOP              lnN       -           -           -               1.100         -
+Estimate_QCD_WE           lnN       -           -           -               -             1.500
+CMS_btag                  shapeN2   -           1           1               1             -
+CMS_jes                   shapeN2   -           1           1               1             -
+CMS_jer                   shapeN2   -           1           1               1             -
+CMS_unc                   shapeN2   -           1           1               1             -
+WJets_WE_MJ_bin1_Runc     param     0     1
+WJets_WE_MJ_bin2_Runc     param     0     1
+WJets_WE_MJ_bin3_Runc     param     0     1
+WJets_WE_MJ_bin4_Runc     param     0     1
+WJets_WE_MJ_bin5_Runc     param     0     1
+WJets_WE_MJ_bin6_Runc     param     0     1
+WJets_WE_MJ_bin7_Runc     param     0     1
+WJets_WE_MJ_bin1_Runc     param     0     1
+WJets_WE_MJ_bin2_Runc     param     0     1
+WJets_WE_MJ_bin3_Runc     param     0     1
+WJets_WE_MJ_bin4_Runc     param     0     1
+WJets_WE_MJ_bin5_Runc     param     0     1
+WJets_WE_MJ_bin6_Runc     param     0     1
+WJets_WE_MJ_bin7_Runc     param     0     1
+WJets_WE_MJ_bin8_Runc     param     0     1
+WJets_WE_MJ_bin9_Runc     param     0     1
+WJets_WE_MJ_bin10_Runc     param     0     1
+WJets_WE_MJ_bin11_Runc     param     0     1
+WJets_WE_MJ_bin12_Runc     param     0     1
+WJets_WE_MJ_bin13_Runc     param     0     1
+WJets_WE_MJ_bin14_Runc     param     0     1
+WJets_WE_MJ_bin15_Runc     param     0     1
+WJets_WE_MJ_bin16_Runc     param     0     1
+WJets_WE_MJ_bin17_Runc     param     0     1
+WJets_WE_MJ_bin18_Runc     param     0     1
+WJets_WE_MJ_bin19_Runc     param     0     1
+WJets_WE_MJ_bin20_Runc     param     0     1
+WJets_WE_MJ_bin21_Runc     param     0     1
+WJets_WE_MJ_bin22_Runc     param     0     1
+------------------------------------------------------------------------------------------------
+

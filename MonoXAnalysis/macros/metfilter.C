@@ -99,6 +99,7 @@ void metfilter(std::string inputFile, std::string outputFile) {
   }
   
   outfile->Write();
-   
+  outfile->Close();
+
 }
 

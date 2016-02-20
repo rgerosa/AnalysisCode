@@ -1,0 +1,56 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      topmuon   workspace_monoJ.root TM_MJ:data_obs_TM_MJ
+shapes WJets_TM      topmuon   workspace_monoJ.root TM_MJ:WJets_TM_MJ    TM_MJ:WJets_TM_MJ_$SYSTEMATIC
+shapes ZJets_TM      topmuon   workspace_monoJ.root TM_MJ:ZJets_TM_MJ    TM_MJ:ZJets_TM_MJ_$SYSTEMATIC
+shapes Dibosons      topmuon   workspace_monoJ.root TM_MJ:Dibosons_TM_MJ TM_MJ:Dibosons_TM_MJ_$SYSTEMATIC
+shapes Top           topmuon   workspace_monoJ.root TM_MJ:Top_TM_MJ 
+shapes QCD_TM        topmuon   workspace_monoJ.root TM_MJ:QCD_TM_MJ      
+------------------------------------------------------------------------------------------------
+bin         topmuon
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 topmuon     topmuon     topmuon         topmuon       topmuon
+process                             WJets_TM    ZJets_TM    Dibosons        Top           QCD_TM
+process                             2           3           4               5             6
+rate                                -1          -1         -1               1            -1
+------------------------------------------------------------------------------------------------
+Lumi                      lnN       1.046       1.046       1.046           -             1.046
+Uncertainty_MUSF          lnN       1.010       1.010       1.010           -             1.010
+Uncertainty_LepVeto       lnN       -           -           -               -             -             
+Estimate_ZJets_TM         lnN       -           1.200       -               -             -
+Estimate_DIBOSONS         lnN       -           -           1.200           -             -
+Estimate_WJets_TM         lnN       1.200       -           -               -             -
+Estimate_QCD_TM           lnN       -           -           -               -             1.500
+CMS_jes                   shapeN2   1           1           1               -             -
+CMS_jer                   shapeN2   1           1           1               -             -
+CMS_unc                   shapeN2   1           1           1               -             -
+CMS_btag                  shapeN2   1           1           1               -             -
+Top_TM_MJ_bin1_Runc        param 0 1  
+Top_TM_MJ_bin2_Runc        param 0 1    
+Top_TM_MJ_bin3_Runc        param 0 1    
+Top_TM_MJ_bin4_Runc        param 0 1    
+Top_TM_MJ_bin5_Runc        param 0 1    
+Top_TM_MJ_bin6_Runc        param 0 1    
+Top_TM_MJ_bin7_Runc        param 0 1    
+Top_TM_MJ_bin8_Runc        param 0 1    
+Top_TM_MJ_bin9_Runc        param 0 1    
+Top_TM_MJ_bin10_Runc        param 0 1    
+Top_TM_MJ_bin11_Runc        param 0 1    
+Top_TM_MJ_bin12_Runc        param 0 1    
+Top_TM_MJ_bin13_Runc        param 0 1    
+Top_TM_MJ_bin14_Runc        param 0 1    
+Top_TM_MJ_bin15_Runc        param 0 1    
+Top_TM_MJ_bin16_Runc        param 0 1    
+Top_TM_MJ_bin17_Runc        param 0 1    
+Top_TM_MJ_bin18_Runc        param 0 1    
+Top_TM_MJ_bin19_Runc        param 0 1    
+Top_TM_MJ_bin20_Runc        param 0 1    
+Top_TM_MJ_bin21_Runc        param 0 1    
+Top_TM_MJ_bin22_Runc        param 0 1    
+top_TM_MJ_btag             param 0 1 
+------------------------------------------------------------------------------------------------
+

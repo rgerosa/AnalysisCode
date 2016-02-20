@@ -1,0 +1,38 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      oneel   workspace_MV.root WE_MV:data_obs_WE_MV
+shapes WJets         oneel   workspace_MV.root WE_MV:WJets_WE_MV
+shapes ZJets_WE      oneel   workspace_MV.root WE_MV:ZJets_WE_MV
+shapes Dibosons      oneel   workspace_MV.root WE_MV:Dibosons_WE_MV
+shapes Top           oneel   workspace_MV.root WE_MV:Top_WE_MV
+shapes QCD_WE        oneel   workspace_MV.root WE_MV:QCD_WE_MV
+------------------------------------------------------------------------------------------------
+bin         oneel
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 oneel       oneel       oneel           oneel         oneel
+process                             WJets       ZJets_WE    Dibosons        Top		  QCD_WE
+process                             2           3           4               5             6
+rate                                1          -1           -1             -1            -1
+------------------------------------------------------------------------------------------------
+Lumi                      lnN       -           1.046       1.046           1.046         1.046
+Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020         1.020
+Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010         1.010
+Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
+Estimate_ZJets_WE         lnN       -           1.200       -               -             -
+Estimate_DIBOSONS         lnN       -           -           1.200           -             -
+Estimate_TOP              lnN       -           -           -               1.100         -
+Estimate_QCD_WE           lnN       -           -           -               -             1.500
+MET                       lnN       -           1.040       1.040           1.040         1.040
+Bveto                     lnN       -           1.020       1.020           1.060         -
+WJets_WE_MV_bin1_Runc        param     0     1
+WJets_WE_MV_bin2_Runc        param     0     1
+WJets_WE_MV_bin3_Runc        param     0     1
+WJets_WE_MV_bin4_Runc        param     0     1
+WJets_WE_MV_bin5_Runc        param     0     1
+WJets_WE_MV_bin6_Runc        param     0     1
+------------------------------------------------------------------------------------------------
+

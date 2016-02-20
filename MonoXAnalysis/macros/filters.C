@@ -240,7 +240,7 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
   }
 
   // accept signal region event if loose muons, electrons, taus and phototns == 0 and triggered by hltmet90
-  const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && hltmet90 > 0";
+  const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && (hltmet90 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -405,7 +405,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Zee selections
-void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false, bool isSinglePhoton = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"zeefilter --> start function"<<std::endl;
@@ -430,8 +430,14 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
     puRatio = pileupwgt(intree);
   }
   
-  const char* cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1)";
-  
+  const char* cut = "";
+  if(not isMC and not isSinglePhoton)
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && hltsingleel > 0";
+  else if(not isMC and isSinglePhoton)
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && hltsingleel == 0 && ( hltphoton165 > 0 || hltphoton175 > 0)";
+  else if(isMC)
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0)";
+
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
@@ -591,7 +597,7 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Wenu selections
-void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false, bool isSinglePhoton = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"wenfilter --> start function"<<std::endl;
@@ -615,7 +621,14 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
     puRatio = pileupwgt(intree);
   }
 
-  const char* cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1";
+  const char* cut = "";
+  if(not isMC and not isSinglePhoton)
+    cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1 && hltsingleel > 0";
+  else if(not isMC and isSinglePhoton)
+    cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1 && hltsingleel == 0 && (hltphoton165 > 0 || hltphoton175 > 0)";
+  else if(isMC)
+    cut = "nmuons == 0 && nelectrons == 1 && ntaus == 0 && nphotons == 0 && el1pt > 40 && el1id >= 1 && (hltsingleel > 0 || hltphoton165 > 0 || hltphoton175 > 0)";
+
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();

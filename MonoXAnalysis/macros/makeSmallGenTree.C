@@ -66,6 +66,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   double  genX2Pt, genX2Eta, genX2Phi, genX2Mass;
   double  genMetPt, genMetPhi;
   double  weight;
+  double  pfMetPt, pfMetPhi;
 
   outputTree->Branch("id",&id,"id/I");  
   outputTree->Branch("genVBosonPt", &genVBosonPt, "genVBosonPt/D");  
@@ -99,6 +100,11 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   outputTree->Branch("genX2Eta", &genX2Eta, "genX2Eta/D");  
   outputTree->Branch("genX2Phi", &genX2Phi, "genX2Phi/D");  
   outputTree->Branch("genX2Mass", &genX2Mass, "genX2Mass/D");  
+
+  outputTree->Branch("genMetPt", &genMetPt, "genMetPt/D");  
+  outputTree->Branch("genMetPhi", &genMetPhi, "genMetPhi/D");  
+  outputTree->Branch("pfMetPt", &pfMetPt, "pfMetPt/D");  
+  outputTree->Branch("pfMetPhi", &pfMetPhi, "pfMetPhi/D");  
 
   outputTree->Branch("weight", &weight, "weight/D");  
   
@@ -167,6 +173,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<double > x2Phi     (myReader,"dmX2phi");
   TTreeReaderValue<double> mmet        (myReader,"t1mumet");
   TTreeReaderValue<double> mmetphi     (myReader,"t1mumetphi");
+  TTreeReaderValue<double> genmet        (myReader,"genmet");
+  TTreeReaderValue<double> genmetphi     (myReader,"genmetphi");
   TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
 
   // loop on the event and apply selections
@@ -224,6 +232,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genX2Mass = 0.;
     genMetPt = 0.; 
     genMetPhi = 0.;
+    pfMetPt = 0.;
+    pfMetPhi = 0.;
     weight = 1.;
 
     if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
@@ -298,6 +308,13 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
       weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet))*puhist->GetBinContent(*nvtx);
     else
       weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet));
+
+
+    pfMetPt = *mmet;
+    pfMetPhi = *mmetphi;
+
+    genMetPt  = *genmet;
+    genMetPhi = *genmetphi;
 
     outputTree->Fill();
 

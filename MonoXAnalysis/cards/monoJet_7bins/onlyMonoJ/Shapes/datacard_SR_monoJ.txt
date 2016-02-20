@@ -25,11 +25,11 @@ Lumi                      lnN        1.046     -            -          1.046    
 Estimate_ZJETS            lnN        -         -            -          1.200          -              -            -
 Estimate_DIBOSONS         lnN        -         -            -            -            1.200          -            -
 Estimate_TOP              lnN        -         -            -            -            -             1.100         -
-CMS_btag                  shapeN2    1         -            -            1            1              1	     -
+CMS_btag                  shapeN2    1         -            -            1            1              1	          -
 CMS_jes                   shapeN2    1         -            -            1            1              1            -
 CMS_jer                   shapeN2    1         -            -            1            1              1            -
 CMS_unc                   shapeN2    1         -            -            1            1              1            -
-CMS_qcd                   shapeN2    
+CMS_qcd                   shapeN2    -         -            -            -            -              -            1 
 MonoJ_SR_MJ_CMS_bin1_stat    shapeN2    1         -          -            -            -              -            -
 MonoJ_SR_MJ_CMS_bin2_stat    shapeN2    1         -          -            -            -              -            -
 MonoJ_SR_MJ_CMS_bin3_stat    shapeN2    1         -          -            -            -              -            -

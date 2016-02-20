@@ -1,0 +1,62 @@
+imax * number of bins
+cmax * number of processes minus 1
+kmax * number of nuisance parameters
+--------------------------------------------------------------------------------------------------------------------------
+shapes data_obs    signal   workspace_MV.root SR_MV:data_obs_SR_MV
+shapes Znunu       signal   workspace_MV.root SR_MV:Znunu_SR_MV 
+shapes WJets       signal   workspace_MV.root SR_MV:WJets_SR_MV 
+shapes ZJets       signal   workspace_MV.root SR_MV:ZJets_SR_MV    SR_MV:ZJets_SR_MV_$SYSTEMATIC
+shapes Dibosons    signal   workspace_MV.root SR_MV:Dibosons_SR_MV SR_MV:Dibosons_SR_MV_$SYSTEMATIC
+shapes Top         signal   workspace_MV.root SR_MV:Top_SR_MV      SR_MV:Top_SR_MV_$SYSTEMATIC
+shapes QCD         signal   workspace_MV.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
+shapes MonoJ       signal   workspace_MV.root SR_MV:MonoJ_SR_MV    SR_MV:MonoJ_SR_MV_$SYSTEMATIC
+shapes MonoW       signal   workspace_MV.root SR_MV:MonoW_SR_MV    SR_MV:MonoW_SR_MV_$SYSTEMATIC
+shapes MonoZ       signal   workspace_MV.root SR_MV:MonoZ_SR_MV    SR_MV:MonoZ_SR_MV_$SYSTEMATIC
+--------------------------------------------------------------------------------------------------------------------------
+bin         signal
+observation -1
+------------------------------------------------------------------------------------------------------------------------------------------
+bin                                  signal   signal       signal      signal       signal          signal        signal
+process                              MonoJ    Znunu        WJets       ZJets        Dibosons        Top           QCD
+process                              0         1            2            3             4             5             7
+rate                                 -1        1            1           -1            -1             1            -1
+------------------------------------------------------------------------------------------------------------------------------------------
+Lumi                      lnN        1.046     -            -          1.046          1.046          -            -
+Estimate_ZJETS            lnN        -         -            -          1.200          -              -            -
+Estimate_DIBOSONS         lnN        -         -            -            -            1.200          -            -
+Estimate_TOP              lnN        -         -            -            -            -              -            -
+CMS_btag                  shapeN2    1         -            -            1            1              -            -
+CMS_jes                   shapeN2    1         -            -            1            1              -            -
+CMS_jer                   shapeN2    1         -            -            1            1              -            -
+CMS_unc                   shapeN2    1         -            -            1            1              -            -
+CMS_qcd                   shapeN2    -         -            -            -            -              -            1
+MonoJ_SR_MV_CMS_bin1_stat    shapeN2    1         -          -            -            -             -            -
+MonoJ_SR_MV_CMS_bin2_stat    shapeN2    1         -          -            -            -              -            -
+MonoJ_SR_MV_CMS_bin3_stat    shapeN2    1         -          -            -            -              -            -
+MonoJ_SR_MV_CMS_bin4_stat    shapeN2    1         -          -            -            -              -            -
+MonoJ_SR_MV_CMS_bin5_stat    shapeN2    1         -          -            -            -              -            -
+MonoJ_SR_MV_CMS_bin6_stat    shapeN2    1         -          -            -            -              -            -
+Dibosons_SR_MV_CMS_bin1_stat    shapeN2       -         -          -            -            1              -            -
+Dibosons_SR_MV_CMS_bin2_stat    shapeN2       -         -          -            -            1              -            -
+Dibosons_SR_MV_CMS_bin3_stat    shapeN2       -         -          -            -            1              -            -
+Dibosons_SR_MV_CMS_bin4_stat    shapeN2       -         -          -            -            1              -            -
+Dibosons_SR_MV_CMS_bin5_stat    shapeN2       -         -          -            -            1              -            -
+Dibosons_SR_MV_CMS_bin6_stat    shapeN2       -         -          -            -            1              -            -
+WJets_SR_MV_RenScale1        param     0     1
+WJets_SR_MV_FactScale1       param     0     1
+WJets_SR_MV_RenScale2        param     0     1
+WJets_SR_MV_FactScale2       param     0     1
+WJets_SR_MV_PDF              param     0     1
+WJets_SR_MV_bin1_Runc        param     0     1
+WJets_SR_MV_bin2_Runc        param     0     1
+WJets_SR_MV_bin3_Runc        param     0     1
+WJets_SR_MV_bin4_Runc        param     0     1
+WJets_SR_MV_bin5_Runc        param     0     1
+WJets_SR_MV_bin6_Runc        param     0     1
+WJets_SR_MV_bin1_ZW_EWK      param     0     1
+WJets_SR_MV_bin2_ZW_EWK      param     0     1
+WJets_SR_MV_bin3_ZW_EWK      param     0     1
+WJets_SR_MV_bin4_ZW_EWK      param     0     1
+WJets_SR_MV_bin5_ZW_EWK      param     0     1
+WJets_SR_MV_bin6_ZW_EWK      param     0     1
+----------------------------------------------------------------------------------------------------------------------------
