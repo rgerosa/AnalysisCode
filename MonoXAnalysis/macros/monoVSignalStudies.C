@@ -160,8 +160,15 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
 
   //Background Znunu
   TChain* backgroundZnunu = new TChain("tree/tree");
-  backgroundZnunu->Add(("root://eoscms.cern.ch//"+baseInputPath+"/ZJets/sigfilter/*").c_str());
-  
+  TFile* file1 = TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu_HT-100To200_13TeV-madgraph.root").c_str());
+  TFile* file2 = TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu_HT-200To400_13TeV-madgraph.root").c_str());
+  TFile* file3 = TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu_HT-400To600_13TeV-madgraph.root").c_str());
+  TFile* file4 = TFile::Open(("root://eoscms.cern.ch//"+baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu_HT-600ToInf_13TeV-madgraph.root").c_str());
+  backgroundZnunu->Add(file1->GetName());
+  backgroundZnunu->Add(file2->GetName());
+  backgroundZnunu->Add(file3->GetName());
+  backgroundZnunu->Add(file4->GetName());
+
   //////
   TCanvas *cCanvas = new TCanvas("cCanvas","",180,52,550,550);
   cCanvas->SetTicks();
@@ -522,8 +529,7 @@ void monoV_signalAnalysis(string baseInputPath, bool isW, string interactionMode
   }
 
   backgroundZnunu->Draw(("prunedJetm[0] >> "+string(prunedMass_Znunu->GetName())).c_str(),cut.c_str(),"goff");
-  backgroundZnunu->Draw(("prunedJetm[0] >> "+string(tau2tau1_Znunu->GetName())).c_str(),cut.c_str(),"goff");
-  
+  backgroundZnunu->Draw(("boostedJettau2[0]/boostedJettau1[0] >> "+string(tau2tau1_Znunu->GetName())).c_str(),cut.c_str(),"goff");
 
   // make single plots
   makeShapePlots(cCanvas,leadingJetPt,legend,outputDirectory,"jetPt","p_{T} (GeV)");
