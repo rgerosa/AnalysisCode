@@ -21,7 +21,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
-  
+
   TH1* dthist = (TH1*)dfile->Get(("datahistgam_"+observable).c_str());
   TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");
   TH1* pohist = (TH1*)pfile->Get("shapes_fit_b/ch4/total_background");    
@@ -50,7 +50,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
     PreRate << "   ";
     PreRate << prhist->GetBinContent(iBin);
   }
-
+  
   for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
     PostRate << "   ";
     PostRate << pohist->GetBinContent(iBin);
@@ -140,9 +140,9 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
 
   TH1* frame2 = NULL;
   if(category <=1)
-   frame2 = pad2->DrawFrame(200., 0., 1250., 2., "");
+   frame2 = pad2->DrawFrame(200., 0.5, 1250., 1.5, "");
   else
-   frame2 = pad2->DrawFrame(250., 0., 1000., 2., "");
+   frame2 = pad2->DrawFrame(250., 0.5, 1000., 1.5, "");
 
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
@@ -192,6 +192,11 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   d1hist->GetXaxis()->SetTitleOffset(999999);
   d1hist->GetXaxis()->SetTitleSize(0);
   
+
+  for(int iBin = 1; iBin <= erhist->GetNbinsX(); iBin++){
+    if(erhist->GetBinContent(iBin) > erhist->GetBinContent(iBin+1) && iBin != erhist->GetNbinsX())
+      erhist->SetBinContent(iBin,erhist->GetBinContent(iBin+1)*0.9);
+  }
 
   d1hist->GetYaxis()->SetTitleOffset(0.3);
   d1hist->GetYaxis()->SetLabelSize(0.12);

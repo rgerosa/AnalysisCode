@@ -158,9 +158,9 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
 
   TH1* frame2 = NULL;
   if(category <=1)
-    frame2 = pad2->DrawFrame(200., 0., 1250., 2., "");
+    frame2 = pad2->DrawFrame(200., 0.5, 1250., 1.5, "");
   else
-    frame2 = pad2->DrawFrame(250., 0., 1000., 2., "");
+    frame2 = pad2->DrawFrame(250., 0., 1000., 2.0, "");
 
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
@@ -200,7 +200,12 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   erhist->SetMarkerColor(0);
   erhist->SetMarkerSize(0);
   erhist->SetFillColor(kGray);
-  
+
+  for(int iBin = 1; iBin <= erhist->GetNbinsX(); iBin++){
+    if(erhist->GetBinError(iBin) > erhist->GetBinError(iBin+1) && iBin != erhist->GetNbinsX())
+      erhist->SetBinError(iBin,erhist->GetBinError(iBin+1)*0.9);
+  }
+
   d1hist->SetMarkerSize(0.7);
   d2hist->SetMarkerSize(0.7);
   d1hist->SetStats(kFALSE);
@@ -216,8 +221,6 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
-  d1hist->Draw("PE SAME");    
-  d2hist->Draw("PE SAME");
   erhist->Draw("E2 SAME");
   d1hist->Draw("PE SAME");
   d2hist->Draw("PE SAME");

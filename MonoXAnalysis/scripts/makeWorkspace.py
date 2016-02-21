@@ -75,6 +75,8 @@ if __name__ == '__main__':
             h1 = key.ReadObj()
             if not ROOT.TString(h1.GetName()).Contains("monoJ") and not ROOT.TString(h1.GetName()).Contains("monoW") and not ROOT.TString(h1.GetName()).Contains("monoZ"):
                 continue;
+            if ROOT.TString(h1.GetName()).Contains("Up") or ROOT.TString(h1.GetName()).Contains("Down") or ROOT.TString(h1.GetName()).Contains("Dw"):
+                continue;
             list = str(h1.GetName()).split("_")
             if(len(list) < 4):
                 sys.exit("Problem in the signal template name convention ---> exit ");
@@ -129,7 +131,7 @@ if __name__ == '__main__':
             jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],oprions.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
+            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
             jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
             jobmacro.write("}\n");
             jobmacro.close();

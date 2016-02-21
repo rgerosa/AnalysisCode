@@ -171,9 +171,9 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
 
   TH1* frame2 = NULL;
   if(category <=1)
-    frame2 = pad2->DrawFrame(200., 0., 1250., 2., "");
+    frame2 = pad2->DrawFrame(200., 0.5, 1250., 1.5, "");
   else
-    frame2 = pad2->DrawFrame(250., 0., 1000., 2., "");
+    frame2 = pad2->DrawFrame(250., 0.5, 1000., 1.5, "");
 
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
@@ -229,6 +229,11 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   d1hist->GetYaxis()->SetLabelSize(0.12);
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
+
+  for(int iBin = 1; iBin <= erhist->GetNbinsX(); iBin++){
+    if(erhist->GetBinError(iBin) > erhist->GetBinError(iBin+1) && iBin != erhist->GetNbinsX())
+      erhist->SetBinError(iBin,erhist->GetBinError(iBin+1)*0.9);
+  }
   
   d1hist->Draw("PE SAME");    
   d2hist->Draw("PE SAME");

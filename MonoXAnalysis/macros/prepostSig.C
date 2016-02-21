@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostSig(string fitFilename, string templateFileName, string observable, int category, 
+void prepostSig(string fitFilename, string templateFileName, string observable, int category, string interaction,
 		string mediatorMass = "1000", string DMMass = "50", bool blind = true) {
 
 
@@ -21,20 +21,22 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
+
+  TH1* mjhist = (TH1*)dfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+  TH1* mwhist = (TH1*)dfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+  TH1* mzhist = (TH1*)dfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
   
-  TH1* mjhist = (TH1*)dfile->Get(("monoJhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mwhist = (TH1*)dfile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mzhist = (TH1*)dfile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
   mjhist->Scale(1.0, "width");
   mwhist->Scale(1.0, "width");
   mzhist->Scale(1.0, "width");
-
+  
   TH1* znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
   TH1* zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
   TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/WJets");    
   TH1* tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
   TH1* dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
   TH1* qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
+  TH1* gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
   TH1* tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
   TH1* tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
 
@@ -48,6 +50,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     for (int i = 0; i <= dthist->GetNbinsX(); i++) {
       double yield = 0.0;
       yield += zlhist->GetBinContent(i);
+      yield += gmhist->GetBinContent(i);
       yield += wlhist->GetBinContent(i);
       yield += tthist->GetBinContent(i);
       yield += dihist->GetBinContent(i);
@@ -64,6 +67,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   stringstream QCDRate;
   QCDRate << "Process: QCD";
+  stringstream GJetsRate;
+  GJetsRate << "Process: GJets";
   stringstream DiBosonRate;
   DiBosonRate << "Process: DiBoson";
   stringstream TopRate;
@@ -84,6 +89,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
     QCDRate << "   ";
     QCDRate << qchist->GetBinContent(iBin+1);
+  }
+
+  for(int iBin = 0; iBin < gmhist->GetNbinsX(); iBin++){
+    GJetsRate << "   ";
+    GJetsRate << gmhist->GetBinContent(iBin+1);
   }
 
   for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
@@ -128,6 +138,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   outputfile<<"######################"<<endl;
   outputfile<<QCDRate.str()<<endl;
+  outputfile<<"######################"<<endl;
+  outputfile<<GJetsRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<DiBosonRate.str()<<endl;
   outputfile<<"######################"<<endl;
@@ -183,6 +195,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   znhist->SetFillColor(kGreen+1);
   znhist->SetLineColor(kBlack);
 
+  gmhist->SetFillColor(kOrange+1);
+  gmhist->SetLineColor(kBlack);
+
   zlhist->SetFillColor(kCyan);
   zlhist->SetLineColor(kBlack);
 
@@ -201,6 +216,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   // make the stack
   THStack* stack = new THStack("stack", "stack");
   stack->Add(qchist);
+  stack->Add(gmhist);
   stack->Add(dihist);
   stack->Add(tthist);
   stack->Add(zlhist);
@@ -231,7 +247,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   dthist->SetFillStyle(0);
   dthist->SetFillColor(0);
-  dthist->SetLineColor(0);
+  dthist->SetLineColor(kBlack);
   dthist->SetMarkerSize(1);
   dthist->SetLineWidth(2);
   dthist->SetMarkerStyle(20);
@@ -248,6 +264,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   leg->AddEntry(zlhist, "Z(ll)", "F");
   leg->AddEntry(tthist, "Top", "F");
   leg->AddEntry(dihist, "Dibosons", "F");
+  leg->AddEntry(gmhist, "#gamma+jets", "F");
   leg->AddEntry(qchist, "QCD", "F");
   leg->AddEntry(mjhist, "Mono-J (V, 1TeV)");
   leg->AddEntry(mwhist, "Mono-W (V, 1TeV)");
@@ -268,9 +285,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   TH1* frame2 = NULL;
   if(category <=1)
-    frame2 = pad2->DrawFrame(200., 0., 1250., 2., "");
+    frame2 = pad2->DrawFrame(200., 0.5, 1250., 1.5, "");
   else
-    frame2 = pad2->DrawFrame(250., 0., 1000., 2., "");
+    frame2 = pad2->DrawFrame(250., 0.5, 1000., 1.5, "");
 
   frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
@@ -297,6 +314,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TH1* mchist = (TH1*)zlhist->Clone("mchist");
   TH1* unhist = (TH1*)zlhist->Clone("unhist");
   mchist->Add(wlhist);
+  mchist->Add(gmhist);
   mchist->Add(tthist);
   mchist->Add(dihist);
   mchist->Add(qchist);
@@ -342,8 +360,14 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     dphist->Draw("P SAME");
   
   pad2->RedrawAxis("sameaxis");
-  
-  canvas->SaveAs("postfit_sig.pdf");
-  canvas->SaveAs("postfit_sig.png");
+
+  if(blind){
+    canvas->SaveAs("postfit_sig_blind.pdf");
+    canvas->SaveAs("postfit_sig_blind.png");
+  }
+  else{
+    canvas->SaveAs("postfit_sig.pdf");
+    canvas->SaveAs("postfit_sig.png");
+  }
 }
 

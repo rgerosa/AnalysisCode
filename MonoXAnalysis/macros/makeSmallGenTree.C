@@ -237,7 +237,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     weight = 1.;
 
     if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
-    if (*fhbhe == 0  or *fhbiso == 0 or *fcsc == 0 or not *feeb) id = 0;
+    if (*fhbhe  == 0 or *fhbiso == 0) id = 0;
+    //    if (*fcsc   == 0 or not *feeb) id = 0;
     if (*njets  < 1) id = 0;
     if (*nbjets > 0) id = 0;
     if (chfrac->size() == 0 or nhfrac->size() == 0 or jetpt->size() == 0) id = 0;                                                                
@@ -246,12 +247,13 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     if (jetpt->size()  > 0 and jetpt->at(0)  < 100.)  id = 0;
     if (jetpt->size()  > 0 and jetpt->at(0)  < *j1pt) id = 0;
     if (*jmmdphi < 0.5) id = 0;
-    if (*mmet < 200)    id = 0;
-    
+    if (*mmet < 200)    id = 0;    
+
     if(id == -1 and boostedJetpt->size()  == 0) id = 1;
+    if(id == -1 and boostedJetpt->size()  > 0 and fabs(boostedJeteta->at(0)) > 2.4) id = 1;
     if(id == -1 and boostedJetpt->size()  > 0 and boostedJetpt->at(0) < 250.) id = 1;
     if(id == -1 and boostedJetpt->size()  > 0 and boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) id = 1;
-    if(id == -1 and boostedJetpt->size()  > 0 and prunedJetm->at(0) < 65) id = 1;
+    if(id == -1 and boostedJetpt->size()  > 0 and (prunedJetm->at(0) < 65 or prunedJetm->at(0) > 105)) id = 1;
 
     if(id == -1 and prunedJetm->size() > 0 and prunedJetm->at(0) > 0 and boostedJetpt->at(0) > 250. and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and *mmet > 250 and fabs(boostedJeteta->at(0)) < 2.4) id = 2;
     
@@ -263,7 +265,6 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     
   
     // fill branches
-
     genVBosonPt   = *bosonPt;  
     genVBosonPhi  = *bosonPhi;  
     genVBosonEta  = *bosonEta;  

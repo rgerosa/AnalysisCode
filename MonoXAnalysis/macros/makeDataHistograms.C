@@ -40,7 +40,12 @@ void signalmchist(TFile* outfile,
       monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
       monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
+
+      //  monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Scalar_Private/tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
+      //					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+      //      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoZ_Scalar_Private/tree_DM_ScalarZH_Mphi-"+iPoint.mediatorMass+
+      //					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
       
     }
     else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
@@ -950,6 +955,11 @@ void sigdatamchist(TFile* outfile,
       smoothEmptyBins(zlhist.at(iHisto),2);
   }
 
+  for(size_t iHisto = 0; iHisto < qcdhist.size(); iHisto++){
+    if(TString(qcdhist.at(iHisto)->GetName()).Contains("_met"))          
+      smoothEmptyBins(qcdhist.at(iHisto),2);
+  }
+
   if(doShapeSystematics){
 
     for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++){
@@ -1633,7 +1643,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
 
   TChain* dttree = new TChain("tree");
   dttree->Add(dtfile->GetName());
-  cout<<dttree->GetEntries()<<endl;
   if(dtfile_2)
     dttree->Add(dtfile_2->GetName());
   
@@ -1821,6 +1830,11 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   for(size_t iHisto = 0; iHisto < vllhist.size(); iHisto++){
     if(TString(vllhist.at(iHisto)->GetName()).Contains("_met"))
       smoothEmptyBins(vllhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < qchist.size(); iHisto++){
+    if(TString(qchist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(qchist.at(iHisto),2);
   }
 
   if(doShapeSystematics){
@@ -2494,9 +2508,14 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
       smoothEmptyBins(vlhist.at(iHisto),2);
   }
 
-  for(size_t iHisto = 0; iHisto < vllhist.size(); iHisto++){
-    if(TString(vllhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(vllhist.at(iHisto),2);
+  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
+    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(vlhist.at(iHisto),2);
+  }
+
+  for(size_t iHisto = 0; iHisto < qchist.size(); iHisto++){
+    if(TString(qchist.at(iHisto)->GetName()).Contains("_met"))
+      smoothEmptyBins(qchist.at(iHisto),2);
   }
 
   if(doShapeSystematics){

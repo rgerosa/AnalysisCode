@@ -18,7 +18,9 @@ using namespace std;
 
 // some basic cut values
 const float tau2tau1      = 0.6;
+const float tau2tau1LP    = 0.75;
 const float prunedMassMin = 65.;
+const float prunedMassMax = 105.;
 const float ptJetMinAK8   = 250.;
 
 string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
@@ -615,13 +617,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (jetpt->at(0)  < *j1pt) continue;
 	if (sample !=4 and jmdphi < 0.5) continue; // deltaPhi cut                                                                                                          
 
-	if(boostedJetpt->size()  == 0) // no boosted jets (AK8 pT > 200 GeV)
+	if(boostedJetpt->size()  == 0)  // no boosted jets (AK8 pT > 200 GeV)
 	  goodMonoJet = true;
 
 	if(boostedJetpt->size() > 0){ // in case one boosted jet
+
+	  if(fabs(boostedJeteta->at(0)) > 2.4) 
+	    goodMonoJet = true;
 	  
 	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
 	    goodMonoJet = true;
+	 	  
 	  else{ // if high pT check pruned mass
 
 	    TLorentzVector jetak4, jetak8;
@@ -637,10 +643,10 @@ void makehist4(TTree* tree, /*input tree*/
 	    else
 	      deltaPhi = fabs(pfmetphi-jetak8.Phi());
 		
-	    if (sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                                  
+	    if (sample != 4 and deltaPhi < 0.5) continue; // deltaPhi cut                                                                                             
 
 	    // pruned mass selection
-	    if(prunedJetm->at(0)   < prunedMassMin)
+	    if(prunedJetm->at(0) < prunedMassMin  or prunedJetm->at(0) > prunedMassMax)
 	      goodMonoJet= true;
 
 	    // tau2tau1 selection
@@ -710,11 +716,11 @@ void makehist4(TTree* tree, /*input tree*/
 	}
 
 	// category 2 means HP mono-V
-	if(category == 2 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	if(category == 2 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
 	  goodMonoV   = true;
 	// category 3 means LP mono-V
-	else if(category == 3 and (prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105) and 
-		(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.75))
+	else if(category == 3 and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and 
+		(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1LP))
 	  goodMonoV   = true;
 	// apply no pruned mass cut --> show full shapes
 	else if(category == 4 and (prunedJetm->at(0) > 0 and prunedJetm->at(0) < 200))
@@ -727,9 +733,8 @@ void makehist4(TTree* tree, /*input tree*/
 	  goodMonoV   = true;
 	
 	if(not goodMonoV) continue;	
-
-	//	if(not isMC)
-	  //	  dump<< "event id "<<*event<<" run "<<*run<<"jet pt "<<jetpt->at(0)<<" dphi "<<jmdphi<<" boosted jet pt "<<boostedJetpt->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" met "<<pfmet<<" \n";
+	//if(not isMC)
+	// dump<< "event id "<<*event<<" run "<<*run<<"jet pt "<<jetpt->at(0)<<" dphi "<<jmdphi<<" boosted jet pt "<<boostedJetpt->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" met "<<pfmet<<" \n";
 
       }
     }
