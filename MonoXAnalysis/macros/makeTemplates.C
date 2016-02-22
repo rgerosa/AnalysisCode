@@ -24,15 +24,24 @@ void makeTemplates(bool doCorrectionHistograms = false,
   system(("mkdir -p "+outDir).c_str());
 
   vector<signalSample> signalMassPoint;
+  signalMassPoint.push_back(signalSample("Vector","200","1"));
+  signalMassPoint.push_back(signalSample("Vector","200","50"));
+  signalMassPoint.push_back(signalSample("Vector","300","100"));
   signalMassPoint.push_back(signalSample("Vector","500","1"));
   signalMassPoint.push_back(signalSample("Vector","500","10"));
+  signalMassPoint.push_back(signalSample("Vector","500","150"));
   signalMassPoint.push_back(signalSample("Vector","1000","50"));
+  signalMassPoint.push_back(signalSample("Vector","1000","150"));
   signalMassPoint.push_back(signalSample("Vector","2000","10"));
 
+  signalMassPoint.push_back(signalSample("Axial","200","1"));
+  signalMassPoint.push_back(signalSample("Axial","300","1"));
   signalMassPoint.push_back(signalSample("Axial","500","1"));
   signalMassPoint.push_back(signalSample("Axial","500","10"));
+  signalMassPoint.push_back(signalSample("Axial","1000","50"));
   signalMassPoint.push_back(signalSample("Axial","1000","10"));
   signalMassPoint.push_back(signalSample("Axial","2000","1"));
+
   signalMassPoint.push_back(signalSample("Scalar","100","10"));
   signalMassPoint.push_back(signalSample("Scalar","100","50"));
   signalMassPoint.push_back(signalSample("Scalar","1000","10"));
@@ -596,4 +605,3 @@ void makeTemplates(bool doCorrectionHistograms = false,
   outfile.Close();
 }
 
-LocalWords:  Pseudoscalar

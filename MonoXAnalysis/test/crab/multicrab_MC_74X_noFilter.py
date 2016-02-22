@@ -41,6 +41,7 @@ config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 8000
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/SignalForInterpolation_v2/'
 config.Data.allowNonValidInputDataset = True
+config.Data.inputDBS = 'phys03'
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'

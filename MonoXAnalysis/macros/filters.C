@@ -258,6 +258,7 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");      
+    
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
     

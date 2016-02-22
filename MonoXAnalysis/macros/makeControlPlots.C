@@ -133,8 +133,16 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "SR"){
+
     datahist = (TH1*)inputFile->Get(("datahist_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghist_"+observable).c_str());
+
+    if(category == 1 and observable == "met")
+      qcdhist  = (TH1*)inputFile->Get(("qbkghistDD_"+observable).c_str());
+    else if(category == 2 and observable == "met")
+      qcdhist  = (TH1*)inputFile->Get(("qbkghistDD_"+observable).c_str());
+    else
+      qcdhist  = (TH1*)inputFile->Get(("qbkghist_"+observable).c_str());
+    
     tophist  = (TH1*)inputFile->Get(("tbkghist_"+observable).c_str());
     vlhist   = (TH1*)inputFile->Get(("wjethist_"+observable).c_str());
     vllhist  = (TH1*)inputFile->Get(("zjethist_"+observable).c_str());
@@ -147,58 +155,71 @@ void makeControlPlots(string templateFileName,
     monoZhist = (TH1*)inputFile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
   }
   
+  //SCALE BIN WIDTH
+  if(TString(observableLatex).Contains("GeV")){
+
+    if(controlRegion == "SR" and not TString(qcdhist->GetName()).Contains("qbkghistDD"))
+      qcdhist->Scale(2.);
+    
+    if(datahist)
+      datahist->Scale(1.0,"width");
+    if(qcdhist)
+      qcdhist->Scale(1.0,"width");
+    if(tophist)
+      tophist->Scale(1.0,"width");
+    if(tophist_matched)
+    tophist_matched->Scale(1.0,"width");
+    if(tophist_unmatched)
+      tophist_unmatched->Scale(1.0,"width");
+    if(vlhist)
+      vlhist->Scale(1.0,"width");
+    if(vllhist)
+      vllhist->Scale(1.0,"width");
+    if(vnnhist)
+      vnnhist->Scale(1.0,"width");
+    if(dbhist)
+      dbhist->Scale(1.0,"width");
+    if(gamhist)
+      gamhist->Scale(1.0,"width");
+    
+    if(monoJhist){
+      monoJhist->Scale(1.0,"width");
+    }
+    if(monoWhist){
+      monoWhist->Scale(1.0,"width");
+      monoWhist->Scale(signalScale);
+    }
+    if(monoZhist){
+      monoZhist->Scale(1.0,"width");
+      monoZhist->Scale(signalScale);
+    }
+  }
+  else{
+    if(controlRegion == "SR" and not TString(qcdhist->GetName()).Contains("qbkghistDD"))
+      qcdhist->Scale(2.);
+
+    if(monoWhist)
+      monoWhist->Scale(signalScale);    
+    if(monoZhist)
+      monoZhist->Scale(signalScale);
+  }
+  
   // BLIND OPTION
   if(blind and controlRegion == "SR"){
 
-    for (int i = 0; i <= datahist->GetNbinsX(); i++) {
+    for (int i = 0; i <= datahist->GetNbinsX()+1; i++) {
+
       double yield = 0.0;
-      yield += vllhist->GetBinContent(i);
-      yield += vlhist->GetBinContent(i);
+      yield += qcdhist->GetBinContent(i);
+      yield += gamhist->GetBinContent(i);
       yield += tophist->GetBinContent(i);
       yield += dbhist->GetBinContent(i);
-      yield += qcdhist->GetBinContent(i);
+      yield += vllhist->GetBinContent(i);
+      yield += vlhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);
-      yield += gamhist->GetBinContent(i);
       datahist->SetBinContent(i, yield);
       datahist->SetBinError(i, 0.);
     }
-  }
-  
-  //SCALE BIN WIDTH
-  if(datahist)
-    datahist->Scale(1.0,"width");
-  if(qcdhist)
-    qcdhist->Scale(1.0,"width");
-  if(tophist)
-    tophist->Scale(1.0,"width");
-  if(tophist_matched)
-    tophist_matched->Scale(1.0,"width");
-  if(tophist_unmatched)
-    tophist_unmatched->Scale(1.0,"width");
-  if(vlhist)
-    vlhist->Scale(1.0,"width");
-  if(vllhist)
-    vllhist->Scale(1.0,"width");
-  if(vnnhist)
-    vnnhist->Scale(1.0,"width");
-  if(dbhist)
-    dbhist->Scale(1.0,"width");
-  if(gamhist)
-    gamhist->Scale(1.0,"width");
-
-  if(controlRegion == "SR")
-    qcdhist->Scale(2.);
-
-  if(monoJhist){
-    monoJhist->Scale(1.0,"width");
-  }
-  if(monoWhist){
-    monoWhist->Scale(1.0,"width");
-    monoWhist->Scale(signalScale);
-  }
-  if(monoZhist){
-    monoZhist->Scale(1.0,"width");
-    monoZhist->Scale(signalScale);
   }
 
   // set colors
@@ -227,11 +248,11 @@ void makeControlPlots(string templateFileName,
     tophist->SetLineColor(kBlack);
   }
   if(tophist_matched){
-    tophist_matched->SetFillColor(kBlue);
+    tophist_matched->SetFillColor(kGreen+1);
     tophist_matched->SetLineColor(kBlack);
   }
   if(tophist_unmatched){
-    tophist_unmatched->SetFillColor(kOrange);
+    tophist_unmatched->SetFillColor(kBlue);
     tophist_unmatched->SetLineColor(kBlack);
   }
   if(dbhist){
@@ -342,7 +363,11 @@ void makeControlPlots(string templateFileName,
     frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*2.5, "");
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
-  frame->GetYaxis()->SetTitle("Events / GeV");
+  if(TString(observableLatex).Contains("GeV"))
+    frame->GetYaxis()->SetTitle("Events / GeV");
+  else
+    frame->GetYaxis()->SetTitle("Events");
+    
   frame->GetYaxis()->CenterTitle();
   frame->GetXaxis()->SetLabelSize(0.);
   frame->GetXaxis()->SetLabelOffset(1.10);
@@ -368,7 +393,7 @@ void makeControlPlots(string templateFileName,
     if(observable != "njet")
       frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
     else
-      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000000);
+      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000000000);
   }
   else if(controlRegion == "SR" and not isLog){
     leg = new TLegend(0.32, 0.42, 0.85, 0.92);

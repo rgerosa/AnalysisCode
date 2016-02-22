@@ -30,14 +30,14 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   mwhist->Scale(1.0, "width");
   mzhist->Scale(1.0, "width");
   
-  TH1* znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
-  TH1* zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
-  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/WJets");    
-  TH1* tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
-  TH1* dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
-  TH1* qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
-  TH1* gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
-  TH1* tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
+  TH1* znhist = (TH1*)pfile->Get("shapes_fit_sb/ch1/Znunu");    
+  TH1* zlhist = (TH1*)pfile->Get("shapes_fit_sb/ch1/ZJets");    
+  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_sb/ch1/WJets");    
+  TH1* tthist = (TH1*)pfile->Get("shapes_fit_sb/ch1/Top");    
+  TH1* dihist = (TH1*)pfile->Get("shapes_fit_sb/ch1/Dibosons");    
+  TH1* qchist = (TH1*)pfile->Get("shapes_fit_sb/ch1/QCD");    
+  TH1* gmhist = (TH1*)pfile->Get("shapes_fit_sb/ch1/GJets");    
+  TH1* tohist = (TH1*)pfile->Get("shapes_fit_sb/ch1/total_background");    
   TH1* tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
 
   TH1* dthist = NULL;
