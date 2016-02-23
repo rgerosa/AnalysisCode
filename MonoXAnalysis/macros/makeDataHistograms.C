@@ -3,7 +3,6 @@
 
 using namespace std;
 
-
 // Build templates for the signal region                                                                                                                                       
 void signalmchist(TFile* outfile,
 		  int category,
@@ -21,39 +20,33 @@ void signalmchist(TFile* outfile,
 
   for(auto iPoint : massPoint){
     if(iPoint.interaction == interaction and interaction == "Vector"){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+iPoint.mediatorMass+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Axial"){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Scalar"){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-
-      //  monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Scalar_Private/tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
-      //					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
-      //      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoZ_Scalar_Private/tree_DM_ScalarZH_Mphi-"+iPoint.mediatorMass+
-      //					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
-      
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));      
     }
     else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
-      monoJfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
-      monoZfile .push_back(TFile::Open(("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
     }
   }
@@ -436,21 +429,21 @@ void sigdatamchist(TFile* outfile,
                    bool blind = false) {
 
   // Files for Znunu, Wlnu, Zll, top, qcd , diboson, signal, data                                                                                                            
-  TFile* znfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root");
-  TFile* wlfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root");
-  TFile* zlfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/sigfilter/sig_tree_DYJetsToLL_M-50.root");
-  TFile* ttfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root");
-  TFile* qcdfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/sigfilter/sig_tree_QCD.root");
-  TFile* dbfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/sigfilter/sig_tree_DiBoson.root");
-  TFile* gmfile  = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/sigfilter/sig_tree_GJets.root");
+  TFile* znfile  = TFile::Open((baseInputTreePath+"ZJets/sigfilter/sig_tree_ZJetsToNuNu.root").c_str());
+  TFile* wlfile  = TFile::Open((baseInputTreePath+"WJets/sigfilter/sig_tree_WJetsToLNu.root").c_str());
+  TFile* zlfile  = TFile::Open((baseInputTreePath+"DYJets/sigfilter/sig_tree_DYJetsToLL_M-50.root").c_str());
+  TFile* ttfile  = TFile::Open((baseInputTreePath+"Top/sigfilter/sig_tree_Top_amc.root").c_str());
+  TFile* qcdfile = TFile::Open((baseInputTreePath+"QCD/sigfilter/sig_tree_QCD.root").c_str());
+  TFile* dbfile  = TFile::Open((baseInputTreePath+"DiBoson/sigfilter/sig_tree_DiBoson.root").c_str());
+  TFile* gmfile  = TFile::Open((baseInputTreePath+"PhotonJets/sigfilter/sig_tree_GJets.root").c_str());
 
   // additional top sample
   TFile* ttfile_alt  = NULL;
   if(doAlternativeTop)
-    ttfile_alt = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root");
+    ttfile_alt = TFile::Open((baseInputTreePath+"Top/sigfilter/sig_tree_Top.root").c_str());
 
   //data                                                                                                                                                                        
-  TFile* dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MET/sigfilter/sig_tree_crab_MET-Run2015.root");
+  TFile* dtfile = TFile::Open((baseInputTreePath+"MET/sigfilter/sig_tree_crab_MET-Run2015.root").c_str());
 
   // make met histograms                                                                                                                                                        
   vector<TH1*> znhist;
@@ -1222,8 +1215,8 @@ void gamdatamchist(TFile* outfile,
                    ) {
 
 
-  TFile* dtfile =  TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root");
-  TFile* gmfile =  TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root");
+  TFile* dtfile =  TFile::Open((baseInputTreePath+"SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root").c_str());
+  TFile* gmfile =  TFile::Open((baseInputTreePath+"PhotonJets/gamfilter/gam_tree_GJets.root").c_str());
 
   vector<TH1*> dthist;
   vector<TH1*> qcdhist;
@@ -1349,48 +1342,48 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   if(sample == 1){
 
     suffix = "zmm";
-    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root");
-    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/zmmfilter/zmm_tree_WJetsToLNu.root");
-    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/zmmfilter/zmm_tree_QCD.root");
-    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/zmmfilter/zmm_tree_DiBoson.root");
-    gmfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/zmmfilter/zmm_tree_GJets.root");
-    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/zmmfilter/zmm_tree_Top_amc.root");
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MET/zmmfilter/zmm_tree_crab_MET-Run2015.root");
+    vllfile = TFile::Open((baseInputTreePath+"DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root").c_str());
+    vlfile = TFile::Open((baseInputTreePath+"WJets/zmmfilter/zmm_tree_WJetsToLNu.root").c_str());
+    qcfile = TFile::Open((baseInputTreePath+"QCD/zmmfilter/zmm_tree_QCD.root").c_str());
+    dbfile = TFile::Open((baseInputTreePath+"DiBoson/zmmfilter/zmm_tree_DiBoson.root").c_str());
+    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/zmmfilter/zmm_tree_GJets.root").c_str());
+    ttfile = TFile::Open((baseInputTreePath+"Top/zmmfilter/zmm_tree_Top_amc.root").c_str());
+    dtfile = TFile::Open((baseInputTreePath+"MET/zmmfilter/zmm_tree_crab_MET-Run2015.root").c_str());
   }
   else if(sample == 2){
 
     suffix = "wmn";
-    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/wmnfilter/wmn_tree_DYJetsToLL_M-50.root");
-    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/wmnfilter/wmn_tree_WJetsToLNu.root");
-    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/wmnfilter/wmn_tree_QCD.root");
-    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/wmnfilter/wmn_tree_DiBoson.root");
-    gmfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/wmnfilter/wmn_tree_GJets.root");
-    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/wmnfilter/wmn_tree_Top_amc.root");
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MET/wmnfilter/wmn_tree_crab_MET-Run2015.root");
+    vllfile = TFile::Open((baseInputTreePath+"DYJets/wmnfilter/wmn_tree_DYJetsToLL_M-50.root").c_str());
+    vlfile = TFile::Open((baseInputTreePath+"WJets/wmnfilter/wmn_tree_WJetsToLNu.root").c_str());
+    qcfile = TFile::Open((baseInputTreePath+"QCD/wmnfilter/wmn_tree_QCD.root").c_str());
+    dbfile = TFile::Open((baseInputTreePath+"DiBoson/wmnfilter/wmn_tree_DiBoson.root").c_str());
+    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/wmnfilter/wmn_tree_GJets.root").c_str());
+    ttfile = TFile::Open((baseInputTreePath+"Top/wmnfilter/wmn_tree_Top_amc.root").c_str());
+    dtfile = TFile::Open((baseInputTreePath+"MET/wmnfilter/wmn_tree_crab_MET-Run2015.root").c_str());
   }
   else if(sample == 3){
 
     suffix = "zee";
-    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root");
-    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/zeefilter/zee_tree_WJetsToLNu.root");
-    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/zeefilter/zee_tree_QCD.root");
-    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/zeefilter/zee_tree_DiBoson.root");
-    gmfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/zeefilter/zee_tree_GJets.root");
-    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/zeefilter/zee_tree_Top_amc.root");
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SingleElectron/zeefilter/zee_tree_crab_SingleEle-Run2015.root");
-    dtfile_2 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SinglePhoton/zeefilter/zee_tree_crab_SinglePhoton-Run2015.root");
+    vllfile = TFile::Open((baseInputTreePath+"DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root").c_str());
+    vlfile = TFile::Open((baseInputTreePath+"WJets/zeefilter/zee_tree_WJetsToLNu.root").c_str());
+    qcfile = TFile::Open((baseInputTreePath+"QCD/zeefilter/zee_tree_QCD.root").c_str());
+    dbfile = TFile::Open((baseInputTreePath+"DiBoson/zeefilter/zee_tree_DiBoson.root").c_str());
+    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/zeefilter/zee_tree_GJets.root").c_str());
+    ttfile = TFile::Open((baseInputTreePath+"Top/zeefilter/zee_tree_Top_amc.root").c_str());
+    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/zeefilter/zee_tree_crab_SingleEle-Run2015.root").c_str());
+    dtfile_2 = TFile::Open((baseInputTreePath+"SinglePhoton/zeefilter/zee_tree_crab_SinglePhoton-Run2015.root").c_str());
   }
   else if(sample == 4){
 
     suffix = "wen";
-    vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/wenfilter/wen_tree_DYJetsToLL_M-50.root");
-    vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/wenfilter/wen_tree_WJetsToLNu.root");
-    qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/wenfilter/wen_tree_QCD.root");
-    dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/wenfilter/wen_tree_DiBoson.root");
-    gmfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/wenfilter/wen_tree_GJets.root");
-    ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/wenfilter/wen_tree_Top_amc.root");
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SingleElectron/wenfilter/wen_tree_crab_SingleEle-Run2015.root");
-    dtfile_2 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SinglePhoton/wenfilter/wen_tree_crab_SinglePhoton-Run2015.root");
+    vllfile = TFile::Open((baseInputTreePath+"DYJets/wenfilter/wen_tree_DYJetsToLL_M-50.root").c_str());
+    vlfile = TFile::Open((baseInputTreePath+"WJets/wenfilter/wen_tree_WJetsToLNu.root").c_str());
+    qcfile = TFile::Open((baseInputTreePath+"QCD/wenfilter/wen_tree_QCD.root").c_str());
+    dbfile = TFile::Open((baseInputTreePath+"DiBoson/wenfilter/wen_tree_DiBoson.root").c_str());
+    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/wenfilter/wen_tree_GJets.root").c_str());
+    ttfile = TFile::Open((baseInputTreePath+"Top/wenfilter/wen_tree_Top_amc.root").c_str());
+    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/wenfilter/wen_tree_crab_SingleEle-Run2015.root").c_str());
+    dtfile_2 = TFile::Open((baseInputTreePath+"SinglePhoton/wenfilter/wen_tree_crab_SinglePhoton-Run2015.root").c_str());
   }
 
 
@@ -2111,18 +2104,18 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   else if(sample == 8)
     suffix = "topel";
 
-  vllfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/topfilter/top_tree_DYJetsToLL_M-50.root");
-  vlfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/topfilter/top_tree_WJetsToLNu.root");
-  qcfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/QCD/topfilter/top_tree_QCD.root");
-  dbfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/topfilter/top_tree_DiBoson.root");
-  gmfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DiBoson/topfilter/top_tree_DiBoson.root");
-  ttfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root");
-  ttfile_alt = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root");
+  vllfile = TFile::Open((baseInputTreePath+"DYJets/topfilter/top_tree_DYJetsToLL_M-50.root").c_str());
+  vlfile = TFile::Open((baseInputTreePath+"WJets/topfilter/top_tree_WJetsToLNu.root").c_str());
+  qcfile = TFile::Open((baseInputTreePath+"QCD/topfilter/top_tree_QCD.root").c_str());
+  dbfile = TFile::Open((baseInputTreePath+"DiBoson/topfilter/top_tree_DiBoson.root").c_str());
+  gmfile = TFile::Open((baseInputTreePath+"DiBoson/topfilter/top_tree_DiBoson.root").c_str());
+  ttfile = TFile::Open((baseInputTreePath+"Top/topfilter/top_tree_Top_amc.root").c_str());
+  ttfile_alt = TFile::Open((baseInputTreePath+"Top/topfilter/top_tree_Top.root").c_str());
 
   if(sample == 7)
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MET/topfilter/top_tree_crab_MET-Run2015.root");
+    dtfile = TFile::Open((baseInputTreePath+"MET/topfilter/top_tree_crab_MET-Run2015.root").c_str());
   else if(sample == 8)
-    dtfile = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/SingleElectron/topfilter/top_tree_crab_SingleEle-Run2015.root");
+    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/topfilter/top_tree_crab_SingleEle-Run2015.root").c_str());
 
   vector<TH1*> dthist;
   vector<TH1*> tthist;

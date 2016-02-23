@@ -24,9 +24,8 @@ const float prunedMassMax = 105.;
 const float ptJetMinAK8   = 250.;
 
 string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-//string kfactorFile   = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_8bins.root";
-//string kfactorFile   = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors.root";
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/";
 
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 

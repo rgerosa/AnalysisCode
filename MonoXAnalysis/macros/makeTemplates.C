@@ -1,14 +1,160 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <sstream>
+
 #include "makehist.h"
 #include "makeCorrHistograms.C"
 #include "makeDataHistograms.C"
 
 using namespace std;
 
+void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string interaction, bool onlyMonoJetSignal){
+
+  string baseDirMonoJet;
+  string baseDirMonoW;
+  string baseDirMonoZ;
+
+  if(interaction == "Vector"){
+    baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter/";
+  }
+  else if(interaction == "Axial"){
+    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter/";
+  }
+  else if(interaction == "Scalar"){
+    baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
+  }
+  else if(interaction == "Pseudoscalar"){
+    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
+  }
+  else{
+    cout<<"[findAllPossibleMassPoints]: interaction type not found --> exit "<<endl;
+    exit (EXIT_FAILURE);
+  }
+
+
+  vector<string> monoJetSamples;
+  vector<string> monoWSamples;
+  vector<string> monoZSamples;
+
+  system(("ls "+baseDirMonoJet+" | grep root > file_list.tmp").c_str());
+  ifstream infile;
+  infile.open("file_list.tmp",ifstream::in);
+  string line;
+  vector<string> seglist;
+  if(infile.is_open()){
+    while(!infile.eof()){
+      getline(infile,line);
+      if(line == "") continue;
+      TString fileName (line.c_str());
+      seglist.clear();
+      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
+      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
+      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+      stringstream name(fileName.Data());
+      string segment;
+      while(getline(name, segment, '_')){
+        seglist.push_back(segment);
+      }
+      monoJetSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
+    }
+  }
+
+  infile.close();
+
+  
+  if(not onlyMonoJetSignal){
+    
+    system(("ls "+baseDirMonoW+" | grep root > file_list.tmp").c_str());
+    infile.open("file_list.tmp",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);
+	if(line == "") continue;
+	TString fileName (line.c_str());
+	seglist.clear();
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	stringstream name(fileName.Data());
+	string segment;
+	while(getline(name, segment, '_')){
+	  seglist.push_back(segment);
+	}
+	monoWSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
+      }
+    }
+    
+    infile.close();
+
+    system(("ls "+baseDirMonoZ+" | grep root > file_list.tmp").c_str());
+    infile.open("file_list.tmp",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);
+	if(line == "") continue;
+	TString fileName (line.c_str());
+	seglist.clear();
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	stringstream name(fileName.Data());
+	string segment;
+	while(getline(name, segment, '_')){
+	  seglist.push_back(segment);
+	}
+	monoZSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
+      }
+    }
+    
+    infile.close();
+  }
+  
+  // common point  and fill output vector
+  vector<string> commonPoint;
+  if(onlyMonoJetSignal)
+    commonPoint = monoJetSamples;
+  else{
+    for(auto point : monoJetSamples){
+      if(interaction != "Scalar" and 
+	 find(monoWSamples.begin(),monoWSamples.end(),point) != monoWSamples.end() and find(monoZSamples.begin(),monoZSamples.end(),point) != monoZSamples.end())
+	commonPoint.push_back(point);
+      else if(interaction == "Scalar" and  find(monoWSamples.begin(),monoWSamples.end(),point) != monoWSamples.end())
+	commonPoint.push_back(point);
+    }
+  }
+    
+  system("rm file_list.tmp");
+
+  for(auto point : commonPoint){
+    stringstream name(point.c_str());
+    string segment;
+    vector<string> seglist;
+    while(getline(name, segment, '-')){
+      seglist.push_back(segment);
+    }
+    TString tmp (seglist.at(1));
+    tmp.ReplaceAll("_Mchi","");
+    signalMassPoint.push_back(signalSample(interaction,string(tmp.Data()),seglist.back()));
+  }
+
+  return;
+  
+}
+
 // Run the final analysis:
 // 1) Store all corrections templates from input files (complient to combine)
 // 2) Make data and expected yields templates for all the other processes
 
-void makeTemplates(bool doCorrectionHistograms = false, 
+void makeTemplates(bool doCorrectionHistograms   = false, 
 		   bool skipCorrectionHistograms = false, 
 		   int category  = 0, 
 		   double lumi   = 2.24, 
@@ -19,226 +165,191 @@ void makeTemplates(bool doCorrectionHistograms = false,
 		   bool applyQGLReweight      = false,
 		   bool doShapeSystematics    = false,
 		   bool makeResonantSelection = false,
+		   bool onlyMonoJetSignal     = false,
 		   string ext ="") {
 
   system(("mkdir -p "+outDir).c_str());
 
+  // find all possible mass pont to use in the analysis for each Model: Vector, Axial, Scalar and Pseudoscalar .. if onlyMonoJetSignal is true just use all the available mono-j signals in the directories
   vector<signalSample> signalMassPoint;
-  signalMassPoint.push_back(signalSample("Vector","200","1"));
-  signalMassPoint.push_back(signalSample("Vector","200","50"));
-  signalMassPoint.push_back(signalSample("Vector","300","100"));
-  signalMassPoint.push_back(signalSample("Vector","500","1"));
-  signalMassPoint.push_back(signalSample("Vector","500","10"));
-  signalMassPoint.push_back(signalSample("Vector","500","150"));
-  signalMassPoint.push_back(signalSample("Vector","1000","50"));
-  signalMassPoint.push_back(signalSample("Vector","1000","150"));
-  signalMassPoint.push_back(signalSample("Vector","2000","10"));
-
-  signalMassPoint.push_back(signalSample("Axial","200","1"));
-  signalMassPoint.push_back(signalSample("Axial","300","1"));
-  signalMassPoint.push_back(signalSample("Axial","500","1"));
-  signalMassPoint.push_back(signalSample("Axial","500","10"));
-  signalMassPoint.push_back(signalSample("Axial","1000","50"));
-  signalMassPoint.push_back(signalSample("Axial","1000","10"));
-  signalMassPoint.push_back(signalSample("Axial","2000","1"));
-
-  signalMassPoint.push_back(signalSample("Scalar","100","10"));
-  signalMassPoint.push_back(signalSample("Scalar","100","50"));
-  signalMassPoint.push_back(signalSample("Scalar","1000","10"));
-  signalMassPoint.push_back(signalSample("Scalar","2000","10"));
-
-  signalMassPoint.push_back(signalSample("Pseudoscalar","100","1"));
-  signalMassPoint.push_back(signalSample("Pseudoscalar","200","1"));
-  signalMassPoint.push_back(signalSample("Pseudoscalar","500","1"));
-  signalMassPoint.push_back(signalSample("Pseudoscalar","1000","1"));
+  findAllPossibleMassPoints(signalMassPoint,"Vector",onlyMonoJetSignal);  
+  findAllPossibleMassPoints(signalMassPoint,"Axial",onlyMonoJetSignal);
+  findAllPossibleMassPoints(signalMassPoint,"Scalar",onlyMonoJetSignal);
+  findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",onlyMonoJetSignal);
 
   if(doCorrectionHistograms){
 
     cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
-    makezmmcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-    		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
+    makezmmcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+    		   baseInputTreePath+"/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
     		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Zee to Znn"<<endl;
-    makezeecorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
+    makezeecorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
     		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wmn to WJets"<<endl;
-    makewmncorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
+    makewmncorhist(baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+		   baseInputTreePath+"/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
     		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"make correction histogram for Wen to WJets"<<endl;
-    makewencorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/wenfilter/wen_tree_WJetsToLNu.root",
+    makewencorhist(baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+		   baseInputTreePath+"/WJets/wenfilter/wen_tree_WJetsToLNu.root",
     		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
    
     cout<<"make correction histogram for Gam+jets to Znn"<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root", 		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root", 		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"",ext);
 
 
     cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
     
     cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
     cout<<"systematics on Z/gamma ratio --> FA 1 "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
 
 
     cout<<"systematics on Z/gamma ratio --> RE 2 "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
     cout<<"systematics on Z/gamma ratio --> FA 2 "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     cout<<"systematics on Z/gamma ratio --> PDF "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     cout<<"systematics on Z/gamma ratio --> FP "<<endl;
-    makegamcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fpc"+ext,8);
 
 
     cout<<"make Z/W ratio"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
     		   category,observables,lumi,applyQGLReweight,outDir,"",ext); 
 
     cout<<"systematics on Z/W ratio --> NLO QCD"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","qcd"+ext,1);
 
     cout<<"systematics on Z/W ratio --> NLO EWK"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","ewk"+ext,2);
 
     cout<<"systematics on Z/W ratio --> RE 1"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",		   
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",		   
 		   category,observables,lumi,applyQGLReweight,outDir,"","re1"+ext,3);
 
 
     cout<<"systematics on Z/W ratio --> FA 1"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa1"+ext,4);
 
 
     cout<<"systematics on Z/W ratio --> RE 2"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","re2"+ext,5);
 
 
     cout<<"systematics on Z/W ratio --> FA 2"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","fa2"+ext,6);
 
     cout<<"systematics on Z/W ratio --> PDF"<<endl;
-    makezwjcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
+		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,lumi,applyQGLReweight,outDir,"","pdf"+ext,7);
 
     cout<<"make TOP+MU ratio"<<endl;
-    maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"",ext);
 
     cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
-    maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagUp",ext+"bUp");
 
 
     cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
-    maketopmucorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagDown",ext+"bDown");
 
     cout<<"make TOP+EL ratio"<<endl;
-    maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"",ext);
 
 
     cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
-    maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagUp",ext+"bUp");
 
     cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
-    maketopelcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top_amc.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top_amc.root",
+    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/sigfilter/sig_tree_Top.root",
-		     "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/Top/topfilter/top_tree_Top.root",
+		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagDown",ext+"bDown");
 
-    /*
-    if(category == 2 or category == 3){
-
-      cout<<"make sideband ratio for Zvv "<<std::endl;      
-      makesidebandcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-			  "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-			  category,category+2,observables,lumi,outDir,ext+"Z");
-
-      cout<<"make sideband ratio for W+jets "<<std::endl;      
-      makesidebandcorhist("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-			  "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-			  category,category+2,observables,lumi,outDir,ext+"W");
-    }
-    */
 
   }
 
@@ -257,14 +368,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
     TFile* topmucorfile = TFile::Open((outDir+"/topmucor"+ext+".root").c_str());
     TFile* topelcorfile = TFile::Open((outDir+"/topelcor"+ext+".root").c_str());
 
-    /*
-    TFile* sidebandfileZ = NULL;
-    TFile* sidebandfileW = NULL;
-    if(category == 2 or category == 3){
-      sidebandfileZ = TFile::Open((outDir+"/sidebandcor"+ext+"Z.root").c_str());
-      sidebandfileW = TFile::Open((outDir+"/sidebandcor"+ext+"W.root").c_str());
-    }
-    */
 
     // QCD, EWK, factm re and footprint on Z/gamma
     TFile* gamcorqcdfile = TFile::Open((outDir+"/gamcorqcd"+ext+".root").c_str());
@@ -340,13 +443,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
       topmucorhist.push_back( (TH1*)topmucorfile->Get(("topmucor"+ext+"hist_"+obs).c_str()));    
       topelcorhist.push_back( (TH1*)topelcorfile->Get(("topelcor"+ext+"hist_"+obs).c_str()));    
 
-      /*
-      if(category == 2 or category == 3){
-	sidebandZhist.push_back((TH1F*) sidebandfileZ->Get(("sidebandcor"+ext+"Zhist_"+obs).c_str()));
-	sidebandWhist.push_back((TH1F*) sidebandfileW->Get(("sidebandcor"+ext+"Whist_"+obs).c_str()));
-      }
-      */
-
       // get histograms Z/gamma
       cout<<"Make Z/gamma sys histograms"<<endl;
       gamcorewkhist.push_back( (TH1*)gamcorewkfile->Get(("gamcor"+ext+"ewkhist_"+obs).c_str()));    
@@ -362,7 +458,7 @@ void makeTemplates(bool doCorrectionHistograms = false,
       TH1* gamuncewkhist = (TH1*)gamcorewkhist.back()->Clone(("gamuncewk"+ext+"hist_"+obs).c_str());    
       gamuncewkhist->Divide(gamcorqcdhist.back());
       for (int i = 1; i <= gamuncewkhist->GetNbinsX(); i++) 
-      gamuncewkhist->SetBinContent(i, fabs(gamuncewkhist->GetBinContent(i)-1.0));
+	gamuncewkhist->SetBinContent(i, fabs(gamuncewkhist->GetBinContent(i)-1.0));
       gamuncewkhist->SetName(("ZG_EWK_"+obs).c_str());
       
       TH1* gamuncre1hist = (TH1*)gamcorre1hist.back()->Clone(("gamuncre1"+ext+"hist_"+obs).c_str());    
@@ -374,7 +470,7 @@ void makeTemplates(bool doCorrectionHistograms = false,
       TH1* gamuncfa1hist = (TH1*)gamcorfa1hist.back()->Clone(("gamuncfa1"+ext+"hist_"+obs).c_str());    
       gamuncfa1hist->Divide(gamcorqcdhist.back());
       for (int i = 1; i <= gamuncfa1hist->GetNbinsX(); i++) 
-      gamuncfa1hist->SetBinContent(i, fabs(gamuncfa1hist->GetBinContent(i)-1.0));
+	gamuncfa1hist->SetBinContent(i, fabs(gamuncfa1hist->GetBinContent(i)-1.0));
       gamuncfa1hist->SetName(("ZG_FactScale1_"+obs).c_str());
     
       TH1* gamuncre2hist = (TH1*)gamcorre2hist.back()->Clone(("gamuncre2"+ext+"hist_"+obs).c_str());    
@@ -461,9 +557,9 @@ void makeTemplates(bool doCorrectionHistograms = false,
       topmucorbdownhist_tmp->Divide(topmucorhist.back());
       
       TH1* topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());    
-      for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) {      
+      for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) 
 	topmucoruncbhist->SetBinContent(i, fabs(fabs(topmucorbuphist_tmp->GetBinContent(i)+topmucorbdownhist_tmp->GetBinContent(i))/2-1.0));
-      }
+      
       topmucoruncbhist->SetName(("TOP_MU_B_"+obs).c_str());
     
       // make symmetrization
@@ -473,9 +569,9 @@ void makeTemplates(bool doCorrectionHistograms = false,
       topelcorbdownhist_tmp->Divide(topelcorhist.back());
       
       TH1* topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());    
-      for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) {      
+      for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) 
 	topelcoruncbhist->SetBinContent(i, fabs(fabs(topelcorbuphist_tmp->GetBinContent(i)+topelcorbdownhist_tmp->GetBinContent(i))/2-1.0));
-      }
+      
       topelcoruncbhist->SetName(("TOP_EL_B_"+obs).c_str());
       
       outfile.cd();
@@ -490,12 +586,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
       topmucorhist.back()->Write();
       topelcorhist.back()->Write();
 
-      /*      
-      if(category == 2 or category == 3){
-	sidebandZhist.back()->Write();
-	sidebandWhist.back()->Write();
-      }
-      */
 
       gamcorqcdhist.back()->Write();
       gamcorewkhist.back()->Write();
@@ -568,7 +658,6 @@ void makeTemplates(bool doCorrectionHistograms = false,
     TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
     TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
     TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
-
     
     TH1F* temp = NULL;
     if(category <= 1)
@@ -601,7 +690,8 @@ void makeTemplates(bool doCorrectionHistograms = false,
     qcd_nominal_dw->Write();
 
   }
-
+  
   outfile.Close();
+  
 }
 
