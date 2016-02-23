@@ -17,19 +17,19 @@ shapes MonoZ       signal   workspace_MV.root SR_MV:MonoZ_SR_MV
 bin         signal
 observation -1
 ------------------------------------------------------------------------------------------------------------------------------------------
-bin                                  signal   signal  signal   signal       signal      signal       signal          signal        signal  signal
-process                              MonoJ    MonoW   MonoZ    Znunu        WJets       ZJets        Dibosons        Top           QCD     GJets
-process                              0        -1      -2       1            2            3             4             5             7       8
-rate                                 -1       -1      -1       1            1           -1            -1            -1            -1       -1
+bin                                  signal   signal  signal   signal       signal      signal       signal          signal       signal  signal
+process                              MonoJ    MonoW   MonoZ    Znunu        WJets       ZJets        Dibosons        Top          QCD     GJets
+process                              0        -1      -2       1            2            3             4             5            7        8
+rate                                 -1       -1      -1       1            1           -1            -1            -1           -1       -1
 ------------------------------------------------------------------------------------------------------------------------------------------
-Lumi                      lnN        1.046    1.046   1.046    -            -          1.046          1.046         1.046         -        1.046
+Lumi                      lnN        1.027    1.027   1.027    -            -          1.027          1.027         1.027         -        1.027
 Estimate_ZJETS            lnN        -        -         -      -            -          1.200          -              -            -        -
 Estimate_DIBOSONS         lnN        -        -         -      -            -            -            1.200          -            -        -
 Estimate_TOP              lnN        -        -         -      -            -            -            -             1.100         -        -
 Estimate_GJets            lnN        -        -         -      -            -            -            -              -            -        1.200
 MET                       lnN        1.040    1.040   1.040    -            -          1.040          1.040         1.040         -        1.040
 Bveto                     lnN        1.020    1.020   1.020    -            -          1.020          1.020         1.060         -        1.020
-CMS_Vtag                  lnN        -     1.13/0.87 1.13/0.87  -            -            -         1.13/0.87     1.13/0.87        -       -
+CMS_Vtag                  lnN        -     1.13/0.87 1.13/0.87  -            -            -         1.13/0.87     1.13/0.87       -        -
 CMS_qcd                   shapeN2    -        -         -      -            -            -            -              -            1        -
 WJets_SR_MV_bin1_Runc        param     0     1
 WJets_SR_MV_bin2_Runc        param     0     1

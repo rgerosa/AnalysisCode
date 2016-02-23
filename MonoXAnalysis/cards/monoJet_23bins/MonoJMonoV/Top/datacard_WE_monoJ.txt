@@ -18,7 +18,7 @@ process                             WJets       ZJets_WE    Dibosons        Top_
 process                             2           3           4               5             6
 rate                                1          -1           -1             -1            -1
 ------------------------------------------------------------------------------------------------
-Lumi                      lnN       -           1.046       1.046           1.046         1.046
+Lumi                      lnN       -           1.027       1.027           1.027         1.027
 Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020         1.020
 Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010         1.010
 Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
