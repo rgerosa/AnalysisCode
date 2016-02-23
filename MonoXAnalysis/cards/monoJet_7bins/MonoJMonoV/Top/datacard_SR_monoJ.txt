@@ -32,7 +32,7 @@ CMS_jes                   shapeN2    1         1        1       -            -  
 CMS_jer                   shapeN2    1         1        1       -            -            1            1              -            -          1
 CMS_unc                   shapeN2    1         1        1       -            -            1            1              -            -          1
 CMS_qcd                   shapeN2    -         -        -       -            -            -            -              -            1          -
-CMS_Vtag                  lnN        -     1.13/0.87 1.13/0.87  -            -            -            -              -            -          -
+CMS_Vtag                  lnN        -     0.87/1.13 0.87/1.13  -            -            -         0.87/1.13     0.87/1.13        -          -
 MonoJ_SR_MJ_CMS_bin1_stat    shapeN2    1         -          -            -            -              -            -        -            -    -
 MonoJ_SR_MJ_CMS_bin2_stat    shapeN2    1         -          -            -            -              -            -        -            -    -
 MonoJ_SR_MJ_CMS_bin3_stat    shapeN2    1         -          -            -            -              -            -        -            -    -

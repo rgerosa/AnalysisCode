@@ -1,8 +1,8 @@
 #include "CMS_lumi.h"
 
-void prepostSig(string fitFilename, string templateFileName, string observable, int category, string interaction,
-		string mediatorMass = "1000", string DMMass = "50", bool blind = true) {
-
+void prepostSig(string fitFilename, string templateFileName, string observable, int category, 
+		string interaction, string mediatorMass = "1000", string DMMass = "50", bool blind = true, bool plotSBFit = false) {
+  
 
   gROOT->SetBatch(kTRUE);
 
@@ -22,23 +22,51 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
 
-  TH1* mjhist = (TH1*)dfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mwhist = (TH1*)dfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mzhist = (TH1*)dfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  
+  // in case of b-only fit just dispaly three possible signal on the stack
+  TH1* mjhist = (TH1*) dfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+  TH1* mwhist = (TH1*) dfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+  TH1* mzhist = (TH1*) dfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
   mjhist->Scale(1.0, "width");
   mwhist->Scale(1.0, "width");
   mzhist->Scale(1.0, "width");
   
-  TH1* znhist = (TH1*)pfile->Get("shapes_fit_s/ch1/Znunu");    
-  TH1* zlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/ZJets");    
-  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/WJets");    
-  TH1* tthist = (TH1*)pfile->Get("shapes_fit_s/ch1/Top");    
-  TH1* dihist = (TH1*)pfile->Get("shapes_fit_s/ch1/Dibosons");    
-  TH1* qchist = (TH1*)pfile->Get("shapes_fit_s/ch1/QCD");    
-  TH1* gmhist = (TH1*)pfile->Get("shapes_fit_s/ch1/GJets");    
-  TH1* tohist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_background");    
-  TH1* tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
+  TH1* znhist = NULL;
+  TH1* zlhist = NULL;
+  TH1* wlhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* qchist = NULL;
+  TH1* gmhist = NULL;
+  TH1* tohist = NULL;
+  TH1* tphist = NULL;
+  TH1* sighist = NULL;
+
+  if(not plotSBFit){
+
+    znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
+    zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
+    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/WJets");    
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
+    qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
+    gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
+    tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
+    tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
+    
+  }
+  else{
+
+    znhist = (TH1*)pfile->Get("shapes_fit_s/ch1/Znunu");    
+    zlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/ZJets");    
+    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/WJets");    
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch1/Top");    
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch1/Dibosons");    
+    qchist = (TH1*)pfile->Get("shapes_fit_s/ch1/QCD");    
+    gmhist = (TH1*)pfile->Get("shapes_fit_s/ch1/GJets");    
+    tohist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_background");    
+    tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");      
+    sighist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_signal");
+  }
 
   TH1* dthist = NULL;
   if(!blind){
@@ -212,7 +240,13 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   qchist->SetFillColor(kGray);
   qchist->SetLineColor(kBlack);
-  
+
+  if(sighist){
+    sighist->SetFillColor(kBlack);
+    sighist->SetLineColor(kBlack);
+    sighist->SetFillStyle(3001);
+  }
+
   // make the stack
   THStack* stack = new THStack("stack", "stack");
   stack->Add(qchist);
@@ -222,6 +256,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   stack->Add(zlhist);
   stack->Add(wlhist);
   stack->Add(znhist);
+  if(plotSBFit and sighist)
+    stack->Add(sighist);
+
 
 
   TH1* frame = NULL;
@@ -241,9 +278,12 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   CMS_lumi(pad1, 4, 0,true);
 
   stack ->Draw("HIST SAME");
-  mjhist->Draw("HIST SAME");
-  mwhist->Draw("HIST SAME");
-  mzhist->Draw("HIST SAME");
+  if(mjhist and not plotSBFit)
+    mjhist->Draw("HIST SAME");
+  if(mwhist and not plotSBFit)
+    mwhist->Draw("HIST SAME");
+  if(mzhist and not plotSBFit)
+    mzhist->Draw("HIST SAME");
 
   dthist->SetFillStyle(0);
   dthist->SetFillColor(0);
@@ -259,6 +299,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   leg->SetBorderSize(0);
   
   leg->AddEntry(dthist, "Data");
+  if(sighist and plotSBFit)
+    leg->AddEntry(sighist, "Fitted Total Mono-X Signal", "F");
   leg->AddEntry(znhist, "Z(#nu#nu)", "F");
   leg->AddEntry(wlhist, "W(l#nu)", "F");
   leg->AddEntry(zlhist, "Z(ll)", "F");
@@ -266,9 +308,12 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   leg->AddEntry(dihist, "Dibosons", "F");
   leg->AddEntry(gmhist, "#gamma+jets", "F");
   leg->AddEntry(qchist, "QCD", "F");
-  leg->AddEntry(mjhist, "Mono-J (V, 1TeV)");
-  leg->AddEntry(mwhist, "Mono-W (V, 1TeV)");
-  leg->AddEntry(mzhist, "Mono-Z (V, 1TeV)");
+  if(mjhist and not plotSBFit)
+    leg->AddEntry(mjhist, "Mono-J (V, 1TeV)");
+  if(mwhist and not plotSBFit)
+    leg->AddEntry(mwhist, "Mono-W (V, 1TeV)");
+  if(mzhist and not plotSBFit)
+    leg->AddEntry(mzhist, "Mono-Z (V, 1TeV)");
   leg->Draw("SAME");
   
   pad1->RedrawAxis("sameaxis");
@@ -319,6 +364,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   mchist->Add(dihist);
   mchist->Add(qchist);
   mchist->Add(znhist);
+  if(sighist and plotSBFit)
+    mchist->Add(sighist);
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);

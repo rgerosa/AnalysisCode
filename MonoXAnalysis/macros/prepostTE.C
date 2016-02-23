@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostTE(string fitFilename, string templateFileName, string observable) {
+void prepostTE(string fitFilename, string templateFileName, string observable, bool plotSBFit = false) {
   
   gROOT->SetBatch(kTRUE);
   
@@ -20,14 +20,33 @@ void prepostTE(string fitFilename, string templateFileName, string observable) {
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
     
-  TH1* dthist = (TH1*)dfile->Get(("datahisttopel_"+observable).c_str());
-  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch8/ZJets_TE");
-  TH1* tthist = (TH1*)pfile->Get("shapes_fit_b/ch8/WJets_TE");
-  TH1* dihist = (TH1*)pfile->Get("shapes_fit_b/ch8/Dibosons");
-  TH1* qchist = (TH1*)pfile->Get("shapes_fit_b/ch8/QCD_TE");
-  TH1* pohist = (TH1*)pfile->Get("shapes_fit_b/ch8/total_background");    
-  TH1* prhist = (TH1*)pfile->Get("shapes_prefit/ch8/total_background");    
-  
+  TH1* dthist = NULL;
+  TH1* wlhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* qchist = NULL;
+  TH1* pohist = NULL;
+  TH1* prhist = NULL;
+
+  if(not plotSBFit){
+    dthist = (TH1*)dfile->Get(("datahisttopel_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch8/ZJets_TE");
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch8/WJets_TE");
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch8/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_b/ch8/QCD_TE");
+    pohist = (TH1*)pfile->Get("shapes_fit_b/ch8/total_background");    
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch8/total_background");        
+  }
+  else{
+    dthist = (TH1*)dfile->Get(("datahisttopel_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch8/ZJets_TE");
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch8/WJets_TE");
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch8/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_s/ch8/QCD_TE");
+    pohist = (TH1*)pfile->Get("shapes_fit_s/ch8/total_background");    
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch8/total_background");    
+  }
+
   dthist->Scale(1.0, "width");
   
   prhist->SetLineColor(kRed);
@@ -150,11 +169,11 @@ void prepostTE(string fitFilename, string templateFileName, string observable) {
   canvas->SaveAs("prepostfit_te.pdf");
   canvas->SaveAs("prepostfit_te.png");
   
-  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
-  postcorr->Divide(m1hist);
+  //  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
+  //  postcorr->Divide(m1hist);
   
-  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
-  postcorr->Write();
-  pcfile->Close();
+  //  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
+  //  postcorr->Write();
+  //  pcfile->Close();
 }
 

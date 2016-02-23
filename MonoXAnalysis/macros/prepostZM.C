@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostZM(string fitFilename, string templateFileName, string observable, int category) {
+void prepostZM(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE);
 
@@ -20,13 +20,33 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
 
-  TH1* dthist = (TH1*)dfile->Get(("datahistzmm_"+observable).c_str());
-  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch2/WJets_ZM");
-  TH1* tthist = (TH1*)pfile->Get("shapes_fit_b/ch2/Top");
-  TH1* dihist = (TH1*)pfile->Get("shapes_fit_b/ch2/Dibosons");
-  TH1* pohist = (TH1*)pfile->Get("shapes_fit_b/ch2/total_background");
-  TH1* prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
+  TH1* dthist = NULL;
+  TH1* wlhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* pohist = NULL;
+  TH1* prhist = NULL;
 
+  if(not plotSBFit){
+    
+    dthist = (TH1*)dfile->Get(("datahistzmm_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch2/WJets_ZM");
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch2/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch2/Dibosons");
+    pohist = (TH1*)pfile->Get("shapes_fit_b/ch2/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
+
+  }
+  else{
+
+    dthist = (TH1*)dfile->Get(("datahistzmm_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch2/WJets_ZM");
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch2/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch2/Dibosons");
+    pohist = (TH1*)pfile->Get("shapes_fit_s/ch2/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
+
+  }
   dthist->Scale(1.0, "width");
 
   ofstream  outputfile;
@@ -242,11 +262,11 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_zmm.pdf");
   canvas->SaveAs("prepostfit_zmm.png");
   
-  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
-  postcorr->Divide(m1hist);
+  //  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
+  //  postcorr->Divide(m1hist);
   
-  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
-  postcorr->Write();
-  pcfile->Close();
+  //  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
+  //  postcorr->Write();
+  //  pcfile->Close();
 }
 

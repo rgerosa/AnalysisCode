@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostTM(string fitFilename, string templateFileName, string observable) {
+void prepostTM(string fitFilename, string templateFileName, string observable, bool plotSBFit = false) {
 
 
   gROOT->SetBatch(kTRUE);
@@ -28,6 +28,29 @@ void prepostTM(string fitFilename, string templateFileName, string observable) {
   TH1* qchist = (TH1*)pfile->Get("shapes_fit_b/ch7/QCD_TM");
   TH1* pohist = (TH1*)pfile->Get("shapes_fit_b/ch7/total_background");    
   TH1* prhist = (TH1*)pfile->Get("shapes_prefit/ch7/total_background");    
+
+  if(not plotSBFit){
+
+    dthist = (TH1*)dfile->Get(("datahisttopmu_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch7/ZJets_TM");
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch7/WJets_TM");
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch7/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_b/ch7/QCD_TM");
+    pohist = (TH1*)pfile->Get("shapes_fit_b/ch7/total_background");    
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch7/total_background");    
+
+  }
+  else{
+
+    dthist = (TH1*)dfile->Get(("datahisttopmu_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch7/ZJets_TM");
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch7/WJets_TM");
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch7/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_s/ch7/QCD_TM");
+    pohist = (TH1*)pfile->Get("shapes_fit_s/ch7/total_background");    
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch7/total_background");    
+  
+  }
 
   dthist->Scale(1.0, "width");
   
@@ -151,11 +174,11 @@ void prepostTM(string fitFilename, string templateFileName, string observable) {
   canvas->SaveAs("prepostfit_tm.pdf");
   canvas->SaveAs("prepostfit_tm.png");
   
-  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
-  postcorr->Divide(m1hist);
+  //  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
+  //  postcorr->Divide(m1hist);
   
-  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
-  postcorr->Write();
-  pcfile->Close();
+  //  TFile* pcfile = new TFile("postcorrzmm.root", "RECREATE");
+  //  postcorr->Write();
+  //  pcfile->Close();
 }
 

@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostWM(string fitFilename, string templateFileName, string observable, int category) {
+void prepostWM(string fitFilename, string templateFileName, string observable, int category, bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE);
 
@@ -21,13 +21,37 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   TFile* dfile = new TFile(templateFileName.c_str());
   
   TH1* dthist = (TH1*)dfile->Get(("datahistwmn_"+observable).c_str());
-  TH1* wlhist = (TH1*)pfile->Get("shapes_fit_b/ch3/ZJets_WM");
-  TH1* tthist = (TH1*)pfile->Get("shapes_fit_b/ch3/Top");
-  TH1* dihist = (TH1*)pfile->Get("shapes_fit_b/ch3/Dibosons");
-  TH1* qchist = (TH1*)pfile->Get("shapes_fit_b/ch3/QCD_WM");
-  TH1* pohist = (TH1*)pfile->Get("shapes_fit_b/ch3/total_background");
-  TH1* prhist = (TH1*)pfile->Get("shapes_prefit/ch3/total_background");
 
+  TH1* vllhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* qchist = NULL;
+
+  TH1* pohist = NULL;
+  TH1* prhist = NULL;
+
+  if(not plotSBFit){
+    
+    vllhist = (TH1*)pfile->Get("shapes_fit_b/ch3/ZJets_WM");
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch3/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch3/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_b/ch3/QCD_WM");
+
+    pohist = (TH1*)pfile->Get("shapes_fit_b/ch3/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch3/total_background");
+  }
+  else{
+    
+    vllhist = (TH1*)pfile->Get("shapes_fit_s/ch3/ZJets_WM");
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch3/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch3/Dibosons");
+    qchist = (TH1*)pfile->Get("shapes_fit_s/ch3/QCD_WM");
+
+    pohist = (TH1*)pfile->Get("shapes_fit_s/ch3/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch3/total_background");
+
+  }
+    
   dthist->Scale(1.0, "width");
 
   ofstream outputfile;
@@ -63,9 +87,9 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
     VVRate << dihist->GetBinContent(iBin);
   }
 
-  for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
     ZJetRate << "   ";
-    ZJetRate << wlhist->GetBinContent(iBin);
+    ZJetRate << vllhist->GetBinContent(iBin);
   }
 
   for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
@@ -108,11 +132,11 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   prhist->SetMarkerColor(kRed);
   pohist->SetMarkerColor(kBlue);
   
-  wlhist->SetFillColor(kOrange+1);
-  wlhist->SetLineColor(kBlack);
-  wlhist->Add(tthist);
-  wlhist->Add(dihist);
-  wlhist->Add(qchist);
+  vllhist->SetFillColor(kOrange+1);
+  vllhist->SetLineColor(kBlack);
+  vllhist->Add(tthist);
+  vllhist->Add(dihist);
+  vllhist->Add(qchist);
 
   pad1->SetRightMargin(0.075);
   pad1->SetLeftMargin(0.10);
@@ -140,7 +164,7 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   CMS_lumi(pad1, 4, 0, true);
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
-  wlhist->Draw("HIST SAME");
+  vllhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1);
   dthist->SetLineWidth(2);
@@ -154,7 +178,7 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   leg->AddEntry(dthist, "Data","P");
   leg->AddEntry(prhist, "Pre-fit W(#mu#nu)","L");
   leg->AddEntry(pohist, "Post-fit W(#mu#nu)","L");
-  leg->AddEntry(wlhist, "Background", "F");
+  leg->AddEntry(vllhist, "Background", "F");
   leg->Draw("SAME");
   
   pad1->RedrawAxis("sameaxis");
@@ -255,11 +279,11 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_wmn.pdf");
   canvas->SaveAs("prepostfit_wmn.png");
   
-  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
-  postcorr->Divide(m1hist);
+  //  TH1* postcorr = (TH1*)m2hist->Clone("postcorr");
+  //  postcorr->Divide(m1hist);
   
-  TFile* pcfile = new TFile("postcorrwmn.root", "RECREATE");
-  postcorr->Write();
-  pcfile->Close();
+  //  TFile* pcfile = new TFile("postcorrwmn.root", "RECREATE");
+  //  postcorr->Write();
+  //  pcfile->Close();
 }
 
