@@ -69,12 +69,12 @@ GJets_SR_MV_CMS_bin3_stat    shapeN2       -         -          -            -  
 GJets_SR_MV_CMS_bin4_stat    shapeN2       -         -          -            -            -              -            -   -      -   1
 GJets_SR_MV_CMS_bin5_stat    shapeN2       -         -          -            -            -              -            -   -      -   1
 GJets_SR_MV_CMS_bin6_stat    shapeN2       -         -          -            -            -              -            -   -      -   1
-ZJets_SR_MV_CMS_bin1_stat    shapeN2       -         -          -            -            1              -            -   -      -   -
-ZJets_SR_MV_CMS_bin2_stat    shapeN2       -         -          -            -            1              -            -   -      -   -
-ZJets_SR_MV_CMS_bin3_stat    shapeN2       -         -          -            -            1              -            -   -      -   - 
-ZJets_SR_MV_CMS_bin4_stat    shapeN2       -         -          -            -            1              -            -   -      -   -
-ZJets_SR_MV_CMS_bin5_stat    shapeN2       -         -          -            -            1              -            -   -      -   -
-ZJets_SR_MV_CMS_bin6_stat    shapeN2       -         -          -            -            1              -            -   -      -   -
+ZJets_SR_MV_CMS_bin1_stat    shapeN2       -         -          -            -            -              1            -   -      -   -
+ZJets_SR_MV_CMS_bin2_stat    shapeN2       -         -          -            -            -              1            -   -      -   -
+ZJets_SR_MV_CMS_bin3_stat    shapeN2       -         -          -            -            -              1            -   -      -   - 
+ZJets_SR_MV_CMS_bin4_stat    shapeN2       -         -          -            -            -              1            -   -      -   -
+ZJets_SR_MV_CMS_bin5_stat    shapeN2       -         -          -            -            -              1            -   -      -   -
+ZJets_SR_MV_CMS_bin6_stat    shapeN2       -         -          -            -            -              1            -   -      -   -
 WJets_SR_MV_RenScale1        param     0     1
 WJets_SR_MV_FactScale1       param     0     1
 WJets_SR_MV_RenScale2        param     0     1
