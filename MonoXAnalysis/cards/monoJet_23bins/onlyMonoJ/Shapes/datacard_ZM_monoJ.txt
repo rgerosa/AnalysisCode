@@ -16,7 +16,7 @@ process                             Znunu       WJets_ZM    Dibosons        Top
 process                             1           2           4               5     
 rate                                1          -1           -1              -1    
 ----------------------------------------------------------------------------------
-Lumi                      lnN       -           1.046       1.046           1.046
+Lumi                      lnN       -           1.027       1.027           1.027
 Uncertainty_MUSF          lnN       1.020       1.020       1.020           1.020
 Estimate_WJets_ZM         lnN       -           1.200       -               -     
 Estimate_DIBOSONS         lnN       -           -           1.200           -     
