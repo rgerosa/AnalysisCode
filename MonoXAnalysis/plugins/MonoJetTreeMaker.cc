@@ -206,6 +206,7 @@ private:
   // lepton info
   int32_t wzid, l1id, l2id;
   int32_t wzid_h, q1id, q2id;
+  int32_t top_1, top_2;
   
   int32_t mu1pid, mu2pid, mu1id, mu2id, mu1idm, mu2idm, mu1idt, mu2idt;
   int32_t el1pid, el2pid, el1id, el1idl, el2id, el2idl;
@@ -348,9 +349,17 @@ private:
   std::vector<double> softDropPuppiSubJetGenpt_2, softDropPuppiSubJetGenm_2, softDropPuppiSubJetGeneta_2, softDropPuppiSubJetGenphi_2, softDropPuppiSubJetPFlav_2;
   std::vector<double> softDropPuppiSubJetptraw_2, softDropPuppiSubJetmraw_2;
 
-  // gen info
-  double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi, parpt, pareta, parphi, ancpt, anceta, ancphi;
+  // gen info leptoni W/Z boson (1 per event)
+  double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
+  // photon info
+  double   parpt, pareta, parphi, ancpt, anceta, ancphi;
+  // hadronic V and related quarks (1 per event)
   double   wzmass_h, wzmt_h, wzpt_h, wzeta_h, wzphi_h, q1pt, q1eta, q1phi, q2pt, q2eta, q2phi;
+  // one top
+  double   topmass, toppt, topeta, topphi;
+  // second top
+  double   atopmass, atoppt, atopeta, atopphi;
+  // DM mediator and DM particles
   double   dmmass, dmpt, dmeta, dmphi, dmX1pt, dmX1eta, dmX1phi, dmX1mass, dmX2pt, dmX2eta, dmX2phi, dmX2mass;
   int      dmid, dmX1id, dmX2id;
 
@@ -2680,6 +2689,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     l1id          = 0; l1pt          = 0.0; l1eta         = 0.0; l1phi         = 0.0;
     l2id          = 0; l2pt          = 0.0; l2eta         = 0.0; l2phi         = 0.0;
     wzid_h        = 0; wzmass_h      = 0.0; wzpt_h        = 0.0; wzeta_h       = 0.0; wzphi_h       = 0.0;
+    topmass       = 0; toppt         = 0.0; topeta        = 0.0; topphi        = 0.0;
+    atopmass      = 0; atoppt        = 0.0; atopeta       = 0.0; atopphi       = 0.0;
     q1id          = 0; q1pt          = 0.0; q1eta         = 0.0; q1phi         = 0.0;
     q2id          = 0; q2pt          = 0.0; q2eta         = 0.0; q2phi         = 0.0;
     parid         = 0; parpt         = 0.0; pareta        = 0.0; parphi        = 0.0;
@@ -2719,7 +2730,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    break;
 	  }
       }
-
+      
       dmX1pt   = dm1vec.Pt();
       dmX1eta  = dm1vec.Eta();
       dmX1phi  = dm1vec.Phi();
@@ -2737,7 +2748,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       dmphi = medvec.Phi();
       dmmass = medvec.M();
 
-      
+
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on genParticles (prunedGenParticles)
 	if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
@@ -2764,15 +2775,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	else if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
-	     ( (abs(gens_iter->daughter(0)->pdgId()) > 0 && abs(gens_iter->daughter(0)->pdgId()) < 5) or
-	       (abs(gens_iter->daughter(1)->pdgId()) > 0 && abs(gens_iter->daughter(1)->pdgId()) < 5)))  { // decays into leptons, neutrinos and quarks
+		  ( (abs(gens_iter->daughter(0)->pdgId()) > 0 && abs(gens_iter->daughter(0)->pdgId()) <= 5) or
+		    (abs(gens_iter->daughter(1)->pdgId()) > 0 && abs(gens_iter->daughter(1)->pdgId()) <= 5)))  { // decays into leptons, neutrinos and quarks
 	  
 	  wzid_h   = gens_iter->pdgId();
 	  wzmass_h = gens_iter->mass();
 	  wzpt_h   = gens_iter->pt();
 	  wzeta_h  = gens_iter->eta();
 	  wzphi_h  = gens_iter->phi();
-
+	  
 	  q1id   = gens_iter->daughter(0)->pdgId();
 	  q1pt   = gens_iter->daughter(0)->pt();
 	  q1eta  = gens_iter->daughter(0)->eta();
@@ -2784,24 +2795,44 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  q2phi  = gens_iter->daughter(1)->phi();
 	  wzmt_h   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
 	}		  
+
+	else if(gens_iter->pdgId() == 6 and gens_iter->numberOfDaughters() > 1 and 
+		(((abs(gens_iter->daughter(0)->pdgId()) > 0 and  abs(gens_iter->daughter(0)->pdgId()) <= 5) and abs(gens_iter->daughter(1)->pdgId()) == 24) or
+		 ((abs(gens_iter->daughter(1)->pdgId()) > 0 and  abs(gens_iter->daughter(1)->pdgId()) <= 5) and abs(gens_iter->daughter(0)->pdgId()) == 24))){
+	  
+	  topmass = gens_iter->mass();
+	  toppt   = gens_iter->pt();
+	  topeta  = gens_iter->eta();
+	  topphi  = gens_iter->eta();
+	}
+	else if(gens_iter->pdgId() == -6 and gens_iter->numberOfDaughters() > 1 and 
+		(((abs(gens_iter->daughter(0)->pdgId()) > 0 and  abs(gens_iter->daughter(0)->pdgId()) <= 5) and abs(gens_iter->daughter(1)->pdgId()) == 24) or
+		 ((abs(gens_iter->daughter(1)->pdgId()) > 0 and  abs(gens_iter->daughter(1)->pdgId()) <= 5) and abs(gens_iter->daughter(0)->pdgId()) == 24))){
+
+	  atopmass = gens_iter->mass();
+	  atoppt   = gens_iter->pt();
+	  atopeta  = gens_iter->eta();
+	  atopphi  = gens_iter->eta();	  
+	}
+	       	
       }
 
-    if (wzid == 0) {
+      if (wzid == 0) {
         for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-            if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
-                if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
-                    l1id   = gens_iter->pdgId();
-                    l1pt   = gens_iter->pt();
-                    l1eta  = gens_iter->eta();
-                    l1phi  = gens_iter->phi();
-                }
-                if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
-                    l2id   = gens_iter->pdgId();
-                    l2pt   = gens_iter->pt();
-                    l2eta  = gens_iter->eta();
-                    l2phi  = gens_iter->phi();
-                }
-            }
+	  if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
+	    if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
+	      l1id   = gens_iter->pdgId();
+	      l1pt   = gens_iter->pt();
+	      l1eta  = gens_iter->eta();
+	      l1phi  = gens_iter->phi();
+	    }
+	    if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
+	      l2id   = gens_iter->pdgId();
+	      l2pt   = gens_iter->pt();
+	      l2eta  = gens_iter->eta();
+	      l2phi  = gens_iter->phi();
+	    }
+	  }
         }
         if (l1id > 0) {
             TLorentzVector l1vec;
@@ -2818,8 +2849,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             if (l1id+l2id == 0) wzid = 23;
             else                wzid = 24;
         }
-    }
-    	       
+      }
+      
       // no W or Z decay leptonically
       if (wzid == 0) {
 	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on prunedGenParticles
@@ -3237,6 +3268,18 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("q2pt"                 , &q2pt                 , "q2pt/D");
   tree->Branch("q2eta"                , &q2eta                , "q2eta/D");
   tree->Branch("q2phi"                , &q2phi                , "q2phi/D");
+
+  // Top infor
+  tree->Branch("topmass"               , &topmass               , "topmass/D");
+  tree->Branch("toppt"                 , &toppt                 , "toppt/D");
+  tree->Branch("topeta"                , &topeta                , "topeta/D");
+  tree->Branch("topphi"                , &topphi                , "topphi/D");
+
+  tree->Branch("atopmass"               , &atopmass               , "atopmass/D");
+  tree->Branch("atoppt"                 , &atoppt                 , "atoppt/D");
+  tree->Branch("atopeta"                , &atopeta                , "atopeta/D");
+  tree->Branch("atopphi"                , &atopphi                , "atopphi/D");
+
 
 
   tree->Branch("parid"                , &parid                , "parid/I");

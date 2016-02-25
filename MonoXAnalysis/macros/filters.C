@@ -720,7 +720,7 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
   }
 
   // medium id + pt + veto
-  const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 1 && phpt > 175 && phidm == 1";
+  const char* cut = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 1 && phpt > 150 && phidm == 1";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
