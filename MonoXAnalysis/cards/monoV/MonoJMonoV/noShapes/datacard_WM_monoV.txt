@@ -3,30 +3,30 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      onemuon   workspace_MV.root WM_MV:data_obs_WM_MV
-shapes WJets         onemuon   workspace_MV.root WM_MV:WJets_WM_MV
-shapes ZJets_WM      onemuon   workspace_MV.root WM_MV:ZJets_WM_MV
-shapes Dibosons      onemuon   workspace_MV.root WM_MV:Dibosons_WM_MV
-shapes Top           onemuon   workspace_MV.root WM_MV:Top_WM_MV
-shapes QCD_WM        onemuon   workspace_MV.root WM_MV:QCD_WM_MV
+shapes data_obs      onemuon_MV   workspace_MV.root WM_MV:data_obs_WM_MV
+shapes WJets         onemuon_MV   workspace_MV.root WM_MV:WJets_WM_MV
+shapes ZJets_WM      onemuon_MV   workspace_MV.root WM_MV:ZJets_WM_MV
+shapes Dibosons      onemuon_MV   workspace_MV.root WM_MV:Dibosons_WM_MV
+shapes Top           onemuon_MV   workspace_MV.root WM_MV:Top_WM_MV
+shapes QCD_WM        onemuon_MV   workspace_MV.root WM_MV:QCD_WM_MV
 ------------------------------------------------------------------------------------------------
-bin         onemuon
+bin         onemuon_MV
 observation -1
 ------------------------------------------------------------------------------------------------
-bin                                 onemuon     onemuon     onemuon         onemuon       onemuon
+bin                                 onemuon_MV  onemuon_MV  onemuon_MV      onemuon_MV    onemuon_MV
 process                             WJets       ZJets_WM    Dibosons        Top           QCD_WM
-process                             2           3           4               5             6
+process                             2           9           4               5             10
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
-Lumi                      lnN       -           1.027       1.027           1.027         1.027
-Uncertainty_MUSF          lnN       1.010       1.010       1.010           1.010         1.010
-Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
-Estimate_ZJets_WM         lnN       -           1.200       -               -             -
-Estimate_DIBOSONS         lnN       -           -           1.200           -             -
-Estimate_TOP              lnN       -           -           -               1.100         -
-Estimate_QCD_WM           lnN       -           -           -               -             1.500
-MET                       lnN       -           1.040       1.040           1.040         1.040
-Bveto                     lnN       -           1.020       1.020           1.060         -
+lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
+CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
+ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
+Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
+Top_Norm13TeV             lnN       -           -           -               1.100         -
+QCD_WM_Norm13TeV          lnN       -           -           -               -             1.500
+CMS_met                   lnN       -           1.040       1.040           1.040         1.040
+CMS_btag                  lnN       -           1.020       1.020           1.060         -
 WJets_WM_MV_bin1_Runc        param     0     1
 WJets_WM_MV_bin2_Runc        param     0     1
 WJets_WM_MV_bin3_Runc        param     0     1

@@ -2,28 +2,28 @@ imax * number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
 ----------------------------------------------------------------------------------
-shapes data_obs      dimuon   workspace_MJ.root ZM_MJ:data_obs_ZM_MJ
-shapes Znunu         dimuon   workspace_MJ.root ZM_MJ:Znunu_ZM_MJ
-shapes WJets_ZM      dimuon   workspace_MJ.root ZM_MJ:WJets_ZM_MJ    ZM_MJ:WJets_ZM_MJ_$SYSTEMATIC
-shapes Dibosons      dimuon   workspace_MJ.root ZM_MJ:Dibosons_ZM_MJ ZM_MJ:Dibosons_ZM_MJ_$SYSTEMATIC
-shapes Top	     dimuon   workspace_MJ.root ZM_MJ:Top_ZM_MJ      ZM_MJ:Top_ZM_MJ_$SYSTEMATIC
+shapes data_obs      dimuon_MJ   workspace_MJ.root ZM_MJ:data_obs_ZM_MJ
+shapes Znunu         dimuon_MJ   workspace_MJ.root ZM_MJ:Znunu_ZM_MJ
+shapes WJets_ZM      dimuon_MJ   workspace_MJ.root ZM_MJ:WJets_ZM_MJ    ZM_MJ:WJets_ZM_MJ_$SYSTEMATIC
+shapes Dibosons      dimuon_MJ   workspace_MJ.root ZM_MJ:Dibosons_ZM_MJ ZM_MJ:Dibosons_ZM_MJ_$SYSTEMATIC
+shapes Top	     dimuon_MJ   workspace_MJ.root ZM_MJ:Top_ZM_MJ      ZM_MJ:Top_ZM_MJ_$SYSTEMATIC
 ----------------------------------------------------------------------------------
-bin         dimuon
+bin         dimuon_MJ
 observation -1
 ----------------------------------------------------------------------------------
-bin                                 dimuon      dimuon      dimuon          dimuon
+bin                                 dimuon_MJ   dimuon_MJ   dimuon_MJ       dimuon_MJ
 process                             Znunu       WJets_ZM    Dibosons        Top  
-process                             1           2           4               5     
+process                             1           8           4               5     
 rate                                1          -1           -1              -1    
 ----------------------------------------------------------------------------------
-Lumi                      lnN       -           1.027       1.027           1.027
-Uncertainty_MUSF          lnN       1.020       1.020       1.020           1.020
-Estimate_WJets_ZM         lnN       -           1.200       -               -     
-Estimate_DIBOSONS         lnN       -           -           1.200           -     
-Estimate_TOP		  lnN       -           -           -               1.100 
+lumi_13TeV                lnN       -           1.027       1.027           1.027
+CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
+WJets_ZM_Norm13TeV        lnN       -           1.200       -               -     
+Dibosons_Norm13TeV        lnN       -           -           1.200           -     
+Top_Norm13TeV		  lnN       -           -           -               1.100 
 CMS_btag                  shapeN2   -           1           1               1            
-CMS_jes                   shapeN2   -           1           1               1            
-CMS_jer                   shapeN2   -           1           1               1            
+CMS_scale_j               shapeN2   -           1           1               1            
+CMS_res_j                 shapeN2   -           1           1               1            
 CMS_unc                   shapeN2   -           1           1               1           
 Znunu_ZM_MJ_bin1_Runc     param     0     1
 Znunu_ZM_MJ_bin2_Runc     param     0     1

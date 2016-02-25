@@ -4,6 +4,15 @@
 
 using namespace std;
 
+void addDummyBinContent(TH1* histo){
+
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    histo->SetBinContent(iBin+1,10.e-6);
+    histo->SetBinError(iBin+1,10.e-6);
+  }
+
+}
+
 void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float xValue){
   if(sysHisto == 0 || sysHisto == NULL) return;
   for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
@@ -14,8 +23,11 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
 
 
 // function to create a RooDataHist from TH1F and import it in a workspace
-void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {
+void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {  
   if(hist == 0 || hist == NULL) return;
+  if(hist->Integral() == 0)
+    addDummyBinContent(hist); // avoind empty histograms in the workspace
+
   RooDataHist rhist((procname).c_str(), "", varlist, hist);
   ws.import(rhist);
 }
@@ -24,6 +36,11 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
 
   vector<TH1F*> histStatUp;
   vector<TH1F*> histStatDw;
+
+  if(histo == 0 || histo == NULL) return;
+  if(histo->Integral() == 0){
+    addDummyBinContent(hist);
+  }
 
   for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
     histStatUp.push_back((TH1F*) histo->Clone(Form("%s_%s_bin_%i_statUp_tmp",procname.c_str(),procname.c_str(),iBin+1)));
@@ -52,6 +69,11 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
 
 // Make list of bins of a TH1F as RooArgList of RooRealVar and building the RooParametricHist (to be Run in the release with combine)
 void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist, RooArgList& binlist, bool setConst = false) {
+
+  if(hist == 0 || hist == NULL) return;
+  if(hist->Integral() == 0){
+    addDummyBinContent(hist);
+  }
 
   // loop over histo bins
   for (int i = 1; i <= hist->GetNbinsX(); i++) {
@@ -82,8 +104,16 @@ void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist,
 // make connections betweem signal region and control region
 void makeConnectedBinList(string procname, RooRealVar& var, 
 			  RooWorkspace& ws, TH1F* rhist, 
-			  vector<pair<RooRealVar*, TH1*> > syst, const RooArgList& srbinlist, RooArgList* crbinlist=NULL) {
+			  vector<pair<RooRealVar*, TH1*> > syst, const RooArgList& srbinlist, 
+			  RooArgList* crbinlist=NULL,
+			  string observable = "met") {
   
+
+  if(rhist == 0 || rhist == NULL) return;
+  if(rhist->Integral() == 0){
+    addDummyBinContent(hist);
+  }
+
   // bin list for the CR
   if (crbinlist == NULL) 
     crbinlist = new RooArgList();
@@ -126,7 +156,7 @@ void makeConnectedBinList(string procname, RooRealVar& var,
       if (syst[j].first == NULL) { // add bin by bin
 	systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
 	TString nameSys (systbinss.str());
-	nameSys.ReplaceAll(("_"+string(var.GetName())).c_str(),"");
+	nameSys.ReplaceAll(("_"+observable).c_str(),"");
 	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
 	RooRealVar* systbinvar = new RooRealVar(nameSys.Data(), "", 0., -extreme, extreme);
 	// Add all the systeamtics as new Multiplicative Nuisance for each bin
@@ -207,7 +237,7 @@ void createWorkspace(string inputName,
   else
     cout<<"Binning not implemented for the observable "<<observable<<" --> please define it "<<endl;
   
-  RooRealVar met(observable.c_str(),"",xMin,xMax);
+  RooRealVar met((observable+"_"+suffix).c_str(),"",xMin,xMax);
   RooArgList vars(met);
   
   // Templates
@@ -258,10 +288,10 @@ void createWorkspace(string inputName,
 
       addTemplate("MonoJ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_jesUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_jesDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_jerUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_jerDown",  vars, wspace_SR, histoJerDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
     }
@@ -291,10 +321,10 @@ void createWorkspace(string inputName,
 
       addTemplate("MonoW_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("MonoW_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_jesUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_jesDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_jerUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_jerDown",  vars, wspace_SR, histoJerDw);
+      addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+      addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+      addTemplate("MonoW_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+      addTemplate("MonoW_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
       addTemplate("MonoW_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
       addTemplate("MonoW_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
     }
@@ -325,10 +355,10 @@ void createWorkspace(string inputName,
 
       addTemplate("MonoZ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("MonoZ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_jesUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_jesDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_jerUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_jerDown",  vars, wspace_SR, histoJerDw);
+      addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+      addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+      addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+      addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
       addTemplate("MonoZ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
       addTemplate("MonoZ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
     }
@@ -384,10 +414,10 @@ void createWorkspace(string inputName,
 
       addTemplate("Top_SR_"+suffix+"_CMS_btagUp",vars, wspace_SR, histobUp);
       addTemplate("Top_SR_"+suffix+"_CMS_btagDown",vars, wspace_SR, histobDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_jesUp",vars, wspace_SR, histoJesUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_jesDown",vars, wspace_SR, histoJesDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_jerUp",vars, wspace_SR, histoJerUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_jerDown",vars, wspace_SR, histoJerDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_jUp",vars, wspace_SR, histoJesUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_jDown",vars, wspace_SR, histoJesDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_res_jUp",vars, wspace_SR, histoJerUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_res_jDown",vars, wspace_SR, histoJerDw);
       addTemplate("Top_SR_"+suffix+"_CMS_uncUp",vars, wspace_SR, histoUncUp);
       addTemplate("Top_SR_"+suffix+"_CMS_uncDown",vars, wspace_SR, histoUncDw);
       
@@ -401,11 +431,11 @@ void createWorkspace(string inputName,
   // set of correlated systematic uncertainties for the Z/W ratio
   vector<pair<RooRealVar*, TH1*> > wln_SR_syst;
 
-  RooRealVar* wln_SR_re1 = new RooRealVar(("WJets_SR_"+suffix+"_RenScale1").c_str(), "", 0., -5., 5.);
-  RooRealVar* wln_SR_fa1 = new RooRealVar(("WJets_SR_"+suffix+"_FactScale1").c_str(), "", 0., -5., 5.);
-  RooRealVar* wln_SR_re2 = new RooRealVar(("WJets_SR_"+suffix+"_RenScale2").c_str()  , "", 0., -5., 5.);
-  RooRealVar* wln_SR_fa2 = new RooRealVar(("WJets_SR_"+suffix+"_FactScale2").c_str() , "", 0., -5., 5.);
-  RooRealVar* wln_SR_pdf = new RooRealVar(("WJets_SR_"+suffix+"_PDF").c_str()        , "", 0., -5., 5.);
+  RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_RenScale1", ""  , 0., -5., 5.);
+  RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_FactScale1", "" , 0., -5., 5.);
+  RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_RenScale2", ""  , 0., -5., 5.);
+  RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2", "" , 0., -5., 5.);
+  RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF", ""        , 0., -5., 5.);
 
   // NULL means bin-by-bin
   wln_SR_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get(("ZW_EWK_"+observable).c_str())));
@@ -418,7 +448,7 @@ void createWorkspace(string inputName,
   if (!connectWZ) 
     makeBinList("WJets_SR_"+suffix, met, wspace_SR, wln_SR_hist, wln_SR_bins);
   else   
-    makeConnectedBinList("WJets_SR_"+suffix, met, wspace_SR, (TH1F*)templatesfile->Get(("zwjcorewkhist_"+observable).c_str()), wln_SR_syst, znn_SR_bins, &wln_SR_bins);
+    makeConnectedBinList("WJets_SR_"+suffix, met, wspace_SR, (TH1F*)templatesfile->Get(("zwjcorewkhist_"+observable).c_str()), wln_SR_syst, znn_SR_bins, &wln_SR_bins, observable);
 
   // Other MC backgrounds
   addTemplate("ZJets_SR_"+suffix     , vars, wspace_SR, (TH1F*)templatesfile->Get(("zjethist_"+observable).c_str()));
@@ -450,10 +480,10 @@ void createWorkspace(string inputName,
     
     addTemplate("ZJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
     addTemplate("ZJets_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_jesUp", vars, wspace_SR, histoJesUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_jesDown", vars, wspace_SR, histoJesDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_jerUp", vars, wspace_SR, histoJerUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_jerDown", vars, wspace_SR, histoJerDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
     addTemplate("ZJets_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
     addTemplate("ZJets_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
 
@@ -482,10 +512,10 @@ void createWorkspace(string inputName,
     
     addTemplate("Dibosons_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
     addTemplate("Dibosons_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_jesUp", vars, wspace_SR, histoJesUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_jesDown", vars, wspace_SR, histoJesDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_jerUp", vars, wspace_SR, histoJerUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_jerDown", vars, wspace_SR, histoJerDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
     addTemplate("Dibosons_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
     addTemplate("Dibosons_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
 
@@ -515,10 +545,10 @@ void createWorkspace(string inputName,
     
     addTemplate("GJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
     addTemplate("GJets_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_jesUp", vars, wspace_SR, histoJesUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_jesDown", vars, wspace_SR, histoJesDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_jerUp", vars, wspace_SR, histoJerUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_jerDown", vars, wspace_SR, histoJerDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
     addTemplate("GJets_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
     addTemplate("GJets_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
 
@@ -550,7 +580,7 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_ZM_"+suffix, vars, wspace_ZM, (TH1F*)templatesfile->Get(("datahistzmm_"+observable).c_str()));
   // Z->mumu connected with Z->nunu SR
   vector<pair<RooRealVar*, TH1*> >   znn_syst;
-  makeConnectedBinList("Znunu_ZM_"+suffix, met, wspace_ZM, (TH1F*)templatesfile->Get(("zmmcorhist_"+observable).c_str()), znn_syst, znn_SR_bins);
+  makeConnectedBinList("Znunu_ZM_"+suffix, met, wspace_ZM, (TH1F*)templatesfile->Get(("zmmcorhist_"+observable).c_str()), znn_syst, znn_SR_bins,NULL, observable);
   
   // Other MC backgrounds in dimuon control region
   addTemplate("WJets_ZM_"+suffix, vars, wspace_ZM, (TH1F*)templatesfile->Get(("vlbkghistzmm_"+observable).c_str()));
@@ -583,10 +613,10 @@ void createWorkspace(string inputName,
 
     addTemplate("WJets_ZM_"+suffix+"_CMS_btagUp", vars, wspace_ZM, histobUp);
     addTemplate("WJets_ZM_"+suffix+"_CMS_btagDown", vars, wspace_ZM, histobDw);
-    addTemplate("WJets_ZM_"+suffix+"_CMS_jesUp", vars, wspace_ZM, histoJesUp);
-    addTemplate("WJets_ZM_"+suffix+"_CMS_jesDown", vars, wspace_ZM, histoJesDw);
-    addTemplate("WJets_ZM_"+suffix+"_CMS_jerUp", vars, wspace_ZM, histoJerUp);
-    addTemplate("WJets_ZM_"+suffix+"_CMS_jerDown", vars, wspace_ZM, histoJerDw);
+    addTemplate("WJets_ZM_"+suffix+"_CMS_scale_jUp", vars, wspace_ZM, histoJesUp);
+    addTemplate("WJets_ZM_"+suffix+"_CMS_scale_jDown", vars, wspace_ZM, histoJesDw);
+    addTemplate("WJets_ZM_"+suffix+"_CMS_res_jUp", vars, wspace_ZM, histoJerUp);
+    addTemplate("WJets_ZM_"+suffix+"_CMS_res_jDown", vars, wspace_ZM, histoJerDw);
     addTemplate("WJets_ZM_"+suffix+"_CMS_uncUp", vars, wspace_ZM, histoUncUp);
     addTemplate("WJets_ZM_"+suffix+"_CMS_uncDown", vars, wspace_ZM, histoUncDw);
 
@@ -614,10 +644,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Top_ZM_"+suffix+"_CMS_btagUp", vars, wspace_ZM, histobUp);
     addTemplate("Top_ZM_"+suffix+"_CMS_btagDown", vars, wspace_ZM, histobDw);
-    addTemplate("Top_ZM_"+suffix+"_CMS_jesUp", vars, wspace_ZM, histoJesUp);
-    addTemplate("Top_ZM_"+suffix+"_CMS_jesDown", vars, wspace_ZM, histoJesDw);
-    addTemplate("Top_ZM_"+suffix+"_CMS_jerUp", vars, wspace_ZM, histoJerUp);
-    addTemplate("Top_ZM_"+suffix+"_CMS_jerDown", vars, wspace_ZM, histoJerDw);
+    addTemplate("Top_ZM_"+suffix+"_CMS_scale_jUp", vars, wspace_ZM, histoJesUp);
+    addTemplate("Top_ZM_"+suffix+"_CMS_scale_jDown", vars, wspace_ZM, histoJesDw);
+    addTemplate("Top_ZM_"+suffix+"_CMS_res_jUp", vars, wspace_ZM, histoJerUp);
+    addTemplate("Top_ZM_"+suffix+"_CMS_res_jDown", vars, wspace_ZM, histoJerDw);
     addTemplate("Top_ZM_"+suffix+"_CMS_uncUp", vars, wspace_ZM, histoUncUp);
     addTemplate("Top_ZM_"+suffix+"_CMS_uncDown", vars, wspace_ZM, histoUncDw);
 
@@ -646,10 +676,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Dibosons_ZM_"+suffix+"_CMS_btagUp", vars, wspace_ZM, histobUp);
     addTemplate("Dibosons_ZM_"+suffix+"_CMS_btagDown", vars, wspace_ZM, histobDw);
-    addTemplate("Dibosons_ZM_"+suffix+"_CMS_jesUp", vars, wspace_ZM, histoJesUp);
-    addTemplate("Dibosons_ZM_"+suffix+"_CMS_jesDown", vars, wspace_ZM, histoJesDw);
-    addTemplate("Dibosons_ZM_"+suffix+"_CMS_jerUp", vars, wspace_ZM, histoJerUp);
-    addTemplate("Dibosons_ZM_"+suffix+"_CMS_jerDown", vars, wspace_ZM, histoJerDw);
+    addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_jUp", vars, wspace_ZM, histoJesUp);
+    addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_jDown", vars, wspace_ZM, histoJesDw);
+    addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_jUp", vars, wspace_ZM, histoJerUp);
+    addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_jDown", vars, wspace_ZM, histoJerDw);
     addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncUp", vars, wspace_ZM, histoUncUp);
     addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncDown", vars, wspace_ZM, histoUncDw);
 
@@ -665,7 +695,7 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_ZE_"+suffix, vars, wspace_ZE, (TH1F*)templatesfile->Get(("datahistzee_"+observable).c_str()));
   // Z->ee connected with Z->nunu SR
   vector<pair<RooRealVar*, TH1*> > znn_ZE_syst;
-  makeConnectedBinList("Znunu_ZE_"+suffix, met, wspace_ZE, (TH1F*)templatesfile->Get(("zeecorhist_"+observable).c_str()), znn_ZE_syst, znn_SR_bins);
+  makeConnectedBinList("Znunu_ZE_"+suffix, met, wspace_ZE, (TH1F*)templatesfile->Get(("zeecorhist_"+observable).c_str()), znn_ZE_syst, znn_SR_bins,NULL,observable);
   
   // Other MC backgrounds in dielectron control region
   addTemplate("WJets_ZE_"+suffix, vars, wspace_ZE, (TH1F*)templatesfile->Get(("vlbkghistzee_"+observable).c_str()));
@@ -698,10 +728,10 @@ void createWorkspace(string inputName,
 
     addTemplate("WJets_ZE_"+suffix+"_CMS_btagUp", vars, wspace_ZE, histobUp);
     addTemplate("WJets_ZE_"+suffix+"_CMS_btagDown", vars, wspace_ZE, histobDw);
-    addTemplate("WJets_ZE_"+suffix+"_CMS_jesUp", vars, wspace_ZE, histoJesUp);
-    addTemplate("WJets_ZE_"+suffix+"_CMS_jesDown", vars, wspace_ZE, histoJesDw);
-    addTemplate("WJets_ZE_"+suffix+"_CMS_jerUp", vars, wspace_ZE, histoJerUp);
-    addTemplate("WJets_ZE_"+suffix+"_CMS_jerDown", vars, wspace_ZE, histoJerDw);
+    addTemplate("WJets_ZE_"+suffix+"_CMS_scale_jUp", vars, wspace_ZE, histoJesUp);
+    addTemplate("WJets_ZE_"+suffix+"_CMS_scale_jDown", vars, wspace_ZE, histoJesDw);
+    addTemplate("WJets_ZE_"+suffix+"_CMS_res_jUp", vars, wspace_ZE, histoJerUp);
+    addTemplate("WJets_ZE_"+suffix+"_CMS_res_jDown", vars, wspace_ZE, histoJerDw);
     addTemplate("WJets_ZE_"+suffix+"_CMS_uncUp", vars, wspace_ZE, histoUncUp);
     addTemplate("WJets_ZE_"+suffix+"_CMS_uncDown", vars, wspace_ZE, histoUncDw);
 
@@ -729,10 +759,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Top_ZE_"+suffix+"_CMS_btagUp", vars, wspace_ZE, histobUp);
     addTemplate("Top_ZE_"+suffix+"_CMS_btagDown", vars, wspace_ZE, histobDw);
-    addTemplate("Top_ZE_"+suffix+"_CMS_jesUp", vars, wspace_ZE, histoJesUp);
-    addTemplate("Top_ZE_"+suffix+"_CMS_jesDown", vars, wspace_ZE, histoJesDw);
-    addTemplate("Top_ZE_"+suffix+"_CMS_jerUp", vars, wspace_ZE, histoJerUp);
-    addTemplate("Top_ZE_"+suffix+"_CMS_jerDown", vars, wspace_ZE, histoJerDw);
+    addTemplate("Top_ZE_"+suffix+"_CMS_scale_jUp", vars, wspace_ZE, histoJesUp);
+    addTemplate("Top_ZE_"+suffix+"_CMS_scale_jDown", vars, wspace_ZE, histoJesDw);
+    addTemplate("Top_ZE_"+suffix+"_CMS_res_jUp", vars, wspace_ZE, histoJerUp);
+    addTemplate("Top_ZE_"+suffix+"_CMS_res_jDown", vars, wspace_ZE, histoJerDw);
     addTemplate("Top_ZE_"+suffix+"_CMS_uncUp", vars, wspace_ZE, histoUncUp);
     addTemplate("Top_ZE_"+suffix+"_CMS_uncDown", vars, wspace_ZE, histoUncDw);
 
@@ -761,10 +791,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Dibosons_ZE_"+suffix+"_CMS_btagUp", vars, wspace_ZE, histobUp);
     addTemplate("Dibosons_ZE_"+suffix+"_CMS_btagDown", vars, wspace_ZE, histobDw);
-    addTemplate("Dibosons_ZE_"+suffix+"_CMS_jesUp", vars, wspace_ZE, histoJesUp);
-    addTemplate("Dibosons_ZE_"+suffix+"_CMS_jesDown", vars, wspace_ZE, histoJesDw);
-    addTemplate("Dibosons_ZE_"+suffix+"_CMS_jerUp", vars, wspace_ZE, histoJerUp);
-    addTemplate("Dibosons_ZE_"+suffix+"_CMS_jerDown", vars, wspace_ZE, histoJerDw);
+    addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_jUp", vars, wspace_ZE, histoJesUp);
+    addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_jDown", vars, wspace_ZE, histoJesDw);
+    addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_jUp", vars, wspace_ZE, histoJerUp);
+    addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_jDown", vars, wspace_ZE, histoJerDw);
     addTemplate("Dibosons_ZE_"+suffix+"_CMS_uncUp", vars, wspace_ZE, histoUncUp);
     addTemplate("Dibosons_ZE_"+suffix+"_CMS_uncDown", vars, wspace_ZE, histoUncDw);
 
@@ -780,12 +810,12 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_GJ_"+suffix, vars, wspace_GJ, (TH1F*)templatesfile->Get(("datahistgam_"+observable).c_str()));
   // Gamma+jets --> connected with Z->nunu
   vector<pair<RooRealVar*, TH1*> > znn_GJ_syst;
-  RooRealVar* znn_GJ_re1 = new RooRealVar(("Znunu_GJ_"+suffix+"_RenScale1").c_str()  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa1 = new RooRealVar(("Znunu_GJ_"+suffix+"_FactScale1").c_str()  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_re2 = new RooRealVar(("Znunu_GJ_"+suffix+"_RenScale2").c_str()  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa2 = new RooRealVar(("Znunu_GJ_"+suffix+"_FactScale2").c_str()  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_pdf = new RooRealVar(("Znunu_GJ_"+suffix+"_PDF").c_str()        , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fpc = new RooRealVar(("Znunu_GJ_"+suffix+"_Footprint").c_str()  , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1" , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2"  , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2" , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"        , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint"  , "", 0., -5., 5.);
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->Get(("ZG_EWK_"+observable).c_str())));
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re1, (TH1F*)templatesfile->Get(("ZG_RenScale1_"+observable).c_str())));
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa1, (TH1F*)templatesfile->Get(("ZG_FactScale1_"+observable).c_str())));
@@ -794,7 +824,7 @@ void createWorkspace(string inputName,
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_pdf, (TH1F*)templatesfile->Get(("ZG_PDF_"+observable).c_str())));
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fpc, (TH1F*)templatesfile->Get(("ZG_Footprint_"+observable).c_str())));
 
-  makeConnectedBinList("Znunu_GJ_"+suffix, met, wspace_GJ, (TH1F*)templatesfile->Get(("gamcorewkhist_"+observable).c_str()), znn_GJ_syst, znn_SR_bins);  
+  makeConnectedBinList("Znunu_GJ_"+suffix, met, wspace_GJ, (TH1F*)templatesfile->Get(("gamcorewkhist_"+observable).c_str()), znn_GJ_syst, znn_SR_bins,NULL,observable);  
   // Other MC backgrounds photon+jets control region
   addTemplate("QCD_GJ_"+suffix, vars, wspace_GJ, (TH1F*)templatesfile->Get(("qbkghistgam_"+observable).c_str()));
   
@@ -808,7 +838,7 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_WM_"+suffix, vars, wspace_WM, (TH1F*)templatesfile->Get(("datahistwmn_"+observable).c_str()));
   // connected W->munu with W+jets SR
   vector<pair<RooRealVar*, TH1*> > wln_WM_syst;
-  makeConnectedBinList("WJets_WM_"+suffix, met, wspace_WM, (TH1F*)templatesfile->Get(("wmncorhist_"+observable).c_str()), wln_WM_syst, wln_SR_bins);
+  makeConnectedBinList("WJets_WM_"+suffix, met, wspace_WM, (TH1F*)templatesfile->Get(("wmncorhist_"+observable).c_str()), wln_WM_syst, wln_SR_bins,NULL,observable);
 		       
   // Other MC backgrounds in single muon control region
   addTemplate("ZJets_WM_"+suffix, vars, wspace_WM, (TH1F*)templatesfile->Get(("vllbkghistwmn_"+observable).c_str()));
@@ -841,10 +871,10 @@ void createWorkspace(string inputName,
  
     addTemplate("ZJets_WM_"+suffix+"_CMS_btagUp", vars, wspace_WM, histobUp);
     addTemplate("ZJets_WM_"+suffix+"_CMS_btagDown", vars, wspace_WM, histobDw);
-    addTemplate("ZJets_WM_"+suffix+"_CMS_jesUp", vars, wspace_WM, histoJesUp);
-    addTemplate("ZJets_WM_"+suffix+"_CMS_jesDown", vars, wspace_WM, histoJesDw);
-    addTemplate("ZJets_WM_"+suffix+"_CMS_jerUp", vars, wspace_WM, histoJerUp);
-    addTemplate("ZJets_WM_"+suffix+"_CMS_jerDown", vars, wspace_WM, histoJerDw);
+    addTemplate("ZJets_WM_"+suffix+"_CMS_scale_jUp", vars, wspace_WM, histoJesUp);
+    addTemplate("ZJets_WM_"+suffix+"_CMS_scale_jDown", vars, wspace_WM, histoJesDw);
+    addTemplate("ZJets_WM_"+suffix+"_CMS_res_jUp", vars, wspace_WM, histoJerUp);
+    addTemplate("ZJets_WM_"+suffix+"_CMS_res_jDown", vars, wspace_WM, histoJerDw);
     addTemplate("ZJets_WM_"+suffix+"_CMS_uncUp", vars, wspace_WM, histoUncUp);
     addTemplate("ZJets_WM_"+suffix+"_CMS_uncDown", vars, wspace_WM, histoUncDw);
 
@@ -872,10 +902,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Top_WM_"+suffix+"_CMS_btagUp", vars, wspace_WM, histobUp);
     addTemplate("Top_WM_"+suffix+"_CMS_btagDown", vars, wspace_WM, histobDw);
-    addTemplate("Top_WM_"+suffix+"_CMS_jesUp", vars, wspace_WM, histoJesUp);
-    addTemplate("Top_WM_"+suffix+"_CMS_jesDown", vars, wspace_WM, histoJesDw);
-    addTemplate("Top_WM_"+suffix+"_CMS_jerUp", vars, wspace_WM, histoJerUp);
-    addTemplate("Top_WM_"+suffix+"_CMS_jerDown", vars, wspace_WM, histoJerDw);
+    addTemplate("Top_WM_"+suffix+"_CMS_scale_jUp", vars, wspace_WM, histoJesUp);
+    addTemplate("Top_WM_"+suffix+"_CMS_scale_jDown", vars, wspace_WM, histoJesDw);
+    addTemplate("Top_WM_"+suffix+"_CMS_res_jUp", vars, wspace_WM, histoJerUp);
+    addTemplate("Top_WM_"+suffix+"_CMS_res_jDown", vars, wspace_WM, histoJerDw);
     addTemplate("Top_WM_"+suffix+"_CMS_uncUp", vars, wspace_WM, histoUncUp);
     addTemplate("Top_WM_"+suffix+"_CMS_uncDown", vars, wspace_WM, histoUncDw);
 
@@ -904,10 +934,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Dibosons_WM_"+suffix+"_CMS_btagUp", vars, wspace_WM, histobUp);
     addTemplate("Dibosons_WM_"+suffix+"_CMS_btagDown", vars, wspace_WM, histobDw);
-    addTemplate("Dibosons_WM_"+suffix+"_CMS_jesUp", vars, wspace_WM, histoJesUp);
-    addTemplate("Dibosons_WM_"+suffix+"_CMS_jesDown", vars, wspace_WM, histoJesDw);
-    addTemplate("Dibosons_WM_"+suffix+"_CMS_jerUp", vars, wspace_WM, histoJerUp);
-    addTemplate("Dibosons_WM_"+suffix+"_CMS_jerDown", vars, wspace_WM, histoJerDw);
+    addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_jUp", vars, wspace_WM, histoJesUp);
+    addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_jDown", vars, wspace_WM, histoJesDw);
+    addTemplate("Dibosons_WM_"+suffix+"_CMS_res_jUp", vars, wspace_WM, histoJerUp);
+    addTemplate("Dibosons_WM_"+suffix+"_CMS_res_jDown", vars, wspace_WM, histoJerDw);
     addTemplate("Dibosons_WM_"+suffix+"_CMS_uncUp", vars, wspace_WM, histoUncUp);
     addTemplate("Dibosons_WM_"+suffix+"_CMS_uncDown", vars, wspace_WM, histoUncDw);
 
@@ -923,7 +953,7 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_WE_"+suffix, vars, wspace_WE, (TH1F*)templatesfile->Get(("datahistwen_"+observable).c_str()));
   // connected W->enu with W+jets SR 
   vector<pair<RooRealVar*, TH1*> > wln_WE_syst;
-  makeConnectedBinList("WJets_WE_"+suffix, met, wspace_WE, (TH1F*)templatesfile->Get(("wencorhist_"+observable).c_str()), wln_WE_syst, wln_SR_bins);
+  makeConnectedBinList("WJets_WE_"+suffix, met, wspace_WE, (TH1F*)templatesfile->Get(("wencorhist_"+observable).c_str()), wln_WE_syst, wln_SR_bins,NULL,observable);
 
   // Other MC backgrounds in single electron control region
   addTemplate("ZJets_WE_"+suffix, vars, wspace_WE, (TH1F*)templatesfile->Get(("vllbkghistwen_"+observable).c_str()));
@@ -956,10 +986,10 @@ void createWorkspace(string inputName,
 
     addTemplate("ZJets_WE_"+suffix+"_CMS_btagUp", vars, wspace_WE, histobUp);
     addTemplate("ZJets_WE_"+suffix+"_CMS_btagDown", vars, wspace_WE, histobDw);
-    addTemplate("ZJets_WE_"+suffix+"_CMS_jesUp", vars, wspace_WE, histoJesUp);
-    addTemplate("ZJets_WE_"+suffix+"_CMS_jesDown", vars, wspace_WE, histoJesDw);
-    addTemplate("ZJets_WE_"+suffix+"_CMS_jerUp", vars, wspace_WE, histoJerUp);
-    addTemplate("ZJets_WE_"+suffix+"_CMS_jerDown", vars, wspace_WE, histoJerDw);
+    addTemplate("ZJets_WE_"+suffix+"_CMS_scale_jUp", vars, wspace_WE, histoJesUp);
+    addTemplate("ZJets_WE_"+suffix+"_CMS_scale_jDown", vars, wspace_WE, histoJesDw);
+    addTemplate("ZJets_WE_"+suffix+"_CMS_res_jUp", vars, wspace_WE, histoJerUp);
+    addTemplate("ZJets_WE_"+suffix+"_CMS_res_jDown", vars, wspace_WE, histoJerDw);
     addTemplate("ZJets_WE_"+suffix+"_CMS_uncUp", vars, wspace_WE, histoUncUp);
     addTemplate("ZJets_WE_"+suffix+"_CMS_uncDown", vars, wspace_WE, histoUncDw);
 
@@ -987,10 +1017,10 @@ void createWorkspace(string inputName,
 
     addTemplate("Top_WE_"+suffix+"_CMS_btagUp", vars, wspace_WE, histobUp);
     addTemplate("Top_WE_"+suffix+"_CMS_btagDown", vars, wspace_WE, histobDw);
-    addTemplate("Top_WE_"+suffix+"_CMS_jesUp", vars, wspace_WE, histoJesUp);
-    addTemplate("Top_WE_"+suffix+"_CMS_jesDown", vars, wspace_WE, histoJesDw);
-    addTemplate("Top_WE_"+suffix+"_CMS_jerUp", vars, wspace_WE, histoJerUp);
-    addTemplate("Top_WE_"+suffix+"_CMS_jerDown", vars, wspace_WE, histoJerDw);
+    addTemplate("Top_WE_"+suffix+"_CMS_scale_jUp", vars, wspace_WE, histoJesUp);
+    addTemplate("Top_WE_"+suffix+"_CMS_scale_jDown", vars, wspace_WE, histoJesDw);
+    addTemplate("Top_WE_"+suffix+"_CMS_res_jUp", vars, wspace_WE, histoJerUp);
+    addTemplate("Top_WE_"+suffix+"_CMS_res_jDown", vars, wspace_WE, histoJerDw);
     addTemplate("Top_WE_"+suffix+"_CMS_uncUp", vars, wspace_WE, histoUncUp);
     addTemplate("Top_WE_"+suffix+"_CMS_uncDown", vars, wspace_WE, histoUncDw);
 
@@ -1016,17 +1046,14 @@ void createWorkspace(string inputName,
       fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
     }
 
-
     addTemplate("Dibosons_WE_"+suffix+"_CMS_btagUp", vars, wspace_WE, histobUp);
     addTemplate("Dibosons_WE_"+suffix+"_CMS_btagDown", vars, wspace_WE, histobDw);
-    addTemplate("Dibosons_WE_"+suffix+"_CMS_jesUp", vars, wspace_WE, histoJesUp);
-    addTemplate("Dibosons_WE_"+suffix+"_CMS_jesDown", vars, wspace_WE, histoJesDw);
-    addTemplate("Dibosons_WE_"+suffix+"_CMS_jerUp", vars, wspace_WE, histoJerUp);
-    addTemplate("Dibosons_WE_"+suffix+"_CMS_jerDown", vars, wspace_WE, histoJerDw);
+    addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_jUp", vars, wspace_WE, histoJesUp);
+    addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_jDown", vars, wspace_WE, histoJesDw);
+    addTemplate("Dibosons_WE_"+suffix+"_CMS_res_jUp", vars, wspace_WE, histoJerUp);
+    addTemplate("Dibosons_WE_"+suffix+"_CMS_res_jDown", vars, wspace_WE, histoJerDw);
     addTemplate("Dibosons_WE_"+suffix+"_CMS_uncUp", vars, wspace_WE, histoUncUp);
     addTemplate("Dibosons_WE_"+suffix+"_CMS_uncDown", vars, wspace_WE, histoUncDw);
-
-
 
   }
 
@@ -1041,10 +1068,10 @@ void createWorkspace(string inputName,
     addTemplate("data_obs_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->Get(("datahisttopmu_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TM_syst;
-    RooRealVar* top_btag   = new RooRealVar(("Top_btag_"+suffix).c_str(), "", 0., -5., 5.);
+    RooRealVar* top_btag   = new RooRealVar("Top_btag", "", 0., -5., 5.);
     top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->Get(("TOP_MU_B_"+observable).c_str())));
     
-    makeConnectedBinList("Top_TM_"+suffix, met, wspace_TM, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins);
+    makeConnectedBinList("Top_TM_"+suffix, met, wspace_TM, (TH1F*)templatesfile->Get(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins,NULL,observable);
     
     // Other MC backgrounds in single electron control region
     addTemplate("ZJets_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->Get(("vllbkghisttopmu_"+observable).c_str()));
@@ -1077,10 +1104,10 @@ void createWorkspace(string inputName,
       
       addTemplate("ZJets_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
       addTemplate("ZJets_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_jesUp", vars, wspace_TM, histoJesUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_jesDown", vars, wspace_TM, histoJesDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_jerUp", vars, wspace_TM, histoJerUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_jerDown", vars, wspace_TM, histoJerDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
       addTemplate("ZJets_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
       addTemplate("ZJets_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
       
@@ -1108,10 +1135,10 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
       addTemplate("WJets_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_jesUp", vars, wspace_TM, histoJesUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_jesDown", vars, wspace_TM, histoJesDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_jerUp", vars, wspace_TM, histoJerUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_jerDown", vars, wspace_TM, histoJerDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
       addTemplate("WJets_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
       addTemplate("WJets_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
       
@@ -1140,10 +1167,10 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
       addTemplate("Dibosons_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_jesUp", vars, wspace_TM, histoJesUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_jesDown", vars, wspace_TM, histoJesDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_jerUp", vars, wspace_TM, histoJerUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_jerDown", vars, wspace_TM, histoJerDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
       addTemplate("Dibosons_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
       addTemplate("Dibosons_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
            
@@ -1160,7 +1187,7 @@ void createWorkspace(string inputName,
     vector<pair<RooRealVar*, TH1*> > top_TE_syst;
     top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->Get(("TOP_EL_B_"+observable).c_str())));
     
-    makeConnectedBinList("Top_TE_"+suffix, met, wspace_TE, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins);
+    makeConnectedBinList("Top_TE_"+suffix, met, wspace_TE, (TH1F*)templatesfile->Get(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins,NULL,observable);
     
     // Other MC backgrounds in single electron control region
     addTemplate("ZJets_TE_"+suffix , vars, wspace_TE, (TH1F*)templatesfile->Get(("vllbkghisttopel_"+observable).c_str()));
@@ -1193,10 +1220,10 @@ void createWorkspace(string inputName,
       
       addTemplate("ZJets_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
       addTemplate("ZJets_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_jesUp", vars, wspace_TE, histoJesUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_jesDown", vars, wspace_TE, histoJesDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_jerUp", vars, wspace_TE, histoJerUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_jerDown", vars, wspace_TE, histoJerDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
       addTemplate("ZJets_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
       addTemplate("ZJets_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
       
@@ -1224,10 +1251,10 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
       addTemplate("WJets_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_jesUp", vars, wspace_TE, histoJesUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_jesDown", vars, wspace_TE, histoJesDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_jerUp", vars, wspace_TE, histoJerUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_jerDown", vars, wspace_TE, histoJerDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
       addTemplate("WJets_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
       addTemplate("WJets_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
       
@@ -1256,10 +1283,10 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
       addTemplate("Dibosons_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_jesUp", vars, wspace_TE, histoJesUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_jesDown", vars, wspace_TE, histoJesDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_jerUp", vars, wspace_TE, histoJerUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_jerDown", vars, wspace_TE, histoJerDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
       addTemplate("Dibosons_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
       addTemplate("Dibosons_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
       

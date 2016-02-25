@@ -3,32 +3,32 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      oneel   workspace_MV.root WE_MV:data_obs_WE_MV
-shapes WJets         oneel   workspace_MV.root WE_MV:WJets_WE_MV
-shapes ZJets_WE      oneel   workspace_MV.root WE_MV:ZJets_WE_MV    WE_MV:ZJets_WE_MV_$SYSTEMATIC
-shapes Dibosons      oneel   workspace_MV.root WE_MV:Dibosons_WE_MV WE_MV:Dibosons_WE_MV_$SYSTEMATIC
-shapes Top           oneel   workspace_MV.root WE_MV:Top_WE_MV      WE_MV:Top_WE_MV_$SYSTEMATIC
-shapes QCD_WE        oneel   workspace_MV.root WE_MV:QCD_WE_MV
+shapes data_obs      oneel_MV   workspace_MV.root WE_MV:data_obs_WE_MV
+shapes WJets         oneel_MV   workspace_MV.root WE_MV:WJets_WE_MV
+shapes ZJets_WE      oneel_MV   workspace_MV.root WE_MV:ZJets_WE_MV    WE_MV:ZJets_WE_MV_$SYSTEMATIC
+shapes Dibosons      oneel_MV   workspace_MV.root WE_MV:Dibosons_WE_MV WE_MV:Dibosons_WE_MV_$SYSTEMATIC
+shapes Top           oneel_MV   workspace_MV.root WE_MV:Top_WE_MV      WE_MV:Top_WE_MV_$SYSTEMATIC
+shapes QCD_WE        oneel_MV   workspace_MV.root WE_MV:QCD_WE_MV      WE_MV:QCD_WE_MV_$SYSTEMATIC
 ------------------------------------------------------------------------------------------------
-bin         oneel
+bin         oneel_MV
 observation -1
 ------------------------------------------------------------------------------------------------
-bin                                 oneel       oneel       oneel           oneel         oneel
-process                             WJets       ZJets_WE    Dibosons        Top		  QCD_WE
-process                             2           3           4               5             6
+bin                                 oneel_MV    oneel_MV    oneel_MV        oneel_MV      oneel_MV
+process                             WJets       ZJets_WE    Dibosons        Top           QCD_WE
+process                             2           12           4               5            13
 rate                                1          -1           -1             -1            -1
 ------------------------------------------------------------------------------------------------
-Lumi                      lnN       -           1.027       1.027           1.027         1.027
-Uncertainty_ELSF          lnN       1.020       1.020       1.020           1.020         1.020
-Uncertainty_Trig          lnN       1.010       1.010       1.010           1.010         1.010
-Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
-Estimate_ZJets_WE         lnN       -           1.200       -               -             -
-Estimate_DIBOSONS         lnN       -           -           1.200           -             -
-Estimate_TOP              lnN       -           -           -               1.100         -
-Estimate_QCD_WE           lnN       -           -           -               -             1.500
+lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+CMS_eff_e                 lnN       1.020       1.020       1.020           1.020         1.020
+CMS_eff_trig_e            lnN       1.010       1.010       1.010           1.010         1.010
+CMS_eff_lepVeto           lnN       1.030       -           -               -             -
+ZJets_WE_Norm13TeV        lnN       -           1.200       -               -             -
+Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
+Top_Norm13TeV             lnN       -           -           -               1.100         -
+QCD_WE_Norm13TeV          lnN       -           -           -               -             1.500
 CMS_btag                  shapeN2   -           1           1               1             -
-CMS_jes                   shapeN2   -           1           1               1             -
-CMS_jer                   shapeN2   -           1           1               1             -
+CMS_scale_j               shapeN2   -           1           1               1             -
+CMS_res_j                 shapeN2   -           1           1               1             -
 CMS_unc                   shapeN2   -           1           1               1             -
 WJets_WE_MV_bin1_Runc     param     0     1
 WJets_WE_MV_bin2_Runc     param     0     1

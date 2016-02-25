@@ -125,38 +125,53 @@ if __name__ == '__main__':
         command += " | grep "+options.Interaction;
     if options.MedMass != "" and options.DMMass != "":
         command += " | grep _"+options.MedMass+"_"+options.DMMass;
+
+    suffix = ""
+    if options.category == 1:
+        suffix =  "_MJ"
+    elif options.category == 2:
+        suffix =  "_MV"
         
-    os.system(command+" > file_temp");
+    os.system(command+" > file_temp"+suffix);
 
     ## open the file
-    fileWS = open("file_temp",'r')
+    fileWS = open("file_temp"+suffix,'r')
     for line_tmp in fileWS:
         os.chdir(originalDIR);
         line = line_tmp.rstrip()
+        if options.category == 0 and "_MV_" in line : continue; ## already done
         if line == "" or line == '\n': continue;
         if options.category == 1 and "_MV_" in line : continue;
         if options.category == 2 and "_MJ_" in line : continue;
-        dirName = line.replace("workspace_","").replace(".root","")
+        if options.category != 0:
+            dirName = line.replace("workspace_","").replace(".root","")
+        else:
+            dirName = line.replace("workspace_","").replace(".root","").replace("MJ_","").replace("MV_","")
+            
         ## create single job dir
         os.system("mkdir -p "+options.jobDIR+"/job_"+dirName)
         ## copy the workspace
         os.system("scp "+options.workspaceDIR+"/"+line+" "+options.jobDIR+"/job_"+dirName);
+        if options.category == 0:
+            os.system("scp "+options.workspaceDIR+"/"+line.replace("MJ","MV")+" "+options.jobDIR+"/job_"+dirName);
+
         ## copy the datacards
         os.system("scp "+options.datacardDIR+"/*.txt "+options.jobDIR+"/job_"+dirName);
         ## set working dir in the job dir
         os.chdir(options.jobDIR+"/job_"+dirName);
         ## sobstitute the workspace name in the cards        
-        os.system("ls | grep datacard | grep txt > datacard_list ")
-        fileDC = open("datacard_list",'r')
+        os.system("ls | grep datacard | grep txt > datacard_list"+suffix)
+        fileDC = open("datacard_list"+suffix,'r')
         dcList = [];
         for dc_temp in fileDC:            
             dc = dc_temp.rstrip();
             dcList.append(dc);
             if options.category == 1 and "_monoV_" in dc : continue;
             if options.category == 2 and "_monoJ_" in dc : continue;
-            os.system("sed -i -e 's/workspace_MJ.root/"+line+"/g' "+dc);
-            os.system("sed -i -e 's/workspace_MV.root/"+line+"/g' "+dc);
 
+            os.system("sed -i -e 's/workspace_MJ.root/"+line+"/g' "+dc);
+            os.system("sed -i -e 's/workspace_MV.root/"+line.replace("MJ","MV")+"/g' "+dc);
+                    
             ### combine cards
             if options.category == 1:
                 command = "combineCards.py datacard_SR_monoJ.txt datacard_ZM_monoJ.txt datacard_WM_monoJ.txt datacard_GJ_monoJ.txt datacard_ZE_monoJ.txt datacard_WE_monoJ.txt" 
@@ -180,25 +195,43 @@ if __name__ == '__main__':
                 dcList.append("datacard_COMB_monoV.txt");
                 os.system(command);
 
-        os.system("rm datacard_list")
+            else:
+
+                command = "combineCards.py datacard_SR_monoJ.txt datacard_SR_monoV.txt datacard_ZM_monoJ.txt datacard_ZM_monoV.txt datacard_WM_monoJ.txt datacard_WM_monoV.txt datacard_GJ_monoJ.txt datacard_GJ_monoV.txt datacard_ZE_monoJ.txt datacard_ZE_monoV.txt datacard_WE_monoJ.txt datacard_WE_monoV.txt"
+                if "datacard_TM_monoJ.txt" in dcList:
+                    command += "datacard_TM_monoJ.txt"
+                if "datacard_TM_monoV.txt" in dcList:
+                    command += "datacard_TM_monoV.txt"
+                if "datacard_TE_monoJ.txt" in dcList:
+                    command += "datacard_TE_monoJ.txt"
+                if "datacard_TE_monoV.txt" in dcList:
+                    command += "datacard_TE_monoV.txt"
+
+                command += " > datacard_COMB.txt"
+                dcList.append("datacard_COMB.txt");
+                os.system(command);
+
+        os.system("rm datacard_list"+suffix)
 
         option = "";
+        if options.category == 0:
+            name = line.replace("workspace_","").replace(".root","").replace("MJ_","")
+        else:
+            name = line.replace("workspace_","").replace(".root","")
+
         ######## start to run combine options
         if options.generateOnly:
 
-           print "##############################"
-           print "####### Generate Only ########"
-           print "##############################"
            if options.toyGeneration == 0:
                option += "--toysNoSystematics";
            elif options.toyGeneration == 1:
                option += "--toysFrequentist";
 
-           command = "combine -M GenerateOnly --saveToys -s -1 -n %s -d %s -t %d --expectSignal=%d %s "%(line,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
+           command = "combine -M GenerateOnly --saveToys -s -1 -n %s -d %s -t %d --expectSignal=%d %s "%(name,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
            print "runCmmd ",runCmmd;
            if options.batchMode:
-               fn = "job_Combine_generateOnly_%s_nToys_%d.sh"%(line,options.nToys);
-               submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+               fn = "job_Combine_generateOnly_%s_nToys_%d.sh"%(name,options.nToys);               
+               submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
            else: 
                os.system(runCmmd);
                os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);   
@@ -207,16 +240,12 @@ if __name__ == '__main__':
         ########################################
         elif options.maximumLikelihoodFit == 1:
                                     
-            print"#####################################";
-            print"###### Maximum Likelihood Fits ######";
-            print"#####################################";   
-    
             if options.nToys == 0 : 
-                runCmmd = "combine -M MaxLikelihoodFit --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties --saveShapes -n %s -d  %s  --robustFit=1 --saveNLL"%(rMin,rMax,line,dcList[len(dcList)-1]);
+                runCmmd = "combine -M MaxLikelihoodFit --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties --saveShapes -n %s -d  %s --saveNLL"%(rMin,rMax,name,dcList[len(dcList)-1]);
                 print "runCmmd ",runCmmd;
                 if options.batchMode:
-                   fn = "job_Combine_MaxLikelihoodFit_%s.sh"%(line);
-                   submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+                    fn = "job_Combine_MaxLikelihoodFit_%s.sh"%(name);
+                    submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
                 else:   
                     os.system(runCmmd);
                     os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);   
@@ -232,12 +261,11 @@ if __name__ == '__main__':
                     option += "--toysFrequentist";
                     
                 if not options.submitOneJobPerToy:
-                        
-                    runCmmd =  "combine -M MaxLikelihoodFit --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties --saveShapes --saveToys -s -1 -n %s -d %s -t %d --expectSignal=%d --robustFit=1 --saveNLL %s"%(rMin,rMax,line,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
+                    runCmmd =  "combine -M MaxLikelihoodFit --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties --saveShapes --saveToys -s -1 -n %s -d %s -t %d --expectSignal=%d --saveNLL %s"%(rMin,rMax,name,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
                     print "runCmmd ",runCmmd;
                     if options.batchMode:
-                        fn = "job_Combine_MaxLikelihoodFit_%s_nToys_%d.sh"%(line,options.nToys);
-                        submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+                        fn = "job_Combine_MaxLikelihoodFit_%s_nToys_%d.sh"%(name,options.nToys);
+                        submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
                     else: 
                         os.system(runCmmd);
                         os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);   
@@ -249,11 +277,11 @@ if __name__ == '__main__':
 
                     for itoy in range(options.nToys):
                         outname = "iToy_%d"%(itoy);
-                        runCmmd =  "combine -M MaxLikelihoodFit  --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties  --saveShapes --saveToys -s -1 -n %s  -d %s  -t 1 --expectSignal=%d --robustFit=1 %s"%(rMin,rMax,line,dcList[len(dcList)-1],options.injectSignal,option);
+                        runCmmd =  "combine -M MaxLikelihoodFit  --rMin %f --rMax %f --saveNormalizations --saveWithUncertainties  --saveShapes --saveToys -s -1 -n %s  -d %s  -t 1 --expectSignal=%d %s"%(rMin,rMax,name,dcList[len(dcList)-1],options.injectSignal,option);
                         print "runCmmd ",runCmmd;
                         if options.batchMode:
-                            fn = "job_Combine_MaxLikelihoodFit_%s_%s.sh"%(line,outname);
-                            submitBatchJobCombine(runCmmd,fn,line+"_"+outname,originalDIR+"/"+options.outputDIR);
+                            fn = "job_Combine_MaxLikelihoodFit_%s.sh"%(name);
+                            submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
                         else: 
                             os.system(runCmmd);
                             os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);   
@@ -264,29 +292,21 @@ if __name__ == '__main__':
        ########################################
         elif options.computeAsymptotic == 1 :
 
-            print "################################";
-            print "#### Asymptotic Limit part  ####";
-            print "################################";
-            
-            if options.runBlind == 1 : option += "--run blind"
-            
+            if options.runBlind == 1 : option += "--run blind"            
             if options.nToys == 0 : ## run on data               
-                runCmmd = "combine -M Asymptotic  --minosAlgo stepping -n %s -d %s  -H ProfileLikelihood %s "%(line,dcList[len(dcList)-1],option)
-
+                runCmmd = "combine -M Asymptotic  --minosAlgo stepping -n %s -d %s  -H ProfileLikelihood %s "%(name,dcList[len(dcList)-1],option)
             else:
-
                 if options.toyGeneration == 0:
                     option += "--toysNoSystematics";
                 elif options.toyGeneration == 1:
                     option += "--toysFrequentist";
 
-                runCmmd = "combine -M Asymptotic  --minosAlgo stepping -n %s -d %s -s -1 --expectSignal=%d -t %d  -H ProfileLikelihood %s"%(line,dcList[len(dcList)-1],options.injectSignal,options.nToys,option)
+                runCmmd = "combine -M Asymptotic  --minosAlgo stepping -n %s -d %s -s -1 --expectSignal=%d -t %d  -H ProfileLikelihood %s"%(name,dcList[len(dcList)-1],options.injectSignal,options.nToys,option)
 
             print "runCmmd ",runCmmd ;
-
             if options.batchMode:
-                fn = "job_Combine_Asymptotic_%s.sh"%(line);
-                submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+                fn = "job_Combine_Asymptotic_%s.sh"%(name);
+                submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
             else: 
                 os.system(runCmmd);
                 os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);
@@ -295,25 +315,21 @@ if __name__ == '__main__':
          ########################################
         elif options.computeProfileLikelihood == 1 : 
 
-           print "##################################################"
-           print "###### run the observed and expected pvalue  #####"
-           print "##################################################" 
-           
            if options.nToys == 0:
-               runCmmd = "combine -M ProfileLikelihood --signif  -n %s  -d %s"%(line,dcList[len(dcList)-1]);
+               runCmmd = "combine -M ProfileLikelihood --signif  -n %s  -d %s"%(name,dcList[len(dcList)-1]);
            else:    
                if options.toyGeneration == 0:
                    option += "--toysNoSystematics";
                elif options.toyGeneration == 1:
                    option += "--toysFrequentist";
 
-               runCmmd = "combine -M ProfileLikelihood --signif  -n %s  -d %s -t %d --expectSignal=%d -s -1 %s"%(line,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
+               runCmmd = "combine -M ProfileLikelihood --signif  -n %s  -d %s -t %d --expectSignal=%d -s -1 %s"%(name,dcList[len(dcList)-1],options.nToys,options.injectSignal,option);
 
            print "runCmmd ",runCmmd;
                           
            if options.batchMode:
-               fn = "job_Combine_ProfileLikelihood_%s.sh"%(line);
-               submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+               fn = "job_Combine_ProfileLikelihood_%s.sh"%(name);
+               submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
            else:
                os.system(runCmmd);
                os.system("mv higgsCombine* "+originalDIR+"/"+options.outputDIR);
@@ -321,22 +337,31 @@ if __name__ == '__main__':
         ########################################
         elif options.makeLikelihoodScan == 1:
 
+            if options.category == 2 or "10000" in name or "5000" in name or "2000" in name:
+                rMax = 3.;
+            else:
+                rMax = 1.;
+
             if options.nToys == 0:          
-                runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=150 --setPhysicsModelParameterRanges r=%f,%f"%(line,dcList[len(dcList)-1],rMin,rMax);
-               
+                runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=100 --setPhysicsModelParameterRanges r=%f,%f"%(name,dcList[len(dcList)-1],rMin,rMax);
+                
             else:
                 if options.toyGeneration == 0:
                     option += "--toysNoSystematics";
                 elif options.toyGeneration == 1:
                     option += "--toysFrequentist";
-
-                runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=150 --setPhysicsModelParameterRanges r=%f,%f -s -1 --expectSignal=%d -t %d %s"%(line,dcList[len(dcList)-1],rMin,rMax,options.injectSignal,options.nToys,option);
+                    
+            runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=100 --setPhysicsModelParameterRanges r=%f,%f -s -1 --expectSignal=%d -t %d %s"%(name,dcList[len(dcList)-1],rMin,rMax,options.injectSignal,options.nToys,option);
 
                 
             print "runCmmd ",runCmmd;
             if options.batchMode:
-                fn = "job_Combine_LikelihoodScan_%s.sh"%(line);
-                submitBatchJobCombine(runCmmd,fn,line,originalDIR+"/"+options.outputDIR);
+                fn = "job_Combine_LikelihoodScan_%s.sh"%(name);
+                submitBatchJobCombine(runCmmd,fn,name,originalDIR+"/"+options.outputDIR);
             else:
                 os.system(runCmmd);
                 os.system("mv higgsCombine*MultiDimFit* "+originalDIR+"/"+options.outputDIR);
+
+
+    os.chdir(originalDIR);
+    os.system("rm file_temp"+suffix)

@@ -3,31 +3,31 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      onemuon   workspace_MJ.root WM_MJ:data_obs_WM_MJ
-shapes WJets         onemuon   workspace_MJ.root WM_MJ:WJets_WM_MJ
-shapes ZJets_WM      onemuon   workspace_MJ.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
-shapes Dibosons      onemuon   workspace_MJ.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
-shapes Top           onemuon   workspace_MJ.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
-shapes QCD_WM        onemuon   workspace_MJ.root WM_MJ:QCD_WM_MJ
+shapes data_obs      onemuon_MJ   workspace_MJ.root WM_MJ:data_obs_WM_MJ
+shapes WJets         onemuon_MJ   workspace_MJ.root WM_MJ:WJets_WM_MJ
+shapes ZJets_WM      onemuon_MJ   workspace_MJ.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
+shapes Dibosons      onemuon_MJ   workspace_MJ.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
+shapes Top           onemuon_MJ   workspace_MJ.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
+shapes QCD_WM        onemuon_MJ   workspace_MJ.root WM_MJ:QCD_WM_MJ
 ------------------------------------------------------------------------------------------------
-bin         onemuon
+bin         onemuon_MJ
 observation -1
 ------------------------------------------------------------------------------------------------
-bin                                 onemuon     onemuon     onemuon         onemuon       onemuon
+bin                                 onemuon_MJ     onemuon_MJ     onemuon_MJ         onemuon_MJ       onemuon_MJ
 process                             WJets       ZJets_WM    Dibosons        Top           QCD_WM
-process                             2           3           4               5             6
+process                             2           9           4               5             10
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
-Lumi                      lnN       -           1.027       1.027           1.027         1.027
-Uncertainty_MUSF          lnN       1.010       1.010       1.010           1.010         1.010
-Uncertainty_LepVeto       lnN       1.030       -           -               -             -             
-Estimate_ZJets_WM         lnN       -           1.200       -               -             -
-Estimate_DIBOSONS         lnN       -           -           1.200           -             -
-Estimate_TOP              lnN       -           -           -               1.100         -
-Estimate_QCD_WM           lnN       -           -           -               -             1.500
+lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
+CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
+ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
+Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
+Top_Norm13TeV             lnN       -           -           -               1.100         -
+QCD_WM_Norm13TeV          lnN       -           -           -               -             1.500
 CMS_btag                  shapeN2   -           1           1               1             -
-CMS_jes                   shapeN2   -           1           1               1             -
-CMS_jer                   shapeN2   -           1           1               1             -
+CMS_scale_j               shapeN2   -           1           1               1             -
+CMS_res_j                 shapeN2   -           1           1               1             -
 CMS_unc                   shapeN2   -           1           1               1             -
 WJets_WM_MJ_bin1_Runc     param     0     1
 WJets_WM_MJ_bin2_Runc     param     0     1
