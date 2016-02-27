@@ -16,12 +16,12 @@ rate                                1          -1
 ---------------------------------------------------------
 QCD_GJ_Norm13TeV           lnN      -           1.400    
 CMS_eff_ph                 lnN      1.020       -  
-Znunu_GJ_MJ_RenScale1      param    0           1
-Znunu_GJ_MJ_FactScale1     param    0           1
-Znunu_GJ_MJ_RenScale2      param    0           1
-Znunu_GJ_MJ_FactScale2     param    0           1
-Znunu_GJ_MJ_PDF            param    0           1
-Znunu_GJ_MJ_Footprint      param    0           1
+Znunu_GJ_RenScale1      param    0           1
+Znunu_GJ_FactScale1     param    0           1
+Znunu_GJ_RenScale2      param    0           1
+Znunu_GJ_FactScale2     param    0           1
+Znunu_GJ_PDF            param    0           1
+Znunu_GJ_Footprint      param    0           1
 Znunu_GJ_MJ_bin1_Runc      param    0           1
 Znunu_GJ_MJ_bin2_Runc      param    0           1
 Znunu_GJ_MJ_bin3_Runc      param    0           1
