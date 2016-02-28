@@ -351,7 +351,7 @@ if __name__ == '__main__':
                 elif options.toyGeneration == 1:
                     option += "--toysFrequentist";
                     
-            runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=100 --setPhysicsModelParameterRanges r=%f,%f -s -1 --expectSignal=%d -t %d %s"%(name,dcList[len(dcList)-1],rMin,rMax,options.injectSignal,options.nToys,option);
+                runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=100 --setPhysicsModelParameterRanges r=%f,%f -s -1 --expectSignal=%d -t %d %s"%(name,dcList[len(dcList)-1],rMin,rMax,options.injectSignal,options.nToys,option);
 
                 
             print "runCmmd ",runCmmd;
