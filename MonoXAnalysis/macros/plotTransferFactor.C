@@ -20,7 +20,7 @@ void rzmm(string fileName, int category, string observable) {
     TH1F*  hist = (TH1F*)file->Get(("zmmcorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 12., "");
+    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -84,7 +84,7 @@ void rzee(string fileName, int category, string observable) {
 
     TH1F*  hist = (TH1F*)file->Get(("zeecorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
-    TH1* frame = canvas->DrawFrame(bins.front(), 5.0, bins.back(), 30., "");
+    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetYaxis()->SetTitle("R_{Z(ee)}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);

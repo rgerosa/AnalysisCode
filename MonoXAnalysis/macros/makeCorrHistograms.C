@@ -59,12 +59,12 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, select the right QGL re-weight
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
   }
 
   string name = string("zmmcor")+ext;
@@ -167,12 +167,12 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,false,true, NULL);
   }
   string name = string("zeecor")+ext;
 
@@ -274,12 +274,12 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
   }
 
   string name = string("wmncor")+ext;
@@ -379,12 +379,12 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
   }
 
   string name = string("wencor")+ext;
@@ -544,12 +544,12 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
   }
 
   string name = string("zwjcor")+ext;
@@ -724,12 +724,12 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", false, true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", false, true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", false, true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", false, true, NULL);
   }
 
   string name = string("gamcor")+ext;
@@ -832,16 +832,16 @@ void maketopmucorhist( string signalRegionFile,  string  topFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
   }
 
   string name = string("topmucor")+ext;
@@ -966,16 +966,16 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region,
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
   }
 
   string name = string("topelcor")+ext;
@@ -1079,12 +1079,12 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", false,true, NULL);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", false,true, NULL);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", false,true, NULL);
   }
 
   string name = string("sidebandcor")+ext;

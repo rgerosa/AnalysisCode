@@ -287,7 +287,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    if (passesmediumid)
 	      outputmediumphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
 
-            if (photons_iter->pt() > 150) 
+            if (photons_iter->pt() > 120) 
 	      outputtightphotons->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
         }
     }

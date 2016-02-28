@@ -28,6 +28,21 @@ string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFacto
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/";
 
+double reweightTopQuarkPt (double topQuarkPt, double atopQuarkPt){
+
+  double weight_top  = -1.;
+  double weight_atop = -1.;
+  if(topQuarkPt  != 0)
+    weight_top = exp(0.156-0.00137*min(400.,topQuarkPt));
+  if(atopQuarkPt != 0)
+    weight_atop = exp(0.156-0.00137*min(400.,atopQuarkPt));
+
+  if(weight_top != -1. and weight_atop != -1.)
+    return 1.001*sqrt(weight_top*weight_atop);
+  else return 1.;
+}
+
+
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
 	       vector<TH2*> hist2D, /* set of 2D histogram */ 
@@ -39,8 +54,9 @@ void makehist4(TTree* tree, /*input tree*/
 	       double lumi,	       
 	       int    QGLweight,
 	       vector<TH1*> khists, 
-	       string sysName,	       
-	       bool   reweightNVTX = true,
+	       string sysName,	
+	       bool   reWeightTopPt = false,
+	       bool   reweightNVTX  = true,
 	       TH1* rhist = NULL,
 	       int    resonantSelection = 0
 	       ) {
@@ -136,9 +152,9 @@ void makehist4(TTree* tree, /*input tree*/
   string hltphotonname;
 
   if(isMC){
-    wgtname = "wgtsum";
-    wgtpileupname = "wgtpileup";
-
+    // defined branches for re-weigthing only in MC
+    wgtname       = "wgtsum";
+    wgtpileupname = "wgtpileup";    
     if(sysName == "btagUp" or sysName == "bUp")
       btagname = "wgtbtagUp";
     else if(sysName == "btagDown" or sysName == "btagDw" or sysName == "bDown" or sysName == "bDw")
@@ -146,15 +162,22 @@ void makehist4(TTree* tree, /*input tree*/
     else
       btagname = "wgtbtag";
 
-    prescalename  = "wgt";
-    hltphotonname = "hltphoton165";
+    // tem fix since not all the samples have been re-produced with hltphoton120
+    if(sample != 5 and sample != 6){
+      prescalename  = "wgt";
+      hltphotonname = "hltphoton165";
+    }
+    else{
+      prescalename  = "pswgt";
+      hltphotonname = "hltphoton120";
+    }
   }
-  else{
+  else if(!isMC){ // in case of data
     wgtname       = "wgt";
     btagname      = "wgt";
     wgtpileupname = "wgt";
     prescalename  = "pswgt";
-    hltphotonname = "hltphoton120";
+    hltphotonname = "hltphoton120";    
   }
 
   TTreeReaderValue<double> wgtsum       (myReader,wgtname.c_str());
@@ -168,13 +191,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
   TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
   TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
-
-  TTreeReaderValue<UChar_t> hlte   (myReader,"hltsingleel");
- 
-  TTreeReaderValue<UChar_t> hltp120   (myReader, hltphotonname.c_str());
-  TTreeReaderValue<UChar_t> hltp165   (myReader,"hltphoton165");
-  TTreeReaderValue<UChar_t> hltp175   (myReader,"hltphoton175");
-
+  TTreeReaderValue<UChar_t> hlte       (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltp120    (myReader, hltphotonname.c_str());
+  TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
+  // prescale
   TTreeReaderValue<double> pswgt(myReader,prescalename.c_str());
 
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbheloose");
@@ -316,11 +337,26 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
   TTreeReaderValue<double> zmmeta (myReader,"zeta");
 
+  // other trick to handle the fact that this info is actually only stored for top/s-top samples
+  string topptname;
+  string atopptname;
+  if(reWeightTopPt and isMC){
+    topptname = "toppt";
+    atopptname = "atoppt";
+  }
+  else{
+    topptname  = "wgt";
+    atopptname = "wgt";
+  }
+
+  TTreeReaderValue<double> toppt  (myReader,topptname.c_str());
+  TTreeReaderValue<double> atoppt (myReader,atopptname.c_str());
+
   // loop on events
   while(myReader.Next()){
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
-    Double_t hlt_w = 1.0;
+    Double_t hltw  = 1.0;
     if (sample == 0 || sample == 1 || sample == 2 || sample == 7){
       hlt = *hltm90+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
     }
@@ -329,17 +365,14 @@ void makehist4(TTree* tree, /*input tree*/
     }
     else if (sample == 5 || sample == 6){
       if(isMC){
-	if(*phpt >= 165.)
-	  hlt = *hltp165+*hltp175;
-	else
-	  hlt = 1;
+	  hlt = *hltp165+*hltp175+*hltp120;	  
       }
       else{
 	if(*hltp175 || *hltp165)
 	  hlt = *hltp165+*hltp175;
 	else if(*hltp120 and not *hltp175 and not *hltp165){
 	  hlt    = *hltp120;
-	  hlt_w *= *pswgt;	 
+	  hltw  *= *pswgt;	 
 	}
       }
     }
@@ -421,7 +454,8 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t bosonPt = 0.0;
     if (sample == 1)      bosonPt = *zmmpt; // di-muon CR
     else if (sample == 3) bosonPt = zeept[0]; // di-electron CR
-    else if (sample == 5) bosonPt = *phpt; // gamma+jets
+    else if (sample == 5 or sample == 6) bosonPt = *phpt; // gamma+jets
+    else if (sample == 0) bosonPt = pfmet; // missing energy in case of signal region for Z->nunu
     else if (sample == 2 or sample == 4){ // single muon or single ele
       TLorentzVector lep4V, met4V;
       lep4V.SetPtEtaPhiM(pt1,eta1,phi1,0.);
@@ -533,7 +567,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  sfwgt *= 0.881;
       }
     }
-      
+
     //Gen level info --> NLO re-weight
     Double_t rwgt = 1.0;
     if (rhist) 
@@ -551,6 +585,12 @@ void makehist4(TTree* tree, /*input tree*/
 	}
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
       }
+    }
+
+    // Top quark pt re-weight
+    Double_t topptwgt = 1.0;
+    if(reWeightTopPt){
+      topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
     }
     
     // Trigger Selection
@@ -594,7 +634,7 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == 2 || sample == 4) && id1 != 1) continue;
     
     // photon control sample
-    if ((sample == 5 || sample == 6) && *phpt < 150.) continue;
+    if ((sample == 5 || sample == 6) && *phpt < 120.) continue;
     if ((sample == 5 || sample == 6) && fabs(*pheta) > 1.4442) continue;
 
     // Wenu kill QCD
@@ -803,11 +843,11 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }   
       else if(name.Contains("njet"))
-	  fillvar = *njets;      
+	fillvar = *njets;      
       else if(name.Contains("nbjet"))
-	  fillvar = *nbjets;
+	fillvar = *nbjets;
       else if(name.Contains("bosonPt"))
-	fillvar = bosonPt;    
+	fillvar = bosonPt;    	
       else if(name.Contains("QGL_1")){
 	if(jetpt->at(0) < 175.)
 	  fillvar = jetQGL->at(0);
@@ -857,16 +897,16 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX) 
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hlt_w*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hlt_w*sfwgt*rwgt*kwgt/(*wgtsum);
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*rwgt*kwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
       else if (!isMC)
-	evtwgt = 1./hlt_w;
+	evtwgt = hltw;
 
       hist->Fill(fillvar, evtwgt);
     }
@@ -920,16 +960,16 @@ void makehist4(TTree* tree, /*input tree*/
       Double_t puwgt = 0.;
 
       if (isMC and not reweightNVTX)
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hlt_w*sfwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hlt_w*sfwgt*rwgt*kwgt/(*wgtsum);
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
       else if (!isMC)
-	evtwgt = 1./hlt_w;
+	evtwgt = hltw;
       
       hist->Fill(fillvarX,fillvarY,evtwgt);      
       

@@ -1,7 +1,7 @@
 ## TTbar: LO Madgraph inclusive, NLO amcatnlo, powheg                                                                                                                         
 #samples['TTJets_madgraph']  = ['/TTJets_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',                                 #                               ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=831.76']]                                                      
-#samples['TTJets_amcatnlo']  = ['/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM',
-#                               ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=831.76']]
+samples['TTJets_amcatnlo']  = ['/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v3/MINIAODSIM',
+                               ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=831.76']]
 samples['TTJets_powheg']    = ['/TT_TuneCUETP8M1_13TeV-powheg-pythia8/RunIISpring15MiniAODv2-74X_mcRun2_asymptotic_v2-v1/MINIAODSIM',
                                ['useLHEWeights=True','addQCDPDFWeights=True','isWorZorSignalMCSample=True','crossSection=831.76']]
 ## Single-top: t-channel                                                                                                                                                     

@@ -1,4 +1,4 @@
-#python makeWorkspace.py --inputDIR output_exclusive_23bins --observable met --category 1 --templateFile templates_met.root 
+--batchMode#python makeWorkspace.py --inputDIR output_exclusive_23bins --observable met --category 1 --templateFile templates_met.root 
 import os
 import glob
 import math

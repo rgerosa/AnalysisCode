@@ -7,8 +7,6 @@
 #include "TTree.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TTreeReader.h"
-#include "TTreeReaderArray.h"
 #include "TLorentzVector.h"
 #include "TString.h"
 
@@ -33,7 +31,7 @@ class signalSample{
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-//vector<float> bins_monoJ_met         = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
 vector<float> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -55,8 +53,9 @@ vector<float> bins_monoV_jetPt        = {200.,225.,250.,300.,350.,400.,500.,600.
 vector<float> bins_monoJ_jetPt        = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<float> bins_substructure_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
-vector<float> bins_monoV_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
-vector<float> bins_monoJ_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
+vector<float> bins_monoV_bosonPt    = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoJ_bosonPt    = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
+vector<float> bins_monoJ_bosonPt_v2 = {200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
 
 vector<float> bins_monoV_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
@@ -89,6 +88,8 @@ vector<float> selectBinning (string observable, int category){
 
   if(observable == "met" and category <= 1 and category >= 0)
     return bins_monoJ_met;
+  else if(observable == "met_v2" and category <= 1 and category >= 0)
+    return bins_monoJ_met_v2;
   else if(observable == "met" and category > 1 and category <=3)
     return bins_monoV_met;
   else if(observable == "met" and category > 3)
@@ -159,6 +160,8 @@ vector<float> selectBinning (string observable, int category){
 
   else if(observable == "bosonPt" and category <= 1)
     return bins_monoJ_bosonPt;
+  else if(observable == "bosonPt_v2" and category <= 1)
+    return bins_monoJ_bosonPt_v2;
   else if(observable == "bosonPt" and category > 1 and category <= 3)
     return bins_monoV_bosonPt;
   else if(observable == "bosonPt" and category > 3)

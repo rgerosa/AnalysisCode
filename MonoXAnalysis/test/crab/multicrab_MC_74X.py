@@ -39,12 +39,11 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 8000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/SignalForInterpolation_v2/'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-26-02-2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
-config.Site.blacklist = ['T2_UK_SGrid_Bristol']
 
 ## multicrab section
 if __name__ == '__main__':

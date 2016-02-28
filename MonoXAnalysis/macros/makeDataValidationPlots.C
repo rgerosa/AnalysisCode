@@ -208,7 +208,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
 
   vector<float> bins = selectBinning(observable,category);
 
-  TH1* frame_ZG  = pad1_ZG->DrawFrame(bins.front(),0.,bins.back(),0.3, "");
+  TH1* frame_ZG  = pad1_ZG->DrawFrame(bins.front(),0.,bins.back(),0.2, "");
   frame_ZG->GetXaxis()->SetTitle(observableLatex.c_str());
   frame_ZG->GetYaxis()->SetTitle("Ratio Z/#gamma");
   frame_ZG->GetYaxis()->CenterTitle();
@@ -227,7 +227,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad2_ZG->Draw();
   pad2_ZG->cd();
 
-  TH1* frame2_ZG = pad2_ZG->DrawFrame(bins.front(), 0., bins.back(), 2., "");
+  TH1* frame2_ZG = pad2_ZG->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
   frame2_ZG->GetXaxis()->SetLabelSize(0.10);
   frame2_ZG->GetXaxis()->SetLabelOffset(0.03);
   frame2_ZG->GetXaxis()->SetTitleSize(0.13);
@@ -276,6 +276,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   CMS_lumi(pad1_ZG, 4, 0, true);
   TH1* ZGMC_mm_band = (TH1*) ZGMC_mm->Clone("ZGMC_mm_band");
   ZGMC_mm_band->SetFillColor(kGray);
+  frame_ZG->GetYaxis()->SetRangeUser(0.0,0.15);
   ZGMC_mm_band->Draw("E2same");
   ZGMC_mm->Draw("HIST same");
   ZGData_mm->Draw("PESAME");
@@ -315,6 +316,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   TH1* ZGMC_ee_band = (TH1*) ZGMC_ee->Clone("ZGMC_ee_band");
   CMS_lumi(pad1_ZG, 4, 0, true);
   ZGMC_ee_band->SetFillColor(kGray);
+  frame_ZG->GetYaxis()->SetRangeUser(0.,0.15);
   ZGMC_ee_band->Draw("E2same");
   ZGMC_ee->Draw("HIST same");
   ZGData_ee->Draw("PESAME");
@@ -356,6 +358,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   TH1* ZGMC_ll_band = (TH1*) ZGMC_ll->Clone("ZGMC_ll_band");
   ZGMC_ll_band->SetFillColor(kGray);
   CMS_lumi(pad1_ZG, 4, 0, true);
+  frame_ZG->GetYaxis()->SetRangeUser(0.05,0.2);
   ZGMC_ll_band->Draw("E2same");
   ZGMC_ll->Draw("HIST same");
   ZGData_ll->Draw("PESAME");
@@ -411,7 +414,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad1_ZW->Draw();
   pad1_ZW->cd();
 
-  TH1* frame_ZW  = pad1_ZW->DrawFrame(bins.front(),0.,bins.back(),0.3, "");
+  TH1* frame_ZW  = pad1_ZW->DrawFrame(bins.front(),0.,bins.back(),0.25, "");
   frame_ZW->GetXaxis()->SetTitle(observableLatex.c_str());
   frame_ZW->GetYaxis()->SetTitle("Ratio Z/W");
   frame_ZW->GetYaxis()->CenterTitle();
@@ -430,7 +433,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad2_ZW->Draw();
   pad2_ZW->cd();
 
-  TH1* frame2_ZW = pad2_ZW->DrawFrame(bins.front(), 0., bins.back(), 2., "");
+  TH1* frame2_ZW = pad2_ZW->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
   frame2_ZW->GetXaxis()->SetLabelSize(0.10);
   frame2_ZW->GetXaxis()->SetLabelOffset(0.03);
   frame2_ZW->GetXaxis()->SetTitleSize(0.13);
