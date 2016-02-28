@@ -23,7 +23,7 @@ rate                                 -1       1            1           -1       
 lumi_13TeV                lnN        1.027    -            -          1.027          1.027         1.027         -        1.027
 ZJets_Norm13TeV           lnN        -        -            -          1.200          -              -            -        -
 Dibosons_Norm13TeV        lnN        -        -            -            -            1.200          -            -        -
-Top_Norm13TeV             lnN        -        -            -            -            -             1.100         -        -
+Top_Norm13TeV             lnN        -        -            -            -            -             1.200         -        -
 GJets_Norm13TeV           lnN        -        -            -            -            -              -            -        1.200
 CMS_met                   lnN        1.040    -            -          1.040          1.040         1.040         -        1.040
 CMS_btag                  lnN        1.020    -            -          1.020          1.020         1.060         -        1.020

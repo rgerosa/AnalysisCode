@@ -23,7 +23,7 @@ CMS_eff_m                 lnN       1.010       1.010       1.010           1.01
 CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
 ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
 Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
-Top_Norm13TeV             lnN       -           -           -               1.100         -
+Top_Norm13TeV             lnN       -           -           -               1.200         -
 QCD_WM_Norm13TeV          lnN       -           -           -               -             1.500
 CMS_met                   lnN       -           1.040       1.040           1.040         1.040
 CMS_btag                  lnN       -           1.020       1.020           1.060         -

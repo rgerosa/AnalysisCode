@@ -1,0 +1,55 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      onemuon_MJ   workspace_MJ.root WM_MJ:data_obs_WM_MJ
+shapes WJets         onemuon_MJ   workspace_MJ.root WM_MJ:WJets_WM_MJ
+shapes ZJets_WM      onemuon_MJ   workspace_MJ.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
+shapes Dibosons      onemuon_MJ   workspace_MJ.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
+shapes Top           onemuon_MJ   workspace_MJ.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
+shapes QCD_WM        onemuon_MJ   workspace_MJ.root WM_MJ:QCD_WM_MJ
+------------------------------------------------------------------------------------------------
+bin         onemuon_MJ
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 onemuon_MJ     onemuon_MJ     onemuon_MJ         onemuon_MJ       onemuon_MJ
+process                             WJets       ZJets_WM    Dibosons        Top           QCD_WM
+process                             2           9           4               5             10
+rate                                1          -1           -1              -1            -1
+------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
+CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
+ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
+Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
+Top_Norm13TeV             lnN       -           -           -               1.200         -
+QCD_WM_Norm13TeV          lnN       -           -           -               -             1.500
+CMS_btag                  shapeN2   -           1           1               1             -
+CMS_scale_j               shapeN2   -           1           1               1             -
+CMS_res_j                 shapeN2   -           1           1               1             -
+CMS_unc                   shapeN2   -           1           1               1             -
+WJets_WM_MJ_bin1_Runc     param     0     1
+WJets_WM_MJ_bin2_Runc     param     0     1
+WJets_WM_MJ_bin3_Runc     param     0     1
+WJets_WM_MJ_bin4_Runc     param     0     1
+WJets_WM_MJ_bin5_Runc     param     0     1
+WJets_WM_MJ_bin6_Runc     param     0     1
+WJets_WM_MJ_bin7_Runc     param     0     1
+WJets_WM_MJ_bin8_Runc     param     0     1
+WJets_WM_MJ_bin9_Runc     param     0     1
+WJets_WM_MJ_bin10_Runc     param     0     1
+WJets_WM_MJ_bin11_Runc     param     0     1
+WJets_WM_MJ_bin12_Runc     param     0     1
+WJets_WM_MJ_bin13_Runc     param     0     1
+WJets_WM_MJ_bin14_Runc     param     0     1
+WJets_WM_MJ_bin15_Runc     param     0     1
+WJets_WM_MJ_bin16_Runc     param     0     1
+WJets_WM_MJ_bin17_Runc     param     0     1
+WJets_WM_MJ_bin18_Runc     param     0     1
+WJets_WM_MJ_bin19_Runc     param     0     1
+WJets_WM_MJ_bin20_Runc     param     0     1
+WJets_WM_MJ_bin21_Runc     param     0     1
+WJets_WM_MJ_bin22_Runc     param     0     1
+------------------------------------------------------------------------------------------------
+
