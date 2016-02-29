@@ -334,7 +334,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,
 		     applyQGLReweight,outDir,"",ext);
 
 
-    cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
+    cout<<"systematics on TOP+EL ratio --> bUp"<<endl;
     maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
 		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,
@@ -342,7 +342,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,
 		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
 		     applyQGLReweight,outDir,"btagUp",ext+"bUp");
 
-    cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
+    cout<<"systematics on TOP+EL ratio --> bDw"<<endl;
     maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
 		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
 		     category,observables,lumi,

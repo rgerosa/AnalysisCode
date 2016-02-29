@@ -1010,6 +1010,9 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList, TH1F* histoBkg, T
     
     histoList.at(iHisto)->SetLineWidth(2);
     histoList.at(iHisto)->SetLineColor(iHisto+1);
+
+    cout<<" iHisto "<< histoList.at(iHisto)->GetName()<<" Title "<<histoList.at(iHisto)->GetTitle()<<" color "<<iHisto+1<<endl;
+
     
     if(iHisto%2==0)
       histoList.at(iHisto)->SetLineStyle(1);

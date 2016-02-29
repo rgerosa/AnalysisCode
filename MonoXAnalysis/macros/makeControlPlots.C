@@ -351,6 +351,8 @@ void makeControlPlots(string templateFileName,
   float xMin = bins.front();
   if(observable == "tau2tau1")
     xMin = minTau2Tau1;
+  if(TString(observable).Contains("btag"))
+    xMin = 0.02;
   float xMax = bins.back();
 
   if(category <= 1 and isLog)
@@ -529,7 +531,7 @@ void makeControlPlots(string templateFileName,
   if(category <= 1)
     frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
   else if(category > 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.0, xMax, 2.0, "");
 
 
   frame2->GetXaxis()->SetLabelSize(0.10);
@@ -539,7 +541,10 @@ void makeControlPlots(string templateFileName,
   frame2->GetYaxis()->SetLabelSize(0.08);
   frame2->GetYaxis()->SetTitleSize(0.10);
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
-  frame2->GetYaxis()->SetNdivisions(503, false);
+  if(category <= 1)
+    frame2->GetYaxis()->SetNdivisions(503, false);
+  else
+    frame2->GetYaxis()->SetNdivisions(504, false);
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->SetTitleOffset(0.5);
   frame2->Draw();
@@ -582,6 +587,6 @@ void makeControlPlots(string templateFileName,
 
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
-  canvas->SaveAs((observable+"_"+controlRegion+".C").c_str());
+  //  canvas->SaveAs((observable+"_"+controlRegion+".C").c_str());
 }
 

@@ -22,7 +22,11 @@ const float tau2tau1LP    = 0.75;
 const float prunedMassMin = 65.;
 const float prunedMassMax = 105.;
 const float ptJetMinAK8   = 250.;
-const int  vBosonCharge   = 0;
+const float jetEtaAK8     = 2.4;
+const float pfMetMonoVLower = 250.;
+const float pfMetMonoVUpper = 8000.;
+const int   vBosonCharge   = 0;
+const int   nBjets         = 1;
 
 string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
@@ -641,7 +645,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == 4 && *met < 50.) continue;
 
     // n-bjets cut for unboosted categories
-    if ((sample == 7 || sample == 8) && (category !=2 and category !=3)  && *nbjets < 1) continue;
+    if ((sample == 7 || sample == 8) && (category !=2 and category !=3)  && *nbjets < nBjets) continue;
     if ( sample == 7 || sample == 8){ // select only events with one lepton
       // at least one lepton in the plateau region
       if(pt1 <=0 or id1 != 1) continue;
@@ -658,7 +662,8 @@ void makehist4(TTree* tree, /*input tree*/
       if (pfmet < 200.) continue;
     }
     else{
-      if(pfmet < 250.) continue;
+      if(pfmet < pfMetMonoVLower) continue;
+      if(pfmet > pfMetMonoVUpper) continue;
     }
 
     //apply charge cut to separate W+ from W- in case
@@ -696,7 +701,7 @@ void makehist4(TTree* tree, /*input tree*/
 
 	if(boostedJetpt->size() > 0){ // in case one boosted jet
 
-	  if(fabs(boostedJeteta->at(0)) > 2.4) 
+	  if(fabs(boostedJeteta->at(0)) > jetEtaAK8) 
 	    goodMonoJet = true;
 	  
 	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
@@ -737,7 +742,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(chfrac->size() == 0 || nhfrac->size() == 0 or jetpt->size() == 0) continue; 	
 	if(boostedJetpt->size() == 0) continue;
 	if(boostedJetpt->at(0) < ptJetMinAK8) continue;
-	if(fabs(boostedJeteta->at(0)) > 2.4) continue;
+	if(fabs(boostedJeteta->at(0)) > jetEtaAK8) continue;
 
 	TLorentzVector jetak4, jetak8;
 	jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -822,11 +827,11 @@ void makehist4(TTree* tree, /*input tree*/
       TString name(hist->GetName());      
       if(name.Contains("met"))
 	fillvar = pfmet;      
-      if(name.Contains("nvtx"))
+      else if(name.Contains("nvtx"))
 	fillvar = *nvtx;
-      if(name.Contains("chfrac"))
+      else if(name.Contains("chfrac"))
 	fillvar = chfrac->at(0);
-      if(name.Contains("nhfrac"))
+      else if(name.Contains("nhfrac"))
 	fillvar = nhfrac->at(0);
       else if(name.Contains("jetPt"))
 	fillvar = jetpt->at(0);
@@ -876,6 +881,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = -1.;
       }
       
+      // substructure
       else if(name.Contains("mpruned")){
 	if( prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
 	  fillvar = prunedJetm->at(0);	
@@ -889,6 +895,37 @@ void makehist4(TTree* tree, /*input tree*/
 	else fillvar = 0.;
       }
 
+      // b-tagging
+      else if(name.Contains("btag_max") or name.Contains("CSV_max")){
+	float btagMax = -10.;
+	for(size_t iBjet = 0; iBjet < jetbtag->size(); iBjet++){
+	  if(jetbtag->at(iBjet) > btagMax)
+	    btagMax = jetbtag->at(iBjet);
+	}
+	if(fabs(btagMax) != 10.)
+	  fillvar = btagMax;
+	else
+	  fillvar = 0.;
+      }
+      else if(name.Contains("btag_min") or name.Contains("CSV_min")){
+	float btagMin = 10.;
+	for(size_t iBjet = 0; iBjet < jetbtag->size(); iBjet++){
+	  if(jetbtag->at(iBjet) < btagMin)
+	    btagMin = jetbtag->at(iBjet);
+	}
+	if(fabs(btagMin) != 10.)
+	  fillvar = btagMin;
+	else
+	  fillvar = 0.;
+      }
+      else if(name.Contains("btag") or name.Contains("CSV")){
+	if(jetbtag->size() > 0)
+	  fillvar = jetbtag->at(0);
+	else
+	  fillvar = 0;
+      }      
+      
+      
       // overflow bin
       if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
 	fillvar = hist->GetXaxis()->GetBinCenter(hist->GetNbinsX());
@@ -932,17 +969,17 @@ void makehist4(TTree* tree, /*input tree*/
 	  deltaPhi = 2*TMath::Pi() - deltaPhi;
 	fillvarY = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }
-      if(name.Contains("met_mpruned") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 ){
+      else if(name.Contains("met_mpruned") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 ){
 	fillvarX = pfmet;
 	if(prunedJetm->size() > 0)
 	  fillvarY = prunedJetm->at(0);	
       }
-      if(name.Contains("met_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
+      else if(name.Contains("met_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
 	fillvarX = pfmet;
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
 	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);		
       }
-      if(name.Contains("mpruned_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
+      else if(name.Contains("mpruned_tau2tau1") and boostedJetpt->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8){
 	if(prunedJetm->size() > 0)
           fillvarX = prunedJetm->at(0);
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)

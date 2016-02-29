@@ -823,7 +823,7 @@ void sigdatamchist(TFile* outfile,
   cout<<"signal region: gamma+jets sample "<<endl;
   makehist4(gmtree, gmhist,  gmhist_2D,  true, 0, category, false, 1.00, lumi,    QGLG_index, ahists, "", false, true, NULL);
   cout<<"signal region: TTbar sample "<<endl;
-  makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "", false, true, NULL);
+  makehist4(tttree, tthist,  tthist_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "", true, true, NULL);
 
     //alternative ttbar             
   if(doAlternativeTop){
@@ -838,25 +838,25 @@ void sigdatamchist(TFile* outfile,
 
   if(doShapeSystematics){
     cout<<"signal region analysis --> do top shape sys "<<endl;
-    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp",   false, true, NULL);
-    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", false, true, NULL);
-    makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", false, true, NULL);
-    makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", false, true, NULL);
-    makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", false, true, NULL);
-    makehist4(tttree, tthist_metResDw,  tthist_metResDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerDw", false, true, NULL);
-    makehist4(tttree, tthist_metUncUp,  tthist_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncUp", false, true, NULL);
-    makehist4(tttree, tthist_metUncDw,  tthist_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncDw", false, true, NULL);
+    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp",   true, true, NULL);
+    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", true, true, NULL);
+    makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", true, true, NULL);
+    makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", true, true, NULL);
+    makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", true, true, NULL);
+    makehist4(tttree, tthist_metResDw,  tthist_metResDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerDw", true, true, NULL);
+    makehist4(tttree, tthist_metUncUp,  tthist_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncUp", true, true, NULL);
+    makehist4(tttree, tthist_metUncDw,  tthist_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncDw", true, true, NULL);
     
     if(doAlternativeTop){
       cout<<"signal region analysis --> do top alternative shape sys "<<endl;
-      makehist4(tttree_alt, tthist_alt_bUp,       tthist_alt_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_bDw,       tthist_alt_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metJetUp,  tthist_alt_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metJetDw,  tthist_alt_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metResUp,  tthist_alt_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metResDw,  tthist_alt_metResDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerDw", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metUncUp,  tthist_alt_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncUp", false, true, NULL);
-      makehist4(tttree_alt, tthist_alt_metUncDw,  tthist_alt_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncDw", false, true, NULL);
+      makehist4(tttree_alt, tthist_alt_bUp,       tthist_alt_bUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagUp", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_bDw,       tthist_alt_bDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "btagDown", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metJetUp,  tthist_alt_metJetUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesUp", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metJetDw,  tthist_alt_metJetDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jesDw", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metResUp,  tthist_alt_metResUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerUp", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metResDw,  tthist_alt_metResDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "jerDw", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metUncUp,  tthist_alt_metUncUp_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncUp", true, true, NULL);
+      makehist4(tttree_alt, tthist_alt_metUncDw,  tthist_alt_metUncDw_2D,  true, 0, category, false, 1.00, lumi,    QGLT_index, ehists, "uncDw", true, true, NULL);
     }
 
 
@@ -1730,7 +1730,7 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   cout<<"lepton+jets control region --> Z+jets"<<endl;
   makehist4(vlltree,vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, indexQGL_Z, vllhists, "", false, true, NULL);
   cout<<"lepton+jets control region --> top"<<endl;
-  makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,   "", false, true, NULL);
+  makehist4(tttree, tthist,  tthist_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,   "", true, true, NULL);
   cout<<"lepton+jets control region --> Diboson"<<endl;
   makehist4(dbtree, dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", false, true, NULL);
   cout<<"lepton+jets control region --> gamma+jets"<<endl;
@@ -1764,14 +1764,14 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   if(doShapeSystematics){
 
     cout<<"lepton +jets region --> systematics for top"<<endl;
-    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagUp", false, true, NULL);
-    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagDown", false, true, NULL);
-    makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesUp", false, true, NULL);
-    makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesDw", false, true, NULL);
-    makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jerUp", false, true, NULL);
-    makehist4(tttree, tthist_metResDw,  tthist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jerDw", false, true, NULL);
-    makehist4(tttree, tthist_metUncUp,  tthist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "uncUp", false, true, NULL);
-    makehist4(tttree, tthist_metUncDw,  tthist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "uncDw", false, true, NULL);
+    makehist4(tttree, tthist_bUp,  tthist_bUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagUp", true, true, NULL);
+    makehist4(tttree, tthist_bDw,  tthist_bDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "btagDown", true, true, NULL);
+    makehist4(tttree, tthist_metJetUp,  tthist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesUp", true, true, NULL);
+    makehist4(tttree, tthist_metJetDw,  tthist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jesDw", true, true, NULL);
+    makehist4(tttree, tthist_metResUp,  tthist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jerUp", true, true, NULL);
+    makehist4(tttree, tthist_metResDw,  tthist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "jerDw", true, true, NULL);
+    makehist4(tttree, tthist_metUncUp,  tthist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "uncUp", true, true, NULL);
+    makehist4(tttree, tthist_metUncDw,  tthist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, indexQGL_T, ehists,  "uncDw", true, true, NULL);
 
     cout<<"lepton +jets region --> systematics for di-boson"<<endl;
     makehist4(dbtree, dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists,  "btagUp", false, true, NULL);
@@ -2370,8 +2370,70 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   TTree* gmtree = (TTree*)gmfile->Get("tree/tree");
   TTree* qctree = (TTree*)qcfile->Get("tree/tree");
 
-  vector<TH1*> ehists;
+  // k-factors
+  TFile kffile(kfactorFile.c_str());  
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
 
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+
+  if(not znlohist or not zlohist or not zewkhist){
+    znlohist = (TH1*) kffile.Get("znlo012/znlo012_nominal");
+    zlohist  = (TH1*) kffile.Get("zlo/zlo_nominal");
+    zewkhist = (TH1*) kffile.Get("z_ewkcorr/z_ewkcorr");
+    znlohist->Divide(zlohist);
+  }
+
+  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
+
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  if(not wnlohist or not wlohist or not wewkhist){
+    wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
+    wlohist  = (TH1*) kffile.Get("wlo/wlo_nominal");
+    wewkhist = (TH1*) kffile.Get("w_ewkcorr/w_ewkcorr");
+    wnlohist->Divide(wlohist);
+  }
+
+  TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
+
+  if(aewkhist)
+    aewkhist->Divide(anlohist);
+  if(anlohist)
+    anlohist->Divide(alohist);
+
+  if(not anlohist or not alohist or not aewkhist){
+    anlohist = (TH1*)kffile.Get("anlo1/anlo1_nominal");
+    alohist  = (TH1*)kffile.Get("alo/alo_nominal");
+    aewkhist = (TH1*)kffile.Get("a_ewkcorr/a_ewkcorr");
+    anlohist->Divide(alohist);
+  }
+
+  vector<TH1*> ehists;
+  vector<TH1*> vlhists;
+  vector<TH1*> ahists;
+  vector<TH1*> vllhists;
+  // apply NLO QCD and EWK corrections for Zll and Wlnu                                                                                                                      
+  ahists.push_back(anlohist);
+  ahists.push_back(aewkhist);
+  vlhists.push_back(wnlohist);
+  vlhists.push_back(wewkhist);
+  vllhists.push_back(znlohist);
+  vllhists.push_back(zewkhist);
+
+
+  // 
   bool isWJet = false;
   if(category == 2 or category == 3)
     isWJet = true;
@@ -2390,50 +2452,50 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
 
   if(not makeResonantSelection){
     cout<<"top+jets control region --> Top"<<endl;
-    makehist4(tttree,     tthist,     tthist_2D,      true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL);
+    makehist4(tttree,     tthist,     tthist_2D,      true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL);
     cout<<"top+jets control region --> Top alternative"<<endl;
-    makehist4(tttree_alt, tthist_alt, tthist_alt_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL);
+    makehist4(tttree_alt, tthist_alt, tthist_alt_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL);
   }
   else{
     cout<<"top+jets control region --> Top"<<endl;
-    makehist4(tttree,     tthist_matched,     tthist_matched_2D,      true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL,1);
-    makehist4(tttree,     tthist_unmatched,   tthist_unmatched_2D,    true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL,2);
+    makehist4(tttree,     tthist_matched,     tthist_matched_2D,      true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL,1);
+    makehist4(tttree,     tthist_unmatched,   tthist_unmatched_2D,    true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL,2);
     cout<<"top+jets control region --> Top alternative"<<endl;
-    makehist4(tttree_alt, tthist_matched_alt,   tthist_matched_alt_2D,   true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL,1);
-    makehist4(tttree_alt, tthist_unmatched_alt, tthist_unmatched_alt_2D, true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", false, true, NULL,2);
+    makehist4(tttree_alt, tthist_matched_alt,   tthist_matched_alt_2D,   true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL,1);
+    makehist4(tttree_alt, tthist_unmatched_alt, tthist_unmatched_alt_2D, true,  sample, category, false,  1.00, lumi, index_QGL_T, ehists, "", true, true, NULL,2);
   }
 
   cout<<"top+jets control region --> W+jets"<<endl;
-  makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "", false, true, NULL);
+  makehist4(vltree,  vlhist,  vlhist_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "", false, true, NULL);
   cout<<"top+jets control region --> Z+jets"<<endl;
-  makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "", false, true, NULL);
+  makehist4(vlltree, vllhist, vllhist_2D, true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "", false, true, NULL);
   cout<<"top+jets control region: Diboson"<<endl;
   makehist4(dbtree,  dbhist,  dbhist_2D,  true,  sample, category, isWJet, 1.00, lumi, 0, ehists, "", false, true, NULL);
   cout<<"top+jets control region: gamma+jets"<<endl;
-  makehist4(gmtree,  gmhist,  gmhist_2D,  true,  sample, category, false, 1.00, lumi, index_QGL_G, ehists, "", false, true, NULL);
+  makehist4(gmtree,  gmhist,  gmhist_2D,  true,  sample, category, false, 1.00, lumi, index_QGL_G, ahists, "", false, true, NULL);
   cout<<"top+jets control region: QCD"<<endl;
   makehist4(qctree,  qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", false, true, NULL);
 
   if(doShapeSystematics){
     cout<<"top+jets control region -->  shape systematics for W+Jets"<<endl;
-    makehist4(vltree,  vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "btagUp", false, true, NULL);
-    makehist4(vltree,  vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "btagDown", false, true, NULL);
-    makehist4(vltree,  vlhist_metJetUp,  vlhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jesUp", false, true, NULL);
-    makehist4(vltree,  vlhist_metJetDw,  vlhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jesDw", false, true, NULL);
-    makehist4(vltree,  vlhist_metResUp,  vlhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jerUp", false, true, NULL);
-    makehist4(vltree,  vlhist_metResDw,  vlhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "jerDw", false, true, NULL);
-    makehist4(vltree,  vlhist_metUncUp,  vlhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "uncUp", false, true, NULL);
-    makehist4(vltree,  vlhist_metUncDw,  vlhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, ehists, "uncDw", false, true, NULL);
+    makehist4(vltree,  vlhist_bUp,  vlhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "btagUp", false, true, NULL);
+    makehist4(vltree,  vlhist_bDw,  vlhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "btagDown", false, true, NULL);
+    makehist4(vltree,  vlhist_metJetUp,  vlhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "jesUp", false, true, NULL);
+    makehist4(vltree,  vlhist_metJetDw,  vlhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "jesDw", false, true, NULL);
+    makehist4(vltree,  vlhist_metResUp,  vlhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "jerUp", false, true, NULL);
+    makehist4(vltree,  vlhist_metResDw,  vlhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "jerDw", false, true, NULL);
+    makehist4(vltree,  vlhist_metUncUp,  vlhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "uncUp", false, true, NULL);
+    makehist4(vltree,  vlhist_metUncDw,  vlhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_W, vlhists, "uncDw", false, true, NULL);
 
     cout<<"top+jets control region -->  shape systematics for Z+Jets"<<endl;
-    makehist4(vlltree,  vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "btagUp", false, true, NULL);
-    makehist4(vlltree,  vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "btagDown", false, true, NULL);
-    makehist4(vlltree,  vllhist_metJetUp,  vllhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jesUp", false, true, NULL);
-    makehist4(vlltree,  vllhist_metJetDw,  vllhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jesDw", false, true, NULL);
-    makehist4(vlltree,  vllhist_metResUp,  vllhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jerUp", false, true, NULL);
-    makehist4(vlltree,  vllhist_metResDw,  vllhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "jerDw", false, true, NULL);
-    makehist4(vlltree,  vllhist_metUncUp,  vllhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "uncUp", false, true, NULL);
-    makehist4(vlltree,  vllhist_metUncDw,  vllhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, ehists, "uncDw", false, true, NULL);
+    makehist4(vlltree,  vllhist_bUp,  vllhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "btagUp", false, true, NULL);
+    makehist4(vlltree,  vllhist_bDw,  vllhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "btagDown", false, true, NULL);
+    makehist4(vlltree,  vllhist_metJetUp,  vllhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "jesUp", false, true, NULL);
+    makehist4(vlltree,  vllhist_metJetDw,  vllhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "jesDw", false, true, NULL);
+    makehist4(vlltree,  vllhist_metResUp,  vllhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "jerUp", false, true, NULL);
+    makehist4(vlltree,  vllhist_metResDw,  vllhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "jerDw", false, true, NULL);
+    makehist4(vlltree,  vllhist_metUncUp,  vllhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "uncUp", false, true, NULL);
+    makehist4(vlltree,  vllhist_metUncDw,  vllhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, index_QGL_Z, vllhists, "uncDw", false, true, NULL);
 
     cout<<"top+jets control region -->  shape systematics for Dibosons"<<endl;
     makehist4(dbtree,  dbhist_bUp,  dbhist_bUp_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "btagUp", false, true, NULL);
@@ -2446,14 +2508,14 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     makehist4(dbtree,  dbhist_metUncDw,  dbhist_metUncDw_2D,  true,  sample, category, isWJet,  1.00, lumi, 0, ehists, "uncDw", false, true, NULL);
 
     cout<<"top+jets control region -->  shape systematics for gamma+jets"<<endl;
-    makehist4(gmtree,  gmhist_bUp,  gmhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "btagUp", false, true, NULL);
-    makehist4(gmtree,  gmhist_bDw,  gmhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "btagDown", false, true, NULL);
-    makehist4(gmtree,  gmhist_metJetUp,  gmhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "jesUp", false, true, NULL);
-    makehist4(gmtree,  gmhist_metJetDw,  gmhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "jesDw", false, true, NULL);
-    makehist4(gmtree,  gmhist_metResUp,  gmhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "jerUp", false, true, NULL);
-    makehist4(gmtree,  gmhist_metResDw,  gmhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "jerDw", false, true, NULL);
-    makehist4(gmtree,  gmhist_metUncUp,  gmhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "uncUp", false, true, NULL);
-    makehist4(gmtree,  gmhist_metUncDw,  gmhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "uncDw", false, true, NULL);
+    makehist4(gmtree,  gmhist_bUp,  gmhist_bUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "btagUp", false, true, NULL);
+    makehist4(gmtree,  gmhist_bDw,  gmhist_bDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "btagDown", false, true, NULL);
+    makehist4(gmtree,  gmhist_metJetUp,  gmhist_metJetUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "jesUp", false, true, NULL);
+    makehist4(gmtree,  gmhist_metJetDw,  gmhist_metJetDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "jesDw", false, true, NULL);
+    makehist4(gmtree,  gmhist_metResUp,  gmhist_metResUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "jerUp", false, true, NULL);
+    makehist4(gmtree,  gmhist_metResDw,  gmhist_metResDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "jerDw", false, true, NULL);
+    makehist4(gmtree,  gmhist_metUncUp,  gmhist_metUncUp_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "uncUp", false, true, NULL);
+    makehist4(gmtree,  gmhist_metUncDw,  gmhist_metUncDw_2D,  true,  sample, category, false,  1.00, lumi, 0, ahists, "uncDw", false, true, NULL);
   }
 
 

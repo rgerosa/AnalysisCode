@@ -38,6 +38,8 @@ vector<float> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,5
 vector<float> bins_monoJ_mT          = {50.,80.,110.,140.,170,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
 vector<float> bins_monoV_mpr         = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
+vector<float> bins_monoV_mpr_v2      = {65.,73.,81.,89.,97.,105.};
+
 vector<float> bins_monoJ_mpr         = {0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.};
 vector<float> bins_substructure_mpr  = {0.,7.,14.,21.,28.,35.,42.,49.,56.,63.,70.,77.,84.,91.,98.,105.,112.,119.,126.,133.,140.,147.,154.,161.,168.,175.,182.,189.,196.};
 
@@ -53,7 +55,8 @@ vector<float> bins_monoV_jetPt        = {200.,225.,250.,300.,350.,400.,500.,600.
 vector<float> bins_monoJ_jetPt        = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<float> bins_substructure_jetPt = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 
-vector<float> bins_monoV_bosonPt    = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoV_bosonPt    = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoV_bosonPt_v2 = {50.,70.,90.,120.,150.,180.,210.,230.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_bosonPt    = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
 vector<float> bins_monoJ_bosonPt_v2 = {200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
@@ -82,6 +85,8 @@ vector<float> bins_met_2D      = {250.,300.,350.,400.,450.,500.,600.,1000.};
 vector<float> bins_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
 vector<float> bins_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 
+vector<float> bins_monoJ_btagCSV = {0,0.02,0.04,0.06,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.92,0.94,0.96,0.98,1.};
+vector<float> bins_monoV_btagCSV = {0,0.02,0.04,0.06,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.92,0.94,0.96,0.98,1.};
 
 // binning selections                                                                                                                                                          
 vector<float> selectBinning (string observable, int category){
@@ -108,6 +113,8 @@ vector<float> selectBinning (string observable, int category){
     return bins_monoV_mpr;
   else if(observable == "mpruned" and category > 3)
     return bins_substructure_mpr;
+  else if(observable == "mpruned_v2" and category == 2)
+    return bins_monoV_mpr_v2;
 
   else if(observable == "tau2tau1" and category <= 1)
     return bins_monoJ_tau2tau1;
@@ -174,6 +181,11 @@ vector<float> selectBinning (string observable, int category){
   else if((observable == "jetPt" or observable == "boostedJetPt") and category > 3)
     return bins_substructure_jetPt;
 
+  else if((TString(observable).Contains("btag") or TString(observable).Contains("CSV")) and category <=1)
+    return bins_monoJ_btagCSV;
+  else if((TString(observable).Contains("btag") or TString(observable).Contains("CSV")) and category > 1)
+    return bins_monoV_btagCSV;
+  
   else if(TString(observable).Contains("QGL") and category <= 1)
     return bins_monoJ_QGL;
   else if(TString(observable).Contains("QGL") and category > 1 and category <= 3)
