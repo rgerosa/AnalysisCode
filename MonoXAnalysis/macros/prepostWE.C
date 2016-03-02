@@ -30,7 +30,7 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
-  if(not plotSBFit){
+  if(! plotSBFit){
 
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch6/Top");

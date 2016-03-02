@@ -337,10 +337,7 @@ if __name__ == '__main__':
         ########################################
         elif options.makeLikelihoodScan == 1:
 
-            if options.category == 2 or "10000" in name or "5000" in name or "2000" in name:
-                rMax = 3.;
-            else:
-                rMax = 1.;
+            rMax = 1.;
 
             if options.nToys == 0:          
                 runCmmd = "combine -M MultiDimFit -n %s  -d %s --algo=grid --points=100 --setPhysicsModelParameterRanges r=%f,%f"%(name,dcList[len(dcList)-1],rMin,rMax);

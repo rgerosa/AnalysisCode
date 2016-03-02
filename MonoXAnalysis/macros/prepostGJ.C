@@ -27,7 +27,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   TH1* pohist = NULL;
   TH1* prhist = NULL;
   
-  if(not plotSBFit){
+  if(! plotSBFit){
 
     dthist = (TH1*)dfile->Get(("datahistgam_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");

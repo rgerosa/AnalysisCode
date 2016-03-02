@@ -41,7 +41,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
-  if(not plotSBFit){
+  if(! plotSBFit){
 
     znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
     zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
@@ -201,32 +201,32 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mjhist->SetFillColor(0);
     mjhist->SetFillStyle(0);
     mjhist->SetLineColor(kBlack);
-    mjhist->SetLineWidth(2);
+    mjhist->SetLineWidth(3);
   }
 
   if(mwhist){
     mwhist->SetFillColor(0);
     mwhist->SetFillStyle(0);
-    mwhist->SetLineColor(kBlack);
-    mwhist->SetLineWidth(2);
+    mwhist->SetLineColor(kViolet);
+    mwhist->SetLineWidth(3);
     mwhist->SetLineStyle(7);
   }
 
   if(mzhist){
     mzhist->SetFillColor(0);
     mzhist->SetFillStyle(0);
-    mzhist->SetLineColor(kBlack);
-    mzhist->SetLineWidth(2);
-    mzhist->SetLineStyle(4);
+    mzhist->SetLineColor(kOrange+1);
+    mzhist->SetLineWidth(3);
+    mzhist->SetLineStyle(7);
   }
   
   znhist->SetFillColor(kGreen+1);
   znhist->SetLineColor(kBlack);
 
-  gmhist->SetFillColor(kOrange+1);
-  gmhist->SetLineColor(kBlack);
+  gmhist->SetFillColor(13);
+  gmhist->SetLineColor(13);
 
-  zlhist->SetFillColor(kCyan);
+  zlhist->SetFillColor(13);
   zlhist->SetLineColor(kBlack);
 
   wlhist->SetFillColor(kRed);
@@ -235,8 +235,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   tthist->SetFillColor(kBlue);
   tthist->SetLineColor(kBlack);
 
-  dihist->SetFillColor(kViolet);
-  dihist->SetLineColor(kBlack);
+  dihist->SetFillColor(13);
+  dihist->SetLineColor(13);
 
   qchist->SetFillColor(kGray);
   qchist->SetLineColor(kBlack);
@@ -249,23 +249,22 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   // make the stack
   THStack* stack = new THStack("stack", "stack");
-  stack->Add(qchist);
   stack->Add(gmhist);
   stack->Add(dihist);
+  stack->Add(zlhist); 
   stack->Add(tthist);
-  stack->Add(zlhist);
+  stack->Add(qchist);
   stack->Add(wlhist);
   stack->Add(znhist);
-  if(plotSBFit and sighist)
+  if(plotSBFit && sighist)
     stack->Add(sighist);
-
 
 
   TH1* frame = NULL;
   if(category <=1)
-    frame = pad1->DrawFrame(200., 0.0005, 1250., 10000, "");
+    frame = pad1->DrawFrame(200., 0.0005, 1250., 100000, "");
   else
-    frame = pad1->DrawFrame(250., 0.0005, 1000., 10000, "");
+    frame = pad1->DrawFrame(250., 0.0002, 1000., 100000, "");
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -278,11 +277,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   CMS_lumi(pad1, 4, 0,true);
 
   stack ->Draw("HIST SAME");
-  if(mjhist and not plotSBFit)
+  if(mjhist && !plotSBFit)
     mjhist->Draw("HIST SAME");
-  if(mwhist and not plotSBFit)
+  if(mwhist && !plotSBFit)
     mwhist->Draw("HIST SAME");
-  if(mzhist and not plotSBFit)
+  if(mzhist && !plotSBFit)
     mzhist->Draw("HIST SAME");
 
   dthist->SetFillStyle(0);
@@ -294,30 +293,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("P SAME");
   
-  TLegend* leg = new TLegend(0.58, 0.42, 0.9, 0.92);
+  TLegend* leg = new TLegend(0.53, 0.32, 0.9, 0.92);
   leg->SetFillColor(0);
+  leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   
-  leg->AddEntry(dthist, "Data");
-  if(sighist and plotSBFit)
-    leg->AddEntry(sighist, "Fitted Total Mono-X Signal", "F");
-  leg->AddEntry(znhist, "Z(#nu#nu)", "F");
-  leg->AddEntry(wlhist, "W(l#nu)", "F");
-  leg->AddEntry(zlhist, "Z(ll)", "F");
-  leg->AddEntry(tthist, "Top", "F");
-  leg->AddEntry(dihist, "Dibosons", "F");
-  leg->AddEntry(gmhist, "#gamma+jets", "F");
-  leg->AddEntry(qchist, "QCD", "F");
-  if(mjhist and not plotSBFit)
-    leg->AddEntry(mjhist, "Mono-J (V, 1TeV)");
-  if(mwhist and not plotSBFit)
-    leg->AddEntry(mwhist, "Mono-W (V, 1TeV)");
-  if(mzhist and not plotSBFit)
-    leg->AddEntry(mzhist, "Mono-Z (V, 1TeV)");
-  leg->Draw("SAME");
-  
-  pad1->RedrawAxis("sameaxis");
-  pad1->SetLogy();
 
   canvas->cd();
   pad2->SetTopMargin(0.08);
@@ -338,7 +318,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetXaxis()->SetLabelSize(0.10);
-  frame2->GetYaxis()->SetLabelSize(0.10);
+  frame2->GetYaxis()->SetLabelSize(0.08);
   frame2->GetXaxis()->SetTitleSize(0.12);
   frame2->GetYaxis()->SetTitleOffset(0.4);
   frame2->GetYaxis()->SetTitleSize(0.12);
@@ -364,7 +344,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   mchist->Add(dihist);
   mchist->Add(qchist);
   mchist->Add(znhist);
-  if(sighist and plotSBFit)
+  if(sighist && plotSBFit)
     mchist->Add(sighist);
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
@@ -382,8 +362,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   tohist->SetMarkerSize(0);
   tohist->SetFillColor(kGray);
 
-  dahist->SetMarkerSize(0.7);
-  dphist->SetMarkerSize(0.7);
+  dahist->SetMarkerSize(1);
+  dphist->SetMarkerSize(1);
+  dahist->SetMarkerStyle(20);
+  dphist->SetMarkerStyle(20);
+
   dahist->SetStats(kFALSE);
   dphist->SetStats(kFALSE);
 
@@ -402,11 +385,37 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  dahist->Draw("P SAME");
+  dahist->Draw("PE SAME");
   if(!blind)
-    dphist->Draw("P SAME");
+    dphist->Draw("PE SAME");
   
   pad2->RedrawAxis("sameaxis");
+
+  canvas->cd();
+  pad1->cd();
+
+  leg->AddEntry(dthist, "Data");
+  if(sighist && plotSBFit)
+    leg->AddEntry(sighist, "Fitted Total Mono-X Signal", "F");
+  leg->AddEntry(znhist, "Z(#nu#nu)", "F");
+  leg->AddEntry(wlhist, "W(l#nu)", "F");
+  leg->AddEntry(qchist, "QCD", "F");
+  leg->AddEntry(tthist, "Top", "F");
+  leg->AddEntry(zlhist, "Others", "F");
+  if(mjhist && !plotSBFit)
+    leg->AddEntry(mjhist, "Mono-J (V,2 TeV)");
+  if(mwhist && !plotSBFit)
+    leg->AddEntry(mwhist, "Mono-W (V,2 TeV)");
+  if(mzhist && !plotSBFit)
+    leg->AddEntry(mzhist, "Mono-Z (V,2 TeV)");
+  leg->AddEntry(dphist,"Expected (post-fit)");
+  leg->AddEntry(dahist,"Expected (pre-fit)");
+
+  leg->Draw("SAME");
+  
+  pad1->RedrawAxis("sameaxis");
+  pad1->SetLogy();
+
 
   if(blind){
     canvas->SaveAs("postfit_sig_blind.pdf");
