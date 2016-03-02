@@ -10,6 +10,36 @@
 
 void filters(){}
 
+// sum xsec values inside gen-tree branch
+double sumxsec(TTree* tree){
+
+ if(tree == NULL or tree == 0)
+    return 1.;
+
+  std::cout<<"###################################"<<std::endl;
+  std::cout<<"sumxsec function --> loop on gentree"<<std::endl;
+
+  TTreeReader treeReader(tree);
+  TTreeReaderValue<double> wgtsign (treeReader,"lheXSEC");
+
+  double xsecsum = 0.;
+  float  nEvents   = 0.;
+
+  while(treeReader.Next()){    
+    if(int(nEvents) %100000 == 0){
+      std::cout<<"Events "<<nEvents/tree->GetEntries()*100<<"%"<<std::endl;
+    }
+    xsecsum += (*wgtsign);
+    nEvents++;
+  }
+
+  std::cout<<"sumxsec function --> end"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
+  
+  return xsecsum;
+
+}
+
 // function tht takes in input a tree and counts the total of negative and positive signs
 double sumwgt(TTree* tree) {
 
@@ -23,7 +53,8 @@ double sumwgt(TTree* tree) {
   TTreeReaderValue<double> wgtsign (treeReader,"wgtsign");
 
   double weightsum = 0.;
-  float nEvents = 0;
+  float  nEvents   = 0.;
+
   while(treeReader.Next()){    
     if(int(nEvents) %100000 == 0){
       std::cout<<"Events "<<nEvents/tree->GetEntries()*100<<"%"<<std::endl;
@@ -48,7 +79,7 @@ TH1D* pileupwgt(TTree* tree, std::string scenario = ""){
   std::cout<<"pileupwgt function --> start"<<std::endl;
   
   // PU data  
-  TH1D* histoPUData;
+  TH1D*  histoPUData;
   TFile* fileInputData;
   
   if(scenario == "silver"){
@@ -59,6 +90,7 @@ TH1D* pileupwgt(TTree* tree, std::string scenario = ""){
     fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root");
     histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
+
   histoPUData->SetName("histoPUData");
   // scale to unit
   histoPUData->Scale(1./histoPUData->Integral());
@@ -91,7 +123,6 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   eff_b->Smooth();
   eff_c->Smooth();
   eff_ucsdg->Smooth();
-
 
   // make graph 2D for interpolation for central values
   TGraph2D* graph_b = new TGraph2D(eff_b);
@@ -216,7 +247,11 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
 
 
 // function that take as input a ROOT file
-void sigfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void sigfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0, bool storeGenTree = false) {
+
+  // if xsType = 0: means keep the value inside of xsec branch in the standard tree
+  // if xsType = 1: evaluate the xs as sumwgt/Nevents (useful for powheg+minlo mono-jet samples)
+  // if xsType = 2: take the cross section from gentree lheXSEC read from the lhe file, useful for madgraph samples
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sigfilter --> start function"<<std::endl;
@@ -228,8 +263,9 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
-  TTree* intree = NULL;
+  TTree* intree  = NULL;
   TH1D*  puRatio = NULL;
+
   double wgtsum;
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -248,17 +284,32 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
   treedir->cd();
   // copy the tree applying a selection
   std::cout<<"sigfilter --> apply signal region preselection"<<std::endl;
+
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
+
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"sigfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  
   // add a weight sum branch  
-  TBranch* bwgtsum, *bwgtpileup;
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec = NULL;
+
   double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+  
   if(isMC){
-    bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
+
+    bwgtsum    = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");      
-    
+    if(xsType > 0 and isMC)
+      bxsec = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
     
@@ -270,11 +321,12 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
       bwgtpileup->Fill();    
+      if(xsType > 0 and isMC)
+	bxsec->Fill();
       nEvents++;
     }
   }
 
-  
   if(applyBTagWeights and isMC){
 
     std::cout<<"sigfilter --> apply btag-weight"<<std::endl; 
@@ -313,7 +365,7 @@ void sigfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Zmumu selections
-void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"zmmfilter --> start function"<<std::endl;
@@ -326,9 +378,8 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TFile* infile = TFile::Open(inputFileName.c_str());
   TTree* frtree = (TTree*)infile->Get("tree/tree");
   TTree* intree =  NULL;
-  double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
+  double wgtsum;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -345,14 +396,31 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"zmmfilter --> apply signal region preselection"<<std::endl;
+
+  if(isMC and xsType > 0)
+    frtree->SetBranchStatus("xsec",0);
+
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"zmmfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
+  // add a weight sum branch                                                                                                                                                    
   TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  TBranch *bwgtpileup; 
+  TBranch *bxsec = NULL;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
+
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
 
@@ -364,7 +432,9 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
       bwgtpileup->Fill();    
-      nEvents++;
+      if(xsType > 0 and isMC)
+        bxsec->Fill();
+       nEvents++;
     }
   }
 
@@ -406,7 +476,7 @@ void zmmfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Zee selections
-void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false, bool isSinglePhoton = false) {
+void zeefilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0,  bool storeGenTree = false, bool isSinglePhoton = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"zeefilter --> start function"<<std::endl;
@@ -422,7 +492,6 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
   TTree* intree =  NULL;
   double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -444,15 +513,30 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"zeefilter --> apply signal region preselection"<<std::endl;
+
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
+
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"zeefilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec = NULL;
 
-  TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
 
@@ -464,6 +548,8 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
       bwgtpileup->Fill();    
+      if(xsType > 0 and isMC)
+        bxsec->Fill();
       nEvents++;
     }
   }
@@ -506,7 +592,7 @@ void zeefilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Wmunu selections
-void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0, bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"wmnfilter --> start function"<<std::endl;
@@ -521,7 +607,6 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TTree* intree =  NULL;
   double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -537,14 +622,29 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"wmnfilter --> apply signal region preselection"<<std::endl;
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
+
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"wmnfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec = NULL;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
+
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);    
     TTreeReaderValue<int> putrue(myReader,"putrue");
     std::cout<<"wmnfilter --> apply sumwgt and puweight"<<std::endl;    
@@ -555,6 +655,8 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
       bwgtsum->Fill();
       wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
       bwgtpileup->Fill();          
+      if(xsType > 0 and isMC)
+        bxsec->Fill();
       nEvents++;      
     }    
   }
@@ -598,7 +700,8 @@ void wmnfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply Wenu selections
-void wenfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false, bool isSinglePhoton = false) {
+void wenfilter(std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0,
+	       bool storeGenTree = false, bool isSinglePhoton = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"wenfilter --> start function"<<std::endl;
@@ -613,7 +716,6 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TTree* intree = NULL;
   double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -636,14 +738,29 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"wenfilter --> apply signal region preselection"<<std::endl;
+
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
+
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"wenfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec =  NULL;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
 
@@ -654,6 +771,8 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
 	bwgtsum->Fill();
 	wgtpileup = puRatio->GetBinContent(*putrue);
 	bwgtpileup->Fill();    
+	if(xsType > 0 and isMC)
+	  bxsec->Fill();
 	nEvents++;
     }
   }
@@ -695,7 +814,8 @@ void wenfilter( std::string inputFileName,  std::string outputFileName, bool isM
 }
 
 // function to apply photon+jets selections
-void gamfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void gamfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0,
+		bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"gamfilter --> start function"<<std::endl;
@@ -710,7 +830,6 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TTree* intree = NULL;
   double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -727,14 +846,28 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"gamfilter --> apply signal region preselection"<<std::endl;
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"gamfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec = NULL;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
+
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
 
@@ -745,6 +878,8 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
 	bwgtsum->Fill();
 	wgtpileup = puRatio->GetBinContent(*putrue);
 	bwgtpileup->Fill();    
+	if(xsType > 0 and isMC)
+	  bxsec->Fill();
 	nEvents++;
     }
   }
@@ -789,7 +924,8 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
 
 
 // function to apply photon+jets selections
-void topfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, bool storeGenTree = false) {
+void topfilter( std::string inputFileName,  std::string outputFileName, bool isMC, bool applyBTagWeights, int xsType = 0,
+		bool storeGenTree = false) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"topfilter --> start function"<<std::endl;
@@ -804,7 +940,6 @@ void topfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TTree* intree = NULL;
   double wgtsum;
   TH1D*  puRatio = NULL;
-  double wgtpileup = 1;
 
   if(isMC){
     intree = (TTree*)infile->Get("gentree/gentree");
@@ -821,14 +956,28 @@ void topfilter( std::string inputFileName,  std::string outputFileName, bool isM
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"topfilter --> apply signal region preselection"<<std::endl;
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
   TTree* outtree = frtree->CopyTree(cut);
   std::cout<<"topfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
-  TBranch* bwgtsum;
-  TBranch* bwgtpileup ;
+  TBranch* bwgtsum = NULL;
+  TBranch* bwgtpileup = NULL;
+  TBranch* bxsec = NULL;
+  double wgtpileup = 1;
+  double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/outtree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
   if(isMC){
+
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
     bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    if(xsType > 0 and isMC)
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
 
@@ -839,6 +988,8 @@ void topfilter( std::string inputFileName,  std::string outputFileName, bool isM
 	bwgtsum->Fill();
 	wgtpileup = puRatio->GetBinContent(*putrue);
 	bwgtpileup->Fill();    
+	if(xsType > 0 and isMC)
+	  bxsec->Fill();
 	nEvents++;
     }
   }

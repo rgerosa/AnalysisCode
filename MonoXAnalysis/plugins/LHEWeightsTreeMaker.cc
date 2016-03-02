@@ -46,6 +46,7 @@ private:
   
   // InputTags
   const edm::InputTag lheInfoTag;
+  const edm::InputTag lheRunInfoTag;
   const edm::InputTag genInfoTag;
   const edm::InputTag pileupInfoTag;
   
@@ -61,12 +62,14 @@ private:
   uint32_t event, run, lumi;
   int      puobs, putrue;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
+  double   lheXSEC;
   std::auto_ptr<double>  wgtpdf;
   std::auto_ptr<double>  wgtqcd;
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
   lheInfoTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
+  lheRunInfoTag(iConfig.getParameter<edm::InputTag>("lheRuninfo")),
   genInfoTag(iConfig.getParameter<edm::InputTag>("geninfo")),
   pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileupinfo")),
   uselheweights(iConfig.getParameter<bool>("uselheweights")),
@@ -189,27 +192,18 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("wgtpdf"               ,  wgtpdf.get()         , "wgtpdf[100]/D");
     tree->Branch("wgtqcd"               ,  wgtqcd.get()         , "wgtqcd[8]/D");
   }
+
+  tree->Branch("lheXSEC",   &lheXSEC, "lheXSEC/D");
 }
 
 void LHEWeightsTreeMaker::endJob() {}
 
 void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  /*
-  edm::Handle<LHERunInfoProduct> run; 
-  typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
-  
-  iRun.getByLabel( "externalLHEProducer", run );
+  // in cae of MC store XS value                                                                                                                                               
+  edm::Handle<LHERunInfoProduct> run;
+  iRun.getByLabel(lheRunInfoTag,run);
   LHERunInfoProduct myLHERunInfoProduct = *(run.product());
- 
-  for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
-    std::cout << iter->tag() << std::endl;
-    std::vector<std::string> lines = iter->lines();
-    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-      std::cout << lines.at(iLine);
-    }
-  }
-  */
-
+  lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0);  
 }
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}

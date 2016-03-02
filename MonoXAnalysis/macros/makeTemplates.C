@@ -16,24 +16,24 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
   string baseDirMonoZ;
 
   if(interaction == "Vector"){
-    baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter/";
+    baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter_v2/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter_v2/";
   }
   else if(interaction == "Axial"){
-    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter/";
+    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter_v2/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter_v2/";
   }
   else if(interaction == "Scalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
+    baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter_v2/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter_v2/";
   }
   else if(interaction == "Pseudoscalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
+    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter_v2/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter_v2/";
   }
   else{
     cout<<"[findAllPossibleMassPoints]: interaction type not found --> exit "<<endl;

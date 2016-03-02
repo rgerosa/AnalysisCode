@@ -21,6 +21,8 @@ parser.add_option('-b', action='store_true', dest='noX', default=False, help='no
 ## parse files                                                                                                                                                                 
 parser.add_option('--inputDIR',     action="store", type="string", dest="inputDIR",     default="",   help="input DIR")
 parser.add_option('--filterName',   action="store", type="string", dest="filterName",   default="",   help="filter name")
+parser.add_option('--calculateXSfromSW', action="store_true", dest="calculateXSfromSW",         help="calculateXSfromSW")
+parser.add_option('--calculateXSfromLHE',action="store_true", dest="calculateXSfromLHE",        help="calculateXSfromLHE")
 parser.add_option('--isMC',         action="store_true", dest="isMC",         help="isMC")
 parser.add_option('--applyBTagSF',  action="store_true", dest="applyBTagSF",  help="applyBTagSF")
 parser.add_option('--storeGenTree', action="store_true", dest="storeGenTree", help="storeGenTree")
@@ -84,6 +86,14 @@ if __name__ == '__main__':
     if options.isSinglePhoton:
         isSinglePhoton = 1;
 
+    xsType = 0;
+    if options.calculateXSfromSW:
+        xsType = 1;
+    if options.calculateXSfromLHE:
+        xsType = 2;
+    if options.calculateXSfromSW and options.calculateXSfromLHE:
+        sys.exit("decide to fix the cross section as sum of weights or taking LHE value");
+
     #######################
     for ifile in fileList:        
 
@@ -92,8 +102,9 @@ if __name__ == '__main__':
 
             if not options.batchMode:
                 
-                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"sig_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"sig_"+ifile,isMC,applyBTagSF,xsType,storeGenTree))
                 print command
+                    
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p sigfilter")
                 os.system("mv sig_"+ifile+" sigfilter/")
@@ -109,7 +120,8 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_sig_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"sig_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"sig_"+ifile,isMC,applyBTagSF,xsType,storeGenTree)+"\");\n");
+                    
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -135,7 +147,7 @@ if __name__ == '__main__':
             
             if not options.batchMode:
 
-                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"zmm_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"zmm_"+ifile,isMC,applyBTagSF,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p zmmfilter")
@@ -152,7 +164,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zmm_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"zmm_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"zmm_"+ifile,isMC,applyBTagSF,xsType,storeGenTree)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -176,7 +188,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton))
+                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,xsType,storeGenTree,isSinglePhoton))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p zeefilter")
@@ -193,7 +205,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zee_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i)"%(ifile,"zee_"+ifile,isMC,applyBTagSF,storeGenTree,xsType,isSinglePhoton)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -217,7 +229,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"wmn_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"wmn_"+ifile,isMC,applyBTagSF,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p wmnfilter")
@@ -234,7 +246,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wmn_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"wmn_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"wmn_"+ifile,isMC,applyBTagSF,xsType,storeGenTree)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -275,7 +287,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wen_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,storeGenTree,isSinglePhoton)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i)"%(ifile,"wen_"+ifile,isMC,applyBTagSF,xsType,storeGenTree,isSinglePhoton)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -299,7 +311,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"gam_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"gam_"+ifile,isMC,applyBTagSF,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p gamfilter")
@@ -316,7 +328,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_gam_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"gam_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"gam_"+ifile,isMC,applyBTagSF,xsType,storeGenTree)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -341,7 +353,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topfilter(\"%s\",\"%s\",%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,storeGenTree))
+                command = ROOT.TString("topfilter(\"%s\",\"%s\",%i,%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p topfilter")
@@ -358,7 +370,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_top_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,storeGenTree)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i)"%(ifile,"top_"+ifile,isMC,applyBTagSF,xsType,storeGenTree)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 

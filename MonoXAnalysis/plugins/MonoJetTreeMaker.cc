@@ -24,6 +24,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 
 // DataFormats
 #include "DataFormats/Math/interface/deltaR.h"
@@ -97,6 +98,7 @@ private:
   bool applyJetID(const pat::Jet & jet, const std::string & level);
   bool applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi);
 
+
   // Gen Particles
   const bool isMC;
   const bool uselheweights;
@@ -106,7 +108,7 @@ private:
   edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
   edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
   double xsec;
-  
+
   // InputTags
   const edm::InputTag triggerResultsTag;
   const edm::InputTag filterResultsTag;
@@ -792,13 +794,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     putrue = 0;
     puwgt  = 1.;
 
-    // store cross section in case not set from external parameter
-    if(xsec < 0){
-      if(lheInfoH.isValid() and isMC)
-	xsec = lheInfoH->originalXWGTUP()*1000;
-      else
+    // in caase the cross section is not set from outside --> fix to 1 as dummy value
+    if(xsec < 0)
 	xsec = 1.;
-    }
 
     if (uselheweights && genevtInfoH.isValid()){
       wgt = genevtInfoH->weight();
