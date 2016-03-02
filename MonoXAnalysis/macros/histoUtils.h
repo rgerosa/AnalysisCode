@@ -85,8 +85,8 @@ vector<float> bins_met_2D      = {250.,300.,350.,400.,450.,500.,600.,1000.};
 vector<float> bins_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
 vector<float> bins_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 
-vector<float> bins_monoJ_btagCSV = {0,0.02,0.04,0.06,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.92,0.94,0.96,0.98,1.};
-vector<float> bins_monoV_btagCSV = {0,0.02,0.04,0.06,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.92,0.94,0.96,0.98,1.};
+vector<float> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
+vector<float> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 
 // binning selections                                                                                                                                                          
 vector<float> selectBinning (string observable, int category){
@@ -107,13 +107,13 @@ vector<float> selectBinning (string observable, int category){
   else if(observable == "mT" and category > 3)
     return bins_substructure_mT;
 
-  else if(observable == "mpruned" and category <=1)
+  else if((observable == "mpruned" or observable == "msoftdrop" or observable == "mraw") and category <=1)
     return bins_monoJ_mpr;
-  else if(observable == "mpruned" and category > 1 and category <=3)
+  else if((observable == "mpruned" or observable == "msoftdrop" or observable == "mraw") and category > 1 and category <=3)
     return bins_monoV_mpr;
-  else if(observable == "mpruned" and category > 3)
+  else if((observable == "mpruned" or observable == "msoftdrop" or observable == "mraw") and category > 3)
     return bins_substructure_mpr;
-  else if(observable == "mpruned_v2" and category == 2)
+  else if((observable == "mpruned_v2" or observable == "msoftdrop_v2" or observable == "mraw_v2") and category == 2)
     return bins_monoV_mpr_v2;
 
   else if(observable == "tau2tau1" and category <= 1)
@@ -130,13 +130,13 @@ vector<float> selectBinning (string observable, int category){
   else if(observable == "njet" and category > 3)
     return bins_substructure_njet;
 
-  else if(observable == "nbjet" and category <= 1)
+  else if((observable == "nbjet" or observable == "nbjet_hpt" or observable == "nbjet_hpt_loose") and category <= 1)
     return bins_monoJ_njet;
-  else if(observable == "nbjet" and category > 1 and category <= 3)
+  else if((observable == "nbjet" or observable == "nbjet_hpt" or observable == "nbjet_hpt_loose") and category > 1 and category <= 3)
     return bins_monoV_njet;
-  else if(observable == "nbjet" and category > 3)
+  else if((observable == "nbjet" or observable == "nbjet_hpt" or observable == "nbjet_hpt_loose") and category > 3)
     return bins_substructure_njet;
-
+  
   else if(observable == "ht" and category <= 1)
     return bins_monoJ_HT;
   else if(observable == "ht" and category > 1 and category <= 3)

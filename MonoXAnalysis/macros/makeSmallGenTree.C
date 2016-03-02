@@ -67,12 +67,17 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   double  genMetPt, genMetPhi;
   double  weight;
   double  pfMetPt, pfMetPhi;
+  double  recoAK8JetPt,recoAK8JetPrunedMass, recoAK8JetTau2Tau1;
 
   outputTree->Branch("id",&id,"id/I");  
   outputTree->Branch("genVBosonPt", &genVBosonPt, "genVBosonPt/D");  
   outputTree->Branch("genVBosonEta", &genVBosonEta, "genVBosonEta/D");  
   outputTree->Branch("genVBosonPhi", &genVBosonPhi, "genVBosonPhi/D");  
   outputTree->Branch("genVBosonMass", &genVBosonMass, "genVBosonMass/D");  
+
+  outputTree->Branch("recoAK8JetPt", &recoAK8JetPt, "recoAK8JetPt/D");  
+  outputTree->Branch("recoAK8JetPrunedMass", &recoAK8JetPrunedMass, "recoAK8JetPrunedMass/D");  
+  outputTree->Branch("recoAK8JetTau2Tau1", &recoAK8JetTau2Tau1, "recoAK8JetTau2Tau1/D");  
 
   outputTree->Branch("genAK8JetPt", &genAK8JetPt, "genAK8JetPt/D");  
   outputTree->Branch("genAK8JetEta", &genAK8JetEta, "genAK8JetEta/D");  
@@ -181,8 +186,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   cout<<"Events in the chain "<<chain->GetEntries()<<endl;
   TString fileName;
   vector<string> seglist;
-
   while(myReader.Next()){
+
 
     TString name_tmp(myReader.GetTree()->GetCurrentFile()->GetName());
 
@@ -208,12 +213,15 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genVBosonEta  = 0.;
     genVBosonPhi  = 0.;
     genVBosonMass = 0.;
+    recoAK8JetPt   = 0.;
     genAK8JetPt   = 0.;
     genAK8JetEta  = 0.; 
     genAK8JetPhi  = 0.; 
     genAK8JetMass = 0.; 
     genAK8JetPrunedMass = 0.;
+    recoAK8JetPrunedMass = 0.;
     genAK8JetTau2Tau1   = 0.;
+    recoAK8JetTau2Tau1   = 0.;
     genAK4JetPt     = 0.; 
     genAK4JetEta    = 0.;
     genAK4JetPhi    = 0.; 
@@ -257,13 +265,10 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
 
     if(id == -1 and prunedJetm->size() > 0 and prunedJetm->at(0) > 0 and boostedJetpt->at(0) > 250. and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and *mmet > 250 and fabs(boostedJeteta->at(0)) < 2.4) id = 2;
     
-    if (prunedJetm->size() > 0 and prunedJetm->at(0) > 105) id = 0;
     if (id == -1 and *mmet > 200 and *mmet < 250) id = 0;
-    if (id == -1 and prunedJetm->at(0) > 0 and fabs(boostedJeteta->at(0)) > 2.4) id = 0;
 
     if(id == -1) cout<<"Huston we have a problem ... "<<*hltm90<<" "<<*fhbhe<<" "<<*fhbiso<<" "<<*feeb<<" "<<*fcsc<<" "<<*njets<<" "<<*nbjets<<" "<<chfrac->at(0)<<" "<<nhfrac->at(0) << " "<<jetpt->at(0)<<" "<<*jmmdphi<<" "<<*mmet<<" "<<boostedJetpt->at(0)<<" "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" "<<prunedJetm->at(0)<<endl;
-    
-  
+      
     // fill branches
     genVBosonPt   = *bosonPt;  
     genVBosonPhi  = *bosonPhi;  
@@ -303,7 +308,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genMediatorPt   = *mediatorPt;
     genMediatorEta  = *mediatorEta;
     genMediatorPhi  = *mediatorPhi;
-    genMediatorMass = *mediatorMass;
+    genMediatorMass = stod(seglist.at(seglist.size()-2));
     
     if(*nvtx<= 35)
       weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet))*puhist->GetBinContent(*nvtx);
@@ -316,6 +321,12 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
 
     genMetPt  = *genmet;
     genMetPhi = *genmetphi;
+
+    if(boostedJetpt->size() > 0){
+      recoAK8JetPt = boostedJetpt->at(0);
+      recoAK8JetPrunedMass = prunedJetm->at(0);
+      recoAK8JetTau2Tau1 = boostedJettau2->at(0)/boostedJettau1->at(0);
+    }
 
     outputTree->Fill();
 

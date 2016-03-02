@@ -222,6 +222,7 @@ void makeControlPlots(string templateFileName,
     }
   }
 
+
   // set colors
   if(datahist){
     datahist->SetLineColor(kBlack);
@@ -339,6 +340,106 @@ void makeControlPlots(string templateFileName,
     stack->Add(vnnhist);
   }
 
+  if(controlRegion == "SR" and observable == "met"){
+
+    // write yields in a output in a text file 
+    ofstream outputfile;
+    outputfile.open("preFitSR.txt");
+
+    stringstream QCDRate;
+    QCDRate << "Process: QCD";
+    stringstream GJetsRate;
+    GJetsRate << "Process: GJets";
+    stringstream DiBosonRate;
+    DiBosonRate << "Process: DiBoson";
+    stringstream TopRate;
+    TopRate << "Process: TopRate";
+    stringstream ZJetsRate;
+    ZJetsRate << "Process: ZJetsRate";
+    stringstream WJetsRate;
+    WJetsRate << "Process: WJetsRate";
+    stringstream ZnunuRate;
+    ZnunuRate << "Process: ZnunuRate";
+    stringstream PreRate;
+    PreRate << "Process: Pre-fit (total)";
+    stringstream PostRate;
+    PostRate << "Process: Post-fit (total)";
+    stringstream DataRate;
+    DataRate << "Process: Data";
+    
+    for(int iBin = 0; iBin < qcdhist->GetNbinsX(); iBin++){
+      QCDRate << "   ";
+      QCDRate << qcdhist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < gamhist->GetNbinsX(); iBin++){
+      GJetsRate << "   ";
+      GJetsRate << gamhist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < dbhist->GetNbinsX(); iBin++){
+      DiBosonRate << "   ";
+      DiBosonRate << dbhist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < tophist->GetNbinsX(); iBin++){
+      TopRate << "   ";
+      TopRate << tophist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
+      ZJetsRate << "   ";
+      ZJetsRate << vllhist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vlhist->GetNbinsX(); iBin++){
+      WJetsRate << "   ";
+      WJetsRate << vlhist->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vnnhist->GetNbinsX(); iBin++){
+      ZnunuRate << "   ";
+      ZnunuRate << vnnhist->GetBinContent(iBin+1);
+    }
+
+    TH1* histoTotal = (TH1*) stack->GetStack()->At(stack->GetNhists()-1);
+
+    for(int iBin = 0; iBin < histoTotal->GetNbinsX(); iBin++){
+      PreRate << "   ";
+      PreRate << histoTotal->GetBinContent(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < datahist->GetNbinsX(); iBin++){
+      DataRate << "   ";
+      DataRate << datahist->GetBinContent(iBin+1);
+    }
+
+    outputfile<<"######################"<<endl;
+    outputfile<<QCDRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<GJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DiBosonRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<TopRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<WJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZnunuRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PreRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PostRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+
+    outputfile.close();
+  }
+
+
   TH1* frame = NULL;
   vector<float> bins = selectBinning(observable,category);
 
@@ -352,7 +453,7 @@ void makeControlPlots(string templateFileName,
   if(observable == "tau2tau1")
     xMin = minTau2Tau1;
   if(TString(observable).Contains("btag"))
-    xMin = 0.02;
+    xMin = 0.01;
   float xMax = bins.back();
 
   if(category <= 1 and isLog)

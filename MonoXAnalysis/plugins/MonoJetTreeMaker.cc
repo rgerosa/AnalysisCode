@@ -800,8 +800,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	xsec = 1.;
     }
 
-    if (uselheweights && genevtInfoH.isValid()) 
+    if (uselheweights && genevtInfoH.isValid()){
       wgt = genevtInfoH->weight();
+    }
     else wgt = 1.0;
     
     if (pileupInfoH.isValid()) {

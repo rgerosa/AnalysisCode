@@ -20,6 +20,7 @@
 // additional
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
@@ -192,7 +193,24 @@ void LHEWeightsTreeMaker::beginJob() {
 
 void LHEWeightsTreeMaker::endJob() {}
 
-void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {}
+void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  /*
+  edm::Handle<LHERunInfoProduct> run; 
+  typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
+  
+  iRun.getByLabel( "externalLHEProducer", run );
+  LHERunInfoProduct myLHERunInfoProduct = *(run.product());
+ 
+  for (headers_const_iterator iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
+    std::cout << iter->tag() << std::endl;
+    std::vector<std::string> lines = iter->lines();
+    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+      std::cout << lines.at(iLine);
+    }
+  }
+  */
+
+}
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
 

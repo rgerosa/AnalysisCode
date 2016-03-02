@@ -849,6 +849,22 @@ void makehist4(TTree* tree, /*input tree*/
       }   
       else if(name.Contains("njet"))
 	fillvar = *njets;      
+      else if(name.Contains("nbjet_hpt_loose")){
+	int nbjet = 0;
+	for(size_t iJet = 0; iJet < jetbtag->size(); iJet++){
+	  if(jetbtag->at(iJet) > 0.605 and jetpt->at(iJet) > 30)
+	    nbjet++;
+	}
+	fillvar = nbjet;
+      }      
+      else if(name.Contains("nbjet_hpt")){
+	int nbjet = 0;
+	for(size_t iJet = 0; iJet < jetbtag->size(); iJet++){
+	  if(jetbtag->at(iJet) > 0.89 and jetpt->at(iJet) > 30)
+	    nbjet++;
+	}
+	fillvar = nbjet;
+      }      
       else if(name.Contains("nbjet"))
 	fillvar = *nbjets;
       else if(name.Contains("bosonPt"))
