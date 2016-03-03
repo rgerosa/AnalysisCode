@@ -35,5 +35,6 @@ Znunu_GJ_MV_bin3_ZG_EWK    param    0           1
 Znunu_GJ_MV_bin4_ZG_EWK    param    0           1  
 Znunu_GJ_MV_bin5_ZG_EWK    param    0           1  
 Znunu_GJ_MV_bin6_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin7_ZG_EWK    param    0           1  
 ---------------------------------------------------------
 

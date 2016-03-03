@@ -29,11 +29,13 @@ Znunu_GJ_MV_bin3_Runc        param     0     1
 Znunu_GJ_MV_bin4_Runc        param     0     1
 Znunu_GJ_MV_bin5_Runc        param     0     1
 Znunu_GJ_MV_bin6_Runc        param     0     1
+Znunu_GJ_MV_bin7_Runc        param     0     1
 Znunu_GJ_MV_bin1_ZG_EWK      param     0     1 
 Znunu_GJ_MV_bin2_ZG_EWK      param     0     1  
 Znunu_GJ_MV_bin3_ZG_EWK      param     0     1  
 Znunu_GJ_MV_bin4_ZG_EWK      param     0     1  
 Znunu_GJ_MV_bin5_ZG_EWK      param     0     1  
 Znunu_GJ_MV_bin6_ZG_EWK      param     0     1  
+Znunu_GJ_MV_bin7_ZG_EWK      param     0     1  
 ---------------------------------------------------------
 

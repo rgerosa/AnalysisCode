@@ -226,11 +226,11 @@ void createWorkspace(string inputName,
   double xMin = 0.;
   double xMax = 0.;
 
-  if(observable == "met" && category <=1){
+  if(TString(observable).Contains("met") && category <=1){
     xMin = 200.;
     xMax = 1250.;
   }
-  else if(observable == "met" && category >1){
+  else if(TString(observable).Contains("met") && category >1){
     xMin = 250.;
     xMax = 1000.;
   }

@@ -35,5 +35,6 @@ Top_TE_MV_bin3_Runc        param 0 1
 Top_TE_MV_bin4_Runc        param 0 1    
 Top_TE_MV_bin5_Runc        param 0 1    
 Top_TE_MV_bin6_Runc        param 0 1    
+Top_TE_MV_bin7_Runc        param 0 1    
 Top_btag                   param 0 1 
 ------------------------------------------------------------------------------------------------
