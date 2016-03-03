@@ -65,7 +65,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   double  genX1Pt, genX1Eta, genX1Phi, genX1Mass;
   double  genX2Pt, genX2Eta, genX2Phi, genX2Mass;
   double  genMetPt, genMetPhi;
-  double  weight;
+  double  weight, genWeight;
   double  pfMetPt, pfMetPhi;
   double  recoAK8JetPt,recoAK8JetPrunedMass, recoAK8JetTau2Tau1;
 
@@ -112,12 +112,14 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   outputTree->Branch("pfMetPhi", &pfMetPhi, "pfMetPhi/D");  
 
   outputTree->Branch("weight", &weight, "weight/D");  
+  outputTree->Branch("genWeight", &genWeight, "genWeight/D");  
   
 
   // setup read input file                                                                                                                                                  
   TTreeReader myReader(chain);
 
   TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
+  TTreeReaderValue<double> wgt   (myReader,"wgt");
 
   TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
   TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
@@ -243,6 +245,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     pfMetPt = 0.;
     pfMetPhi = 0.;
     weight = 1.;
+    genWeight = 1.;
 
     if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
     if (*fhbhe  == 0 or *fhbiso == 0) id = 0;
@@ -327,6 +330,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
       recoAK8JetPrunedMass = prunedJetm->at(0);
       recoAK8JetTau2Tau1 = boostedJettau2->at(0)/boostedJettau1->at(0);
     }
+
+    genWeight = *wgt;
 
     outputTree->Fill();
 

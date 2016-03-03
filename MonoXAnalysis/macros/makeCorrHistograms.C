@@ -259,6 +259,38 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
+  /*
+  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
+  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
+  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
+
+  if(wewkhist_p and wnlohist_p){
+    wewkhist_p->Divide(wnlohist_p);
+    wewkhist_p->SetName("wewkhist_Wp");
+  }
+    
+  if(wnlohist_p and wnlohist_p){
+    wnlohist_p->Divide(wnlohist_p);
+    wnlohist_p->SetName("wnlohist_Wp");
+    wlohist_p->SetName("wlohist_Wp");
+  }
+
+  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
+  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
+  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
+
+  if(wewkhist_m and wnlohist_m){
+    wewkhist_m->Divide(wnlohist_m);
+    wewkhist_m->SetName("wewkhist_Wm");
+  }
+    
+  if(wnlohist_m and wnlohist_m){
+    wnlohist_m->Divide(wnlohist_m);
+    wnlohist_m->SetName("wnlohist_Wm");
+    wlohist_m->SetName("wlohist_Wm");
+  }
+  */
+
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
     wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
@@ -269,6 +301,16 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
+
+  /*
+  if(wewkhist_p and wnlohist_p and wnlohist_m and wewkhist_m){
+    whists.push_back(wnlohist_p);
+    whists.push_back(wewkhist_p);
+    whists.push_back(wnlohist_m);
+    whists.push_back(wewkhist_m);
+  }
+  */
+
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
@@ -365,6 +407,38 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
+  /*
+  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
+  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
+  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
+
+  if(wewkhist_p and wnlohist_p){
+    wewkhist_p->Divide(wnlohist_p);
+    wewkhist_p->SetName("wewkhist_Wp");
+  }
+    
+  if(wnlohist_p and wnlohist_p){
+    wnlohist_p->Divide(wnlohist_p);
+    wnlohist_p->SetName("wnlohist_Wp");
+    wlohist_p->SetName("wlohist_Wp");
+  }
+
+  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
+  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
+  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
+
+  if(wewkhist_m and wnlohist_m){
+    wewkhist_m->Divide(wnlohist_m);
+    wewkhist_m->SetName("wewkhist_Wm");
+  }
+    
+  if(wnlohist_m and wnlohist_m){
+    wnlohist_m->Divide(wnlohist_m);
+    wnlohist_m->SetName("wnlohist_Wm");
+    wlohist_m->SetName("wlohist_Wm");
+  }
+  */
+
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
     wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
@@ -374,6 +448,14 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
+  /*
+  if(wewkhist_p and wnlohist_p and wnlohist_m and wewkhist_m){
+    whists.push_back(wnlohist_p);
+    whists.push_back(wewkhist_p);
+    whists.push_back(wnlohist_m);
+    whists.push_back(wewkhist_m);
+  }
+  */
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
@@ -478,6 +560,38 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
+  /*
+  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
+  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
+  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
+
+  if(wewkhist_p and wnlohist_p){
+    wewkhist_p->Divide(wnlohist_p);
+    wewkhist_p->SetName("wewkhist_Wp");
+  }
+
+  if(wnlohist_p and wnlohist_p){
+    wnlohist_p->Divide(wnlohist_p);
+    wnlohist_p->SetName("wnlohist_Wp");
+    wlohist_p->SetName("wlohist_Wp");
+  }
+
+  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
+  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
+  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
+
+  if(wewkhist_m and wnlohist_m){
+    wewkhist_m->Divide(wnlohist_m);
+    wewkhist_m->SetName("wewkhist_Wm");
+  }
+
+  if(wnlohist_m and wnlohist_m){
+    wnlohist_m->Divide(wnlohist_m);
+    wnlohist_m->SetName("wnlohist_Wm");
+    wlohist_m->SetName("wlohist_Wm");
+  }  
+  */
+
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
     wlohist  = (TH1*) kffile.Get("wlo/wlo_nominal");
@@ -523,25 +637,26 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   //kfact == 1 --> Znunu corrected for by NLO QCD, Wlnu by NLO QCD                                                                                                              
   if (kfact == 1) zhists.push_back(znlohist);
   if (kfact == 1) whists.push_back(wnlohist);
+    
   //kfact == 2 --> Znunu corrected for by NLO QCD+EWK, Wlnu by NLO QCD+EWK                                                                                                      
   if (kfact == 2) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
   if (kfact == 2) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
   //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
   if (kfact == 3) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
-  if (kfact == 3) whists.push_back(wnlohist);
+  if (kfact == 3)  whists.push_back(wnlohist);
   //kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                        
   if (kfact == 4) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
-  if (kfact == 4) whists.push_back(wnlohist);
+  if (kfact == 4)  whists.push_back(wnlohist);
   //kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                        
   if (kfact == 5) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
-  if (kfact == 5) whists.push_back(wnlohist);
+  if (kfact == 5)  whists.push_back(wnlohist);
   //kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                        
   if (kfact == 6) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
-  if (kfact == 6) whists.push_back(wnlohist);
+  if (kfact == 6)  whists.push_back(wnlohist);
   //kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                              
   if (kfact == 7) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
   if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
-
+  
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
     makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, NULL);

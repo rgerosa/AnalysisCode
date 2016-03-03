@@ -28,7 +28,9 @@ class signalSample{
 };
 
 // define binnings for the different observables                                                                                                                              
-vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,1000.};
+vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
+vector<float> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
+vector<float> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
 vector<float> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<float> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -97,6 +99,10 @@ vector<float> selectBinning (string observable, int category){
     return bins_monoJ_met_v2;
   else if(observable == "met" and category > 1 and category <=3)
     return bins_monoV_met;
+  else if(observable == "met_v2" and category > 1 and category <=3)
+    return bins_monoV_met_v2;
+  else if(observable == "met_v3" and category > 1 and category <=3)
+    return bins_monoV_met_v3;
   else if(observable == "met" and category > 3)
     return bins_substructure_met;
 

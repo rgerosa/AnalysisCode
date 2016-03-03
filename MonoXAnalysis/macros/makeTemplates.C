@@ -17,23 +17,23 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
 
   if(interaction == "Vector"){
     baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter_v2/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter_v2/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter/";
   }
   else if(interaction == "Axial"){
     baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter_v2/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter_v2/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter/";
   }
   else if(interaction == "Scalar"){
     baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter_v2/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter_v2/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
   }
   else if(interaction == "Pseudoscalar"){
     baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter_v2/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter_v2/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter_v2/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
   }
   else{
     cout<<"[findAllPossibleMassPoints]: interaction type not found --> exit "<<endl;
@@ -626,29 +626,29 @@ void makeTemplates(bool doCorrectionHistograms   = false,
 
   // signal region templates
   cout<<"start signal region shapes for signal"<<endl;
-  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Vector",lumi,doShapeSystematics);
-  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Axial",lumi,doShapeSystematics);
-  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Scalar",lumi,doShapeSystematics);
-  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Pseudoscalar",lumi,doShapeSystematics);
+  //  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Vector",lumi,doShapeSystematics);
+  //  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Axial",lumi,doShapeSystematics);
+  //  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Scalar",lumi,doShapeSystematics);
+  //  signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Pseudoscalar",lumi,doShapeSystematics);
   cout<<"start signal region data"<<endl;
-  sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false);
+  //  sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false);
   // gamma + jets
   cout<<"start gamma+jets region data"<<endl;
-  gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight);
+  //  gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight);
   // lepton control regions
   cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
+  //  lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wmunu region data"<<endl;
   lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
+  //  lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics); 
   cout<<"start wenu region data"<<endl;
   lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics);     
   // top control regions
   cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  //  topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
+  //  topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics);
   
   //add qcd data templates
   TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");

@@ -28,7 +28,8 @@ const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge   = 0;
 const int   nBjets         = 1;
 
-string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
+string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/";
 
@@ -580,6 +581,15 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t kwgt = 1.0;
     
     for (unsigned i = 0; i < khists.size(); i++) {
+      
+      // in case of charge independent k-factors
+      if(TString(khists[i]->GetName()).Contains("_Wp") and pid1 < 0)
+	continue;
+      else if(TString(khists[i]->GetName()).Contains("_Wm") and pid1 > 0)
+	continue;
+
+      cout<<khists[i]->GetName()<<" "<<pid1<<" "<<khists[i]->GetBinContent(khists[i]->FindBin(*wzpt))<<endl;
+      
       if (isMC && khists[i]){
 	if(*wzpt < khists[i]->GetBinLowEdge(1)){
 	  *wzpt  = khists[i]->GetBinLowEdge(1)+1.;

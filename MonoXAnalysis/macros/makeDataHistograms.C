@@ -754,7 +754,7 @@ void sigdatamchist(TFile* outfile,
   TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
   TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
-
+ 
   if(wewkhist)
     wewkhist->Divide(wnlohist);
   if(wnlohist)
@@ -792,7 +792,7 @@ void sigdatamchist(TFile* outfile,
   zhists.push_back(znlohist); 
   zhists.push_back(zewkhist);
   whists.push_back(wnlohist); 
-  whists.push_back(wewkhist);
+  whists.push_back(wewkhist);    
   ahists.push_back(anlohist);
   ahists.push_back(aewkhist);
 
@@ -2427,11 +2427,10 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   // apply NLO QCD and EWK corrections for Zll and Wlnu                                                                                                                      
   ahists.push_back(anlohist);
   ahists.push_back(aewkhist);
-  vlhists.push_back(wnlohist);
-  vlhists.push_back(wewkhist);
   vllhists.push_back(znlohist);
   vllhists.push_back(zewkhist);
-
+  vlhists.push_back(wnlohist);
+  vlhists.push_back(wewkhist);
 
   // 
   bool isWJet = false;

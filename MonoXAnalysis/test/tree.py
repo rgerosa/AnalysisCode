@@ -127,7 +127,7 @@ if options.isMC and 'dataRun2' in options.globalTag:
 
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
-
+	
 if not options.isMC:
 	options.crossSection = -1.;
 
@@ -194,9 +194,11 @@ if options.inputFiles == []:
 #        	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root')
 	else:
 		process.source.fileNames.append( 
-			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-10000_Mchi-1000_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/CC4E0ADB-3E75-E511-9CB6-00259029E87C.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/D4A17AAE-9174-E511-B19C-002590FD5A78.root'
+			'/store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10_Mchi-1_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/74X_mcRun2_asymptotic_v2-v2/20000/8EEF58D5-648A-E511-9143-001E674FB149.root'
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DMV_NNPDF30_Vector_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-powheg/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/4060DF6C-4E74-E511-B777-A0000420FE80.root'
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
-			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
+#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/BulkGravToWWToWlepWhad_narrow_M-1000_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/AC4D3BCD-A66F-E511-86D7-5254009FC2FD.root'
 			#'root://gfe02.grid.hep.ph.ic.ac.uk:1097//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/86BFA9FC-946F-E511-B8BD-00266CFFBEB4.root'
 #			'/store/mc/RunIISpring15MiniAODv2/GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/0002EB7B-E76D-E511-8AD6-00269E95B17C.root'
@@ -388,6 +390,32 @@ if options.doSubstructurePuppi:
 			addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
 			addQGLikelihood = True);
 
+# MET filter --> making the or of different met
+process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
+    metCollections = cms.VPSet(
+		cms.PSet( srcMet = cms.InputTag("slimmedMETs","","TREE"),
+			  metCut = cms.double(100)),
+		cms.PSet(srcMet = cms.InputTag("t1mumet","","TREE"),
+			 metCut = cms.double(100)),
+		cms.PSet(srcMet = cms.InputTag("t1elmet","","TREE"),
+			 metCut = cms.double(100)),
+		cms.PSet(srcMet = cms.InputTag("t1phmet","","TREE"),
+			 metCut = cms.double(100)),
+		),
+    filterEvents = cms.bool(options.filterHighMETEvents),
+    graterThan = cms.bool(True),
+    applyAndInsteadOfOr = cms.bool(False)
+)
+     					
+# Tree for the generator weights
+process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
+    lheinfo = cms.InputTag("externalLHEProducer"),
+    lheRuninfo = cms.InputTag("externalLHEProducer"),
+    geninfo = cms.InputTag("generator"),
+    pileupinfo = cms.InputTag("slimmedAddPileupInfo"),				 
+    uselheweights = cms.bool(options.useLHEWeights),
+    addqcdpdfweights = cms.bool(options.addQCDPDFWeights))
+
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## gen info			     
@@ -482,13 +510,6 @@ else:
 	jetColl = "slimmedJetsRecorrectedAK4PFchsPUIDQG"
 	jetCollPuppi = "slimmedJetsRecorrectedAK4PFPuppiPUIDQG"
 
-# Tree for the generator weights
-process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
-    lheinfo = cms.InputTag("externalLHEProducer"),
-    geninfo = cms.InputTag("generator"),
-    pileupinfo = cms.InputTag("slimmedAddPileupInfo"),				 
-    uselheweights = cms.bool(options.useLHEWeights),
-    addqcdpdfweights = cms.bool(options.addQCDPDFWeights))
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
@@ -527,52 +548,28 @@ if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
 if options.addPuppiJets:
 	setattr(process,"btageffPuppi",process.btageff.clone(
 			srcJets = cms.InputTag(jetCollPuppi)))
+
 	
-
-# MET filter
-process.metfilter = cms.EDFilter("CandViewSelector",
-    src = cms.InputTag("t1mumet"),
-    cut = cms.string("et > 200"),
-    filter = cms.bool(True))
-
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
-	if options.filterHighMETEvents: 
-		if (options.isMC):
-			process.treePath = cms.Path(process.gentree + 
-						    process.metFilters + 
+	if (options.isMC):
+		process.treePath = cms.Path(process.gentree + 
+					    process.metFilters + 
+					    process.btageff+
+					    process.filterHighRecoil + 
+					    process.tree)
+		if(options.addPuppiJets):
+			process.treePath = cms.Path(process.gentree +
+						    process.metFilters +
 						    process.btageff+
-						    process.metfilter + 
+						    process.btageffPuppi+
+						    process.filterHighRecoil +
 						    process.tree)
-			if(options.addPuppiJets):
-				process.treePath = cms.Path(process.gentree +
-							    process.metFilters +
-							    process.btageff+
-							    process.btageffPuppi+
-							    process.metfilter +
-							    process.tree)
 			
-		else :
-			process.treePath = cms.Path(process.metFilters + 
-						    process.metfilter + 
-						    process.tree)
 	else :
-		if (options.isMC):
-			process.treePath = cms.Path(process.gentree+
-						    process.metFilters + 
-						    process.btageff+
-						    process.tree)
-
-			if(options.addPuppiJets):
-				process.treePath = cms.Path(process.gentree+
-							    process.metFilters + 
-							    process.btageff+
-							    process.btageffPuppi+
-							    process.tree)
-		else :
-			process.treePath = cms.Path(process.metFilters + 
-			                            process.tree)
-
+		process.treePath = cms.Path(process.metFilters + 
+					    process.filterHighRecoil + 
+					    process.tree)
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()
