@@ -203,7 +203,16 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
   edm::Handle<LHERunInfoProduct> run;
   iRun.getByLabel(lheRunInfoTag,run);
   LHERunInfoProduct myLHERunInfoProduct = *(run.product());
-  lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0);  
+  lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0); 
+  /*
+  for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+    std::cout << iter->tag() << std::endl;
+    std::vector<std::string> lines = iter->lines();
+    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+      std::cout << lines.at(iLine);
+    }
+  }
+  */ 
 }
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}

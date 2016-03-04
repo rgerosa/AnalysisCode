@@ -112,53 +112,90 @@ private:
   // InputTags
   const edm::InputTag triggerResultsTag;
   const edm::InputTag filterResultsTag;
+  const edm::InputTag prescalesTag;
+
+  const edm::InputTag hbhelooseTag;
+  const edm::InputTag hbhetightTag;
+  const edm::InputTag hbheisoTag;
   
   // trgger and filter tokens
-  const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-  const edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken;
-  const edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
-  const edm::EDGetTokenT<bool> hbhelooseToken;
-  const edm::EDGetTokenT<bool> hbhetightToken;
-  const edm::EDGetTokenT<bool> hbheisoToken;
+  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
+  edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken;
+  edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
+  edm::EDGetTokenT<bool> hbhelooseToken;
+  edm::EDGetTokenT<bool> hbhetightToken;
+  edm::EDGetTokenT<bool> hbheisoToken;
   
   // Vertex
-  const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
+  const edm::InputTag verticesTag;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
 
   // muons
-  const edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
-  const edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
-  const edm::EDGetTokenT<pat::MuonRefVector> highptmuonsToken;
+  const edm::InputTag muonsTag;
+  const edm::InputTag tightmuonsTag;
+  const edm::InputTag highptmuonsTag;
+
+  edm::EDGetTokenT<pat::MuonRefVector> muonsToken;
+  edm::EDGetTokenT<pat::MuonRefVector> tightmuonsToken;
+  edm::EDGetTokenT<pat::MuonRefVector> highptmuonsToken;
 
   // electrons
-  const edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
-  const edm::EDGetTokenT<pat::ElectronRefVector>  tightelectronsToken;
-  const edm::EDGetTokenT<pat::ElectronRefVector>  heepelectronsToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
+  const edm::InputTag  electronsTag;
+  const edm::InputTag  tightelectronsTag;
+  const edm::InputTag  heepelectronsTag;
+  const edm::InputTag  electronLooseIdTag;  
+
+  edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>  tightelectronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>  heepelectronsToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
 
   // Photons
-  const edm::EDGetTokenT<pat::PhotonRefVector>    photonsToken;
-  const edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonMediumIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonTightIdToken;
-  const edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
+  const edm::InputTag  photonsTag;
+  const edm::InputTag  tightphotonsTag;
+  const edm::InputTag  photonLooseIdTag;
+  const edm::InputTag  photonMediumIdTag;
+  const edm::InputTag  photonTightIdTag;
+  const edm::InputTag  photonHighPtIdTag;
+
+  edm::EDGetTokenT<pat::PhotonRefVector>    photonsToken;
+  edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >    photonMediumIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >    photonTightIdToken;
+  edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
 
   // Taus
-  const edm::EDGetTokenT<std::vector<pat::Tau> >  tausToken;
+  const edm::InputTag tausTag;
+  edm::EDGetTokenT<std::vector<pat::Tau> >  tausToken;
 
   //Jets AK4
-  const edm::EDGetTokenT<std::vector<pat::Jet> >  jetsToken;
+  const edm::InputTag jetsTag;
   const bool addPuppiJets;
+  const edm::InputTag puppijetsTag;
+
+  edm::EDGetTokenT<std::vector<pat::Jet> >  jetsToken;
   edm::EDGetTokenT<std::vector<pat::Jet> >  puppijetsToken;
 
   // MET
-  const edm::EDGetTokenT<edm::View<pat::MET> >  t1metToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >  t1elemetToken;
-  const edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
+  const edm::InputTag t1metTag;
+  const edm::InputTag t1mumetTag;
+  const edm::InputTag t1elmetTag;
+  const edm::InputTag t1phmetTag;
+
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1metToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
 
   // Puppi MET
   const bool addPuppiMET;
+
+  const edm::InputTag puppit1metTag;
+  const edm::InputTag puppit1mumetTag;
+  const edm::InputTag puppit1elemetTag;
+  const edm::InputTag puppit1phmetTag;
+
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1metToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1mumetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1elemetToken;
@@ -169,6 +206,8 @@ private:
 
   // MVA met
   const bool addMVAMet;
+
+  const edm::InputTag mvaMETTag;
   edm::EDGetTokenT<edm::View<reco::MET> > mvaMETToken;
 
   // inner bools
@@ -179,16 +218,16 @@ private:
 
   // Jet AK8
   const bool addSubstructureCHS;
-  const bool addSubstructurePuppi;
+  const bool addSubstructurePuppi;  
   edm::EDGetTokenT<std::vector<pat::Jet> > boostedJetsToken;
   TString boostedJetsCHSLabel;
   edm::EDGetTokenT<std::vector<pat::Jet> > boostedPuppiJetsToken;
   TString boostedJetsPuppiLabel;
   
   // inner vectors
-  std::vector<std::string> triggerPathsVector;
+  std::vector<std::string>   triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
-  std::vector<std::string> filterPathsVector;
+  std::vector<std::string>   filterPathsVector;
   std::map<std::string, int> filterPathsMap;
 
   // Btag SF 
@@ -204,16 +243,12 @@ private:
 
   // pileup info
   int32_t puobs, putrue; 
-
-  // lepton info
   int32_t wzid, l1id, l2id;
   int32_t wzid_h, q1id, q2id;
-  int32_t top_1, top_2;
-  
+  int32_t top_1, top_2;  
   int32_t mu1pid, mu2pid, mu1id, mu2id, mu1idm, mu2idm, mu1idt, mu2idt;
   int32_t el1pid, el2pid, el1id, el1idl, el2id, el2idl;
   int32_t phidl, phidm, phidt, phidh, parid, ancid; 
-
   // event info
   uint32_t event, run, lumi;  
   uint32_t nvtx;
@@ -223,41 +258,30 @@ private:
   uint32_t njets, nbjets, nbjetslowpt;  
   uint32_t npuppijets, npuppibjets, npuppibjetslowpt;
   uint32_t njetsinc, npuppijetsinc;
-
   // trigger and met filters flags 
-  uint8_t  hltmet90, hltmet120, hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
-  uint8_t  hltjetmet90, hltjetmet120, hltphoton165, hltphoton175, hltphoton120, hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel, hltelnoiso;
+  uint8_t  hltmet90,    hltmet120,    hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
+  uint8_t  hltjetmet90, hltjetmet120, hltphoton165,   hltphoton175,    hltphoton120,    hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel, hltelnoiso;
   uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
-
-  // muon info
-  double   mu1pt, mu1eta, mu1phi, mu1pfpt, mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso;
-  // ele info
-  double   el1pt, el1eta, el1phi, ele1e,el2pt, ele2e, el2eta, el2phi, phpt, pheta, phphi, phe;
-  // dilepton info
-  double   zmass, zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt;
-  
+  // muon, ele, dilepton info
+  double   mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso;
+  double   el1pt,el1eta,el1phi,ele1e,el2pt, ele2e, el2eta, el2phi, phpt, pheta, phphi, phe;
+  double   zmass,zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt; 
   // PF MET info (typeI and Raw)
-  double t1pfmet, t1pfmetphi, t1mumet, t1mumetphi, t1elmet, t1elmetphi, t1phmet, t1phmetphi;
-  double pfmet, pfmetphi, mumet, mumetphi, elmet, elmetphi, phmet, phmetphi;
-
+  double   t1pfmet, t1pfmetphi, t1mumet, t1mumetphi, t1elmet, t1elmetphi, t1phmet, t1phmetphi;
+  double   pfmet, pfmetphi, mumet, mumetphi, elmet, elmetphi, phmet, phmetphi;
   // Puppi MET info (typeI and Raw)
-  double  puppipfmet, puppipfmetphi, puppimumet, puppimumetphi, puppielmet, puppielmetphi, puppiphmet, puppiphmetphi;
-  double  puppit1pfmet, puppit1pfmetphi, puppit1mumet, puppit1mumetphi, puppit1elmet, puppit1elmetphi, puppit1phmet, puppit1phmetphi;
-
+  double   puppipfmet, puppipfmetphi, puppimumet, puppimumetphi, puppielmet, puppielmetphi, puppiphmet, puppiphmetphi;
+  double   puppit1pfmet, puppit1pfmetphi, puppit1mumet, puppit1mumetphi, puppit1elmet, puppit1elmetphi, puppit1phmet, puppit1phmetphi;
   // mva met
   double mvamet, mvametphi;
-
   // gen met
   double genmet, genmetphi;
-
   // met systematics
   double t1pfmetMuEnUp, t1pfmetMuEnDown, t1pfmetElEnUp, t1pfmetElEnDown, t1pfmetPhoEnUp, t1pfmetPhoEnDown, t1pfmetTauEnUp, t1pfmetTauEnDown;
   double t1pfmetJetEnUp, t1pfmetJetEnDown, t1pfmetJetResUp, t1pfmetJetResDown, t1pfmetUncEnUp, t1pfmetUncEnDown;
-
   // met systematics puppi
   double puppit1pfmetMuEnUp, puppit1pfmetMuEnDown, puppit1pfmetElEnUp, puppit1pfmetElEnDown, puppit1pfmetPhoEnUp, puppit1pfmetPhoEnDown, puppit1pfmetTauEnUp;
   double puppit1pfmetTauEnDown, puppit1pfmetJetEnUp, puppit1pfmetJetEnDown, puppit1pfmetJetResUp, puppit1pfmetJetResDown, puppit1pfmetUncEnUp, puppit1pfmetUncEnDown;
-  
   // AK4 CHS jets
   double   leadingjetpt, leadingjeteta, leadingjetphi, leadingjetm; 
 
@@ -273,24 +297,24 @@ private:
   std::vector<double> forwardjetHFlav, forwardjetPFlav, forwardjetQGL, forwardjetPUID;
   std::vector<double> forwardjetGenpt, forwardjetGeneta, forwardjetGenphi, forwardjetGenm;
 
-  double   jetmetdphimin , incjetmetdphimin , jetmumetdphimin , incjetmumetdphimin, jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
-  double   jetmetdphimin4, incjetmetdphimin4, jetmumetdphimin4, incjetmumetdphimin4 , jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
-  double   alljetmetdphimin, alljetmetdphimin4, alljetmumetdphimin, alljetmumetdphimin4, alljetelmetdphimin, alljetelmetdphimin4, alljetphmetdphimin, alljetphmetdphimin4;
+  double jetmetdphimin , incjetmetdphimin , jetmumetdphimin , incjetmumetdphimin, jetelmetdphimin , incjetelmetdphimin , jetphmetdphimin , incjetphmetdphimin , jetjetdphi;
+  double jetmetdphimin4, incjetmetdphimin4, jetmumetdphimin4, incjetmumetdphimin4 , jetelmetdphimin4, incjetelmetdphimin4, jetphmetdphimin4, incjetphmetdphimin4, ht; 
+  double alljetmetdphimin, alljetmetdphimin4, alljetmumetdphimin, alljetmumetdphimin4, alljetelmetdphimin, alljetelmetdphimin4, alljetphmetdphimin, alljetphmetdphimin4;
 
   // Puppijet ak4 puppi
-  double   leadingPuppijetpt, leadingPuppijeteta, leadingPuppijetphi, leadingPuppijetm; 
+  double leadingPuppijetpt, leadingPuppijeteta, leadingPuppijetphi, leadingPuppijetm; 
 
   // AK4Puppi central jet
-  std::vector<double> centralPuppijetpt, centralPuppijeteta, centralPuppijetphi, centralPuppijetm, centralPuppijetbtag;
-  std::vector<double> centralPuppijetCHfrac, centralPuppijetNHfrac, centralPuppijetEMfrac, centralPuppijetCEMfrac, centralPuppijetmetdphi;
-  std::vector<double> centralPuppijetHFlav, centralPuppijetPFlav, centralPuppijetQGL, centralPuppijetPUID;
-  std::vector<double> centralPuppijetGenpt, centralPuppijetGeneta, centralPuppijetGenphi, centralPuppijetGenm;
+  std::vector<double> centralPuppijetpt,     centralPuppijeteta,      centralPuppijetphi,    centralPuppijetm,      centralPuppijetbtag;
+  std::vector<double> centralPuppijetCHfrac, centralPuppijetNHfrac,   centralPuppijetEMfrac, centralPuppijetCEMfrac,centralPuppijetmetdphi;
+  std::vector<double> centralPuppijetHFlav,  centralPuppijetPFlav,    centralPuppijetQGL,    centralPuppijetPUID;
+  std::vector<double> centralPuppijetGenpt,  centralPuppijetGeneta,   centralPuppijetGenphi, centralPuppijetGenm;
   std::vector<double> centralPuppijetBtagSF, centralPuppijetBtagSFUp, centralPuppijetBtagSFDown;
   // AK4Puppi forward Puppijet
-  std::vector<double> forwardPuppijetpt, forwardPuppijeteta, forwardPuppijetphi, forwardPuppijetm, forwardPuppijetbtag;
+  std::vector<double> forwardPuppijetpt,     forwardPuppijeteta,    forwardPuppijetphi,    forwardPuppijetm,       forwardPuppijetbtag;
   std::vector<double> forwardPuppijetCHfrac, forwardPuppijetNHfrac, forwardPuppijetEMfrac, forwardPuppijetCEMfrac, forwardPuppijetmetdphi;
-  std::vector<double> forwardPuppijetHFlav, forwardPuppijetPFlav, forwardPuppijetQGL, forwardPuppijetPUID;
-  std::vector<double> forwardPuppijetGenpt, forwardPuppijetGeneta, forwardPuppijetGenphi, forwardPuppijetGenm;
+  std::vector<double> forwardPuppijetHFlav,  forwardPuppijetPFlav,  forwardPuppijetQGL,    forwardPuppijetPUID;
+  std::vector<double> forwardPuppijetGenpt,  forwardPuppijetGeneta, forwardPuppijetGenphi, forwardPuppijetGenm;
   //
   double   Puppijetmetdphimin , incPuppijetmetdphimin , Puppijetmumetdphimin , incPuppijetmumetdphimin , Puppijetelmetdphimin , incPuppijetelmetdphimin , Puppijetphmetdphimin , incPuppijetphmetdphimin , PuppijetPuppijetdphi;
   double   Puppijetmetdphimin4, incPuppijetmetdphimin4, Puppijetmumetdphimin4, incPuppijetmumetdphimin4, Puppijetelmetdphimin4, incPuppijetelmetdphimin4, Puppijetphmetdphimin4, incPuppijetphmetdphimin4, Puppiht; 
@@ -387,51 +411,49 @@ private:
 
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
   ///////////// GEN INFO
-  // isMC or Data
+  // isMC or Data --> default Data
   isMC(iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
   // use lhe weights or not
   uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
   // is signal sample or not
   isWorZorSignalMCSample(iConfig.existsAs<bool>("isWorZorSignalMCSample") ? iConfig.getParameter<bool>("isWorZorSignalMCSample") : false),
-  // qcd and pdf weights
-  xsec(iConfig.getParameter<double>("xsec") * 1000.0),
+  // xsec
+  xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : 1000.),
   ///////////// TRIGGER and filter info INFO
   triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
   filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
-  triggerResultsToken(consumes<edm::TriggerResults> (triggerResultsTag)),
-  triggerPrescalesToken(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("prescales"))),
-  filterResultsToken(consumes<edm::TriggerResults> (filterResultsTag)),
-  hbhelooseToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheloose"))),
-  hbhetightToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbhetight"))),
-  hbheisoToken(consumes<bool> (iConfig.getParameter<edm::InputTag>("hbheiso"))),
+  prescalesTag(iConfig.getParameter<edm::InputTag>("prescales")),
+  hbhelooseTag(iConfig.getParameter<edm::InputTag>("hbheloose")),
+  hbhetightTag(iConfig.getParameter<edm::InputTag>("hbhetight")),
+  hbheisoTag(iConfig.getParameter<edm::InputTag>("hbheiso")),
   // vertexes
-  verticesToken(consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
+  verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
   //muons
-  muonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("muons"))),
-  tightmuonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("tightmuons"))),
-  highptmuonsToken(consumes<pat::MuonRefVector> (iConfig.getParameter<edm::InputTag>("highptmuons"))),
+  muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
+  tightmuonsTag(iConfig.getParameter<edm::InputTag>("tightmuons")),
+  highptmuonsTag(iConfig.getParameter<edm::InputTag>("highptmuons")),
   // electrons
-  electronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("electrons"))),
-  tightelectronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("tightelectrons"))),
-  heepelectronsToken(consumes<pat::ElectronRefVector> (iConfig.getParameter<edm::InputTag>("heepelectrons"))),
-  electronLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("electronLooseId"))),
+  electronsTag(iConfig.getParameter<edm::InputTag>("electrons")),
+  tightelectronsTag(iConfig.getParameter<edm::InputTag>("tightelectrons")),
+  heepelectronsTag(iConfig.getParameter<edm::InputTag>("heepelectrons")),
+  electronLooseIdTag(iConfig.getParameter<edm::InputTag>("electronLooseId")),
   // photons
-  photonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("photons"))),
-  tightphotonsToken(consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("tightphotons"))),
-  photonLooseIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonLooseId"))),
-  photonMediumIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonMediumId"))),
-  photonTightIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonTightId"))),
-  photonHighPtIdToken(consumes<edm::ValueMap<bool> > (iConfig.getParameter<edm::InputTag>("photonHighPtId"))),
+  photonsTag(iConfig.getParameter<edm::InputTag>("photons")),
+  tightphotonsTag(iConfig.getParameter<edm::InputTag>("tightphotons")),
+  photonLooseIdTag(iConfig.getParameter<edm::InputTag>("photonLooseId")),
+  photonMediumIdTag(iConfig.getParameter<edm::InputTag>("photonMediumId")),
+  photonTightIdTag(iConfig.getParameter<edm::InputTag>("photonTightId")),
+  photonHighPtIdTag(iConfig.getParameter<edm::InputTag>("photonHighPtId")),
   // taus
-  tausToken(consumes<std::vector<pat::Tau> > (iConfig.getParameter<edm::InputTag>("taus"))),
+  tausTag(iConfig.getParameter<edm::InputTag>("taus")),
   // jets AK4
-  jetsToken(consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
+  jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
   addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
   // met
-  t1metToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1met"))),
-  t1mumetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1mumet"))),
-  t1elemetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1elmet"))),
-  t1phmetToken(consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("t1phmet"))),
+  t1metTag(iConfig.getParameter<edm::InputTag>("t1met")),
+  t1mumetTag(iConfig.getParameter<edm::InputTag>("t1mumet")),
+  t1elmetTag(iConfig.getParameter<edm::InputTag>("t1elmet")),
+  t1phmetTag(iConfig.getParameter<edm::InputTag>("t1phmet")),
   // puppi met
   addPuppiMET(iConfig.existsAs<bool>("addPuppiMET") ? iConfig.getParameter<bool>("addPuppiMET") : false),
   // MET Systematics
@@ -451,29 +473,51 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   usesResource();
   usesResource("TFileService");
-  
+
+  // trigger tokens
+  triggerResultsToken   = consumes<edm::TriggerResults> (triggerResultsTag);
+  triggerPrescalesToken = consumes<pat::PackedTriggerPrescales>(prescalesTag);
+  filterResultsToken    = consumes<edm::TriggerResults> (filterResultsTag);
+
+  //HBHE Noise
+  hbhelooseToken = consumes<bool> (hbhelooseTag);
+  hbhetightToken = consumes<bool> (hbhetightTag);
+  hbheisoToken   = consumes<bool> (hbheisoTag);
+  verticesToken  = consumes<std::vector<reco::Vertex> > (verticesTag);
+
+  //muons
+  muonsToken       = consumes<pat::MuonRefVector> (muonsTag);
+  tightmuonsToken  = consumes<pat::MuonRefVector> (tightmuonsTag);
+  highptmuonsToken = consumes<pat::MuonRefVector> (highptmuonsTag);
+
+  // electrons
+  electronsToken       = consumes<pat::ElectronRefVector> (electronsTag);
+  tightelectronsToken  = consumes<pat::ElectronRefVector>(tightelectronsTag);
+  heepelectronsToken   = consumes<pat::ElectronRefVector> (heepelectronsTag);
+  electronLooseIdToken = consumes<edm::ValueMap<bool> > (electronLooseIdTag);
+  // photons
+  photonsToken        = consumes<pat::PhotonRefVector> (photonsTag);
+  tightphotonsToken   = consumes<pat::PhotonRefVector> (tightphotonsTag);
+  photonLooseIdToken  = consumes<edm::ValueMap<bool> > (photonLooseIdTag);
+  photonMediumIdToken = consumes<edm::ValueMap<bool> > (photonMediumIdTag);
+  photonTightIdToken  = consumes<edm::ValueMap<bool> > (photonTightIdTag);
+  photonHighPtIdToken = consumes<edm::ValueMap<bool> > (photonHighPtIdTag);
+  // taus
+  tausToken = consumes<std::vector<pat::Tau> > (tausTag);
+  // jets AK4
+  jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
+
+  t1metToken    = consumes<edm::View<pat::MET> > (t1metTag);
+  t1mumetToken  = consumes<edm::View<pat::MET> > (t1mumetTag);
+  t1elemetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
+  t1phmetToken  = consumes<edm::View<pat::MET> > (t1phmetTag);
+   
   // only for simulated samples
   if( isMC ){
-    if(iConfig.existsAs<edm::InputTag>("pileup"))
-      pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
-    else
-      pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(edm::InputTag("addPileupInfo"));
-    
-    if(iConfig.existsAs<edm::InputTag>("genevt"))
-      genevtInfoToken = consumes<GenEventInfoProduct> (iConfig.getParameter<edm::InputTag>("genevt"));
-    else
-      genevtInfoToken = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-    
-    if(iConfig.existsAs<edm::InputTag>("lheinfo"))
-      lheInfoToken = consumes<LHEEventProduct> (iConfig.getParameter<edm::InputTag>("lheinfo"));
-    else
-      lheInfoToken = consumes<LHEEventProduct> (edm::InputTag("externalLHEProducer"));
-
-    if(iConfig.existsAs<edm::InputTag>("gens"))      
-      gensToken = consumes<edm::View<reco::GenParticle> > (iConfig.getParameter<edm::InputTag>("gens"));
-    else
-      gensToken = consumes<edm::View<reco::GenParticle> > ( edm::InputTag("prunedGenParticles"));
-
+    pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
+    genevtInfoToken = consumes<GenEventInfoProduct> (iConfig.getParameter<edm::InputTag>("genevt"));
+    lheInfoToken = consumes<LHEEventProduct> (iConfig.getParameter<edm::InputTag>("lheinfo"));
+    gensToken = consumes<edm::View<reco::GenParticle> > (iConfig.getParameter<edm::InputTag>("gens"));   
   }
   
   // consumes puppi jets
@@ -532,7 +576,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 MonoJetTreeMaker::~MonoJetTreeMaker() {}
 
 void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
     using namespace edm;
     using namespace reco;
     using namespace std;
@@ -671,7 +715,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<vector<pat::Jet> > boostedPuppiJetsH;
     if(addSubstructurePuppi)
       iEvent.getByToken(boostedPuppiJetsToken,boostedPuppiJetsH);
-    
+
     // Event, lumi, run info
     event = iEvent.id().event();
     run   = iEvent.id().run();
@@ -770,10 +814,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     flageebadsc   = 0;
 
     // HBHE Noise 
-    flaghbheloose = (*hbhelooseH ? 1 : 0);
-    flaghbhetight = (*hbhetightH ? 1 : 0);
-    flaghbheiso   = (*hbheisoH   ? 1 : 0);
+    if(hbhelooseH.isValid())
+      flaghbheloose = (*hbhelooseH ? 1 : 0);
+    if(hbhetightH.isValid())
+      flaghbhetight = (*hbhetightH ? 1 : 0);
+    if(hbheisoH.isValid())
+      flaghbheiso   = (*hbheisoH   ? 1 : 0);
     if(filterResultsH.isValid()){
+
       // Which MET filters passed
       for (size_t i = 0; i < filterPathsVector.size(); i++) {
         if (filterPathsMap[filterPathsVector[i]] == -1) continue;
@@ -797,7 +845,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // in caase the cross section is not set from outside --> fix to 1 as dummy value
     if(xsec < 0)
 	xsec = 1.;
-
     if (uselheweights && genevtInfoH.isValid()){
       wgt = genevtInfoH->weight();
     }
@@ -811,7 +858,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       }
     }
-    
+
     // MET information 
     if(t1metH.isValid()){
       
@@ -829,6 +876,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       t1pfmetphi     = t1metH->front().corPhi();
       pfmet          = t1metH->front().uncorPt();
       pfmetphi       = t1metH->front().uncorPhi();
+
     }
 
     if(addMVAMet && mvaMetH.isValid()){
@@ -953,7 +1001,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       }
     }
-
     
     // AK4 Jet information
     // find leading jets not overlapping with leptons
@@ -2681,7 +2728,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       }
     }
-    
 
     // Generator-level information
     wzid          = 0; wzmass        = 0.0; wzpt          = 0.0; wzeta         = 0.0; wzphi         = 0.0;
@@ -2704,37 +2750,38 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       TLorentzVector dm1vec; 
       TLorentzVector dm2vec; 
       bool foundfirst = false;
+      
+      // loop on gen particles looking for the DM particles --> then to the mediator
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { 
 
-      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on genParticles (prunedGenParticles)
-
-	  bool goodParticle = false;
-	  if (    abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
+	bool goodParticle = false;
+	if (abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
+	  goodParticle = true;
+	else if(abs(gens_iter->pdgId()) >= 2000001 and abs(gens_iter->pdgId()) <= 2000015)
+	  goodParticle = true;
+	else if(abs(gens_iter->pdgId()) == 9100012)
 	    goodParticle = true;
-	  else if(abs(gens_iter->pdgId()) >= 2000001 and abs(gens_iter->pdgId()) <= 2000015)
-	    goodParticle = true;
-	  else if(abs(gens_iter->pdgId()) == 9100012)
-	    goodParticle = true;
-		
-	  if(not goodParticle)
-	    continue;
-	  
-	  if(!foundfirst) { // first DM particle
-	    dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
-	    dmX1id = gens_iter->pdgId();
-	    foundfirst = true;
-	  }
-	  else{
-	    dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
-	    dmX2id = gens_iter->pdgId();
-	    break;
-	  }
+	
+	if(not goodParticle)
+	  continue;
+	
+	if(!foundfirst) { // first DM particle
+	  dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
+	  dmX1id = gens_iter->pdgId();
+	  foundfirst = true;
+	}
+	else{
+	  dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
+	  dmX2id = gens_iter->pdgId();
+	  break;
+	}
       }
       
       dmX1pt   = dm1vec.Pt();
       dmX1eta  = dm1vec.Eta();
       dmX1phi  = dm1vec.Phi();
       dmX1mass = dm1vec.M();
-      
+
       dmX2pt   = dm2vec.Pt();
       dmX2eta  = dm2vec.Eta();
       dmX2phi  = dm2vec.Phi();
@@ -2748,7 +2795,33 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       dmmass = medvec.M();
 
 
-      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on genParticles (prunedGenParticles)
+      if(foundfirst == false){ //not found the DM particles and mediator --> look for Higgs invisible
+	
+	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter){
+	  if(gens_iter->pdgId() != 25) continue;
+	  if(gens_iter->numberOfDaughters() <= 1) continue;
+
+	  dmpt   = gens_iter->pt();
+	  dmeta  = gens_iter->eta();
+	  dmphi  = gens_iter->phi();
+	  dmmass = gens_iter->mass();
+	  dmid   = gens_iter->pdgId();
+
+	  dmX1pt   = gens_iter->daughter(0)->pt();
+	  dmX1eta  = gens_iter->daughter(0)->eta();
+	  dmX1phi  = gens_iter->daughter(0)->phi();
+	  dmX1mass = gens_iter->daughter(0)->mass();
+	  dmX1id   = gens_iter->daughter(0)->pdgId();
+	  dmX2pt   = gens_iter->daughter(1)->pt();
+	  dmX2eta  = gens_iter->daughter(1)->eta();
+	  dmX2phi  = gens_iter->daughter(1)->phi();
+	  dmX2mass = gens_iter->daughter(1)->mass();
+	  dmX2id   = gens_iter->daughter(1)->pdgId();
+	}
+      }
+
+      // loop on genParticles (prunedGenParticles) trying to find W/Z decying leptonically or hadronically, top and anti-top quarks
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
 	if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
 	     abs(gens_iter->daughter(0)->pdgId()) > 10 && 
@@ -2759,21 +2832,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  wzpt   = gens_iter->pt();
 	  wzeta  = gens_iter->eta();
 	  wzphi  = gens_iter->phi();
-
+	  
 	  l1id   = gens_iter->daughter(0)->pdgId();
 	  l1pt   = gens_iter->daughter(0)->pt();
 	  l1eta  = gens_iter->daughter(0)->eta();
 	  l1phi  = gens_iter->daughter(0)->phi();
-	  
+	
 	  l2id   = gens_iter->daughter(1)->pdgId();
 	  l2pt   = gens_iter->daughter(1)->pt();
 	  l2eta  = gens_iter->daughter(1)->eta();
 	  l2phi  = gens_iter->daughter(1)->phi();
 	  wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
 	}
-	
+      
 	else if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
-	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
+		  gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
 		  ( (abs(gens_iter->daughter(0)->pdgId()) > 0 && abs(gens_iter->daughter(0)->pdgId()) <= 5) or
 		    (abs(gens_iter->daughter(1)->pdgId()) > 0 && abs(gens_iter->daughter(1)->pdgId()) <= 5)))  { // decays into leptons, neutrinos and quarks
 	  
@@ -2794,7 +2867,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  q2phi  = gens_iter->daughter(1)->phi();
 	  wzmt_h   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
 	}		  
-
+	
 	else if(gens_iter->pdgId() == 6 and gens_iter->numberOfDaughters() > 1 and 
 		(((abs(gens_iter->daughter(0)->pdgId()) > 0 and  abs(gens_iter->daughter(0)->pdgId()) <= 5) and abs(gens_iter->daughter(1)->pdgId()) == 24) or
 		 ((abs(gens_iter->daughter(1)->pdgId()) > 0 and  abs(gens_iter->daughter(1)->pdgId()) <= 5) and abs(gens_iter->daughter(0)->pdgId()) == 24))){
@@ -2807,70 +2880,71 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	else if(gens_iter->pdgId() == -6 and gens_iter->numberOfDaughters() > 1 and 
 		(((abs(gens_iter->daughter(0)->pdgId()) > 0 and  abs(gens_iter->daughter(0)->pdgId()) <= 5) and abs(gens_iter->daughter(1)->pdgId()) == 24) or
 		 ((abs(gens_iter->daughter(1)->pdgId()) > 0 and  abs(gens_iter->daughter(1)->pdgId()) <= 5) and abs(gens_iter->daughter(0)->pdgId()) == 24))){
-
+	  
 	  atopmass = gens_iter->mass();
 	  atoppt   = gens_iter->pt();
 	  atopeta  = gens_iter->eta();
 	  atopphi  = gens_iter->eta();	  
+	}	
+      }
+    }
+    
+    // if a Z/W is not found look for a pair of lepton .. this way with the pdgId is not guaranteed that you catch a Z/W boson and also recover DY production
+    if (wzid == 0) {
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+	if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
+	  if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
+	    l1id   = gens_iter->pdgId();
+	    l1pt   = gens_iter->pt();
+	    l1eta  = gens_iter->eta();
+	    l1phi  = gens_iter->phi();
+	  }
+	  if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
+	    l2id   = gens_iter->pdgId();
+	    l2pt   = gens_iter->pt();
+	    l2eta  = gens_iter->eta();
+	    l2phi  = gens_iter->phi();
+	  }
 	}
-	       	
       }
-
-      if (wzid == 0) {
-        for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-	  if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
-	    if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
-	      l1id   = gens_iter->pdgId();
-	      l1pt   = gens_iter->pt();
-	      l1eta  = gens_iter->eta();
-	      l1phi  = gens_iter->phi();
-	    }
-	    if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
-	      l2id   = gens_iter->pdgId();
-	      l2pt   = gens_iter->pt();
-	      l2eta  = gens_iter->eta();
-	      l2phi  = gens_iter->phi();
-	    }
-	  }
-        }
-        if (l1id > 0) {
-            TLorentzVector l1vec;
-            TLorentzVector l2vec;
-            l1vec.SetPtEtaPhiM(l1pt, l1eta, l1phi, 0.);
-            l2vec.SetPtEtaPhiM(l2pt, l2eta, l2phi, 0.);
-            TLorentzVector wzvec(l1vec);
-            wzvec += l2vec;
-            wzmass = wzvec.M();
-            wzpt   = wzvec.Pt();
-            wzeta  = wzvec.Eta();
-            wzphi  = wzvec.Phi();
-            wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
-            if (l1id+l2id == 0) wzid = 23;
-            else                wzid = 24;
-        }
+      if (l1id > 0) {
+	TLorentzVector l1vec;
+	TLorentzVector l2vec;
+	l1vec.SetPtEtaPhiM(l1pt, l1eta, l1phi, 0.);
+	l2vec.SetPtEtaPhiM(l2pt, l2eta, l2phi, 0.);
+	TLorentzVector wzvec(l1vec);
+	wzvec += l2vec;
+	wzmass = wzvec.M();
+	wzpt   = wzvec.Pt();
+	wzeta  = wzvec.Eta();
+	wzphi  = wzvec.Phi();
+	wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
+	if (l1id+l2id == 0) wzid = 23;
+	else                wzid = 24;
       }
+    }
       
-      // no W or Z decay leptonically
-      if (wzid == 0) {
-	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on prunedGenParticles
-	  if (gens_iter->pdgId() == 22 && // photons
-	      gens_iter->status() == 1 && // final state
-	      gens_iter->isPromptFinalState() &&
-	      gens_iter->pt() > wzpt) {
-
-	    wzid   = gens_iter->pdgId();
-	    wzpt   = gens_iter->pt();
-	    wzeta  = gens_iter->eta();
-	    wzphi  = gens_iter->phi();
-
-	    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
-	    findMother(&(*gens_iter), parid, parpt, pareta, parphi);
-	  }
+    // no W or Z decay leptonically
+    if (wzid == 0) {
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on prunedGenParticles
+	if (gens_iter->pdgId() == 22 && // photons
+	    gens_iter->status() == 1 && // final state
+	    gens_iter->isPromptFinalState() &&
+	    gens_iter->pt() > wzpt) {
+	  
+	  wzid   = gens_iter->pdgId();
+	  wzpt   = gens_iter->pt();
+	  wzeta  = gens_iter->eta();
+	  wzphi  = gens_iter->phi();
+	  
+	  findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
+	  findMother(&(*gens_iter), parid, parpt, pareta, parphi);
 	}
       }
     }
 
     tree->Fill();    
+  
 } 
 
 

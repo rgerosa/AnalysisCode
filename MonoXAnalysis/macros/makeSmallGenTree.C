@@ -43,6 +43,11 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   else if(interaction == "Pseudoscalar" and signalType == "MonoZ")
     chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoZ_Pseudoscalar/*root");
 
+  if(interaction == "HiggsInv" and signalType == "ggH")
+    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/ggH_HiggsInvisible/*root");
+  else if(interaction == "HiggsInv" and signalType == "VBF")
+    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/VBF_HiggsInvisible/*root");
+
   // load all the re-weight files
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
@@ -114,7 +119,6 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   outputTree->Branch("weight", &weight, "weight/D");  
   outputTree->Branch("genWeight", &genWeight, "genWeight/D");  
   
-
   // setup read input file                                                                                                                                                  
   TTreeReader myReader(chain);
 
@@ -133,6 +137,10 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int> nphotons  (myReader,"nphotons");
+  TTreeReaderValue<unsigned int> nelectrons  (myReader,"nelectrons");
+  TTreeReaderValue<unsigned int> ntaus  (myReader,"ntaus");
+  TTreeReaderValue<unsigned int> nmuons  (myReader,"nmuons");
   TTreeReaderValue<unsigned int> nbjets (myReader,"nbjetslowpt");
   TTreeReaderValue<double> j1pt         (myReader,"leadingjetpt");
   TTreeReaderValue<vector<double> > jetpt   (myReader,"centraljetpt");
@@ -186,28 +194,35 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
 
   // loop on the event and apply selections
   cout<<"Events in the chain "<<chain->GetEntries()<<endl;
+
   TString fileName;
+  string dmMass;
+  string medMass;
   vector<string> seglist;
+
   while(myReader.Next()){
 
-
     TString name_tmp(myReader.GetTree()->GetCurrentFile()->GetName());
+    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
+    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
+    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
 
     if(fileName != name_tmp){
       seglist.clear();
       fileName = name_tmp;
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
-      
       stringstream name(fileName.Data());
       string segment;
     
       while(getline(name, segment, '-')){
 	seglist.push_back(segment);
       }
-    }
 
+      dmMass = seglist.back();
+      TString tmp (seglist.at(seglist.size()-2).c_str());
+      tmp.ReplaceAll("_Mchi","");
+      medMass = tmp;
+    }
+    
     // Set Branches
     id = -1;
     
@@ -259,6 +274,10 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     if (jetpt->size()  > 0 and jetpt->at(0)  < *j1pt) id = 0;
     if (*jmmdphi < 0.5) id = 0;
     if (*mmet < 200)    id = 0;    
+    if (*nmuons > 0)    id = 0;
+    if (*nelectrons > 0) id = 0;
+    if (*ntaus > 0)      id = 0;
+    if (*nphotons > 0)   id = 0;
 
     if(id == -1 and boostedJetpt->size()  == 0) id = 1;
     if(id == -1 and boostedJetpt->size()  > 0 and fabs(boostedJeteta->at(0)) > 2.4) id = 1;
@@ -297,11 +316,11 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genX1Pt   = *x1Pt;
     genX1Eta  = *x1Eta;
     genX1Phi  = *x1Phi;
-    genX1Mass = stod(seglist.back());
+    genX1Mass = stod(dmMass);
     genX2Pt   = *x2Pt;
     genX2Eta  = *x2Eta;
     genX2Phi  = *x2Phi;
-    genX2Mass = stod(seglist.back());
+    genX2Mass = stod(dmMass);
 
     TLorentzVector dmX1, dmX2, dmMED;
     dmX1.SetPtEtaPhiM(genX1Pt,genX1Eta,genX1Phi,genX1Mass);
@@ -311,7 +330,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genMediatorPt   = *mediatorPt;
     genMediatorEta  = *mediatorEta;
     genMediatorPhi  = *mediatorPhi;
-    genMediatorMass = stod(seglist.at(seglist.size()-2));
+    genMediatorMass = stod(medMass);
     
     if(*nvtx<= 35)
       weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet))*puhist->GetBinContent(*nvtx);
@@ -334,7 +353,6 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genWeight = *wgt;
 
     outputTree->Fill();
-
   }
 
   outputFile->cd();
