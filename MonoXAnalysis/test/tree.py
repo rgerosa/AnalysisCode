@@ -199,8 +199,9 @@ if options.inputFiles == []:
 		process.source.fileNames.append( 
 #			'/store/mc/RunIISpring15MiniAODv2/VBF_HToInvisible_M110_13TeV_powheg_pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/084D5D5F-F36D-E511-8D98-02163E014DC0.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/D4A17AAE-9174-E511-B19C-002590FD5A78.root'
-#			'/store/mc/RunIISpring15MiniAODv2/DM_PseudoscalarWH_Mphi-10_Mchi-1_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/74X_mcRun2_asymptotic_v2-v2/20000/8EEF58D5-648A-E511-9143-001E674FB149.root'
-			'root://xrootd.unl.edu//store/user/emanuele/POWHEG_DMV_AV_NNPDF30_13TeV/POWHEG_DMV_AV_NNPDF30_13TeV_MINIAOD_V1/160222_152908/0000/miniaodsim_1.root'
+			'/store/mc/RunIISpring15MiniAODv2/DM_ScalarWH_Mphi-100_Mchi-50_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/40000/9048CCCB-ADA4-E511-87C8-0025B3E015D2.root'
+#			'/store/mc/RunIISpring15MiniAODv2/DMS_NNPDF30_Pseudoscalar_Mphi-50_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/70D1C4EA-7174-E511-9B2D-441EA1615F8A.root'
+#			'root://xrootd.unl.edu//store/user/emanuele/POWHEG_DMV_AV_NNPDF30_13TeV/POWHEG_DMV_AV_NNPDF30_13TeV_MINIAOD_V1/160222_152908/0000/miniaodsim_1.root'
 			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
 #			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
 #			'/store/mc/RunIISpring15MiniAODv2/GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/0002EB7B-E76D-E511-8AD6-00269E95B17C.root'
@@ -445,6 +446,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    uselheweights  = cms.bool(options.useLHEWeights),
    isWorZorSignalMCSample = cms.bool(options.isWorZorSignalMCSample),
    lheinfo = cms.InputTag("externalLHEProducer"),			      
+   lheRuninfo = cms.InputTag("externalLHEProducer"),			      
    pileup  = cms.InputTag("slimmedAddPileupInfo"),
    genevt  = cms.InputTag("generator"),
    gens    = cms.InputTag("prunedGenParticles"),
@@ -582,6 +584,7 @@ if options.isFastSIM:
 
 	## fix LHE info
 	process.tree.lheinfo = cms.InputTag("source")
+	process.tree.lheRuninfo = cms.InputTag("source")
 
 	process.gentree.lheinfo = cms.InputTag("source")
 	process.gentree.lheRuninfo = cms.InputTag("source")

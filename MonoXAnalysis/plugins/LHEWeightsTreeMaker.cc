@@ -8,6 +8,10 @@
 #include <sstream>
 #include <iostream>
 
+//boost lybraries
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 // FWCore headers
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -25,7 +29,8 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 
 // ROOT headers
-#include <TTree.h>
+#include "TTree.h"
+
 
 class LHEWeightsTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
 
@@ -63,6 +68,8 @@ private:
   int      puobs, putrue;
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
   double   lheXSEC;
+  double   samplemedM, sampledmM;
+
   std::auto_ptr<double>  wgtpdf;
   std::auto_ptr<double>  wgtqcd;
 };
@@ -193,7 +200,12 @@ void LHEWeightsTreeMaker::beginJob() {
     tree->Branch("wgtqcd"               ,  wgtqcd.get()         , "wgtqcd[8]/D");
   }
 
+  // LHE xs
   tree->Branch("lheXSEC",   &lheXSEC, "lheXSEC/D");
+  // sample info: mediator and DM mass, useful for fast sim
+  tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
+  tree->Branch("sampledmM",   &sampledmM, "sampledmM/D");
+
 }
 
 void LHEWeightsTreeMaker::endJob() {}
@@ -204,15 +216,36 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
   iRun.getByLabel(lheRunInfoTag,run);
   LHERunInfoProduct myLHERunInfoProduct = *(run.product());
   lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0); 
-  /*
+
+  
+  using namespace boost::algorithm;
+
   for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
-    std::cout << iter->tag() << std::endl;
-    std::vector<std::string> lines = iter->lines();
+    std::vector<std::string> lines = iter->lines();    
     for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-      std::cout << lines.at(iLine);
+      std::cout<<lines.at(iLine);
+      std::vector<std::string> tokens;
+      if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
+	split(tokens, lines.at(iLine), is_any_of(" "));
+	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	sampledmM = std::stod(tokens.at(1));
+      }
+      else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
+	split(tokens, lines.at(iLine), is_any_of(" "));
+	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	samplemedM = std::stod(tokens.at(1));
+      }
+      else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
+	split(tokens, lines.at(iLine), is_any_of(" "));
+	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	std::vector<std::string> subtokens;
+	split(subtokens,tokens.at(2),is_any_of("_"));	
+	samplemedM = std::stod(subtokens.at(3));
+	sampledmM = std::stod(subtokens.at(4));	
+      }      
     }
   }
-  */ 
+   
 }
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}

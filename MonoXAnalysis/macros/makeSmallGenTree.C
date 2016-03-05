@@ -66,9 +66,9 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   double  genVBosonPt, genVBosonEta, genVBosonPhi, genVBosonMass;
   double  genAK8JetPt, genAK8JetEta, genAK8JetPhi, genAK8JetMass, genAK8JetPrunedMass, genAK8JetTau2Tau1;
   double  genAK4JetPt, genAK4JetEta, genAK4JetPhi, genAK4JetMass;
-  double  genMediatorPt, genMediatorEta, genMediatorPhi, genMediatorMass;
-  double  genX1Pt, genX1Eta, genX1Phi, genX1Mass;
-  double  genX2Pt, genX2Eta, genX2Phi, genX2Mass;
+  double  genMediatorPt, genMediatorEta, genMediatorPhi, genMediatorMass, genMediatorRealMass;
+  double  genX1Pt, genX1Eta, genX1Phi, genX1Mass, genX1RealMass;
+  double  genX2Pt, genX2Eta, genX2Phi, genX2Mass, genX2RealMass;
   double  genMetPt, genMetPhi;
   double  weight, genWeight;
   double  pfMetPt, pfMetPhi;
@@ -100,16 +100,19 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   outputTree->Branch("genMediatorEta", &genMediatorEta, "genMediatorEta/D");  
   outputTree->Branch("genMediatorPhi", &genMediatorPhi, "genMediatorPhi/D");  
   outputTree->Branch("genMediatorMass", &genMediatorMass, "genMediatorMass/D");  
+  outputTree->Branch("genMediatorRealMass", &genMediatorRealMass, "genMediatorRealMass/D");  
 
   outputTree->Branch("genX1Pt", &genX1Pt, "genX1Pt/D");  
   outputTree->Branch("genX1Eta", &genX1Eta, "genX1Eta/D");  
   outputTree->Branch("genX1Phi", &genX1Phi, "genX1Phi/D");  
   outputTree->Branch("genX1Mass", &genX1Mass, "genX1Mass/D");  
+  outputTree->Branch("genX1RealMass", &genX1RealMass, "genX1RealMass/D");  
 
   outputTree->Branch("genX2Pt", &genX2Pt, "genX2Pt/D");  
   outputTree->Branch("genX2Eta", &genX2Eta, "genX2Eta/D");  
   outputTree->Branch("genX2Phi", &genX2Phi, "genX2Phi/D");  
   outputTree->Branch("genX2Mass", &genX2Mass, "genX2Mass/D");  
+  outputTree->Branch("genX2RealMass", &genX2RealMass, "genX2RealMass/D");  
 
   outputTree->Branch("genMetPt", &genMetPt, "genMetPt/D");  
   outputTree->Branch("genMetPhi", &genMetPhi, "genMetPhi/D");  
@@ -247,14 +250,17 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genMediatorEta  = 0.; 
     genMediatorPhi  = 0.;
     genMediatorMass = 0.;
+    genMediatorRealMass = 0.;
     genX1Pt  = 0.;
     genX1Eta = 0.;
     genX1Phi = 0.;
     genX1Mass = 0.;
+    genX1RealMass = 0.;
     genX2Pt  = 0.; 
     genX2Eta = 0.; 
     genX2Phi = 0.; 
     genX2Mass = 0.;
+    genX2RealMass = 0.;
     genMetPt = 0.; 
     genMetPhi = 0.;
     pfMetPt = 0.;
@@ -316,10 +322,12 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genX1Pt   = *x1Pt;
     genX1Eta  = *x1Eta;
     genX1Phi  = *x1Phi;
+    genX1RealMass = *x1Mass;
     genX1Mass = stod(dmMass);
     genX2Pt   = *x2Pt;
     genX2Eta  = *x2Eta;
     genX2Phi  = *x2Phi;
+    genX2RealMass = *x2Mass;
     genX2Mass = stod(dmMass);
 
     TLorentzVector dmX1, dmX2, dmMED;
@@ -330,6 +338,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genMediatorPt   = *mediatorPt;
     genMediatorEta  = *mediatorEta;
     genMediatorPhi  = *mediatorPhi;
+    genMediatorRealMass = *mediatorMass;
     genMediatorMass = stod(medMass);
     
     if(*nvtx<= 35)

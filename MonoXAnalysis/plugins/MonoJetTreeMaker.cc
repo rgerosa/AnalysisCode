@@ -6,6 +6,9 @@
 #include <cmath>
 #include <algorithm>
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -69,10 +72,10 @@
 
 
 // ROOT
-#include <TH1F.h>
-#include <TTree.h>
-#include <TLorentzVector.h>
-#include <TPRegexp.h>
+#include "TH1F.h"
+#include "TTree.h"
+#include "TLorentzVector.h"
+#include "TPRegexp.h"
 
 class MonoJetTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchRuns> {
 
@@ -102,7 +105,10 @@ private:
   // Gen Particles
   const bool isMC;
   const bool uselheweights;
+  const edm::InputTag lheEventTag;
+  const edm::InputTag lheRunTag;
   const bool isWorZorSignalMCSample;
+  
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
   edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
@@ -259,19 +265,19 @@ private:
   uint32_t npuppijets, npuppibjets, npuppibjetslowpt;
   uint32_t njetsinc, npuppijetsinc;
   // trigger and met filters flags 
-  uint8_t  hltmet90,    hltmet120,    hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
-  uint8_t  hltjetmet90, hltjetmet120, hltphoton165,   hltphoton175,    hltphoton120,    hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel, hltelnoiso;
-  uint8_t  flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
+  uint8_t hltmet90,    hltmet120,    hltmetwithmu90, hltmetwithmu120, hltmetwithmu170, hltmetwithmu300;
+  uint8_t hltjetmet90, hltjetmet120, hltphoton165,   hltphoton175,    hltphoton120,    hltdoublemu, hltsinglemu, hltdoubleel, hltsingleel, hltelnoiso;
+  uint8_t flagcsctight, flaghbhenoise, flaghbheloose, flaghbhetight, flaghbheiso, flageebadsc;
   // muon, ele, dilepton info
-  double   mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso;
-  double   el1pt,el1eta,el1phi,ele1e,el2pt, ele2e, el2eta, el2phi, phpt, pheta, phphi, phe;
-  double   zmass,zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt; 
+  double mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta, mu1pfphi, mu1iso, mu2pt, mu2eta, mu2phi, mu2pfpt, mu2pfeta, mu2pfphi, mu2iso;
+  double el1pt,el1eta,el1phi,ele1e,el2pt, ele2e, el2eta, el2phi, phpt, pheta, phphi, phe;
+  double zmass,zpt, zeta, zphi, wmt, emumass, emupt, emueta, emuphi, zeemass, zeept, zeeeta, zeephi, wemt; 
   // PF MET info (typeI and Raw)
-  double   t1pfmet, t1pfmetphi, t1mumet, t1mumetphi, t1elmet, t1elmetphi, t1phmet, t1phmetphi;
-  double   pfmet, pfmetphi, mumet, mumetphi, elmet, elmetphi, phmet, phmetphi;
+  double t1pfmet, t1pfmetphi, t1mumet, t1mumetphi, t1elmet, t1elmetphi, t1phmet, t1phmetphi;
+  double pfmet, pfmetphi, mumet, mumetphi, elmet, elmetphi, phmet, phmetphi;
   // Puppi MET info (typeI and Raw)
-  double   puppipfmet, puppipfmetphi, puppimumet, puppimumetphi, puppielmet, puppielmetphi, puppiphmet, puppiphmetphi;
-  double   puppit1pfmet, puppit1pfmetphi, puppit1mumet, puppit1mumetphi, puppit1elmet, puppit1elmetphi, puppit1phmet, puppit1phmetphi;
+  double puppipfmet, puppipfmetphi, puppimumet, puppimumetphi, puppielmet, puppielmetphi, puppiphmet, puppiphmetphi;
+  double puppit1pfmet, puppit1pfmetphi, puppit1mumet, puppit1mumetphi, puppit1elmet, puppit1elmetphi, puppit1phmet, puppit1phmetphi;
   // mva met
   double mvamet, mvametphi;
   // gen met
@@ -283,7 +289,7 @@ private:
   double puppit1pfmetMuEnUp, puppit1pfmetMuEnDown, puppit1pfmetElEnUp, puppit1pfmetElEnDown, puppit1pfmetPhoEnUp, puppit1pfmetPhoEnDown, puppit1pfmetTauEnUp;
   double puppit1pfmetTauEnDown, puppit1pfmetJetEnUp, puppit1pfmetJetEnDown, puppit1pfmetJetResUp, puppit1pfmetJetResDown, puppit1pfmetUncEnUp, puppit1pfmetUncEnDown;
   // AK4 CHS jets
-  double   leadingjetpt, leadingjeteta, leadingjetphi, leadingjetm; 
+  double leadingjetpt, leadingjeteta, leadingjetphi, leadingjetm; 
 
   // AK4CHS central jet
   std::vector<double> centraljetpt, centraljeteta, centraljetphi, centraljetm, centraljetbtag;
@@ -316,8 +322,8 @@ private:
   std::vector<double> forwardPuppijetHFlav,  forwardPuppijetPFlav,  forwardPuppijetQGL,    forwardPuppijetPUID;
   std::vector<double> forwardPuppijetGenpt,  forwardPuppijetGeneta, forwardPuppijetGenphi, forwardPuppijetGenm;
   //
-  double   Puppijetmetdphimin , incPuppijetmetdphimin , Puppijetmumetdphimin , incPuppijetmumetdphimin , Puppijetelmetdphimin , incPuppijetelmetdphimin , Puppijetphmetdphimin , incPuppijetphmetdphimin , PuppijetPuppijetdphi;
-  double   Puppijetmetdphimin4, incPuppijetmetdphimin4, Puppijetmumetdphimin4, incPuppijetmumetdphimin4, Puppijetelmetdphimin4, incPuppijetelmetdphimin4, Puppijetphmetdphimin4, incPuppijetphmetdphimin4, Puppiht; 
+  double Puppijetmetdphimin , incPuppijetmetdphimin , Puppijetmumetdphimin , incPuppijetmumetdphimin , Puppijetelmetdphimin , incPuppijetelmetdphimin , Puppijetphmetdphimin , incPuppijetphmetdphimin , PuppijetPuppijetdphi;
+  double Puppijetmetdphimin4, incPuppijetmetdphimin4, Puppijetmumetdphimin4, incPuppijetmumetdphimin4, Puppijetelmetdphimin4, incPuppijetelmetdphimin4, Puppijetphmetdphimin4, incPuppijetphmetdphimin4, Puppiht; 
   
   // AK8 CHS jets
   std::vector<double> boostedJetpt, boostedJeteta, boostedJetphi, boostedJetm;
@@ -376,21 +382,23 @@ private:
   std::vector<double> softDropPuppiSubJetptraw_2, softDropPuppiSubJetmraw_2;
 
   // gen info leptoni W/Z boson (1 per event)
-  double   wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
+  double wzmass, wzmt, wzpt, wzeta, wzphi, l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
   // photon info
-  double   parpt, pareta, parphi, ancpt, anceta, ancphi;
+  double parpt, pareta, parphi, ancpt, anceta, ancphi;
   // hadronic V and related quarks (1 per event)
-  double   wzmass_h, wzmt_h, wzpt_h, wzeta_h, wzphi_h, q1pt, q1eta, q1phi, q2pt, q2eta, q2phi;
+  double wzmass_h, wzmt_h, wzpt_h, wzeta_h, wzphi_h, q1pt, q1eta, q1phi, q2pt, q2eta, q2phi;
   // one top
-  double   topmass, toppt, topeta, topphi;
+  double topmass, toppt, topeta, topphi;
   // second top
-  double   atopmass, atoppt, atopeta, atopphi;
+  double atopmass, atoppt, atopeta, atopphi;
   // DM mediator and DM particles
-  double   dmmass, dmpt, dmeta, dmphi, dmX1pt, dmX1eta, dmX1phi, dmX1mass, dmX2pt, dmX2eta, dmX2phi, dmX2mass;
-  int      dmid, dmX1id, dmX2id;
+  double dmmass, dmpt, dmeta, dmphi, dmX1pt, dmX1eta, dmX1phi, dmX1mass, dmX2pt, dmX2eta, dmX2phi, dmX2mass;
+  int    dmid, dmX1id, dmX2id;
+  // for fastSIM
+  double samplemedM, sampledmM;
 
   // weights
-  double   wgt, kfact, puwgt, pswgt;
+  double wgt, kfact, puwgt, pswgt;
 
   template<typename T> 
   class PatPtSorter{
@@ -415,10 +423,12 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   isMC(iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
   // use lhe weights or not
   uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
+  lheEventTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
+  lheRunTag(iConfig.getParameter<edm::InputTag>("lheRuninfo")),
   // is signal sample or not
   isWorZorSignalMCSample(iConfig.existsAs<bool>("isWorZorSignalMCSample") ? iConfig.getParameter<bool>("isWorZorSignalMCSample") : false),
   // xsec
-  xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : 1000.),
+  xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.),
   ///////////// TRIGGER and filter info INFO
   triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
   filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
@@ -516,8 +526,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if( isMC ){
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
     genevtInfoToken = consumes<GenEventInfoProduct> (iConfig.getParameter<edm::InputTag>("genevt"));
-    lheInfoToken = consumes<LHEEventProduct> (iConfig.getParameter<edm::InputTag>("lheinfo"));
-    gensToken = consumes<edm::View<reco::GenParticle> > (iConfig.getParameter<edm::InputTag>("gens"));   
+    lheInfoToken    = consumes<LHEEventProduct> (lheEventTag);
+    gensToken       = consumes<edm::View<reco::GenParticle> > (iConfig.getParameter<edm::InputTag>("gens"));   
   }
   
   // consumes puppi jets
@@ -843,8 +853,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puwgt  = 1.;
 
     // in caase the cross section is not set from outside --> fix to 1 as dummy value
-    if(xsec < 0)
-	xsec = 1.;
     if (uselheweights && genevtInfoH.isValid()){
       wgt = genevtInfoH->weight();
     }
@@ -3384,6 +3392,10 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/D");
   tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/D");
 
+  // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
+  tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
+  tree->Branch("sampledmM",   &sampledmM, "sampledmM/D");
+
   // AK8 Puppi jets                                                                                                                                                             
   if(addSubstructureCHS){
 
@@ -3740,6 +3752,48 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	filterPathsMap[filterPathsVector[i]] = j;
       }
     }
+  }
+
+
+  // info about MC cross section in case the xsec parsed has a dummy value
+  if(isMC){    
+    edm::Handle<LHERunInfoProduct> run;
+    iRun.getByLabel(lheRunTag,run);
+    LHERunInfoProduct myLHERunInfoProduct = *(run.product());
+    if(xsec < 0)
+      xsec = myLHERunInfoProduct.heprup().XSECUP.at(0);
+    
+
+    using namespace boost::algorithm;
+
+    if(isWorZorSignalMCSample){
+
+      for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+	std::vector<std::string> lines = iter->lines();
+	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) { 
+	  std::vector<std::string> tokens;
+	  if(lines.at(iLine).find("DMmass") !=std::string::npos){// powheg mono-j
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    sampledmM = std::stod(tokens.at(1));
+	  }
+	  else if(lines.at(iLine).find("DMVmass") !=std::string::npos){// powheg mono-j
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    samplemedM = std::stod(tokens.at(1));
+	  }
+	  else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V                                                                               
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    std::vector<std::string> subtokens;
+	    split(subtokens,tokens.at(2),is_any_of("_"));
+	    samplemedM = std::stod(subtokens.at(3));
+	    sampledmM = std::stod(subtokens.at(4));
+	  }
+
+	}
+      }   
+    }       
   }
 }
 
