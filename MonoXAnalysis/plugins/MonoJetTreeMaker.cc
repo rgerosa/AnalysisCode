@@ -2900,58 +2900,59 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  atopphi  = gens_iter->eta();	  
 	}	
       }
-    }
+      
     
-    // if a Z/W is not found look for a pair of lepton .. this way with the pdgId is not guaranteed that you catch a Z/W boson and also recover DY production
-    if (wzid == 0) {
-      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-	if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
-	  if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
-	    l1id   = gens_iter->pdgId();
-	    l1pt   = gens_iter->pt();
-	    l1eta  = gens_iter->eta();
-	    l1phi  = gens_iter->phi();
-	  }
-	  if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
-	    l2id   = gens_iter->pdgId();
-	    l2pt   = gens_iter->pt();
-	    l2eta  = gens_iter->eta();
-	    l2phi  = gens_iter->phi();
+      // if a Z/W is not found look for a pair of lepton .. this way with the pdgId is not guaranteed that you catch a Z/W boson and also recover DY production
+      if (wzid == 0) {
+	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+	  if (gens_iter->isPromptFinalState() || gens_iter->isPromptDecayed()) {
+	    if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17) {
+	      l1id   = gens_iter->pdgId();
+	      l1pt   = gens_iter->pt();
+	      l1eta  = gens_iter->eta();
+	      l1phi  = gens_iter->phi();
+	    }
+	    if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17) {
+	      l2id   = gens_iter->pdgId();
+	      l2pt   = gens_iter->pt();
+	      l2eta  = gens_iter->eta();
+	      l2phi  = gens_iter->phi();
+	    }
 	  }
 	}
+	if (l1id > 0) {
+	  TLorentzVector l1vec;
+	  TLorentzVector l2vec;
+	  l1vec.SetPtEtaPhiM(l1pt, l1eta, l1phi, 0.);
+	  l2vec.SetPtEtaPhiM(l2pt, l2eta, l2phi, 0.);
+	  TLorentzVector wzvec(l1vec);
+	  wzvec += l2vec;
+	  wzmass = wzvec.M();
+	  wzpt   = wzvec.Pt();
+	  wzeta  = wzvec.Eta();
+	  wzphi  = wzvec.Phi();
+	  wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
+	  if (l1id+l2id == 0) wzid = 23;
+	  else                wzid = 24;
+	}
       }
-      if (l1id > 0) {
-	TLorentzVector l1vec;
-	TLorentzVector l2vec;
-	l1vec.SetPtEtaPhiM(l1pt, l1eta, l1phi, 0.);
-	l2vec.SetPtEtaPhiM(l2pt, l2eta, l2phi, 0.);
-	TLorentzVector wzvec(l1vec);
-	wzvec += l2vec;
-	wzmass = wzvec.M();
-	wzpt   = wzvec.Pt();
-	wzeta  = wzvec.Eta();
-	wzphi  = wzvec.Phi();
-	wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
-	if (l1id+l2id == 0) wzid = 23;
-	else                wzid = 24;
-      }
-    }
       
-    // no W or Z decay leptonically
-    if (wzid == 0) {
-      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on prunedGenParticles
-	if (gens_iter->pdgId() == 22 && // photons
-	    gens_iter->status() == 1 && // final state
-	    gens_iter->isPromptFinalState() &&
-	    gens_iter->pt() > wzpt) {
-	  
-	  wzid   = gens_iter->pdgId();
-	  wzpt   = gens_iter->pt();
-	  wzeta  = gens_iter->eta();
-	  wzphi  = gens_iter->phi();
-	  
-	  findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
-	  findMother(&(*gens_iter), parid, parpt, pareta, parphi);
+      // no W or Z decay leptonically
+      if (wzid == 0) {
+	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) { // loop on prunedGenParticles
+	  if (gens_iter->pdgId() == 22 && // photons
+	      gens_iter->status() == 1 && // final state
+	      gens_iter->isPromptFinalState() &&
+	      gens_iter->pt() > wzpt) {
+	    
+	    wzid   = gens_iter->pdgId();
+	    wzpt   = gens_iter->pt();
+	    wzeta  = gens_iter->eta();
+	    wzphi  = gens_iter->phi();
+	    
+	    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
+	    findMother(&(*gens_iter), parid, parpt, pareta, parphi);
+	  }
 	}
       }
     }
