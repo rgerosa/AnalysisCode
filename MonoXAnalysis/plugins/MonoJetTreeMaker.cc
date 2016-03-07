@@ -101,6 +101,7 @@ private:
   bool applyJetID(const pat::Jet & jet, const std::string & level);
   bool applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi);
 
+  bool readDMFromGenParticle;
 
   // Gen Particles
   const bool isMC;
@@ -579,6 +580,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     bMediumDown.push_back(BTagCalibrationReader(calib.get(),BTagEntry::OP_MEDIUM,"mujets","down"));
   }
 
+  readDMFromGenParticle = false;
 
 }
 
@@ -2777,6 +2779,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	  dmX1id = gens_iter->pdgId();
 	  foundfirst = true;
+
+	  if(readDMFromGenParticle)
+	    sampledmM = gens_iter->mass();
 	}
 	else{
 	  dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
@@ -3394,7 +3399,7 @@ void MonoJetTreeMaker::beginJob() {
 
   // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
   tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
-  tree->Branch("sampledmM",   &sampledmM, "sampledmM/D");
+  tree->Branch("sampledmM",    &sampledmM, "sampledmM/D");
 
   // AK8 Puppi jets                                                                                                                                                             
   if(addSubstructureCHS){
@@ -3790,7 +3795,13 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	    samplemedM = std::stod(subtokens.at(3));
 	    sampledmM = std::stod(subtokens.at(4));
 	  }
-
+	  else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop                     
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    samplemedM = std::stod(tokens.at(3));
+	    sampledmM  = -1.;
+	    readDMFromGenParticle = true;
+	  }
 	}
       }   
     }       

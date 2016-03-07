@@ -27,6 +27,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 // ROOT headers
 #include "TTree.h"
@@ -53,12 +54,14 @@ private:
   const edm::InputTag lheInfoTag;
   const edm::InputTag lheRunInfoTag;
   const edm::InputTag genInfoTag;
+  const edm::InputTag gensInfoTag;
   const edm::InputTag pileupInfoTag;
   
   // Tokens
   edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken;
+  edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
   
   const bool uselheweights, addqcdpdfweights;
 
@@ -69,7 +72,7 @@ private:
   double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
   double   lheXSEC;
   double   samplemedM, sampledmM;
-
+  bool     readDMFromGenParticles;
   std::auto_ptr<double>  wgtpdf;
   std::auto_ptr<double>  wgtqcd;
 };
@@ -78,6 +81,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   lheInfoTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
   lheRunInfoTag(iConfig.getParameter<edm::InputTag>("lheRuninfo")),
   genInfoTag(iConfig.getParameter<edm::InputTag>("geninfo")),
+  gensInfoTag(iConfig.getParameter<edm::InputTag>("genParticles")),
   pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileupinfo")),
   uselheweights(iConfig.getParameter<bool>("uselheweights")),
   addqcdpdfweights(iConfig.getParameter<bool>("addqcdpdfweights"))
@@ -86,6 +90,8 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   lheInfoToken = consumes<LHEEventProduct>(lheInfoTag);
   genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
   pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(pileupInfoTag);
+
+  gensToken = consumes<edm::View<reco::GenParticle> > (gensInfoTag);
 
   wgtqcd = std::auto_ptr<double> (new double[8]);
   wgtpdf = std::auto_ptr<double> (new double[100]);
@@ -97,6 +103,7 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   usesResource();
   usesResource("TFileService");
 
+  readDMFromGenParticles = false;
 }
 
 
@@ -106,6 +113,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   
   using namespace edm;
   using namespace std;
+  using namespace reco;
 
   // Get handles to all the requisite collections
   Handle<LHEEventProduct> lheInfoH;
@@ -118,6 +126,9 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   Handle<std::vector<PileupSummaryInfo> > pileupInfoH;
   iEvent.getByToken(pileupInfoToken,pileupInfoH);
+
+  Handle<View<GenParticle> > gensH;
+  iEvent.getByToken(gensToken, gensH);
 
   // Event, lumi, run info
   event = iEvent.id().event();
@@ -169,6 +180,28 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  continue;
       }
   }
+
+  if(readDMFromGenParticles and gensH.isValid()){
+
+    bool foundfirst = false;
+ 
+    for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+      
+      bool goodParticle = false;
+      if (abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
+	goodParticle = true;
+      else if(abs(gens_iter->pdgId()) >= 2000001 and abs(gens_iter->pdgId()) <= 2000015)
+	goodParticle = true;
+      else if(abs(gens_iter->pdgId()) == 9100012)
+	goodParticle = true;
+      
+      if(not goodParticle)
+	continue;
+
+      if(!foundfirst) // first DM particle                                                                                                                                   
+	sampledmM = gens_iter->mass();
+    }
+  }
   
   tree->Fill();
 
@@ -201,10 +234,10 @@ void LHEWeightsTreeMaker::beginJob() {
   }
 
   // LHE xs
-  tree->Branch("lheXSEC",   &lheXSEC, "lheXSEC/D");
+  tree->Branch("lheXSEC",    &lheXSEC,    "lheXSEC/D");
   // sample info: mediator and DM mass, useful for fast sim
-  tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
-  tree->Branch("sampledmM",   &sampledmM, "sampledmM/D");
+  tree->Branch("samplemedM", &samplemedM, "samplemedM/D");
+  tree->Branch("sampledmM",  &sampledmM,  "sampledmM/D");
 
 }
 
@@ -223,7 +256,6 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
   for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
     std::vector<std::string> lines = iter->lines();    
     for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-      std::cout<<lines.at(iLine);
       std::vector<std::string> tokens;
       if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
 	split(tokens, lines.at(iLine), is_any_of(" "));
@@ -243,9 +275,15 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
 	samplemedM = std::stod(subtokens.at(3));
 	sampledmM = std::stod(subtokens.at(4));	
       }      
+      else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
+	split(tokens, lines.at(iLine), is_any_of(" "));
+	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	samplemedM = std::stod(tokens.at(3));
+	sampledmM  = -1.; 
+	readDMFromGenParticles = true;
+      }
     }
-  }
-   
+  }   
 }
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
