@@ -5,7 +5,7 @@ Repository for analysis code
 
 Recipe for 76X (temp fixes for pileup jet id):
 
-	   cmsrel CMSSW_7_6_3_patch2
+           cmsrel CMSSW_7_6_3_patch2
 	   cd CMSSW_7_6_3_patch2/src
 	   cmsenv
 	   git cms-init
@@ -18,20 +18,22 @@ Recipe for 76X (temp fixes for pileup jet id):
 	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
 	   cd ../../..	
 	   git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X
-	   git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015	   
+	   git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
            rm -rf data/.git  
 
 
 How to Run the ntuple production (for analysis):
 
-       	   cd CMSSW_7_6_3_patch2/src/AnalysisCode/MonoXAnalysis/test
+           cd CMSSW_7_6_3_patch2/src/AnalysisCode/MonoXAnalysis/test
 	   cmsRun tree.py <list of options>
 
 Example:
 	   cmsRun tree.py isMC=True 	  
 
 
-Options:   isMC                : set to True when running on simulated events
+Options:   
+
+	   isMC                : set to True when running on simulated events
 	   isFastSIM           : set to True when running on fast sim miniAOD (still temp and relying on Emanuele miniAOD)
 	   filterHighMETEvents : apply 200 GeV seletion on recoil/met (mumet or elmet or phmet or met)
 	   filterOnHLT         : require the OR of all the trigger path definied in the MonoJetTreeMaker (beginRun)
