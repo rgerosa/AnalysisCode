@@ -8,9 +8,9 @@ def runMVAMet(process,isMC,leptons):
 
     if not hasattr(process,"ak4PFJets"):
         setattr(process,"ak4PFJets", ak4PFJets.clone(
-                src = cms.InputTag('packedPFCandidates'))
-                )
-
+                src = cms.InputTag('packedPFCandidates')))
+                
+        
     if not hasattr(process,"ak4PFL1FastL2L3Corrector"):
         process.load('JetMETCorrections.Configuration.JetCorrectors_cff')
 
@@ -38,8 +38,8 @@ def runMVAMet(process,isMC,leptons):
         produceJetIds = cms.bool(True),
         jets = cms.InputTag("calibratedAK4PFJetsForPFMVAMEt"),
         vertexes = cms.InputTag("offlineSlimmedPrimaryVertices"),
-        jec     = cms.string("AK4PF")
-        )
+        jec     = cms.string("AK4PF"))
+    
 
     process.mvaMET = pfMVAMEt.clone(
         srcPFCandidates = cms.InputTag('packedPFCandidates'),
@@ -50,8 +50,7 @@ def runMVAMet(process,isMC,leptons):
             DPhi  = cms.FileInPath('RecoMET/METPUSubtraction/data/gbrphi_7_4_X_miniAOD_50NS_July2015.root'),
             CovU1 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru1cov_7_4_X_miniAOD_50NS_July2015.root'),
             CovU2 = cms.FileInPath('RecoMET/METPUSubtraction/data/gbru2cov_7_4_X_miniAOD_50NS_July2015.root')
-            ),
-        )
+            ))
         
                 
         

@@ -35,6 +35,8 @@ def runGroomedMethod(process, isMC,
     elif algo == "CA":
         ALGO = "CambridgeAachen"
 
+    btagSubjets = ['pfCombinedInclusiveSecondaryVertexV2BJetTags']
+
     ### form the right postfix
     if not isPruning and not isSoftDrop and not isTrimming and not isFiltering:
         sys.exit("runGroomedMethod: all bools are false --> please check")
@@ -62,7 +64,7 @@ def runGroomedMethod(process, isMC,
             setattr( process, jetCollection+postfix,ak8PFJetsCHSFiltered.clone())
 
 
-        getattr(process, jetCollection+postfix).src = cms.InputTag(jetCollection+"Reduced", 'constituents')
+        getattr(process, jetCollection+postfix).src    = cms.InputTag(jetCollection+"Reduced", 'constituents')
         getattr(process, jetCollection+postfix).rParam = coneSize
         getattr(process, jetCollection+postfix).jetAlgorithm = ALGO
         ## write compounds means that subjets are stored as reco::Jet while the groomed jet is stored as base::Jet
@@ -90,16 +92,16 @@ def runGroomedMethod(process, isMC,
             process,
             labelName = jetCollection+postfix,
             jetSource = cms.InputTag(jetCollection+postfix),
-            algo = algo,
+            algo      = algo,
             pfCandidates = cms.InputTag(pfCand),
-            rParam = coneSize,
+            rParam    = coneSize,
             jetCorrections = (payloadName, JECLevel, 'None'),
-            svSource = cms.InputTag('slimmedSecondaryVertices'),
+            svSource       = cms.InputTag('slimmedSecondaryVertices'),
             genJetCollection = cms.InputTag("genJets"+jetAlgo+postfix),
-            pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+            pvSource         = cms.InputTag('offlineSlimmedPrimaryVertices'),
             btagDiscriminators = btagDiscriminators, ## no b-tag info for pruned jets                                                                                     
-            getJetMCFlavour = isMC, ## no flavor info                                                                                                                       
-            genParticles = cms.InputTag("prunedGenParticles")
+            getJetMCFlavour  = isMC, ## no flavor info                                                                                                                       
+            genParticles     = cms.InputTag("prunedGenParticles")
             )
 
         getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
@@ -114,10 +116,10 @@ def runGroomedMethod(process, isMC,
                                ## mathched groomed pat jet
                                matched = cms.InputTag('patJets'+jetCollection+postfix),                                                                                     
                                distMax = cms.double(coneSize),                                                                                                    
-                               values = cms.vstring("mass","pt","eta","phi",
-                                                    "bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",
-                                                    "bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",
-                                                    "correctedP4(0).mass()","correctedP4(0).pt()"),                               
+                               values  = cms.vstring("mass","pt","eta","phi",
+                                                     "bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",
+                                                     "bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",
+                                                     "correctedP4(0).mass()","correctedP4(0).pt()"),                               
                                valueLabels = cms.vstring("mass","pt","eta","phi",
                                                          "pfCombinedInclusiveSecondaryVertexV2BJetTags",
                                                          "pfBoostedDoubleSecondaryVertexAK8BJetTags",
@@ -153,8 +155,7 @@ def runGroomedMethod(process, isMC,
             setattr( process, jetCollection+postfix+"ForQGL",
                      getattr(process, jetCollection+postfix).clone(
                     writeCompound = cms.bool(False),
-                    jetCollInstanceName = cms.string("")
-                    ))
+                    jetCollInstanceName = cms.string("")))
 
         ## run QGL evaluator    
         if not hasattr(process,jetCollection+postfix+"QGL"):
@@ -220,7 +221,7 @@ def runGroomedMethod(process, isMC,
                 svSource = cms.InputTag('slimmedSecondaryVertices'), 
                 getJetMCFlavour = isMC,
                 genParticles = cms.InputTag("prunedGenParticles"),
-                btagDiscriminators = btagDiscriminators,
+                btagDiscriminators = btagSubjets,
                 genJetCollection = cms.InputTag("genJets"+jetAlgo+postfix+"SubJets","SubJets"),
                 explicitJTA  = True,  # needed for subjet b tagging
                 svClustering = True, # needed for subjet b tagging
@@ -255,33 +256,34 @@ def runGroomedMethod(process, isMC,
 def JetSubstructure(process,
                     isMC, 
                     coneSize = 0.8, algo = "AK", 
-                    pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5", 
-                    addPruning = True,   addPrunedSubjets = True,
-                    addSoftDrop = True,  addSoftDropSubjets = True,
-                    addTrimming = False, addTrimmedSubjets = False,
-                    addFiltering = False,addFilteredSubjets = False, 
+                    pileupMethod = "chs", 
+                    selection = "pt > 150 && abs(eta) < 2.5", 
+                    addPruning   = True,   addPrunedSubjets   = True,
+                    addSoftDrop  = True,   addSoftDropSubjets = True,
+                    addTrimming  = False,  addTrimmedSubjets  = False,
+                    addFiltering = False,  addFilteredSubjets = False, 
                     addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
-                    addQGLikelihood = True):
+                    addQGLikelihood  = True):
     
     print "############################"
     print "add substructure information"
-    print "isMC = ",isMC;
-    print "coneSize = ",coneSize;
-    print "algo = ",algo;
-    print "pileupMethod = ",pileupMethod;
-    print "selection = ",selection;
-    print "addPruning = ",addPruning;
+    print "isMC             = ",isMC;
+    print "coneSize         = ",coneSize;
+    print "algo             = ",algo;
+    print "pileupMethod     = ",pileupMethod;
+    print "selection        = ",selection;
+    print "addPruning       = ",addPruning;
     print "addPrunedSubjets = ",addPrunedSubjets;
-    print "addSoftDrop = ",addSoftDrop;
+    print "addSoftDrop      = ",addSoftDrop;
     print "addSoftDropSubjets = ",addSoftDropSubjets;
-    print "addTrimming = ",addTrimming;
-    print "addTrimmedSubjets = ",addTrimmedSubjets;
-    print "addFiltering = ",addFiltering;
+    print "addTrimming        = ",addTrimming;
+    print "addTrimmedSubjets  = ",addTrimmedSubjets;
+    print "addFiltering       = ",addFiltering;
     print "addFilteredSubjets = ",addFilteredSubjets;
-    print "addNsubjettiness = ",addNsubjettiness;
+    print "addNsubjettiness   = ",addNsubjettiness;
     print "addEnergyCorrelation = ",addEnergyCorrelation;
-    print "addQJets = ",addQJets;
-    print "addQGLikelihood = ",addQGLikelihood;
+    print "addQJets             = ",addQJets;
+    print "addQGLikelihood      = ",addQGLikelihood;
     print "############################"
 
     ## build jet algo name for jet clustering
@@ -292,7 +294,6 @@ def JetSubstructure(process,
     elif algo == "CA":
         ALGO = "CambridgeAachen"
     
-
     if isMC : 
         ## run gen jet clustering from genParticles
         if not hasattr(process,"genParticlesForJetsNoNu"):
@@ -303,13 +304,13 @@ def JetSubstructure(process,
                                                    "abs(pdgId) != 1000014 && abs(pdgId) != 1000016 && abs(pdgId) != 2000012 && abs(pdgId) != 2000014 &&"+
                                                    "abs(pdgId) != 2000016 && abs(pdgId) != 1000039 && abs(pdgId) != 5100039 && abs(pdgId) != 4000012 &&"+
                                                    "abs(pdgId) != 4000014 && abs(pdgId) != 4000016 && abs(pdgId) != 9900012 && abs(pdgId) != 9900014 &&"+
-                                                   "abs(pdgId) != 9900016 && abs(pdgId) != 39 && abs(pdgId) != 9100012")))
+                                                   "abs(pdgId) != 9900016 && abs(pdgId) != 39 && abs(pdgId) != 9100012"))) ## skip all the possible invisible particles
 
         if not hasattr(process,"genJets"+jetAlgo):
             setattr(process,"genJets"+jetAlgo, ak4GenJets.clone( src = 'genParticlesForJetsNoNu', 
                                                                  rParam       = coneSize, 
                                                                  jetAlgorithm = ALGO,
-                                                                 jetPtMin = cms.double(50.)))
+                                                                 jetPtMin = cms.double(50.))) ## fix a lower reasonable threshold
 
         ## filter only hadronically decaying W/Z and Higgs at generator level
         if not hasattr(process,"genBosons"):
@@ -320,18 +321,10 @@ def JetSubstructure(process,
 
     ## b-tag discriminators to be considered
     bTagDiscriminators = [
-        #'pfTrackCountingHighEffBJetTags',
-        #'pfTrackCountingHighPurBJetTags',
-        #'pfSimpleSecondaryVertexHighEffBJetTags',
-        #'pfSimpleSecondaryVertexHighPurBJetTags',
-        'pfCombinedSecondaryVertexV2BJetTags',
         'pfCombinedInclusiveSecondaryVertexV2BJetTags',
         'pfBoostedDoubleSecondaryVertexAK8BJetTags' ## new tag for Boosted double b-tagging
         ]
 
-    CMSSW_VERSION = os.environ['CMSSW_VERSION'];    
-    if (re.match("CMSSW_7_4_.*",CMSSW_VERSION) and CMSSW_VERSION < "CMSSW_7_4_16") or re.match("CMSSW_7_5_.*",CMSSW_VERSION):
-        bTagDiscriminators.remove('pfBoostedDoubleSecondaryVertexAK8BJetTags')
 
     ## jet energy corrections already loaded in JECLevels
     if pileupMethod != "chs" and pileupMethod != "Puppi" and pileupMethod != "":
@@ -360,11 +353,12 @@ def JetSubstructure(process,
                                         rParam = coneSize, 
                                         jetAlgorithm = ALGO ) ) 
 
-        payloadName = jetAlgo+'PF'+pileupMethod
+        payloadName       = jetAlgo+'PF'+pileupMethod
         payloadNameSubjet = 'AK4PF'+pileupMethod
-        jetCollection = jetAlgo+'PFJets'+pileupMethod.upper()
-        pfCand = "chs"
+        jetCollection     = jetAlgo+'PFJets'+pileupMethod.upper()
+        pfCand            = "chs"
 
+    ## for puppi jets
     elif pileupMethod == "Puppi":
         if not hasattr(process,"puppi"):
             setattr( process, 'puppi', 
@@ -380,11 +374,12 @@ def JetSubstructure(process,
                                           rParam = coneSize, 
                                           jetAlgorithm = ALGO ) )  
 
-        payloadName = jetAlgo+'PF'+pileupMethod
+        payloadName       = jetAlgo+'PF'+pileupMethod
         payloadNameSubjet = 'AK4PF'+pileupMethod
-        jetCollection = jetAlgo+'PFJets'+pileupMethod;
-        pfCand = "puppi"
+        jetCollection     = jetAlgo+'PFJets'+pileupMethod;
+        pfCand            = "puppi"
 
+    ## standard PF jets
     elif pileupMethod == "":
 
         if not hasattr(process,jetAlgo+'PFJets'):
@@ -393,10 +388,10 @@ def JetSubstructure(process,
                                           doAreaFastjet = True, 
                                           rParam = coneSize, 
                                           jetAlgorithm = ALGO ) )  
-        payloadName = jetAlgo+'PF'
+        payloadName       = jetAlgo+'PF'
         payloadNameSubjet = 'AK4PF'
-        jetCollection = jetAlgo+'PFJets'
-        pfCand = "packedPFCandidates"
+        jetCollection     = jetAlgo+'PFJets'
+        pfCand            = "packedPFCandidates"
 
     ## apply selection and produce a restricted set of consituents only for jets passig the selection
     if not hasattr(process,jetCollection+"Reduced"):
@@ -412,16 +407,16 @@ def JetSubstructure(process,
             process,
             labelName = jetCollection,
             jetSource = cms.InputTag(jetCollection+"Reduced"),
-            algo   = algo,
-            rParam = coneSize,
-            pfCandidates = cms.InputTag(pfCand),
+            algo      = algo,
+            rParam    = coneSize,
+            pfCandidates   = cms.InputTag(pfCand),
             jetCorrections = (payloadName, JECLevel, 'None'), 
-            svSource = cms.InputTag('slimmedSecondaryVertices'),  
+            svSource       = cms.InputTag('slimmedSecondaryVertices'),  
             genJetCollection = cms.InputTag("genJets"+jetAlgo),
-            pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'), 
+            pvSource           = cms.InputTag('offlineSlimmedPrimaryVertices'), 
             btagDiscriminators = bTagDiscriminators,
-            getJetMCFlavour = isMC,
-            genParticles = cms.InputTag("prunedGenParticles"),
+            getJetMCFlavour    = isMC,
+            genParticles       = cms.InputTag("prunedGenParticles"),
             ) 
 
         if "Puppi" in pfCand or "puppi" in pfCand:
@@ -438,7 +433,7 @@ def JetSubstructure(process,
                                    ## mathched groomed pat jet
                                    matched = cms.InputTag('genBosons'),                                                                                     
                                    distMax = cms.double(coneSize),                                                                                                    
-                                   values = cms.vstring("pt","eta","phi","mass"),
+                                   values  = cms.vstring("pt","eta","phi","mass"),
                                    valueLabels = cms.vstring("pt","eta","phi","mass")))            
 
             getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenBosonMatched:pt']
@@ -470,8 +465,8 @@ def JetSubstructure(process,
              getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['Njettiness'+jetCollection+':tau1',
                                                                                   'Njettiness'+jetCollection+':tau2',
                                                                                   'Njettiness'+jetCollection+':tau3',
-                                                                                  'Njettiness'+jetCollection+':tau4',
-                                                                                  ]
+                                                                                  'Njettiness'+jetCollection+':tau4']
+
          ## on gen jets
          if isMC:
              if not hasattr(process,"NjettinessGenJets"+jetAlgo):
@@ -480,8 +475,7 @@ def JetSubstructure(process,
                          src = cms.InputTag("genJets"+jetAlgo),
                          cone = cms.double(coneSize)));
 
-                 ## pattify gen jets
-
+                 ## pattify gen jets --> temp
                  if not hasattr(process,'patGenJets'+jetAlgo):
                      setattr(process,'patGenJets'+jetAlgo, patJets.clone(
                              jetSource = cms.InputTag("genJets"+jetAlgo),
@@ -512,18 +506,18 @@ def JetSubstructure(process,
                                         ## mathched groomed pat jet                                                                                                       
                                         matched = cms.InputTag('patGenJets'+jetAlgo),
                                         distMax = cms.double(coneSize),
-                                        values = cms.vstring("userFloat('NjettinessGenJets"+jetAlgo+":tau1')",
-                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau2')",
-                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau3')",
-                                                             "userFloat('NjettinessGenJets"+jetAlgo+":tau4')"),
+                                        values  = cms.vstring("userFloat('NjettinessGenJets"+jetAlgo+":tau1')",
+                                                              "userFloat('NjettinessGenJets"+jetAlgo+":tau2')",
+                                                              "userFloat('NjettinessGenJets"+jetAlgo+":tau3')",
+                                                              "userFloat('NjettinessGenJets"+jetAlgo+":tau4')"),
                                         valueLabels = cms.vstring("tau1","tau2","tau3","tau4")))
 
                   
                  getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+'GenNjettinessMatched:tau1',
                                                                                       jetCollection+'GenNjettinessMatched:tau2',
                                                                                       jetCollection+'GenNjettinessMatched:tau3',
-                                                                                      jetCollection+'GenNjettinessMatched:tau4',
-                                                                                      ]
+                                                                                      jetCollection+'GenNjettinessMatched:tau4']
+                                                                                      
      
 
      ## add ECF
@@ -531,8 +525,7 @@ def JetSubstructure(process,
          if not hasattr(process,'ecf'+jetCollection):
              setattr(process,'ecf'+jetCollection,ECF.clone(
                  src = cms.InputTag(jetCollection+"Reduced"),
-                 Njets = cms.vuint32(1,2,3),
-                 ))
+                 Njets = cms.vuint32(1,2,3)))
 
              getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf1'];
              getattr(process,'patJets'+jetCollection).userData.userFloats.src += ['ecf'+jetCollection+':ecf2'];
@@ -544,13 +537,13 @@ def JetSubstructure(process,
              setattr(process,"qjets"+jetCollection,QJetsAdder.clone(
                  src = cms.InputTag(jetCollection+"Reduced"),
                  jeRad = cms.double(coneSize),
-                 jetAlgo = cms.string(algo)
-                 ))
+                 jetAlgo = cms.string(algo)))
+
              getattr(process,'patJets'+jetCollection).userData.userFloats.src += ["qjets"+jetCollection+":QjetsVolatility"]
 
             
     ### start with substructure: Pruning (run it on both reco and gen jets):
-    Tags = [];
+    Tags   = [];
     Labels = [];
     JECLevelTemp = copy.deepcopy(JECLevel)
     if 'L1FastJet' in JECLevelTemp:
@@ -655,9 +648,11 @@ def JetSubstructure(process,
                                algoTags = cms.VInputTag(),
                                algoLabels = cms.vstring()))
 
-        getattr(process,"packedPatJets"+jetCollection).algoTags = Tags;
+        getattr(process,"packedPatJets"+jetCollection).algoTags   = Tags;
         getattr(process,"packedPatJets"+jetCollection).algoLabels = Labels;
 
 
     if not isMC:
         removeMCMatching(process, names=['Jets'], outputModules=[])
+
+    return "packedPatJets"+jetCollection

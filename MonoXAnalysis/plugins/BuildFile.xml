@@ -26,6 +26,7 @@
 <use name="RecoEgamma/EgammaTools"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="JetMETCorrections/Objects"/>
+<use name="JetMETCorrections/Modules"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>

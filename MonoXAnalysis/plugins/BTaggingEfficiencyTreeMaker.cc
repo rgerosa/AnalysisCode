@@ -65,6 +65,8 @@ private:
   const std::vector<double> ptBins;
   const std::vector<double> etaBins;
 
+  const bool useSubjets;
+
   std::map<std::string,TH2F*> eff_histo_Denom_b;
   std::map<std::string,TH2F*> eff_histo_Denom_c;
   std::map<std::string,TH2F*> eff_histo_Denom_ucsdg;
@@ -87,8 +89,8 @@ BTaggingEfficiencyTreeMaker::BTaggingEfficiencyTreeMaker(const edm::ParameterSet
   selection(iConfig.getParameter<std::string>("selection")),
   bDiscriminatorInfo(iConfig.getParameter<std::vector<edm::ParameterSet> >("bDiscriminatorInfo")),
   ptBins(iConfig.getParameter<std::vector<double> >("ptBins")),
-  etaBins(iConfig.getParameter<std::vector<double> >("etaBins")){
-
+  etaBins(iConfig.getParameter<std::vector<double> >("etaBins")),
+  useSubjets(iConfig.existsAs<bool>("useSubjets") ? iConfig.getParameter<bool>("cleanElectronJet") : false){
   usesResource();
   usesResource("TFileService");
 }
@@ -120,83 +122,98 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
   // loop over jets
   StringCutObjectSelector<pat::Jet> jetSelection(selection);
 
+  // apply pileup jet id                                                                                                                                                   
+  bool isPuppi = false;
+  if(TString(srcJets.label()).Contains("Puppi"))
+    isPuppi = true;
+
+  int ijet = 0;
   for(auto itJet = jetsH->begin(); itJet != jetsH->end(); ++itJet){
 
-    // apply selection
-    if(not jetSelection(*itJet)) continue;
-
-    // make sure is from ME
-    bool jetfromME = false;      
-    if(itJet->genJet()) 
-      jetfromME = true;
-    if(not jetfromME)
-      continue;
-
-    //clean from leptons                                                                                                                                                     
-    bool skipjet = false;
-    if(muonsH.isValid()){
-      for (std::size_t j = 0; j < muons.size(); j++) {
-	if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), itJet->eta(), itJet->phi()) < dRClean)
-	  skipjet = true;
+    // in order to keep the code compact
+    pat::JetCollection subjets;
+    if(not useSubjets){
+      subjets.push_back(*itJet);
+      ijet++;
+    }
+    else{
+      for(auto isubjet : itJet->subjets("Pruned"))
+	subjets.push_back(*(isubjet.get()));
+      if(subjets.size() == 0){
+	for(auto isubjet : itJet->subjets("SoftDrop"))
+	  subjets.push_back(*(isubjet.get()));
       }
     }
-    if(electronsH.isValid()){
-      for (std::size_t j = 0; j < electrons.size(); j++) {
-	if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), itJet->eta(), itJet->phi()) < dRClean)
-	  skipjet = true;
-      }
-    }
-    if(photonsH.isValid()){
-      for (std::size_t j = 0; j < photons.size(); j++) {
-	if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), itJet->eta(), itJet->phi()) < dRClean)
-	  skipjet = true;
-      }
-    }
-
-    if (skipjet) continue;
-
-    // require jet id
-    bool passjetid = applyJetID(*itJet,"loose");
-    if (!passjetid)
-      continue;
-
-    // apply pileup jet id                                                                                                                                                   
-    bool isPuppi = false;
-    if(TString(srcJets.label()).Contains("Puppi"))
-      isPuppi = true;
-
-    bool passpuid = applyPileupJetID(*itJet,"medium",isPuppi);
-    if (!passpuid)
-      continue;
-
-    int hadronFlavor = itJet->hadronFlavour();      
-    
-    for(auto iPSet : bDiscriminatorInfo){ 
+			
+    for(auto jet : subjets){
       
-      std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
-      std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
-      double wpValue = iPSet.getParameter<double>("wpValue");
+      // apply selection
+      if(not jetSelection(jet)) continue;
+      // make sure is from ME
+      if(not jet.genJet()) continue;
+      
+      //clean from leptons                                                                                                                                                     
+      bool skipjet = false;
+      if(muonsH.isValid()){
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jet.eta(), jet.phi()) < dRClean)
+	    skipjet = true;
+	}
+      }
+      if(electronsH.isValid()){
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jet.eta(), jet.phi()) < dRClean)
+	    skipjet = true;
+	}
+      }
+      if(photonsH.isValid()){
+	for (std::size_t j = 0; j < photons.size(); j++) {
+	  if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jet.eta(), jet.phi()) < dRClean)
+	    skipjet = true;
+	}
+      }
+      
+      if (skipjet) continue;
+      
+      // require jet id
+      bool passjetid = applyJetID(jet,"loose");
+      if (!passjetid)
+	continue;
 
-      if( abs(hadronFlavor)==5 ){
+      // require puid
+      bool passpuid = applyPileupJetID(jet,"medium",isPuppi);
+      if (!passpuid)
+	continue;
+
+      int hadronFlavor = jet.hadronFlavour();      
+    
+      for(auto iPSet : bDiscriminatorInfo){ 
+      
+	std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
+	std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
+	double wpValue = iPSet.getParameter<double>("wpValue");
+	
+	if( abs(hadronFlavor)==5 ){
+	  // fill denominator
+	  eff_histo_Denom_b["eff_"+discriminatorName+"_"+wpLabel+"_Denom_b"]->Fill(jet.pt(), fabs(jet.eta()));
+	  // selection
+	  if(jet.bDiscriminator(discriminatorName) > wpValue)
+	    eff_histo_Num_b["eff_"+discriminatorName+"_"+wpLabel+"_Num_b"]->Fill(jet.pt(), fabs(jet.eta()));
+	}
+	else if( abs(hadronFlavor)==4 ){
+	  // fill denominator
+	  eff_histo_Denom_c["eff_"+discriminatorName+"_"+wpLabel+"_Denom_c"]->Fill(jet.pt(), fabs(jet.eta()));
+	  // selection
+	  if(jet.bDiscriminator(discriminatorName) > wpValue)
+	    eff_histo_Num_c["eff_"+discriminatorName+"_"+wpLabel+"_Num_c"]->Fill(jet.pt(), fabs(jet.eta()));
+	}
+	else{
 	// fill denominator
-	eff_histo_Denom_b["eff_"+discriminatorName+"_"+wpLabel+"_Denom_b"]->Fill(itJet->pt(), fabs(itJet->eta()));
-	// selection
-	if(itJet->bDiscriminator(discriminatorName) > wpValue)
-	  eff_histo_Num_b["eff_"+discriminatorName+"_"+wpLabel+"_Num_b"]->Fill(itJet->pt(), fabs(itJet->eta()));
-      }
-      else if( abs(hadronFlavor)==4 ){
-	// fill denominator
-	eff_histo_Denom_c["eff_"+discriminatorName+"_"+wpLabel+"_Denom_c"]->Fill(itJet->pt(), fabs(itJet->eta()));
-	// selection
-	if(itJet->bDiscriminator(discriminatorName) > wpValue)
-	  eff_histo_Num_c["eff_"+discriminatorName+"_"+wpLabel+"_Num_c"]->Fill(itJet->pt(), fabs(itJet->eta()));
-      }
-      else{
-	// fill denominator
-	eff_histo_Denom_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Denom_ucsdg"]->Fill(itJet->pt(), fabs(itJet->eta()));
-	// selection
-	if(itJet->bDiscriminator(discriminatorName) > wpValue)
-	  eff_histo_Num_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Num_ucsdg"]->Fill(itJet->pt(), fabs(itJet->eta()));
+	  eff_histo_Denom_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Denom_ucsdg"]->Fill(jet.pt(), fabs(jet.eta()));
+	  // selection
+	  if(jet.bDiscriminator(discriminatorName) > wpValue)
+	    eff_histo_Num_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Num_ucsdg"]->Fill(jet.pt(), fabs(jet.eta()));
+	}
       }
     }
   }
@@ -329,6 +346,8 @@ bool BTaggingEfficiencyTreeMaker::applyPileupJetID(const pat::Jet & jet, const s
   bool passpuid = false;
   double puidval = 0;
   double jetabseta = fabs(jet.eta());
+  double jetpt = jet.pt();
+
   if(jet.hasUserFloat("puid:fullDiscriminant"))
     puidval = jet.userFloat("puid:fullDiscriminant");
   else if(jet.hasUserFloat("puidPuppi:fullDiscriminant"))
@@ -337,27 +356,39 @@ bool BTaggingEfficiencyTreeMaker::applyPileupJetID(const pat::Jet & jet, const s
     puidval = jet.userFloat("pileupJetId:fullDiscriminant");
   else
     return true;
- 
-  // https://indico.cern.ch/event/450785/contribution/2/attachments/1167545/1683858/151008_JMAR_pileupJetIDtraining.pdf                                                        
+
+  // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon                                                                                
   if(level == "loose"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval > -0.82) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.81) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.57) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.36) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.96) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.93) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.62) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.51) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.48) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.30) passpuid = true;
   }
   else if(level == "medium"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval > -0.48) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.66) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.44) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.29) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.61) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.20) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.40) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.22) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.17) passpuid = true;
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 && jetabseta < 2.00 && puidval >  0.29) passpuid = true;
-    if (jetabseta >= 2.00 && jetabseta < 2.50 && puidval > -0.30) passpuid = true;
-    if (jetabseta >= 2.50 && jetabseta < 3.00 && puidval > -0.37) passpuid = true;
-    if (jetabseta >= 3.00 && jetabseta < 5.00 && puidval > -0.25) passpuid = true;
-
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > 0.05) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval >  0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.18) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.23) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.04) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.02) passpuid = true;
   }
+
   return passpuid;
 }
 

@@ -7,9 +7,8 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
 
 	## if true look to a local SQLite file instead of GT entry
 	if usePrivateSQlite:
- 		## DB file name
 		era = JECEra
-  		if isMC : 
+		if isMC : 
    		 	era += "_MC"
   		else :
 			era += "_DATA"    
@@ -17,45 +16,45 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
 
 		## connect to local SQLite file
 		process.jec = cms.ESSource("PoolDBESSource",
-    		CondDBSetup,
-        	connect = cms.string("sqlite_file:"+dBFile),
-        	toGet =  cms.VPSet(
-            	## AK4PF corrections
-            	cms.PSet(
-               	 record = cms.string("JetCorrectionsRecord"),
-            	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PF"),
-            	 label= cms.untracked.string("AK4PF")
-            	),
-            	## AK4PFchs corrections
-            	cms.PSet(
-               	 record = cms.string("JetCorrectionsRecord"),
-               	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
-               	 label= cms.untracked.string("AK4PFchs")
-            	),
-            	## AK4PFPUPPI corrections
-            	cms.PSet(
-               	 record = cms.string("JetCorrectionsRecord"),
-               	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFPuppi"),
-               	 label= cms.untracked.string("AK4PFPuppi")
-            	),		
-	            ## AK8PFchs corrections            
-   		        cms.PSet(
-                 record = cms.string("JetCorrectionsRecord"),
-               	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFchs"),
-                 label= cms.untracked.string("AK8PFchs")
-            	),	
-	            ## AK8PFPuppi corrections            
-   		        cms.PSet(
-                 record = cms.string("JetCorrectionsRecord"),
-               	 tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFPuppi"),
-                 label= cms.untracked.string("AK8PFPuppi")
-            	),	
-        	)
-     	)
+					   CondDBSetup,
+					   connect = cms.string("sqlite_file:../data/JEC/"+dBFile),
+					   toGet =  cms.VPSet(
+				## AK4PF corrections
+				cms.PSet(
+					record = cms.string("JetCorrectionsRecord"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PF"),
+					label= cms.untracked.string("AK4PF")
+					),
+				## AK4PFchs corrections
+				cms.PSet(
+					record = cms.string("JetCorrectionsRecord"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
+					label= cms.untracked.string("AK4PFchs")
+					),
+				## AK4PFPUPPI corrections
+				cms.PSet(
+					record = cms.string("JetCorrectionsRecord"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFPuppi"),
+					label= cms.untracked.string("AK4PFPuppi")
+					),		
+				## AK8PFchs corrections            
+				cms.PSet(
+					record = cms.string("JetCorrectionsRecord"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFchs"),
+					label= cms.untracked.string("AK8PFchs")
+					),	
+				## AK8PFPuppi corrections            
+				cms.PSet(
+					record = cms.string("JetCorrectionsRecord"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFPuppi"),
+					label= cms.untracked.string("AK8PFPuppi")
+					),	
+				)
+					   )
      	## give preference wrt to GT
-     	if usePrivateSQlite == True:
+	if usePrivateSQlite == True:
 	     	process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
-
+		
 	# JEC levels when redoing jets and MET
 	if isMC:
 		process.JECLevels = cms.PSet(labels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute'))

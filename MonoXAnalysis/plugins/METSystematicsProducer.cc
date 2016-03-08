@@ -6,86 +6,40 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/PFMETCollection.h"
-#include <DataFormats/METReco/interface/PFMET.h>
-#include <DataFormats/PatCandidates/interface/MET.h>
-#include <DataFormats/PatCandidates/interface/Tau.h>
-#include <DataFormats/PatCandidates/interface/Muon.h>
-#include <DataFormats/PatCandidates/interface/Electron.h>
-#include <DataFormats/PatCandidates/interface/Photon.h>
-#include <DataFormats/PatCandidates/interface/Jet.h>
-#include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
+#include "DataFormats/PatCandidates/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 #include "DataFormats/METReco/interface/MET.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
+#include "JetMETCorrections/Modules/interface/JetResolution.h"
+
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <TFile.h>
-#include <TFormula.h>
-#include <TVector2.h>
-#include <TLorentzVector.h>
-#include <TMath.h>
-#include <TRandom3.h>
-
-class JetResolutionTruth {
-
-public:
-  JetResolutionTruth(const float & etaMin, const float & etaMax,
-		     const float & rhoMin, const float & rhoMax,
-		     const std::vector<float> & par){
-
-    etaMin_ = etaMin;
-    etaMax_ = etaMax;
-    rhoMin_ = rhoMin;
-    rhoMax_ = rhoMax;
-    par_ = par;
-  }
-
-  bool goodJet (const pat::Jet & jet, const float & rho){
-    if(jet.eta() > etaMin_ and jet.eta() < etaMax_){
-	if(rho > rhoMin_ and rho < rhoMax_)
-	  return true;	
-    }    
-    return false;
-  }
-
-  float getEtaMin(){return etaMin_;}
-
-  float getEtaMax(){return etaMax_;}
-
-  float getRhoMin(){return rhoMin_;}
-
-  float getRhoMax(){return rhoMax_;}
-
-  float getPar(const int & nPar){
-    if(nPar <= int(par_.size()))
-      return par_.at(nPar);
-    else
-      return 0.;
-  }
-
-  std::vector<float> getPar(){return par_;}
-
-  ~JetResolutionTruth(){};
-
-private:
-
-  float etaMin_;
-  float etaMax_;
-  float rhoMin_;
-  float rhoMax_;
-  std::vector<float> par_;
-};
+#include "TFile.h"
+#include "TFormula.h"
+#include "TVector2.h"
+#include "TLorentzVector.h"
+#include "TMath.h"
+#include "TRandom3.h"
 
 
 class METSystematicsProducer : public edm::stream::EDProducer<> {
@@ -109,31 +63,32 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  const edm::EDGetTokenT<pat::METCollection> metToken_;
-  const edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
+  // input collections
+  const edm::EDGetTokenT<pat::METCollection>    metToken_;
   edm::EDGetTokenT<std::vector<pat::Jet> >      jetToken_;
   edm::EDGetTokenT<std::vector<pat::Muon> >     muonToken_;
   edm::EDGetTokenT<std::vector<pat::Electron> > electronToken_;
   edm::EDGetTokenT<std::vector<pat::Photon> >   photonToken_;
   edm::EDGetTokenT<std::vector<pat::Tau> >      tauToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
   const edm::EDGetTokenT<double>  rhoToken_;
 
+  // PSet for the object uncertainties
   const edm::ParameterSet electronPSet_;
   const edm::ParameterSet muonPSet_;
   const edm::ParameterSet photonPSet_;
   const edm::ParameterSet tauPSet_;
   const edm::ParameterSet jetPSet_;
   const edm::ParameterSet unclusteredPSet_;
-
-
   const edm::InputTag inputMET_;
 
-  bool skipJet_;
+  // options
+  bool storeSmearedShiftedCollections_;
   bool skipMuon_;
   bool skipElectron_;
-  bool skipTau_;
   bool skipPhoton_;
-  bool storeSmearedShiftedCollections_;
+  bool skipTau_;
+  bool skipJet_;
 
   // in case of binning
   std::vector<StringCutObjectSelector<pat::Muon> > muonSelection_;
@@ -145,25 +100,38 @@ private:
   std::vector<StringCutObjectSelector<pat::Tau> > tauSelection_;
   std::vector<float> tauScaleUnc_;
 
+  // JES
   edm::FileInPath jetJECUncFile_;
-  edm::FileInPath jetJERFile_;
-  std::auto_ptr<TFormula>   jetJERFormula_;
 
-  std::vector<StringCutObjectSelector<pat::Jet> > jetJERSelection_;
-  std::vector<float> jetJERSF_;
-  std::vector<float> jetJERSFUnc_;
-  std::vector<JetResolutionTruth> jetResolution_;
+  // JER
+  edm::FileInPath jetJERFile_;
+  edm::FileInPath jetJERSFFile_;
   std::auto_ptr<TRandom3> rand_;
 
+  // unclustered
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
   std::vector<float> unclusteredUnc_;
+
+  template<typename T>
+  class PatPtSorter{
+  public:
+    bool operator ()(const T & i, const T & j) const {
+      return (i.pt() > j.pt());
+    }
+
+  };
+
+  PatPtSorter<pat::Jet>      jetSorter;
+  PatPtSorter<pat::Muon>     muonSorter;
+  PatPtSorter<pat::Electron> electronSorter;
+  PatPtSorter<pat::Photon>   photonSorter;
+  PatPtSorter<pat::Tau>      tauSorter;
 
 };
 
 #endif
 
 METSystematicsProducer::~METSystematicsProducer(){}
-
 
 METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig):
   metToken_                 (consumes<pat::METCollection> (iConfig.getParameter<edm::InputTag>("inputMET"))),
@@ -176,50 +144,61 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   jetPSet_                  (iConfig.getParameter<edm::ParameterSet>("jet")),
   unclusteredPSet_          (iConfig.getParameter<edm::ParameterSet>("unclustered")),
   inputMET_                 (iConfig.getParameter<edm::InputTag>("inputMET")),
-  storeSmearedShiftedCollections_(iConfig.existsAs<bool>("storeSmearedShiftedCollections") ? iConfig.getParameter<bool>("storeSmearedShiftedCollections") : false){
+  storeSmearedShiftedCollections_(iConfig.existsAs<bool>("storeSmearedShiftedCollections") ? iConfig.getParameter<bool>("storeSmearedShiftedCollections") : false),
+  skipMuon_(iConfig.existsAs<bool>("Muon") ? iConfig.getParameter<bool>("skipMuon") : false),
+  skipElectron_(iConfig.existsAs<bool>("Electron") ? iConfig.getParameter<bool>("skiElectron") : false),
+  skipPhoton_(iConfig.existsAs<bool>("skipPhoton") ? iConfig.getParameter<bool>("skipPhoton") : false),
+  skipTau_(iConfig.existsAs<bool>("skipTau") ? iConfig.getParameter<bool>("skipTau") : false),
+  skipJet_(iConfig.existsAs<bool>("skipJet") ? iConfig.getParameter<bool>("skipJet") : false)
+ {
 
-  skipJet_  = false;
-  skipTau_  = false;
-  skipPhoton_ = false;
-  skipMuon_ = false;
-  skipElectron_ = false;
-   
-  if(!(jetPSet_.getParameter<edm::InputTag>("src") == edm::InputTag("")))
-    jetToken_     = consumes<std::vector<pat::Jet> >       (jetPSet_.getParameter<edm::InputTag>("src"));
-  else{
-    skipJet_ = true;
-    std::cout<<"METSystematicsProducer::Jet collection will be skipped"<<std::endl;
+   jetToken_      = consumes<std::vector<pat::Jet> >  (jetPSet_.getParameter<edm::InputTag>("src"));
+   tauToken_      = consumes<std::vector<pat::Tau> >  (tauPSet_.getParameter<edm::InputTag>("src"));
+   photonToken_   = consumes<std::vector<pat::Photon> >  (photonPSet_.getParameter<edm::InputTag>("src"));
+   muonToken_     = consumes<std::vector<pat::Muon> > (muonPSet_.getParameter<edm::InputTag>("src"));
+   electronToken_ = consumes<std::vector<pat::Electron> >  (electronPSet_.getParameter<edm::InputTag>("src"));
+
+  // selector definitions
+  for(auto bin : muonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
+    muonSelection_.push_back(StringCutObjectSelector<pat::Muon>(bin.getParameter<std::string>("binSelection")));
+    muonScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
   }
 
-  if(!(tauPSet_.getParameter<edm::InputTag>("src") == edm::InputTag("")))
-    tauToken_      = consumes<std::vector<pat::Tau> >       (tauPSet_.getParameter<edm::InputTag>("src"));
-  else{
-    skipTau_ = true;
-    std::cout<<"METSystematicsProducer::Tau collection will be skipped"<<std::endl;
+  for(auto bin : electronPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
+    electronSelection_.push_back(StringCutObjectSelector<pat::Electron>(bin.getParameter<std::string>("binSelection")));
+    electronScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
   }
 
-  if(!(photonPSet_.getParameter<edm::InputTag>("src") == edm::InputTag("")))
-    photonToken_   = consumes<std::vector<pat::Photon> >    (photonPSet_.getParameter<edm::InputTag>("src"));
-  else{
-    skipPhoton_ = true;
-    std::cout<<"METSystematicsProducer::Photon collection will be skipped"<<std::endl;
+  for(auto bin : photonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
+    photonSelection_.push_back(StringCutObjectSelector<pat::Photon>(bin.getParameter<std::string>("binSelection")));
+    photonScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
   }
+
+  for(auto bin : tauPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
+    tauSelection_.push_back(StringCutObjectSelector<pat::Tau>(bin.getParameter<std::string>("binSelection")));
+    tauScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
+  }
+
+  for(auto bin : unclusteredPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
+    unclusteredSelection_.push_back(StringCutObjectSelector<reco::Candidate>(bin.getParameter<std::string>("binSelection")));
+    unclusteredUnc_.push_back(bin.getParameter<double>("uncertainty"));
+  }
+
+  // file for JEC unc
+  jetJECUncFile_ = jetPSet_.getParameter<edm::FileInPath>("JECUncFile");
+  if(not jetJECUncFile_.location() and jetPSet_.getParameter<bool> ("useExternalJECUncertainty") and not skipJet_)
+    throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
+
+  // file for JER truth
+  jetJERFile_    = jetPSet_.getParameter<edm::FileInPath>("JERFile");
+  jetJERSFFile_  = jetPSet_.getParameter<edm::FileInPath>("JERSFFile");
   
-  if(!(muonPSet_.getParameter<edm::InputTag>("src") == edm::InputTag("")))
-    muonToken_   = consumes<std::vector<pat::Muon> >      (muonPSet_.getParameter<edm::InputTag>("src"));
-  else{
-    skipMuon_ = true;
-    std::cout<<"METSystematicsProducer::Muon collection will be skipped"<<std::endl;
-  }
+  if(not jetJERFile_.location() and jetPSet_.getParameter<bool> ("useExternalJER") and not skipJet_)
+    throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
 
-  if(!(electronPSet_.getParameter<edm::InputTag>("src") == edm::InputTag("")))
-    electronToken_ = consumes<std::vector<pat::Electron> >  (electronPSet_.getParameter<edm::InputTag>("src"));
-  else{
-    skipElectron_ = true;
-    std::cout<<"METSystematicsProducer::Electron collection will be skipped"<<std::endl;
-  }
-
-
+  if(not jetJERSFFile_.location() and jetPSet_.getParameter<bool> ("useExternalJERSF") and not skipJet_)
+    throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERSFFile_ << " !!\n";
+  
   // produce shifed and smearead particles
   produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label()));
 
@@ -274,70 +253,6 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"SmearJetResDown");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"UnclusteredEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"UnclusteredEnDown");
-  }
-
-  // selector definitions
-  for(auto bin : muonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
-    muonSelection_.push_back(StringCutObjectSelector<pat::Muon>(bin.getParameter<std::string>("binSelection")));
-    muonScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
-  }
-
-  for(auto bin : electronPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
-    electronSelection_.push_back(StringCutObjectSelector<pat::Electron>(bin.getParameter<std::string>("binSelection")));
-    electronScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
-  }
-
-  for(auto bin : photonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
-    photonSelection_.push_back(StringCutObjectSelector<pat::Photon>(bin.getParameter<std::string>("binSelection")));
-    photonScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
-  }
-
-  for(auto bin : tauPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
-    tauSelection_.push_back(StringCutObjectSelector<pat::Tau>(bin.getParameter<std::string>("binSelection")));
-    tauScaleUnc_.push_back(bin.getParameter<double>("uncertainty"));
-  }
-
-  for(auto bin : unclusteredPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
-    unclusteredSelection_.push_back(StringCutObjectSelector<reco::Candidate>(bin.getParameter<std::string>("binSelection")));
-    unclusteredUnc_.push_back(bin.getParameter<double>("uncertainty"));
-  }
-
-  // file for JEC unc
-  jetJECUncFile_ = jetPSet_.getParameter<edm::FileInPath>("JECUncFile");
-
-  // JER SF
-  for(auto bin : jetPSet_.getParameter<std::vector<edm::ParameterSet> >("binningJERSF")){
-    jetJERSelection_.push_back(StringCutObjectSelector<pat::Jet>(bin.getParameter<std::string>("binSelection")));
-    jetJERSF_.push_back(bin.getParameter<double>("scaleFactor"));
-    jetJERSFUnc_.push_back(bin.getParameter<double>("scaleFactorUnc"));
-  }
-  
-  // file for JER truth
-  jetJERFile_    = jetPSet_.getParameter<edm::FileInPath>("JERFile");
-  if(not jetJERFile_.location())
-    throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
-
-  jetJERFormula_ = std::auto_ptr<TFormula>(new TFormula("jerFormula",jetPSet_.getParameter<std::string>("JERFormula").c_str()));
-
-  // this setup really depends on the format coded in https://twiki.cern.ch/twiki/pub/CMS/JetResolution/Summer15_25nsV6_MC_PtResolution_AK4PFchs.txt
-  std::string line;
-  std::ifstream file(jetJERFile_.fullPath());
-  if(file.is_open()){
-    while(getline(file,line)){
-      if(line.at(0)=='{')
-	continue;
-      std::vector<std::string> tokens;
-      std::stringstream ss(line);
-      std::string buf;
-      while (ss >> buf)
-        tokens.push_back(buf);
-      std::vector<float> param;
-      for(size_t itok = tokens.size()-4; itok < tokens.size(); itok++){
-	param.push_back(std::stof(tokens[itok]));
-      }
-      jetResolution_.push_back(JetResolutionTruth(std::stof(tokens[0]),std::stof(tokens[1]),std::stof(tokens[2]),std::stof(tokens[3]), param));
-    }
-    file.close();
   }
 
   rand_ = std::auto_ptr<TRandom3>(new TRandom3());
@@ -437,7 +352,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   // loop on muons
   if(not skipMuon_){
     for(auto muon : *muColl){    
-
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(muon,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -469,7 +383,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  muonTrack = *(muon.muonBestTrack().get());     
 	else
 	  muonTrack = *(muon.globalTrack().get());	     
-
+	
 	ptError = muonTrack.ptError()/(muon.pt());	  
       }
 
@@ -512,7 +426,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(muonEnUp->begin(),muonEnUp->end(),muonSorter);
       iEvent.put(muonEnUp,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      std::sort(muonEnDown->begin(),muonEnDown->end(),muonSorter);
       iEvent.put(muonEnDown,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
     iEvent.put(metMuonEnUp,std::string(inputMET_.label())+"MuonEnUp");
@@ -524,7 +440,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   if(not skipElectron_){
 
     for(auto ele : *eleColl){    
-
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(ele,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -608,7 +523,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(electronEnUp->begin(),electronEnUp->end(),electronSorter);
       iEvent.put(electronEnUp,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      std::sort(electronEnDown->begin(),electronEnDown->end(),electronSorter);
       iEvent.put(electronEnDown,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
     iEvent.put(metElectronEnUp,std::string(inputMET_.label())+"ElectronEnUp");
@@ -698,7 +615,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(photonEnUp->begin(),photonEnUp->end(),photonSorter);
       iEvent.put(photonEnUp,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      std::sort(photonEnDown->begin(),photonEnDown->end(),photonSorter);
       iEvent.put(photonEnDown,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
     iEvent.put(metPhotonEnUp,std::string(inputMET_.label())+"PhotonEnUp");
@@ -765,9 +684,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 		       reco::Candidate::LorentzVector(met.px()+corrTauEnUp.mex, met.py()+corrTauEnUp.mey, 0., 
 		       sqrt((met.px()+corrTauEnUp.mex)*(met.px()+corrTauEnUp.mex)+(met.py()+corrTauEnUp.mey)*(met.py()+corrTauEnUp.mey))),met.vertex());
       reco::MET corrMETTauEnDown(met.sumEt()-corrTauEnDown.sumet,
-	       reco::Candidate::LorentzVector(met.px()+corrTauEnDown.mex, met.py()+corrTauEnDown.mey, 0., 
-	       sqrt((met.px()+corrTauEnDown.mex)*(met.px()+corrTauEnDown.mex)+(met.py()+corrTauEnDown.mey)*(met.py()+corrTauEnDown.mey))),met.vertex());
-
+		       reco::Candidate::LorentzVector(met.px()+corrTauEnDown.mex, met.py()+corrTauEnDown.mey, 0., 
+		       sqrt((met.px()+corrTauEnDown.mex)*(met.px()+corrTauEnDown.mex)+(met.py()+corrTauEnDown.mey)*(met.py()+corrTauEnDown.mey))),met.vertex());
+      
       pat::MET metTauUp(corrMETTauEnUp,met);
       pat::MET metTauDown(corrMETTauEnDown,met);
       metTauEnUp->push_back(metTauUp);
@@ -775,7 +694,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(tauEnUp->begin(),tauEnUp->end(),tauSorter);
       iEvent.put(tauEnUp,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      std::sort(tauEnDown->begin(),tauEnDown->end(),tauSorter);
       iEvent.put(tauEnDown,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
     iEvent.put(metTauEnUp,std::string(inputMET_.label())+"TauEnUp");
@@ -787,6 +708,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     std::auto_ptr<JetCorrectionUncertainty> jecUnc;
     std::vector<reco::CandidatePtr> particlesInJet;
 
+    JME::JetResolution Resolution;
+    JME::JetResolutionScaleFactor ScalarFactor;
+
+    // get the proper file for JEC uncertintay --> jets already calibrated outside this module
     if(jetPSet_.getParameter<bool>("useExternalJECUncertainty") == false){
       edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
       iSetup.get<JetCorrectionsRecord>().get(jetPSet_.getParameter<std::string>("payloadName"),JetCorParColl); 
@@ -800,6 +725,19 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
     
     }
+
+    // take jet energy resolution
+    if(jetPSet_.getParameter<bool>("useExternalJER") == false)
+      Resolution = JME::JetResolution::get(iSetup,jetPSet_.getParameter<std::string>("payloadName")+"_pt");
+    else
+      Resolution = JME::JetResolution(jetJERFile_.fullPath());
+    
+    if(jetPSet_.getParameter<bool>("useExternalJERSF") == false)
+      ScalarFactor = JME::JetResolutionScaleFactor::get(iSetup,jetPSet_.getParameter<std::string>("payloadName"));
+    else
+      ScalarFactor = JME::JetResolutionScaleFactor(jetJERSFFile_.fullPath());
+
+    
     for(auto jet : *jetColl){
       //set eta and pt
       jecUnc->setJetEta(jet.eta());
@@ -826,62 +764,53 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jetEnDown->push_back(newJetEnDown);
       
       //take scale factor value for JER
-      float jerSF = 1.;
-      float jerSFUnc = 0.;
-      int iBin = 0;
-      if(jetJERSF_.size() == jetJERSelection_.size() and jetJERSFUnc_.size() == jetJERSelection_.size()){
-	for(auto selection : jetJERSelection_){
-	  if(selection(jet)){
-	    jerSF = jetJERSF_.at(iBin);	    
-	    jerSFUnc = jetJERSFUnc_.at(iBin);
-	    break;
-	  }
-	  else
-	    iBin++;	
-	}
-      }
+      float jerSF   = 1.;
+      float jerSFUp = 1.;
+      float jerSFDw = 1.;
 
+      // for jet energy resolution
+      JME::JetParameters jetParam;
+      jetParam.setJetPt(jet.pt());
+      jetParam.setJetEta(jet.eta());
+      jetParam.setRho(rho);
+
+      jerSF   = ScalarFactor.getScaleFactor(jetParam);
+      jerSFUp = ScalarFactor.getScaleFactor(jetParam, Variation::UP);
+      jerSFDw = ScalarFactor.getScaleFactor(jetParam, Variation::DOWN);
+      
       //take the truth resolution
-      float resCorrection = 1 ;
-      float resCorrectionUp = 1 ;
-      float resCorrectionDown = 1 ;
+      float resCorrection     = 0;
+      float resCorrectionUp   = 0;
+      float resCorrectionDown = 0;
 
       bool useRandomSmear = true;
       if(jet.genJet() !=0){ // gen matched jet found
 	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < std::min(0.4, 0.1 + 0.3*exp(-0.05*(jet.genJet()->pt()-10.)))){
-	  resCorrection = std::max(0.,(jerSF-1)*(jet.pt()-jet.genJet()->pt())/jet.pt()); // 1+correction*
-	  resCorrectionUp = std::max(0.,(jerSF+jerSFUnc-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
-	  resCorrectionDown = std::max(0.,(jerSF-jerSFUnc-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
-	  useRandomSmear = false;
+	  resCorrection     = std::max(0.,(jerSF-1)*(jet.pt()-jet.genJet()->pt())/jet.pt()); // 1+correction*
+	  resCorrectionUp   = std::max(0.,(jerSFUp-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
+	  resCorrectionDown = std::max(0.,(jerSFDw-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
+	  useRandomSmear    = false;
 	}
       }
 	
       if(useRandomSmear){
-	float sigmaPt = 0;
-	for(auto jetRes : jetResolution_){	
-	    if(jetRes.goodJet(jet,rho)){
-	      std::vector<float> par = jetRes.getPar();
-	      for(size_t ipar = 0; ipar < par.size(); ipar++){
-		jetJERFormula_->SetParameter(ipar,par[ipar]);
-	      }
-	    }
-	}
 	    
-	sigmaPt = jetJERFormula_->Eval(jet.pt());
+	// take jet resolution from db/text file in case of random smearing
+	float sigmaPt = Resolution.getResolution(jetParam);
 	// apply smearing to jet 4V
 	float smearingWidth     = sqrt(jerSF*jerSF-1)*sigmaPt;
-	float smearingWidthUp   = sqrt((jerSF+jerSFUnc)*(jerSF+jerSFUnc)-1)*sigmaPt;
-	float smearingWidthDown = sqrt((jerSF-jerSFUnc)*(jerSF-jerSFUnc)-1)*sigmaPt;
-	do{ resCorrection   = rand_->Gaus(0,smearingWidth); } while(resCorrection <= -1.); 
-	do{ resCorrectionUp = rand_->Gaus(0,smearingWidthUp); }while(resCorrection <= -1.);
-	do{ resCorrectionDown = rand_->Gaus(0,smearingWidthDown); }while(resCorrection <= -1.);
+	float smearingWidthUp   = sqrt(jerSFUp*jerSFUp-1)*sigmaPt;
+	float smearingWidthDown = sqrt(jerSFDw*jerSFDw-1)*sigmaPt;
+	
+	do{ resCorrection   = rand_->Gaus(0,smearingWidth);}       while(resCorrection <= -1.); 
+	do{ resCorrectionUp = rand_->Gaus(0,smearingWidthUp);}     while(resCorrection <= -1.);
+	do{ resCorrectionDown = rand_->Gaus(0,smearingWidthDown);} while(resCorrection <= -1.);
       }
       
-      float smearedPt = std::max(1.e-2,jet.pt()*(1+resCorrection));
-      float smearedPtUp = std::max(1.e-2,jet.pt()*(1+resCorrectionUp));
+      float smearedPt     = std::max(1.e-2,jet.pt()*(1+resCorrection));
+      float smearedPtUp   = std::max(1.e-2,jet.pt()*(1+resCorrectionUp));
       float smearedPtDown = std::max(1.e-2,jet.pt()*(1+resCorrectionDown));
 	
-
       // build vector scaled on the transverse plane                                                                                                                            
       TVector2 p2Smear;
       p2Smear.SetMagPhi(smearedPt,jet.phi());
@@ -1018,15 +947,20 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     }
 
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(jetEnUp->begin(),jetEnUp->end(),jetSorter); // sort again collections
       iEvent.put(jetEnUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      std::sort(jetEnDown->begin(),jetEnDown->end(),jetSorter); // sort again collections
       iEvent.put(jetEnDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
     iEvent.put(metJetEnUp,std::string(inputMET_.label())+"JetEnUp");
     iEvent.put(metJetEnDown,std::string(inputMET_.label())+"JetEnDown");    
    
     if(storeSmearedShiftedCollections_ == false){
+      std::sort(jetSmear->begin(),jetSmear->end(),jetSorter);
       iEvent.put(jetSmear,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
+      std::sort(jetSmearResUp->begin(),jetSmearResUp->end(),jetSorter);
       iEvent.put(jetSmearResUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
+      std::sort(jetSmearResDown->begin(),jetSmearResDown->end(),jetSorter);
       iEvent.put(jetSmearResDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
     }
     iEvent.put(metJetSmear,std::string(inputMET_.label())+"Smear");

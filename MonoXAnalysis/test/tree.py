@@ -25,15 +25,19 @@ options.register (
 
 ## JEC options
 options.register (
-	'usePrivateSQlite',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'usePrivateSQliteJEC',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JEC to be found in test directory');
+
+options.register (
+	'usePrivateSQliteJER',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'if a private SQL file with JER to be found in test directory');
 
 options.register (
 	'applyL2L3Residuals',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
-	'addPileupJetID',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPileupJetID',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	're-compute pileup-jet id for AK4 jets');
 
 options.register (
@@ -64,11 +68,11 @@ options.register (
 
 ## do substructure for CHS or Puppi jets
 options.register (
-	'doSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8CHS jets (Pruning, softDrop)');
 
 options.register (
-	'doSubstructurePuppi',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addSubstructurePuppi',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8Puppi jets (Pruning, softDrop)');
 
 ## processName
@@ -77,7 +81,7 @@ options.register (
 	'process name to be considered');
 
 options.register (
-	'miniAODProcess','PAT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
 ## outputFile Name
@@ -87,17 +91,17 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','74X_dataRun2_v5',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','76X_dataRun2_16Dec2015_v0',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## JEC    
 options.register (
-	'JECEra','Summer15_25nsV6',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Fall15_25nsV2',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
 
 ## Dump Gen Level info
 options.register (
-	'useLHEWeights',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'useLHEWeights',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'Dump LHE weights');
 
 options.register(
@@ -105,8 +109,12 @@ options.register(
 	'Dump weights related to QCD scale and PDF variations');
 
 options.register(
-	'isWorZorSignalMCSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
-	' dump gen info for W, Z , Photon and DM particles');
+	'addGenParticles',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'dump gen info for W,Z,top,photon');
+
+options.register(
+	'isSignalSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+	'dump DM particles and read LHE header');
 
 ## input cross section in case you want to store a different value wrt to the LHE file
 options.register(
@@ -125,7 +133,7 @@ options.parseArguments()
 
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
-		options.globalTag = '74X_mcRun2_asymptotic_v2';
+	options.globalTag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1';
 
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
@@ -133,27 +141,17 @@ if options.isMC and options.applyL2L3Residuals:
 if not options.isMC:
 	options.crossSection = -1.;
 
-## set by default a right environment when 76X is used
-CMSSW_VERSION = os.environ['CMSSW_VERSION'];   
-if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
-	if "74X_mcRun2" in options.globalTag:
-		options.globalTag = '76X_mcRun2_asymptotic_v12'
-	elif "74X_dataRun2" in options.globalTag:
-		options.globalTag = '76X_dataRun2_v15'
-
-	if options.usePrivateSQlite == True:
-		options.usePrivateSQlite = False
-
 print "##### Settings ######"
 print "Running with isMC                = ",options.isMC	
 print "Running with filterHighMETEvents = ",options.filterHighMETEvents	
 print "Running with filterOnHLT         = ",options.filterOnHLT	
-print "Running with usePrivateSQlite    = ",options.usePrivateSQlite	
+print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
+print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
 print "Running with addPuppiJets        = ",options.addPuppiJets
 print "Running with addPuppiMET         = ",options.addPuppiMET
 print "Running with useMiniAODMet       = ",options.useMiniAODMet
-print "Running with addMETSystematics    = ",options.addMETSystematics	
+print "Running with addMETSystematics   = ",options.addMETSystematics	
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
 print "Running with outputFileName      = ",options.outputFileName	
@@ -163,11 +161,12 @@ print "Running with dropAnalyzerDumpEDM = ",options.dropAnalyzerDumpEDM
 print "Running with addPileupJetID      = ",options.addPileupJetID
 print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addMVAMet           = ",options.addMVAMet
-print "Running with doSubstructureCHS   = ",options.doSubstructureCHS
-print "Running with doSubstructurePuppi = ",options.doSubstructurePuppi
+print "Running with addSubstructureCHS  = ",options.addSubstructureCHS
+print "Running with addSubstructurePuppi= ",options.addSubstructurePuppi
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
-print "Running with isWorZorSignalMCSample  = ",options.isWorZorSignalMCSample
+print "Running with isSignalSample      = ",options.isSignalSample
+print "Running with addGenParticles     = ",options.addGenParticles
 print "Running with nThreads            = ",options.nThreads
 print "#####################"
 
@@ -193,19 +192,10 @@ if options.inputFiles == []:
 
 	if not options.isMC :
 		process.source.fileNames.append(
-			'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/259/810/00000/DC35E3E2-297B-E511-B0E5-02163E011E2B.root')
-#        	'/store/data/Run2015D/MET/MINIAOD/PromptReco-v4/000/258/750/00000/5EE58B11-7572-E511-B952-02163E014378.root')
+			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
 	else:
-		process.source.fileNames.append( 
-#			'/store/mc/RunIISpring15MiniAODv2/VBF_HToInvisible_M110_13TeV_powheg_pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/084D5D5F-F36D-E511-8D98-02163E014DC0.root'
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/AxialMonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/D4A17AAE-9174-E511-B19C-002590FD5A78.root'
-			'/store/mc/RunIISpring15MiniAODv2/DM_ScalarWH_Mphi-100_Mchi-50_gSM-1p0_gDM-1p0_13TeV-JHUGen/MINIAODSIM/Asympt25ns_74X_mcRun2_asymptotic_v2-v1/40000/9048CCCB-ADA4-E511-87C8-0025B3E015D2.root'
-#			'/store/mc/RunIISpring15MiniAODv2/DMS_NNPDF30_Pseudoscalar_Mphi-50_Mchi-10_gSM-1p0_gDM-1p0_13TeV-powheg/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/50000/70D1C4EA-7174-E511-9B2D-441EA1615F8A.root'
-#			'root://xrootd.unl.edu//store/user/emanuele/POWHEG_DMV_AV_NNPDF30_13TeV/POWHEG_DMV_AV_NNPDF30_13TeV_MINIAOD_V1/160222_152908/0000/miniaodsim_1.root'
-			#'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/40000/008902DD-9F6F-E511-BCE9-0025904C540C.root'
-#			'root://xrootd.unl.edu//store/mc/RunIISpring15MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/10000/12608B5D-E66D-E511-B233-441EA173397A.root'			
-#			'/store/mc/RunIISpring15MiniAODv2/GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/74X_mcRun2_asymptotic_v2-v1/60000/0002EB7B-E76D-E511-8AD6-00269E95B17C.root'
-			)    	
+		process.source.fileNames.append(
+			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root')    	
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -234,9 +224,13 @@ process.GlobalTag.globaltag = options.globalTag
 ## Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py
 from AnalysisCode.MonoXAnalysis.JECConfiguration_cff import JECConfiguration
 ## connect to a local SQLite file or take corrections from GT
-JECConfiguration(process,options.usePrivateSQlite,options.JECEra,options.isMC,options.applyL2L3Residuals)
+JECConfiguration(process,options.usePrivateSQliteJEC,options.JECEra,options.isMC,options.applyL2L3Residuals)
 
-## Setup MET filters or not
+from AnalysisCode.MonoXAnalysis.JERConfiguration_cff import JERConfiguration
+## connect to a local SQLite file or take corrections from GT
+JERConfiguration(process,options.usePrivateSQliteJER)
+
+## Setup MET filters or not --> 76X everything inside miniAOD is already good
 process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
@@ -247,14 +241,17 @@ ElectronTools(process)
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
 PhotonTools(process)
 
-# Apply JEC on jets and propagation on Missing ET
-from AnalysisCode.MonoXAnalysis.JetMetCorrector_cff import JetMetCorrector
+# Apply JEC on jets and update them
+from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
 ## apply JEC and propagation on MET for AK4PFchs
-JetMetCorrector(process,"slimmedJets","slimmedMETs","AK4PFchs",options.isMC, options.applyL2L3Residuals, options.useMiniAODMet, options.addMETSystematics)
-## apply JEC and propagation on MET for AK4PFPuppi
-if options.addPuppiJets or options.addPuppiMET:
-	JetMetCorrector(process,"slimmedJetsPuppi","slimmedMETsPuppi","AK4PFPuppi",options.isMC, options.applyL2L3Residuals, options.useMiniAODMet, options.addMETSystematics)
+jetCollName      = "slimmedJets"
+jetPuppiCollName = "slimmedJetsPuppi"
 
+jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.applyL2L3Residuals)
+## apply JEC and propagation on MET for AK4PFPuppi
+if options.addPuppiJets:
+	jetPuppiCollName = JetCorrector(process,jetPuppiCollName,"AK4PFPuppi",options.isMC,options.applyL2L3Residuals)
+	
 # Create a set of objects to read from
 process.selectedObjects = cms.EDProducer("PFCleaner",
      vertices  = cms.InputTag("goodVertices"),
@@ -263,7 +260,7 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
      electrons = cms.InputTag("slimmedElectrons"),
      photons   = cms.InputTag("slimmedPhotons"),
      rho       = cms.InputTag("fixedGridRhoFastjetAll"),
-     jets      = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
+     jets      = cms.InputTag(jetCollName),
      electronidveto  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
      electronidloose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
      electronidtight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
@@ -279,22 +276,24 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
-if options.addPileupJetID:  ## so far not working for slimmedJets, so re-clustering and update
-	addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFchs", postfix = "")
-	if options.addPuppiJets:
-		addPileupJetID(process, collection = "slimmedJetsRecorrectedAK4PFPuppi", postfix = "Puppi")
-	
+if options.addPileupJetID:  ## so far not working for slimmedJets, so re-clustering and update	
+	jetCollName = addPileupJetID(process,jetCollName,"",options.isMC)
+
 if options.addQGLikelihood:
-	inputJet = "slimmedJetsRecorrectedAK4PFchs";
-	inputJetPuppi = "slimmedJetsRecorrectedAK4PFPuppi";
-	if options.addPileupJetID:
-		inputJet += "PUID";
-		inputJetPuppi += "PUID";
-
-	addQGLikelihood( process,collection = inputJet, postfix = "");
+	jetCollName = addQGLikelihood(process,jetCollName,"");
 	if options.addPuppiJets:
-		addQGLikelihood( process,collection = inputJetPuppi, postfix = "Puppi");
+		jetPuppiCollName = addQGLikelihood(process,jetPuppiCollName,"Puppi");
 
+### correct the MET
+from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
+if not options.useMiniAODMet:
+	metCollection = "slimmedMETs"
+	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics);
+	
+	if options.addPuppiMET:
+		metCollectionPuppi = "slimmedMETsPuppi"
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addMETSystematics);
+		
 
 ## in case run the MVA met producer
 from AnalysisCode.MonoXAnalysis.MVAMet_cff import runMVAMet
@@ -308,54 +307,54 @@ if options.addMVAMet:
 
 # Define all the METs corrected for lepton/photon momenta
 process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
-   met   = cms.InputTag("slimmedMETs","","TREE"),
-   cands = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
+   met     = cms.InputTag("slimmedMETs","",options.processName),
+   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
    isPuppi = cms.bool(False),
    pfCandidates = cms.InputTag("packedPFCandidates"))
 
 if options.useMiniAODMet:
-	process.t1mumet.met = cms.InputTag("slimmedMETs","","PAT")
+	process.t1mumet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 
 process.t1elmet = cms.EDProducer("ElectronCorrectedMETProducer",
-   met = cms.InputTag("slimmedMETs","","TREE"),
-   cands = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
+   met     = cms.InputTag("slimmedMETs","",options.processName),
+   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
    isPuppi = cms.bool(False),
    pfCandidates = cms.InputTag("packedPFCandidates"))
 
 if options.useMiniAODMet:
-	process.t1elmet.met = cms.InputTag("slimmedMETs","","PAT")
+	process.t1elmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 
 process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
-   met = cms.InputTag("slimmedMETs","","TREE"),
-   cands = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
+   met     = cms.InputTag("slimmedMETs","",options.processName),
+   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
    isPuppi = cms.bool(False),
    pfCandidates = cms.InputTag("packedPFCandidates"))
 
 if options.useMiniAODMet:
-	process.t1phmet.met = cms.InputTag("slimmedMETs","","PAT")
+	process.t1phmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 
 if options.addPuppiMET:
 
 	process.puppit1mumet = process.t1mumet.clone(
-		met   = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
 		isPuppi = cms.bool(True))
 
 	if options.useMiniAODMet:
-		process.puppit1mumet.met = cms.InputTag("slimmedMETsPuppi","","PAT")
+		process.puppit1mumet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 
 	process.puppit1elmet = process.t1elmet.clone(
-		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
 		isPuppi = cms.bool(True))
 
 	if options.useMiniAODMet:
-		process.puppit1elmet.met = cms.InputTag("slimmedMETsPuppi","","PAT")
+		process.puppit1elmet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 
 	process.puppit1phmet = process.t1phmet.clone(
-		met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
 		isPuppi = cms.bool(True))
 
 	if options.useMiniAODMet:
-		process.puppit1phmet.met = cms.InputTag("slimmedMETsPuppi","","PAT")
+		process.puppit1phmet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 	
 
 ## Create output file
@@ -391,35 +390,36 @@ else:
 
 #### substructure sequence
 from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
-if options.doSubstructureCHS:
-	JetSubstructure(process,
-			options.isMC,
-			coneSize = 0.8, algo = "AK",
-			pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
-			addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-			addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
-			addQGLikelihood = True);
+boostedJetCollection = "";
+boostedPuppiJetCollection = "";
+if options.addSubstructureCHS:
+	boostedJetCollection = JetSubstructure(process,
+					       options.isMC,
+					       coneSize = 0.8, algo = "AK",
+					       pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
+					       addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+					       addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+					       addQGLikelihood = True);
 
-if options.doSubstructurePuppi:
-
-	JetSubstructure(process,
-			options.isMC,
-			coneSize = 0.8, algo = "AK",
-			pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
-			addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-			addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
-			addQGLikelihood = True);
+if options.addSubstructurePuppi:
+	boostedPuppiJetCollection = JetSubstructure(process,
+						    options.isMC,
+						    coneSize = 0.8, algo = "AK",
+						    pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
+						    addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
+						    addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+						    addQGLikelihood = True);
 
 # MET filter --> making the or of different met
 process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
     metCollections = cms.VPSet(
-		cms.PSet( srcMet = cms.InputTag("slimmedMETs","","TREE"),
+		cms.PSet( srcMet = cms.InputTag("slimmedMETs","",options.processName),
 			  metCut = cms.double(100)),
-		cms.PSet(srcMet = cms.InputTag("t1mumet","","TREE"),
+		cms.PSet(srcMet = cms.InputTag("t1mumet","",options.processName),
 			 metCut = cms.double(100)),
-		cms.PSet(srcMet = cms.InputTag("t1elmet","","TREE"),
+		cms.PSet(srcMet = cms.InputTag("t1elmet","",options.processName),
 			 metCut = cms.double(100)),
-		cms.PSet(srcMet = cms.InputTag("t1phmet","","TREE"),
+		cms.PSet(srcMet = cms.InputTag("t1phmet","",options.processName),
 			 metCut = cms.double(100)),
 		),
     filterEvents = cms.bool(options.filterHighMETEvents),
@@ -428,37 +428,36 @@ process.filterHighRecoil = cms.EDFilter("PATMETFilter",
 )
 
 if options.useMiniAODMet:
-	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","","PAT")
+	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
      					
 # Tree for the generator weights
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
-    lheinfo = cms.InputTag("externalLHEProducer"),
+    lheinfo    = cms.InputTag("externalLHEProducer"),
     lheRuninfo = cms.InputTag("externalLHEProducer"),
-    geninfo = cms.InputTag("generator"),
+    geninfo    = cms.InputTag("generator"),
     pileupinfo = cms.InputTag("slimmedAddPileupInfo"),				 
-    genParticles = cms.InputTag("prunedGenParticles"),				 
+    genParticles  = cms.InputTag("prunedGenParticles"),				 
     uselheweights = cms.bool(options.useLHEWeights),
-    addqcdpdfweights = cms.bool(options.addQCDPDFWeights))
+    addqcdpdfweights = cms.bool(options.addQCDPDFWeights),
+    isSignalSample = cms.bool(options.isSignalSample))
 
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## gen info			     
-   isMC    = cms.bool(options.isMC),
-   uselheweights  = cms.bool(options.useLHEWeights),
-   isWorZorSignalMCSample = cms.bool(options.isWorZorSignalMCSample),
-   lheinfo = cms.InputTag("externalLHEProducer"),			      
+   isMC                   = cms.bool(options.isMC),
+   uselheweights          = cms.bool(options.useLHEWeights),
+   isSignalSample         = cms.bool(options.isSignalSample),			      
+   addGenParticles        = cms.bool(options.addGenParticles),			      
+   lheinfo    = cms.InputTag("externalLHEProducer"),			      
    lheRuninfo = cms.InputTag("externalLHEProducer"),			      
-   pileup  = cms.InputTag("slimmedAddPileupInfo"),
-   genevt  = cms.InputTag("generator"),
-   gens    = cms.InputTag("prunedGenParticles"),
-   xsec    = cms.double(options.crossSection),   
+   pileup     = cms.InputTag("slimmedAddPileupInfo"),
+   genevt     = cms.InputTag("generator"),
+   gens       = cms.InputTag("prunedGenParticles"),
+   xsec       = cms.double(options.crossSection),   
    ## trigger info
    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-   prescales = cms.InputTag("patTrigger"),    
+   prescales      = cms.InputTag("patTrigger"),    
    filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
-   hbheloose = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Loose"),
-   hbhetight = cms.InputTag("HBHENoiseFilterResultProducer","HBHENoiseFilterResultRun2Tight"),
-   hbheiso   = cms.InputTag("HBHENoiseFilterResultProducer","HBHEIsoNoiseFilterResult"),
    ## vertexes			    
    vertices = cms.InputTag("goodVertices"),
    ## muons    
@@ -480,17 +479,17 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    ## taus
    taus = cms.InputTag("slimmedTaus"),
    ## jets AK4
-   jets         = cms.InputTag("slimmedJetsRecorrectedAK4PFchs"),
+   jets         = cms.InputTag(jetCollName),
    addPuppiJets = cms.bool(options.addPuppiJets),			      
-   puppijets    = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppi"),			      
+   puppijets    = cms.InputTag(jetPuppiCollName),			      
    ## MET
-   t1met = cms.InputTag("slimmedMETs","","TREE"),
+   t1met = cms.InputTag("slimmedMETs","",options.processName),
    t1mumet = cms.InputTag("t1mumet"),
    t1elmet = cms.InputTag("t1elmet"),
    t1phmet = cms.InputTag("t1phmet"),
    ## Puppi MET
    addPuppiMET = cms.bool(options.addPuppiMET),
-   puppit1met = cms.InputTag("slimmedMETsPuppi","","TREE"),
+   puppit1met = cms.InputTag("slimmedMETsPuppi","",options.processName),
    puppit1mumet = cms.InputTag("puppit1mumet"),
    puppit1elmet = cms.InputTag("puppit1elmet"),
    puppit1phmet = cms.InputTag("puppit1phmet"),
@@ -498,87 +497,99 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    addMETSystematics = cms.bool(options.addMETSystematics),    			      
    ## mvaMet
    addMVAMet = cms.bool(options.addMVAMet),			     
-   mvaMET = cms.InputTag("mvaMET"),			      
+   mvaMET    = cms.InputTag("mvaMET"),			      
    ## trigger filter
    applyHLTFilter = cms.bool(options.filterOnHLT),
    ## clean objects
-   cleanMuonJet = cms.bool(True),
+   cleanMuonJet     = cms.bool(True),
    cleanElectronJet = cms.bool(True),
-   cleanPhotonJet = cms.bool(True),
+   cleanPhotonJet   = cms.bool(True),
    ## CHS jet substructure
-   addSubstructureCHS = cms.bool(options.doSubstructureCHS),
-   boostedJetsCHS     = cms.InputTag("packedPatJetsAK8PFJetsCHS"),
-   boostedJetsOriginal     = cms.InputTag("slimmedJetsAK8"),
-   addSubstructurePuppi = cms.bool(options.doSubstructurePuppi),
-   boostedJetsPuppi     = cms.InputTag("packedPatJetsAK8PFJetsPuppi"),
+   addSubstructureCHS = cms.bool(options.addSubstructureCHS),
+   boostedJetsCHS     = cms.InputTag(boostedJetCollection),
+   addSubstructurePuppi = cms.bool(options.addSubstructurePuppi),
+   boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
    ## b-tag scale factors
    addBTagScaleFactor  = cms.bool(True),
-   bTagScaleFactorFile = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_74X.csv') 			      
+   bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
+   bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_76X.csv'), 			      
+   bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv') 	
 )
 
 if options.useMiniAODMet:
-	process.tree.t1met = cms.InputTag("slimmedMETs","","PAT")
-	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","","PAT")
-
-jetColl      = "slimmedJetsRecorrectedAK4PFchs"
-jetCollPuppi = "slimmedJetsRecorrectedAK4PFPuppi"
-
-if options.addPileupJetID == True and options.addQGLikelihood == False:
-	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsPUID");
-	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiPUID");
-	jetColl = "slimmedJetsRecorrectedAK4PFchsPUID"
-	jetCollPuppi = "slimmedJetsRecorrectedAK4PFPuppiPUID"
-	
-if options.addQGLikelihood == True and options.addPileupJetID == False:
-	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsQG");
-	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiQG");
-	jetColl = "slimmedJetsRecorrectedAK4PFchsQG"
-	jetCollPuppi = "slimmedJetsRecorrectedAK4PFPuppiQG"
-else:
-	process.tree.jets = cms.InputTag("slimmedJetsRecorrectedAK4PFchsPUIDQG");
-	process.tree.puppijets = cms.InputTag("slimmedJetsRecorrectedAK4PFPuppiPUIDQG");
-	jetColl = "slimmedJetsRecorrectedAK4PFchsPUIDQG"
-	jetCollPuppi = "slimmedJetsRecorrectedAK4PFPuppiPUIDQG"
+	process.tree.t1met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
+	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 				 directoryName = cms.string("btagEff"),
-				 srcJets = cms.InputTag(jetColl),
-				 dRClean = cms.double(0.4),
-				 cleanMuonJet = cms.bool(True),
-				 srcMuons = cms.InputTag("selectedObjects","muons"),
+				 srcJets       = cms.InputTag(jetCollName),
+				 dRClean       = cms.double(0.4),
+				 cleanMuonJet  = cms.bool(True),
+				 srcMuons      = cms.InputTag("selectedObjects","muons"),
 				 cleanElectronJet = cms.bool(True),
-				 srcElectrons = cms.InputTag("selectedObjects","electrons"),
-				 cleanPhotonJet = cms.bool(True),
-				 srcPhotons = cms.InputTag("selectedObjects","photons"),
-				 selection = cms.string('abs(eta)<2.4 && pt > 20'),
-				 ptBins  = cms.vdouble(20,30,40,50,60,80,110,150,1000),
-				 etaBins = cms.vdouble(0.,0.5,1.,1.5,2.0,2.4),
+				 srcElectrons    = cms.InputTag("selectedObjects","electrons"),
+				 cleanPhotonJet  = cms.bool(True),
+				 srcPhotons      = cms.InputTag("selectedObjects","photons"),
+				 selection       = cms.string('abs(eta)<2.4 && pt > 20'),
+				 ptBins          = cms.vdouble(20,30,40,50,60,80,110,150,1000),
+				 etaBins         = cms.vdouble(0.,0.5,1.,1.5,2.0,2.4),
+				 ## CSV v2 wp in 76X
 				 bDiscriminatorInfo = cms.VPSet(
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Loose"),
-			 wpValue = cms.double(0.605)),
+			 wpValue = cms.double(0.460)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
-			 wpValue = cms.double(0.89)),
+			 wpValue = cms.double(0.800)),
+
+		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
+			 wpLabel = cms.string("Loose"),
+			 wpValue = cms.double(-0.715)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
-			 wpLabel = cms.string("Tight"),
-			 wpValue = cms.double(0.97))
+			 wpLabel = cms.string("Medium"),
+			 wpValue = cms.double(0.185)),
 		))
 
-## some options for 76X				 
-if re.match("CMSSW_7_6_.*",CMSSW_VERSION):
-	process.btageff.bDiscriminatorInfo[0].wpValue = cms.double(0.460)
-	process.btageff.bDiscriminatorInfo[1].wpValue = cms.double(0.800)
-	process.btageff.bDiscriminatorInfo[2].wpValue = cms.double(0.935)
-	
-if options.addPuppiJets:
+if options.addPuppiJets: ## make b-tagging efficiency maps also for puppi jets
 	setattr(process,"btageffPuppi",process.btageff.clone(
-			srcJets = cms.InputTag(jetCollPuppi)))
+			srcJets = cms.InputTag(jetPuppiCollName)))
 
+## do the same of subjets of boosted jets
+if options.addSubstructureCHS:
+	setattr(process,"btageffBooostedJet",process.btageff.clone(
+			srcJets = cms.InputTag(boostedJetCollection),
+			useSubjets = cms.bool(True),
+			etaBins         = cms.vdouble(0.,1.25,2.4),
+			ptBins          = cms.vdouble(20,50,100,150,250,1000),
+			bDiscriminatorInfo = cms.VPSet(
+				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+					 wpLabel = cms.string("Loose"),
+					 wpValue = cms.double(0.460)),
+				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+					 wpLabel = cms.string("Medium"),
+					 wpValue = cms.double(0.800)),
+				)
+			))
+
+if options.addSubstructurePuppi:
+	setattr(process,"btageffBooostedPuppiJet",process.btageff.clone(
+			srcJets = cms.InputTag(boostedPuppiJetCollection),
+			useSubjets = cms.bool(True),
+			etaBins         = cms.vdouble(0.,1.25,2.4),
+			ptBins          = cms.vdouble(20,50,100,150,250,1000),
+			bDiscriminatorInfo = cms.VPSet(
+				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+					 wpLabel = cms.string("Loose"),
+					 wpValue = cms.double(0.460)),
+				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+					 wpLabel = cms.string("Medium"),
+					 wpValue = cms.double(0.800)),
+				)
+			))
 
 ## fast sim business
 if options.isFastSIM:
@@ -590,39 +601,34 @@ if options.isFastSIM:
 	process.gentree.lheinfo = cms.InputTag("source")
 	process.gentree.lheRuninfo = cms.InputTag("source")
 	
-	## remove HCAL noise
-	process.metFilters.remove(process.HBHENoiseFilterResultProducer)
-
-	## remove HCAL noise info
-	process.tree.hbheloose = cms.InputTag("");
-	process.tree.hbhetight = cms.InputTag("");
-	process.tree.hbheiso   = cms.InputTag("");
-
 	process.tree.pileup = cms.InputTag("addPileupInfo");
-	## tem fix
-	process.slimmedMETs.runningOnMiniAOD = cms.bool(False);
-	process.slimmedMETsPuppi.runningOnMiniAOD = cms.bool(False);
 	
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
 	if (options.isMC):
-		process.treePath = cms.Path(process.gentree + 
-					    process.metFilters + 
+		process.treePath = cms.Path(process.gentree + 					    
+					    process.metFilters+
 					    process.btageff+
 					    process.filterHighRecoil + 
 					    process.tree)
 		if(options.addPuppiJets):
 			process.treePath = cms.Path(process.gentree +
-						    process.metFilters +
+						    process.metFilters+
 						    process.btageff+
 						    process.btageffPuppi+
 						    process.filterHighRecoil +
 						    process.tree)
+
+		if options.addSubstructureCHS:
+			process.treePath.replace(process.btageff,process.btageff+process.btageffBooostedJet);
+		if options.addSubstructurePuppi:
+			process.treePath.replace(process.btageffPuppi,process.btageffPuppi+process.btageffBooostedPuppiJet);
 			
 	else :
-		process.treePath = cms.Path(process.metFilters + 
-					    process.filterHighRecoil + 
-					    process.tree)
+		process.treePath = cms.Path(
+			process.metFilters+
+			process.filterHighRecoil + 
+			process.tree)
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

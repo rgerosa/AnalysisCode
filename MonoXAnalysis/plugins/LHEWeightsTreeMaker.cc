@@ -59,11 +59,12 @@ private:
   
   // Tokens
   edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
+  edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct> genInfoToken;
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupInfoToken;
   edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
   
-  const bool uselheweights, addqcdpdfweights;
+  const bool uselheweights, addqcdpdfweights, isSignalSample;
 
   TTree* tree;
   
@@ -84,10 +85,12 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   gensInfoTag(iConfig.getParameter<edm::InputTag>("genParticles")),
   pileupInfoTag(iConfig.getParameter<edm::InputTag>("pileupinfo")),
   uselheweights(iConfig.getParameter<bool>("uselheweights")),
-  addqcdpdfweights(iConfig.getParameter<bool>("addqcdpdfweights"))
+  addqcdpdfweights(iConfig.getParameter<bool>("addqcdpdfweights")),
+  isSignalSample(iConfig.getParameter<bool>("isSignalSample"))
 {
   // Token consumes instructions
   lheInfoToken = consumes<LHEEventProduct>(lheInfoTag);
+  lheRunInfoToken = consumes<LHERunInfoProduct,edm::InRun>(lheRunInfoTag);
   genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
   pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(pileupInfoTag);
 
@@ -253,37 +256,39 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
   
   using namespace boost::algorithm;
 
-  for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
-    std::vector<std::string> lines = iter->lines();    
-    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-      std::vector<std::string> tokens;
-      if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
-	split(tokens, lines.at(iLine), is_any_of(" "));
-	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	sampledmM = std::stod(tokens.at(1));
+  if(isSignalSample){
+    for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+      std::vector<std::string> lines = iter->lines();    
+      for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+	std::vector<std::string> tokens;
+	if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  sampledmM = std::stod(tokens.at(1));
+	}
+	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  samplemedM = std::stod(tokens.at(1));
+	}
+	else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  std::vector<std::string> subtokens;
+	  split(subtokens,tokens.at(2),is_any_of("_"));	
+	  samplemedM = std::stod(subtokens.at(3));
+	  sampledmM = std::stod(subtokens.at(4));	
+	}      
+	else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  samplemedM = std::stod(tokens.at(3));
+	  sampledmM  = -1.; 
+	  readDMFromGenParticles = true;
+	}
       }
-      else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
-	split(tokens, lines.at(iLine), is_any_of(" "));
-	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	samplemedM = std::stod(tokens.at(1));
-      }
-      else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
-	split(tokens, lines.at(iLine), is_any_of(" "));
-	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	std::vector<std::string> subtokens;
-	split(subtokens,tokens.at(2),is_any_of("_"));	
-	samplemedM = std::stod(subtokens.at(3));
-	sampledmM = std::stod(subtokens.at(4));	
-      }      
-      else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
-	split(tokens, lines.at(iLine), is_any_of(" "));
-	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	samplemedM = std::stod(tokens.at(3));
-	sampledmM  = -1.; 
-	readDMFromGenParticles = true;
-      }
-    }
-  }   
+    }   
+  }
 }
 
 void LHEWeightsTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
