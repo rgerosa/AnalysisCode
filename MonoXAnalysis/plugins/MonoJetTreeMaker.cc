@@ -108,7 +108,8 @@ private:
   const bool uselheweights;
   const edm::InputTag lheEventTag;
   const edm::InputTag lheRunTag;
-  const bool isWorZorSignalMCSample;
+  const bool isSignalSample;
+  const bool addGenParticles;
   
   edm::EDGetTokenT<std::vector<PileupSummaryInfo> >  pileupInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct>              genevtInfoToken;
@@ -426,8 +427,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
   lheEventTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
   lheRunTag(iConfig.getParameter<edm::InputTag>("lheRuninfo")),
-  // is signal sample or not
-  isWorZorSignalMCSample(iConfig.existsAs<bool>("isWorZorSignalMCSample") ? iConfig.getParameter<bool>("isWorZorSignalMCSample") : false),
+  // is signal sample or not                                                                                                                                                  
+  isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
+  addGenParticles(iConfig.existsAs<bool>("addGenParticles") ? iConfig.getParameter<bool>("addGenParticles") : false),
   // xsec
   xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.),
   ///////////// TRIGGER and filter info INFO
@@ -621,7 +623,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	iEvent.getByToken(genevtInfoToken, genevtInfoH);
 	iEvent.getByToken(lheInfoToken, lheInfoH);
       }
-      if (isWorZorSignalMCSample)
+      if (addGenParticles or isSignalSample)
 	iEvent.getByToken(gensToken, gensH);
     }
 
@@ -2755,7 +2757,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     dmX1mass = 0.; dmX1phi = 0.; dmX1eta = 0.; dmX1pt = 0.; dmX1id = 0;
     dmX2mass = 0.; dmX2phi = 0.; dmX2eta = 0.; dmX2pt = 0.; dmX2id = 0;
 
-    if (isWorZorSignalMCSample && gensH.isValid()) {
+    if (isSignalSample && gensH.isValid()) {
 
       TLorentzVector dm1vec; 
       TLorentzVector dm2vec; 
@@ -2832,6 +2834,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  dmX2id   = gens_iter->daughter(1)->pdgId();
 	}
       }
+    }
+
+    
+    // dump inportant gen particles                                                                                                                                            
+    if(addGenParticles and gensH.isValid()){
+      
 
       // loop on genParticles (prunedGenParticles) trying to find W/Z decying leptonically or hadronically, top and anti-top quarks
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
@@ -3772,7 +3780,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
     using namespace boost::algorithm;
 
-    if(isWorZorSignalMCSample){
+    if(isSignalSample){
 
       for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
 	std::vector<std::string> lines = iter->lines();
