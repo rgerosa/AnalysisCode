@@ -20,6 +20,7 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=74X_mcRun2_asymptotic_v2',
                'outputFileName=tree.root',
+               'addGenParticles=True',
                'nThreads=3']
 
 config.section_('General')
