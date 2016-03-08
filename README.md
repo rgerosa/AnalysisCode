@@ -6,7 +6,7 @@ Repository for analysis code
 Recipe for 76X (temp fixes for pileup jet id):
 
            cmsrel CMSSW_7_6_3_patch2
-	   cd CMSSW_7_6_3_patch2/src
+           cd CMSSW_7_6_3_patch2/src
 	   cmsenv
 	   git cms-init
 	   git cms-addpkg RecoJets/JetProducers
@@ -28,7 +28,8 @@ How to Run the ntuple production (for analysis):
 	   cmsRun tree.py <list of options>
 
 Example:
-	   cmsRun tree.py isMC=True 	  
+
+           cmsRun tree.py isMC=True 	  
 
 
 Options:   
