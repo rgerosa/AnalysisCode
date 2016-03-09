@@ -5,14 +5,17 @@ float minTau2Tau1 = 0.1;
 
 void makeControlPlots(string templateFileName, 
 		      int category, 
-		      string observable, string observableLatex, 
+		      string observable, 
+		      string observableLatex, 
 		      string controlRegion, 
-		      bool blind, bool isLog,
-		      bool plotResonant = false,
-		      string interaction = "Vector",
+		      bool blind, 
+		      bool isLog,
+		      bool plotResonant   = false,
+		      bool isHiggsInvisible = false,
+		      string interaction  = "Vector",
 		      string mediatorMass = "1000",
-		      string DMMass = "50",
-		      int signalScale = 100) {
+		      string DMMass       = "50",
+		      int signalScale     = 100) {
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -48,6 +51,11 @@ void makeControlPlots(string templateFileName,
   TH1* monoJhist  = NULL;
   TH1* monoWhist  = NULL;
   TH1* monoZhist  = NULL;
+
+  TH1* ggHhist  = NULL;
+  TH1* vbfHhist = NULL;
+  TH1* wHhist   = NULL;
+  TH1* zHhist   = NULL;
 
   // take the templates
   if(controlRegion == "gam"){
@@ -150,9 +158,17 @@ void makeControlPlots(string templateFileName,
     dbhist   = (TH1*)inputFile->Get(("dbkghist_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->Get(("gbkghist_"+observable).c_str());
     
-    monoJhist = (TH1*)inputFile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    monoWhist = (TH1*)inputFile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    monoZhist = (TH1*)inputFile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
+    if(not isHiggsInvisible){
+      monoJhist = (TH1*)inputFile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      monoWhist = (TH1*)inputFile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      monoZhist = (TH1*)inputFile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
+    }
+    else{
+      ggHhist  = (TH1*)inputFile->Get(("ggHhist_"+observable).c_str());
+      vbfHhist = (TH1*)inputFile->Get(("vbfHhist_"+observable).c_str());
+      wHhist   = (TH1*)inputFile->Get(("wHhist_"+observable).c_str());    
+      zHhist   = (TH1*)inputFile->Get(("zHhist_"+observable).c_str());    
+    }
   }
   
   //SCALE BIN WIDTH
@@ -168,7 +184,7 @@ void makeControlPlots(string templateFileName,
     if(tophist)
       tophist->Scale(1.0,"width");
     if(tophist_matched)
-    tophist_matched->Scale(1.0,"width");
+      tophist_matched->Scale(1.0,"width");
     if(tophist_unmatched)
       tophist_unmatched->Scale(1.0,"width");
     if(vlhist)
@@ -192,6 +208,19 @@ void makeControlPlots(string templateFileName,
     if(monoZhist){
       monoZhist->Scale(1.0,"width");
       monoZhist->Scale(signalScale);
+    }
+
+    if(ggHhist){
+      ggHhist->Scale(1.0,"width");
+    }
+    if(vbfHhist){
+      vbfHhist->Scale(1.0,"width");
+    }
+    if(wHhist){
+      wHhist->Scale(1.0,"width");
+    }
+    if(zHhist){
+      zHhist->Scale(1.0,"width");
     }
   }
   else{
@@ -292,6 +321,37 @@ void makeControlPlots(string templateFileName,
     monoZhist->SetLineStyle(4);
   }
 
+  if(ggHhist){
+    ggHhist->SetFillColor(0);
+    ggHhist->SetFillStyle(0);
+    ggHhist->SetLineColor(kBlack);
+    ggHhist->SetLineWidth(2);
+  }
+
+  if(vbfHhist){
+    vbfHhist->SetFillColor(0);
+    vbfHhist->SetFillStyle(0);
+    vbfHhist->SetLineColor(kBlack);
+    vbfHhist->SetLineWidth(2);
+    vbfHhist->SetLineStyle(7);
+  }
+
+  if(wHhist){
+    wHhist->SetFillColor(0);
+    wHhist->SetFillStyle(0);
+    wHhist->SetLineColor(kBlack);
+    wHhist->SetLineWidth(2);
+    wHhist->SetLineStyle(4);
+  }
+
+  if(zHhist){
+    zHhist->SetFillColor(0);
+    zHhist->SetFillStyle(0);
+    zHhist->SetLineColor(kBlack);
+    zHhist->SetLineWidth(2);
+    zHhist->SetLineStyle(2);
+  }
+  
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
     stack->Add(qcdhist);
@@ -482,13 +542,19 @@ void makeControlPlots(string templateFileName,
   stack ->Draw("HIST SAME");
   datahist->Draw("P SAME");
 
-  if(controlRegion == "SR"){
+  if(controlRegion == "SR" and not isHiggsInvisible){
     monoJhist->Draw("hist same");
     monoWhist->Draw("hist same");
     monoZhist->Draw("hist same");
   }
+  else if(controlRegion == "SR" and isHiggsInvisible){
+    ggHhist->Draw("hist same");
+    vbfHhist->Draw("hist same");
+    wHhist->Draw("hist same");
+    zHhist->Draw("hist same");
+  }
 
- TLegend* leg = NULL;
+  TLegend* leg = NULL;
   if(controlRegion == "gam")
     leg = new TLegend(0.58, 0.66, 0.85, 0.92);
   else if(controlRegion == "SR" and isLog){
@@ -516,43 +582,43 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "zmm"){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist,"Data");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
-    leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
+    leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
     leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "zee"){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist,"Data");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
-    leg->AddEntry(vlhist, "W #rightarrow e #nu","F");
+    leg->AddEntry(vlhist,  "W #rightarrow e #nu","F");
     leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "wmn"){
     leg->AddEntry(datahist, "Data");
-    leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
-    leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
+    leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
+    leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
+    leg->AddEntry(tophist,  "Top","F");
+    leg->AddEntry(dbhist,   "Di-Boson","F");
+    leg->AddEntry(gamhist,  "#gamma+jets","F");
+    leg->AddEntry(qcdhist,  "QCD","F");
   }
 
   else if(controlRegion == "wen"){
     leg->AddEntry(datahist, "Data");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow ee","F");
-    leg->AddEntry(tophist, "Top","F");
+    leg->AddEntry(vllhist,"Z #rightarrow ee","F");
+    leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
+    leg->AddEntry(gamhist,"#gamma+jets","F");
+    leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "topmu" and plotResonant){
@@ -560,28 +626,28 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist_matched, "Top Resonant","F");
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
+    leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
+    leg->AddEntry(gamhist,"#gamma+jets","F");
+    leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "topmu" and not plotResonant){
-    leg->AddEntry(datahist, "Data");
-    leg->AddEntry(tophist, "Top","F");
+    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu","F");
+    leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
+    leg->AddEntry(gamhist,"#gamma+jets","F");
+    leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "topel" and not plotResonant){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist,"Data");
     leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
+    leg->AddEntry(vlhist,  "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
+    leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
@@ -591,26 +657,34 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist_matched, "Top Resonant","F");
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
+    leg->AddEntry(vllhist,"Z #rightarrow e#mu","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
+    leg->AddEntry(gamhist,"#gamma+jets","F");
+    leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "SR"){
     leg->SetNColumns(2);
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist,"Data");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
-    leg->AddEntry(vlhist, "W(l#nu)", "F");
+    leg->AddEntry(vlhist,  "W(l#nu)", "F");
     leg->AddEntry(vllhist, "Z(ll)", "F");
     leg->AddEntry(tophist, "Top", "F");
-    leg->AddEntry(dbhist, "Dibosons", "F");
+    leg->AddEntry(dbhist,  "Dibosons", "F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
-    TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
-    leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
-    leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
-    leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");    
+    if( not isHiggsInvisible){
+      TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
+      leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
+      leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+      leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+    }
+    else{
+      leg->AddEntry(ggHhist,"ggH(m_{H}=125 GeV)", "L");
+      leg->AddEntry(vbfHhist,"vbfH(m_{H}=125 GeV)", "L");
+      leg->AddEntry(wHhist,"wH(m_{H}=125 GeV)", "L");
+      leg->AddEntry(zHhist,"zH(m_{H}=125 GeV)", "L");
+    }
   }  
 
   leg->Draw("SAME");
@@ -633,7 +707,6 @@ void makeControlPlots(string templateFileName,
     frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
   else if(category > 1)
     frame2 =  pad2->DrawFrame(xMin, 0.0, xMax, 2.0, "");
-
 
   frame2->GetXaxis()->SetLabelSize(0.10);
   frame2->GetXaxis()->SetLabelOffset(0.03);

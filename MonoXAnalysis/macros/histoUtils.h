@@ -27,6 +27,13 @@ class signalSample{
   string dmMass;
 };
 
+class VectorSorter{
+ public:
+  bool operator ()(const TLorentzVector & i, const TLorentzVector & j) const {
+    return (i.Pt() > j.Pt());
+  }
+};
+
 // define binnings for the different observables                                                                                                                              
 vector<float> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
 vector<float> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
