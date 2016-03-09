@@ -326,7 +326,7 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genVBosonPhi  = *bosonPhi;  
     genVBosonEta  = *bosonEta;  
     genVBosonMass = *bosonMass;  
-
+    
     if(genVBosonPt <= 0){
       genVBosonPt   = *bosonPt_lep;
       genVBosonPhi  = *bosonPhi_lep;
