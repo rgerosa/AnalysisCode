@@ -19,7 +19,7 @@ bin         signal_MJ
 observation -1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 bin                               signal_MJ signal_MJ signal_MJ signal_MJ   signal_MJ    signal_MJ   signal_MJ    signal_MJ       signal_MJ     signal_MJ  signal_MJ
-process                           ggH       vbH       wH        zH          Znunu        WJets       ZJets        Dibosons        Top           QCD        GJets
+process                           ggH       vbfH      wH        zH          Znunu        WJets       ZJets        Dibosons        Top           QCD        GJets
 process                           0        -1         -2       -3           1            2            3             4             5             6          7 
 rate                             -1        -1         -1       -1           1            1           -1            -1            -1            -1         -1
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------

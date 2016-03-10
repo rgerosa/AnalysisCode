@@ -409,10 +409,10 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
 
-      addTemplate("ggH_SR_"+suffix+"_QCDScale_ren_acceptUp", vars, wspace_SR, histoRenUp);
-      addTemplate("ggH_SR_"+suffix+"_QCDScale_ren_acceptDown", vars, wspace_SR, histoRenDw);
-      addTemplate("ggH_SR_"+suffix+"_QCDScale_fac_acceptUp", vars, wspace_SR, histoFacUp);
-      addTemplate("ggH_SR_"+suffix+"_QCDScale_fac_acceptDown", vars, wspace_SR, histoFacDw);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptUp", vars, wspace_SR, histoRenUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptDown", vars, wspace_SR, histoRenDw);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptUp", vars, wspace_SR, histoFacUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptDown", vars, wspace_SR, histoFacDw);
 
       addTemplate("ggH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("ggH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
