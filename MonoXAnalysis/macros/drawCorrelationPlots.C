@@ -112,7 +112,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
 
 
       frame->Draw();
-      CMS_lumi(canvas,4, 0, true);
+      CMS_lumi(canvas,"2.30",true);
 
       hist->Draw("colz same");
       profileX->Draw("EP same");
@@ -127,7 +127,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
       canvas->SaveAs(("monoJ_"+obs+".png").c_str());
 
       frame->Draw();
-      CMS_lumi(canvas,4, 0, true);
+      CMS_lumi(canvas,"2.30",true);
       monoWhist.at(iObs)->Smooth();
 
       TGraph2D* graph2D_2 = new TGraph2D (monoWhist.at(iObs));
@@ -154,7 +154,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
       canvas->SaveAs(("monoW_"+obs+".png").c_str());
 
       frame->Draw();
-      CMS_lumi(canvas,4, 0, true);
+      CMS_lumi(canvas,"2.30",true);
       profileX = monoZhist.at(iObs)->ProfileX("_pfx");
       profileX->SetMarkerStyle(20);
       profileX->SetMarkerSize(0.8);
@@ -182,7 +182,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
       TH2F* frame = new TH2F("","",int(bins.binX.size()-1),bkghist.at(iObs)->GetXaxis()->GetBinCenter(1),bkghist.at(iObs)->GetXaxis()->GetBinCenter(bkghist.at(iObs)->GetNbinsX()),int(bins.binY.size()-1),bkghist.at(iObs)->GetYaxis()->GetBinCenter(1),bkghist.at(iObs)->GetYaxis()->GetBinCenter(bkghist.at(iObs)->GetNbinsY()));
 
       frame->Draw();
-      CMS_lumi(canvas,4, 0, true);
+      CMS_lumi(canvas,"2.30",true);
 
       TGraph2D* graph2D_1  = new TGraph2D(bkghist.at(iObs));
       for(int iBinX = 0; iBinX < bkghist.at(iObs)->GetNbinsX()+1; iBinX++){
@@ -207,7 +207,7 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
  
       // plot data
       frame->Draw();
-      CMS_lumi(canvas,4, 0, true);
+      CMS_lumi(canvas,"2.30",true);
       TGraph2D* graph2D_2 = new TGraph2D (datahist.at(iObs));
       for(int iBinX = 0; iBinX < datahist.at(iObs)->GetNbinsX()+1; iBinX++){
         for(int iBinY = 0; iBinY < datahist.at(iObs)->GetNbinsY()+1; iBinY++){

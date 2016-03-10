@@ -11,7 +11,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2){
   frame->GetYaxis()->SetTitleSize(0.050);
   frame->GetYaxis()->SetTitle("arbitrary unit");
   frame ->Draw();
-  CMS_lumi(pad1, 4, 0, true);
+  CMS_lumi(pad1,"2.30",true);
   
   histo_1->SetLineColor(kBlack);
   histo_1->SetLineWidth(2);

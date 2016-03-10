@@ -118,7 +118,7 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     histoInterpolation->SetMarkerStyle(20);    
     histoInterpolation->Draw("PE");
 
-    CMS_lumi(pad1, 4, 0, true);
+    CMS_lumi(pad1,"2.30",true);
 
     TH1* histoFullSIM_band = (TH1*) histoFullSIM->Clone("histoFullSIM_band");
     histoFullSIM_band->SetFillColor(kBlack);
