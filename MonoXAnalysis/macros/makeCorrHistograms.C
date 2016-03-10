@@ -4,9 +4,16 @@
 using namespace std;
 
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,  
-		     int category, vector<string> observables, double lumi, bool applyQGLReweight, 
-		     string outDir = "", string sysName = "", string ext = "") {
+void makezmmcorhist( string  signalRegionFile,  
+		     string  zmumuFile,  
+		     int     category, 
+		     vector<string> observables, 
+		     double  lumi, 
+		     bool    applyQGLReweight, 
+		     string  outDir = "", 
+		     string  sysName = "", 
+		     bool    isHiggsInvisible = false,
+		     string  ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -59,12 +66,12 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, select the right QGL re-weight
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
   }
 
   string name = string("zmmcor")+ext;
@@ -112,8 +119,16 @@ void makezmmcorhist( string  signalRegionFile,  string  zmumuFile,
 
 
 // make histograms for Z->ee to signal region correction                                                                                                                   
-void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category, vector<string> observables, double lumi, bool applyQGLReweight,
-		     string outDir = "", string sysName = "", string ext = "") {
+void makezeecorhist( string  signalRegionFile,  
+		     string  zeeFile,   
+		     int     category, 
+		     vector<string> observables, 
+		     double  lumi, 
+		     bool    applyQGLReweight,
+		     string  outDir = "", 
+		     string  sysName = "", 
+		     bool    isHiggsInvisible = false,
+		     string  ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -167,12 +182,12 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,false,true, 0, isHiggsInvisible);
   }
   string name = string("zeecor")+ext;
 
@@ -218,8 +233,16 @@ void makezeecorhist( string  signalRegionFile,  string  zeeFile,   int category,
 
 
 // make histograms for W->mnu to signal region correction                                                                                                                   
-void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category, vector<string> observables, double lumi, bool applyQGLReweight,
-		     string outDir = "", string sysName = "", string ext = "") {
+void makewmncorhist( string  signalRegionFile,  
+		     string  wmnFile,   
+		     int     category, 
+		     vector<string> observables, 
+		     double  lumi, 
+		     bool    applyQGLReweight,
+		     string  outDir = "", 
+		     string  sysName = "", 
+		     bool    isHiggsInvisible = false,
+		     string  ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -259,38 +282,6 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
-  /*
-  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
-  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
-  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
-
-  if(wewkhist_p and wnlohist_p){
-    wewkhist_p->Divide(wnlohist_p);
-    wewkhist_p->SetName("wewkhist_Wp");
-  }
-    
-  if(wnlohist_p and wnlohist_p){
-    wnlohist_p->Divide(wnlohist_p);
-    wnlohist_p->SetName("wnlohist_Wp");
-    wlohist_p->SetName("wlohist_Wp");
-  }
-
-  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
-  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
-  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
-
-  if(wewkhist_m and wnlohist_m){
-    wewkhist_m->Divide(wnlohist_m);
-    wewkhist_m->SetName("wewkhist_Wm");
-  }
-    
-  if(wnlohist_m and wnlohist_m){
-    wnlohist_m->Divide(wnlohist_m);
-    wnlohist_m->SetName("wnlohist_Wm");
-    wlohist_m->SetName("wlohist_Wm");
-  }
-  */
-
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
     wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
@@ -302,26 +293,17 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
   vector<TH1*> ehists;
   vector<TH1*> whists;
 
-  /*
-  if(wewkhist_p and wnlohist_p and wnlohist_m and wewkhist_m){
-    whists.push_back(wnlohist_p);
-    whists.push_back(wewkhist_p);
-    whists.push_back(wnlohist_m);
-    whists.push_back(wewkhist_m);
-  }
-  */
-
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
   }
 
   string name = string("wmncor")+ext;
@@ -367,8 +349,16 @@ void makewmncorhist( string  signalRegionFile,  string  wmnFile,   int category,
 
 
 // make histograms for W->enu to signal region correction                                                                                                                   
-void makewencorhist( string  signalRegionFile,  string  wenFile,   int category, vector<string> observables, double lumi, bool applyQGLReweight,
-		     string outDir = "", string sysName = "", string ext = "") {
+void makewencorhist( string signalRegionFile,  
+		     string wenFile,   
+		     int    category, 
+		     vector<string> observables, 
+		     double lumi, 
+		     bool   applyQGLReweight,
+		     string outDir = "", 
+		     string sysName = "", 
+		     bool   isHiggsInvisible = false,
+		     string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -407,38 +397,6 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
-  /*
-  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
-  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
-  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
-
-  if(wewkhist_p and wnlohist_p){
-    wewkhist_p->Divide(wnlohist_p);
-    wewkhist_p->SetName("wewkhist_Wp");
-  }
-    
-  if(wnlohist_p and wnlohist_p){
-    wnlohist_p->Divide(wnlohist_p);
-    wnlohist_p->SetName("wnlohist_Wp");
-    wlohist_p->SetName("wlohist_Wp");
-  }
-
-  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
-  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
-  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
-
-  if(wewkhist_m and wnlohist_m){
-    wewkhist_m->Divide(wnlohist_m);
-    wewkhist_m->SetName("wewkhist_Wm");
-  }
-    
-  if(wnlohist_m and wnlohist_m){
-    wnlohist_m->Divide(wnlohist_m);
-    wnlohist_m->SetName("wnlohist_Wm");
-    wlohist_m->SetName("wlohist_Wm");
-  }
-  */
-
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*)kffile.Get("wnlo012/wnlo012_nominal");
     wlohist  = (TH1*)kffile.Get("wlo/wlo_nominal");
@@ -448,25 +406,18 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
-  /*
-  if(wewkhist_p and wnlohist_p and wnlohist_m and wewkhist_m){
-    whists.push_back(wnlohist_p);
-    whists.push_back(wewkhist_p);
-    whists.push_back(wnlohist_m);
-    whists.push_back(wewkhist_m);
-  }
-  */
+
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
   }
 
   string name = string("wencor")+ext;
@@ -513,8 +464,17 @@ void makewencorhist( string  signalRegionFile,  string  wenFile,   int category,
 
 
 // make Z/W ratio
-void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector<string> observables, double lumi, bool applyQGLReweight,
-		      string outDir = "", string sysName = "", string ext = "",int kfact = 0) {
+void  makezwjcorhist(string znunuFile,  
+		     string wlnuFile,   
+		     int    category, 
+		     vector<string> observables, 
+		     double lumi, 
+		     bool   applyQGLReweight,
+		     string outDir = "", 
+		     string sysName = "", 
+		     bool   isHiggsInvisible = false,
+		     string ext = "",
+		     int    kfact = 0) {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(znunuFile.c_str());
@@ -560,37 +520,6 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
-  /*
-  TH1*  wnlohist_p = (TH1*) kffile.Get("W+Jets_012j_NLO/nominal");
-  TH1*  wlohist_p  = (TH1*) kffile.Get("W+Jets_LO/inv_pt");
-  TH1* wewkhist_p  = (TH1*) kffile.Get("EWKcorr/W+");
-
-  if(wewkhist_p and wnlohist_p){
-    wewkhist_p->Divide(wnlohist_p);
-    wewkhist_p->SetName("wewkhist_Wp");
-  }
-
-  if(wnlohist_p and wnlohist_p){
-    wnlohist_p->Divide(wnlohist_p);
-    wnlohist_p->SetName("wnlohist_Wp");
-    wlohist_p->SetName("wlohist_Wp");
-  }
-
-  TH1*  wnlohist_m = (TH1*) kffile.Get("W-Jets_012j_NLO/nominal");
-  TH1*  wlohist_m  = (TH1*) kffile.Get("W-Jets_LO/inv_pt");
-  TH1* wewkhist_m  = (TH1*) kffile.Get("EWKcorr/W-");
-
-  if(wewkhist_m and wnlohist_m){
-    wewkhist_m->Divide(wnlohist_m);
-    wewkhist_m->SetName("wewkhist_Wm");
-  }
-
-  if(wnlohist_m and wnlohist_m){
-    wnlohist_m->Divide(wnlohist_m);
-    wnlohist_m->SetName("wnlohist_Wm");
-    wlohist_m->SetName("wlohist_Wm");
-  }  
-  */
 
   if(not wnlohist or not wlohist or not wewkhist){
     wnlohist = (TH1*) kffile.Get("wnlo012/wnlo012_nominal");
@@ -659,12 +588,12 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
   
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
   }
 
   string name = string("zwjcor")+ext;
@@ -712,8 +641,18 @@ void  makezwjcorhist( string znunuFile,  string wlnuFile,   int category, vector
 
 
 // make Z/gamma ratio
-void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  int category, vector<string> observables, double lumi, bool applyQGLReweight,
-		     string outDir = "", string sysName = "", string ext = "",int kfact = 0) {
+void makegamcorhist( string znunuFile,  
+		     string photonFile,  
+		     string fPfile,  
+		     int    category, 
+		     vector<string> observables, 
+		     double lumi, 
+		     bool   applyQGLReweight,
+		     string outDir = "", 
+		     string sysName = "", 
+		     bool   isHiggsInvisible = false,
+		     string ext = "",
+		     int    kfact = 0) {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(znunuFile.c_str());
@@ -839,12 +778,12 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", false, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", false, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", false, true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", false, true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", false, true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", false, true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", false, true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", false, true, 0, isHiggsInvisible);
   }
 
   string name = string("gamcor")+ext;
@@ -892,10 +831,18 @@ void makegamcorhist( string znunuFile,   string photonFile,  string  fPfile,  in
 }
 
 // correction for top
-void maketopmucorhist( string signalRegionFile,  string  topFile,
-		       int category, vector<string> observables, double lumi,
-		       string signalRegionFile_alt = "", string topFile_alt = "", bool applyQGLReweight = false,
-		       string outDir = "", string sysName = "", string ext = ""){
+void maketopmucorhist( string signalRegionFile,  
+		       string topFile,
+		       int    category, 
+		       vector<string> observables, 
+		       double lumi,
+		       string signalRegionFile_alt = "", 
+		       string topFile_alt = "", 
+		       bool   applyQGLReweight = false,
+		       string outDir = "", 
+		       string sysName = "", 
+		       bool   isHiggsInvisible = false,
+		       string ext = ""){
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -947,16 +894,16 @@ void maketopmucorhist( string signalRegionFile,  string  topFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
   }
 
   string name = string("topmucor")+ext;
@@ -1026,9 +973,18 @@ void maketopmucorhist( string signalRegionFile,  string  topFile,
 
 
 // correction for top
-void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category, vector<string> observables, double lumi, 
-		       string signalRegionFile_alt = "", string topFile_alt = "", bool applyQGLReweight = false,
-		       string outDir = "", string sysName = "", string ext = "") {
+void maketopelcorhist( string signalRegionFile,  
+		       string topFile,  
+		       int    category, 
+		       vector<string> observables, 
+		       double lumi, 
+		       string signalRegionFile_alt = "", 
+		       string topFile_alt = "", 
+		       bool   applyQGLReweight = false,
+		       string outDir      = "", 
+		       string sysName = "", 
+		       bool   isHiggsInvisible = false,
+		       string ext = "") {
   
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -1081,16 +1037,16 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region,
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
   }
 
   string name = string("topelcor")+ext;
@@ -1161,8 +1117,17 @@ void maketopelcorhist( string  signalRegionFile,  string  topFile,  int category
 
 
 // correction for Z(nunu) or W+jets mass sidebaand
-void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int category_num, int category_den, vector<string> observables, double lumi, bool applyQGLReweight,
-			  string outDir = "", string sysName = "", string ext = "") {
+void makesidebandcorhist( string signalRegionFile,  
+			  string sidebandFile,  
+			  int    category_num, 
+			  int    category_den, 
+			  vector<string> observables, 
+			  double lumi, 
+			  bool   applyQGLReweight,
+			  string outDir  = "", 
+			  string sysName = "", 
+			  bool   isHiggsInvisible = false,
+			  string ext = "") {
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
@@ -1194,12 +1159,12 @@ void makesidebandcorhist( string  signalRegionFile,  string  sidebandFile,  int 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", false,true, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", false,true, NULL);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", false,true, NULL);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", false,true, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", false,true, 0, isHiggsInvisible);
   }
 
   string name = string("sidebandcor")+ext;
