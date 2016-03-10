@@ -28,10 +28,12 @@ const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge   = 0;
 const int   nBjets         = 1;
 
-string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
+string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
 //string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-string kfactorFileUnc  = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/";
+
+VectorSorter jetSorter;
 
 double reweightTopQuarkPt (double topQuarkPt, double atopQuarkPt){
 
@@ -62,8 +64,10 @@ void makehist4(TTree* tree, /*input tree*/
 	       string sysName,	
 	       bool   reWeightTopPt = false,
 	       bool   reweightNVTX  = true,
-	       TH1* rhist = NULL,
-	       int    resonantSelection = 0
+	       int    resonantSelection = 0,
+	       bool   isHiggsInvisible  = false, // reject VBF events
+	       float  XSEC = -1.,// fix the cross section from extern
+	       TH1*  hhist = NULL
 	       ) {
 
   if(not tree){
@@ -247,6 +251,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > nhfrac  (myReader,"centraljetNHfrac");
   TTreeReaderValue<vector<double> > emfrac  (myReader,"centraljetEMfrac");
 
+  TTreeReaderValue<vector<double> > jetpt_fwd   (myReader,"forwardjetpt");
+  TTreeReaderValue<vector<double> > jeteta_fwd  (myReader,"forwardjeteta");
+  TTreeReaderValue<vector<double> > jetphi_fwd  (myReader,"forwardjetphi");
+  TTreeReaderValue<vector<double> > jetm_fwd    (myReader,"forwardjetm");
+
   // AK8 jet
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
   TTreeReaderValue<vector<double> > boostedJetQGL   (myReader,"boostedJetQGL");
@@ -342,6 +351,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
   TTreeReaderValue<double> zmmeta (myReader,"zeta");
 
+  TTreeReaderValue<double> dmpt (myReader,"dmpt");
+
   // other trick to handle the fact that this info is actually only stored for top/s-top samples
   string topptname;
   string atopptname;
@@ -381,8 +392,7 @@ void makehist4(TTree* tree, /*input tree*/
 	}
       }
     }
-    
-    
+        
     // check dphi jet-met
     Double_t jmdphi = 0.0;
     
@@ -573,44 +583,44 @@ void makehist4(TTree* tree, /*input tree*/
       }
     }
 
-    //Gen level info --> NLO re-weight
-    Double_t rwgt = 1.0;
-    if (rhist) 
-      rwgt = rhist->GetBinContent(rhist->FindBin(*wzpt));
-    
-    Double_t kwgt = 1.0;
-    
-    for (unsigned i = 0; i < khists.size(); i++) {
-      
+    //Gen level info --> NLO re-weight    
+    Double_t kwgt = 1.0;    
+    for (unsigned i = 0; i < khists.size(); i++) {      
       // in case of charge independent k-factors
       if(TString(khists[i]->GetName()).Contains("_Wp") and pid1 < 0)
 	continue;
       else if(TString(khists[i]->GetName()).Contains("_Wm") and pid1 > 0)
 	continue;
 
-      cout<<khists[i]->GetName()<<" "<<pid1<<" "<<khists[i]->GetBinContent(khists[i]->FindBin(*wzpt))<<endl;
-      
       if (isMC && khists[i]){
-	if(*wzpt < khists[i]->GetBinLowEdge(1)){
-	  *wzpt  = khists[i]->GetBinLowEdge(1)+1.;
-	}
-	else if(*wzpt > khists[i]->GetBinLowEdge(khists[i]->GetNbinsX()+1)){
+	if(*wzpt < khists[i]->GetBinLowEdge(1))
+	  *wzpt  = khists[i]->GetBinLowEdge(1)+1.;	
+	else if(*wzpt > khists[i]->GetBinLowEdge(khists[i]->GetNbinsX()+1))
 	  *wzpt = khists[i]->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1.;
-	}
+	
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(*wzpt));
       }
     }
 
+    // Higgs pT uncertainty
+    Double_t hwgt = 1.0;
+    if(isHiggsInvisible and hhist and isMC){
+      if(*dmpt < hhist->GetBinLowEdge(1))
+	*dmpt = hhist->GetBinLowEdge(1)+1;
+      else if(*dmpt > hhist->GetBinLowEdge(hhist->GetNbinsX()+1))
+	*dmpt =hhist->GetBinLowEdge(hhist->GetNbinsX()+1)-1;
+      hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
+    }
+
     // Top quark pt re-weight
     Double_t topptwgt = 1.0;
-    if(reWeightTopPt){
+    if(reWeightTopPt)
       topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
-    }
-    
+        
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
     // MET Filters
-    if (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0) continue;
+    if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
 
     // Additional met filters
     if (not isMC){
@@ -680,6 +690,31 @@ void makehist4(TTree* tree, /*input tree*/
     if(sample == 2 or sample == 4){ // in case charge is required to be 1 skip events with negative leptons, viceversa
       if(vBosonCharge == 1 and pid1 > 0) continue;
       else if(vBosonCharge == -1 and pid1 < 0) continue;
+    }
+
+
+    if(isHiggsInvisible){ // veto Higgs VBF events
+
+      vector<TLorentzVector> jets;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	TLorentzVector vec;
+	vec.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	if(fabs(vec.Eta()) > 4.7) continue;
+	jets.push_back(vec);
+      }
+      for(size_t ijet = 0; ijet < jetpt_fwd->size(); ijet++){
+	TLorentzVector vec;
+	vec.SetPtEtaPhiM(jetpt_fwd->at(ijet),jeteta_fwd->at(ijet),jetphi_fwd->at(ijet),jetm_fwd->at(ijet));
+	if(fabs(vec.Eta()) > 4.7) continue;
+	jets.push_back(vec);
+      }
+
+      if(jets.size() >= 2){
+	std::sort(jets.begin(),jets.end(),jetSorter);
+	
+	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
+	  continue;
+      }     
     }
 
     // inclusive mono-jet analysis 
@@ -959,12 +994,19 @@ void makehist4(TTree* tree, /*input tree*/
       // total event weight
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
-      if (isMC and not reweightNVTX) 
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+      if (isMC and not reweightNVTX){
+	if(XSEC != -1)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	else
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+      }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*rwgt*kwgt/(*wgtsum);
+	if(XSEC != -1)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
+	else
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
@@ -1022,25 +1064,30 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
 
-      if (isMC and not reweightNVTX)
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+      if (isMC and not reweightNVTX){
+	if(XSEC != -1)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	else
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+      }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*rwgt*kwgt/(*wgtsum);
+	if(XSEC != -1)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum);
+	else
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;
       else if (!isMC)
 	evtwgt = hltw;
       
-      hist->Fill(fillvarX,fillvarY,evtwgt);      
-      
+      hist->Fill(fillvarX,fillvarY,evtwgt);            
     }
   }
 
   //  dump.close();
-
   sffile  ->Close();
   psffile ->Close();
   trefile ->Close();

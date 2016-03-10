@@ -195,16 +195,17 @@ void makeConnectedBinList(string procname, RooRealVar& var,
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName, 
 		     int category, 
-		     string outputName = "workspace.root",
-		     string observable = "met", 
-		     string interaction = "Vector",
-		     string mediatorMass = "1000", 
-		     string DMMass = "50", 
-		     float scaleQCD = 2, 
-		     bool connectWZ = true, 
-		     bool connectTop = false,
-		     bool addShapeSystematics = false){
-
+		     string outputName    = "workspace.root",
+		     string observable    = "met", 
+		     string interaction   = "Vector",
+		     string mediatorMass  = "1000", 
+		     string DMMass        = "50", 
+		     float  scaleQCD      = 2, 
+		     bool   connectWZ     = true, 
+		     bool   connectTop    = false,
+		     bool   addShapeSystematics = false,
+		     bool   isHiggsInvisible = false){
+  
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
@@ -256,36 +257,38 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("datahist_"+observable).c_str()));
 
   // Signal shape
-  addTemplate("MonoJ_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
-  addTemplate("MonoW_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
-  addTemplate("MonoZ_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
+  if(!isHiggsInvisible){
 
-  if(addShapeSystematics){
+    addTemplate("MonoJ_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
+    addTemplate("MonoW_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
+    addTemplate("MonoZ_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
 
-    // monoJ
-    TH1F* nominalHisto = (TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histobUp  = (TH1F*)templatesfile->Get(("monoJhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histobDw  = (TH1F*)templatesfile->Get(("monoJhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoJesUp  = (TH1F*)templatesfile->Get(("monoJhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoJesDw  = (TH1F*)templatesfile->Get(("monoJhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoJerUp  = (TH1F*)templatesfile->Get(("monoJhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoJerDw  = (TH1F*)templatesfile->Get(("monoJhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoUncUp  = (TH1F*)templatesfile->Get(("monoJhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    TH1F* histoUncDw  = (TH1F*)templatesfile->Get(("monoJhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    if(addShapeSystematics){
 
-    if(nominalHisto){
-
+      // monoJ
+      TH1F* nominalHisto = (TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histobUp  = (TH1F*)templatesfile->Get(("monoJhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histobDw  = (TH1F*)templatesfile->Get(("monoJhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoJesUp  = (TH1F*)templatesfile->Get(("monoJhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoJesDw  = (TH1F*)templatesfile->Get(("monoJhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoJerUp  = (TH1F*)templatesfile->Get(("monoJhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoJerDw  = (TH1F*)templatesfile->Get(("monoJhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoUncUp  = (TH1F*)templatesfile->Get(("monoJhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* histoUncDw  = (TH1F*)templatesfile->Get(("monoJhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      
+      if(nominalHisto){
+	
       if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
-
+      
       addTemplate("MonoJ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
@@ -295,53 +298,106 @@ void createWorkspace(string inputName,
       addTemplate("MonoJ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
       addTemplate("MonoJ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
     }
-
-    nominalHisto = (TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histobUp  = (TH1F*)templatesfile->Get(("monoWhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histobDw  = (TH1F*)templatesfile->Get(("monoWhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJesUp  = (TH1F*)templatesfile->Get(("monoWhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJesDw  = (TH1F*)templatesfile->Get(("monoWhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJerUp  = (TH1F*)templatesfile->Get(("monoWhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJerDw  = (TH1F*)templatesfile->Get(("monoWhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoUncUp  = (TH1F*)templatesfile->Get(("monoWhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoUncDw  = (TH1F*)templatesfile->Get(("monoWhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-
-    if(nominalHisto){
-
-      if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+      
+      nominalHisto = (TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->Get(("monoWhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->Get(("monoWhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->Get(("monoWhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->Get(("monoWhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->Get(("monoWhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->Get(("monoWhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->Get(("monoWhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->Get(("monoWhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	}
+	
+	addTemplate("MonoW_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
       }
 
-      addTemplate("MonoW_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-      addTemplate("MonoW_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      // monoW
+      nominalHisto = (TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->Get(("monoZhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->Get(("monoZhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->Get(("monoZhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->Get(("monoZhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->Get(("monoZhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->Get(("monoZhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->Get(("monoZhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->Get(("monoZhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	}
+	
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      }
+      // statistics
+      generateStatTemplate("MonoJ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
+      generateStatTemplate("MonoW_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
+      generateStatTemplate("MonoZ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
     }
+  }
+  else{
 
-    // monoW
-    nominalHisto = (TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histobUp  = (TH1F*)templatesfile->Get(("monoZhist_bUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histobDw  = (TH1F*)templatesfile->Get(("monoZhist_bDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJesUp  = (TH1F*)templatesfile->Get(("monoZhist_metJetUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJesDw  = (TH1F*)templatesfile->Get(("monoZhist_metJetDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJerUp  = (TH1F*)templatesfile->Get(("monoZhist_metResUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoJerDw  = (TH1F*)templatesfile->Get(("monoZhist_metResDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoUncUp  = (TH1F*)templatesfile->Get(("monoZhist_metUncUp_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    histoUncDw  = (TH1F*)templatesfile->Get(("monoZhist_metUncDw_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    addTemplate("ggH_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->Get(("ggHhist_"+observable).c_str()));
+    addTemplate("vbfH_SR_"+suffix,vars, wspace_SR, (TH1F*)templatesfile->Get(("vbfHhist_"+observable).c_str()));
+    addTemplate("wH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->Get(("wHhist_"+observable).c_str()));
+    addTemplate("zH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->Get(("zHhist_"+observable).c_str()));
 
-    if(nominalHisto){
+    if(addShapeSystematics){
 
+      // ggH
+      TH1F* nominalHisto = (TH1F*)templatesfile->Get(("ggHhist_"+observable).c_str());
+      TH1F* histobUp  = (TH1F*)templatesfile->Get(("ggHhist_bUp_"+observable).c_str());
+      TH1F* histobDw  = (TH1F*)templatesfile->Get(("ggHhist_bDw_"+observable).c_str());
+      TH1F* histoJesUp  = (TH1F*)templatesfile->Get(("ggHhist_metJetUp_"+observable).c_str());
+      TH1F* histoJesDw  = (TH1F*)templatesfile->Get(("ggHhist_metJetDw_"+observable).c_str());
+      TH1F* histoJerUp  = (TH1F*)templatesfile->Get(("ggHhist_metResUp_"+observable).c_str());
+      TH1F* histoJerDw  = (TH1F*)templatesfile->Get(("ggHhist_metResDw_"+observable).c_str());
+      TH1F* histoUncUp  = (TH1F*)templatesfile->Get(("ggHhist_metUncUp_"+observable).c_str());
+      TH1F* histoUncDw  = (TH1F*)templatesfile->Get(("ggHhist_metUncDw_"+observable).c_str());
+
+      TH1F* histoRenUp = (TH1F*)templatesfile->Get(("ggHhist_renUp_"+observable).c_str());
+      TH1F* histoRenDw = (TH1F*)templatesfile->Get(("ggHhist_renDw_"+observable).c_str());
+      TH1F* histoFacUp = (TH1F*)templatesfile->Get(("ggHhist_facUp_"+observable).c_str());
+      TH1F* histoFacDw = (TH1F*)templatesfile->Get(("ggHhist_facDw_"+observable).c_str());
+
+      if(nominalHisto){
+	
       if(nominalHisto->GetNbinsX() > 10){
 	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
 	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
@@ -353,22 +409,130 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
 
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-      addTemplate("MonoZ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptUp", vars, wspace_SR, histoRenUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptDown", vars, wspace_SR, histoRenDw);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptUp", vars, wspace_SR, histoFacUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptDown", vars, wspace_SR, histoFacDw);
+
+      addTemplate("ggH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+      addTemplate("ggH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+      addTemplate("ggH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+      addTemplate("ggH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+      addTemplate("ggH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+      addTemplate("ggH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+      addTemplate("ggH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+      addTemplate("ggH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+    }
+      
+      nominalHisto = (TH1F*)templatesfile->Get(("vbfHhist_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->Get(("vbfHhist_bUp_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->Get(("vbfHhist_bDw_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->Get(("vbfHhist_metJetUp_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->Get(("vbfHhist_metJetDw_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->Get(("vbfHhist_metResUp_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->Get(("vbfHhist_metResDw_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->Get(("vbfHhist_metUncUp_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->Get(("vbfHhist_metUncDw_"+observable).c_str());
+      
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	}
+	
+	addTemplate("vbfH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("vbfH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      }
+
+      // vbfH
+      nominalHisto = (TH1F*)templatesfile->Get(("wHhist_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->Get(("wHhist_bUp_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->Get(("wHhist_bDw_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->Get(("wHhist_metJetUp_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->Get(("wHhist_metJetDw_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->Get(("wHhist_metResUp_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->Get(("wHhist_metResDw_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->Get(("wHhist_metUncUp_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->Get(("wHhist_metUncDw_"+observable).c_str());
+      
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	}
+	
+	addTemplate("wH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+	addTemplate("wH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+	addTemplate("wH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("wH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("wH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("wH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("wH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("wH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+
+      }
+
+      // vbfH
+      nominalHisto = (TH1F*)templatesfile->Get(("zHhist_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->Get(("zHhist_bUp_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->Get(("zHhist_bDw_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->Get(("zHhist_metJetUp_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->Get(("zHhist_metJetDw_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->Get(("zHhist_metResUp_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->Get(("zHhist_metResDw_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->Get(("zHhist_metUncUp_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->Get(("zHhist_metUncDw_"+observable).c_str());
+      
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	}
+	
+	addTemplate("zH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
+	addTemplate("zH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
+	addTemplate("zH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("zH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("zH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("zH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("zH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("zH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      }
     }
     // statistics
-    generateStatTemplate("MonoJ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
-    generateStatTemplate("MonoW_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
-    generateStatTemplate("MonoZ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
-    
+    generateStatTemplate("ggH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("ggHhist_"+observable).c_str()));
+    generateStatTemplate("vbfH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("vbfHhist_"+observable).c_str()));
+    generateStatTemplate("wH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("wHhist_"+observable).c_str()));
+    generateStatTemplate("zH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("zHhist_"+observable).c_str()));
   }
-
+  
   // Zvv background --> to be extracted from CRs
   TH1F* znn_SR_hist = (TH1F*) templatesfile->Get(("zinvhist_"+observable).c_str());
   RooArgList znn_SR_bins; 

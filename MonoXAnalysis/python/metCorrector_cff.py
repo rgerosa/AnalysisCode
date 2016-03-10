@@ -74,13 +74,6 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 	## re-compute all MET systematics
 	if addMETSystematics:
 			
-		### global systematics
-		if "Puppi" in payloadName:
-			payloadNameUnc = "AK4PFchs";
-		else:
-			payloadNameUnc = payloadName;
-			
-
 		setattr(process,"metSysProducer"+postfix,
 			cms.EDProducer("METSystematicsProducer",
 				       inputMET    = cms.InputTag("patPFMetT1"+postfix),
@@ -139,12 +132,12 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 					## input collection
 					src = cms.InputTag(jetCollection),
 					## information for jet energy correction
-					payloadName = cms.string(payloadNameUnc),
+					payloadName = cms.string(payloadName),
 					useExternalJECUncertainty = cms.bool(False),
-					JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_DATA_Uncertainty_AK8PFchs.txt"),
+					JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_DATA_Uncertainty_"+payloadName+".txt"),
 					#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-					JERFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_MC_PtResolution_AK4PFchs.txt"),
-					JERSFFile  = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_AK4PFchs.txt"),
+					JERFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_PtResolution_"+payloadName+".txt"),
+					JERSFFile  = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_"+payloadName+".txt"),
 					useExternalJERSF = cms.bool(False),
 					useExternalJER   = cms.bool(False)),
 				       ## unclustered component
@@ -159,7 +152,8 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 			)
 		
 		if isMC:
-			getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_MC_Uncertainty_AK4PFchs.txt");
+			getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_MC_Uncertainty_"+payloadName+".txt");
+			getattr(process,"metSysProducer"+postfix).jet.JERFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_MC_PtResolution_"+payloadName+".txt");
 					 
 		## final slimmed MET			
 		setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",

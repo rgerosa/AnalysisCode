@@ -64,6 +64,8 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
 
   int id;
   double  genVBosonPt, genVBosonEta, genVBosonPhi, genVBosonMass;
+  double  genVLepBosonPt, genVLepBosonEta, genVLepBosonPhi, genVLepBosonMass;
+  double  genVHadBosonPt, genVHadBosonEta, genVHadBosonPhi, genVHadBosonMass;
   double  genAK8JetPt, genAK8JetEta, genAK8JetPhi, genAK8JetMass, genAK8JetPrunedMass, genAK8JetTau2Tau1;
   double  genAK4JetPt, genAK4JetEta, genAK4JetPhi, genAK4JetMass;
   double  genMediatorPt, genMediatorEta, genMediatorPhi, genMediatorMass, genMediatorRealMass;
@@ -79,6 +81,16 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   outputTree->Branch("genVBosonEta", &genVBosonEta, "genVBosonEta/D");  
   outputTree->Branch("genVBosonPhi", &genVBosonPhi, "genVBosonPhi/D");  
   outputTree->Branch("genVBosonMass", &genVBosonMass, "genVBosonMass/D");  
+
+  outputTree->Branch("genVLepBosonPt", &genVLepBosonPt, "genVLepBosonPt/D");  
+  outputTree->Branch("genVLepBosonEta", &genVLepBosonEta, "genVLepBosonEta/D");  
+  outputTree->Branch("genVLepBosonPhi", &genVLepBosonPhi, "genVLepBosonPhi/D");  
+  outputTree->Branch("genVLepBosonMass", &genVLepBosonMass, "genVLepBosonMass/D");  
+
+  outputTree->Branch("genVHadBosonPt", &genVHadBosonPt, "genVHadBosonPt/D");  
+  outputTree->Branch("genVHadBosonEta", &genVHadBosonEta, "genVHadBosonEta/D");  
+  outputTree->Branch("genVHadBosonPhi", &genVHadBosonPhi, "genVHadBosonPhi/D");  
+  outputTree->Branch("genVHadBosonMass", &genVHadBosonMass, "genVHadBosonMass/D");  
 
   outputTree->Branch("recoAK8JetPt", &recoAK8JetPt, "recoAK8JetPt/D");  
   outputTree->Branch("recoAK8JetPrunedMass", &recoAK8JetPrunedMass, "recoAK8JetPrunedMass/D");  
@@ -134,7 +146,6 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
   TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
   TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
-
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbheloose");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
@@ -153,12 +164,10 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<vector<double> > jetm    (myReader,"centraljetm");
   TTreeReaderValue<vector<double> > chfrac  (myReader,"centraljetCHfrac");
   TTreeReaderValue<vector<double> > nhfrac  (myReader,"centraljetNHfrac");  
-
   TTreeReaderValue<vector<double> > jetGenpt   (myReader,"centraljetGenpt");
   TTreeReaderValue<vector<double> > jetGeneta  (myReader,"centraljetGeneta");
   TTreeReaderValue<vector<double> > jetGenphi  (myReader,"centraljetGenphi");
   TTreeReaderValue<vector<double> > jetGenm    (myReader,"centraljetGenm");
-  
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
   TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
   TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedJetphi");
@@ -177,6 +186,10 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<double > bosonPt      (myReader,"wzpt_h");
   TTreeReaderValue<double > bosonEta     (myReader,"wzeta_h");
   TTreeReaderValue<double > bosonPhi     (myReader,"wzphi_h");
+  TTreeReaderValue<double > bosonMass_lep    (myReader,"wzmass");
+  TTreeReaderValue<double > bosonPt_lep      (myReader,"wzpt");
+  TTreeReaderValue<double > bosonEta_lep     (myReader,"wzeta");
+  TTreeReaderValue<double > bosonPhi_lep     (myReader,"wzphi");
   TTreeReaderValue<double > mediatorMass    (myReader,"dmmass");
   TTreeReaderValue<double > mediatorPt      (myReader,"dmpt");
   TTreeReaderValue<double > mediatorEta     (myReader,"dmeta");
@@ -233,6 +246,17 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genVBosonEta  = 0.;
     genVBosonPhi  = 0.;
     genVBosonMass = 0.;
+
+    genVLepBosonPt   = 0.;
+    genVLepBosonEta  = 0.;
+    genVLepBosonPhi  = 0.;
+    genVLepBosonMass = 0.;
+
+    genVHadBosonPt   = 0.;
+    genVHadBosonEta  = 0.;
+    genVHadBosonPhi  = 0.;
+    genVHadBosonMass = 0.;
+
     recoAK8JetPt   = 0.;
     genAK8JetPt   = 0.;
     genAK8JetEta  = 0.; 
@@ -303,6 +327,23 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genVBosonEta  = *bosonEta;  
     genVBosonMass = *bosonMass;  
     
+    if(genVBosonPt <= 0){
+      genVBosonPt   = *bosonPt_lep;
+      genVBosonPhi  = *bosonPhi_lep;
+      genVBosonEta  = *bosonEta_lep;
+      genVBosonMass = *bosonMass_lep;
+    }
+
+    genVLepBosonPt   = *bosonPt_lep;
+    genVLepBosonPhi  = *bosonPhi_lep;
+    genVLepBosonEta  = *bosonEta_lep;
+    genVLepBosonMass = *bosonMass_lep;
+
+    genVHadBosonPt   = *bosonPt;
+    genVHadBosonPhi  = *bosonPhi;
+    genVHadBosonEta  = *bosonEta;
+    genVHadBosonMass = *bosonMass;
+
     if(boostedJetGenpt->size() > 0){
       genAK8JetPt   = boostedJetGenpt->at(0);
       genAK8JetEta  = boostedJetGeneta->at(0);

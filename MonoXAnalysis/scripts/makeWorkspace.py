@@ -23,10 +23,11 @@ parser.add_option('--outputDIR',    action="store", type="string", dest="outputD
 parser.add_option('--templateFile', action="store", type="string", dest="templateFile",  default="",    help="input directory where files are located")
 parser.add_option('--category',     action="store", type=int     , dest="category",      default=0,     help="input directory where files are located")
 parser.add_option('--observable',   action="store", type="string", dest="observable",    default="met", help="input directory where files are located")
-parser.add_option('--shapeSys',     action="store", type=int     , dest="shapeSys",      default=0,     help="input directory where files are located")
-parser.add_option('--connectWZ',    action="store", type=int     , dest="connectWZ",     default=1,     help="input directory where files are located")
-parser.add_option('--connectTop',   action="store", type=int     , dest="connectTop",    default=0,     help="input directory where files are located")
-parser.add_option('--scaleQCD',     action="store", type=float   , dest="scaleQCD",      default=2,     help="input directory where files are located")
+
+parser.add_option('--shapeSys',     action="store_true",  dest="shapeSys",  default=False,  help="add shape sys for bin-by-bin and experimental sources")
+parser.add_option('--connectWZ',    action="store_true",  dest="connectWZ",  default=False,  help="connect W/Z")
+parser.add_option('--connectTop',   action="store_true",  dest="connectTop",  default=False,  help="extract ttbar+stop from control sample")
+parser.add_option('--isHiggsInvisible', action="store_true",  dest="isHiggsInvisible",  default=False,  help="create workspace for Higgs Invisible")
 
 ### batch submission
 parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
@@ -38,6 +39,25 @@ parser.add_option('--queque',       action="store",      type="string", dest="qu
 (options, args) = parser.parse_args()
 
 if __name__ == '__main__':
+
+
+    ## transform some inputs
+    connectWZ = 0;
+    if options.connectWZ:
+        connectWZ = 1;
+
+    connectTop = 0;
+    if options.connectTop:
+        connectTop = 1;
+
+    isHiggsInvisible = 0;
+    if options.isHiggsInvisible:
+        isHiggsInvisible = 1;
+
+    shapeSys = 0;
+    if options.shapeSys:
+        shapeSys = 1;
+
 
     ## load the create workspace macro
     ROOT.gROOT.ProcessLine(".L ./macros/createWorkspace.C");
@@ -70,9 +90,10 @@ if __name__ == '__main__':
     monoZMediatorMass = [];
     monoZdmMass = [];
 
-    for key in inputTemplate.GetListOfKeys():
-        if(key.GetClassName() == "TH1" or key.GetClassName() == "TH1F" or key.GetClassName() == "TH1D"):
-            h1 = key.ReadObj()
+    if not options.isHiggsInvisible:
+        for key in inputTemplate.GetListOfKeys():
+            if(key.GetClassName() == "TH1" or key.GetClassName() == "TH1F" or key.GetClassName() == "TH1D"):
+                h1 = key.ReadObj()
             if not ROOT.TString(h1.GetName()).Contains("monoJ") and not ROOT.TString(h1.GetName()).Contains("monoW") and not ROOT.TString(h1.GetName()).Contains("monoZ"):
                 continue;
             if ROOT.TString(h1.GetName()).Contains("Up") or ROOT.TString(h1.GetName()).Contains("Down") or ROOT.TString(h1.GetName()).Contains("Dw"):
@@ -95,48 +116,85 @@ if __name__ == '__main__':
                 monoZdmMass.append(list[3]);
 
     
-    if ((len(monoJInteraction) != len(monoWInteraction)) or  (len(monoWInteraction) != len(monoZInteraction)) or (len(monoJInteraction) != len(monoZInteraction))):
-        sys.exit("Problem with the mass point size between monoJ, monoW and monoZ  ---> exit ");
+        if ((len(monoJInteraction) != len(monoWInteraction)) or  (len(monoWInteraction) != len(monoZInteraction)) or (len(monoJInteraction) != len(monoZInteraction))):
+            sys.exit("Problem with the mass point size between monoJ, monoW and monoZ  ---> exit ");
 
         
-    for isig in range(len(monoJInteraction)):
-        
-        if options.category <= 1:
-            cat = "MJ"
-        else:
-            cat = "MV"
+        for isig in range(len(monoJInteraction)):
+            
+            if options.category <= 1:
+                cat = "MJ"
+            else:
+                cat = "MV"
 
-        if monoJInteraction[isig] != monoWInteraction[isig] or monoJInteraction[isig] != monoZInteraction[isig]:
-             sys.exit("Problem with the mass point interaction among monoJ, monoW and monoZ  ---> exit ");
-        if monoJMediatorMass[isig] != monoWMediatorMass[isig] or monoJMediatorMass[isig] != monoZMediatorMass[isig]:
-             sys.exit("Problem with the mass point mediator among monoJ, monoW and monoZ  ---> exit ");
-        if monoJdmMass[isig] != monoWdmMass[isig] or monoJdmMass[isig] != monoZdmMass[isig]:
-             sys.exit("Problem with the mass point DM among monoJ, monoW and monoZ  ---> exit ");
+            if monoJInteraction[isig] != monoWInteraction[isig] or monoJInteraction[isig] != monoZInteraction[isig]:
+                sys.exit("Problem with the mass point interaction among monoJ, monoW and monoZ  ---> exit ");
+            if monoJMediatorMass[isig] != monoWMediatorMass[isig] or monoJMediatorMass[isig] != monoZMediatorMass[isig]:
+                sys.exit("Problem with the mass point mediator among monoJ, monoW and monoZ  ---> exit ");
+            if monoJdmMass[isig] != monoWdmMass[isig] or monoJdmMass[isig] != monoZdmMass[isig]:
+                sys.exit("Problem with the mass point DM among monoJ, monoW and monoZ  ---> exit ");
+
+            if not options.batchMode:
+
+                os.system("mkdir -p "+options.outputDIR);
+    
+                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+                ROOT.gROOT.ProcessLine(command.Data());
+            else:
+            
+                os.system("mkdir -p "+options.jobDIR);
+                os.system("mkdir -p "+currentDIR+"/"+options.inputDIR+"/"+options.outputDIR);
+
+                jobName = "job_%s_%s_%s_%s"%(cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]);
+            
+                ## write job sh file                                                                                                                                      
+                jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
+                jobmacro.write("{\n");
+                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
+                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+                jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
+                jobmacro.write("}\n");
+                jobmacro.close();
+
+
+                jobscript = open('%s/%s.sh'%(options.jobDIR,jobName),'w')
+                jobscript.write('cd %s \n'%currentDIR)
+                jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                jobscript.write('cd - \n')
+                jobscript.write('scp %s/%s ./\n'%(currentDIR+"/"+options.inputDIR,options.templateFile))
+                jobscript.write('scp '+currentDIR+'/%s/%s.C ./ \n'%(options.jobDIR,jobName))
+                jobscript.write('root -l -b -q %s.C \n'%(jobName))
+                jobscript.write('scp workspace_%s_%s_%s_%s.root %s/%s/%s\n'%(cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],currentDIR,options.inputDIR,options.outputDIR))
+            
+                os.system('chmod a+x %s/%s.sh'%(options.jobDIR,jobName))
+            
+                if options.submit:
+                    os.system('bsub -q %s -o %s/%s/%s.log -e %s/%s/%s.err %s/%s/%s.sh'%(options.queque,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName))
+
+
+    else: ## for Higgs invisible
 
         if not options.batchMode:
-
-
+            
             os.system("mkdir -p "+options.outputDIR);
-    
-            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
+            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_hinv.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,options.observable,"Vector","1000","50",options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
             ROOT.gROOT.ProcessLine(command.Data());
         else:
-            
+
             os.system("mkdir -p "+options.jobDIR);
             os.system("mkdir -p "+currentDIR+"/"+options.inputDIR+"/"+options.outputDIR);
 
-            jobName = "job_%s_%s_%s_%s"%(cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]);
-            
+            jobName = "job_%s_hinv"%(cat);
+
             ## write job sh file                                                                                                                                             
             jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,options.connectWZ,options.connectTop,options.shapeSys))
+            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.\
+templateFile,options.category,cat,options.observable,"Vector","1000","50",options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
             jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
             jobmacro.write("}\n");
             jobmacro.close();
-
-
             jobscript = open('%s/%s.sh'%(options.jobDIR,jobName),'w')
             jobscript.write('cd %s \n'%currentDIR)
             jobscript.write('eval ` scramv1 runtime -sh ` \n')
@@ -144,10 +202,9 @@ if __name__ == '__main__':
             jobscript.write('scp %s/%s ./\n'%(currentDIR+"/"+options.inputDIR,options.templateFile))
             jobscript.write('scp '+currentDIR+'/%s/%s.C ./ \n'%(options.jobDIR,jobName))
             jobscript.write('root -l -b -q %s.C \n'%(jobName))
-            jobscript.write('scp workspace_%s_%s_%s_%s.root %s/%s/%s\n'%(cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],currentDIR,options.inputDIR,options.outputDIR))
-            
+            jobscript.write('scp workspace_%s_hinv.root %s/%s/%s\n'%(cat));
             os.system('chmod a+x %s/%s.sh'%(options.jobDIR,jobName))
-            
+
             if options.submit:
                 os.system('bsub -q %s -o %s/%s/%s.log -e %s/%s/%s.err %s/%s/%s.sh'%(options.queque,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName))
-        
+

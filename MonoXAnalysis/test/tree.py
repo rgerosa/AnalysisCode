@@ -228,7 +228,7 @@ JECConfiguration(process,options.usePrivateSQliteJEC,options.JECEra,options.isMC
 
 from AnalysisCode.MonoXAnalysis.JERConfiguration_cff import JERConfiguration
 ## connect to a local SQLite file or take corrections from GT
-JERConfiguration(process,options.usePrivateSQliteJER)
+JERConfiguration(process,options.usePrivateSQliteJER,options.JECEra,options.isMC)
 
 ## Setup MET filters or not --> 76X everything inside miniAOD is already good
 process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
