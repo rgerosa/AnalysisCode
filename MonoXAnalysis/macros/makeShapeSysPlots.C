@@ -220,7 +220,7 @@ void makeShapeSysPlots(string inputFileName, string controlRegion, string proces
   frame->GetYaxis()->SetTitleSize(0.050);
 
   frame ->Draw();
-  CMS_lumi(pad1, 4, 0, true);
+  CMS_lumi(pad1,"2.30",true);
   nominalHist->Draw("P same");
   hist_bUp->Draw("hist same");
   hist_bDw->Draw("hist same");

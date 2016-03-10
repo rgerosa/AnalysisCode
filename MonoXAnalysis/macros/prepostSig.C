@@ -10,6 +10,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   canvas->SetTickx();
   canvas->SetTicky();
   canvas->cd();
+  canvas->SetBottomMargin(0.3);
+  canvas->SetRightMargin(0.06);
 
   TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
   pad1->SetTickx();
@@ -18,6 +20,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.295);
   pad2->SetTickx();
   pad2->SetTicky();
+
+
+  setTDRStyle();
 
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
@@ -189,12 +194,12 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   outputfile.close();
 
   // pad 1
-  pad1->SetRightMargin(0.075);
-  pad1->SetLeftMargin(0.10);
+  pad1->SetRightMargin(0.06);
+  pad1->SetLeftMargin(0.12);
   pad1->SetTopMargin(0.06);
   pad1->SetBottomMargin(0.0);
   pad1->Draw();
-  pad1->cd();    
+  pad1->cd();
   
   //signal style  
   if(mjhist){
@@ -260,21 +265,21 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     stack->Add(sighist);
 
 
-  TH1* frame = NULL;
+  TH1* frame = (TH1*) dthist->Clone("frame");
+  frame->Reset();
   if(category <=1)
-    frame = pad1->DrawFrame(200., 0.0005, 1250., 100000, "");
+    frame->GetYaxis()->SetRangeUser(0.0005,1000000);
   else
-    frame = pad1->DrawFrame(250., 0.0002, 1000., 100000, "");
+    frame->GetYaxis()->SetRangeUser(0.00007,4000000);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
   frame->GetYaxis()->SetTitle("Events / GeV");
-  frame->GetYaxis()->CenterTitle();
-  frame->GetYaxis()->SetLabelSize(0.040);
-  frame->GetYaxis()->SetTitleSize(0.05);
+  frame->GetYaxis()->SetLabelSize(0.045);
+  frame->GetYaxis()->SetTitleSize(0.055);
   frame ->Draw();
 
-  CMS_lumi(pad1, 4, 0,true);
+  CMS_lumi(pad1,"2.30");
 
   stack ->Draw("HIST SAME");
   if(mjhist && !plotSBFit)
@@ -284,56 +289,61 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   if(mzhist && !plotSBFit)
     mzhist->Draw("HIST SAME");
 
+  dthist->SetMarkerSize(1.2);
+  dthist->SetMarkerStyle(20);
   dthist->SetFillStyle(0);
   dthist->SetFillColor(0);
   dthist->SetLineColor(kBlack);
-  dthist->SetMarkerSize(1);
-  dthist->SetLineWidth(2);
-  dthist->SetMarkerStyle(20);
+  dthist->SetLineWidth(1);
   dthist->SetMarkerColor(kBlack);
-  dthist->Draw("P SAME");
+  dthist->Draw("PE SAME");
   
   TLegend* leg = new TLegend(0.53, 0.32, 0.9, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
-  leg->SetBorderSize(0);
-  
+  leg->SetBorderSize(0);  
 
   canvas->cd();
   pad2->SetTopMargin(0.08);
-  pad2->SetRightMargin(0.075);
-  pad2->SetLeftMargin(0.10);
-  pad2->SetGridy();
+  pad2->SetRightMargin(0.06);
+  pad2->SetLeftMargin(0.12);
   pad2->SetBottomMargin(0.35);
+  pad2->SetGridy();
   pad2->Draw();
   pad2->cd();
 
-  TH1* frame2 = NULL;
+  TH1* frame2 =  (TH1*) dthist->Clone("frame");
+  frame2->Reset("ICES");
+
   if(category <=1)
-    frame2 = pad2->DrawFrame(200., 0.5, 1250., 1.5, "");
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2 = pad2->DrawFrame(250., 0.5, 1000., 1.5, "");
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
 
   frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
-  frame2->GetXaxis()->SetLabelSize(0.10);
-  frame2->GetYaxis()->SetLabelSize(0.08);
-  frame2->GetXaxis()->SetTitleSize(0.12);
+  frame2->GetXaxis()->SetLabelSize(0.11);
+  frame2->GetYaxis()->SetLabelSize(0.10);
+  frame2->GetXaxis()->SetTitleSize(0.135);
   frame2->GetYaxis()->SetTitleOffset(0.4);
   frame2->GetYaxis()->SetTitleSize(0.12);
-  frame2->GetYaxis()->SetNdivisions(504, false);
+  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->GetXaxis()->SetNdivisions(510);
   frame2->Draw();
   
   // for post-fit pre-fit data/mc
   TH1* dphist = (TH1*)dthist->Clone("dahist");
   TH1* dahist = (TH1*)dthist->Clone("dahist");
+
   dphist->SetLineColor(kRed);
-  dphist->SetMarkerColor(kRed);
-  dphist->SetMarkerSize(0.7);
   dahist->SetLineColor(kBlue);
+  dphist->SetMarkerColor(kRed);
+  dphist->SetMarkerSize(1);
+  dphist->SetMarkerStyle(20);
   dahist->SetMarkerColor(kBlue);
-  dahist->SetMarkerSize(0.7);
+  dahist->SetMarkerSize(1);
+  dahist->SetMarkerStyle(20);
 
   TH1* mphist = (TH1*)tphist->Clone("mphist");
   TH1* mchist = (TH1*)zlhist->Clone("mchist");
@@ -376,6 +386,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   unhist->SetMarkerSize(0);
   unhist->SetLineColor(kBlack);
   unhist->SetLineStyle(2);
+  unhist->SetLineWidth(2);
   unhist->SetFillColor(0);
 
   dahist->GetXaxis()->SetLabelOffset(999999);
@@ -389,27 +400,31 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   if(!blind)
     dphist->Draw("PE SAME");
   
-  pad2->RedrawAxis("sameaxis");
+  pad2->RedrawAxis("G sameaxis");
 
   canvas->cd();
   pad1->cd();
 
-  leg->AddEntry(dthist, "Data");
+  leg->AddEntry(dthist, "Data", "PEL");
+
   if(sighist && plotSBFit)
     leg->AddEntry(sighist, "Fitted Total Mono-X Signal", "F");
-  leg->AddEntry(znhist, "Z(#nu#nu)", "F");
-  leg->AddEntry(wlhist, "W(l#nu)", "F");
+
+  leg->AddEntry(znhist, "Z #rightarrow #nu#nu", "F");
+  leg->AddEntry(wlhist, "W #rightarrow l#nu", "F");
   leg->AddEntry(qchist, "QCD", "F");
-  leg->AddEntry(tthist, "Top", "F");
+  leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(zlhist, "Others", "F");
+
   if(mjhist && !plotSBFit)
     leg->AddEntry(mjhist, "Mono-J (V,2 TeV)");
   if(mwhist && !plotSBFit)
     leg->AddEntry(mwhist, "Mono-W (V,2 TeV)");
   if(mzhist && !plotSBFit)
     leg->AddEntry(mzhist, "Mono-Z (V,2 TeV)");
-  leg->AddEntry(dphist,"Expected (post-fit)");
-  leg->AddEntry(dahist,"Expected (pre-fit)");
+
+  leg->AddEntry(dahist,"Expected (post-fit)","PEL");
+  leg->AddEntry(dphist,"Expected (pre-fit)","PEL");
 
   leg->Draw("SAME");
   

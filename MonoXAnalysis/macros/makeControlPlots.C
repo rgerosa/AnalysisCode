@@ -25,7 +25,10 @@ void makeControlPlots(string templateFileName,
   canvas->SetTickx();
   canvas->SetTicky();
   canvas->cd();
-  canvas->SetLeftMargin(0.11);
+  canvas->SetBottomMargin(0.3);
+  canvas->SetRightMargin(0.06);
+
+  setTDRStyle();
 
   TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
   pad1->SetTickx();
@@ -255,10 +258,9 @@ void makeControlPlots(string templateFileName,
   // set colors
   if(datahist){
     datahist->SetLineColor(kBlack);
-    datahist->SetLineWidth(2);
     datahist->SetMarkerColor(kBlack);
     datahist->SetMarkerStyle(20);
-    datahist->SetMarkerSize(1.);
+    datahist->SetMarkerSize(1.2);
   }
 
   if(vnnhist)  {
@@ -500,14 +502,17 @@ void makeControlPlots(string templateFileName,
   }
 
 
-  TH1* frame = NULL;
+  TH1* frame = (TH1*) datahist->Clone("frame");
+  frame->Reset();
   vector<float> bins = selectBinning(observable,category);
 
-  pad1->SetRightMargin(0.075);
+  pad1->SetRightMargin(0.06);
+  pad1->SetLeftMargin(0.12);
   pad1->SetTopMargin(0.06);
-  pad1->SetBottomMargin(0.0);  
+  pad1->SetBottomMargin(0.0);
   pad1->Draw();
   pad1->cd();
+
 
   float xMin = bins.front();
   if(observable == "tau2tau1")
@@ -516,31 +521,39 @@ void makeControlPlots(string templateFileName,
     xMin = 0.01;
   float xMax = bins.back();
 
-  if(category <= 1 and isLog)
-    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1000000, "");
-  else if(category <= 1 and not isLog)
-    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1.5, "");
-  else if(category > 1 and isLog)
-    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*1000000, "");
-  else
-    frame =  pad1->DrawFrame(xMin, 1.5e-4, xMax, datahist->GetMaximum()*2.5, "");
+  if(category <= 1 and isLog){
+    frame->GetXaxis()->SetRangeUser(xMin,xMax);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
+  }
+  else if(category <= 1 and not isLog){
+    frame->GetXaxis()->SetRangeUser(xMin,xMax);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1.5);
+  }
+  else if(category > 1 and isLog){
+    frame->GetXaxis()->SetRangeUser(xMin,xMax);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
+  }
+  else{
+    frame->GetXaxis()->SetRangeUser(xMin,xMax);
+    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*2.5);
+  }
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   if(TString(observableLatex).Contains("GeV"))
     frame->GetYaxis()->SetTitle("Events / GeV");
   else
     frame->GetYaxis()->SetTitle("Events");
-    
-  frame->GetYaxis()->CenterTitle();
-  frame->GetXaxis()->SetLabelSize(0.);
-  frame->GetXaxis()->SetLabelOffset(1.10);
-  frame->GetXaxis()->SetTitleSize(0.);
-  frame->GetYaxis()->SetTitleSize(0.050);
 
+  frame->GetXaxis()->SetTitleSize(0);
+  frame->GetXaxis()->SetLabelSize(0);
+  frame->GetYaxis()->SetLabelSize(0.045);
+  frame->GetYaxis()->SetTitleSize(0.055);
   frame ->Draw();
-  CMS_lumi(pad1, 4, 0, true);
+
+  CMS_lumi(pad1,"2.30");
+
   stack ->Draw("HIST SAME");
-  datahist->Draw("P SAME");
+  datahist->Draw("PE SAME");
 
   if(controlRegion == "SR" and not isHiggsInvisible){
     monoJhist->Draw("hist same");
@@ -556,33 +569,33 @@ void makeControlPlots(string templateFileName,
 
   TLegend* leg = NULL;
   if(controlRegion == "gam")
-    leg = new TLegend(0.58, 0.66, 0.85, 0.92);
+    leg = new TLegend(0.62, 0.75, 0.85, 0.92);
   else if(controlRegion == "SR" and isLog){
-    leg = new TLegend(0.32, 0.42, 0.85, 0.92);
+    leg = new TLegend(0.38, 0.50, 0.85, 0.92);
     if(observable != "njet")
       frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
     else
       frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000000000);
   }
   else if(controlRegion == "SR" and not isLog){
-    leg = new TLegend(0.32, 0.42, 0.85, 0.92);
+    leg = new TLegend(0.38, 0.50, 0.85, 0.92);
     frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*2.5);
   }
   else
-    leg = new TLegend(0.58, 0.42, 0.85, 0.92);
+    leg = new TLegend(0.62, 0.50, 0.85, 0.92);
 
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 
   if(controlRegion == "gam"){
-    leg->AddEntry(datahist, "Data","PL");
+    leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "zmm"){
-    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
     leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
     leg->AddEntry(tophist, "Top","F");
@@ -592,7 +605,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "zee"){
-    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
     leg->AddEntry(vlhist,  "W #rightarrow e #nu","F");
     leg->AddEntry(tophist, "Top","F");
@@ -602,7 +615,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "wmn"){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
     leg->AddEntry(tophist,  "Top","F");
@@ -612,7 +625,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "wen"){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow ee","F");
     leg->AddEntry(tophist,"Top","F");
@@ -622,7 +635,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "topmu" and plotResonant){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(tophist_matched, "Top Resonant","F");
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
@@ -633,7 +646,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "topmu" and not plotResonant){
-    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
@@ -643,7 +656,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "topel" and not plotResonant){
-    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(vlhist,  "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
@@ -653,7 +666,7 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "topel" and plotResonant){
-    leg->AddEntry(datahist, "Data");
+    leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(tophist_matched, "Top Resonant","F");
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
@@ -665,7 +678,7 @@ void makeControlPlots(string templateFileName,
 
   else if(controlRegion == "SR"){
     leg->SetNColumns(2);
-    leg->AddEntry(datahist,"Data");
+    leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
     leg->AddEntry(vlhist,  "W(l#nu)", "F");
     leg->AddEntry(vllhist, "Z(ll)", "F");
@@ -695,9 +708,10 @@ void makeControlPlots(string templateFileName,
 
   // make data/MC ratio plot
   canvas->cd();
-  pad2->SetTopMargin(0.04);
+  pad2->SetTopMargin(0.08);
+  pad2->SetRightMargin(0.06);
+  pad2->SetLeftMargin(0.12);
   pad2->SetBottomMargin(0.35);
-  pad2->SetRightMargin(0.075);
   pad2->SetGridy();
   pad2->Draw();
   pad2->cd();
@@ -706,23 +720,19 @@ void makeControlPlots(string templateFileName,
   if(category <= 1)
     frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
   else if(category > 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.0, xMax, 2.0, "");
+    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
 
-  frame2->GetXaxis()->SetLabelSize(0.10);
-  frame2->GetXaxis()->SetLabelOffset(0.03);
-  frame2->GetXaxis()->SetTitleSize(0.13);
-  frame2->GetXaxis()->SetTitleOffset(1.05);
-  frame2->GetYaxis()->SetLabelSize(0.08);
-  frame2->GetYaxis()->SetTitleSize(0.10);
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
-  if(category <= 1)
-    frame2->GetYaxis()->SetNdivisions(503, false);
-  else
-    frame2->GetYaxis()->SetNdivisions(504, false);
   frame2->GetYaxis()->SetTitle("Data/Pred.");
-  frame2->GetYaxis()->SetTitleOffset(0.5);
+  frame2->GetYaxis()->CenterTitle();
+  frame2->GetXaxis()->SetLabelSize(0.11);
+  frame2->GetYaxis()->SetLabelSize(0.10);
+  frame2->GetXaxis()->SetTitleSize(0.135);
+  frame2->GetYaxis()->SetTitleOffset(0.4);
+  frame2->GetYaxis()->SetTitleSize(0.12);
+  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->GetXaxis()->SetNdivisions(510);
   frame2->Draw();
-  
 
   TH1* nhist = (TH1*) datahist->Clone("datahist_tot");
   TH1* unhist = (TH1*) datahist->Clone("unhist");
@@ -732,7 +742,7 @@ void makeControlPlots(string templateFileName,
   nhist->SetStats(kFALSE);
   nhist->SetLineColor(kBlack);
   nhist->SetMarkerColor(kBlack);
-  nhist->SetMarkerSize(1.0);
+  nhist->SetMarkerSize(1.2);
 
   // set to zero for plotting reasons of error bar and error band
   for (int i = 1; i <= dhist->GetNbinsX(); i++) dhist->SetBinError(i, 0);
@@ -752,7 +762,7 @@ void makeControlPlots(string templateFileName,
   unhist->SetLineStyle(2);
   unhist->SetFillColor(0);
   
-  nhist->Draw("PE SAME");
+  nhist->Draw("PE1 SAME");
   dhist_p->Draw("E2 SAME");
   unhist->Draw("SAME");
   nhist->Draw("PE SAME");

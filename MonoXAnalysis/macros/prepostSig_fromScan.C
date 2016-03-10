@@ -296,7 +296,7 @@ void prepostSig_fromScan(string fitFilename,
   frame->GetYaxis()->SetTitleSize(0.05);
   frame ->Draw();
 
-  CMS_lumi(pad1, 4, 0,true);
+  CMS_lumi(pad1,"2.30");
 
   stack ->Draw("HIST SAME");
   if(mjhist && !plotSBFit)

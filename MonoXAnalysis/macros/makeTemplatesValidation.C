@@ -19,16 +19,16 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
   vector<string> dmMassInterpolation;
 
   if(interaction == "Vector"){
+    medMassFullSIM.push_back("200"); medMassInterpolation.push_back("0200");
     medMassFullSIM.push_back("500"); medMassInterpolation.push_back("0525");
     medMassFullSIM.push_back("500"); medMassInterpolation.push_back("0525");
     medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
     medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
-    medMassFullSIM.push_back("2000"); medMassInterpolation.push_back("2000");
+    dmMassFullSIM.push_back("1");  dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("1");  dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("150"); dmMassInterpolation.push_back("0150");
     dmMassFullSIM.push_back("50");  dmMassInterpolation.push_back("0050");
     dmMassFullSIM.push_back("150"); dmMassInterpolation.push_back("0150");
-    dmMassFullSIM.push_back("10");  dmMassInterpolation.push_back("0010");			     
   }
   else if(interaction == "Axial"){
     medMassFullSIM.push_back("200"); medMassInterpolation.push_back("0200");
@@ -118,7 +118,7 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     histoInterpolation->SetMarkerStyle(20);    
     histoInterpolation->Draw("PE");
 
-    CMS_lumi(pad1, 4, 0, true);
+    CMS_lumi(pad1,"2.30",true);
 
     TH1* histoFullSIM_band = (TH1*) histoFullSIM->Clone("histoFullSIM_band");
     histoFullSIM_band->SetFillColor(kBlack);
@@ -154,7 +154,7 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     frame2->GetYaxis()->SetNdivisions(504, false);
     frame2->Draw();
     
-    TH1F* ratio = (TH1*) histoFullSIM->Clone("ratio");
+    TH1F* ratio = (TH1F*) histoFullSIM->Clone("ratio");
     ratio->Divide(histoInterpolation);
     ratio->SetMarkerColor(kBlack);
     ratio->SetMarkerSize(0.8);

@@ -218,7 +218,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   frame_ZG->GetYaxis()->SetTitleSize(0.050);
 
   frame_ZG->Draw();
-  CMS_lumi(pad1_ZG, 4, 0, true);
+  CMS_lumi(pad1_ZG,"2.30",true);
  
   canvas_ZG->cd();
   pad2_ZG->SetTopMargin(0.04);
@@ -278,7 +278,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
 
   // Draw things
   pad1_ZG->cd();
-  CMS_lumi(pad1_ZG, 4, 0, true);
+  CMS_lumi(pad1_ZG, "2.30",true);
   TH1* ZGMC_mm_band = (TH1*) ZGMC_mm->Clone("ZGMC_mm_band");
   ZGMC_mm_band->SetFillColor(kGray);
   ZGMC_mm_band->Draw("E2same");
@@ -318,7 +318,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad1_ZG->cd(); 
   frame_ZG->Draw();
   TH1* ZGMC_ee_band = (TH1*) ZGMC_ee->Clone("ZGMC_ee_band");
-  CMS_lumi(pad1_ZG, 4, 0, true);
+  CMS_lumi(pad1_ZG, "2.30",true);
   ZGMC_ee_band->SetFillColor(kGray);
   ZGMC_ee_band->Draw("E2same");
   ZGMC_ee->Draw("HIST same");
@@ -360,7 +360,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   frame_ZG->Draw();
   TH1* ZGMC_ll_band = (TH1*) ZGMC_ll->Clone("ZGMC_ll_band");
   ZGMC_ll_band->SetFillColor(kGray);
-  CMS_lumi(pad1_ZG, 4, 0, true);
+  CMS_lumi(pad1_ZG, "2.30",true);
   ZGMC_ll_band->Draw("E2same");
   ZGMC_ll->Draw("HIST same");
   ZGData_ll->Draw("PESAME");
@@ -426,7 +426,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   frame_ZW->GetYaxis()->SetTitleSize(0.050);
 
   frame_ZW->Draw();
-  CMS_lumi(pad1_ZW, 4, 0, true);
+  CMS_lumi(pad1_ZW, "2.30",true);
  
   canvas_ZW->cd();
   pad2_ZW->SetTopMargin(0.04);
@@ -487,7 +487,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   // Draw things
   pad1_ZW->cd();
   TH1* ZWMC_mm_band = (TH1*) ZWMC_mm->Clone("ZWMC_mm_band");
-  CMS_lumi(pad1_ZW, 4, 0, true);
+  CMS_lumi(pad1_ZW, "2.30",true);
   ZWMC_mm_band->SetFillColor(kGray);
   ZWMC_mm_band->Draw("E2same");
   ZWMC_mm->Draw("HIST same");
@@ -526,7 +526,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad1_ZW->cd(); 
   frame_ZW->Draw();
   TH1* ZWMC_ee_band = (TH1*) ZWMC_ee->Clone("ZWMC_ee_band");
-  CMS_lumi(pad1_ZW, 4, 0, true);
+  CMS_lumi(pad1_ZW, "2.30",true);
   ZWMC_ee_band->SetFillColor(kGray);
   ZWMC_ee_band->Draw("E2same");
   ZWMC_ee->Draw("HIST same");
@@ -567,7 +567,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad1_ZW->cd();
   frame_ZW->Draw();
   TH1* ZWMC_ll_band = (TH1*) ZWMC_ll->Clone("ZWMC_ll_band");
-  CMS_lumi(pad1_ZW, 4, 0, true);
+  CMS_lumi(pad1_ZW, "2.30",true);
   ZWMC_ll_band->SetFillColor(kGray);
   ZWMC_ll_band->Draw("E2same");
   ZWMC_ll->Draw("HIST same");

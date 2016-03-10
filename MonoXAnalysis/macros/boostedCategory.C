@@ -246,7 +246,7 @@ void boostedCategory(string signalHypothesis, string outputDir){
   frame->GetYaxis()->SetTitleSize(0.050);
   frame->Draw();
 
-  CMS_lumi(pad1, 4, 0, true);
+  CMS_lumi(pad1,"2.30",true);
 
   TGraphAsymmErrors* boostedEff = new TGraphAsymmErrors();
   boostedEff->BayesDivide(numerator_boosted,denominator);

@@ -3,197 +3,125 @@
 #include "TLine.h"
 #include "TBox.h"
 #include "TASImage.h"
+#include "TStyle.h"
 #include <iostream>
 
-//
-// Global variables
-//
+void setTDRStyle (){
 
-TString cmsText     = "CMS";
-float cmsTextFont   = 61;  // default is helvetic-bold
+  gStyle->SetCanvasBorderMode(0);
+  gStyle->SetCanvasColor(0);
+  gStyle->SetCanvasDefH(600);
+  gStyle->SetCanvasDefW(600);
+  gStyle->SetCanvasDefX(0);
+  gStyle->SetCanvasDefY(0);
 
-TString extraText   = "Preliminary";
-float extraTextFont = 52;  // default is helvetica-italics
+  gStyle->SetPadBorderMode(0);
+  gStyle->SetPadColor(0); 
+  gStyle->SetPadGridX(0);
+  gStyle->SetPadGridY(0);
+  gStyle->SetGridColor(0);
+  gStyle->SetGridStyle(3);
+  gStyle->SetGridWidth(1);
 
-// text sizes and text offsets with respect to the top frame
-// in unit of the top margin size
-float lumiTextSize     = 0.6;
-float lumiTextOffset   = 0.2;
-float cmsTextSize      = 0.75;
-float cmsTextOffset    = 0.1;  // only used in outOfFrame version
+  gStyle->SetFrameBorderMode(0);
+  gStyle->SetFrameBorderSize(1);
+  gStyle->SetFrameFillColor(0);
+  gStyle->SetFrameFillStyle(0);
+  gStyle->SetFrameLineColor(1);
+  gStyle->SetFrameLineStyle(1);
+  gStyle->SetFrameLineWidth(1);
+  gStyle->SetHistLineColor(1);
+  gStyle->SetHistLineStyle(0);
+  gStyle->SetHistLineWidth(1);
 
-float relPosX    = 0.045;
-float relPosY    = 0.035;
-float relExtraDY = 1.2;
-
-// ratio of "CMS" and extra text size
-float extraOverCmsTextSize  = 0.76;
-
-TString lumi_13TeV = "2.30 fb^{-1}";
-TString lumi_8TeV  = "19.7 fb^{-1}";
-TString lumi_7TeV  = "5.1 fb^{-1}";
-TString lumi_sqrtS = "";
-
-bool drawLogo      = false;
-
-
-void 
-CMS_lumi( TPad* pad, int iPeriod, int iPosX, bool writeExtraText)
-{            
-  bool outOfFrame    = false;
-  if( iPosX/10==0 ) 
-    {
-      outOfFrame = true;
-    }
-  int alignY_=3;
-  int alignX_=2;
-  if( iPosX/10==0 ) alignX_=1;
-  if( iPosX==0    ) alignX_=1;
-  if( iPosX==0    ) alignY_=1;
-  if( iPosX/10==1 ) alignX_=1;
-  if( iPosX/10==2 ) alignX_=2;
-  if( iPosX/10==3 ) alignX_=3;
-  if( iPosX == 0  ) relPosX = 0.12;
-  int align_ = 10*alignX_ + alignY_;
-
-  float H = pad->GetWh();
-  float W = pad->GetWw();
-  float l = pad->GetLeftMargin();
-  float t = pad->GetTopMargin();
-  float r = pad->GetRightMargin();
-  float b = pad->GetBottomMargin();
-  //  float e = 0.025;
-
-  pad->cd();
-
-  TString lumiText;
-  if( iPeriod==1 )
-    {
-      lumiText += lumi_7TeV;
-      lumiText += " (7 TeV)";
-    }
-  else if ( iPeriod==2 )
-    {
-      lumiText += lumi_8TeV;
-      lumiText += " (8 TeV)";
-    }
-  else if( iPeriod==3 ) 
-    {
-      lumiText = lumi_8TeV; 
-      lumiText += " (8 TeV)";
-      lumiText += " + ";
-      lumiText += lumi_7TeV;
-      lumiText += " (7 TeV)";
-    }
-  else if ( iPeriod==4 )
-    {
-      lumiText += lumi_13TeV;
-      lumiText += " (13 TeV)";
-    }
-  else if ( iPeriod==7 )
-    { 
-      if( outOfFrame ) lumiText += "#scale[0.85]{";
-      lumiText += lumi_13TeV; 
-      lumiText += " (13 TeV)";
-      lumiText += " + ";
-      lumiText += lumi_8TeV; 
-      lumiText += " (8 TeV)";
-      lumiText += " + ";
-      lumiText += lumi_7TeV;
-      lumiText += " (7 TeV)";
-      if( outOfFrame) lumiText += "}";
-    }
-  else if ( iPeriod==12 )
-    {
-      lumiText += "8 TeV";
-    }
-  else if ( iPeriod==0 )
-    {
-      lumiText += lumi_sqrtS;
-    }
-   
-  std::cout << lumiText << endl;
-
-  TLatex latex;
-  latex.SetNDC();
-  latex.SetTextAngle(0);
-  latex.SetTextColor(kBlack);    
-
-  float extraTextSize = extraOverCmsTextSize*cmsTextSize;
-
-  latex.SetTextFont(42);
-  latex.SetTextAlign(31); 
-  latex.SetTextSize(lumiTextSize*t);    
-  latex.DrawLatex(1-r,1-t+lumiTextOffset*t,lumiText);
-
-  if( outOfFrame )
-    {
-      latex.SetTextFont(cmsTextFont);
-      latex.SetTextAlign(11); 
-      latex.SetTextSize(cmsTextSize*t);    
-      latex.DrawLatex(l,1-t+lumiTextOffset*t,cmsText);
-    }
+  gStyle->SetEndErrorSize(2);
+  gStyle->SetFuncColor(2);
+  gStyle->SetFuncStyle(1);
+  gStyle->SetFuncWidth(1);
+  gStyle->SetOptDate(0);
   
-  pad->cd();
+  gStyle->SetOptFile(0);
+  gStyle->SetOptStat(0);
+  gStyle->SetStatColor(0); 
+  gStyle->SetStatFont(42);
+  gStyle->SetStatFontSize(0.04);
+  gStyle->SetStatTextColor(1);
+  gStyle->SetStatFormat("6.4g");
+  gStyle->SetStatBorderSize(1);
+  gStyle->SetStatH(0.1);
+  gStyle->SetStatW(0.15);
 
-  float posX_=0;
-  if( iPosX%10<=1 )
-    {
-      posX_ =   l + relPosX*(1-l-r);
-    }
-  else if( iPosX%10==2 )
-    {
-      posX_ =  l + 0.5*(1-l-r);
-    }
-  else if( iPosX%10==3 )
-    {
-      posX_ =  1-r - relPosX*(1-l-r);
-    }
-  float posY_ = 1-t - relPosY*(1-t-b);
-  if( !outOfFrame )
-    {
-      if( drawLogo )
-	{
-	  posX_ =   l + 0.045*(1-l-r)*W/H;
-	  posY_ = 1-t - 0.045*(1-t-b);
-	  float xl_0 = posX_;
-	  float yl_0 = posY_ - 0.15;
-	  float xl_1 = posX_ + 0.15*H/W;
-	  float yl_1 = posY_;
-	  TASImage* CMS_logo = new TASImage("CMS-BW-label.png");
-	  TPad* pad_logo = new TPad("logo","logo", xl_0, yl_0, xl_1, yl_1 );
-	  pad_logo->Draw();
-	  pad_logo->cd();
-	  CMS_logo->Draw("X");
-	  pad_logo->Modified();
-	  pad->cd();
-	}
-      else
-	{
-	  latex.SetTextFont(cmsTextFont);
-	  latex.SetTextSize(cmsTextSize*t);
-	  latex.SetTextAlign(align_);
-	  latex.DrawLatex(posX_, posY_, cmsText);
-	  if( writeExtraText ) 
-	    {
-	      latex.SetTextFont(extraTextFont);
-	      latex.SetTextAlign(align_);
-	      latex.SetTextSize(extraTextSize*t);
-	      latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText);
-	    }
-	}
-    }
-  else if( writeExtraText )
-    {
-      if( iPosX==0) 
-	{
-	  posX_ =   l +  relPosX*(1-l-r);
-	  posY_ =   1-t+lumiTextOffset*t;
-	}
-      latex.SetTextFont(extraTextFont);
-      latex.SetTextSize(extraTextSize*t);
-      latex.SetTextAlign(align_);
-      latex.DrawLatex(posX_, posY_, extraText);      
-    }
-  return;
+  gStyle->SetPadTopMargin(0.07);
+  gStyle->SetPadBottomMargin(0.13);
+  gStyle->SetPadLeftMargin(0.12);
+  gStyle->SetPadRightMargin(0.05);
+
+  gStyle->SetOptTitle(0);
+  gStyle->SetTitleFont(42);
+  gStyle->SetTitleColor(1);
+  gStyle->SetTitleTextColor(1);
+  gStyle->SetTitleFillColor(10);
+  gStyle->SetTitleFontSize(0.05);
+
+  gStyle->SetTitleColor(1, "XYZ");
+  gStyle->SetTitleFont(42, "XYZ");
+  gStyle->SetTitleSize(0.05, "XYZ");
+  gStyle->SetTitleXOffset(0.9);
+  gStyle->SetTitleYOffset(1.05);
+ 
+  gStyle->SetLabelColor(1, "XYZ");
+  gStyle->SetLabelFont(42, "XYZ");
+  gStyle->SetLabelOffset(0.007, "XYZ");
+  gStyle->SetLabelSize(0.04, "XYZ");
+
+  gStyle->SetAxisColor(1, "XYZ");
+  gStyle->SetStripDecimals(1); 
+  gStyle->SetTickLength(0.025, "XYZ");
+  gStyle->SetNdivisions(510, "XYZ");
+  gStyle->SetPadTickX(1); 
+  gStyle->SetPadTickY(1);
+
+  gStyle->SetOptLogx(0);
+  gStyle->SetOptLogy(0);
+  gStyle->SetOptLogz(0);
+
+  gStyle->SetPaperSize(20.,20.);
+
 }
+
+void CMS_lumi(TPad* pad, string lumi, bool up = false){
+
+  TLatex* latex2 = new TLatex();
+  latex2->SetNDC();
+  latex2->SetTextSize(0.70*pad->GetTopMargin());
+  latex2->SetTextFont(42);
+  latex2->SetTextAlign(31);
+  latex2->DrawLatex(0.9, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
+
+  if(up){
+    latex2->SetTextSize(0.75*pad->GetTopMargin());
+    latex2->SetTextFont(62);
+    latex2->SetTextAlign(11);    
+    latex2->DrawLatex(0.15, 0.95, "CMS");
+  }
+  else{
+    latex2->SetTextSize(0.85*pad->GetTopMargin());
+    latex2->SetTextFont(62);
+    latex2->SetTextAlign(11);    
+    latex2->DrawLatex(0.15, 0.85, "CMS");
+  }
+
+  if(up){
+    latex2->SetTextSize(0.70*pad->GetTopMargin());
+    latex2->SetTextFont(52);
+    latex2->SetTextAlign(11);
+    latex2->DrawLatex(0.24, 0.95, "Preliminary");
+  }
+  else{
+    latex2->SetTextSize(0.75*pad->GetTopMargin());
+    latex2->SetTextFont(52);
+    latex2->SetTextAlign(11);    
+    latex2->DrawLatex(0.24, 0.85, "Preliminary");
+  }
+}
+
