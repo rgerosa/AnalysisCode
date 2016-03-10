@@ -230,7 +230,7 @@ void signalHiggshist(TFile* outfile,
   makehist4(ggHTree,ggHhist,ggHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04);
   makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,3.744e+03);
   makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,1.377e+03);
-  makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,0.87e+03);
+  makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,0.97e+03);
   
   if(doShapeSystematics){
  
@@ -242,42 +242,42 @@ void signalHiggshist(TFile* outfile,
     makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,0.97e+03);
     
     makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_bDw,wHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,0.97e+03);
     
     makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,0.97e+03);
     
     makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metJetDw,wHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,0.97e+03);
     
     makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metResUp,wHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,0.97e+03);
 
     makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metResDw,wHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,0.97e+03);
 
     makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metUncUp,wHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,0.97e+03);
 
     makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,4.387000e+04);
     makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,3.744e+03);
     makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,0.87e+03);
+    makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,0.97e+03);
     
   }
   
