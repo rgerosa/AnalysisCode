@@ -390,7 +390,12 @@ void createWorkspace(string inputName,
       TH1F* histoJerDw  = (TH1F*)templatesfile->Get(("ggHhist_metResDw_"+observable).c_str());
       TH1F* histoUncUp  = (TH1F*)templatesfile->Get(("ggHhist_metUncUp_"+observable).c_str());
       TH1F* histoUncDw  = (TH1F*)templatesfile->Get(("ggHhist_metUncDw_"+observable).c_str());
-      
+
+      TH1F* histoRenUp = (TH1F*)templatesfile->Get(("ggHhist_renUp_"+observable).c_str());
+      TH1F* histoRenDw = (TH1F*)templatesfile->Get(("ggHhist_renDw_"+observable).c_str());
+      TH1F* histoFacUp = (TH1F*)templatesfile->Get(("ggHhist_facUp_"+observable).c_str());
+      TH1F* histoFacDw = (TH1F*)templatesfile->Get(("ggHhist_facDw_"+observable).c_str());
+
       if(nominalHisto){
 	
       if(nominalHisto->GetNbinsX() > 10){
@@ -403,7 +408,12 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
-      
+
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ren_acceptUp", vars, wspace_SR, histoRenUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_ren_acceptDown", vars, wspace_SR, histoRenDw);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_fac_acceptUp", vars, wspace_SR, histoFacUp);
+      addTemplate("ggH_SR_"+suffix+"_QCDScale_fac_acceptDown", vars, wspace_SR, histoFacDw);
+
       addTemplate("ggH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
       addTemplate("ggH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
       addTemplate("ggH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
