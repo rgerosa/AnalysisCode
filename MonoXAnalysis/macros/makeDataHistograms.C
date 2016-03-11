@@ -281,6 +281,216 @@ void signalHiggshist(TFile* outfile,
     
   }
   
+
+  //smooth
+  for(auto hist: ggHhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist: vbfHhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist: wHhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist: zHhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  if(doShapeSystematics){
+
+
+    for(auto hist: ggHhist_renUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_renDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_facUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_facDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: ggHhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    ////
+    for(auto hist: vbfHhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: vbfHhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    ////
+    for(auto hist: wHhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: wHhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    ////
+    for(auto hist: zHhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist: zHhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+
+  }
+
   // store tempaltes in the output file                                                                                                                                     
   outfile->cd();
   for(auto hist : ggHhist) hist->Write();
@@ -714,6 +924,208 @@ void signalmchist(TFile* outfile,
     }
     itree++;
   }
+
+  //smooth                                                                                                                                                                      
+  for(auto sample : monoJhist){
+    for (auto histo : sample){
+      if(TString(histo->GetName()).Contains("_met"))
+	smoothEmptyBins(histo,2);
+    }
+  }
+
+  for(auto sample : monoWhist){
+    for (auto histo : sample){
+      if(TString(histo->GetName()).Contains("_met"))
+	smoothEmptyBins(histo,2);
+    }
+  }
+
+  for(auto sample : monoZhist){
+    for (auto histo : sample){
+      if(TString(histo->GetName()).Contains("_met"))
+	smoothEmptyBins(histo,2);
+    }
+  }
+
+
+  if(doShapeSystematics){
+
+    for(auto sample : monoJhist_bUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_bUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_bUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    ///
+    for(auto sample : monoJhist_bDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_bDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_bDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    /////////////
+    for(auto sample : monoJhist_metJetUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metJetUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metJetUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    ///
+    for(auto sample : monoJhist_metJetDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metJetDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metJetDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    /////////////
+    for(auto sample : monoJhist_metResUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metResUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metResUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    ///
+    for(auto sample : monoJhist_metResDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metResDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metResDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    /////////////
+    for(auto sample : monoJhist_metUncUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metUncUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metUncUp){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+
+    ///
+    for(auto sample : monoJhist_metUncDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoWhist_metUncDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+    
+    for(auto sample : monoZhist_metUncDw){
+      for (auto histo : sample){
+	if(TString(histo->GetName()).Contains("_met"))
+	  smoothEmptyBins(histo,2);
+      }
+    }
+  }
+  
+ 
 
   // store tempaltes in the output file
   outfile->cd();
@@ -1272,168 +1684,248 @@ void sigdatamchist(TFile* outfile,
   }
 
   //smooth
-  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
-    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(tthist.at(iHisto),2);
+  for(auto hist : tthist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < dihist.size(); iHisto++){
-    if(TString(dihist.at(iHisto)->GetName()).Contains("_met"))      
-      smoothEmptyBins(dihist.at(iHisto),2);
+  for(auto hist : dihist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < gmhist.size(); iHisto++){
-    if(TString(gmhist.at(iHisto)->GetName()).Contains("_met"))      
-      smoothEmptyBins(gmhist.at(iHisto),2);
+  for(auto hist : gmhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < zlhist.size(); iHisto++){
-    if(TString(zlhist.at(iHisto)->GetName()).Contains("_met"))          
-      smoothEmptyBins(zlhist.at(iHisto),2);
+  for(auto hist : dihist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < qcdhist.size(); iHisto++){
-    if(TString(qcdhist.at(iHisto)->GetName()).Contains("_met"))          
-      smoothEmptyBins(qcdhist.at(iHisto),2);
+  for(auto hist : zlhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist : qcdhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
   if(doShapeSystematics){
-
-    for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++){
-      if(TString(tthist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_bUp.at(iHisto),2);
+    
+    /////
+    for(auto hist : tthist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++){
-      if(TString(tthist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_bDw.at(iHisto),2);
+    
+    for(auto hist : dihist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++){
-      if(TString(tthist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : gmhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++){
-      if(TString(tthist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metJetDw.at(iHisto),2);
+    
+    for(auto hist : dihist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++){
-      if(TString(tthist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metResUp.at(iHisto),2);
+    
+    for(auto hist : zlhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++){
-      if(TString(tthist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metResDw.at(iHisto),2);
+    
+    ///////////
+    for(auto hist : tthist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++){
-      if(TString(tthist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metUncUp.at(iHisto),2);
+    
+    for(auto hist : dihist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++){
-      if(TString(tthist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-
-    for(size_t iHisto = 0; iHisto < dihist_bUp.size(); iHisto++){
-      if(TString(dihist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dihist_bUp.at(iHisto),2);
+    
+    for(auto hist : dihist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_bDw.size(); iHisto++){
-      if(TString(dihist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dihist_bDw.at(iHisto),2);
+    
+    for(auto hist : zlhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metJetUp.size(); iHisto++){
-      if(TString(dihist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dihist_metJetUp.at(iHisto),2);
+    
+    /////
+    for(auto hist : tthist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metJetDw.size(); iHisto++){
-      if(TString(dihist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dihist_metJetDw.at(iHisto),2);
+    
+    for(auto hist : dihist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metResUp.size(); iHisto++){
-      if(TString(dihist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dihist_metResUp.at(iHisto),2);
+    
+    for(auto hist : gmhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metResDw.size(); iHisto++){
-      if(TString(dihist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dihist_metResDw.at(iHisto),2);
+    
+    for(auto hist : dihist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metUncUp.size(); iHisto++){
-      if(TString(dihist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dihist_metUncUp.at(iHisto),2);
+    
+    for(auto hist : zlhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dihist_metUncDw.size(); iHisto++){
-      if(TString(dihist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dihist_metUncDw.at(iHisto),2);
+    
+    ///////////
+    for(auto hist : tthist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-
-
-    for(size_t iHisto = 0; iHisto < gmhist_bUp.size(); iHisto++){
-      if(TString(gmhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_bUp.at(iHisto),2);
+    
+    for(auto hist : dihist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_bDw.size(); iHisto++){
-      if(TString(gmhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_bDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetUp.size(); iHisto++){
-      if(TString(gmhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : dihist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetDw.size(); iHisto++){
-      if(TString(gmhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metJetDw.at(iHisto),2);
+    
+    for(auto hist : zlhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metResUp.size(); iHisto++){
-      if(TString(gmhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metResUp.at(iHisto),2);
+    
+    /////
+    for(auto hist : tthist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metResDw.size(); iHisto++){
-      if(TString(gmhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metResDw.at(iHisto),2);
+    
+    for(auto hist : dihist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncUp.size(); iHisto++){
-      if(TString(gmhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncUp.at(iHisto),2);
+    
+    for(auto hist : gmhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncDw.size(); iHisto++){
-      if(TString(gmhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : dihist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-
-
-    for(size_t iHisto = 0; iHisto < zlhist_bUp.size(); iHisto++){
-      if(TString(zlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(zlhist_bUp.at(iHisto),2);
+    
+    for(auto hist : zlhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_bDw.size(); iHisto++){
-      if(TString(zlhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(zlhist_bDw.at(iHisto),2);
+    
+    ///////////
+    for(auto hist : tthist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metJetUp.size(); iHisto++){
-      if(TString(zlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(zlhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : dihist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metJetDw.size(); iHisto++){
-      if(TString(zlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(zlhist_metJetDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metResUp.size(); iHisto++){
-      if(TString(zlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(zlhist_metResUp.at(iHisto),2);
+    
+    for(auto hist : dihist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metResDw.size(); iHisto++){
-      if(TString(zlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(zlhist_metResDw.at(iHisto),2);
+    
+    for(auto hist : zlhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metUncUp.size(); iHisto++){
-      if(TString(zlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(zlhist_metUncUp.at(iHisto),2);
+    
+    /////
+    for(auto hist : tthist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < zlhist_metUncDw.size(); iHisto++){
-      if(TString(zlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(zlhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : dihist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
+    
+    for(auto hist : gmhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dihist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : zlhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    ///////////
+    for(auto hist : tthist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dihist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dihist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : zlhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    
   }
-
 
   // data                                                
   cout<<"signal region analysis --> loop on data "<<endl;
@@ -2140,213 +2632,254 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
 
 
   }
-
   
   cout<<"lepton+jets control region --> Data"<<endl;
   makehist4(dttree, dthist, dthist_2D,   false, sample, category, false,  1.00, lumi, 0, ehists, "", false, true,0,isHiggsInvisible);
 
-
   //smooth
-  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
-    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(tthist.at(iHisto),2);
-  }
-  for(size_t iHisto = 0; iHisto < dbhist.size(); iHisto++){
-    if(TString(dbhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(dbhist.at(iHisto),2);
-  }
-  for(size_t iHisto = 0; iHisto < gmhist.size(); iHisto++){
-    if(TString(gmhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(gmhist.at(iHisto),2);
+  for(auto hist : tthist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
-    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(vlhist.at(iHisto),2);
+  for(auto hist : dbhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < vllhist.size(); iHisto++){
-    if(TString(vllhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(vllhist.at(iHisto),2);
+  for(auto hist : gmhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < qchist.size(); iHisto++){
-    if(TString(qchist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(qchist.at(iHisto),2);
+  for(auto hist : vlhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist : vllhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+  }
+
+  for(auto hist : qchist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
   if(doShapeSystematics){
 
-    for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++){
-      if(TString(tthist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_bUp.at(iHisto),2);
+    for(auto hist : tthist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++){
-      if(TString(tthist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_bDw.at(iHisto),2);
+    
+    for(auto hist : dbhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++){
-      if(TString(tthist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metJetUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++){
-      if(TString(tthist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++){
-      if(TString(tthist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(tthist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++){
-      if(TString(tthist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++){
-      if(TString(tthist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++){
-      if(TString(tthist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(tthist_metUncDw.at(iHisto),2);
-    }
-
-
-    for(size_t iHisto = 0; iHisto < dbhist_bUp.size(); iHisto++){
-      if(TString(dbhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_bUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_bDw.size(); iHisto++){
-      if(TString(dbhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_bDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metJetUp.size(); iHisto++){
-      if(TString(dbhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_metJetUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metJetDw.size(); iHisto++){
-      if(TString(dbhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metResUp.size(); iHisto++){
-      if(TString(dbhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metResDw.size(); iHisto++){
-      if(TString(dbhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metUncUp.size(); iHisto++){
-      if(TString(dbhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metUncDw.size(); iHisto++){
-      if(TString(dbhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metUncDw.at(iHisto),2);
-    }
-
-
-    for(size_t iHisto = 0; iHisto < gmhist_bUp.size(); iHisto++){
-      if(TString(gmhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_bUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_bDw.size(); iHisto++){
-      if(TString(gmhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_bDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetUp.size(); iHisto++){
-      if(TString(gmhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metJetUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetDw.size(); iHisto++){
-      if(TString(gmhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metResUp.size(); iHisto++){
-      if(TString(gmhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metResDw.size(); iHisto++){
-      if(TString(gmhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncUp.size(); iHisto++){
-      if(TString(gmhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncDw.size(); iHisto++){
-      if(TString(gmhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncDw.at(iHisto),2);
-    }
-
-
-    for(size_t iHisto = 0; iHisto < vlhist_bUp.size(); iHisto++){
-      if(TString(vlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_bUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_bDw.size(); iHisto++){
-      if(TString(vlhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_bDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metJetUp.size(); iHisto++){
-      if(TString(vlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_metJetUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metJetDw.size(); iHisto++){
-      if(TString(vlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metResUp.size(); iHisto++){
-      if(TString(vlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metResDw.size(); iHisto++){
-      if(TString(vlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metUncUp.size(); iHisto++){
-      if(TString(vlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metUncDw.size(); iHisto++){
-      if(TString(vlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metUncDw.at(iHisto),2);
-    }
-
-
-    for(size_t iHisto = 0; iHisto < vllhist_bUp.size(); iHisto++){
-      if(TString(vllhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_bUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_bDw.size(); iHisto++){
-      if(TString(vllhist_bDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_bDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metJetUp.size(); iHisto++){
-      if(TString(vllhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_metJetUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metJetDw.size(); iHisto++){
-      if(TString(vllhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metResUp.size(); iHisto++){
-      if(TString(vllhist_metResUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metResDw.size(); iHisto++){
-      if(TString(vllhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metUncUp.size(); iHisto++){
-      if(TString(vllhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vllhist_metUncDw.size(); iHisto++){
-      if(TString(vllhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metUncDw.at(iHisto),2);
-    }
+    
+    for(auto hist : gmhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
   }
+    
+    for(auto hist : vlhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    ////
+    for(auto hist : tthist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
 
+    ////////////
+    for(auto hist : tthist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    ////
+    for(auto hist : tthist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    ////////////
+    for(auto hist : tthist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    ////
+    for(auto hist : tthist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+
+    ////////////
+    for(auto hist : tthist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    ////
+    for(auto hist : tthist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : dbhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+  }
+    
+    for(auto hist : vlhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    
+  }
+  
   //
   outfile->cd();
   for(auto hist :  dthist) hist->Write();
@@ -2887,171 +3420,200 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
 
 
   //smooth
-  for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++){
-    if(TString(tthist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(tthist.at(iHisto),2);
+  for(auto hist : tthist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < dbhist.size(); iHisto++){
-    if(TString(dbhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(dbhist.at(iHisto),2);
+  for(auto hist : dbhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < gmhist.size(); iHisto++){
-    if(TString(gmhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(gmhist.at(iHisto),2);
+  for(auto hist : gmhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
-    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(vlhist.at(iHisto),2);
+  for(auto hist : vlhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < vlhist.size(); iHisto++){
-    if(TString(vlhist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(vlhist.at(iHisto),2);
+  for(auto hist : vllhist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
 
-  for(size_t iHisto = 0; iHisto < qchist.size(); iHisto++){
-    if(TString(qchist.at(iHisto)->GetName()).Contains("_met"))
-      smoothEmptyBins(qchist.at(iHisto),2);
+  for(auto hist : qchist){
+    if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
   }
+
 
   if(doShapeSystematics){
 
-    for(size_t iHisto = 0; iHisto < dbhist_bUp.size(); iHisto++){
-      if(TString(dbhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(dbhist_bUp.at(iHisto),2);
+    for(auto hist : dbhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dbhist_bDw.size(); iHisto++){
-      if(TString(dbhist_bDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_bDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dbhist_metJetUp.size(); iHisto++){
-      if(TString(dbhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : vlhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < dbhist_metJetDw.size(); iHisto++){
-      if(TString(dbhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metResUp.size(); iHisto++){
-      if(TString(dbhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metResDw.size(); iHisto++){
-      if(TString(dbhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metUncUp.size(); iHisto++){
-      if(TString(dbhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < dbhist_metUncDw.size(); iHisto++){
-      if(TString(dbhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(dbhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : vllhist_bUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
 
-
-    for(size_t iHisto = 0; iHisto < gmhist_bUp.size(); iHisto++){
-      if(TString(gmhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(gmhist_bUp.at(iHisto),2);
+    for(auto hist : dbhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_bDw.size(); iHisto++){
-      if(TString(gmhist_bDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_bDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetUp.size(); iHisto++){
-      if(TString(gmhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : vlhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < gmhist_metJetDw.size(); iHisto++){
-      if(TString(gmhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metResUp.size(); iHisto++){
-      if(TString(gmhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metResDw.size(); iHisto++){
-      if(TString(gmhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncUp.size(); iHisto++){
-      if(TString(gmhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < gmhist_metUncDw.size(); iHisto++){
-      if(TString(gmhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(gmhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : vllhist_bDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
 
-
-    for(size_t iHisto = 0; iHisto < vlhist_bUp.size(); iHisto++){
-      if(TString(vlhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vlhist_bUp.at(iHisto),2);
+    /////////////////
+    for(auto hist : dbhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vlhist_bDw.size(); iHisto++){
-      if(TString(vlhist_bDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_bDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vlhist_metJetUp.size(); iHisto++){
-      if(TString(vlhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : vlhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vlhist_metJetDw.size(); iHisto++){
-      if(TString(vlhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metJetDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metResUp.size(); iHisto++){
-      if(TString(vlhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metResUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metResDw.size(); iHisto++){
-      if(TString(vlhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metResDw.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metUncUp.size(); iHisto++){
-      if(TString(vlhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metUncUp.at(iHisto),2);
-    }
-    for(size_t iHisto = 0; iHisto < vlhist_metUncDw.size(); iHisto++){
-      if(TString(vlhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vlhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : vllhist_metJetUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
 
+    for(auto hist : dbhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vlhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metJetDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
 
-    for(size_t iHisto = 0; iHisto < vllhist_bUp.size(); iHisto++){
-      if(TString(vllhist_bUp.at(iHisto)->GetName()).Contains("_met"))      
-	smoothEmptyBins(vllhist_bUp.at(iHisto),2);
+    /////////////////
+    for(auto hist : dbhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_bDw.size(); iHisto++){
-      if(TString(vllhist_bDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_bDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metJetUp.size(); iHisto++){
-      if(TString(vllhist_metJetUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metJetUp.at(iHisto),2);
+    
+    for(auto hist : vlhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metJetDw.size(); iHisto++){
-      if(TString(vllhist_metJetDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metJetDw.at(iHisto),2);
+    
+    for(auto hist : vllhist_metResUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metResUp.size(); iHisto++){
-      if(TString(vllhist_metResUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metResUp.at(iHisto),2);
+
+    for(auto hist : dbhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metResDw.size(); iHisto++){
-      if(TString(vllhist_metResDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metResDw.at(iHisto),2);
+    
+    for(auto hist : gmhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metUncUp.size(); iHisto++){
-      if(TString(vllhist_metUncUp.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metUncUp.at(iHisto),2);
+    
+    for(auto hist : vlhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
-    for(size_t iHisto = 0; iHisto < vllhist_metUncDw.size(); iHisto++){
-      if(TString(vllhist_metUncDw.at(iHisto)->GetName()).Contains("_met"))
-	smoothEmptyBins(vllhist_metUncDw.at(iHisto),2);
+    
+    for(auto hist : vllhist_metResDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    /////////////////
+    for(auto hist : dbhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vlhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metUncUp){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+
+    for(auto hist : dbhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : gmhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+      smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vlhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
+    }
+    
+    for(auto hist : vllhist_metUncDw){
+      if(TString(hist->GetName()).Contains("_met"))
+	smoothEmptyBins(hist,2);
     }
 
   }
