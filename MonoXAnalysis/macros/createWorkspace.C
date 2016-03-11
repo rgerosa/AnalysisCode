@@ -197,14 +197,15 @@ void createWorkspace(string inputName,
 		     int category, 
 		     string outputName    = "workspace.root",
 		     string observable    = "met", 
-		     string interaction   = "Vector",
-		     string mediatorMass  = "1000", 
-		     string DMMass        = "50", 
+		     bool   isHiggsInvisible = false,
 		     float  scaleQCD      = 2, 
 		     bool   connectWZ     = true, 
 		     bool   connectTop    = false,
 		     bool   addShapeSystematics = false,
-		     bool   isHiggsInvisible = false){
+		     string interaction   = "Vector",
+		     string mediatorMass  = "1000", 
+		     string DMMass        = "50", 
+){
   
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
   RooMsgService::instance().setSilentMode(kTRUE); 

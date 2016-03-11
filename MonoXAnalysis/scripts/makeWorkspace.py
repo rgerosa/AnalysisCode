@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
                 os.system("mkdir -p "+options.outputDIR);
     
-                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,\"%s\",\"%s\",\"%s\")"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]))
                 ROOT.gROOT.ProcessLine(command.Data());
             else:
             
@@ -151,7 +151,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\")\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]))
                 jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
@@ -177,7 +177,7 @@ if __name__ == '__main__':
         if not options.batchMode:
             
             os.system("mkdir -p "+options.outputDIR);
-            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_hinv.root\",\"%s\",\"%s\",\"%s\",\"%s\",%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,options.observable,"Vector","1000","50",options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_hinv.root\",\"%s\",%d,%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys));
             ROOT.gROOT.ProcessLine(command.Data());
         else:
 
@@ -190,8 +190,8 @@ if __name__ == '__main__':
             jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%f,%d,%d,%d)\""%(options.\
-templateFile,options.category,cat,options.observable,"Vector","1000","50",options.scaleQCD,connectWZ,connectTop,shapeSys,isHiggsInvisible))
+            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d)\""%(options.\
+templateFile,options.category,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys))
             jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
             jobmacro.write("}\n");
             jobmacro.close();
