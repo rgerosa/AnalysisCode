@@ -89,7 +89,7 @@ void setTDRStyle (){
 
 }
 
-void CMS_lumi(TPad* pad, string lumi, bool up = false){
+void CMS_lumi(TPad* pad, string lumi, bool up = false, bool reduceSize = false){
 
   TLatex* latex2 = new TLatex();
   latex2->SetNDC();
@@ -106,6 +106,8 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false){
   }
   else{
     latex2->SetTextSize(0.85*pad->GetTopMargin());
+    if(reduceSize)
+      latex2->SetTextSize(0.75*pad->GetTopMargin());
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
     latex2->DrawLatex(0.15, 0.85, "CMS");
@@ -119,9 +121,12 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false){
   }
   else{
     latex2->SetTextSize(0.75*pad->GetTopMargin());
+    if(reduceSize)
+      latex2->SetTextSize(0.65*pad->GetTopMargin());
     latex2->SetTextFont(52);
     latex2->SetTextAlign(11);    
-    latex2->DrawLatex(0.24, 0.85, "Preliminary");
+    if(reduceSize)
+      latex2->DrawLatex(0.225, 0.85, "Preliminary");
   }
 }
 
