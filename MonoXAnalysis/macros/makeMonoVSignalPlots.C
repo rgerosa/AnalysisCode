@@ -1,4 +1,4 @@
-//monoV_signalAnalysis("/store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/",1,"Pseudoscalar","Plots_MonoW_Pseudoscalar")
+//monoV_signalAnalysis("/store/ciMassaf/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/",1,"Pseudoscalar","Plots_MonoW_Pseudoscalar")
 #include <iostream>
 #include <vector>
 #include <string>
@@ -38,6 +38,7 @@ vector<pair<string,string> > selectionsWen;
 vector<pair<string,string> > selectionsZmm;
 vector<pair<string,string> > selectionsZee;
 
+
 void makeEfficiencyPlots(TCanvas* cCanvas, unordered_map<string,TH1F*> eff_sig, 
 			 vector<string> Mphi, vector<string> Mchi, 
 			 string bosonMode, string interactionModel, 
@@ -46,12 +47,390 @@ void makeEfficiencyPlots(TCanvas* cCanvas, unordered_map<string,TH1F*> eff_sig,
 
 void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList, TLegend* legend, string outputDirectory, string plotName, string xAxisTile);
 void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList, TH1F* histBkg, TLegend* legend, string outputDirectory, string plotName, string xAxisTile);
+
+// make signal efficiency studies
+void makeMonoVSignalEfficiency(string baseInputPath,  // base path with all the directories on the local pc
+			       bool isW, // to pick up MonoW or MonoZ directories 
+			       string interactionModel, // interaction 
+			       string outputDirectory // output directory for plots
+			       ){
+
+  gROOT->SetBatch(1);
+  gStyle->SetOptStat(0);
+  gStyle->SetPadLeftMargin(0.13);
+  gStyle->SetPadTopMargin(0.09);
+  gStyle->SetErrorX(0.5);
+  gStyle->SetOptTitle(0);
+
+  // take input files
+  string bosonMode;
+  if(isW)
+    bosonMode = "MonoW";
+  else 
+    bosonMode = "MonoZ";
+  
+
+  // take vectors for Mphi and Mchi
+  vector<string> Mphi;
+  vector<string> Mchi;
+  
+  if(interactionModel == "Vector"){
+    Mphi = Mphi_Vector;
+    Mchi = Mchi_Vector;
+  }
+  else if(interactionModel == "Axial"){
+    Mphi = Mphi_Axial;
+    Mchi = Mchi_Axial;
+  }
+  else if(interactionModel == "Pseudoscalar"){
+    Mphi = Mphi_PseudoScalar;
+    Mchi = Mchi_PseudoScalar;
+  }
+  else if(interactionModel == "Scalar"){
+    Mphi = Mphi_Scalar;
+    Mchi = Mchi_Scalar;
+  }
+
+  //create output directories
+  system(("mkdir -p "+outputDirectory).c_str());
+  system(("mkdir -p "+outputDirectory+"/efficiency/").c_str());
+  system(("mkdir -p "+outputDirectory+"/shapes/").c_str());
+
+  //////
+  TCanvas *cCanvas = new TCanvas("cCanvas","",180,52,550,550);
+  cCanvas->SetTicks();
+  cCanvas->SetFillColor(0);
+  cCanvas->SetBorderMode(0);
+  cCanvas->SetBorderSize(2);
+  cCanvas->SetRightMargin(0.05);
+  cCanvas->SetBottomMargin(0.12);
+  cCanvas->SetFrameBorderMode(0);
+  
+  TLegend* legend = new TLegend(0.25,0.68,0.7,0.89);
+  legend->SetBorderSize(0);
+  legend->SetFillColor(0);
+  legend->SetFillStyle(0);
+  legend->SetTextSize(0.031);
+  legend->SetTextFont(42);
+
+  // start taking input files before the skim
+  vector<TFile*> fileMonoV;  
+  vector<pair<string,TTree*> > treeMonoV;  
+
+  system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+" > file_list.txt").c_str());
+  ifstream infile;
+  string line;
+  infile.open("file_list.txt",ifstream::in);
+  if(infile.is_open()){
+    while(!infile.eof()){
+      getline(infile,line);	
+      if(line == "") continue;
+      // find matching with Mphi, Mchi
+      for(size_t iMass = 0; iMass < Mphi.size(); iMass++){	  
+	if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	  fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/"+line).c_str()));
+	  if(fileMonoV.back() and not fileMonoV.back()->IsZombie())
+	    treeMonoV.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV.back()->Get("tree/tree")));
+	}
+      }
+    }
+    infile.close();
+  }
+  
+  // take signal region files for signal
+  vector<TFile*> fileMonoV_Sig;  
+  vector<pair<string,TTree*> > treeMonoV_Sig;  
+  system(("ls "+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/ > file_list.txt").c_str());
+  infile.open("file_list.txt",ifstream::in);
+  if(infile.is_open()){
+    while(!infile.eof()){
+      getline(infile,line);
+      if(line == "") continue;
+      // find matching with Mphi, Mchi                                                                                                                                         
+      for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+	if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	  cout<<baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/"+line<<endl;
+	  fileMonoV_Sig.push_back(TFile::Open((baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/"+line).c_str()));
+	  if(fileMonoV_Sig.back() and not fileMonoV_Sig.back()->IsZombie())
+	    treeMonoV_Sig.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_Sig.back()->Get("tree/tree")));
+	}
+      }
+    }
+  }
+
+  infile.close();
+
+  // start taking input files in the signal region  
+  vector<TFile*> fileMonoV_CRm;  
+  vector<pair<string,TTree*> > treeMonoV_CRm;  
+  vector<TFile*> fileMonoV_CRe;  
+  vector<pair<string,TTree*> > treeMonoV_CRe;  
+
+  if(isW){	
+    system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wmnfilter/ > file_list.txt").c_str());
+    infile.open("file_list.txt",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);	  
+	if(line == "") continue;
+	for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+	  if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	    fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wmnfilter/"+line).c_str()));
+	    if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
+	      treeMonoV_CRm.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_CRm.back()->Get("tree/tree")));      
+	  }
+	}
+      }
+    }
+    infile.close();
+    
+    system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wenfilter/ > file_list.txt").c_str());
+    infile.open("file_list.txt",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);	  
+	if(line == "") continue;
+	for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+	  if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	    fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wenfilter/"+line).c_str()));
+	    if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
+	      treeMonoV_CRe.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_CRe.back()->Get("tree/tree")));      
+	  }
+	}
+      }
+    }
+    infile.close();
+  }	
+  else{
+    
+    system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zmmfilter/ > file_list.txt").c_str());
+    infile.open("file_list.txt",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);	  
+	if(line == "") continue;
+	for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+	  if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	    fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zmmfilter/"+line).c_str()));
+	    if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
+	      treeMonoV_CRm.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_CRm.back()->Get("tree/tree")));      
+	  }
+	}
+      }
+    }
+    infile.close();
+    system(("eos ls "+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zeefilter/ > file_list.txt").c_str());
+    infile.open("file_list.txt",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);	  
+	if(line == "") continue;
+	for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+	  if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
+	    fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zeefilter/"+line).c_str()));
+	    if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
+	      treeMonoV_CRe.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_CRe.back()->Get("tree/tree")));      
+	  }
+	}
+      }
+    }
+    infile.close();      
+  }
+  
+  system("rm file_list.txt");
+  
+  // define signal region cuts for efficiency                                                                                                                                
+  selectionsSig.push_back(make_pair("trigger","hltmet90"));
+  selectionsSig.push_back(make_pair("njets","hltmet90 && njets >= 1"));
+  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
+  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
+
+  // define signal region cuts for efficiency
+  selectionsSig.push_back(make_pair("trigger","hltmet90"));
+  selectionsSig.push_back(make_pair("njets","hltmet90 && njets >= 1"));
+  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
+  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
+  
+  // define Wmn cuts
+  selectionsWmn.push_back(make_pair("trigger", "hltmet90"));
+  selectionsWmn.push_back(make_pair("njets", "hltmet90 && njets >= 1"));
+  selectionsWmn.push_back(make_pair("jetpt", "hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsWmn.push_back(make_pair("bveto", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsWmn.push_back(make_pair("jetid", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsWmn.push_back(make_pair("dphijemet", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsWmn.push_back(make_pair("met", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
+  
+  // define Wen cuts
+  selectionsWen.push_back(make_pair("trigger","hltsingleel"));
+  selectionsWen.push_back(make_pair("njets","hltsingleel && njets >= 1"));
+  selectionsWen.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsWen.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsWen.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsWen.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsWen.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
+  
+  // define Zmm cuts
+  selectionsZmm.push_back(make_pair("trigger","hltmet90"));
+  selectionsZmm.push_back(make_pair("njets","hltmet90 && njets >= 1"));
+  selectionsZmm.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsZmm.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsZmm.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsZmm.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsZmm.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
+  selectionsZmm.push_back(make_pair("lepcharge","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200 && mu1pid != mu2pid"));
+  
+  // define Zee cuts
+  selectionsZee.push_back(make_pair("trigger","hltsingleel"));
+  selectionsZee.push_back(make_pair("njets", "hltsingleel && njets >= 1"));
+  selectionsZee.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
+  selectionsZee.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
+  selectionsZee.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
+  selectionsZee.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsZee.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
+  selectionsZee.push_back(make_pair("lepcharge","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1elmet > 200 && el1pid != el2pid"));
+
+  // calculate efficiency of basic control region selection
+  unordered_map<string,TH1F*> eff_sig;
+  unordered_map<string,TH1F*> eff_CRm;
+  unordered_map<string,TH1F*> eff_CRe;
+  
+  unordered_map<string,TH1F*> eff_sig_relative;
+  unordered_map<string,TH1F*> eff_CRm_relative;
+  unordered_map<string,TH1F*> eff_CRe_relative;
+  
+  TH1F* temp_CRm;
+  TH1F* temp_CRe;
+  TH1F* temp_CRm_relative;
+  TH1F* temp_CRe_relative;
+  
+  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+    
+    ////////// declare histograms for efficiency ////////
+    eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = 
+      new TH1F(("eff_sig_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);	
+    eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = 
+      new TH1F(("eff_sig_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);	
+    eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    /////////////////////
+    if(isW){
+      temp_CRm = new TH1F(("eff_wmn_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWmn.size()+1,0,selectionsWmn.size()+1);
+      temp_CRe = new TH1F(("eff_wen_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWen.size()+1,0,selectionsWen.size()+1);
+      
+      temp_CRm_relative = new TH1F(("eff_wmn_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWmn.size()+1,0,selectionsWmn.size()+1);
+      temp_CRe_relative = new TH1F(("eff_wen_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWen.size()+1,0,selectionsWen.size()+1);
+      
+    }    
+    else{
+      temp_CRm = new TH1F(("eff_zmm_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZmm.size()+1,0,selectionsZmm.size()+1);
+      temp_CRe = new TH1F(("eff_zee_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZee.size()+1,0,selectionsZee.size()+1);
+      
+      temp_CRm_relative = new TH1F(("eff_wmn_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZmm.size()+1,0,selectionsZmm.size()+1);
+      temp_CRe_relative = new TH1F(("eff_wen_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZee.size()+1,0,selectionsZee.size()+1);
+    }   
+    
+    eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRm;
+    eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRe;
+    
+    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRm_relative;
+    eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRe_relative;
+    
+    // set first bin    
+    eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass).second->GetEntries())/treeMonoV.at(iMass).second->GetEntries());
+    eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
+    
+    // apply signal selections
+    int iselection = 1;
+    for(auto iSel = selectionsSig.begin(); iSel != selectionsSig.end(); iSel++){
+      iselection++;
+      eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass).second->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass).second->GetEntries());
+      eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+      
+      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass).second->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass).second->GetEntries())*1/eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
+      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+    }
+    
+    if(isW){
+      iselection = 1;
+      for(auto iSel = selectionsWmn.begin(); iSel != selectionsWmn.end(); iSel++){
+	iselection ++;
+	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass).second->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass).second->GetEntries());
+	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+	  
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass).second->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass).second->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+      }
+      
+      iselection = 1;
+      for(auto iSel = selectionsWen.begin(); iSel != selectionsWen.end(); iSel++){
+	iselection ++;
+	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass).second->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass).second->GetEntries());
+	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+	
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass).second->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass).second->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+      }      
+    }
+    else{	
+      iselection = 1;
+      for(auto iSel = selectionsZmm.begin(); iSel != selectionsZmm.end(); iSel++){
+	iselection ++;
+	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass).second->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass).second->GetEntries());
+	eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+	
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass).second->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass).second->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
+	eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());	    
+      }
+      
+      iselection = 1;
+      for(auto iSel = selectionsZee.begin(); iSel != selectionsZee.end(); iSel++){
+	iselection ++;
+	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass).second->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass).second->GetEntries());
+	eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+	
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass).second->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass).second->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
+	eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
+      }      
+    } 
+  }
+  // plotting efficiencies: signal region
+  TFile* outputEfficiency = new TFile((outputDirectory+"/efficiency.root").c_str(),"RECREATE");
+  outputEfficiency->cd();
+  
+  makeEfficiencyPlots(cCanvas,eff_sig_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency_rel",true);
+  makeEfficiencyPlots(cCanvas,eff_CRm_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency_rel",true);
+  makeEfficiencyPlots(cCanvas,eff_CRe_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency_rel",true);
+  makeEfficiencyPlots(cCanvas,eff_sig,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency",false);
+  makeEfficiencyPlots(cCanvas,eff_CRm,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency",false);
+  makeEfficiencyPlots(cCanvas,eff_CRe,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency",false);
+
+}
   		       		 
-void makeMonoVSignalPlots(string baseInputPath,  // base path with all the directories on the local pc
+void makeMonoVSignalShape(string baseInputPath,  // base path with all the directories on the local pc
 			  bool isW, // to pick up MonoW or MonoZ directories 
 			  string interactionModel, // interaction 
 			  string outputDirectory, // output directory for plots
-			  bool makeEfficiency = false, // make also efficiency histograms
 			  bool skipBackground = false
 			  ){
   
@@ -113,34 +492,9 @@ void makeMonoVSignalPlots(string baseInputPath,  // base path with all the direc
   legend->SetTextSize(0.031);
   legend->SetTextFont(42);
 
-  // start taking input files before the skim
-  vector<TFile*> fileMonoV;  
-  vector<TTree*> treeMonoV;  
-  if(makeEfficiency){    
-    system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+" > file_list.txt").c_str());
-    ifstream infile;
-    string line;
-    infile.open("file_list.txt",ifstream::in);
-    if(infile.is_open()){
-      while(!infile.eof()){
-	getline(infile,line);	
-	if(line == "") continue;
-	// find matching with Mphi, Mchi
-	for(size_t iMass = 0; iMass < Mphi.size(); iMass++){	  
-	  if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
-	    fileMonoV.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/"+line).c_str()));
-	    if(fileMonoV.back() and not fileMonoV.back()->IsZombie())
-	      treeMonoV.push_back((TTree*) fileMonoV.back()->Get("tree/tree"));
-	  }
-	}
-      }
-    }
-    infile.close();
-  }
-  
   // take signal region files for signal
   vector<TFile*> fileMonoV_Sig;  
-  vector<TTree*> treeMonoV_Sig;  
+  vector<pair<string,TTree*> > treeMonoV_Sig;  
   system(("ls "+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/ > file_list.txt").c_str());
   ifstream infile;
   string line;
@@ -155,97 +509,13 @@ void makeMonoVSignalPlots(string baseInputPath,  // base path with all the direc
 	  cout<<baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/"+line<<endl;
 	  fileMonoV_Sig.push_back(TFile::Open((baseInputPath+"/"+bosonMode+"_"+interactionModel+"/sigfilter/"+line).c_str()));
 	  if(fileMonoV_Sig.back() and not fileMonoV_Sig.back()->IsZombie())
-	    treeMonoV_Sig.push_back((TTree*) fileMonoV_Sig.back()->Get("tree/tree"));
+	    treeMonoV_Sig.push_back(make_pair("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass],(TTree*) fileMonoV_Sig.back()->Get("tree/tree")));
 	}
       }
     }
   }
-  
+
   infile.close();
-
-  // start taking input files in the signal region  
-  vector<TFile*> fileMonoV_CRm;  
-  vector<TTree*> treeMonoV_CRm;  
-  vector<TFile*> fileMonoV_CRe;  
-  vector<TTree*> treeMonoV_CRe;  
-
-  if(makeEfficiency){
-    if(isW){	
-      system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wmnfilter/ > file_list.txt").c_str());
-      ifstream infile;
-      string line;
-      infile.open("file_list.txt",ifstream::in);
-      if(infile.is_open()){
-	while(!infile.eof()){
-	  getline(infile,line);	  
-	  if(line == "") continue;
-	  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-	    if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
-	      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wmnfilter/"+line).c_str()));
-	      if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
-		treeMonoV_CRm.push_back((TTree*) fileMonoV_CRm.back()->Get("tree/tree"));      
-	    }
-	  }
-	}
-      }
-      infile.close();
-
-      system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wenfilter/ > file_list.txt").c_str());
-      infile.open("file_list.txt",ifstream::in);
-      if(infile.is_open()){
-	while(!infile.eof()){
-	  getline(infile,line);	  
-	  if(line == "") continue;
-	  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-	    if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
-	      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/wenfilter/"+line).c_str()));
-	      if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
-		treeMonoV_CRe.push_back((TTree*) fileMonoV_CRe.back()->Get("tree/tree"));      
-	    }
-	  }
-	}
-      }
-      infile.close();
-    }	
-    else{
-
-      system(("eos ls /store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zmmfilter/ > file_list.txt").c_str());
-      ifstream infile;
-      string line;
-      infile.open("file_list.txt",ifstream::in);
-      if(infile.is_open()){
-	while(!infile.eof()){
-	  getline(infile,line);	  
-	  if(line == "") continue;
-	  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-	    if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
-	      fileMonoV_CRm.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zmmfilter/"+line).c_str()));
-	      if(fileMonoV_CRm.back() and not fileMonoV_CRm.back()->IsZombie())
-		treeMonoV_CRm.push_back((TTree*) fileMonoV_CRm.back()->Get("tree/tree"));      
-	    }
-	  }
-	}
-      }
-      infile.close();
-      system(("eos ls "+baseInputPath+"/"+bosonMode+"_"+interactionModel+"/zeefilter/ > file_list.txt").c_str());
-      infile.open("file_list.txt",ifstream::in);
-      if(infile.is_open()){
-	while(!infile.eof()){
-	  getline(infile,line);	  
-	  if(line == "") continue;
-	  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-	    if(TString(line).Contains(("Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_").c_str())){
-	      fileMonoV_CRe.push_back(TFile::Open(("root://eoscms.cern.ch///store/caf/user/rgerosa/MONOJET_ANALYSIS/Production-24-1-2016/"+bosonMode+"_"+interactionModel+"/zeefilter/"+line).c_str()));
-	      if(fileMonoV_CRe.back() and not fileMonoV_CRe.back()->IsZombie())
-		treeMonoV_CRe.push_back((TTree*) fileMonoV_CRe.back()->Get("tree/tree"));      
-	    }
-	  }
-	}
-      }
-      infile.close();      
-    }
-  }
-  
   system("rm file_list.txt");
 
   //Background Znunu
@@ -253,185 +523,7 @@ void makeMonoVSignalPlots(string baseInputPath,  // base path with all the direc
   TFile* file1 = TFile::Open((baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root").c_str());
   backgroundZnunu->Add(file1->GetName());
 
-  // define signal region cuts for efficiency
-  selectionsSig.push_back(make_pair("trigger","hltmet90"));
-  selectionsSig.push_back(make_pair("njets","hltmet90 && njets >= 1"));
-  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
-  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
-
-  // define Wmn cuts
-  selectionsWmn.push_back(make_pair("trigger", "hltmet90"));
-  selectionsWmn.push_back(make_pair("njets", "hltmet90 && njets >= 1"));
-  selectionsWmn.push_back(make_pair("jetpt", "hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsWmn.push_back(make_pair("bveto", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsWmn.push_back(make_pair("jetid", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsWmn.push_back(make_pair("dphijemet", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsWmn.push_back(make_pair("met", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
-
-  // define Wen cuts
-  selectionsWen.push_back(make_pair("trigger","hltsingleel"));
-  selectionsWen.push_back(make_pair("njets","hltsingleel && njets >= 1"));
-  selectionsWen.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsWen.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsWen.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsWen.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsWen.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
-
-  // define Zmm cuts
-  selectionsZmm.push_back(make_pair("trigger","hltmet90"));
-  selectionsZmm.push_back(make_pair("njets","hltmet90 && njets >= 1"));
-  selectionsZmm.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsZmm.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsZmm.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsZmm.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsZmm.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
-  selectionsZmm.push_back(make_pair("lepcharge","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200 && mu1pid != mu2pid"));
-
-  // define Zee cuts
-  selectionsZee.push_back(make_pair("trigger","hltsingleel"));
-  selectionsZee.push_back(make_pair("njets", "hltsingleel && njets >= 1"));
-  selectionsZee.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsZee.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsZee.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsZee.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsZee.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
-  selectionsZee.push_back(make_pair("lepcharge","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1elmet > 200 && el1pid != el2pid"));
-
-
-  if(makeEfficiency){
-    
-    // calculate efficiency of basic control region selection
-    unordered_map<string,TH1F*> eff_sig;
-    unordered_map<string,TH1F*> eff_CRm;
-    unordered_map<string,TH1F*> eff_CRe;
-    
-    unordered_map<string,TH1F*> eff_sig_relative;
-    unordered_map<string,TH1F*> eff_CRm_relative;
-    unordered_map<string,TH1F*> eff_CRe_relative;
-    
-    TH1F* temp_CRm;
-    TH1F* temp_CRe;
-    TH1F* temp_CRm_relative;
-    TH1F* temp_CRe_relative;
-  
-    for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
-	
-      ////////// declare histograms for efficiency ////////
-      eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = 
-	new TH1F(("eff_sig_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);	
-      eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-      
-      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = 
-	new TH1F(("eff_sig_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsSig.size()+1,0,selectionsSig.size()+1);	
-      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_Sig.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-	
-      /////////////////////
-      if(isW){
-	temp_CRm = new TH1F(("eff_wmn_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWmn.size()+1,0,selectionsWmn.size()+1);
-	temp_CRe = new TH1F(("eff_wen_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWen.size()+1,0,selectionsWen.size()+1);
-	
-	temp_CRm_relative = new TH1F(("eff_wmn_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWmn.size()+1,0,selectionsWmn.size()+1);
-	temp_CRe_relative = new TH1F(("eff_wen_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsWen.size()+1,0,selectionsWen.size()+1);
-	  
-      }    
-      else{
-	temp_CRm = new TH1F(("eff_zmm_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZmm.size()+1,0,selectionsZmm.size()+1);
-	temp_CRe = new TH1F(("eff_zee_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZee.size()+1,0,selectionsZee.size()+1);
-	
-	temp_CRm_relative = new TH1F(("eff_wmn_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZmm.size()+1,0,selectionsZmm.size()+1);
-	temp_CRe_relative = new TH1F(("eff_wen_rel_"+bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),"",selectionsZee.size()+1,0,selectionsZee.size()+1);
-      }   
-      
-      eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRm;
-      eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRe;
-      
-      eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRm_relative;
-      eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] = temp_CRe_relative;
-      
-	// set first bin    
-      eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-      
-      eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-      
-      eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRm.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-      
-      eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> SetBinContent(1,float(treeMonoV_CRe.at(iMass)->GetEntries())/treeMonoV.at(iMass)->GetEntries());
-      eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]] -> GetXaxis()->SetBinLabel(1,"Preselection");
-	
-      // apply signal selections
-      int iselection = 1;
-      for(auto iSel = selectionsSig.begin(); iSel != selectionsSig.end(); iSel++){
-	iselection++;
-	eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
-	eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	
-	eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_Sig.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_sig[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
-	eff_sig_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-      }
-      
-      if(isW){
-	iselection = 1;
-	for(auto iSel = selectionsWmn.begin(); iSel != selectionsWmn.end(); iSel++){
-	  iselection ++;
-	  eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
-	  eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	  
-	  eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
-	  eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	}
-	
-	iselection = 1;
-	for(auto iSel = selectionsWen.begin(); iSel != selectionsWen.end(); iSel++){
-	  iselection ++;
-	  eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
-	  eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	  
-	  eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
-	  eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	}      
-      }
-      else{	
-	iselection = 1;
-	for(auto iSel = selectionsZmm.begin(); iSel != selectionsZmm.end(); iSel++){
-	  iselection ++;
-	  eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
-	  eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	  
-	  eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRm.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRm[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
-	    eff_CRm_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());	    
-	}
-	
-	iselection = 1;
-	for(auto iSel = selectionsZee.begin(); iSel != selectionsZee.end(); iSel++){
-	  iselection ++;
-	  eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/treeMonoV.at(iMass)->GetEntries());
-	  eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	  
-	  eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->SetBinContent(iselection,float(treeMonoV_CRe.at(iMass)->GetEntries(iSel->second.c_str()))/(treeMonoV.at(iMass)->GetEntries())*1/eff_CRe[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetBinContent(iselection-1));
-	  eff_CRe_relative[bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]]->GetXaxis()->SetBinLabel(iselection,iSel->first.c_str());
-	}      
-      } 
-    }
-    // plotting efficiencies: signal region
-    TFile* outputEfficiency = new TFile((outputDirectory+"/efficiency.root").c_str(),"RECREATE");
-    outputEfficiency->cd();
-    
-    makeEfficiencyPlots(cCanvas,eff_sig_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency_rel",true);
-    makeEfficiencyPlots(cCanvas,eff_CRm_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency_rel",true);
-    makeEfficiencyPlots(cCanvas,eff_CRe_relative,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency_rel",true);
-    makeEfficiencyPlots(cCanvas,eff_sig,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"SR_efficiency",false);
-    makeEfficiencyPlots(cCanvas,eff_CRm,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRm_efficiency",false);
-    makeEfficiencyPlots(cCanvas,eff_CRe,Mphi,Mchi,bosonMode,interactionModel,legend,outputDirectory,"CRe_efficiency",false);
-  }
+  string cut = "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250";
 
   /// now look at substructure in the signal region only
   vector<TH1F*> leadingJetPt;
@@ -459,80 +551,74 @@ void makeMonoVSignalPlots(string baseInputPath,  // base path with all the direc
   vector<TH1F*> leadingJetTau2Tau1_sb;
 
   cout<<"Run signal analysis "<<endl;
-  for(size_t iMass = 0; iMass < Mphi.size(); iMass++){
+  for(size_t iMass = 0; iMass < treeMonoV_Sig.size(); iMass++){
 
-    string cut;
-    for(size_t iSelection = 0; iSelection < selectionsSig.size(); iSelection++){
-      if(selectionsSig.at(iSelection).first == "ak8pt")
-	cut = selectionsSig.at(iSelection).second;
-    }
+    string name = treeMonoV_Sig.at(iMass).first;
 
-    cout<<"Mass Point: Mphi "<<Mphi[iMass]<<" Mchi "<<Mchi[iMass]<<endl;
+    TTreeFormula* formula = new TTreeFormula((bosonMode+"_"+interactionModel+"_"+name+"_formula").c_str(),
+					     cut.c_str(),treeMonoV_Sig.at(iMass).second);
     
-    // make cut formula
-    TTreeFormula* formula = new TTreeFormula((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_formula").c_str(),
-					     cut.c_str(),treeMonoV_Sig.at(iMass));
-
     // allocate all the histograms
-    leadingJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetPt").c_str(),
-				    (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),25,200,650));
+    cout<<" histogram name "<<bosonMode+"_"+interactionModel+"_"+name<<endl;
+    leadingJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetPt").c_str(),
+				    (bosonMode+"_"+interactionModel+"_"+name).c_str(),25,200,650));
 
-    leadingJetEta.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetEta").c_str(),
-				     (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),20,-2.5,2.5));
-    leadingJetTau2tau1.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2tau1").c_str(),
-					  (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),20,0,1));    
-    leadingPrunedJetpt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingPrunedJetpt").c_str(),
-					  (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),25,200,650));
-    leadingPrunedJetm.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingPrunedJetm").c_str(),
-					 (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0,120));
-    leadingPrunedJetmraw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingPrunedJetmraw").c_str(),
-					    (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0,120));
-    leadingSoftDropJetpt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingSoftDropJetpt").c_str(),
-					    (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),25,200,650));
-    leadingSoftDropJetm.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingSoftDropJetm").c_str(),
-					   (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0,120));
-    leadingSoftDropJetmraw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingSoftDropJetmraw").c_str(),
-					      (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0,120));
-    boostedNJet.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_boostedNJet").c_str(),
-				   (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),5,0,5));
-    dRGenJet.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_dRGenJet").c_str(),
-				(bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),50,0,0.8));
-    dRVboson.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_dRVboson").c_str(),
-				(bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),50,0,0.8));
-    responseLeadJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadJetPt").c_str(),
-					 (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    responseLeadPrunedJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMass").c_str(),
-						 (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    responseLeadPrunedJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMassRaw").c_str(),
-						    (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    responseLeadSoftDropJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMass").c_str(),
-						   (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    responseLeadSoftDropJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadSoftDropJetMassRaw").c_str(),
-						      (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    subjetPtRatio.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_subjetPtRatio").c_str(),
-				     (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),20,0,1));
+    leadingJetEta.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetEta").c_str(),
+				     (bosonMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));
+    leadingJetTau2tau1.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetTau2tau1").c_str(),
+					  (bosonMode+"_"+interactionModel+"_"+name).c_str(),20,0,1));    
+    leadingPrunedJetpt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingPrunedJetpt").c_str(),
+					  (bosonMode+"_"+interactionModel+"_"+name).c_str(),25,200,650));
+    leadingPrunedJetm.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingPrunedJetm").c_str(),
+					 (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0,120));
+    leadingPrunedJetmraw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingPrunedJetmraw").c_str(),
+					    (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0,120));
+    leadingSoftDropJetpt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingSoftDropJetpt").c_str(),
+					    (bosonMode+"_"+interactionModel+"_"+name).c_str(),25,200,650));
+    leadingSoftDropJetm.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingSoftDropJetm").c_str(),
+					   (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0,120));
+    leadingSoftDropJetmraw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingSoftDropJetmraw").c_str(),
+					      (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0,120));
+    boostedNJet.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_boostedNJet").c_str(),
+				   (bosonMode+"_"+interactionModel+"_"+name).c_str(),5,0,5));
+    dRGenJet.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_dRGenJet").c_str(),
+				(bosonMode+"_"+interactionModel+"_"+name).c_str(),50,0,0.8));
+    dRVboson.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_dRVboson").c_str(),
+				(bosonMode+"_"+interactionModel+"_"+name).c_str(),50,0,0.8));
+    responseLeadJetPt.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadJetPt").c_str(),
+					 (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    responseLeadPrunedJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadPrunedJetMass").c_str(),
+						 (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    responseLeadPrunedJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadPrunedJetMassRaw").c_str(),
+						    (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    responseLeadSoftDropJetMass.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadSoftDropJetMass").c_str(),
+						   (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    responseLeadSoftDropJetMassRaw.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadSoftDropJetMassRaw").c_str(),
+						      (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    subjetPtRatio.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_subjetPtRatio").c_str(),
+				     (bosonMode+"_"+interactionModel+"_"+name).c_str(),20,0,1));
     // after pruned mass cut
-    responseLeadPrunedJetMass_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMass_pr").c_str(),
-						    (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    responseLeadPrunedJetMassRaw_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_responseLeadPrunedJetMassRaw_pr").c_str(),
-						       (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0.5,1.5));
-    subjetPtRatio_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_subjetPtRatio_PR").c_str(),
-					(bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),30,0,2));
-    leadingJetTau2Tau1_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2Tau1_pr").c_str(),
-					     (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),20,0,1));
+    responseLeadPrunedJetMass_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadPrunedJetMass_pr").c_str(),
+						    (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    responseLeadPrunedJetMassRaw_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_responseLeadPrunedJetMassRaw_pr").c_str(),
+						       (bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0.5,1.5));
+    subjetPtRatio_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_subjetPtRatio_PR").c_str(),
+					(bosonMode+"_"+interactionModel+"_"+name).c_str(),30,0,2));
+    leadingJetTau2Tau1_pr.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetTau2Tau1_pr").c_str(),
+					     (bosonMode+"_"+interactionModel+"_"+name).c_str(),20,0,1));
 
     //sideband region
-    leadingJetTau2Tau1_sb.push_back(new TH1F((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_leadingJetTau2Tau1_sb").c_str(),
-					     (bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]).c_str(),20,0,1));
+    leadingJetTau2Tau1_sb.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetTau2Tau1_sb").c_str(),
+					     (bosonMode+"_"+interactionModel+"_"+name).c_str(),20,0,1));
     // make cut formula
     string cut_pr = cut + " && prunedJetm[0] > 65 && prunedJetm[0] < 105";
-    TTreeFormula* formula_pr = new TTreeFormula((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_formula_pr").c_str(),
-						cut_pr.c_str(),treeMonoV_Sig.at(iMass));
+    TTreeFormula* formula_pr = new TTreeFormula((bosonMode+"_"+interactionModel+"_"+name+"_formula_pr").c_str(),
+						cut_pr.c_str(),treeMonoV_Sig.at(iMass).second);
     string cut_sb = cut + " && prunedJetm[0] > 40 && prunedJetm[0] < 65";
-    TTreeFormula* formula_sb = new TTreeFormula((bosonMode+"_"+interactionModel+"_Mphi-"+Mphi[iMass]+"_Mchi-"+Mchi[iMass]+"_formula_sb").c_str(),
-						cut_pr.c_str(),treeMonoV_Sig.at(iMass));
+    TTreeFormula* formula_sb = new TTreeFormula((bosonMode+"_"+interactionModel+"_"+name+"_formula_sb").c_str(),
+						cut_pr.c_str(),treeMonoV_Sig.at(iMass).second);
     
-    TTreeReader myReader(treeMonoV_Sig.at(iMass));
+    TTreeReader myReader(treeMonoV_Sig.at(iMass).second);
     TTreeReaderValue<vector<double> > jetpt    (myReader,"boostedJetpt");
     TTreeReaderValue<vector<double> > jeteta   (myReader,"boostedJeteta");
     TTreeReaderValue<vector<double> > jetphi   (myReader,"boostedJetphi");
@@ -569,7 +655,7 @@ void makeMonoVSignalPlots(string baseInputPath,  // base path with all the direc
 
     while(myReader.Next()){
       float Njet = 0;
-      treeMonoV_Sig.at(iMass)->GetEntry(iEvent);
+      treeMonoV_Sig.at(iMass).second->GetEntry(iEvent);
       iEvent++;
 
       if(not formula->EvalInstance()) continue;
@@ -1011,9 +1097,6 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList, TH1F* histoBkg, T
     histoList.at(iHisto)->SetLineWidth(2);
     histoList.at(iHisto)->SetLineColor(iHisto+1);
 
-    cout<<" iHisto "<< histoList.at(iHisto)->GetName()<<" Title "<<histoList.at(iHisto)->GetTitle()<<" color "<<iHisto+1<<endl;
-
-    
     if(iHisto%2==0)
       histoList.at(iHisto)->SetLineStyle(1);
     else

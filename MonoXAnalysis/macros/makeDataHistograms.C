@@ -2573,7 +2573,7 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   cout<<"lepton+jets control region --> gamma+jets"<<endl;
   makehist4(gmtree, gmhist,  gmhist_2D,  true,  sample, category, false, 1.00, lumi, indexQGL_G, ahists, "", false, true,0,isHiggsInvisible);
   cout<<"lepton+jets control region --> QCD"<<endl;
-  makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", false, true,0,isHiggsInvisible);
+  makehist4(qctree, qchist,  qchist_2D,  true,  sample, category, false,  1.00, lumi, 0, ehists, "", false,true,0,isHiggsInvisible);
 
   if(doShapeSystematics and (sample == 1 or sample == 3)){
     cout<<"lepton +jets region --> systematics for W+jets"<<endl;

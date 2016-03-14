@@ -1053,6 +1053,32 @@ void makehist4(TTree* tree, /*input tree*/
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
 	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);			
       }
+
+      else if(name.Contains("met_njet")){
+	fillvarX = pfmet;
+	fillvarY = *njets;
+      }
+
+      else if(name.Contains("mT_njet")){
+	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
+        if(deltaPhi > TMath::Pi())
+          deltaPhi = 2*TMath::Pi() - deltaPhi;
+	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
+	fillvarY = *njets;
+      }
+
+      else if(name.Contains("met_ht")){
+        fillvarX = pfmet;
+        fillvarY = *ht;
+      }
+      else if(name.Contains("mT_ht")){
+	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
+        if(deltaPhi > TMath::Pi())
+          deltaPhi = 2*TMath::Pi() - deltaPhi;
+	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
+        fillvarY = *ht;
+      }
+
       
       // overflow bin
       if (fillvarX >= hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX())+hist->GetXaxis()->GetBinWidth(hist->GetNbinsX())) 

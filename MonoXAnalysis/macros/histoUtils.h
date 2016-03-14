@@ -56,9 +56,9 @@ vector<float> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<float> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<float> bins_substructure_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 
-vector<float> bins_monoV_HT         = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<float> bins_monoJ_HT         = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<float> bins_substructure_HT  = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<float> bins_monoV_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<float> bins_monoJ_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<float> bins_substructure_HT   = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
 
 vector<float> bins_monoV_jetPt        = {200.,225.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_monoJ_jetPt        = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
@@ -70,32 +70,35 @@ vector<float> bins_monoJ_bosonPt    = {50.,70.,90.,120.,150.,180.,210.,230.,260,
 vector<float> bins_monoJ_bosonPt_v2 = {200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<float> bins_substructure_bosonPt = {50.,70.,90.,120.,150.,180.,210.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250.};
 
-vector<float> bins_monoV_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoV_QGL        = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoJ_QGL        = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_substructure_QGL = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 
-vector<float> bins_monoV_tau2tau1 = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
-vector<float> bins_monoJ_tau2tau1 = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
+vector<float> bins_monoV_tau2tau1        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
+vector<float> bins_monoJ_tau2tau1        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
 vector<float> bins_substructure_tau2tau1 = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
 
-vector<float> bins_monoV_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
-vector<float> bins_monoJ_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
+vector<float> bins_monoV_nvtx        = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
+vector<float> bins_monoJ_nvtx        = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
 vector<float> bins_substructure_nvtx = {0.,2.,4.,6.,8.,10.,12.,14.,16,18,20,22,24,26,28,30,32};
 
-vector<float> bins_monoV_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoV_chfrac        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoJ_chfrac        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_substructure_chfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 
-vector<float> bins_monoV_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-vector<float> bins_monoJ_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoV_nhfrac        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<float> bins_monoJ_nhfrac        = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
-
-vector<float> bins_met_2D      = {250.,300.,350.,400.,450.,500.,600.,1000.};
-vector<float> bins_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
-vector<float> bins_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 
 vector<float> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 vector<float> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
+
+vector<float> bins_monoJ_met_2D      = {250.,300.,350.,400.,450.,500.,600.,750.,950.,1300.};
+vector<float> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
+vector<float> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
+vector<float> bins_monoJ_njet_2D     = {0,1,2,10};
+vector<float> bins_monoJ_ht_2D       = {200.,400.,600.,800.,1000.,1200.,1400.,1600.,2000.};
+vector<float> bins_monoJ_mT_2D       = {50.,150.,250.,350.,450.,550.,650.,950.,1200.};
 
 // binning selections                                                                                                                                                          
 vector<float> selectBinning (string observable, int category){
@@ -222,19 +225,34 @@ bin2D selectBinning2D (string observable, int category){
 
   bin2D bins;
 
-  if(observable == "met_mpruned"){
-    bins.binX = bins_met_2D;
-    bins.binY = bins_mpruned_2D;
+  if(observable == "met_mpruned" and category <= 1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_mpruned_2D;
     return bins;
   }
-  else if(observable == "met_tau2tau1"){
-    bins.binX = bins_met_2D;
-    bins.binY = bins_tau2tau1_2D;
+  else if(observable == "met_tau2tau1" and category <= 1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_tau2tau1_2D;
     return bins;
   }
-  else if(observable == "mpruned_tau2tau1"){
-    bins.binX = bins_mpruned_2D;
-    bins.binY = bins_tau2tau1_2D;
+  else if(observable == "mpruned_tau2tau1" and category <=1){
+    bins.binX = bins_monoJ_mpruned_2D;
+    bins.binY = bins_monoJ_tau2tau1_2D;
+    return bins;
+  }
+  else if(observable == "met_njet" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_njet_2D;
+    return bins;
+  }
+  else if(observable == "met_ht" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_ht_2D;
+    return bins;
+  }
+  else if(observable == "met_mT" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_mT_2D;
     return bins;
   }
 
@@ -312,6 +330,21 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
     if(iBin >= nominalHisto->FindBin(xPoint))
       sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);   
   }
+}
+
+TH1* unroll2DHistograms(TH2* nominalHisto){
+
+  TH1F* unrolledHist = new TH1F(TString(nominalHisto->GetName()).ReplaceAll("_2D",""),"",nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY(),0,nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY());
+  unrolledHist->Sumw2();
+
+  for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ // overflow already included by makehist.h
+    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ 
+      unrolledHist->SetBinContent(iBinX,iBinY,nominalHisto->GetBinContent(iBinX,iBinY));
+    }
+  }
+
+  return dynamic_cast<TH1*>(unrolledHist);
+				
 }
 
 #endif
