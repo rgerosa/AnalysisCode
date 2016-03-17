@@ -47,8 +47,8 @@ void makezmmcorhist( string  signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
   }
@@ -117,7 +117,7 @@ void makezmmcorhist( string  signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -181,8 +181,8 @@ void makezeecorhist( string  signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -242,9 +242,6 @@ void makezeecorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
 
-  for(auto hist : nhist_2D)
-    unroll2DHistograms(hist);
-  
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -253,7 +250,7 @@ void makezeecorhist( string  signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -318,8 +315,8 @@ void makewmncorhist( string  signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -381,9 +378,6 @@ void makewmncorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
 
-  for(auto hist : nhist_2D)
-    unroll2DHistograms(hist);
-  
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -392,7 +386,7 @@ void makewmncorhist( string  signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -456,8 +450,8 @@ void makewencorhist( string signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -519,9 +513,6 @@ void makewencorhist( string signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
 
-  for(auto hist : nhist_2D)
-    unroll2DHistograms(hist);
-  
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -530,7 +521,7 @@ void makewencorhist( string signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -595,8 +586,8 @@ void  makezwjcorhist(string znunuFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -726,7 +717,7 @@ void  makezwjcorhist(string znunuFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -793,8 +784,8 @@ void makegamcorhist( string znunuFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -936,7 +927,7 @@ void makegamcorhist( string znunuFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -1022,11 +1013,14 @@ void maketopmucorhist( string signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_alt_temp = new TH2F(("nhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_alt_temp = new TH2F(("dhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-
+    nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
+    dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
   }
 
   vector<TH1*> ehists;
@@ -1098,7 +1092,7 @@ void maketopmucorhist( string signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -1185,10 +1179,14 @@ void maketopelcorhist( string signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_alt_temp = new TH2F(("nhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_alt_temp = new TH2F(("dhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+    nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
+    dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
 
   }
 
@@ -1262,7 +1260,7 @@ void maketopelcorhist( string signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 
@@ -1327,8 +1325,8 @@ void makesidebandcorhist( string signalRegionFile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH2F* nhist_temp = new TH2F(("nhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dhist_temp = new TH2F(("dhist_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
     nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
     dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
@@ -1377,7 +1375,7 @@ void makesidebandcorhist( string signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
     nhist_2D.at(ihist)->Write();
   }
 

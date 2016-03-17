@@ -94,7 +94,7 @@ if __name__ == '__main__':
         for key in inputTemplate.GetListOfKeys():
             if(key.GetClassName() == "TH1" or key.GetClassName() == "TH1F" or key.GetClassName() == "TH1D"):
                 h1 = key.ReadObj()
-            if not ROOT.TString(h1.GetName()).Contains("monoJ") and not ROOT.TString(h1.GetName()).Contains("monoW") and not ROOT.TString(h1.GetName()).Contains("monoZ"):
+            if not ROOT.TString(h1.GetName()).Contains("monoJ") and not ROOT.TString(h1.GetName()).Contains("monoW") and not ROOT.TString(h1.GetName()).Contains("monoZ") 
                 continue;
             if ROOT.TString(h1.GetName()).Contains("Up") or ROOT.TString(h1.GetName()).Contains("Down") or ROOT.TString(h1.GetName()).Contains("Dw"):
                 continue;
@@ -174,37 +174,78 @@ if __name__ == '__main__':
 
     else: ## for Higgs invisible
 
-        if not options.batchMode:
+        higgsMediatorMass_ggH = [];
+        higgsMediatorMass_vbfH = [];
+        higgsMediatorMass_wH = [];
+        higgsMediatorMass_zH = [];
+
+        for key in inputTemplate.GetListOfKeys():
+            if(key.GetClassName() == "TH1" or key.GetClassName() == "TH1F" or key.GetClassName() == "TH1D"):
+                h1 = key.ReadObj()
+            if not ROOT.TString(h1.GetName()).Contains("ggH") and not ROOT.TString(h1.GetName()).Contains("vbfH") and not ROOT.TString(h1.GetName()).Contains("wH") and not ROOT.TString(h1.GetName()).Contains("zH"):
+                continue;
+            if ROOT.TString(h1.GetName()).Contains("Up") or ROOT.TString(h1.GetName()).Contains("Down") or ROOT.TString(h1.GetName()).Contains("Dw"):
+                continue;
+            list = str(h1.GetName()).split("_")
+            if(len(list) < 3):
+                sys.exit("Problem in the signal template name convention ---> exit ");
             
-            os.system("mkdir -p "+options.outputDIR);
-            command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_hinv.root\",\"%s\",%d,%f,%d,%d,%d)"%(options.templateFile,options.category,options.outputDIR,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys));
-            ROOT.gROOT.ProcessLine(command.Data());
-        else:
+            if(ROOT.TString(h1.GetName()).Contains("ggH")):                
+                higgsMediatorMass_ggH.append(list [1])
 
-            os.system("mkdir -p "+options.jobDIR);
-            os.system("mkdir -p "+currentDIR+"/"+options.inputDIR+"/"+options.outputDIR);
+            if(ROOT.TString(h1.GetName()).Contains("vbfH")):                
+                higgsMediatorMass_vbfH.append(list [1])
 
-            jobName = "job_%s_hinv"%(cat);
+            if(ROOT.TString(h1.GetName()).Contains("wH")):                
+                higgsMediatorMass_wH.append(list [1])
 
-            ## write job sh file                                                                                                                                             
-            jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
-            jobmacro.write("{\n");
-            jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-            command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d)\""%(options.\
-templateFile,options.category,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys))
-            jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
-            jobmacro.write("}\n");
-            jobmacro.close();
-            jobscript = open('%s/%s.sh'%(options.jobDIR,jobName),'w')
-            jobscript.write('cd %s \n'%currentDIR)
-            jobscript.write('eval ` scramv1 runtime -sh ` \n')
-            jobscript.write('cd - \n')
-            jobscript.write('scp %s/%s ./\n'%(currentDIR+"/"+options.inputDIR,options.templateFile))
-            jobscript.write('scp '+currentDIR+'/%s/%s.C ./ \n'%(options.jobDIR,jobName))
-            jobscript.write('root -l -b -q %s.C \n'%(jobName))
-            jobscript.write('scp workspace_%s_hinv.root %s/%s/%s\n'%(cat));
-            os.system('chmod a+x %s/%s.sh'%(options.jobDIR,jobName))
+            if(ROOT.TString(h1.GetName()).Contains("zH")):                
+                higgsMediatorMass_zH.append(list [1])
+    
+        if ((len(higgsMediatorMass_ggH) != len(higgsMediatorMass_vbfH)) or  (len(higgsMediatorMass_ggH) != len(higgsMediatorMass_wH)) or (len(higgsMediatorMass_ggH) != len(higgsMediatorMass_zH))):
+            sys.exit("Problem with the mass point size between ggH, vbfH, wH and zH  ---> exit ");
 
-            if options.submit:
-                os.system('bsub -q %s -o %s/%s/%s.log -e %s/%s/%s.err %s/%s/%s.sh'%(options.queque,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName))
+        
+        for isig in range(len(higgsMediatorMass_ggH)):
+            
+            if options.category <= 1:
+                cat = "MJ"
+            else:
+                cat = "MV"
+
+            if higgsMediatorMass_ggH[isig] != higgsMediatorMass_vbfH[isig] or higgsMediatorMass_ggH[isig] != higgsMediatorMass_wH[isig] or higgsMediatorMass_ggH[isig] != higgsMediatorMass_zH[isig]:
+                sys.exit("Problem with the mass point interaction among ggH, vbfH, wH and zH  ---> exit ");
+
+            if not options.batchMode:
+            
+                os.system("mkdir -p "+options.outputDIR);
+                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_hinv.root\",\"%s\",%d,%f,%d,%d,%d,%s,%s)"%(options.templateFile,options.category,options.outputDIR,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,"",higgsMediatorMass_ggH[isig]));
+                ROOT.gROOT.ProcessLine(command.Data());
+            else:
+
+                os.system("mkdir -p "+options.jobDIR);
+                os.system("mkdir -p "+currentDIR+"/"+options.inputDIR+"/"+options.outputDIR);
+
+                jobName = "job_%s_hinv"%(cat);
+
+                 ## write job sh file                                                                                                                                      
+                jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
+                jobmacro.write("{\n");
+                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
+                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%s,%s)\""%(options.templateFile,options.category,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,"",higgsMediatorMass_ggH[isig]))
+                jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
+                jobmacro.write("}\n");
+                jobmacro.close();
+                jobscript = open('%s/%s.sh'%(options.jobDIR,jobName),'w')
+                jobscript.write('cd %s \n'%currentDIR)
+                jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                jobscript.write('cd - \n')
+                jobscript.write('scp %s/%s ./\n'%(currentDIR+"/"+options.inputDIR,options.templateFile))
+                jobscript.write('scp '+currentDIR+'/%s/%s.C ./ \n'%(options.jobDIR,jobName))
+                jobscript.write('root -l -b -q %s.C \n'%(jobName))
+                jobscript.write('scp workspace_%s_hinv.root %s/%s/%s\n'%(cat));
+                os.system('chmod a+x %s/%s.sh'%(options.jobDIR,jobName))
+
+                if options.submit:
+                    os.system('bsub -q %s -o %s/%s/%s.log -e %s/%s/%s.err %s/%s/%s.sh'%(options.queque,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName,currentDIR,options.jobDIR,jobName))
 

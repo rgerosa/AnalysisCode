@@ -7,14 +7,20 @@ void signalHiggshist(TFile* outfile,
 		     int    category,
 		     vector<string> observables,
 		     vector<string> observables_2D,
-		     double lumi              = 2.24,
-		     bool   doShapeSystematics  = false){
+		     double lumi                = 2.24,
+		     bool   doShapeSystematics  = false,
+		     string mH = "125",
+		     vector<float> xs = {4.198E+04,3.925E+03,1.475E+03,9.095E+02}){
 
+  if(xs.size() != 4)
+    cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
 
-  TFile* ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-125_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-  TFile* vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-125_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-  TFile* wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-125_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-  TFile* zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-125_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+  cout<<"Start HiggsInvisible: signalHiggshist --> "<<mH<<endl;
+
+  TFile* ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+  TFile* vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+  TFile* wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+  TFile* zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
 
   vector<TH1*> ggHhist;
   vector<TH1*> vbfHhist;
@@ -67,10 +73,10 @@ void signalHiggshist(TFile* outfile,
     if(bins.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
 
-    TH1F* ggHhist_temp  = new TH1F(("ggHhist_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-    TH1F* vbfHhist_temp = new TH1F(("vbfHhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-    TH1F* wHhist_temp   = new TH1F(("wHhist_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-    TH1F* zHhist_temp   = new TH1F(("zHhist_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+    TH1F* ggHhist_temp  = new TH1F(("ggHhist_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+    TH1F* vbfHhist_temp = new TH1F(("vbfHhist_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+    TH1F* wHhist_temp   = new TH1F(("wHhist_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+    TH1F* zHhist_temp   = new TH1F(("zHhist_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
     ggHhist.push_back(dynamic_cast<TH1*>(ggHhist_temp));
     vbfHhist.push_back(dynamic_cast<TH1*>(vbfHhist_temp));
     wHhist.push_back(dynamic_cast<TH1*>(wHhist_temp));
@@ -78,83 +84,83 @@ void signalHiggshist(TFile* outfile,
     
     if(doShapeSystematics){
 
-      TH1F* ggHhist_renUp_temp   = new TH1F(("ggHhist_renUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* ggHhist_renDw_temp   = new TH1F(("ggHhist_renDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* ggHhist_facUp_temp   = new TH1F(("ggHhist_facUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* ggHhist_facDw_temp   = new TH1F(("ggHhist_facDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_renUp_temp   = new TH1F(("ggHhist_renUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_renDw_temp   = new TH1F(("ggHhist_renDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_facUp_temp   = new TH1F(("ggHhist_facUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_facDw_temp   = new TH1F(("ggHhist_facDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
       
       ggHhist_renUp.push_back(dynamic_cast<TH1*>(ggHhist_renUp_temp));
       ggHhist_renDw.push_back(dynamic_cast<TH1*>(ggHhist_renDw_temp));
       ggHhist_facUp.push_back(dynamic_cast<TH1*>(ggHhist_facUp_temp));
       ggHhist_facDw.push_back(dynamic_cast<TH1*>(ggHhist_facDw_temp));
       
-      TH1F* ggHhist_bUp_temp  = new TH1F(("ggHhist_bUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_bUp_temp = new TH1F(("vbfHhist_bUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_bUp_temp   = new TH1F(("wHhist_bUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_bUp_temp   = new TH1F(("zHhist_bUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_bUp_temp  = new TH1F(("ggHhist_bUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_bUp_temp = new TH1F(("vbfHhist_bUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_bUp_temp   = new TH1F(("wHhist_bUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_bUp_temp   = new TH1F(("zHhist_bUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_bUp.push_back(dynamic_cast<TH1*>(ggHhist_bUp_temp));
       vbfHhist_bUp.push_back(dynamic_cast<TH1*>(vbfHhist_bUp_temp));
       wHhist_bUp.push_back(dynamic_cast<TH1*>(wHhist_bUp_temp));
       zHhist_bUp.push_back(dynamic_cast<TH1*>(zHhist_bUp_temp));
 
-      TH1F* ggHhist_bDw_temp  = new TH1F(("ggHhist_bDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_bDw_temp = new TH1F(("vbfHhist_bDw_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_bDw_temp   = new TH1F(("wHhist_bDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_bDw_temp   = new TH1F(("zHhist_bDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_bDw_temp  = new TH1F(("ggHhist_bDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_bDw_temp = new TH1F(("vbfHhist_bDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_bDw_temp   = new TH1F(("wHhist_bDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_bDw_temp   = new TH1F(("zHhist_bDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_bDw.push_back(dynamic_cast<TH1*>(ggHhist_bDw_temp));
       vbfHhist_bDw.push_back(dynamic_cast<TH1*>(vbfHhist_bDw_temp));
       wHhist_bDw.push_back(dynamic_cast<TH1*>(wHhist_bDw_temp));
       zHhist_bDw.push_back(dynamic_cast<TH1*>(zHhist_bDw_temp));
 
-      TH1F* ggHhist_metJetUp_temp  = new TH1F(("ggHhist_metJetUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metJetUp_temp = new TH1F(("vbfHhist_metJetUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metJetUp_temp   = new TH1F(("wHhist_metJetUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metJetUp_temp   = new TH1F(("zHhist_metJetUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metJetUp_temp  = new TH1F(("ggHhist_metJetUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metJetUp_temp = new TH1F(("vbfHhist_metJetUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metJetUp_temp   = new TH1F(("wHhist_metJetUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metJetUp_temp   = new TH1F(("zHhist_metJetUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metJetUp.push_back(dynamic_cast<TH1*>(ggHhist_metJetUp_temp));
       vbfHhist_metJetUp.push_back(dynamic_cast<TH1*>(vbfHhist_metJetUp_temp));
       zHhist_metJetUp.push_back(dynamic_cast<TH1*>(zHhist_metJetUp_temp));
       wHhist_metJetUp.push_back(dynamic_cast<TH1*>(wHhist_metJetUp_temp));
 
-      TH1F* ggHhist_metJetDw_temp  = new TH1F(("ggHhist_metJetDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metJetDw_temp = new TH1F(("vbfHhist_metJetDw_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metJetDw_temp   = new TH1F(("wHhist_metJetDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metJetDw_temp   = new TH1F(("zHhist_metJetDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metJetDw_temp  = new TH1F(("ggHhist_metJetDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metJetDw_temp = new TH1F(("vbfHhist_metJetDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metJetDw_temp   = new TH1F(("wHhist_metJetDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metJetDw_temp   = new TH1F(("zHhist_metJetDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metJetDw.push_back(dynamic_cast<TH1*>(ggHhist_metJetDw_temp));
       vbfHhist_metJetDw.push_back(dynamic_cast<TH1*>(vbfHhist_metJetDw_temp));
       wHhist_metJetDw.push_back(dynamic_cast<TH1*>(wHhist_metJetDw_temp));
       zHhist_metJetDw.push_back(dynamic_cast<TH1*>(zHhist_metJetDw_temp));
 
-      TH1F* ggHhist_metResUp_temp  = new TH1F(("ggHhist_metResUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metResUp_temp = new TH1F(("vbfHhist_metResUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metResUp_temp   = new TH1F(("wHhist_metResUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metResUp_temp   = new TH1F(("zHhist_metResUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metResUp_temp  = new TH1F(("ggHhist_metResUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metResUp_temp = new TH1F(("vbfHhist_metResUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metResUp_temp   = new TH1F(("wHhist_metResUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metResUp_temp   = new TH1F(("zHhist_metResUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metResUp.push_back(dynamic_cast<TH1*>(ggHhist_metResUp_temp));
       vbfHhist_metResUp.push_back(dynamic_cast<TH1*>(vbfHhist_metResUp_temp));
       wHhist_metResUp.push_back(dynamic_cast<TH1*>(wHhist_metResUp_temp));
       zHhist_metResUp.push_back(dynamic_cast<TH1*>(zHhist_metResUp_temp));
 
-      TH1F* ggHhist_metResDw_temp  = new TH1F(("ggHhist_metResDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metResDw_temp = new TH1F(("vbfHhist_metResDw_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metResDw_temp   = new TH1F(("wHhist_metResDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metResDw_temp   = new TH1F(("zHhist_metResDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metResDw_temp  = new TH1F(("ggHhist_metResDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metResDw_temp = new TH1F(("vbfHhist_metResDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metResDw_temp   = new TH1F(("wHhist_metResDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metResDw_temp   = new TH1F(("zHhist_metResDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metResDw.push_back(dynamic_cast<TH1*>(ggHhist_metResDw_temp));
       vbfHhist_metResDw.push_back(dynamic_cast<TH1*>(vbfHhist_metResDw_temp));
       wHhist_metResDw.push_back(dynamic_cast<TH1*>(wHhist_metResDw_temp));
       zHhist_metResDw.push_back(dynamic_cast<TH1*>(zHhist_metResDw_temp));
 
-      TH1F* ggHhist_metUncUp_temp  = new TH1F(("ggHhist_metUncUp_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metUncUp_temp = new TH1F(("vbfHhist_metUncUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metUncUp_temp   = new TH1F(("wHhist_metUncUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metUncUp_temp   = new TH1F(("zHhist_metUncUp_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metUncUp_temp  = new TH1F(("ggHhist_metUncUp_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metUncUp_temp = new TH1F(("vbfHhist_metUncUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metUncUp_temp   = new TH1F(("wHhist_metUncUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metUncUp_temp   = new TH1F(("zHhist_metUncUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metUncUp.push_back(dynamic_cast<TH1*>(ggHhist_metUncUp_temp));
       vbfHhist_metUncUp.push_back(dynamic_cast<TH1*>(vbfHhist_metUncUp_temp));
       wHhist_metUncUp.push_back(dynamic_cast<TH1*>(wHhist_metUncUp_temp));
       zHhist_metUncUp.push_back(dynamic_cast<TH1*>(zHhist_metUncUp_temp));
 
-      TH1F* ggHhist_metUncDw_temp  = new TH1F(("ggHhist_metUncDw_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
-      TH1F* vbfHhist_metUncDw_temp = new TH1F(("vbfHhist_metUncDw_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* wHhist_metUncDw_temp   = new TH1F(("wHhist_metUncDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
-      TH1F* zHhist_metUncDw_temp   = new TH1F(("zHhist_metUncDw_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* ggHhist_metUncDw_temp  = new TH1F(("ggHhist_metUncDw_"+mH+"_"+obs).c_str(), "",  int(bins.size()-1), &bins[0]);
+      TH1F* vbfHhist_metUncDw_temp = new TH1F(("vbfHhist_metUncDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* wHhist_metUncDw_temp   = new TH1F(("wHhist_metUncDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
+      TH1F* zHhist_metUncDw_temp   = new TH1F(("zHhist_metUncDw_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
       ggHhist_metUncDw.push_back(dynamic_cast<TH1*>(ggHhist_metUncDw_temp));
       vbfHhist_metUncDw.push_back(dynamic_cast<TH1*>(vbfHhist_metUncDw_temp));
       wHhist_metUncDw.push_back(dynamic_cast<TH1*>(wHhist_metUncDw_temp));
@@ -227,57 +233,57 @@ void signalHiggshist(TFile* outfile,
   TH1* facDw = (TH1*) higgsPT->Get("weight_pT_rdn");
 
   // higgs re-weight
-  makehist4(ggHTree,ggHhist,ggHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04);
-  makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,3.744e+03);
-  makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,1.377e+03);
-  makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,0.97e+03);
+  makehist4(ggHTree,ggHhist,ggHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0));
+  makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(1));
+  makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(2));
+  makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(3));
   
   if(doShapeSystematics){
  
-    makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04,renUp);
-    makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04,renDw);
-    makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04,facUp);
-    makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,4.387000e+04,facDw);
+    makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0),renUp);
+    makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0),renDw);
+    makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0),facUp);
+    makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0),facDw);
     
-    makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(3));
     
-    makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_bDw,wHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_bDw,wHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,xs.at(3));
     
-    makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,xs.at(3));
     
-    makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metJetDw,wHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metJetDw,wHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,xs.at(3));
     
-    makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metResUp,wHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metResUp,wHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,xs.at(3));
 
-    makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metResDw,wHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metResDw,wHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,xs.at(3));
 
-    makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metUncUp,wHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metUncUp,wHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,xs.at(3));
 
-    makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,4.387000e+04);
-    makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,3.744e+03);
-    makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,1.377e+03);
-    makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,0.97e+03);
+    makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(0));
+    makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(1));
+    makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(2));
+    makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(3));
     
   }
   
