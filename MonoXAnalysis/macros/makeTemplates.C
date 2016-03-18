@@ -9,7 +9,7 @@
 
 using namespace std;
 
-void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string interaction, bool onlyMonoJetSignal){
+void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string interaction, int typeOfDMSignal){
 
   string baseDirMonoJet;
   string baseDirMonoW;
@@ -44,34 +44,37 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
   vector<string> monoJetSamples;
   vector<string> monoWSamples;
   vector<string> monoZSamples;
-
-  system(("ls "+baseDirMonoJet+" | grep root > file_list.tmp").c_str());
+  
   ifstream infile;
-  infile.open("file_list.tmp",ifstream::in);
   string line;
   vector<string> seglist;
-  if(infile.is_open()){
-    while(!infile.eof()){
-      getline(infile,line);
-      if(line == "") continue;
-      TString fileName (line.c_str());
-      seglist.clear();
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-      fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
-      stringstream name(fileName.Data());
-      string segment;
-      while(getline(name, segment, '_')){
-        seglist.push_back(segment);
+
+  if(typeOfDMSignal <= 1){
+
+    system(("ls "+baseDirMonoJet+" | grep root > file_list.tmp").c_str());
+    infile.open("file_list.tmp",ifstream::in);
+    if(infile.is_open()){
+      while(!infile.eof()){
+	getline(infile,line);
+	if(line == "") continue;
+	TString fileName (line.c_str());
+	seglist.clear();
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
+	fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	stringstream name(fileName.Data());
+	string segment;
+	while(getline(name, segment, '_')){
+	  seglist.push_back(segment);
+	}
+	monoJetSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
       }
-      monoJetSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
     }
+    
+    infile.close();
   }
-
-  infile.close();
-
   
-  if(not onlyMonoJetSignal){
+  if(typeOfDMSignal == 0 or typeOfDMSignal >= 2){
     
     system(("ls "+baseDirMonoW+" | grep root > file_list.tmp").c_str());
     infile.open("file_list.tmp",ifstream::in);
@@ -94,7 +97,7 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
     }
     
     infile.close();
-
+    
     system(("ls "+baseDirMonoZ+" | grep root > file_list.tmp").c_str());
     infile.open("file_list.tmp",ifstream::in);
     if(infile.is_open()){
@@ -120,9 +123,9 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
   
   // common point  and fill output vector
   vector<string> commonPoint;
-  if(onlyMonoJetSignal)
+  if(typeOfDMSignal == 1)
     commonPoint = monoJetSamples;
-  else{
+  else if (typeOfDMSignal == 0){
     for(auto point : monoJetSamples){
       if(interaction != "Scalar" and 
 	 find(monoWSamples.begin(),monoWSamples.end(),point) != monoWSamples.end() and find(monoZSamples.begin(),monoZSamples.end(),point) != monoZSamples.end())
@@ -131,9 +134,18 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
 	commonPoint.push_back(point);
     }
   }
-    
+  else if(typeOfDMSignal >= 2){
+    for(auto point : monoWSamples){
+      if(interaction != "Scalar" and 
+	 find(monoZSamples.begin(),monoZSamples.end(),point) != monoZSamples.end())
+	commonPoint.push_back(point);
+      else if(interaction == "Scalar") 
+	commonPoint.push_back(point);
+    }
+  }
+  
   system("rm file_list.tmp");
-
+  
   for(auto point : commonPoint){
     stringstream name(point.c_str());
     string segment;
@@ -425,29 +437,31 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
 // 1) Store all corrections templates from input files (complient to combine)
 // 2) Make data and expected yields templates for all the other processes
 
-void makeTemplates(bool doCorrectionHistograms   = false, 
-		   bool skipCorrectionHistograms = false, 
-		   int category  = 0, 
-		   double lumi   = 2.24, 
-		   string outDir = "", 
-		   string templateSuffix = "", 
-		   vector<string> observables    = {"met"}, 
-		   vector<string> observables_2D = {}, 
-		   bool applyQGLReweight      = false,
-		   bool doShapeSystematics    = false,
-		   bool makeResonantSelection = false,
-		   bool onlyMonoJetSignal     = false,
-		   bool runHiggsInvisible     = false,
+void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
+		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
+		   int category  = 0,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
+		   double lumi   = 2.30, // 
+		   string outDir = "", // output dir for template file
+		   string templateSuffix = "",  // suffix for the output file
+		   vector<string> observables    = {"met"}, // 1D histo
+		   vector<string> observables_2D = {},  // 2D histo
+		   bool applyQGLReweight      = false, // apply QGL re=weight option
+		   bool doShapeSystematics    = false, // run all the met, b-tag shape variations
+		   bool makeResonantSelection = false, // split top in resonant and non resonant
+		   int  typeOfDMSignal        = 0,     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
+		   bool runHiggsInvisible     = false, // run Higgs invisible analysis
+		   bool runOnlySignal         = false, // produce a file with only signal templates
+		   bool runOnlyBackground     = false, // produce a file with only background templates
 		   string ext ="") {
 
   system(("mkdir -p "+outDir).c_str());
 
   // find all possible mass pont to use in the analysis for each Model: Vector, Axial, Scalar and Pseudoscalar .. if onlyMonoJetSignal is true just use all the available mono-j signals in the directories
   vector<signalSample> signalMassPoint;
-  findAllPossibleMassPoints(signalMassPoint,"Vector",onlyMonoJetSignal);  
-  findAllPossibleMassPoints(signalMassPoint,"Axial",onlyMonoJetSignal);
-  findAllPossibleMassPoints(signalMassPoint,"Scalar",onlyMonoJetSignal);
-  findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",onlyMonoJetSignal);
+  findAllPossibleMassPoints(signalMassPoint,"Vector",typeOfDMSignal);  
+  findAllPossibleMassPoints(signalMassPoint,"Axial",typeOfDMSignal);
+  findAllPossibleMassPoints(signalMassPoint,"Scalar",typeOfDMSignal);
+  findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",typeOfDMSignal);
 
   if(doCorrectionHistograms){
 
@@ -634,83 +648,84 @@ void makeTemplates(bool doCorrectionHistograms   = false,
 
   // signal region templates
   cout<<"start signal region shapes for signal"<<endl;
-  if(!runHiggsInvisible){
+  if(not runHiggsInvisible and not runOnlyBackground){
     signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Vector",lumi,doShapeSystematics);
     signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Axial",lumi,doShapeSystematics);
     signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Scalar",lumi,doShapeSystematics);
     signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Pseudoscalar",lumi,doShapeSystematics);
   }
-  else{
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03});
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.414E+04,3.782E+03,1.373E+03,1.066E+03});
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02});
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02});
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01});
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{9.516E+04,7.580E+02,2.163E+01,1.273E+01});
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{4.538E+03,4.872E+02,8.621E+00,5.256E+00});
+  else if(runHiggsInvisible and not runOnlyBackground){
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.414E+04,3.782E+03,1.373E+03,1.066E+03},0);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{9.516E+04,7.580E+02,2.163E+01,1.273E+01},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{4.538E+03,4.872E+02,8.621E+00,5.256E+00},1);
   }
 
-  cout<<"start signal region data"<<endl;
-  sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false,runHiggsInvisible);
-  // gamma + jets
-  cout<<"start gamma+jets region data"<<endl;
-  gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,runHiggsInvisible);
-  // lepton control regions
-  cout<<"start zmumu region data"<<endl;
-  lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
-  cout<<"start wmunu region data"<<endl;
-  lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
-  cout<<"start zee region data"<<endl;
-  lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
-  cout<<"start wenu region data"<<endl;
-  lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible);     
-  // top control regions
-  cout<<"start top+mu region data"<<endl;
-  topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
-  cout<<"start Top+el region data"<<endl;
-  topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
-  
-  //add qcd data templates
-  TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
-  if(qcdfile_data){
-    cout<<"Take templates QCD from data"<<endl;
-    vector<float> met_bins = selectBinning("met",category);
-    TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
-    TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
-    TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
+  if(not runOnlySignal){
+
+    cout<<"start signal region data"<<endl;
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false,runHiggsInvisible);
+    // gamma + jets
+    cout<<"start gamma+jets region data"<<endl;
+    gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,runHiggsInvisible);
+    // lepton control regions
+    cout<<"start zmumu region data"<<endl;
+    lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    cout<<"start wmunu region data"<<endl;
+    lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    cout<<"start zee region data"<<endl;
+    lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    cout<<"start wenu region data"<<endl;
+    lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible);     
+    // top control regions
+    cout<<"start top+mu region data"<<endl;
+    topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
+    cout<<"start Top+el region data"<<endl;
+    topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
     
-    TH1F* temp = NULL;
-    if(category <= 1)
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_nominal");
-    else
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_nominal");
-
-    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
-      qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
-    
-    if(category <= 1)
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllUp");
-    else
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllUp");
-
-    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
-      qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
-
-    if(category <= 1)
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllDown");
-    else
-      temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllDown");
-
-    for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
-      qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
-
-    outfile.cd();
-    qcd_nominal->Write();
-    qcd_nominal_up->Write();
-    qcd_nominal_dw->Write();
-
-  }
-  
+    //add qcd data templates
+    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
+    if(qcdfile_data){
+      cout<<"Take templates QCD from data"<<endl;
+      vector<float> met_bins = selectBinning("met",category);
+      TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
+      TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
+      TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
+      
+      TH1F* temp = NULL;
+      if(category <= 1)
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_nominal");
+      else
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_nominal");
+      
+      for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+	qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+      
+      if(category <= 1)
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllUp");
+      else
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllUp");
+      
+      for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+	qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+      
+      if(category <= 1)
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllDown");
+      else
+	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllDown");
+      
+      for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
+	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+      
+      outfile.cd();
+      qcd_nominal->Write();
+      qcd_nominal_up->Write();
+      qcd_nominal_dw->Write();      
+    }
+  }  
   outfile.Close();
   
 }

@@ -132,6 +132,12 @@ void makezmmcorhist( string  signalRegionFile,
   dfile->Close();
   kffile.Close();
 
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
 
@@ -264,6 +270,12 @@ void makezeecorhist( string  signalRegionFile,
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -401,6 +413,12 @@ void makewmncorhist( string  signalRegionFile,
   dfile->Close();
   kffile.Close();
 
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
 
@@ -535,6 +553,12 @@ void makewencorhist( string signalRegionFile,
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -732,6 +756,12 @@ void  makezwjcorhist(string znunuFile,
   dfile->Close();
   kffile.Close();
   kffileUnc.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -944,6 +974,12 @@ void makegamcorhist( string znunuFile,
   kffileUnc.Close();
   fpfile.Close();
 
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
 
@@ -1107,6 +1143,18 @@ void maketopmucorhist( string signalRegionFile,
   dfile->Close();
   if(nfile_alt) nfile_alt->Close();
   if(dfile_alt) dfile_alt->Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
+  nhist_alt.clear();
+  dhist_alt.clear();
+  nhist_2D_alt.clear();
+  dhist_2D_alt.clear();
+  unrolled.clear();
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -1276,6 +1324,17 @@ void maketopelcorhist( string signalRegionFile,
   if(nfile_alt) nfile_alt->Close();
   if(dfile_alt) dfile_alt->Close();
 
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
+  nhist_alt.clear();
+  dhist_alt.clear();
+  nhist_2D_alt.clear();
+  dhist_2D_alt.clear();
+
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
 
@@ -1388,6 +1447,12 @@ void makesidebandcorhist( string signalRegionFile,
   outfile.Close();
   nfile->Close();
   dfile->Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "Sideband->Signal region transfer factor computed ..." << endl;
 }

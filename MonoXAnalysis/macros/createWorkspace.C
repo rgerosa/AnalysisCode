@@ -32,7 +32,7 @@ void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* h
   ws.import(rhist);
 }
 
-void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1* histo){
+void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1* histo, float scaleUncertainty){
 
   vector<TH1F*> histStatUp;
   vector<TH1F*> histStatDw;
@@ -48,8 +48,8 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
   }
 
   for( size_t iHisto =0; iHisto < histStatUp.size(); iHisto++){
-    histStatUp.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)+histo->GetBinError(iHisto+1));
-    histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1));
+    histStatUp.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)+histo->GetBinError(iHisto+1)*scaleUncertainty);
+    histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty);
   }
 
   for(size_t iHisto =0; iHisto < histStatUp.size(); iHisto++) {
@@ -528,10 +528,10 @@ OB		     string DMMass        = "50",
       }
     }
     // statistics
-    generateStatTemplate("ggH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("ggHhist_"+mediatorMass+"_"+observable).c_str()));
-    generateStatTemplate("vbfH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("vbfHhist_"+mediatorMass+"_"+observable).c_str()));
-    generateStatTemplate("wH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("wHhist_"+mediatorMass+"_"+observable).c_str()));
-    generateStatTemplate("zH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("zHhist_"+mediatorMass+"_"+observable).c_str()));
+    generateStatTemplate("ggH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("ggHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("vbfH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("vbfHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("wH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("wHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("zH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->Get(("zHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
   }
   
   // Zvv background --> to be extracted from CRs

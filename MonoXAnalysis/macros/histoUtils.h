@@ -336,17 +336,31 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
 }
 
 // un-roll a 2D histo into a TH1 with nxm bins from 0 to nxm
-TH1* unroll2DHistograms(TH2* nominalHisto){
+TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = false){
 
   TH1F* unrolledHist = new TH1F(TString(nominalHisto->GetName()).ReplaceAll("_2D",""),"",
 				nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY(),0,nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY());
   unrolledHist->Sumw2();
-  int iBin = 1; // for 1D histo
-  for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ // overflow already included by makehist.h
-    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ 
-      unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
-      unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
-      iBin++;
+
+  if(alongX){
+    int iBin = 1; // for 1D histo
+    for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ // overflow already included by makehist.h
+      for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ 
+	unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
+	unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
+	iBin++;
+      }
+    }
+  }
+  else{
+
+    int iBin = 1; // for 1D histo
+    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsX(); iBinY++){ // overflow already included by makehist.h
+      for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsY(); iBinX++){ 
+	unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
+	unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
+	iBin++;
+      }
     }
   }
 
