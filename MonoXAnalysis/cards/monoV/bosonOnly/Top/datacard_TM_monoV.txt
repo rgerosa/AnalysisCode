@@ -1,0 +1,41 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      topmu_MV   workspace_monoJ.root TM_MV:data_obs_TM_MV
+shapes WJets_TM      topmu_MV   workspace_monoJ.root TM_MV:WJets_TM_MV    TM_MV:WJets_TM_MV_$SYSTEMATIC
+shapes ZJets_TM      topmu_MV   workspace_monoJ.root TM_MV:ZJets_TM_MV    TM_MV:ZJets_TM_MV_$SYSTEMATIC
+shapes Dibosons      topmu_MV   workspace_monoJ.root TM_MV:Dibosons_TM_MV TM_MV:Dibosons_TM_MV_$SYSTEMATIC
+shapes Top           topmu_MV   workspace_monoJ.root TM_MV:Top_TM_MV 
+shapes QCD_TM        topmu_MV   workspace_monoJ.root TM_MV:QCD_TM_MV      TM_MV:QCD_TM_MV_$SYSTEMATIC
+------------------------------------------------------------------------------------------------
+bin         topmu_MV
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 topmu_MV    topmu_MV    topmu_MV        topmu_MV      topmu_MV
+process                             WJets_TM    ZJets_TM    Dibosons        Top           QCD_TM
+process                             14          15          4               5             16
+rate                                -1          -1         -1               1            -1
+------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       1.046       1.046       1.046           -             1.046
+CMS_eff_m                 lnN       1.010       1.010       1.010           -             1.010
+CMS_eff_lepVeto           lnN       -           -           -               -             -             
+WJets_TM_Norm13TeV        lnN       1.100       -           -               -             - 
+ZJets_TM_Norm13TeV        lnN       -           1.200       -               -             -
+Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
+QCD_TM_Norm13TeV          lnN       -           -           -               -             1.500
+CMS_scale_j               shapeN2   1           1           1               -             -
+CMS_res_j                 shapeN2   1           1           1               -             -
+CMS_unc                   shapeN2   1           1           1               -             -
+CMS_btag                  shapeN2   1           1           1               -             -
+Top_TM_MV_bin1_Runc        param 0 1  
+Top_TM_MV_bin2_Runc        param 0 1    
+Top_TM_MV_bin3_Runc        param 0 1    
+Top_TM_MV_bin4_Runc        param 0 1    
+Top_TM_MV_bin5_Runc        param 0 1    
+Top_TM_MV_bin6_Runc        param 0 1    
+Top_TM_MV_bin7_Runc        param 0 1    
+Top_btag                   param 0 1 
+------------------------------------------------------------------------------------------------
+
