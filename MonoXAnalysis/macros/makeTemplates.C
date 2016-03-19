@@ -242,25 +242,25 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     
     cout<<"Get histograms for observable "<<obs<<endl;
     
-    zmmcorhist.push_back( (TH1*)zmmcorfile->Get(("zmmcor"+ext+"hist_"+obs).c_str()));    
-    zeecorhist.push_back( (TH1*)zeecorfile->Get(("zeecor"+ext+"hist_"+obs).c_str()));    
-    wmncorhist.push_back( (TH1*)wmncorfile->Get(("wmncor"+ext+"hist_"+obs).c_str()));    
-    wencorhist.push_back( (TH1*)wencorfile->Get(("wencor"+ext+"hist_"+obs).c_str()));    
-    zwjcorhist.push_back( (TH1*)zwjcorfile->Get(("zwjcor"+ext+"hist_"+obs).c_str()));    
-    gamcorhist.push_back( (TH1*)gamcorfile->Get(("gamcor"+ext+"hist_"+obs).c_str()));    
-    topmucorhist.push_back( (TH1*)topmucorfile->Get(("topmucor"+ext+"hist_"+obs).c_str()));    
-    topelcorhist.push_back( (TH1*)topelcorfile->Get(("topelcor"+ext+"hist_"+obs).c_str()));    
+    zmmcorhist.push_back( (TH1*)zmmcorfile->FindObjectAny(("zmmcor"+ext+"hist_"+obs).c_str()));    
+    zeecorhist.push_back( (TH1*)zeecorfile->FindObjectAny(("zeecor"+ext+"hist_"+obs).c_str()));    
+    wmncorhist.push_back( (TH1*)wmncorfile->FindObjectAny(("wmncor"+ext+"hist_"+obs).c_str()));    
+    wencorhist.push_back( (TH1*)wencorfile->FindObjectAny(("wencor"+ext+"hist_"+obs).c_str()));    
+    zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjcor"+ext+"hist_"+obs).c_str()));    
+    gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamcor"+ext+"hist_"+obs).c_str()));    
+    topmucorhist.push_back( (TH1*)topmucorfile->FindObjectAny(("topmucor"+ext+"hist_"+obs).c_str()));    
+    topelcorhist.push_back( (TH1*)topelcorfile->FindObjectAny(("topelcor"+ext+"hist_"+obs).c_str()));    
     
     // get histograms Z/gamma
     cout<<"Make Z/gamma sys histograms"<<endl;
-    gamcorewkhist.push_back( (TH1*)gamcorewkfile->Get(("gamcor"+ext+"ewkhist_"+obs).c_str()));    
-    gamcorqcdhist.push_back( (TH1*)gamcorqcdfile->Get(("gamcor"+ext+"qcdhist_"+obs).c_str()));    
-    gamcorre1hist.push_back( (TH1*)gamcorre1file->Get(("gamcor"+ext+"re1hist_"+obs).c_str()));    
-    gamcorfa1hist.push_back( (TH1*)gamcorfa1file->Get(("gamcor"+ext+"fa1hist_"+obs).c_str()));    
-    gamcorre2hist.push_back( (TH1*)gamcorre2file->Get(("gamcor"+ext+"re2hist_"+obs).c_str()));    
-    gamcorfa2hist.push_back( (TH1*)gamcorfa2file->Get(("gamcor"+ext+"fa2hist_"+obs).c_str()));    
-    gamcorpdfhist.push_back( (TH1*)gamcorpdffile->Get(("gamcor"+ext+"pdfhist_"+obs).c_str()));    
-    gamcorfpchist.push_back( (TH1*)gamcorfpcfile->Get(("gamcor"+ext+"fpchist_"+obs).c_str()));    
+    gamcorewkhist.push_back( (TH1*)gamcorewkfile->FindObjectAny(("gamcor"+ext+"ewkhist_"+obs).c_str()));    
+    gamcorqcdhist.push_back( (TH1*)gamcorqcdfile->FindObjectAny(("gamcor"+ext+"qcdhist_"+obs).c_str()));    
+    gamcorre1hist.push_back( (TH1*)gamcorre1file->FindObjectAny(("gamcor"+ext+"re1hist_"+obs).c_str()));    
+    gamcorfa1hist.push_back( (TH1*)gamcorfa1file->FindObjectAny(("gamcor"+ext+"fa1hist_"+obs).c_str()));    
+    gamcorre2hist.push_back( (TH1*)gamcorre2file->FindObjectAny(("gamcor"+ext+"re2hist_"+obs).c_str()));    
+    gamcorfa2hist.push_back( (TH1*)gamcorfa2file->FindObjectAny(("gamcor"+ext+"fa2hist_"+obs).c_str()));    
+    gamcorpdfhist.push_back( (TH1*)gamcorpdffile->FindObjectAny(("gamcor"+ext+"pdfhist_"+obs).c_str()));    
+    gamcorfpchist.push_back( (TH1*)gamcorfpcfile->FindObjectAny(("gamcor"+ext+"fpchist_"+obs).c_str()));    
     
     // uncertainty histogram for combine
     TH1* gamuncewkhist = (TH1*)gamcorewkhist.back()->Clone(("gamuncewk"+ext+"hist_"+obs).c_str());    
@@ -307,13 +307,13 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     
       // Same thing for Z/W ratio
     cout<<"Make Z/W sys histograms"<<endl;
-    zwjcorewkhist.push_back( (TH1*)zwjcorewkfile->Get(("zwjcorewk"+ext+"hist_"+obs).c_str()));    
-    zwjcorqcdhist.push_back( (TH1*)zwjcorqcdfile->Get(("zwjcorqcd"+ext+"hist_"+obs).c_str()));    
-    zwjcorre1hist.push_back( (TH1*)zwjcorre1file->Get(("zwjcorre1"+ext+"hist_"+obs).c_str()));    
-    zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->Get(("zwjcorfa1"+ext+"hist_"+obs).c_str()));    
-    zwjcorre2hist.push_back( (TH1*)zwjcorre2file->Get(("zwjcorre2"+ext+"hist_"+obs).c_str()));    
-    zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->Get(("zwjcorfa2"+ext+"hist_"+obs).c_str()));    
-    zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->Get(("zwjcorpdf"+ext+"hist_"+obs).c_str()));    
+    zwjcorewkhist.push_back( (TH1*)zwjcorewkfile->FindObjectAny(("zwjcorewk"+ext+"hist_"+obs).c_str()));    
+    zwjcorqcdhist.push_back( (TH1*)zwjcorqcdfile->FindObjectAny(("zwjcorqcd"+ext+"hist_"+obs).c_str()));    
+    zwjcorre1hist.push_back( (TH1*)zwjcorre1file->FindObjectAny(("zwjcorre1"+ext+"hist_"+obs).c_str()));    
+    zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("zwjcorfa1"+ext+"hist_"+obs).c_str()));    
+    zwjcorre2hist.push_back( (TH1*)zwjcorre2file->FindObjectAny(("zwjcorre2"+ext+"hist_"+obs).c_str()));    
+    zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("zwjcorfa2"+ext+"hist_"+obs).c_str()));    
+    zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));    
       
     TH1* zwjuncewkhist = (TH1*)zwjcorewkhist.back()->Clone(("zwjuncewk"+ext+"hist_"+obs).c_str());    
     zwjuncewkhist->Divide(zwjcorqcdhist.back());
@@ -353,10 +353,10 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     
       // make b-tagging top
     cout<<"Make top sys histograms"<<endl;
-    topmucorbuphist.push_back( (TH1*) topmucorbupfile->Get(("topmucor"+ext+"bUphist_"+obs).c_str()));    
-    topmucorbdownhist.push_back( (TH1*) topmucorbdownfile->Get(("topmucor"+ext+"bDownhist_"+obs).c_str()));    
-    topelcorbuphist.push_back( (TH1*) topelcorbupfile->Get(("topelcor"+ext+"bUphist_"+obs).c_str()));    
-    topelcorbdownhist.push_back( (TH1*) topelcorbdownfile->Get(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
+    topmucorbuphist.push_back( (TH1*) topmucorbupfile->FindObjectAny(("topmucor"+ext+"bUphist_"+obs).c_str()));    
+    topmucorbdownhist.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("topmucor"+ext+"bDownhist_"+obs).c_str()));    
+    topelcorbuphist.push_back( (TH1*) topelcorbupfile->FindObjectAny(("topelcor"+ext+"bUphist_"+obs).c_str()));    
+    topelcorbdownhist.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
     
     // make symmetrization
     TH1* topmucorbuphist_tmp = (TH1*) topmucorbuphist.back()->Clone(("topmucorbup_tmp"+ext+"hist_"+obs).c_str());    
@@ -385,16 +385,53 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     outputFile.cd();
     
     cout<<"Save transfer factor"<<endl;
+    if(not outputFile.GetDirectory("TF_ZM"))
+      outputFile.mkdir("TF_ZM");
+    outputFile.cd("TF_ZM");
     zmmcorhist.back()->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_ZE"))
+      outputFile.mkdir("TF_ZE");
+    outputFile.cd("TF_ZE");
     zeecorhist.back()->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_WM"))
+      outputFile.mkdir("TF_WM");
+    outputFile.cd("TF_WM");
     wmncorhist.back()->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_WE"))
+      outputFile.mkdir("TF_WE");
+    outputFile.cd("TF_WE");
     wencorhist.back()->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_WZ"))
+      outputFile.mkdir("TF_WZ");
+    outputFile.cd("TF_WZ");
     zwjcorhist.back()->Write();
+    zwjcorqcdhist.back()->Write();
+    zwjcorewkhist.back()->Write();
+    zwjcorre1hist.back()->Write();
+    zwjcorfa1hist.back()->Write();
+    zwjcorre2hist.back()->Write();
+    zwjcorfa2hist.back()->Write();
+    zwjcorpdfhist.back()->Write();    
+    zwjuncewkhist->Write();
+    zwjuncre1hist->Write();
+    zwjuncfa1hist->Write();
+    zwjuncre2hist->Write();
+    zwjuncfa2hist->Write();
+    zwjuncpdfhist->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_GJ"))
+      outputFile.mkdir("TF_GJ");
+    outputFile.cd("TF_GJ");
     gamcorhist.back()->Write();
-    topmucorhist.back()->Write();
-    topelcorhist.back()->Write();
-    
-    
     gamcorqcdhist.back()->Write();
     gamcorewkhist.back()->Write();
     gamcorre1hist.back()->Write();
@@ -403,7 +440,6 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     gamcorfa2hist.back()->Write();
     gamcorpdfhist.back()->Write();
     gamcorfpchist.back()->Write();
-      
     gamuncewkhist->Write();
     gamuncre1hist->Write();
     gamuncfa1hist->Write();
@@ -411,24 +447,21 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     gamuncfa2hist->Write();
     gamuncpdfhist->Write();
     gamuncfpchist->Write();
-    
-    zwjcorqcdhist.back()->Write();
-    zwjcorewkhist.back()->Write();
-    zwjcorre1hist.back()->Write();
-    zwjcorfa1hist.back()->Write();
-    zwjcorre2hist.back()->Write();
-    zwjcorfa2hist.back()->Write();
-    zwjcorpdfhist.back()->Write();
-    
-    zwjuncewkhist->Write();
-    zwjuncre1hist->Write();
-    zwjuncfa1hist->Write();
-    zwjuncre2hist->Write();
-    zwjuncfa2hist->Write();
-    zwjuncpdfhist->Write();
-    
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_TM"))
+      outputFile.mkdir("TF_TM");
+    outputFile.cd("TF_TM");
+    topmucorhist.back()->Write();
     topmucoruncbhist->Write();
+
+    outputFile.cd();
+    if(not outputFile.GetDirectory("TF_TE"))
+      outputFile.mkdir("TF_TE");
+    outputFile.cd("TF_TE");
+    topelcorhist.back()->Write();          
     topelcoruncbhist->Write();      
+    outputFile.cd();
   }
 }
 
@@ -697,33 +730,35 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       TH1F* temp = NULL;
       if(category <= 1)
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_nominal");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_nominal");
       else
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_nominal");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_nominal");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category <= 1)
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllUp");
       else
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllUp");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category <= 1)
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoJ_AllDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllDown");
       else
-	temp = (TH1F*) qcdfile_data->Get("hQCD_MonoV_AllDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllDown");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       outfile.cd();
+      outfile.cd("SR");
       qcd_nominal->Write();
       qcd_nominal_up->Write();
       qcd_nominal_dw->Write();      
+      outfile.cd();
     }
   }  
   outfile.Close();

@@ -93,7 +93,7 @@ vector<float> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,
 vector<float> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 vector<float> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 
-vector<float> bins_monoJ_met_2D      = {250.,300.,350,400.,500.,600.,750.,950.,1300.};
+vector<float> bins_monoJ_met_2D      = {200.,250.,300.,350,400.,500.,600.,750.,950.,1300.};
 vector<float> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
 vector<float> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 vector<float> bins_monoJ_njet_2D     = {1,2,3,10};
@@ -336,7 +336,8 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
 }
 
 // un-roll a 2D histo into a TH1 with nxm bins from 0 to nxm
-TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = false){
+// alongX when true means that the 2D histogram is un-rolled looping in x,y order, when false in y,x
+TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = true){
 
   TH1F* unrolledHist = new TH1F(TString(nominalHisto->GetName()).ReplaceAll("_2D",""),"",
 				nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY(),0,nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY());
@@ -355,8 +356,8 @@ TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = false){
   else{
 
     int iBin = 1; // for 1D histo
-    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsX(); iBinY++){ // overflow already included by makehist.h
-      for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsY(); iBinX++){ 
+    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ // overflow already included by makehist.h
+      for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ 
 	unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
 	unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
 	iBin++;
@@ -367,8 +368,56 @@ TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = false){
   return dynamic_cast<TH1*>(unrolledHist);  
 }
 
+// re-construct the 2D histo from the 1D unrolled ones
+TH2* roll2DHistograms(TH1* nominalHisto, const string & observable_2D, const int & category, bool alongX = true){
+
+  bin2D bins = selectBinning2D(observable_2D,category);
+  TH2F* outputHisto = new TH2F(Form("%s_2D",nominalHisto->GetName()),"",bins.binX.size()-1,&bins.binX[0],bins.binY.size()-1,&bins.binY[0]);
+
+  if(outputHisto->GetNbinsX()*outputHisto->GetNbinsY() != nominalHisto->GetNbinsX())
+    cout<<"roll2DHistograms: Huston we have a problem with binning --> please check"<<endl;
+
+  if(alongX){
+    int iBinX = 1; 
+    for(int iBin = 1; iBin < nominalHisto->GetNbinsX(); iBin++){
+      if(iBin <= int((bins.binY.size()-1))){
+	outputHisto->SetBinContent(iBinX,iBin,nominalHisto->GetBinContent(iBin));
+	outputHisto->SetBinError(iBinX,iBin,nominalHisto->GetBinError(iBin));	
+      }
+      else{
+	outputHisto->SetBinContent(iBinX,iBin-(iBinX-1)*(bins.binY.size()-1),nominalHisto->GetBinContent(iBin));
+	outputHisto->SetBinError(iBinX,iBin-(iBinX-1)*(bins.binY.size()-1),nominalHisto->GetBinError(iBin));	
+      }
+      
+      if(iBin % (iBinX*(bins.binY.size()-1)) == 0)
+	iBinX++;
+    }
+  }
+  else{
+
+    int iBinY = 1;
+    for(int iBin = 1; iBin < nominalHisto->GetNbinsX(); iBin++){
+      if(iBin <= int((bins.binX.size()-1))){
+        outputHisto->SetBinContent(iBin,iBinY,nominalHisto->GetBinContent(iBin));
+        outputHisto->SetBinError(iBin,iBinY,nominalHisto->GetBinError(iBin));
+      }
+      else{
+	outputHisto->SetBinContent(iBin-(iBinY-1)*(bins.binX.size()-1),iBinY,nominalHisto->GetBinContent(iBin));
+        outputHisto->SetBinError(iBin-(iBinY-1)*(bins.binX.size()-1),iBinY,nominalHisto->GetBinError(iBin));
+      }
+
+      if(iBin > 1 and iBin % (iBinY*(bins.binX.size()-1)) == 0)
+        iBinY++;
+    }
+  }
+
+  return outputHisto;
+  
+}
+
 // from un-rolled hist, obtain a vector of 1D histograms recovering the real physical binning
-vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & observable_2D, const int & category, const bool & alongX = true){
+// when alongX is false means plot in bin of X, otherwise in bin of Y
+vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & observable_2D, const int & category, const bool & alongX = false){
 
   vector<TH1F*> outputHistograms;  
   bin2D bins = selectBinning2D(observable_2D,category);
@@ -424,6 +473,32 @@ vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & obse
 
 }
 
+void changeInLatexName(string & variable){
+
+  if(variable == "met")
+    variable = "Recoil [GeV]";
+  else if(variable == "ht")
+    variable = "H_{T} [GeV]";
+  else if(variable == "mT")
+    variable = "m_{T} [GeV]";
+  else if(variable == "njet")
+    variable = "N_{jet}";
+  else if(variable == "nbjet")
+    variable = "N_{bjet}";
+  else if(variable == "mpruned")
+    variable = "m_{pruned} [GeV]";
+  else if(variable == "tau2tau1")
+    variable = "#tau_{2}/#tau_{1}";
+  else if(variable == "bosonPt")
+    variable = "p_{T}^{V} [GeV]";
+  else if(variable == "jetPt")
+    variable = "p_{T}^{jet} [GeV]";
+  else if(variable == "boostedJetPt")
+    variable = "p_{T}^{jet} [GeV]";
+
+}
+
+
 pair<string,string> observableName (string name, bool alongX = false){
 
   stringstream name_tmp(name.c_str());
@@ -433,10 +508,17 @@ pair<string,string> observableName (string name, bool alongX = false){
     seglist.push_back(segment);
   }
 
+  string variableX = seglist.back();
+  string variableY = seglist.at(seglist.size()-2);
+
+  changeInLatexName(variableX);
+  changeInLatexName(variableY);
+  
+
   if(alongX)
-    return make_pair(seglist.back(),seglist.at(seglist.size()-2));
+    return make_pair(variableX,variableY);
   else
-    return make_pair(seglist.at(seglist.size()-2),seglist.back());
+    return make_pair(variableY,variableX);
 }
 
 

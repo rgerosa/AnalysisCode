@@ -41,18 +41,18 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   
 
   if(! isHiggsInvisible){
-    mjhist = (TH1*) dfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    mwhist = (TH1*) dfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    mzhist = (TH1*) dfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
+    mjhist = (TH1*) dfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    mwhist = (TH1*) dfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    mzhist = (TH1*) dfile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
     mjhist->Scale(1.0, "width");
     mwhist->Scale(1.0, "width");
     mzhist->Scale(1.0, "width");
   }
   else{
-    ggHhist = (TH1*) dfile->Get(("ggHhist_"+observable).c_str());
-    vbfhist = (TH1*) dfile->Get(("vbfHhist_"+observable).c_str());
-    wHhist  = (TH1*) dfile->Get(("wHhist_"+observable).c_str());
-    zHhist  = (TH1*) dfile->Get(("zHhist_"+observable).c_str());
+    ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+observable).c_str());
+    vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+observable).c_str());
+    wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+observable).c_str());
+    zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+observable).c_str());
     ggHhist->Scale(1.0, "width");
     vbfhist->Scale(1.0, "width");
     wHhist->Scale(1.0, "width");
@@ -98,11 +98,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   TH1* dthist = NULL;
   if(!blind){
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     dthist->Scale(1.0,"width");
   }
   else{
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     for (int i = 0; i <= dthist->GetNbinsX(); i++) {
       double yield = 0.0;
       yield += zlhist->GetBinContent(i);

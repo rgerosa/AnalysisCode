@@ -19,38 +19,38 @@ void drawCorrelationPlots(string inputFileName, string controlRegion, vector<str
   
   for(auto obs : observables2D){
     if(controlRegion != "SR"){
-      datahist.push_back((TH2*) templateFile->Get(("datahist"+controlRegion+"_2D_"+obs).c_str()));
+      datahist.push_back((TH2*) templateFile->FindObjectAny(("datahist"+controlRegion+"_"+obs+"_2D").c_str()));
 
       if(controlRegion == "topmu" or controlRegion == "topel"){
-	bkghist.push_back((TH2*) templateFile->Get(("tbkghist"+controlRegion+"_2D_"+obs).c_str()));
-	bkghist.back()->Add((TH2*) templateFile->Get(("dbkghist"+controlRegion+"_2D_"+obs).c_str()));
-	bkghist.back()->Add((TH2*) templateFile->Get(("qbkghist"+controlRegion+"_2D_"+obs).c_str()));
-	bkghist.back()->Add((TH2*) templateFile->Get(("vlbkghist"+controlRegion+"_2D_"+obs).c_str()));
-	bkghist.back()->Add((TH2*) templateFile->Get(("vllbkghist"+controlRegion+"_2D_"+obs).c_str()));
+	bkghist.push_back((TH2*) templateFile->FindObjectAny(("tbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+	bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("dbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+	bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("qbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+	bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("vlbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+	bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("vllbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
       }
       else if(controlRegion == "wmn" or controlRegion == "wen"){
-	bkghist.push_back((TH2*) templateFile->Get(("vlbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("dbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("qbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("tbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("vllbkghist"+controlRegion+"_2D_"+obs).c_str()));	
+	bkghist.push_back((TH2*) templateFile->FindObjectAny(("vlbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("dbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("qbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("tbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("vllbkghist"+controlRegion+"_"+obs+"_2D").c_str()));	
       }
       else if(controlRegion == "zmm" or controlRegion == "zee"){
-	bkghist.push_back((TH2*) templateFile->Get(("vllbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("dbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("qbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("tbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("vlbkghist"+controlRegion+"_2D_"+obs).c_str()));
+	bkghist.push_back((TH2*) templateFile->FindObjectAny(("vllbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("dbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("qbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("tbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("vlbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
       }
       else if(controlRegion == "gam"){
-	bkghist.push_back((TH2*) templateFile->Get(("gbkghist"+controlRegion+"_2D_"+obs).c_str()));
-        bkghist.back()->Add((TH2*) templateFile->Get(("qbkghist"+controlRegion+"_2D_"+obs).c_str()));
+	bkghist.push_back((TH2*) templateFile->FindObjectAny(("gbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
+        bkghist.back()->Add((TH2*) templateFile->FindObjectAny(("qbkghist"+controlRegion+"_"+obs+"_2D").c_str()));
       }
     }
     if(controlRegion == "SR"){
-      monoJhist.push_back((TH2*) templateFile->Get(("monoJhist_"+mediatorMass+"_"+DMMass+"_2D_"+obs).c_str()));
-      monoWhist.push_back((TH2*) templateFile->Get(("monoWhist_"+mediatorMass+"_"+DMMass+"_2D_"+obs).c_str()));
-      monoZhist.push_back((TH2*) templateFile->Get(("monoZhist_"+mediatorMass+"_"+DMMass+"_2D_"+obs).c_str()));
+      monoJhist.push_back((TH2*) templateFile->FindObjectAny(("monoJhist_"+mediatorMass+"_"+DMMass+"_"+obs+"_2D").c_str()));
+      monoWhist.push_back((TH2*) templateFile->FindObjectAny(("monoWhist_"+mediatorMass+"_"+DMMass+"_"+obs+"_2D").c_str()));
+      monoZhist.push_back((TH2*) templateFile->FindObjectAny(("monoZhist_"+mediatorMass+"_"+DMMass+"_"+obs+"_2D").c_str()));
     }
   }
 

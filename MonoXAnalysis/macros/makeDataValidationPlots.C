@@ -9,68 +9,68 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   // open the input file
   TFile* inputFile = TFile::Open(inputFileName.c_str());
   
-  TH1* data_zmm = (TH1*) inputFile->Get(("datahistzmm_"+observable).c_str());
-  TH1* data_zee = (TH1*) inputFile->Get(("datahistzee_"+observable).c_str());
-  TH1* data_wen = (TH1*) inputFile->Get(("datahistwen_"+observable).c_str());
-  TH1* data_wmn = (TH1*) inputFile->Get(("datahistwmn_"+observable).c_str());
-  TH1* data_gam = (TH1*) inputFile->Get(("datahistgam_"+observable).c_str());
+  TH1* data_zmm = (TH1*) inputFile->FindObjectAny(("datahistzmm_"+observable).c_str());
+  TH1* data_zee = (TH1*) inputFile->FindObjectAny(("datahistzee_"+observable).c_str());
+  TH1* data_wen = (TH1*) inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
+  TH1* data_wmn = (TH1*) inputFile->FindObjectAny(("datahistwmn_"+observable).c_str());
+  TH1* data_gam = (TH1*) inputFile->FindObjectAny(("datahistgam_"+observable).c_str());
 
   // MC
-  TH1* vllbkg_zmm = (TH1*) inputFile->Get(("vllbkghistzmm_"+observable).c_str());
-  TH1* vlbkg_zmm = (TH1*) inputFile->Get(("vlbkghistzmm_"+observable).c_str());
-  TH1* dbbkg_zmm = (TH1*) inputFile->Get(("dbkghistzmm_"+observable).c_str());
-  TH1* ttbkg_zmm = (TH1*) inputFile->Get(("tbkghistzmm_"+observable).c_str());
+  TH1* vllbkg_zmm = (TH1*) inputFile->FindObjectAny(("vllbkghistzmm_"+observable).c_str());
+  TH1* vlbkg_zmm = (TH1*) inputFile->FindObjectAny(("vlbkghistzmm_"+observable).c_str());
+  TH1* dbbkg_zmm = (TH1*) inputFile->FindObjectAny(("dbkghistzmm_"+observable).c_str());
+  TH1* ttbkg_zmm = (TH1*) inputFile->FindObjectAny(("tbkghistzmm_"+observable).c_str());
   vllbkg_zmm->Add(vlbkg_zmm);
   vllbkg_zmm->Add(dbbkg_zmm);
   vllbkg_zmm->Add(ttbkg_zmm);
   
-  TH1* vllbkg_zee = (TH1*) inputFile->Get(("vllbkghistzee_"+observable).c_str());
-  TH1* vlbkg_zee = (TH1*) inputFile->Get(("vlbkghistzee_"+observable).c_str());
-  TH1* dbbkg_zee = (TH1*) inputFile->Get(("dbkghistzee_"+observable).c_str());
-  TH1* ttbkg_zee = (TH1*) inputFile->Get(("tbkghistzee_"+observable).c_str());
+  TH1* vllbkg_zee = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
+  TH1* vlbkg_zee = (TH1*) inputFile->FindObjectAny(("vlbkghistzee_"+observable).c_str());
+  TH1* dbbkg_zee = (TH1*) inputFile->FindObjectAny(("dbkghistzee_"+observable).c_str());
+  TH1* ttbkg_zee = (TH1*) inputFile->FindObjectAny(("tbkghistzee_"+observable).c_str());
   vllbkg_zee->Add(vlbkg_zee);
   vllbkg_zee->Add(dbbkg_zee);
   vllbkg_zee->Add(ttbkg_zee);
 
-  TH1* vlbkg_wen   = (TH1*) inputFile->Get(("vlbkghistwen_"+observable).c_str());
-  TH1* vllbkg_wen  = (TH1*) inputFile->Get(("vllbkghistwen_"+observable).c_str());
-  TH1* dbbkg_wen   = (TH1*) inputFile->Get(("dbkghistwen_"+observable).c_str());
-  TH1* ttbkg_wen   = (TH1*) inputFile->Get(("tbkghistwen_"+observable).c_str());
-  TH1* qbkg_wen    = (TH1*) inputFile->Get(("qbkghistwen_"+observable).c_str());
+  TH1* vlbkg_wen   = (TH1*) inputFile->FindObjectAny(("vlbkghistwen_"+observable).c_str());
+  TH1* vllbkg_wen  = (TH1*) inputFile->FindObjectAny(("vllbkghistwen_"+observable).c_str());
+  TH1* dbbkg_wen   = (TH1*) inputFile->FindObjectAny(("dbkghistwen_"+observable).c_str());
+  TH1* ttbkg_wen   = (TH1*) inputFile->FindObjectAny(("tbkghistwen_"+observable).c_str());
+  TH1* qbkg_wen    = (TH1*) inputFile->FindObjectAny(("qbkghistwen_"+observable).c_str());
   vlbkg_wen->Add(vllbkg_wen);
   vlbkg_wen->Add(dbbkg_wen);
   vlbkg_wen->Add(ttbkg_wen);
   vlbkg_wen->Add(qbkg_wen);
 
-  TH1* vlbkg_wmn   = (TH1*) inputFile->Get(("vlbkghistwmn_"+observable).c_str());
-  TH1* vllbkg_wmn  = (TH1*) inputFile->Get(("vllbkghistwmn_"+observable).c_str());
-  TH1* dbbkg_wmn   = (TH1*) inputFile->Get(("dbkghistwmn_"+observable).c_str());
-  TH1* ttbkg_wmn   = (TH1*) inputFile->Get(("tbkghistwmn_"+observable).c_str());
-  TH1* qbkg_wmn    = (TH1*) inputFile->Get(("qbkghistwmn_"+observable).c_str());
+  TH1* vlbkg_wmn   = (TH1*) inputFile->FindObjectAny(("vlbkghistwmn_"+observable).c_str());
+  TH1* vllbkg_wmn  = (TH1*) inputFile->FindObjectAny(("vllbkghistwmn_"+observable).c_str());
+  TH1* dbbkg_wmn   = (TH1*) inputFile->FindObjectAny(("dbkghistwmn_"+observable).c_str());
+  TH1* ttbkg_wmn   = (TH1*) inputFile->FindObjectAny(("tbkghistwmn_"+observable).c_str());
+  TH1* qbkg_wmn    = (TH1*) inputFile->FindObjectAny(("qbkghistwmn_"+observable).c_str());
   vlbkg_wmn->Add(vllbkg_wmn);
   vlbkg_wmn->Add(dbbkg_wmn);
   vlbkg_wmn->Add(ttbkg_wmn);
   vlbkg_wmn->Add(qbkg_wmn);
 
-  TH1* gbkg_gam   = (TH1*) inputFile->Get(("gbkghistgam_"+observable).c_str());
-  TH1* qbkg_gam   = (TH1*) inputFile->Get(("qbkghistgam_"+observable).c_str());
+  TH1* gbkg_gam   = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
+  TH1* qbkg_gam   = (TH1*) inputFile->FindObjectAny(("qbkghistgam_"+observable).c_str());
   gbkg_gam->Add(qbkg_gam);
 
   //SYS Unc
-  TH1*  ZG_ewk = (TH1*)inputFile->Get(("ZG_EWK_"+observable).c_str());
-  TH1*  ZG_re1 = (TH1*)inputFile->Get(("ZG_RenScale1_"+observable).c_str());
-  TH1*  ZG_re2 = (TH1*)inputFile->Get(("ZG_RenScale2_"+observable).c_str());
-  TH1*  ZG_fa1 = (TH1*)inputFile->Get(("ZG_FactScale1_"+observable).c_str());
-  TH1*  ZG_fa2 = (TH1*)inputFile->Get(("ZG_FactScale2_"+observable).c_str());
-  TH1*  ZG_pdf = (TH1*)inputFile->Get(("ZG_PDF_"+observable).c_str());
-  TH1*  ZG_fp  = (TH1*)inputFile->Get(("ZG_Footprint_"+observable).c_str());
+  TH1*  ZG_ewk = (TH1*)inputFile->FindObjectAny(("ZG_EWK_"+observable).c_str());
+  TH1*  ZG_re1 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
+  TH1*  ZG_re2 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
+  TH1*  ZG_fa1 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
+  TH1*  ZG_fa2 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
+  TH1*  ZG_pdf = (TH1*)inputFile->FindObjectAny(("ZG_PDF_"+observable).c_str());
+  TH1*  ZG_fp  = (TH1*)inputFile->FindObjectAny(("ZG_Footprint_"+observable).c_str());
 
-  TH1*  ZW_ewk = (TH1*)inputFile->Get(("ZW_EWK_"+observable).c_str());
-  TH1*  ZW_re1 = (TH1*)inputFile->Get(("ZW_RenScale1_"+observable).c_str());
-  TH1*  ZW_re2 = (TH1*)inputFile->Get(("ZW_RenScale2_"+observable).c_str());
-  TH1*  ZW_fa1 = (TH1*)inputFile->Get(("ZW_FactScale1_"+observable).c_str());
-  TH1*  ZW_fa2 = (TH1*)inputFile->Get(("ZW_FactScale2_"+observable).c_str());
-  TH1*  ZW_pdf = (TH1*)inputFile->Get(("ZW_PDF_"+observable).c_str());
+  TH1*  ZW_ewk = (TH1*)inputFile->FindObjectAny(("ZW_EWK_"+observable).c_str());
+  TH1*  ZW_re1 = (TH1*)inputFile->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
+  TH1*  ZW_re2 = (TH1*)inputFile->FindObjectAny(("ZW_RenScale2_"+observable).c_str());
+  TH1*  ZW_fa1 = (TH1*)inputFile->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
+  TH1*  ZW_fa2 = (TH1*)inputFile->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
+  TH1*  ZW_pdf = (TH1*)inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
 
   //Ratios Data
   TH1* ZGData_mm = (TH1*) data_zmm->Clone("ZGData_mm");

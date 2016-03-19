@@ -62,115 +62,115 @@ void makeControlPlots(string templateFileName,
 
   // take the templates
   if(controlRegion == "gam"){
-    datahist = (TH1*)inputFile->Get(("datahistgam_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghistgam_"+observable).c_str());
-    gamhist  = (TH1*)inputFile->Get(("gbkghistgam_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistgam_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistgam_"+observable).c_str());
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
   }
   else if(controlRegion == "zmm"){
-    datahist = (TH1*)inputFile->Get(("datahistzmm_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghistzmm_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghistzmm_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghistzmm_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghistzmm_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghistzmm_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghistzmm_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistzmm_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistzmm_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghistzmm_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghistzmm_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistzmm_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistzmm_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistzmm_"+observable).c_str());
   }
   else if(controlRegion == "zee"){
-    datahist = (TH1*)inputFile->Get(("datahistzee_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghistzee_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghistzee_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghistzee_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghistzee_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghistzee_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghistzee_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistzee_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistzee_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghistzee_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghistzee_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistzee_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistzee_"+observable).c_str());
   }
   else if(controlRegion == "wmn"){
-    datahist = (TH1*)inputFile->Get(("datahistwmn_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghistwmn_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghistwmn_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghistwmn_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghistwmn_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghistwmn_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghistwmn_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistwmn_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistwmn_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghistwmn_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghistwmn_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistwmn_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistwmn_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistwmn_"+observable).c_str());
   }
   else if(controlRegion == "wen"){
-    datahist = (TH1*)inputFile->Get(("datahistwen_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghistwen_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghistwen_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghistwen_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghistwen_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghistwen_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghistwen_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistwen_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghistwen_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghistwen_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistwen_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistwen_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistwen_"+observable).c_str());
   }
   else if(controlRegion == "topmu" and plotResonant){
-    datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopmu_"+observable).c_str());
-    tophist_matched   = (TH1*)inputFile->Get(("tbkghist_matchedtopmu_"+observable).c_str());
-    tophist_unmatched = (TH1*)inputFile->Get(("tbkghist_unmatchedtopmu_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopmu_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghisttopmu_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahisttopmu_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghisttopmu_"+observable).c_str());
+    tophist_matched   = (TH1*)inputFile->FindObjectAny(("tbkghist_matchedtopmu_"+observable).c_str());
+    tophist_unmatched = (TH1*)inputFile->FindObjectAny(("tbkghist_unmatchedtopmu_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghisttopmu_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttopmu_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttopmu_"+observable).c_str());
   }
   else if(controlRegion == "topmu" and not plotResonant){
-    datahist = (TH1*)inputFile->Get(("datahisttopmu_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopmu_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghisttopmu_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopmu_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopmu_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghisttopmu_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghisttopmu_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahisttopmu_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghisttopmu_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghisttopmu_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghisttopmu_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttopmu_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttopmu_"+observable).c_str());
   }
 
   else if(controlRegion == "topel" and not plotResonant){
-    datahist = (TH1*)inputFile->Get(("datahisttopel_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopel_"+observable).c_str());
-    tophist  = (TH1*)inputFile->Get(("tbkghisttopel_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopel_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghisttopel_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahisttopel_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghisttopel_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghisttopel_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghisttopel_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghisttopel_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttopel_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttopel_"+observable).c_str());
   }
 
   else if(controlRegion == "topel" and plotResonant){
-    datahist = (TH1*)inputFile->Get(("datahisttopel_"+observable).c_str());
-    qcdhist  = (TH1*)inputFile->Get(("qbkghisttopel_"+observable).c_str());
-    tophist_matched   = (TH1*)inputFile->Get(("tbkghist_matchedtopel_"+observable).c_str());
-    tophist_unmatched = (TH1*)inputFile->Get(("tbkghist_unmatchedtopel_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("vlbkghisttopel_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("vllbkghisttopel_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghisttopel_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghisttopel_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahisttopel_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghisttopel_"+observable).c_str());
+    tophist_matched   = (TH1*)inputFile->FindObjectAny(("tbkghist_matchedtopel_"+observable).c_str());
+    tophist_unmatched = (TH1*)inputFile->FindObjectAny(("tbkghist_unmatchedtopel_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghisttopel_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghisttopel_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttopel_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttopel_"+observable).c_str());
   }
 
   else if(controlRegion == "SR"){
 
-    datahist = (TH1*)inputFile->Get(("datahist_"+observable).c_str());
+    datahist = (TH1*)inputFile->FindObjectAny(("datahist_"+observable).c_str());
 
     if(category == 1 and observable == "met")
-      qcdhist  = (TH1*)inputFile->Get(("qbkghistDD_"+observable).c_str());
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     else if(category == 2 and observable == "met")
-      qcdhist  = (TH1*)inputFile->Get(("qbkghistDD_"+observable).c_str());
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     else
-      qcdhist  = (TH1*)inputFile->Get(("qbkghist_"+observable).c_str());
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
     
-    tophist  = (TH1*)inputFile->Get(("tbkghist_"+observable).c_str());
-    vlhist   = (TH1*)inputFile->Get(("wjethist_"+observable).c_str());
-    vllhist  = (TH1*)inputFile->Get(("zjethist_"+observable).c_str());
-    vnnhist  = (TH1*)inputFile->Get(("zinvhist_"+observable).c_str());
-    dbhist   = (TH1*)inputFile->Get(("dbkghist_"+observable).c_str());  
-    gamhist  = (TH1*)inputFile->Get(("gbkghist_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghist_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("wjethist_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("zjethist_"+observable).c_str());
+    vnnhist  = (TH1*)inputFile->FindObjectAny(("zinvhist_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghist_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghist_"+observable).c_str());
     
     if(not isHiggsInvisible){
-      monoJhist = (TH1*)inputFile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-      monoWhist = (TH1*)inputFile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-      monoZhist = (TH1*)inputFile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
+      monoJhist = (TH1*)inputFile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      monoWhist = (TH1*)inputFile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      monoZhist = (TH1*)inputFile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());    
     }
     else{
-      ggHhist  = (TH1*)inputFile->Get(("ggHhist_"+observable).c_str());
-      vbfHhist = (TH1*)inputFile->Get(("vbfHhist_"+observable).c_str());
-      wHhist   = (TH1*)inputFile->Get(("wHhist_"+observable).c_str());    
-      zHhist   = (TH1*)inputFile->Get(("zHhist_"+observable).c_str());    
+      ggHhist  = (TH1*)inputFile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str());
+      vbfHhist = (TH1*)inputFile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
+      wHhist   = (TH1*)inputFile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());    
+      zHhist   = (TH1*)inputFile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());    
     }
   }
   
@@ -521,22 +521,15 @@ void makeControlPlots(string templateFileName,
     xMin = 0.01;
   float xMax = bins.back();
 
-  if(category <= 1 and isLog){
-    frame->GetXaxis()->SetRangeUser(xMin,xMax);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
-  }
-  else if(category <= 1 and not isLog){
-    frame->GetXaxis()->SetRangeUser(xMin,xMax);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1.5);
-  }
-  else if(category > 1 and isLog){
-    frame->GetXaxis()->SetRangeUser(xMin,xMax);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
-  }
-  else{
-    frame->GetXaxis()->SetRangeUser(xMin,xMax);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*2.5);
-  }
+  // set Y-axis range
+  if(category <= 1 and isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  else if(category <= 1 and not isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+  else if(category > 1 and isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  else
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   if(TString(observableLatex).Contains("GeV"))
@@ -550,7 +543,11 @@ void makeControlPlots(string templateFileName,
   frame->GetYaxis()->SetTitleSize(0.055);
   frame ->Draw();
 
-  CMS_lumi(pad1,"2.30");
+  if(controlRegion == "SR")
+    CMS_lumi(pad1,"2.30",false,true);
+  else
+    CMS_lumi(pad1,"2.30");
+
 
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -569,20 +566,13 @@ void makeControlPlots(string templateFileName,
 
   TLegend* leg = NULL;
   if(controlRegion == "gam")
-    leg = new TLegend(0.62, 0.75, 0.85, 0.92);
-  else if(controlRegion == "SR" and isLog){
-    leg = new TLegend(0.38, 0.50, 0.85, 0.92);
-    if(observable != "njet")
-      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000);
-    else
-      frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*1000000000000);
-  }
-  else if(controlRegion == "SR" and not isLog){
-    leg = new TLegend(0.38, 0.50, 0.85, 0.92);
-    frame->GetYaxis()->SetRangeUser(1.5e-4,datahist->GetMaximum()*2.5);
-  }
+    leg = new TLegend(0.62, 0.70, 0.85, 0.90);
+  else if(controlRegion == "SR" and isLog)
+    leg = new TLegend(0.42, 0.50, 0.88, 0.90);  
+  else if(controlRegion == "SR" and not isLog)
+    leg = new TLegend(0.42, 0.50, 0.88, 0.90);  
   else
-    leg = new TLegend(0.62, 0.50, 0.85, 0.92);
+    leg = new TLegend(0.62, 0.50, 0.85, 0.90);
 
   leg->SetFillColor(0);
   leg->SetFillStyle(0);

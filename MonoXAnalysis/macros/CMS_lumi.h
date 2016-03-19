@@ -127,6 +127,9 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, bool reduceSize = false){
     latex2->SetTextAlign(11);    
     if(reduceSize)
       latex2->DrawLatex(0.225, 0.85, "Preliminary");
+    else
+      latex2->DrawLatex(0.24, 0.85, "Preliminary");
+
   }
 }
 

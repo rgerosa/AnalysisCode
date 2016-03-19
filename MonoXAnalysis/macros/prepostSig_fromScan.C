@@ -92,11 +92,11 @@ void prepostSig_fromScan(string fitFilename,
 
   TH1* dthist = NULL;
   if(!blind){
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     dthist->Scale(1.0,"width");
   }
   else{
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     for (int i = 0; i <= dthist->GetNbinsX(); i++) {
       double yield = 0.0;
       yield += zlhist->GetBinContent(i);

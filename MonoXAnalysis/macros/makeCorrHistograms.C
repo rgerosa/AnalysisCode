@@ -18,8 +18,7 @@ void makezmmcorhist( string  signalRegionFile,
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
-  TFile* dfile  = TFile::Open(zmumuFile.c_str());
-
+  TFile* dfile  = TFile::Open(zmumuFile.c_str()); 
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
@@ -113,20 +112,16 @@ void makezmmcorhist( string  signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
-  }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-  
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
+  }  
  
+  outfile.cd();
   outfile.Close();
   nfile->Close();
   dfile->Close();
@@ -252,19 +247,14 @@ void makezeecorhist( string  signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
-  }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
+  }  
 
   outfile.Close();
   nfile->Close();
@@ -399,14 +389,9 @@ void makewmncorhist( string  signalRegionFile,
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -535,19 +520,14 @@ void makewencorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -737,19 +717,15 @@ void  makezwjcorhist(string znunuFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -953,19 +929,14 @@ void makegamcorhist( string znunuFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -1124,19 +1095,14 @@ void maketopmucorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -1304,19 +1270,14 @@ void maketopelcorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();
@@ -1430,19 +1391,14 @@ void makesidebandcorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    nhist_2D.at(ihist)->Write();
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
-
-  for(auto hist : nhist_2D)
-    unrolled.push_back(unroll2DHistograms(hist));
-
-  for(size_t ihist = 0; ihist < unrolled.size(); ihist++)
-    unrolled.at(ihist)->Write();
 
   outfile.Close();
   nfile->Close();

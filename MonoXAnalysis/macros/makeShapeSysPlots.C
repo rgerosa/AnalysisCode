@@ -26,114 +26,114 @@ void makeShapeSysPlots(string inputFileName, string controlRegion, string proces
 
 
   if(process == "Top" and controlRegion != "SR"){
-    nominalHist = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("tbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("tbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
   }
   if(process == "Top" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("tbkghist_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("tbkghist_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("tbkghist_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("tbkghist_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("tbkghist_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("tbkghist_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("tbkghist_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("tbkghist_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("tbkghist_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("tbkghist_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("tbkghist_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("tbkghist_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("tbkghist_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("tbkghist_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("tbkghist_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("tbkghist_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("tbkghist_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("tbkghist_metUncDw_"+observable).c_str());
   }
   else if(process == "Dibosons" and controlRegion != "SR"){
-    nominalHist = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("dbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("dbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
   }
   else if(process == "Dibosons" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("dbkghist_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("dbkghist_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("dbkghist_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("dbkghist_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("dbkghist_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("dbkghist_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("dbkghist_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("dbkghist_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("dbkghist_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("dbkghist_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("dbkghist_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("dbkghist_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("dbkghist_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("dbkghist_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("dbkghist_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("dbkghist_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("dbkghist_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("dbkghist_metUncDw_"+observable).c_str());
   }
   else if(process == "ZJets" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("zjethist_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("zjethist_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("zjethist_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("zjethist_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("zjethist_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("zjethist_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("zjethist_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("zjethist_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("zjethist_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("zjethist_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("zjethist_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("zjethist_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("zjethist_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("zjethist_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("zjethist_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("zjethist_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("zjethist_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("zjethist_metUncDw_"+observable).c_str());
   }
   else if(process == "ZJets" and controlRegion != "SR"){
-    nominalHist = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("vllbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("vllbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
   }
   else if(process == "WJets" and controlRegion != "SR"){
-    nominalHist = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_"+observable).c_str());
-    hist_bUp = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_bUp_"+observable).c_str());
-    hist_bDw = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_bDw_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metResUp_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metResDw_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("vlbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
+    hist_bUp = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_bUp_"+observable).c_str());
+    hist_bDw = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_bDw_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metJetUp_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metJetDw_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metResUp_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metResDw_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metUncUp_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("vlbkghist"+controlRegion+"_metUncDw_"+observable).c_str());
   }
   else if(process == "MonoJ" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("monoJhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bUp    = (TH1*) inputFile->Get(("monoJhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bDw    = (TH1*) inputFile->Get(("monoJhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("monoJhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("monoJhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("monoJhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("monoJhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("monoJhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("monoJhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("monoJhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bUp    = (TH1*) inputFile->FindObjectAny(("monoJhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bDw    = (TH1*) inputFile->FindObjectAny(("monoJhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("monoJhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("monoJhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("monoJhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("monoJhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("monoJhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("monoJhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
   }
   else if(process == "MonoW" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("monoWhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bUp    = (TH1*) inputFile->Get(("monoWhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bDw    = (TH1*) inputFile->Get(("monoWhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("monoWhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("monoWhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("monoWhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("monoWhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("monoWhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("monoWhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("monoWhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bUp    = (TH1*) inputFile->FindObjectAny(("monoWhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bDw    = (TH1*) inputFile->FindObjectAny(("monoWhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("monoWhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("monoWhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("monoWhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("monoWhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("monoWhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("monoWhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
   }
   else if(process == "MonoZ" and controlRegion == "SR"){
-    nominalHist = (TH1*) inputFile->Get(("monoZhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bUp    = (TH1*) inputFile->Get(("monoZhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_bDw    = (TH1*) inputFile->Get(("monoZhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesUp = (TH1*) inputFile->Get(("monoZhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jesDw = (TH1*) inputFile->Get(("monoZhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerUp = (TH1*) inputFile->Get(("monoZhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_jerDw = (TH1*) inputFile->Get(("monoZhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncUp = (TH1*) inputFile->Get(("monoZhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
-    hist_uncDw = (TH1*) inputFile->Get(("monoZhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    nominalHist = (TH1*) inputFile->FindObjectAny(("monoZhist_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bUp    = (TH1*) inputFile->FindObjectAny(("monoZhist_bUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_bDw    = (TH1*) inputFile->FindObjectAny(("monoZhist_bDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesUp = (TH1*) inputFile->FindObjectAny(("monoZhist_metJetUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jesDw = (TH1*) inputFile->FindObjectAny(("monoZhist_metJetDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerUp = (TH1*) inputFile->FindObjectAny(("monoZhist_metResUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_jerDw = (TH1*) inputFile->FindObjectAny(("monoZhist_metResDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncUp = (TH1*) inputFile->FindObjectAny(("monoZhist_metUncUp_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
+    hist_uncDw = (TH1*) inputFile->FindObjectAny(("monoZhist_metUncDw_"+MediatorMass+"_"+DMMass+"_"+observable).c_str());
   }
 
   TCanvas* canvas = new TCanvas("canvas","",600,700);

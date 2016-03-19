@@ -116,7 +116,8 @@ void signalHiggshist(TFile* outfile,
 	ggHhist_metUncDw.push_back(dynamic_cast<TH1*>(ggHhist_metUncDw_temp));
 	vbfHhist_metUncDw.push_back(dynamic_cast<TH1*>(vbfHhist_metUncDw_temp));
       }
-      else if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
+
+      if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
 	
 	TH1F* wHhist_bUp_temp   = new TH1F(("wHhist_bUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_bUp_temp   = new TH1F(("zHhist_bUp_"+mH+"_"+obs).c_str(), "",   int(bins.size()-1), &bins[0]);
@@ -185,7 +186,7 @@ void signalHiggshist(TFile* outfile,
       ggHhist_2D.push_back(dynamic_cast<TH2*>(ggHhist_temp));
       vbfHhist_2D.push_back(dynamic_cast<TH2*>(vbfHhist_temp));
     }
-    else if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
+    if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
       TH2F* wHhist_temp   = new TH2F(("wHhist_"+mH+"_"+obs+"_2D").c_str(), "",   int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       TH2F* zHhist_temp   = new TH2F(("zHhist_"+mH+"_"+obs+"_2D").c_str(), "",   int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       wHhist_2D.push_back(dynamic_cast<TH2*>(wHhist_temp));
@@ -245,7 +246,8 @@ void signalHiggshist(TFile* outfile,
 	ggHhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(ggHhist_metUncDw_temp));
 	vbfHhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(vbfHhist_metUncDw_temp));
       }
-      else if(typeOfHiggsSignal == 0 or typeOfHiggsSignal>= 2){
+
+      if(typeOfHiggsSignal == 0 or typeOfHiggsSignal>= 2){
 
 	TH2F* wHhist_bUp_temp   = new TH2F(("wHhist_bUp_"+mH+"_"+obs+"_2D").c_str(), "",   int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_bUp_temp   = new TH2F(("zHhist_bUp_"+mH+"_"+obs+"_2D").c_str(), "",   int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
@@ -306,19 +308,19 @@ void signalHiggshist(TFile* outfile,
   //Take histograms for Higgs
   TFile* higgsPT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/HiggsPT/hpt_ggH_125_13TeV_POWHEG_weights.root");
 
-  TH1* renUp = (TH1*) higgsPT->Get("weight_pT_rup");
-  TH1* renDw = (TH1*) higgsPT->Get("weight_pT_rdn");
-  TH1* facUp = (TH1*) higgsPT->Get("weight_pT_fup");
-  TH1* facDw = (TH1*) higgsPT->Get("weight_pT_fup");
+  TH1* renUp = (TH1*) higgsPT->FindObjectAny("weight_pT_rup");
+  TH1* renDw = (TH1*) higgsPT->FindObjectAny("weight_pT_rdn");
+  TH1* facUp = (TH1*) higgsPT->FindObjectAny("weight_pT_fup");
+  TH1* facDw = (TH1*) higgsPT->FindObjectAny("weight_pT_fdn");
   for(int iBinX = 1; iBinX <= facDw->GetNbinsX(); iBinX++)
-    facDw->SetBinContent(iBinX,1-facDw->GetBinContent(iBinX));
+    facDw->SetBinContent(iBinX,1./facUp->GetBinContent(iBinX));
 
   // higgs re-weight
   if(typeOfHiggsSignal <=1){
     makehist4(ggHTree,ggHhist,ggHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(0));
     makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(1));
   }
-  else if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
+  if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
     makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(2));
     makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,xs.at(3));
   }
@@ -348,7 +350,7 @@ void signalHiggshist(TFile* outfile,
       makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,xs.at(1));
     }
-    else if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >= 2){
+    if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >= 2){
 
       makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(2));
       makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,xs.at(3));      
@@ -499,159 +501,139 @@ void signalHiggshist(TFile* outfile,
 
   // store tempaltes in the output file                                                                                                                                     
   outfile->cd();
+  if(not outfile->GetDirectory("ggH"))
+    outfile->mkdir("ggH");
+  outfile->cd("ggH");
   for(auto hist : ggHhist)  hist->Write();
-  for(auto hist : vbfHhist) hist->Write();
-  for(auto hist : wHhist)   hist->Write();
-  for(auto hist : zHhist)   hist->Write();
-
-  for(auto hist : ggHhist_2D)  hist->Write();
-  for(auto hist : vbfHhist_2D) hist->Write();
-  for(auto hist : wHhist_2D)   hist->Write();
-  for(auto hist : zHhist_2D)   hist->Write();
-
   for(auto hist : ggHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+
+  outfile->cd();
+  if(not outfile->GetDirectory("vbfH"))
+    outfile->mkdir("vbfH");
+  outfile->cd("vbfH");  
+  for(auto hist : vbfHhist) hist->Write();
   for(auto hist : vbfHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+
+  outfile->cd();
+  if(not outfile->GetDirectory("wH"))
+    outfile->mkdir("wH");
+  outfile->cd("wH");  
+  for(auto hist : wHhist)   hist->Write();
   for(auto hist : wHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+
+  outfile->cd();
+  if(not outfile->GetDirectory("zH"))
+    outfile->mkdir("zH");
+  outfile->cd("zH");  
+  for(auto hist : zHhist)   hist->Write();
   for(auto hist : zHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
 
   if(doShapeSystematics){
+
+    outfile->cd();
+    if(not outfile->GetDirectory("ggH/sysShape"))
+      outfile->mkdir("ggH/sysShape");
+    outfile->cd("ggH/sysShape");
 
     for(auto hist : ggHhist_renUp) hist->Write();
     for(auto hist : ggHhist_renDw) hist->Write();
     for(auto hist : ggHhist_facUp) hist->Write();
     for(auto hist : ggHhist_facDw) hist->Write();
 
-    for(auto hist : ggHhist_renUp_2D) hist->Write();
-    for(auto hist : ggHhist_renDw_2D) hist->Write();
-    for(auto hist : ggHhist_facUp_2D) hist->Write();
-    for(auto hist : ggHhist_facDw_2D) hist->Write();
+    for(auto hist : ggHhist_bUp) hist->Write();
+    for(auto hist : ggHhist_bDw) hist->Write();
+    for(auto hist : ggHhist_metJetUp) hist->Write();
+    for(auto hist : ggHhist_metJetDw) hist->Write();
+    for(auto hist : ggHhist_metResUp) hist->Write();
+    for(auto hist : ggHhist_metResDw) hist->Write();
+    for(auto hist : ggHhist_metUncUp) hist->Write();
+    for(auto hist : ggHhist_metUncDw) hist->Write();
 
     for(auto hist : ggHhist_renUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_renDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_facUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_facDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_bUp) hist->Write();
-    for(auto hist : vbfHhist_bUp) hist->Write();
-    for(auto hist : wHhist_bUp) hist->Write();
-    for(auto hist : zHhist_bUp) hist->Write();
-
-    for(auto hist : ggHhist_bUp_2D) hist->Write();
-    for(auto hist : vbfHhist_bUp_2D) hist->Write();
-    for(auto hist : wHhist_bUp_2D) hist->Write();
-    for(auto hist : zHhist_bUp_2D) hist->Write();
-
     for(auto hist : ggHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    //
-    for(auto hist : ggHhist_bDw) hist->Write();
-    for(auto hist : vbfHhist_bDw) hist->Write();
-    for(auto hist : wHhist_bDw) hist->Write();
-    for(auto hist : zHhist_bDw) hist->Write();
-
-    for(auto hist : ggHhist_bDw_2D) hist->Write();
-    for(auto hist : vbfHhist_bDw_2D) hist->Write();
-    for(auto hist : wHhist_bDw_2D) hist->Write();
-    for(auto hist : zHhist_bDw_2D) hist->Write();
-
     for(auto hist : ggHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_metJetUp) hist->Write();
-    for(auto hist : vbfHhist_metJetUp) hist->Write();
-    for(auto hist : wHhist_metJetUp) hist->Write();
-    for(auto hist : zHhist_metJetUp) hist->Write();
-
-    for(auto hist : ggHhist_metJetUp_2D) hist->Write();
-    for(auto hist : vbfHhist_metJetUp_2D) hist->Write();
-    for(auto hist : wHhist_metJetUp_2D) hist->Write();
-    for(auto hist : zHhist_metJetUp_2D) hist->Write();
-
     for(auto hist : ggHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist);temp->Write();}
-    for(auto hist :vbfHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist);temp->Write();}
-    for(auto hist : wHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_metJetDw) hist->Write();
-    for(auto hist : vbfHhist_metJetDw) hist->Write();
-    for(auto hist : wHhist_metJetDw) hist->Write();
-    for(auto hist : zHhist_metJetDw) hist->Write();
-
-    for(auto hist : ggHhist_metJetDw_2D) hist->Write();
-    for(auto hist : vbfHhist_metJetDw_2D) hist->Write();
-    for(auto hist : wHhist_metJetDw_2D) hist->Write();
-    for(auto hist : zHhist_metJetDw_2D) hist->Write();
-
     for(auto hist : ggHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_metResUp) hist->Write();
-    for(auto hist : vbfHhist_metResUp) hist->Write();
-    for(auto hist : wHhist_metResUp) hist->Write();
-    for(auto hist : zHhist_metResUp) hist->Write();
-
-    for(auto hist : ggHhist_metResUp_2D) hist->Write();
-    for(auto hist : vbfHhist_metResUp_2D) hist->Write();
-    for(auto hist : wHhist_metResUp_2D) hist->Write();
-    for(auto hist : zHhist_metResUp_2D) hist->Write();
-
     for(auto hist : ggHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_metResDw) hist->Write();
-    for(auto hist : vbfHhist_metResDw) hist->Write();
-    for(auto hist : wHhist_metResDw) hist->Write();
-    for(auto hist : zHhist_metResDw) hist->Write();
-
-    for(auto hist : ggHhist_metResDw_2D) hist->Write();
-    for(auto hist : vbfHhist_metResDw_2D) hist->Write();
-    for(auto hist : wHhist_metResDw_2D) hist->Write();
-    for(auto hist : zHhist_metResDw_2D) hist->Write();
-
     for(auto hist : ggHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-
-    for(auto hist : ggHhist_metUncUp) hist->Write();
-    for(auto hist : vbfHhist_metUncUp) hist->Write();
-    for(auto hist : wHhist_metUncUp) hist->Write();
-    for(auto hist : zHhist_metUncUp) hist->Write();
-
-    for(auto hist : ggHhist_metUncUp_2D) hist->Write();
-    for(auto hist : vbfHhist_metUncUp_2D) hist->Write();
-    for(auto hist : wHhist_metUncUp_2D) hist->Write();
-    for(auto hist : zHhist_metUncUp_2D) hist->Write();
-
     for(auto hist : ggHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_metUncUp_2D){  TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
 
-    for(auto hist : ggHhist_metUncDw) hist->Write();
+    outfile->cd();
+    if(not outfile->GetDirectory("vbfH/sysShape"))
+      outfile->mkdir("vbfH/sysShape");
+    outfile->cd("vbfH/sysShape");
+
+    for(auto hist : vbfHhist_bUp) hist->Write();
+    for(auto hist : vbfHhist_bDw) hist->Write();
+    for(auto hist : vbfHhist_metJetUp) hist->Write();
+    for(auto hist : vbfHhist_metJetDw) hist->Write();
+    for(auto hist : vbfHhist_metResUp) hist->Write();
+    for(auto hist : vbfHhist_metResDw) hist->Write();
+    for(auto hist : vbfHhist_metUncUp) hist->Write();
     for(auto hist : vbfHhist_metUncDw) hist->Write();
+
+    for(auto hist :vbfHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist);temp->Write();}
+    for(auto hist :vbfHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist :vbfHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
+
+    outfile->cd();
+    if(not outfile->GetDirectory("wH/sysShape"))
+      outfile->mkdir("wH/sysShape");
+    outfile->cd("wH/sysShape");
+
+    for(auto hist : wHhist_bUp) hist->Write();
+    for(auto hist : wHhist_bDw) hist->Write();
+    for(auto hist : wHhist_metJetUp) hist->Write();
+    for(auto hist : wHhist_metJetDw) hist->Write();
+    for(auto hist : wHhist_metResUp) hist->Write();
+    for(auto hist : wHhist_metResDw) hist->Write();
+    for(auto hist : wHhist_metUncUp) hist->Write();
     for(auto hist : wHhist_metUncDw) hist->Write();
+
+    for(auto hist : wHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metUncUp_2D){  TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
+
+    outfile->cd();
+    if(not outfile->GetDirectory("zH/sysShape"))
+      outfile->mkdir("zH/sysShape");
+    outfile->cd("zH/sysShape");
+
+    for(auto hist : zHhist_bUp) hist->Write();
+    for(auto hist : zHhist_bDw) hist->Write();
+    for(auto hist : zHhist_metJetUp) hist->Write();
+    for(auto hist : zHhist_metJetDw) hist->Write();
+    for(auto hist : zHhist_metResUp) hist->Write();
+    for(auto hist : zHhist_metResDw) hist->Write();
+    for(auto hist : zHhist_metUncUp) hist->Write();
     for(auto hist : zHhist_metUncDw) hist->Write();
 
-    for(auto hist : ggHhist_metUncDw_2D) hist->Write();
-    for(auto hist : vbfHhist_metUncDw_2D) hist->Write();
-    for(auto hist : wHhist_metUncDw_2D) hist->Write();
-    for(auto hist : zHhist_metUncDw_2D) hist->Write();
 
-    for(auto hist : ggHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
-    for(auto hist :vbfHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
-    for(auto hist : wHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
+    for(auto hist : zHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : zHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : zHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
   }
+
+  outfile->cd();
 
   ggHhist.clear();
   vbfHhist.clear();
@@ -693,7 +675,6 @@ void signalHiggshist(TFile* outfile,
   zHhist_metResDw.clear(); 
   zHhist_metUncUp.clear(); 
   zHhist_metUncDw.clear();
-
 
   ggHhist_2D.clear();
   vbfHhist_2D.clear();
@@ -1248,11 +1229,26 @@ void signalmchist(TFile* outfile,
   
   // store tempaltes in the output file
   outfile->cd();
+  if(not outfile->GetDirectory("monoJ"))
+    outfile->mkdir("monoJ");
+  outfile->cd("monoJ");
   for(auto sample : monoJhist){ for(auto hist : sample) hist->Write();}
+  outfile->cd();
+  if(not outfile->GetDirectory("monoW"))
+    outfile->mkdir("monoW");
+  outfile->cd("monoW");
   for(auto sample : monoWhist){ for(auto hist : sample) hist->Write();}  
+  outfile->cd();
+  if(not outfile->GetDirectory("monoZ"))
+    outfile->mkdir("monoZ");
+  outfile->cd("monoZ");
   for(auto sample : monoZhist){ for(auto hist : sample) hist->Write();}
+  outfile->cd();
 
   if(doShapeSystematics){
+    if(not outfile->GetDirectory("monoJ/sysShape"))
+      outfile->mkdir("monoJ/sysShape");
+    outfile->cd("monoJ/sysShape");
     for(auto sample : monoJhist_bUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_metJetUp){ for(auto hist : sample) hist->Write();}
@@ -1262,6 +1258,10 @@ void signalmchist(TFile* outfile,
     for(auto sample : monoJhist_metUncUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_metUncDw){ for(auto hist : sample) hist->Write();}
 
+    outfile->cd();
+    if(not outfile->GetDirectory("monoW/sysShape"))
+      outfile->mkdir("monoW/sysShape");
+    outfile->cd("monoW/sysShape");
     for(auto sample : monoWhist_bUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_metJetUp){ for(auto hist : sample) hist->Write();}
@@ -1271,6 +1271,10 @@ void signalmchist(TFile* outfile,
     for(auto sample : monoWhist_metUncUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_metUncDw){ for(auto hist : sample) hist->Write();}
 
+    outfile->cd();
+    if(not outfile->GetDirectory("monoZ/sysShape"))
+      outfile->mkdir("monoZ/sysShape");
+    outfile->cd("monoZ/sysShape");
     for(auto sample : monoZhist_bUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoZhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoZhist_metJetUp){ for(auto hist : sample) hist->Write();}
@@ -1281,25 +1285,20 @@ void signalmchist(TFile* outfile,
     for(auto sample : monoZhist_metUncDw){ for(auto hist : sample) hist->Write();}
   }
 
-  for(auto sample : monoJhist_2D){ for (auto hist_2D : sample) hist_2D->Write();}
-  for(auto sample : monoWhist_2D){ for (auto hist_2D : sample) hist_2D->Write();}
-  for(auto sample : monoZhist_2D){ for (auto hist_2D : sample) hist_2D->Write();}  
-
+  outfile->cd();
+  outfile->cd("monoJ");
   for(auto sample : monoJhist_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
+  outfile->cd();
+  outfile->cd("monoW");
   for(auto sample : monoWhist_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
+  outfile->cd();
+  outfile->cd("monoZ");
   for(auto sample : monoZhist_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
 
   if(doShapeSystematics){
 
-    for(auto sample : monoJhist_bUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_bDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metJetUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metJetDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metResUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metResDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metUncUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_metUncDw_2D){ for(auto hist : sample) hist->Write();}
-
+    outfile->cd();
+    outfile->cd("monoJ/sysShape/");
     for(auto sample : monoJhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoJhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoJhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1310,15 +1309,8 @@ void signalmchist(TFile* outfile,
     for(auto sample : monoJhist_metUncDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
 
 
-    for(auto sample : monoWhist_bUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_bDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metJetUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metJetDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metResUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metResDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metUncUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_metUncDw_2D){ for(auto hist : sample) hist->Write();}
-
+    outfile->cd();
+    outfile->cd("monoW/sysShape/");
     for(auto sample : monoWhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1328,15 +1320,8 @@ void signalmchist(TFile* outfile,
     for(auto sample : monoWhist_metUncUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_metUncDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
 
-    for(auto sample : monoZhist_bUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_bDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metJetUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metJetDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metResUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metResDw_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metUncUp_2D){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_metUncDw_2D){ for(auto hist : sample) hist->Write();}
-
+    outfile->cd();
+    outfile->cd("monoZ/sysShape/");
     for(auto sample : monoZhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoZhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoZhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1582,7 +1567,6 @@ void sigdatamchist(TFile* outfile,
       dihist_metUncUp.push_back(dynamic_cast<TH1*>(dihist_metUncUp_temp));
       dihist_metUncDw.push_back(dynamic_cast<TH1*>(dihist_metUncDw_temp));
 
-
       TH1F* gmhist_metJetUp_temp = new TH1F(("gbkghist_metJetUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* gmhist_metJetDw_temp = new TH1F(("gbkghist_metJetDw_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* gmhist_metResUp_temp = new TH1F(("gbkghist_metResUp_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
@@ -1694,14 +1678,14 @@ void sigdatamchist(TFile* outfile,
     if(bins.binX.empty() or bins.binY.empty())
       cout<<"No binning for this observable --> please define it"<<endl;
     
-    TH2F* znhist_temp = new TH2F(("zinvhist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* wlhist_temp = new TH2F(("wjethist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* zlhist_temp = new TH2F(("zjethist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* tthist_temp = new TH2F(("tbkghist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dihist_temp = new TH2F(("dbkghist_2D"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* gmhist_temp = new TH2F(("gbkghist_2D"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* qcdhist_temp = new TH2F(("qbkghist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-    TH2F* dthist_temp = new TH2F(("datahist_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* znhist_temp = new TH2F(("zinvhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* wlhist_temp = new TH2F(("wjethist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* zlhist_temp = new TH2F(("zjethist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* tthist_temp = new TH2F(("tbkghist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dihist_temp = new TH2F(("dbkghist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* gmhist_temp = new TH2F(("gbkghist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* qcdhist_temp = new TH2F(("qbkghist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dthist_temp = new TH2F(("datahist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 
     znhist_2D.push_back(dynamic_cast<TH2*>(znhist_temp));
     wlhist_2D.push_back(dynamic_cast<TH2*>(wlhist_temp));
@@ -1713,8 +1697,102 @@ void sigdatamchist(TFile* outfile,
     dthist_2D.push_back(dynamic_cast<TH2*>(dthist_temp));
 
     if(doAlternativeTop){
-      TH2F* tthist_alt_temp = new TH2F(("tbkghist_alt_2D_"+obs).c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_alt_temp = new TH2F(("tbkghist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       tthist_alt_2D.push_back(dynamic_cast<TH2*>(tthist_alt_temp));
+    }    
+
+
+    if(doShapeSystematics){
+
+      TH2F* zlhist_bUp_temp = new TH2F(("zjethist_bUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_bDw_temp = new TH2F(("zjethist_bDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metJetUp_temp = new TH2F(("zjethist_metJetUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metJetDw_temp = new TH2F(("zjethist_metJetDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metResUp_temp = new TH2F(("zjethist_metResUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metResDw_temp = new TH2F(("zjethist_metResDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metUncUp_temp = new TH2F(("zjethist_metUncUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* zlhist_metUncDw_temp = new TH2F(("zjethist_metUncDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      zlhist_bUp_2D.push_back(dynamic_cast<TH2*>(zlhist_bUp_temp));
+      zlhist_bDw_2D.push_back(dynamic_cast<TH2*>(zlhist_bDw_temp));
+      zlhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(zlhist_metJetUp_temp));
+      zlhist_metJetDw_2D.push_back(dynamic_cast<TH2*>(zlhist_metJetDw_temp));
+      zlhist_metResUp_2D.push_back(dynamic_cast<TH2*>(zlhist_metResUp_temp));
+      zlhist_metResDw_2D.push_back(dynamic_cast<TH2*>(zlhist_metResDw_temp));
+      zlhist_metUncUp_2D.push_back(dynamic_cast<TH2*>(zlhist_metUncUp_temp));
+      zlhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(zlhist_metUncDw_temp));
+
+      TH2F* tthist_bUp_temp = new TH2F(("tbkghist_bUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_bDw_temp = new TH2F(("tbkghist_bDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metJetUp_temp = new TH2F(("tbkghist_metJetUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metJetDw_temp = new TH2F(("tbkghist_metJetDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metResUp_temp = new TH2F(("tbkghist_metResUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metResDw_temp = new TH2F(("tbkghist_metResDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metUncUp_temp = new TH2F(("tbkghist_metUncUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* tthist_metUncDw_temp = new TH2F(("tbkghist_metUncDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      tthist_bUp_2D.push_back(dynamic_cast<TH2*>(tthist_bUp_temp));
+      tthist_bDw_2D.push_back(dynamic_cast<TH2*>(tthist_bDw_temp));
+      tthist_metJetUp_2D.push_back(dynamic_cast<TH2*>(tthist_metJetUp_temp));
+      tthist_metJetDw_2D.push_back(dynamic_cast<TH2*>(tthist_metJetDw_temp));
+      tthist_metResUp_2D.push_back(dynamic_cast<TH2*>(tthist_metResUp_temp));
+      tthist_metResDw_2D.push_back(dynamic_cast<TH2*>(tthist_metResDw_temp));
+      tthist_metUncUp_2D.push_back(dynamic_cast<TH2*>(tthist_metUncUp_temp));
+      tthist_metUncDw_2D.push_back(dynamic_cast<TH2*>(tthist_metUncDw_temp));
+
+      if(doAlternativeTop){
+
+	TH2F* tthist_alt_bUp_temp = new TH2F(("tbkghist_alt_bUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_bDw_temp = new TH2F(("tbkghist_alt_bDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metJetUp_temp = new TH2F(("tbkghist_alt_metJetUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metJetDw_temp = new TH2F(("tbkghist_alt_metJetDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metResUp_temp = new TH2F(("tbkghist_alt_metResUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metResDw_temp = new TH2F(("tbkghist_alt_metResDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metUncUp_temp = new TH2F(("tbkghist_alt_metUncUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* tthist_alt_metUncDw_temp = new TH2F(("tbkghist_alt_metUncDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	tthist_alt_bUp_2D.push_back(dynamic_cast<TH2*>(tthist_alt_bUp_temp));
+	tthist_alt_bDw_2D.push_back(dynamic_cast<TH2*>(tthist_alt_bDw_temp));
+	tthist_alt_metJetUp_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metJetUp_temp));
+	tthist_alt_metJetDw_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metJetDw_temp));
+	tthist_alt_metResUp_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metResUp_temp));
+	tthist_alt_metResDw_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metResDw_temp));
+	tthist_alt_metUncUp_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metUncUp_temp));
+	tthist_alt_metUncDw_2D.push_back(dynamic_cast<TH2*>(tthist_alt_metUncDw_temp));
+
+      }
+
+      TH2F* dihist_bUp_temp = new TH2F(("dbkghist_bUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_bDw_temp = new TH2F(("dbkghist_bDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metJetUp_temp = new TH2F(("dbkghist_metJetUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metJetDw_temp = new TH2F(("dbkghist_metJetDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metResUp_temp = new TH2F(("dbkghist_metResUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metResDw_temp = new TH2F(("dbkghist_metResDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metUncUp_temp = new TH2F(("dbkghist_metUncUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dihist_metUncDw_temp = new TH2F(("dbkghist_metUncDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      dihist_bUp_2D.push_back(dynamic_cast<TH2*>(dihist_bUp_temp));
+      dihist_bDw_2D.push_back(dynamic_cast<TH2*>(dihist_bDw_temp));
+      dihist_metJetUp_2D.push_back(dynamic_cast<TH2*>(dihist_metJetUp_temp));
+      dihist_metJetDw_2D.push_back(dynamic_cast<TH2*>(dihist_metJetDw_temp));
+      dihist_metResUp_2D.push_back(dynamic_cast<TH2*>(dihist_metResUp_temp));
+      dihist_metResDw_2D.push_back(dynamic_cast<TH2*>(dihist_metResDw_temp));
+      dihist_metUncUp_2D.push_back(dynamic_cast<TH2*>(dihist_metUncUp_temp));
+      dihist_metUncDw_2D.push_back(dynamic_cast<TH2*>(dihist_metUncDw_temp));
+
+      TH2F* gmhist_bUp_temp = new TH2F(("gbkghist_bUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_bDw_temp = new TH2F(("gbkghist_bDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metJetUp_temp = new TH2F(("gbkghist_metJetUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metJetDw_temp = new TH2F(("gbkghist_metJetDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metResUp_temp = new TH2F(("gbkghist_metResUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metResDw_temp = new TH2F(("gbkghist_metResDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metUncUp_temp = new TH2F(("gbkghist_metUncUp_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* gmhist_metUncDw_temp = new TH2F(("gbkghist_metUncDw_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      gmhist_bUp_2D.push_back(dynamic_cast<TH2*>(gmhist_bUp_temp));
+      gmhist_bDw_2D.push_back(dynamic_cast<TH2*>(gmhist_bDw_temp));
+      gmhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(gmhist_metJetUp_temp));
+      gmhist_metJetDw_2D.push_back(dynamic_cast<TH2*>(gmhist_metJetDw_temp));
+      gmhist_metResUp_2D.push_back(dynamic_cast<TH2*>(gmhist_metResUp_temp));
+      gmhist_metResDw_2D.push_back(dynamic_cast<TH2*>(gmhist_metResDw_temp));
+      gmhist_metUncUp_2D.push_back(dynamic_cast<TH2*>(gmhist_metUncUp_temp));
+      gmhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(gmhist_metUncDw_temp));
+
     }    
   }
 
@@ -1901,30 +1979,47 @@ void sigdatamchist(TFile* outfile,
     for(size_t iHisto = 0; iHisto < tthist_2D.size(); iHisto++)
       makeAverage(tthist_2D.at(iHisto),tthist_alt_2D.at(iHisto));
 
-    if(doShapeSystematics)
+    if(doShapeSystematics){
       for(size_t iHisto = 0; iHisto < tthist_bUp.size(); iHisto++)
 	makeAverage(tthist_bUp.at(iHisto),tthist_alt_bUp.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_bUp_2D.size(); iHisto++)
+	makeAverage(tthist_bUp_2D.at(iHisto),tthist_alt_bUp_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_bDw.size(); iHisto++)
 	makeAverage(tthist_bDw.at(iHisto),tthist_alt_bDw.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_bDw_2D.size(); iHisto++)
+	makeAverage(tthist_bDw_2D.at(iHisto),tthist_alt_bDw_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metJetUp.size(); iHisto++)
 	makeAverage(tthist_metJetUp.at(iHisto),tthist_alt_metJetUp.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_metJetUp_2D.size(); iHisto++)
+	makeAverage(tthist_metJetUp_2D.at(iHisto),tthist_alt_metJetUp_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metJetDw.size(); iHisto++)
 	makeAverage(tthist_metJetDw.at(iHisto),tthist_alt_metJetDw.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_metJetDw_2D.size(); iHisto++)
+	makeAverage(tthist_metJetDw_2D.at(iHisto),tthist_alt_metJetDw_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metResUp.size(); iHisto++)
 	makeAverage(tthist_metResUp.at(iHisto),tthist_alt_metResUp.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_metResUp_2D.size(); iHisto++)
+	makeAverage(tthist_metResUp_2D.at(iHisto),tthist_alt_metResUp_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metResDw.size(); iHisto++)
 	makeAverage(tthist_metResDw.at(iHisto),tthist_alt_metResDw.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_metResDw_2D.size(); iHisto++)
+	makeAverage(tthist_metResDw_2D.at(iHisto),tthist_alt_metResDw_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metUncUp.size(); iHisto++)
 	makeAverage(tthist_metUncUp.at(iHisto),tthist_alt_metUncUp.at(iHisto));
+      for(size_t iHisto = 0; iHisto < tthist_metUncUp_2D.size(); iHisto++)
+	makeAverage(tthist_metUncUp_2D.at(iHisto),tthist_alt_metUncUp_2D.at(iHisto));
 
       for(size_t iHisto = 0; iHisto < tthist_metUncDw.size(); iHisto++)
 	makeAverage(tthist_metUncDw.at(iHisto),tthist_alt_metUncDw.at(iHisto));	
+      for(size_t iHisto = 0; iHisto < tthist_metUncDw_2D.size(); iHisto++)
+	makeAverage(tthist_metUncDw_2D.at(iHisto),tthist_alt_metUncDw_2D.at(iHisto));	
+    }
   }
 
   //smooth
@@ -2056,6 +2151,9 @@ void sigdatamchist(TFile* outfile,
 
   
   outfile->cd();
+  if(not outfile->GetDirectory("SR"))
+    outfile->mkdir("SR");
+  outfile->cd("SR");
   // store histograms                                                                                                                                                        
   for(auto hist : znhist) hist->Write();
   for(auto hist : wlhist) hist->Write();
@@ -2069,6 +2167,10 @@ void sigdatamchist(TFile* outfile,
   //
   if(doShapeSystematics){
     
+    outfile->cd();
+    if(not outfile->GetDirectory("SR/sysShape"))
+      outfile->mkdir("SR/sysShape");
+    outfile->cd("SR/sysShape");
     for(auto hist : zlhist_bUp) hist->Write();
     for(auto hist : zlhist_bDw) hist->Write();
     for(auto hist : zlhist_metJetUp) hist->Write();
@@ -2108,15 +2210,8 @@ void sigdatamchist(TFile* outfile,
   }
 
   // store hist_2Dograms                                                                                                                                                     
-  for(auto hist_2D : znhist_2D) hist_2D->Write();
-  for(auto hist_2D : wlhist_2D) hist_2D->Write();
-  for(auto hist_2D : zlhist_2D) hist_2D->Write();
-  for(auto hist_2D : gmhist_2D) hist_2D->Write();
-  for(auto hist_2D : tthist_2D) hist_2D->Write();
-  for(auto hist_2D : dihist_2D) hist_2D->Write();
-  for(auto hist_2D : qcdhist_2D) hist_2D->Write();
-  for(auto hist_2D : dthist_2D) hist_2D->Write();
-
+  outfile->cd();
+  outfile->cd("SR");
   for(auto hist_2D : znhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : wlhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : zlhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -2129,15 +2224,8 @@ void sigdatamchist(TFile* outfile,
 
   if(doShapeSystematics){
     
-    for(auto hist : zlhist_bUp_2D) hist->Write();
-    for(auto hist : zlhist_bDw_2D) hist->Write();
-    for(auto hist : zlhist_metJetUp_2D) hist->Write();
-    for(auto hist : zlhist_metJetDw_2D) hist->Write();
-    for(auto hist : zlhist_metResUp_2D) hist->Write();
-    for(auto hist : zlhist_metResDw_2D) hist->Write();
-    for(auto hist : zlhist_metUncUp_2D) hist->Write();
-    for(auto hist : zlhist_metUncDw_2D) hist->Write();
-
+    outfile->cd();
+    outfile->cd("SR/sysShape");
     for(auto hist_2D : zlhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : zlhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : zlhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -2146,15 +2234,6 @@ void sigdatamchist(TFile* outfile,
     for(auto hist_2D : zlhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : zlhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : zlhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
-
-    for(auto hist : gmhist_bUp_2D) hist->Write();
-    for(auto hist : gmhist_bDw_2D) hist->Write();
-    for(auto hist : gmhist_metJetUp_2D) hist->Write();
-    for(auto hist : gmhist_metJetDw_2D) hist->Write();
-    for(auto hist : gmhist_metResUp_2D) hist->Write();
-    for(auto hist : gmhist_metResDw_2D) hist->Write();
-    for(auto hist : gmhist_metUncUp_2D) hist->Write();
-    for(auto hist : gmhist_metUncDw_2D) hist->Write();
 
     for(auto hist_2D : gmhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : gmhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -2165,15 +2244,6 @@ void sigdatamchist(TFile* outfile,
     for(auto hist_2D : gmhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : gmhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
 
-    for(auto hist : tthist_bUp_2D) hist->Write();
-    for(auto hist : tthist_bDw_2D) hist->Write();
-    for(auto hist : tthist_metJetUp_2D) hist->Write();
-    for(auto hist : tthist_metJetDw_2D) hist->Write();
-    for(auto hist : tthist_metResUp_2D) hist->Write();
-    for(auto hist : tthist_metResDw_2D) hist->Write();
-    for(auto hist : tthist_metUncUp_2D) hist->Write();
-    for(auto hist : tthist_metUncDw_2D) hist->Write();
-
     for(auto hist_2D : tthist_bUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : tthist_bDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : tthist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -2182,15 +2252,6 @@ void sigdatamchist(TFile* outfile,
     for(auto hist_2D : tthist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : tthist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : tthist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
-
-    for(auto hist : dihist_bUp_2D) hist->Write();
-    for(auto hist : dihist_bDw_2D) hist->Write();
-    for(auto hist : dihist_metJetUp_2D) hist->Write();
-    for(auto hist : dihist_metJetDw_2D) hist->Write();
-    for(auto hist : dihist_metResUp_2D) hist->Write();
-    for(auto hist : dihist_metResDw_2D) hist->Write();
-    for(auto hist : dihist_metUncUp_2D) hist->Write();
-    for(auto hist : dihist_metUncDw_2D) hist->Write();
 
     for(auto hist_2D : dihist_bUp_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
     for(auto hist_2D : dihist_bDw_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -2203,6 +2264,8 @@ void sigdatamchist(TFile* outfile,
 
     
   }
+
+  outfile->cd();
 
   znfile->Close();
   wlfile->Close();
@@ -2422,18 +2485,19 @@ void gamdatamchist(TFile* outfile,
   }
 			    
   outfile->cd();
+  if(not outfile->GetDirectory("GJ"))
+    outfile->mkdir("GJ");
+  outfile->cd("GJ");
 
   for(auto hist : dthist) hist->Write();
   for(auto hist : gmhist) hist->Write();
   for(auto hist : qcdhist) hist->Write();
 
-  for(auto hist : dthist_2D) hist->Write();
-  for(auto hist : gmhist_2D) hist->Write();
-  for(auto hist : qcdhist_2D) hist->Write();
-
   for(auto hist : dthist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
   for(auto hist : gmhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
   for(auto hist : qcdhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
+
+  outfile->cd();
 
   dtfile->Close();
   gmfile->Close();
@@ -3137,7 +3201,20 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   }
   
   //
+  string dirName;
+  if(sample == 1)
+    dirName = "ZM";
+  else if(sample == 2)
+    dirName = "WM";
+  else if(sample == 3)
+    dirName = "ZE";
+  else if(sample == 4)
+    dirName = "WE";
+
   outfile->cd();
+  if(not outfile->GetDirectory(dirName.c_str()))
+    outfile->mkdir(dirName.c_str());
+  outfile->cd(dirName.c_str());
   for(auto hist :  dthist) hist->Write();
   for(auto hist :  tthist) hist->Write();
   for(auto hist :  dbhist) hist->Write();
@@ -3147,7 +3224,11 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   for(auto hist :  vllhist) hist->Write();
 
   if(doShapeSystematics){
-    
+    outfile->cd();
+    if(not outfile->GetDirectory((dirName+"/sysShape").c_str()))
+      outfile->mkdir((dirName+"/sysShape").c_str());
+    outfile->cd((dirName+"/sysShape").c_str());
+
     for(auto hist :  dbhist_bUp) hist->Write();
     for(auto hist :  dbhist_bDw) hist->Write();
     for(auto hist :  dbhist_metJetUp) hist->Write();
@@ -3194,13 +3275,8 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist :  vllhist_metUncDw) hist->Write();
   }
 
-  for(auto hist_2D : vlhist_2D) hist_2D->Write();
-  for(auto hist_2D : vllhist_2D) hist_2D->Write();
-  for(auto hist_2D : tthist_2D) hist_2D->Write();
-  for(auto hist_2D : dbhist_2D) hist_2D->Write();
-  for(auto hist_2D : gmhist_2D) hist_2D->Write();
-  for(auto hist_2D : qchist_2D) hist_2D->Write();
-  for(auto hist_2D : dthist_2D) hist_2D->Write();
+  outfile->cd();
+  outfile->cd(dirName.c_str());
 
   for(auto hist_2D : vlhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : vllhist_2D){TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -3212,15 +3288,8 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
 
   if(doShapeSystematics){
     
-    for(auto hist :  dbhist_bUp_2D) hist->Write();
-    for(auto hist :  dbhist_bDw_2D) hist->Write();
-    for(auto hist :  dbhist_metJetUp_2D) hist->Write();
-    for(auto hist :  dbhist_metJetDw_2D) hist->Write();
-    for(auto hist :  dbhist_metResUp_2D) hist->Write();
-    for(auto hist :  dbhist_metResDw_2D) hist->Write();
-    for(auto hist :  dbhist_metUncUp_2D) hist->Write();
-    for(auto hist :  dbhist_metUncDw_2D) hist->Write();
-
+    outfile->cd();
+    outfile->cd((dirName+"/sysShape").c_str());
     for(auto hist : dbhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : dbhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : dbhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
@@ -3229,15 +3298,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : dbhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : dbhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : dbhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
-
-    for(auto hist :  gmhist_bUp_2D) hist->Write();
-    for(auto hist :  gmhist_bDw_2D) hist->Write();
-    for(auto hist :  gmhist_metJetUp_2D) hist->Write();
-    for(auto hist :  gmhist_metJetDw_2D) hist->Write();
-    for(auto hist :  gmhist_metResUp_2D) hist->Write();
-    for(auto hist :  gmhist_metResDw_2D) hist->Write();
-    for(auto hist :  gmhist_metUncUp_2D) hist->Write();
-    for(auto hist :  gmhist_metUncDw_2D) hist->Write();
 
     for(auto hist : gmhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : gmhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
@@ -3248,15 +3308,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : gmhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : gmhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
  
-    for(auto hist :  tthist_bUp_2D) hist->Write();
-    for(auto hist :  tthist_bDw_2D) hist->Write();
-    for(auto hist :  tthist_metJetUp_2D) hist->Write();
-    for(auto hist :  tthist_metJetDw_2D) hist->Write();
-    for(auto hist :  tthist_metResUp_2D) hist->Write();
-    for(auto hist :  tthist_metResDw_2D) hist->Write();
-    for(auto hist :  tthist_metUncUp_2D) hist->Write();
-    for(auto hist :  tthist_metUncDw_2D) hist->Write();
-
     for(auto hist : tthist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : tthist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : tthist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
@@ -3266,15 +3317,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : tthist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : tthist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
 
-    for(auto hist :  vlhist_bUp_2D) hist->Write();
-    for(auto hist :  vlhist_bDw_2D) hist->Write();
-    for(auto hist :  vlhist_metJetUp_2D) hist->Write();
-    for(auto hist :  vlhist_metJetDw_2D) hist->Write();
-    for(auto hist :  vlhist_metResUp_2D) hist->Write();
-    for(auto hist :  vlhist_metResDw_2D) hist->Write();
-    for(auto hist :  vlhist_metUncUp_2D) hist->Write();
-    for(auto hist :  vlhist_metUncDw_2D) hist->Write();
-
     for(auto hist : vlhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : vlhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : vlhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
@@ -3283,15 +3325,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : vlhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : vlhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : vlhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
-
-    for(auto hist :  vllhist_bUp_2D) hist->Write();
-    for(auto hist :  vllhist_bDw_2D) hist->Write();
-    for(auto hist :  vllhist_metJetUp_2D) hist->Write();
-    for(auto hist :  vllhist_metJetDw_2D) hist->Write();
-    for(auto hist :  vllhist_metResUp_2D) hist->Write();
-    for(auto hist :  vllhist_metResDw_2D) hist->Write();
-    for(auto hist :  vllhist_metUncUp_2D) hist->Write();
-    for(auto hist :  vllhist_metUncDw_2D) hist->Write();
 
     for(auto hist : vllhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
     for(auto hist : vllhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
@@ -3303,7 +3336,8 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : vllhist_metUncDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write(); }
 
   }
-
+  
+  outfile->cd();
 
   dtfile->Close();
   vlfile->Close();
@@ -3360,7 +3394,6 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   vllhist_metResDw.clear();
   vllhist_metUncUp.clear();
   vllhist_metUncDw.clear();
-
 
   dthist_2D.clear();
   tthist_2D.clear();
@@ -3848,7 +3881,6 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   if(category == 2 or category == 3)
     isWJet = true;
 
-
   int index_QGL_Z = 0;
   int index_QGL_G = 0;
   int index_QGL_W = 0;
@@ -4043,8 +4075,17 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist : vllhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
   }
 
+  string dirName;
+  if(sample == 7)
+    dirName = "TM";
+  else if(sample == 8)
+    dirName = "TE";
 
   outfile->cd();
+  if(not outfile->GetDirectory((dirName).c_str()))
+    outfile->mkdir(dirName.c_str());
+  outfile->cd(dirName.c_str());
+
   for(auto hist :  dthist) hist->Write();
   for(auto hist :  tthist) hist->Write();
   for(auto hist :  tthist_matched) hist->Write();
@@ -4056,6 +4097,10 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   for(auto hist :  vllhist) hist->Write();
 
   if(doShapeSystematics){
+    outfile->cd();
+    if(not outfile->GetDirectory((dirName+"/sysShape").c_str()))
+      outfile->mkdir((dirName+"/sysShape").c_str());
+    outfile->cd((dirName+"/sysShape").c_str());
     for(auto hist :  dbhist_bUp) hist->Write();
     for(auto hist :  dbhist_bDw) hist->Write();
     for(auto hist :  dbhist_metJetUp) hist->Write();
@@ -4092,15 +4137,9 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist :  vllhist_metUncUp) hist->Write();
     for(auto hist :  vllhist_metUncDw) hist->Write();
   }
-
-  for(auto hist_2D : vlhist_2D) hist_2D->Write();
-  for(auto hist_2D : vllhist_2D) hist_2D->Write();
-  for(auto hist_2D : tthist_2D) hist_2D->Write();
-  for(auto hist_2D : dbhist_2D) hist_2D->Write();
-  for(auto hist_2D : gmhist_2D) hist_2D->Write();
-  for(auto hist_2D : qchist_2D) hist_2D->Write();
-  for(auto hist_2D : dthist_2D) hist_2D->Write();
-
+  
+  outfile->cd();
+  outfile->cd(dirName.c_str());
   for(auto hist_2D : vlhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write();}
   for(auto hist_2D : vllhist_2D) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write();}
   for(auto hist_2D : tthist_2D) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write();}
@@ -4110,6 +4149,8 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   for(auto hist_2D : dthist_2D) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write();}
 
   if(doShapeSystematics){
+    outfile->cd();
+    outfile->cd((dirName+"/sysShape").c_str());
     for(auto hist :  dbhist_bUp_2D) { TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist :  dbhist_bDw_2D) { TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist :  dbhist_metJetUp_2D) { TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -4146,6 +4187,8 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
     for(auto hist :  vllhist_metUncUp_2D) { TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist :  vllhist_metUncDw_2D) { TH1* temp = unroll2DHistograms(hist); temp->Write();}
   }
+
+  outfile->cd();
 
   dtfile->Close();
   vlfile->Close();

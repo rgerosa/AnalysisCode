@@ -4,10 +4,10 @@
 
 using namespace std;
 
-void rzmm(string fileName, int category, string observable, bool alongX = false) {
+void rzmm(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file = new TFile(fileName.c_str());  
-  TH1F*  hist = (TH1F*)file->Get(("zmmcorhist_"+observable).c_str());
+  TH1F*  hist = (TH1F*)file->FindObjectAny(("zmmcorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
   vector<float> bin ;
@@ -79,21 +79,21 @@ void rzmm(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
     
-    canvas->SaveAs(Form("rzmm_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rzmm_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rzmm_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rzmm_bin_bin_%d.png",ihisto));
     ihisto++;
   }
 }
 
 
-void rzee(string fileName, int category, string observable, bool alongX = false) {
+void rzee(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file = new TFile(fileName.c_str());  
-  TH1F*  hist = (TH1F*)file->Get(("zeecorhist_"+observable).c_str());
+  TH1F*  hist = (TH1F*)file->FindObjectAny(("zeecorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
   vector<float> bin ;
@@ -165,21 +165,21 @@ void rzee(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rzee_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rzee_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rzee_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rzee_bin_bin_%d.png",ihisto));
     ihisto++;
   }
 }
 
 
-void rwmn(string fileName, int category, string observable, bool alongX = false) {
+void rwmn(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file = new TFile(fileName.c_str());  
-  TH1F*  hist = (TH1F*)file->Get(("wmncorhist_"+observable).c_str());
+  TH1F*  hist = (TH1F*)file->FindObjectAny(("wmncorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
   vector<float> bin ;
@@ -256,20 +256,20 @@ void rwmn(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rwmn_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rwmn_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rwmn_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rwmn_bin_bin_%d.png",ihisto));
     ihisto++;
   }
 }
 
-void rwen(string fileName, int category, string observable, bool alongX = false) {
+void rwen(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file = new TFile(fileName.c_str());  
-  TH1F*  hist = (TH1F*)file->Get(("wencorhist_"+observable).c_str());
+  TH1F*  hist = (TH1F*)file->FindObjectAny(("wencorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);  
   bin2D bins = selectBinning2D(observable,category);
   vector<float> bin ;
@@ -344,28 +344,28 @@ void rwen(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rwen_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rwen_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rwen_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rwen_bin_bin_%d.png",ihisto));
     ihisto++;
 
   }
 }
 
-void rgam(string fileName, int category, string observable, bool alongX = false) {
+void rgam(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file    = new TFile(fileName.c_str());  
-  TH1F*  hist    = (TH1F*)file->Get(("gamcorewkhist_"+observable).c_str());
-  TH1F*  ewkhist = (TH1F*)file->Get(("ZG_EWK_"+observable).c_str());
-  TH1F*  re1hist = (TH1F*)file->Get(("ZG_RenScale1_"+observable).c_str());
-  TH1F*  re2hist = (TH1F*)file->Get(("ZG_RenScale2_"+observable).c_str());
-  TH1F*  fa1hist = (TH1F*)file->Get(("ZG_FactScale1_"+observable).c_str());
-  TH1F*  fa2hist = (TH1F*)file->Get(("ZG_FactScale2_"+observable).c_str());
-  TH1F*  pdfhist = (TH1F*)file->Get(("ZG_PDF_"+observable).c_str());
-  TH1F*  fophist = (TH1F*)file->Get(("ZG_Footprint_"+observable).c_str());
+  TH1F*  hist    = (TH1F*)file->FindObjectAny(("gamcorewkhist_"+observable).c_str());
+  TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZG_EWK_"+observable).c_str());
+  TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
+  TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
+  TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
+  TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
+  TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZG_PDF_"+observable).c_str());
+  TH1F*  fophist = (TH1F*)file->FindObjectAny(("ZG_Footprint_"+observable).c_str());
   
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   vector<TH1F*> histograms_ewk = transformUnrolledHistogram(ewkhist,observable,category,alongX);
@@ -458,27 +458,27 @@ void rgam(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rgam_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rgam_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rgam_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rgam_bin_bin_%d.png",ihisto));
     ihisto++;
 
   }    
 }
 
-void rzwj(string fileName, int category, string observable, bool alongX = false) {
+void rzwj(string fileName, int category, string observable, bool alongX = true) {
 
   TFile* file = new TFile(fileName.c_str());
-  TH1F*  hist = (TH1F*)file->Get(("zwjcorewkhist_"+observable).c_str());
-  TH1F*  ewkhist = (TH1F*)file->Get(("ZW_EWK_"+observable).c_str());
-  TH1F*  re1hist = (TH1F*)file->Get(("ZW_RenScale1_"+observable).c_str());
-  TH1F*  re2hist = (TH1F*)file->Get(("ZW_RenScale2_"+observable).c_str());
-  TH1F*  fa1hist = (TH1F*)file->Get(("ZW_FactScale1_"+observable).c_str());
-  TH1F*  fa2hist = (TH1F*)file->Get(("ZW_FactScale2_"+observable).c_str());
-  TH1F*  pdfhist = (TH1F*)file->Get(("ZW_PDF_"+observable).c_str());
+  TH1F*  hist = (TH1F*)file->FindObjectAny(("zwjcorewkhist_"+observable).c_str());
+  TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZW_EWK_"+observable).c_str());
+  TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
+  TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZW_RenScale2_"+observable).c_str());
+  TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
+  TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
+  TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZW_PDF_"+observable).c_str());
 
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   vector<TH1F*> histograms_ewk = transformUnrolledHistogram(ewkhist,observable,category,alongX);
@@ -571,12 +571,12 @@ void rzwj(string fileName, int category, string observable, bool alongX = false)
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rwzj_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rwzj_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rwzj_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rwzj_bin_bin_%d.png",ihisto));
     ihisto++;
 
   }
@@ -585,8 +585,8 @@ void rzwj(string fileName, int category, string observable, bool alongX = false)
 void rtopmu(string fileName, int category, string observable, bool alongX) {
 
   TFile* file = new TFile(fileName.c_str());
-  TH1F*  hist  = (TH1F*)file->Get(("topmucorhist_"+observable).c_str());
-  TH1F*  histb = (TH1F*)file->Get(("TOP_MU_B_"+observable).c_str());
+  TH1F*  hist  = (TH1F*)file->FindObjectAny(("topmucorhist_"+observable).c_str());
+  TH1F*  histb = (TH1F*)file->FindObjectAny(("TOP_MU_B_"+observable).c_str());
 
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   vector<TH1F*> histograms_b = transformUnrolledHistogram(histb,observable,category,alongX);
@@ -665,12 +665,12 @@ void rtopmu(string fileName, int category, string observable, bool alongX) {
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rtopmu_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rtopmu_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rtopmu_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rtopmu_bin_bin_%d.png",ihisto));
     ihisto++;
   }
 }
@@ -680,8 +680,8 @@ void rtopmu(string fileName, int category, string observable, bool alongX) {
 void rtopel(string fileName, int category, string observable, bool alongX) {
 
   TFile* file = new TFile(fileName.c_str());
-  TH1F*  hist  = (TH1F*)file->Get(("topelcorhist_"+observable).c_str());
-  TH1F*  histb = (TH1F*)file->Get(("TOP_EL_B_"+observable).c_str());
+  TH1F*  hist  = (TH1F*)file->FindObjectAny(("topelcorhist_"+observable).c_str());
+  TH1F*  histb = (TH1F*)file->FindObjectAny(("TOP_EL_B_"+observable).c_str());
 
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   vector<TH1F*> histograms_b = transformUnrolledHistogram(histb,observable,category,alongX);
@@ -760,12 +760,12 @@ void rtopel(string fileName, int category, string observable, bool alongX) {
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d < %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s > %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rtopel_bin_%s_%d.pdf",text.first.c_str(),ihisto));
-    canvas->SaveAs(Form("rtopel_bin_%s_%d.png",text.first.c_str(),ihisto));
+    canvas->SaveAs(Form("rtopel_bin_bin_%d.pdf",ihisto));
+    canvas->SaveAs(Form("rtopel_bin_bin_%d.png",ihisto));
     ihisto++;
 
 

@@ -76,7 +76,6 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
 
- 
   //  ofstream dump("dump_sample_"+to_string(sample)+".txt");
   
   // in case you want to weight the NVTX distribution
@@ -862,16 +861,15 @@ void makehist4(TTree* tree, /*input tree*/
 
       }
     }
-               
+
     // fill 1D histogram
     double fillvar = 0;
-    
     // fill the histograms
     for(auto hist : hist1D){
 
       TString name(hist->GetName());      
       if(name.Contains("met"))
-	fillvar = pfmet;      
+	fillvar = pfmet;            
       else if(name.Contains("nvtx"))
 	fillvar = *nvtx;
       else if(name.Contains("chfrac"))
@@ -1109,6 +1107,7 @@ void makehist4(TTree* tree, /*input tree*/
       else if (!isMC)
 	evtwgt = hltw;
       
+
       hist->Fill(fillvarX,fillvarY,evtwgt);            
     }
   }
@@ -1120,6 +1119,8 @@ void makehist4(TTree* tree, /*input tree*/
   pufile  ->Close();
   trmfile ->Close();
   QGLReweight ->Close();
+
+
 }
 
 #endif
