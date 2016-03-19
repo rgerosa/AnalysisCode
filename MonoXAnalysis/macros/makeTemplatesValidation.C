@@ -118,8 +118,8 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     pad1->cd();
 
    
-    TH1F* histoFullSIM = (TH1F*) inputFileFullSIM->Get((signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met").c_str());      
-    TH1F* histoInterpolation = (TH1F*) inputFileInterpolation->Get((cat+"/signal_signal_"+model+medMassInterpolation.at(ipoint)+dmMassInterpolation.at(ipoint)).c_str());
+    TH1F* histoFullSIM = (TH1F*) inputFileFullSIM->FindObjectAny((signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met").c_str());      
+    TH1F* histoInterpolation = (TH1F*) inputFileInterpolation->FindObjectAny((cat+"/signal_signal_"+model+medMassInterpolation.at(ipoint)+dmMassInterpolation.at(ipoint)).c_str());
 
     histoFullSIM->SetTitle("");
     histoInterpolation->SetTitle("");
