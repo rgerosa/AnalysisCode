@@ -2,6 +2,8 @@
 #include <vector>
 #include <utility>
 
+#include "histoUtils.h"
+
 using namespace std;
 
 void addDummyBinContent(TH1* histo){
@@ -24,6 +26,9 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
 
 // function to create a RooDataHist from TH1F and import it in a workspace
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {  
+
+  cout<<" hist name "<<hist->GetName()<<" nbin "<<hist->GetNbinsX()<<" integral "<<hist->Integral()<<endl;
+  
   if(hist == 0 || hist == NULL) return;
   if(hist->Integral() == 0)
     addDummyBinContent(hist); // avoind empty histograms in the workspace
@@ -32,7 +37,7 @@ void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* h
   ws.import(rhist);
 }
 
-void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1* histo, float scaleUncertainty){
+void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1* histo, float scaleUncertainty = 1.){
 
   vector<TH1F*> histStatUp;
   vector<TH1F*> histStatDw;
@@ -49,7 +54,10 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
 
   for( size_t iHisto =0; iHisto < histStatUp.size(); iHisto++){
     histStatUp.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)+histo->GetBinError(iHisto+1)*scaleUncertainty);
-    histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty);
+    if(histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty >= 0.)
+      histStatDw.at(iHisto)->SetBinContent(iHisto+1,histo->GetBinContent(iHisto+1)-histo->GetBinError(iHisto+1)*scaleUncertainty);
+    else
+      histStatDw.at(iHisto)->SetBinContent(iHisto+1,0.);
   }
 
   for(size_t iHisto =0; iHisto < histStatUp.size(); iHisto++) {
