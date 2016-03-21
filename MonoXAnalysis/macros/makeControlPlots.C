@@ -504,7 +504,7 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();
-  vector<float> bins = selectBinning(observable,category);
+  vector<double> bins = selectBinning(observable,category);
 
   pad1->SetRightMargin(0.06);
   pad1->SetLeftMargin(0.12);

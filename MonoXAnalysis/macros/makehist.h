@@ -983,7 +983,20 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = 0;
       }      
-      
+      //
+      else if(name.Contains("dphiJJ")){
+	float minDphi= TMath::Pi();
+	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
+	  for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	    float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi)
+	      minDphi= deltaPhi;
+	  }
+	}
+	fillvar = minDphi; 
+      }
       
       // overflow bin
       if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
@@ -1076,7 +1089,28 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
         fillvarY = *ht;
       }
-
+      else if(name.Contains("met_QGL")){
+	fillvarX = pfmet;
+	fillvarY = jetQGL->at(0);
+      }
+      else if(name.Contains("met_dphiJJ")){
+	fillvarX = pfmet;
+	if(jetphi->size() <= 1)
+	  fillvarY = 0.;	    
+	else{
+	  float minDphi = TMath::Pi();
+	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
+	    for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	      float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
+	      if(deltaPhi > TMath::Pi())
+		deltaPhi = 2*TMath::Pi() - deltaPhi;
+	      if(deltaPhi > 0 and deltaPhi < minDphi)
+		minDphi = deltaPhi;
+	    }
+	  }
+	  fillvarY = minDphi;
+	}
+      }
       
       // overflow bin
       if (fillvarX >= hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX())+hist->GetXaxis()->GetBinWidth(hist->GetNbinsX())) 

@@ -166,7 +166,7 @@ void makeControlPlots2D(string templateFileName,
   }
   
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -178,7 +178,8 @@ void makeControlPlots2D(string templateFileName,
   pair<string,string> text = observableName(observable,alongX);
 
   for(size_t ihisto = 0; ihisto < datahist.size(); ihisto++){
-  
+
+    canvas->cd();  
     //SCALE BIN WIDTH
     if(TString(observableLatex).Contains("GeV")){
       

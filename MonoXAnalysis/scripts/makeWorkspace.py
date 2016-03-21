@@ -60,6 +60,7 @@ if __name__ == '__main__':
 
 
     ## load the create workspace macro
+    ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so");
     ROOT.gROOT.ProcessLine(".L ./macros/createWorkspace.C");
 
     startingDIR = os.getcwd()
@@ -150,6 +151,7 @@ if __name__ == '__main__':
                 ## write job sh file                                                                                                                                      
                 jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
                 jobmacro.write("{\n");
+                jobmacro.write("gSytem->Load(\"libHiggsAnalysisCombinedLimit.so\");\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
                 command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\")\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]))
                 jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
@@ -231,6 +233,7 @@ if __name__ == '__main__':
                  ## write job sh file                                                                                                                                      
                 jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
                 jobmacro.write("{\n");
+                jobmacro.write("gSytem->Load(\"libHiggsAnalysisCombinedLimit.so\");\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
                 command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_hinv.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%s,%s)\""%(options.templateFile,options.category,cat,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,shapeSys,"",higgsMediatorMass_ggH[isig]))
                 jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");

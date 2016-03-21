@@ -10,7 +10,7 @@ void signalHiggshist(TFile* outfile,
 		     double lumi                = 2.30,
 		     bool   doShapeSystematics  = false,
 		     string mH = "125",
-		     vector<float> xs = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
+		     vector<double> xs = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
 		     int typeOfHiggsSignal = 0){
 
   if(xs.size() != 4)
@@ -43,7 +43,7 @@ void signalHiggshist(TFile* outfile,
   vector<TH1*>  vbfHhist_bUp, vbfHhist_bDw, vbfHhist_metJetUp, vbfHhist_metJetDw, vbfHhist_metResUp, vbfHhist_metResDw, vbfHhist_metUncUp, vbfHhist_metUncDw;
   vector<TH1*>  wHhist_bUp, wHhist_bDw, wHhist_metJetUp, wHhist_metJetDw, wHhist_metResUp, wHhist_metResDw, wHhist_metUncUp, wHhist_metUncDw;
   vector<TH1*>  zHhist_bUp, zHhist_bDw, zHhist_metJetUp, zHhist_metJetDw, zHhist_metResUp, zHhist_metResDw, zHhist_metUncUp, zHhist_metUncDw;
-  vector<float> bins;
+  vector<double> bins;
 
   for(auto obs : observables){
 
@@ -836,7 +836,7 @@ void signalmchist(TFile* outfile,
 
   // create 1D histgrams for each process and shape uncertainty
   int imass = 0;
-  vector<float> bins;
+  vector<double> bins;
   for(auto iPoint : massPoint){
     if(iPoint.interaction != interaction) continue;
     
@@ -1487,7 +1487,7 @@ void sigdatamchist(TFile* outfile,
   vector<TH1*> qcdhist;
   vector<TH1*> dthist;
 
-  vector<float> bins;
+  vector<double> bins;
 
   for(auto obs : observables){
 
@@ -2405,7 +2405,7 @@ void gamdatamchist(TFile* outfile,
   vector<TH2*> qcdhist_2D;
   vector<TH2*> gmhist_2D;
 
-  vector<float> bins;
+  vector<double> bins;
 
   for(auto obs : observables){
 
@@ -2627,7 +2627,7 @@ void lepdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   vector<TH1*> vllhist_metUncUp;
   vector<TH1*> vllhist_metUncDw;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
 
     bins = selectBinning(obs,category);
@@ -3531,7 +3531,7 @@ void topdatamchist(TFile* outfile, int sample, int category, vector<string> obse
   vector<TH1*> tthist_unmatched;
   vector<TH1*> tthist_unmatched_alt;
 
-  vector<float> bins;
+  vector<double> bins;
 
   for(auto obs : observables){
 

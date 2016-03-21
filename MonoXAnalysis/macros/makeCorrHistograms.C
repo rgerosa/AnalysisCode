@@ -29,7 +29,7 @@ void makezmmcorhist( string  signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -164,7 +164,7 @@ void makezeecorhist( string  signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -299,7 +299,7 @@ void makewmncorhist( string  signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -435,7 +435,7 @@ void makewencorhist( string signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -572,7 +572,7 @@ void  makezwjcorhist(string znunuFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -772,7 +772,7 @@ void makegamcorhist( string znunuFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -998,7 +998,7 @@ void maketopmucorhist( string signalRegionFile,
   vector<TH2*> dhist_2D_alt;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -1171,7 +1171,7 @@ void maketopelcorhist( string signalRegionFile,
   vector<TH2*> dhist_2D_alt;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -1328,7 +1328,7 @@ void makesidebandcorhist( string signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category_num);
     if(bins.empty())

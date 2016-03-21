@@ -1,13 +1,23 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 #include <utility>
+#include <sstream>
 
-#include "histoUtils.h"
+#include "RooRealVar.h"
+#include "RooWorkspace.h"
+#include "RooDataHist.h"
+#include "RooAddition.h"
 
 using namespace std;
+#include "histoUtils.h"
+#include "../../../HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
+#include "TSystem.h"
 
 void addDummyBinContent(TH1* histo){
 
+  cerr<<"addDummyBinContent: called for histo "<<histo->GetName()<<endl;
   for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
     histo->SetBinContent(iBin+1,10.e-6);
     histo->SetBinError(iBin+1,10.e-6);
@@ -15,21 +25,14 @@ void addDummyBinContent(TH1* histo){
 
 }
 
-void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float xValue){
-  if(sysHisto == 0 || sysHisto == NULL) return;
-  for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
-    if(iBin >= nominalHisto->FindBin(xPoint))
-      sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);
-  }
-}
-
 
 // function to create a RooDataHist from TH1F and import it in a workspace
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {  
-
-  cout<<" hist name "<<hist->GetName()<<" nbin "<<hist->GetNbinsX()<<" integral "<<hist->Integral()<<endl;
   
-  if(hist == 0 || hist == NULL) return;
+  if(hist == 0 || hist == NULL){
+    cerr<<"addTemplate: found an null pointer --> check "<<endl;
+    return;
+  }
   if(hist->Integral() == 0)
     addDummyBinContent(hist); // avoind empty histograms in the workspace
 
@@ -42,9 +45,12 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
   vector<TH1F*> histStatUp;
   vector<TH1F*> histStatDw;
 
-  if(histo == 0 || histo == NULL) return;
+  if(histo == 0 || histo == NULL){
+    cerr<<"generateStatTemplate: found an null pointer --> check "<<endl;
+    return;
+  }
   if(histo->Integral() == 0){
-    addDummyBinContent(hist);
+    addDummyBinContent(histo);
   }
 
   for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
@@ -78,7 +84,10 @@ void generateStatTemplate(string procname, RooArgList& varlist, RooWorkspace& ws
 // Make list of bins of a TH1F as RooArgList of RooRealVar and building the RooParametricHist (to be Run in the release with combine)
 void makeBinList(string procname, RooRealVar& var, RooWorkspace& ws, TH1F* hist, RooArgList& binlist, bool setConst = false) {
 
-  if(hist == 0 || hist == NULL) return;
+  if(hist == 0 || hist == NULL){
+    cerr<<"makeBinList: found an null pointer --> check "<<endl;
+    return;
+  }
   if(hist->Integral() == 0){
     addDummyBinContent(hist);
   }
@@ -117,14 +126,19 @@ void makeConnectedBinList(string procname, RooRealVar& var,
 			  string observable = "met") {
   
 
-  if(rhist == 0 || rhist == NULL) return;
+  if(rhist == 0 || rhist == NULL){
+    cerr<<"makeConnectedBinList: found an null pointer --> check "<<endl;
+    return;
+  }
   if(rhist->Integral() == 0){
-    addDummyBinContent(hist);
+    addDummyBinContent(rhist);
   }
 
   // bin list for the CR
-  if (crbinlist == NULL) 
+  if (crbinlist == NULL){
+    cerr<<"makeConnectedBinList: crbinlist empty --> create "<<endl;
     crbinlist = new RooArgList();
+  }
 
   // Loop on ratio hist
   float extreme_tmp = 5;
@@ -138,7 +152,7 @@ void makeConnectedBinList(string procname, RooRealVar& var,
     stringstream rerrbinss;
     rerrbinss << procname << "_bin" << i << "_Runc";
     // Nuisance for the Final fit for each bin (bin-by-bin unc) --> avoid negative values
-    float extreme = std::min(5,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
+    float extreme = min(5.,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
     RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
     stringstream binss;
     binss << procname << "_bin" << i;
@@ -159,19 +173,19 @@ void makeConnectedBinList(string procname, RooRealVar& var,
     formss << "@1";
     formss << "*(abs(1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2))";
     // systemaitc uncertainty
-    for (int j = 0; j < syst.size(); j++) {
+    for (size_t j = 0; j < syst.size(); j++) {
       stringstream systbinss;
       if (syst[j].first == NULL) { // add bin by bin
 	systbinss << procname << "_bin" << i << "_" << syst[j].second->GetName();
 	TString nameSys (systbinss.str());
 	nameSys.ReplaceAll(("_"+observable).c_str(),"");
-	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
+	float extreme = min(5.,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i)); 
 	RooRealVar* systbinvar = new RooRealVar(nameSys.Data(), "", 0., -extreme, extreme);
 	// Add all the systeamtics as new Multiplicative Nuisance for each bin
 	fobinlist.add(*systbinvar);
       }
       else{ 
-	float extreme = std::min(5,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i));
+	float extreme = min(5.,0.9*rhist->GetBinContent(i)/syst[j].second->GetBinContent(i));
 	if( extreme < extreme_tmp){
 	  syst[j].first->setMin(-extreme);
 	  syst[j].first->setMax(extreme);
@@ -212,10 +226,10 @@ void createWorkspace(string inputName,
 		     bool   addShapeSystematics = false,
 		     string interaction   = "Vector",
 		     string mediatorMass  = "1000", 
-		     string DMMass        = "50", 
+		     string DMMass        = "50"
 ){
   
-  gSystem->Load("libHiggsAnalysisCombinedLimit.so");  
+  gSystem->Load("libHiggsAnalysisCombinedLimit.so");
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
@@ -232,27 +246,36 @@ void createWorkspace(string inputName,
   outfile->cd();
   cout<<"Load binning and observable ..."<<endl;
 
-  // to be fix one combine will switch to ROOT 6
-  double xMin = 0.;
-  double xMax = 0.;
+  double xMin = 0., xMax = 0.;
+  vector<double> bins = selectBinning(observable,category);  
+  RooBinning *binning = NULL;
 
-  if(TString(observable).Contains("met") && category <=1){
-    xMin = 200.;
-    xMax = 1250.;
+  if(not bins.empty()){ // non empty
+    xMin = bins.at(0);
+    xMax = bins.back();
+    binning = new RooBinning(bins.size()-1,&bins[0],(observable+"_"+suffix+"_binning").c_str()); 
   }
-  else if(TString(observable).Contains("met") && category >1){
-    xMin = 250.;
-    xMax = 1000.;
+  else{
+    bins.clear();
+    bin2D bin = selectBinning2D(observable,category);
+    if(not bin.binX.empty() and not bin.binY.empty()){ // in case of 2D analysis --> unrolled histo
+      xMin = 0.;
+      xMax = double((bin.binX.size()-1)*(bin.binY.size()-1));
+      for(size_t iBin = xMin; iBin <= xMax ; iBin++)
+	bins.push_back(double(iBin));
+      binning = new RooBinning(bins.size()-1,&bins[0],(observable+"_"+suffix+"_binning").c_str()); 
+    }      
+    else
+      cout<<"Binning not implemented for the observable "<<observable<<" --> please define it "<<endl;
   }
-  else
-    cout<<"Binning not implemented for the observable "<<observable<<" --> please define it "<<endl;
-  
+
   RooRealVar met((observable+"_"+suffix).c_str(),"",xMin,xMax);
+  met.setBinning(*binning);
   RooArgList vars(met);
-  
+
   // Templates
   cout<<"Open inputFile ..."<<endl;
-  TFile* templatesfile = new TFile(inputName.c_str());
+  TFile* templatesfile = TFile::Open(inputName.c_str());
 
   ///////////////////////////////////////
   // -------- SIGNAL REGION  -------- //
@@ -261,7 +284,6 @@ void createWorkspace(string inputName,
 
   // create a workspace for the signal region
   RooWorkspace wspace_SR(("SR_"+suffix).c_str(),(suffix+"_SR").c_str());
-
   // Add Data
   addTemplate("data_obs_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("datahist_"+observable).c_str()));
 
@@ -1230,27 +1252,30 @@ void createWorkspace(string inputName,
 
   }
 
+  RooWorkspace* wspace_TM = NULL;
+  RooWorkspace* wspace_TE = NULL;
+
   if(connectTop){
     
     /////////////////////////////////////
     // -------- CR Top-Muon  -------- //
     ////////////////////////////////////
     cout<<"Make CR Top-mu  templates ..."<<endl;
-    RooWorkspace wspace_TM(("TM_"+suffix).c_str(),("TM_"+suffix).c_str());
+    wspace_TM = new RooWorkspace(("TM_"+suffix).c_str(),("TM_"+suffix).c_str());
 
-    addTemplate("data_obs_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("datahisttopmu_"+observable).c_str()));
+    addTemplate("data_obs_TM_"+suffix, vars, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("datahisttopmu_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TM_syst;
     RooRealVar* top_btag   = new RooRealVar("Top_btag", "", 0., -5., 5.);
     top_TM_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->FindObjectAny(("TOP_MU_B_"+observable).c_str())));
     
-    makeConnectedBinList("Top_TM_"+suffix, met, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins,NULL,observable);
+    makeConnectedBinList("Top_TM_"+suffix, met, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("topmucorhist_"+observable).c_str()), top_TM_syst, top_SR_bins,NULL,observable);
     
     // Other MC backgrounds in single electron control region
-    addTemplate("ZJets_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopmu_"+observable).c_str()));
-    addTemplate("WJets_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str()));
-    addTemplate("QCD_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("qbkghisttopmu_"+observable).c_str()));
-    addTemplate("Dibosons_TM_"+suffix, vars, wspace_TM, (TH1F*)templatesfile->FindObjectAny(("dbkghisttopmu_"+observable).c_str()));
+    addTemplate("ZJets_TM_"+suffix, vars, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopmu_"+observable).c_str()));
+    addTemplate("WJets_TM_"+suffix, vars, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str()));
+    addTemplate("QCD_TM_"+suffix, vars, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("qbkghisttopmu_"+observable).c_str()));
+    addTemplate("Dibosons_TM_"+suffix, vars, *wspace_TM, (TH1F*)templatesfile->FindObjectAny(("dbkghisttopmu_"+observable).c_str()));
 
     if(addShapeSystematics){
       
@@ -1275,14 +1300,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
       
-      addTemplate("ZJets_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str());
@@ -1306,14 +1331,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
       
-      addTemplate("WJets_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopmu_"+observable).c_str());
@@ -1338,14 +1363,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagUp", vars, wspace_TM, histobUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagDown", vars, wspace_TM, histobDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jUp", vars, wspace_TM, histoJesUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jDown", vars, wspace_TM, histoJesDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jUp", vars, wspace_TM, histoJerUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jDown", vars, wspace_TM, histoJerDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncUp", vars, wspace_TM, histoUncUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncDown", vars, wspace_TM, histoUncDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
            
     }
 
@@ -1353,20 +1378,20 @@ void createWorkspace(string inputName,
     // -------- CR Top-Electron-------- //
     ////////////////////////////////////
     cout<<"Make CR Top-el  templates ..."<<endl;
-    RooWorkspace wspace_TE(("TE_"+suffix).c_str(),("TE_"+suffix).c_str());
+    wspace_TE = new RooWorkspace(("TE_"+suffix).c_str(),("TE_"+suffix).c_str());
 
-    addTemplate("data_obs_TE_"+suffix, vars, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("datahisttopel_"+observable).c_str()));
+    addTemplate("data_obs_TE_"+suffix, vars, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("datahisttopel_"+observable).c_str()));
     // connect tt->mu+b with tt SR
     vector<pair<RooRealVar*, TH1*> > top_TE_syst;
     top_TE_syst.push_back(pair<RooRealVar*, TH1*>(top_btag, (TH1F*)templatesfile->FindObjectAny(("TOP_EL_B_"+observable).c_str())));
     
-    makeConnectedBinList("Top_TE_"+suffix, met, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins,NULL,observable);
+    makeConnectedBinList("Top_TE_"+suffix, met, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("topelcorhist_"+observable).c_str()), top_TE_syst, top_SR_bins,NULL,observable);
     
     // Other MC backgrounds in single electron control region
-    addTemplate("ZJets_TE_"+suffix , vars, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopel_"+observable).c_str()));
-    addTemplate("WJets_TE_"+suffix , vars, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopel_"+observable).c_str()));
-    addTemplate("QCD_TE_"+suffix   , vars, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("qbkghisttopel_"+observable).c_str()));
-    addTemplate("Dibosons_TE_"+suffix, vars, wspace_TE, (TH1F*)templatesfile->FindObjectAny(("dbkghisttopel_"+observable).c_str()));
+    addTemplate("ZJets_TE_"+suffix , vars, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopel_"+observable).c_str()));
+    addTemplate("WJets_TE_"+suffix , vars, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopel_"+observable).c_str()));
+    addTemplate("QCD_TE_"+suffix   , vars, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("qbkghisttopel_"+observable).c_str()));
+    addTemplate("Dibosons_TE_"+suffix, vars, *wspace_TE, (TH1F*)templatesfile->FindObjectAny(("dbkghisttopel_"+observable).c_str()));
 
     if(addShapeSystematics){
       
@@ -1391,14 +1416,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
       
-      addTemplate("ZJets_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopel_"+observable).c_str());
@@ -1422,14 +1447,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
       }
       
-      addTemplate("WJets_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopel_"+observable).c_str());
@@ -1454,14 +1479,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagUp", vars, wspace_TE, histobUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagDown", vars, wspace_TE, histobDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jUp", vars, wspace_TE, histoJesUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jDown", vars, wspace_TE, histoJesDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jUp", vars, wspace_TE, histoJerUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jDown", vars, wspace_TE, histoJerDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncUp", vars, wspace_TE, histoUncUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncDown", vars, wspace_TE, histoUncDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
       
       
     }
@@ -1478,8 +1503,8 @@ void createWorkspace(string inputName,
   wspace_WE.Write();
   wspace_GJ.Write();
   if(connectTop){
-    wspace_TE.Write();
-    wspace_TM.Write();
+    wspace_TM->Write();
+    wspace_TE->Write();
   }
   outfile->Close();
   return;

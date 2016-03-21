@@ -2,7 +2,7 @@
 
 void boostedCategory(string signalHypothesis, string outputDir){
 
-  vector<float> bins = {200,225,250,300,350,400,450,500,550,600,650,700,750,800.,850.,900.,950.,1000.,1050,1100,1150,1200};
+  vector<double> bins = {200,225,250,300,350,400,450,500,550,600,650,700,750,800.,850.,900.,950.,1000.,1050,1100,1150,1200};
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);

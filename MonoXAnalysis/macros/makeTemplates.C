@@ -723,7 +723,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
     if(qcdfile_data){
       cout<<"Take templates QCD from data"<<endl;
-      vector<float> met_bins = selectBinning("met",category);
+      vector<double> met_bins = selectBinning("met",category);
       TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);

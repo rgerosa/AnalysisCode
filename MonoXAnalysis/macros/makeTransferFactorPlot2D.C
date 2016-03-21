@@ -10,7 +10,7 @@ void rzmm(string fileName, int category, string observable, bool alongX = true) 
   TH1F*  hist = (TH1F*)file->FindObjectAny(("zmmcorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -96,7 +96,7 @@ void rzee(string fileName, int category, string observable, bool alongX = true) 
   TH1F*  hist = (TH1F*)file->FindObjectAny(("zeecorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -182,7 +182,7 @@ void rwmn(string fileName, int category, string observable, bool alongX = true) 
   TH1F*  hist = (TH1F*)file->FindObjectAny(("wmncorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -272,7 +272,7 @@ void rwen(string fileName, int category, string observable, bool alongX = true) 
   TH1F*  hist = (TH1F*)file->FindObjectAny(("wencorhist_"+observable).c_str());
   vector<TH1F*> histograms = transformUnrolledHistogram(hist,observable,category,alongX);  
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -377,7 +377,7 @@ void rgam(string fileName, int category, string observable, bool alongX = true) 
   vector<TH1F*> histograms_fop = transformUnrolledHistogram(fophist,observable,category,alongX);
 
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -489,7 +489,7 @@ void rzwj(string fileName, int category, string observable, bool alongX = true) 
   vector<TH1F*> histograms_pdf = transformUnrolledHistogram(pdfhist,observable,category,alongX);
 
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -592,7 +592,7 @@ void rtopmu(string fileName, int category, string observable, bool alongX) {
   vector<TH1F*> histograms_b = transformUnrolledHistogram(histb,observable,category,alongX);
 
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
@@ -687,7 +687,7 @@ void rtopel(string fileName, int category, string observable, bool alongX) {
   vector<TH1F*> histograms_b = transformUnrolledHistogram(histb,observable,category,alongX);
 
   bin2D bins = selectBinning2D(observable,category);
-  vector<float> bin ;
+  vector<double> bin ;
   if(alongX)
     bin = bins.binX ;
   else
