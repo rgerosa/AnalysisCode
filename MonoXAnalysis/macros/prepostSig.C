@@ -1,7 +1,8 @@
 #include "CMS_lumi.h"
 
 void prepostSig(string fitFilename, string templateFileName, string observable, int category, 
-		string interaction, string mediatorMass = "1000", string DMMass = "50", bool blind = true, bool plotSBFit = false) {
+		bool isHiggsInvisible, int scaleSig = 1, bool blind = true, bool plotSBFit = false, 
+		string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
   
 
   gROOT->SetBatch(kTRUE);
@@ -28,13 +29,36 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TFile* dfile = new TFile(templateFileName.c_str());
 
   // in case of b-only fit just dispaly three possible signal on the stack
-  TH1* mjhist = (TH1*) dfile->Get(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mwhist = (TH1*) dfile->Get(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-  TH1* mzhist = (TH1*) dfile->Get(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
-  mjhist->Scale(1.0, "width");
-  mwhist->Scale(1.0, "width");
-  mzhist->Scale(1.0, "width");
+  TH1* mjhist = NULL;
+  TH1* mwhist = NULL;
+  TH1* mzhist = NULL;
+
+  TH1* ggHhist = NULL;
+  TH1* vbfhist = NULL;
+  TH1* wHhist = NULL;
+  TH1* zHhist = NULL;
+  TH1* zhhist = NULL;
   
+
+  if(! isHiggsInvisible){
+    mjhist = (TH1*) dfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    mwhist = (TH1*) dfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+    mzhist = (TH1*) dfile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
+    mjhist->Scale(1.0, "width");
+    mwhist->Scale(1.0, "width");
+    mzhist->Scale(1.0, "width");
+  }
+  else{
+    ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+observable).c_str());
+    vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+observable).c_str());
+    wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+observable).c_str());
+    zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+observable).c_str());
+    ggHhist->Scale(1.0, "width");
+    vbfhist->Scale(1.0, "width");
+    wHhist->Scale(1.0, "width");
+    zHhist->Scale(1.0, "width");
+  }
+
   TH1* znhist = NULL;
   TH1* zlhist = NULL;
   TH1* wlhist = NULL;
@@ -46,7 +70,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
-  if(! plotSBFit){
+  if(!plotSBFit){
 
     znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
     zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
@@ -60,7 +84,6 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     
   }
   else{
-
     znhist = (TH1*)pfile->Get("shapes_fit_s/ch1/Znunu");    
     zlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/ZJets");    
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/WJets");    
@@ -75,11 +98,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   TH1* dthist = NULL;
   if(!blind){
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     dthist->Scale(1.0,"width");
   }
   else{
-    dthist = (TH1*)dfile->Get(("datahist_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
     for (int i = 0; i <= dthist->GetNbinsX(); i++) {
       double yield = 0.0;
       yield += zlhist->GetBinContent(i);
@@ -116,6 +139,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   PreRate << "Process: Pre-fit (total)";
   stringstream PostRate;
   PostRate << "Process: Post-fit (total)";
+  stringstream PostRateUnc;
+  PostRateUnc << "Process: Post-fit uncertainty (total)";
   stringstream DataRate;
   DataRate << "Process: Data";
 
@@ -162,6 +187,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   for(int iBin = 0; iBin < tohist->GetNbinsX(); iBin++){
     PostRate << "   ";
     PostRate << tohist->GetBinContent(iBin+1);
+    PostRateUnc << "   ";
+    PostRateUnc << tohist->GetBinError(iBin+1);
   }
 
   for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
@@ -188,6 +215,8 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   outputfile<<"######################"<<endl;
   outputfile<<PostRate.str()<<endl;
   outputfile<<"######################"<<endl;
+  outputfile<<PostRateUnc.str()<<endl;
+  outputfile<<"######################"<<endl;
   outputfile<<DataRate.str()<<endl;
   outputfile<<"######################"<<endl;
 
@@ -207,6 +236,15 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mjhist->SetFillStyle(0);
     mjhist->SetLineColor(kBlack);
     mjhist->SetLineWidth(3);
+    mjhist->Scale(scaleSig);
+  }
+
+  if(ggHhist){
+    ggHhist->SetFillColor(0);
+    ggHhist->SetFillStyle(0);
+    ggHhist->SetLineColor(kBlack);
+    ggHhist->SetLineWidth(3);
+    ggHhist->Scale(scaleSig);
   }
 
   if(mwhist){
@@ -215,6 +253,16 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mwhist->SetLineColor(kViolet);
     mwhist->SetLineWidth(3);
     mwhist->SetLineStyle(7);
+    mwhist->Scale(scaleSig);
+  }
+
+  if(vbfhist){
+    vbfhist->SetFillColor(0);
+    vbfhist->SetFillStyle(0);
+    vbfhist->SetLineColor(kViolet);
+    vbfhist->SetLineWidth(3);
+    vbfhist->SetLineStyle(7);
+    vbfhist->Scale(scaleSig);
   }
 
   if(mzhist){
@@ -223,6 +271,25 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mzhist->SetLineColor(kOrange+1);
     mzhist->SetLineWidth(3);
     mzhist->SetLineStyle(7);
+    mzhist->Scale(scaleSig);
+  }
+
+  if(wHhist){
+    wHhist->SetFillColor(0);
+    wHhist->SetFillStyle(0);
+    wHhist->SetLineColor(kOrange+1);
+    wHhist->SetLineWidth(3);
+    wHhist->SetLineStyle(7);
+    wHhist->Scale(scaleSig);
+  }
+
+  if(zHhist){
+    zHhist->SetFillColor(0);
+    zHhist->SetFillStyle(0);
+    zHhist->SetLineColor(kGreen);
+    zHhist->SetLineWidth(3);
+    zHhist->SetLineStyle(7);
+    zHhist->Scale(scaleSig);
   }
   
   znhist->SetFillColor(kGreen+1);
@@ -270,7 +337,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   if(category <=1)
     frame->GetYaxis()->SetRangeUser(0.0005,1000000);
   else
-    frame->GetYaxis()->SetRangeUser(0.00007,4000000);
+    frame->GetYaxis()->SetRangeUser(0.002,9000);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -279,7 +346,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   frame->GetYaxis()->SetTitleSize(0.055);
   frame ->Draw();
 
-  CMS_lumi(pad1,"2.30");
+  CMS_lumi(pad1,"2.30",false,true);
 
   stack ->Draw("HIST SAME");
   if(mjhist && !plotSBFit)
@@ -288,6 +355,15 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mwhist->Draw("HIST SAME");
   if(mzhist && !plotSBFit)
     mzhist->Draw("HIST SAME");
+
+  if(ggHhist && !plotSBFit)
+    ggHhist->Draw("HIST SAME");
+  if(vbfhist && !plotSBFit)
+    vbfhist->Draw("HIST SAME");
+  if(wHhist && !plotSBFit)
+    wHhist->Draw("HIST SAME");
+  if(zHhist && !plotSBFit)
+    zHhist->Draw("HIST SAME");
 
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
@@ -298,10 +374,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
   
-  TLegend* leg = new TLegend(0.53, 0.32, 0.9, 0.92);
+  TLegend* leg = new TLegend(0.38, 0.38, 0.93, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);  
+  leg->SetNColumns(2);
 
   canvas->cd();
   pad2->SetTopMargin(0.08);
@@ -396,9 +473,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  dahist->Draw("PE SAME");
+  dahist->Draw("PE1 SAME");
   if(!blind)
-    dphist->Draw("PE SAME");
+    dphist->Draw("PE1 SAME");
   
   pad2->RedrawAxis("G sameaxis");
 
@@ -406,7 +483,6 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   pad1->cd();
 
   leg->AddEntry(dthist, "Data", "PEL");
-
   if(sighist && plotSBFit)
     leg->AddEntry(sighist, "Fitted Total Mono-X Signal", "F");
 
@@ -417,14 +493,29 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   leg->AddEntry(zlhist, "Others", "F");
 
   if(mjhist && !plotSBFit)
-    leg->AddEntry(mjhist, "Mono-J (V,2 TeV)");
+    leg->AddEntry(mjhist, Form("Mono-J (V,2 TeV x%d)",scaleSig));
+
   if(mwhist && !plotSBFit)
-    leg->AddEntry(mwhist, "Mono-W (V,2 TeV)");
+    leg->AddEntry(mwhist, Form("Mono-W (V,2 TeV x%d)",scaleSig));
+
   if(mzhist && !plotSBFit)
-    leg->AddEntry(mzhist, "Mono-Z (V,2 TeV)");
+    leg->AddEntry(mzhist, Form("Mono-Z (V,2 TeV x%d)",scaleSig));
+
+  if(ggHhist && !plotSBFit)
+    leg->AddEntry(ggHhist, "gg #rightarrow H (m_{H} = 125 GeV)");
+
+  if(vbfhist && !plotSBFit)
+    leg->AddEntry(vbfhist, "qq #rightarrow H (m_{H} = 125 GeV)");
+
+  if(wHhist && !plotSBFit)
+    leg->AddEntry(wHhist, "qq #rightarrow WH (m_{H} = 125 GeV)");
+
+  if(zHhist && !plotSBFit)
+    leg->AddEntry(zHhist, "qq #rightarrow ZH (m_{H} = 125 GeV)");
 
   leg->AddEntry(dahist,"Expected (post-fit)","PEL");
   leg->AddEntry(dphist,"Expected (pre-fit)","PEL");
+
 
   leg->Draw("SAME");
   

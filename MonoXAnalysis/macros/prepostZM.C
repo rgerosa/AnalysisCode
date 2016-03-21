@@ -33,7 +33,7 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
 
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->Get(("datahistzmm_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch2/WJets_ZM");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch2/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch2/Dibosons");
@@ -43,7 +43,7 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   }
   else{
 
-    dthist = (TH1*)dfile->Get(("datahistzmm_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch2/WJets_ZM");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch2/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch2/Dibosons");

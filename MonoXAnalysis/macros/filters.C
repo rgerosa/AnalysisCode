@@ -769,7 +769,7 @@ void wenfilter(std::string inputFileName,  std::string outputFileName, bool isMC
     while(myReader.Next()){
       if(nEvents %100000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
 	bwgtsum->Fill();
-	wgtpileup = puRatio->GetBinContent(*putrue);
+	wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
 	bwgtpileup->Fill();    
 	if(xsType > 0 and isMC)
 	  bxsec->Fill();
@@ -876,7 +876,7 @@ void gamfilter( std::string inputFileName,  std::string outputFileName, bool isM
     while(myReader.Next()){
       if(nEvents %100000 == 0) std::cout<<"Event: "<<float(nEvents)/outtree->GetEntries()<<std::flush;
 	bwgtsum->Fill();
-	wgtpileup = puRatio->GetBinContent(*putrue);
+	wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
 	bwgtpileup->Fill();    
 	if(xsType > 0 and isMC)
 	  bxsec->Fill();

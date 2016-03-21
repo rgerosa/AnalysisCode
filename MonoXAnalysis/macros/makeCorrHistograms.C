@@ -8,6 +8,7 @@ void makezmmcorhist( string  signalRegionFile,
 		     string  zmumuFile,  
 		     int     category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double  lumi, 
 		     bool    applyQGLReweight, 
 		     string  outDir = "", 
@@ -17,8 +18,7 @@ void makezmmcorhist( string  signalRegionFile,
 
   // open files                                                                                                                                                                
   TFile* nfile  = TFile::Open(signalRegionFile.c_str());
-  TFile* dfile  = TFile::Open(zmumuFile.c_str());
-
+  TFile* dfile  = TFile::Open(zmumuFile.c_str()); 
   TTree* ntree = (TTree*) nfile->Get("tree/tree");
   TTree* dtree = (TTree*) dfile->Get("tree/tree");
 
@@ -27,8 +27,9 @@ void makezmmcorhist( string  signalRegionFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -38,8 +39,19 @@ void makezmmcorhist( string  signalRegionFile,
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-
   }
+  
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+  }
+
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile (kfactorFile.c_str());
@@ -96,23 +108,30 @@ void makezmmcorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
 
-  
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
-  }
-
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
+  }  
+ 
+  outfile.cd();
   outfile.Close();
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -123,6 +142,7 @@ void makezeecorhist( string  signalRegionFile,
 		     string  zeeFile,   
 		     int     category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double  lumi, 
 		     bool    applyQGLReweight,
 		     string  outDir = "", 
@@ -142,8 +162,9 @@ void makezeecorhist( string  signalRegionFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -153,6 +174,18 @@ void makezeecorhist( string  signalRegionFile,
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
   }
 
@@ -209,23 +242,30 @@ void makezeecorhist( string  signalRegionFile,
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
-  
+
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
-  }
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
+  }  
 
   outfile.Close();
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -237,6 +277,7 @@ void makewmncorhist( string  signalRegionFile,
 		     string  wmnFile,   
 		     int     category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double  lumi, 
 		     bool    applyQGLReweight,
 		     string  outDir = "", 
@@ -256,8 +297,9 @@ void makewmncorhist( string  signalRegionFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -270,6 +312,17 @@ void makewmncorhist( string  signalRegionFile,
 
   }
 
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+
+  }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile kffile (kfactorFile.c_str());
@@ -326,7 +379,7 @@ void makewmncorhist( string  signalRegionFile,
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
-  
+
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -335,14 +388,21 @@ void makewmncorhist( string  signalRegionFile,
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -353,6 +413,7 @@ void makewencorhist( string signalRegionFile,
 		     string wenFile,   
 		     int    category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double lumi, 
 		     bool   applyQGLReweight,
 		     string outDir = "", 
@@ -372,8 +433,9 @@ void makewencorhist( string signalRegionFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -383,6 +445,18 @@ void makewencorhist( string signalRegionFile,
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
   }
 
@@ -441,23 +515,30 @@ void makewencorhist( string signalRegionFile,
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
     smoothEmptyBins(nhist_2D.at(ihist),1);
-  
+
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
   nfile->Close();
   dfile->Close();
   kffile.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -468,6 +549,7 @@ void  makezwjcorhist(string znunuFile,
 		     string wlnuFile,   
 		     int    category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double lumi, 
 		     bool   applyQGLReweight,
 		     string outDir = "", 
@@ -488,8 +570,9 @@ void  makezwjcorhist(string znunuFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -499,6 +582,18 @@ void  makezwjcorhist(string znunuFile,
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
   }
 
@@ -622,19 +717,27 @@ void  makezwjcorhist(string znunuFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
+
 
   outfile.Close();
   nfile->Close();
   dfile->Close();
   kffile.Close();
   kffileUnc.Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -646,6 +749,7 @@ void makegamcorhist( string znunuFile,
 		     string fPfile,  
 		     int    category, 
 		     vector<string> observables, 
+		     vector<string> observables_2D, 
 		     double lumi, 
 		     bool   applyQGLReweight,
 		     string outDir = "", 
@@ -666,8 +770,9 @@ void makegamcorhist( string znunuFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -677,6 +782,18 @@ void makegamcorhist( string znunuFile,
     TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
     nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
 
   }
 
@@ -812,12 +929,13 @@ void makegamcorhist( string znunuFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
@@ -827,6 +945,12 @@ void makegamcorhist( string znunuFile,
   kffileUnc.Close();
   fpfile.Close();
 
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
 
@@ -835,6 +959,7 @@ void maketopmucorhist( string signalRegionFile,
 		       string topFile,
 		       int    category, 
 		       vector<string> observables, 
+		       vector<string> observables_2D, 
 		       double lumi,
 		       string signalRegionFile_alt = "", 
 		       string topFile_alt = "", 
@@ -871,8 +996,9 @@ void maketopmucorhist( string signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH2*> nhist_2D_alt;
   vector<TH2*> dhist_2D_alt;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -887,6 +1013,21 @@ void maketopmucorhist( string signalRegionFile,
     nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
     dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
 
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_alt_temp = new TH2F(("nhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_alt_temp = new TH2F(("dhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+    nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
+    dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
   }
 
   vector<TH1*> ehists;
@@ -954,12 +1095,13 @@ void maketopmucorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
@@ -967,6 +1109,18 @@ void maketopmucorhist( string signalRegionFile,
   dfile->Close();
   if(nfile_alt) nfile_alt->Close();
   if(dfile_alt) dfile_alt->Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
+  nhist_alt.clear();
+  dhist_alt.clear();
+  nhist_2D_alt.clear();
+  dhist_2D_alt.clear();
+  unrolled.clear();
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -977,6 +1131,7 @@ void maketopelcorhist( string signalRegionFile,
 		       string topFile,  
 		       int    category, 
 		       vector<string> observables, 
+		       vector<string> observables_2D, 
 		       double lumi, 
 		       string signalRegionFile_alt = "", 
 		       string topFile_alt = "", 
@@ -1014,8 +1169,9 @@ void maketopelcorhist( string signalRegionFile,
   vector<TH2*> dhist_2D;
   vector<TH2*> nhist_2D_alt;
   vector<TH2*> dhist_2D_alt;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
@@ -1029,6 +1185,22 @@ void maketopelcorhist( string signalRegionFile,
     dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     nhist_alt.push_back(dynamic_cast<TH1*>(nhist_alt_temp));
     dhist_alt.push_back(dynamic_cast<TH1*>(dhist_alt_temp));
+
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* nhist_alt_temp = new TH2F(("nhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_alt_temp = new TH2F(("dhist_alt_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+    nhist_2D_alt.push_back(dynamic_cast<TH2*>(nhist_alt_temp));
+    dhist_2D_alt.push_back(dynamic_cast<TH2*>(dhist_alt_temp));
 
   }
 
@@ -1098,12 +1270,13 @@ void maketopelcorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
@@ -1111,6 +1284,17 @@ void maketopelcorhist( string signalRegionFile,
   dfile->Close();
   if(nfile_alt) nfile_alt->Close();
   if(dfile_alt) dfile_alt->Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
+
+  nhist_alt.clear();
+  dhist_alt.clear();
+  nhist_2D_alt.clear();
+  dhist_2D_alt.clear();
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -1122,6 +1306,7 @@ void makesidebandcorhist( string signalRegionFile,
 			  int    category_num, 
 			  int    category_den, 
 			  vector<string> observables, 
+			  vector<string> observables_2D, 
 			  double lumi, 
 			  bool   applyQGLReweight,
 			  string outDir  = "", 
@@ -1141,8 +1326,9 @@ void makesidebandcorhist( string signalRegionFile,
   vector<TH1*> dhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH1*> unrolled;
 
-  vector<float> bins;
+  vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category_num);
     if(bins.empty())
@@ -1152,6 +1338,18 @@ void makesidebandcorhist( string signalRegionFile,
       TH1F* dhist_temp = new TH1F(("dhist_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
+  }
+
+  for(auto obs : observables_2D){
+    bin2D bins = selectBinning2D(obs,category_num);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable --> please define it"<<endl;
+
+    TH2F* nhist_temp = new TH2F(("nhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    TH2F* dhist_temp = new TH2F(("dhist_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+    nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
+    dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
+
   }
 
   vector<TH1*> ehists;
@@ -1193,17 +1391,24 @@ void makesidebandcorhist( string signalRegionFile,
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist_2D.at(ihist)->Write();
+    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+    unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
   nfile->Close();
   dfile->Close();
+
+  nhist.clear();
+  dhist.clear();
+  nhist_2D.clear();
+  dhist_2D.clear();
+  unrolled.clear();
 
   cout << "Sideband->Signal region transfer factor computed ..." << endl;
 }

@@ -31,7 +31,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
 
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->Get(("datahistgam_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
     qchist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch4/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
@@ -39,7 +39,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   }
   else{
 
-    dthist = (TH1*)dfile->Get(("datahistgam_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
     qchist = (TH1*)pfile->Get("shapes_fit_s/ch4/QCD_GJ");
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch4/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");

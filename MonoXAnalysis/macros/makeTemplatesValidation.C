@@ -54,6 +54,21 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     dmMassFullSIM.push_back("150"); dmMassInterpolation.push_back("0150");
     dmMassFullSIM.push_back("10");  dmMassInterpolation.push_back("0010");
   }
+  else if(interaction == "Pseudoscalar"){
+    medMassFullSIM.push_back("200"); medMassInterpolation.push_back("0200");
+    //    medMassFullSIM.push_back("300"); medMassInterpolation.push_back("0300");
+    medMassFullSIM.push_back("500"); medMassInterpolation.push_back("0525");
+    medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
+    medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
+    medMassFullSIM.push_back("2000"); medMassInterpolation.push_back("2000");
+    dmMassFullSIM.push_back("10"); dmMassInterpolation.push_back("0010");
+    dmMassFullSIM.push_back("10"); dmMassInterpolation.push_back("0010");
+    dmMassFullSIM.push_back("1"); dmMassInterpolation.push_back("0001");
+    dmMassFullSIM.push_back("10"); dmMassInterpolation.push_back("0010");
+    dmMassFullSIM.push_back("50"); dmMassInterpolation.push_back("0050");
+    dmMassFullSIM.push_back("10");  dmMassInterpolation.push_back("0010");
+
+  }
 
   TCanvas* canvas = new TCanvas("canvas","",500,600);
   canvas->SetTickx();
@@ -94,7 +109,7 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     model = "801";
   else if(interaction == "Scalar")
     model = "805";
-  else if(interaction == "Pseduoscalar")
+  else if(interaction == "Pseudoscalar")
     model = "806";
 
   for(size_t ipoint = 0; ipoint < medMassFullSIM.size(); ipoint++){
@@ -103,9 +118,9 @@ void makeTemplatesValidation(string fileFullSIM, string fileInterpolation, strin
     pad1->cd();
 
    
-    TH1F* histoFullSIM = (TH1F*) inputFileFullSIM->Get((signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met").c_str());      
-    TH1F* histoInterpolation = (TH1F*) inputFileInterpolation->Get((cat+"/signal_signal_"+model+medMassInterpolation.at(ipoint)+dmMassInterpolation.at(ipoint)).c_str());
-    
+    TH1F* histoFullSIM = (TH1F*) inputFileFullSIM->FindObjectAny((signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met").c_str());      
+    TH1F* histoInterpolation = (TH1F*) inputFileInterpolation->FindObjectAny((cat+"/signal_signal_"+model+medMassInterpolation.at(ipoint)+dmMassInterpolation.at(ipoint)).c_str());
+
     histoFullSIM->SetTitle("");
     histoInterpolation->SetTitle("");
     

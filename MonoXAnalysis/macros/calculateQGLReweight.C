@@ -1,20 +1,20 @@
 void calcQGLWeight(TFile* inputFile, string category, vector<TH1*> & gam, vector<TH1*>& wln, vector<TH1*>& zll, vector<TH1*>& top){
 
-  TH1* templateQGL_data_wmn = (TH1*) inputFile->Get(("datahistwmn_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_wen = (TH1*) inputFile->Get(("datahistwen_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_zee = (TH1*) inputFile->Get(("datahistzee_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_zmm = (TH1*) inputFile->Get(("datahistzmm_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_gam = (TH1*) inputFile->Get(("datahistgam_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_topmu = (TH1*) inputFile->Get(("datahisttopmu_QGL_AK8"+category).c_str());
-  TH1* templateQGL_data_topel = (TH1*) inputFile->Get(("datahisttopel_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_wmn = (TH1*) inputFile->FindObjectAny(("datahistwmn_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_wen = (TH1*) inputFile->FindObjectAny(("datahistwen_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_zee = (TH1*) inputFile->FindObjectAny(("datahistzee_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_zmm = (TH1*) inputFile->FindObjectAny(("datahistzmm_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_gam = (TH1*) inputFile->FindObjectAny(("datahistgam_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_topmu = (TH1*) inputFile->FindObjectAny(("datahisttopmu_QGL_AK8"+category).c_str());
+  TH1* templateQGL_data_topel = (TH1*) inputFile->FindObjectAny(("datahisttopel_QGL_AK8"+category).c_str());
 
-  TH1* templateQGL_bkg_wmn   = (TH1*) inputFile->Get(("vlbkghistwmn_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_wen   = (TH1*) inputFile->Get(("vlbkghistwen_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_zee   = (TH1*) inputFile->Get(("vllbkghistzee_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_zmm   = (TH1*) inputFile->Get(("vllbkghistzmm_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_gam   = (TH1*) inputFile->Get(("gbkghistgam_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_topmu = (TH1*) inputFile->Get(("tbkghisttopmu_QGL_AK8"+category).c_str());
-  TH1* templateQGL_bkg_topel = (TH1*) inputFile->Get(("tbkghisttopel_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_wmn   = (TH1*) inputFile->FindObjectAny(("vlbkghistwmn_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_wen   = (TH1*) inputFile->FindObjectAny(("vlbkghistwen_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_zee   = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_zmm   = (TH1*) inputFile->FindObjectAny(("vllbkghistzmm_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_gam   = (TH1*) inputFile->FindObjectAny(("gbkghistgam_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_topmu = (TH1*) inputFile->FindObjectAny(("tbkghisttopmu_QGL_AK8"+category).c_str());
+  TH1* templateQGL_bkg_topel = (TH1*) inputFile->FindObjectAny(("tbkghisttopel_QGL_AK8"+category).c_str());
 
   
   TH1* templateQGL_data_wln = (TH1*) templateQGL_data_wmn->Clone(("templateQGL_data_wln"+category).c_str());

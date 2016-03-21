@@ -33,7 +33,7 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
 
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->Get(("datahistwen_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwen_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch6/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch6/Dibosons");
@@ -43,7 +43,7 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   }
   else{
 
-    dthist = (TH1*)dfile->Get(("datahistwen_"+observable).c_str());
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwen_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch6/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch6/Dibosons");

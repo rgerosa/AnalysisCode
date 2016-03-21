@@ -76,7 +76,6 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
 
- 
   //  ofstream dump("dump_sample_"+to_string(sample)+".txt");
   
   // in case you want to weight the NVTX distribution
@@ -862,16 +861,15 @@ void makehist4(TTree* tree, /*input tree*/
 
       }
     }
-               
+
     // fill 1D histogram
     double fillvar = 0;
-    
     // fill the histograms
     for(auto hist : hist1D){
 
       TString name(hist->GetName());      
       if(name.Contains("met"))
-	fillvar = pfmet;      
+	fillvar = pfmet;            
       else if(name.Contains("nvtx"))
 	fillvar = *nvtx;
       else if(name.Contains("chfrac"))
@@ -985,7 +983,20 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = 0;
       }      
-      
+      //
+      else if(name.Contains("dphiJJ")){
+	float minDphi= TMath::Pi();
+	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
+	  for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	    float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi)
+	      minDphi= deltaPhi;
+	  }
+	}
+	fillvar = minDphi; 
+      }
       
       // overflow bin
       if (fillvar >= hist->GetBinLowEdge(hist->GetNbinsX())+hist->GetBinWidth(hist->GetNbinsX())) 
@@ -1053,6 +1064,53 @@ void makehist4(TTree* tree, /*input tree*/
 	if(boostedJettau2->size() > 0 and boostedJettau1->size() >0)
 	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);			
       }
+
+      else if(name.Contains("met_njet")){
+	fillvarX = pfmet;
+	fillvarY = *njets;
+      }
+
+      else if(name.Contains("mT_njet")){
+	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
+        if(deltaPhi > TMath::Pi())
+          deltaPhi = 2*TMath::Pi() - deltaPhi;
+	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
+	fillvarY = *njets;
+      }
+
+      else if(name.Contains("met_ht")){
+        fillvarX = pfmet;
+        fillvarY = *ht;
+      }
+      else if(name.Contains("mT_ht")){
+	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
+        if(deltaPhi > TMath::Pi())
+          deltaPhi = 2*TMath::Pi() - deltaPhi;
+	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
+        fillvarY = *ht;
+      }
+      else if(name.Contains("met_QGL")){
+	fillvarX = pfmet;
+	fillvarY = jetQGL->at(0);
+      }
+      else if(name.Contains("met_dphiJJ")){
+	fillvarX = pfmet;
+	if(jetphi->size() <= 1)
+	  fillvarY = 0.;	    
+	else{
+	  float minDphi = TMath::Pi();
+	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
+	    for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	      float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
+	      if(deltaPhi > TMath::Pi())
+		deltaPhi = 2*TMath::Pi() - deltaPhi;
+	      if(deltaPhi > 0 and deltaPhi < minDphi)
+		minDphi = deltaPhi;
+	    }
+	  }
+	  fillvarY = minDphi;
+	}
+      }
       
       // overflow bin
       if (fillvarX >= hist->GetXaxis()->GetBinLowEdge(hist->GetNbinsX())+hist->GetXaxis()->GetBinWidth(hist->GetNbinsX())) 
@@ -1083,6 +1141,7 @@ void makehist4(TTree* tree, /*input tree*/
       else if (!isMC)
 	evtwgt = hltw;
       
+
       hist->Fill(fillvarX,fillvarY,evtwgt);            
     }
   }
@@ -1094,6 +1153,8 @@ void makehist4(TTree* tree, /*input tree*/
   pufile  ->Close();
   trmfile ->Close();
   QGLReweight ->Close();
+
+
 }
 
 #endif

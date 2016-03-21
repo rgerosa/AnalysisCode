@@ -15,9 +15,9 @@ void rzmm(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
-    TH1F*  hist = (TH1F*)file->Get(("zmmcorhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("zmmcorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
@@ -80,9 +80,9 @@ void rzee(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
-    TH1F*  hist = (TH1F*)file->Get(("zeecorhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("zeecorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetYaxis()->SetTitle("R_{Z(ee)}");
@@ -143,10 +143,10 @@ void rwmn(string fileName, int category, string observable) {
     canvas->SetTopMargin(0.06);
 
     TFile* file = new TFile(fileName.c_str());
-    TH1F*  hist = (TH1F*)file->Get(("wmncorhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("wmncorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.0, "");
     frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
@@ -207,10 +207,10 @@ void rwen(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("wencorhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("wencorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2., "");
     frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
@@ -272,19 +272,19 @@ void rgam(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist    = (TH1F*)file->Get(("gamcorewkhist_"+observable).c_str());
-    TH1F*  ewkhist = (TH1F*)file->Get(("ZG_EWK_"+observable).c_str());
-    TH1F*  re1hist = (TH1F*)file->Get(("ZG_RenScale1_"+observable).c_str());
-    TH1F*  re2hist = (TH1F*)file->Get(("ZG_RenScale2_"+observable).c_str());
-    TH1F*  fa1hist = (TH1F*)file->Get(("ZG_FactScale1_"+observable).c_str());
-    TH1F*  fa2hist = (TH1F*)file->Get(("ZG_FactScale2_"+observable).c_str());
-    TH1F*  pdfhist = (TH1F*)file->Get(("ZG_PDF_"+observable).c_str());
-    TH1F*  fophist = (TH1F*)file->Get(("ZG_Footprint_"+observable).c_str());
+    TH1F*  hist    = (TH1F*)file->FindObjectAny(("gamcorewkhist_"+observable).c_str());
+    TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZG_EWK_"+observable).c_str());
+    TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
+    TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
+    TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
+    TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
+    TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZG_PDF_"+observable).c_str());
+    TH1F*  fophist = (TH1F*)file->FindObjectAny(("ZG_Footprint_"+observable).c_str());
 
     TH1F* ehistEWK    = (TH1F*)hist->Clone("ehistEWK");
     TH1F* ehist       = (TH1F*)hist->Clone("ehist");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0.2, bins.back(), 1.0, "");
     frame->GetYaxis()->SetTitle("R_{#gamma}");
@@ -354,18 +354,18 @@ void rzwj(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("zwjcorewkhist_"+observable).c_str());
-    TH1F*  ewkhist = (TH1F*)file->Get(("ZW_EWK_"+observable).c_str());
-    TH1F*  re1hist = (TH1F*)file->Get(("ZW_RenScale1_"+observable).c_str());
-    TH1F*  re2hist = (TH1F*)file->Get(("ZW_RenScale2_"+observable).c_str());
-    TH1F*  fa1hist = (TH1F*)file->Get(("ZW_FactScale1_"+observable).c_str());
-    TH1F*  fa2hist = (TH1F*)file->Get(("ZW_FactScale2_"+observable).c_str());
-    TH1F*  pdfhist = (TH1F*)file->Get(("ZW_PDF_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("zwjcorewkhist_"+observable).c_str());
+    TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZW_EWK_"+observable).c_str());
+    TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
+    TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZW_RenScale2_"+observable).c_str());
+    TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
+    TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
+    TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZW_PDF_"+observable).c_str());
 
     TH1F* ehist    = (TH1F*)hist->Clone("ehist");
     TH1F* ehistEWK = (TH1F*)hist->Clone("ehistEWK");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 12.0, "");
     frame->GetYaxis()->SetTitle("R_{Z/W}");
@@ -435,12 +435,12 @@ void rtopmu(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist  = (TH1F*)file->Get(("topmucorhist_"+observable).c_str());
-    TH1F*  histb = (TH1F*)file->Get(("TOP_MU_B_"+observable).c_str());
+    TH1F*  hist  = (TH1F*)file->FindObjectAny(("topmucorhist_"+observable).c_str());
+    TH1F*  histb = (TH1F*)file->FindObjectAny(("TOP_MU_B_"+observable).c_str());
 
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1., "");
     frame->GetYaxis()->SetTitle("R_{top,#mu}");
@@ -501,11 +501,11 @@ void rtopel(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist  = (TH1F*)file->Get(("topelcorhist_"+observable).c_str());
-    TH1F*  histb = (TH1F*)file->Get(("TOP_EL_B_"+observable).c_str());
+    TH1F*  hist  = (TH1F*)file->FindObjectAny(("topelcorhist_"+observable).c_str());
+    TH1F*  histb = (TH1F*)file->FindObjectAny(("TOP_EL_B_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1., "");
     frame->GetYaxis()->SetTitle("R_{top,el}");
@@ -564,10 +564,10 @@ void rsidebandZ(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("sidebandcorZhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("sidebandcorZhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 4.0, "");
     frame->GetYaxis()->SetTitle("R_{sideband,Z}");
@@ -626,10 +626,10 @@ void rsidebandW(string fileName, int category, string observable) {
 
     TFile* file = new TFile(fileName.c_str());
 
-    TH1F*  hist = (TH1F*)file->Get(("sidebandcorWhist_"+observable).c_str());
+    TH1F*  hist = (TH1F*)file->FindObjectAny(("sidebandcorWhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist");
 
-    vector<float> bins = selectBinning(observable,category);
+    vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 4.0, "");
     frame->GetYaxis()->SetTitle("R_{sideband,W}");
