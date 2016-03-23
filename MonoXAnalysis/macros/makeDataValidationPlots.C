@@ -206,7 +206,7 @@ void makeDataValidationPlots(string inputFileName, int category, string observab
   pad1_ZG->Draw();
   pad1_ZG->cd();
 
-  vector<float> bins = selectBinning(observable,category);
+  vector<double> bins = selectBinning(observable,category);
 
   TH1* frame_ZG  = pad1_ZG->DrawFrame(bins.front(),0.,bins.back(),0.2, "");
   frame_ZG->GetXaxis()->SetTitle(observableLatex.c_str());

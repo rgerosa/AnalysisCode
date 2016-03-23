@@ -102,7 +102,7 @@ vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
 vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
 vector<double> bins_monoJ_mT_2D       = {50.,450.,650.,950.,2000.};
-vector<double> bins_monoJ_dphiJJ_2D   = {0.,0.8,1.6,2.4,3.14};
+vector<double> bins_monoJ_dphiJJ_2D   = {0.,0.25,1.3,3.14};
 vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
 
 // binning selections                                                                                                                                                          

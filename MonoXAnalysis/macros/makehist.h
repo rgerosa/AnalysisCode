@@ -66,8 +66,9 @@ void makehist4(TTree* tree, /*input tree*/
 	       bool   reweightNVTX  = true,
 	       int    resonantSelection = 0,
 	       bool   isHiggsInvisible  = false, // reject VBF events
+	       bool   applyPostFitWeight = false,
 	       float  XSEC = -1.,// fix the cross section from extern
-	       TH1*  hhist = NULL
+	       TH1*   hhist = NULL
 	       ) {
 
   if(not tree){
@@ -103,6 +104,41 @@ void makehist4(TTree* tree, /*input tree*/
   // trigger efficiency for met trigger
   TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF/mettrigSF.root");
   TH1*   trmhist = (TH1*) trmfile->Get("mettrigSF");
+
+  // Post-fit weights
+  TFile* postFitFile = NULL;
+  if(sample == 0 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_Sig.root");
+  if(sample == 1 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZM.root");
+  else if(sample == 2 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WM.root");
+  else if(sample == 3 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZE.root");
+  else if(sample == 4 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WE.root");
+  else if(sample == 5 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
+  else if(sample == 6 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
+  else if(sample == 0 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_Sig.root");
+  else if(sample == 1 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZM.root");
+  else if(sample == 2 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WM.root");
+  else if(sample == 3 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZE.root");
+  else if(sample == 4 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WE.root");
+  else if(sample == 5 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
+  else if(sample == 6 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
+
+  TH1* postFitWeight = NULL;
+  if(postFitFile != NULL)
+    postFitWeight = (TH1*) postFitFile->FindObjectAny("postfit_over_prefit");
 
   // QGL rewight
   TFile* QGLReweight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QGLWeight/QGLWeight.root ");
@@ -611,6 +647,17 @@ void makehist4(TTree* tree, /*input tree*/
       hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
     }
 
+    // post fit re-weight
+    Double_t pfwgt = 1.0;
+    if(postFitWeight){
+      double pmet = pfmet;
+      if(pmet < postFitWeight->GetBinLowEdge(1))
+	pmet = postFitWeight->GetBinLowEdge(1)+1;
+      else if(pmet > postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1))
+	pmet = postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1)-1;
+      pfwgt =  postFitWeight->GetBinContent(postFitWeight->FindBin(pmet));
+    }
+
     // Top quark pt re-weight
     Double_t topptwgt = 1.0;
     if(reWeightTopPt)
@@ -1007,20 +1054,20 @@ void makehist4(TTree* tree, /*input tree*/
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
-	evtwgt = sfwgt;
+	evtwgt = sfwgt*pfwgt;
       else if (!isMC)
 	evtwgt = hltw;
 

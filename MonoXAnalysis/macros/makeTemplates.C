@@ -485,6 +485,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   bool runHiggsInvisible     = false, // run Higgs invisible analysis
 		   bool runOnlySignal         = false, // produce a file with only signal templates
 		   bool runOnlyBackground     = false, // produce a file with only background templates
+		   bool applyPostFitWeights   = false,
 		   string ext ="") {
 
   system(("mkdir -p "+outDir).c_str());
@@ -700,24 +701,24 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   if(not runOnlySignal){
 
     cout<<"start signal region data"<<endl;
-    sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false,runHiggsInvisible);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,true,false,runHiggsInvisible,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
     gamdatamchist(&outfile,category,observables,observables_2D,lumi,applyQGLReweight,runHiggsInvisible);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    lepdatamchist(&outfile,1,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible,applyPostFitWeights); 
     cout<<"start wmunu region data"<<endl;
-    lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    lepdatamchist(&outfile,2,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible,applyPostFitWeights); 
     cout<<"start zee region data"<<endl;
-    lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible); 
+    lepdatamchist(&outfile,3,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible,applyPostFitWeights); 
     cout<<"start wenu region data"<<endl;
-    lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible);     
+    lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);     
     // top control regions
     cout<<"start top+mu region data"<<endl;
-    topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
+    topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
     cout<<"start Top+el region data"<<endl;
-    topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible);
+    topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
     
     //add qcd data templates
     TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");

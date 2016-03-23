@@ -750,9 +750,9 @@ void makeControlPlots2D(string templateFileName,
 
     pad1->cd();
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%.1f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
     
     canvas->SaveAs(Form("%s_%s_bin_%d.png",observable.c_str(),controlRegion.c_str(),int(ihisto)));
     canvas->SaveAs(Form("%s_%s_bin_%d.pdf",observable.c_str(),controlRegion.c_str(),int(ihisto)));

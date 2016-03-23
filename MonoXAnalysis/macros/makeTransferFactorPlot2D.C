@@ -77,14 +77,14 @@ void rzmm(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextFont(42);
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
- 
+  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
-    
-    canvas->SaveAs(Form("rzmm_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rzmm_bin_bin_%d.png",ihisto));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
+   
+    canvas->SaveAs(Form("rzmm_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rzmm_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
   }
 }
@@ -163,14 +163,14 @@ void rzee(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextFont(42);
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
- 
-    if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
-    else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rzee_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rzee_bin_bin_%d.png",ihisto));
+    if(ihisto < bin.size()-2)
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
+    else
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
+
+    canvas->SaveAs(Form("rzee_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rzee_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
   }
 }
@@ -254,14 +254,14 @@ void rwmn(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextFont(42);
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
- 
-    if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
-    else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rwmn_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rwmn_bin_bin_%d.png",ihisto));
+    if(ihisto < bin.size()-2)
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
+    else
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
+
+    canvas->SaveAs(Form("rwmn_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rwmn_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
   }
 }
@@ -321,7 +321,7 @@ void rwen(string fileName, int category, string observable, bool alongX = true) 
       ehist->SetBinError(i, sqrt(err));
     }
     
-    (*hist)->GetYaxis()->SetRangeUser(0.,1.);
+    (*hist)->GetYaxis()->SetRangeUser(0.,2.0);
     (*hist)->Draw();
     CMS_lumi(canvas,"2.30",true);
     (*hist) ->Draw("PE SAME");
@@ -344,12 +344,12 @@ void rwen(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
 
-    canvas->SaveAs(Form("rwen_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rwen_bin_bin_%d.png",ihisto));
+    canvas->SaveAs(Form("rwen_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rwen_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
 
   }
@@ -458,12 +458,12 @@ void rgam(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
 
-    canvas->SaveAs(Form("rgam_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rgam_bin_bin_%d.png",ihisto));
+    canvas->SaveAs(Form("rgam_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rgam_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
 
   }    
@@ -571,12 +571,12 @@ void rzwj(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
 
-    canvas->SaveAs(Form("rwzj_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rwzj_bin_bin_%d.png",ihisto));
+    canvas->SaveAs(Form("rwzj_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rwzj_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
 
   }
@@ -665,12 +665,12 @@ void rtopmu(string fileName, int category, string observable, bool alongX) {
     ttext.SetTextSize(0.04);
  
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
 
-    canvas->SaveAs(Form("rtopmu_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rtopmu_bin_bin_%d.png",ihisto));
+    canvas->SaveAs(Form("rtopmu_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rtopmu_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
   }
 }
@@ -758,14 +758,14 @@ void rtopel(string fileName, int category, string observable, bool alongX) {
     ttext.SetTextFont(42);
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
- 
-    if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%d <= %s < %d ",int(bin.at(ihisto)),text.second.c_str(),int(bin.at(ihisto+1))));
-    else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihisto))));
 
-    canvas->SaveAs(Form("rtopel_bin_bin_%d.pdf",ihisto));
-    canvas->SaveAs(Form("rtopel_bin_bin_%d.png",ihisto));
+    if(ihisto < bin.size()-2)
+      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
+    else
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
+
+    canvas->SaveAs(Form("rtopel_%s_bin_%d.pdf",observable.c_str(),ihisto));
+    canvas->SaveAs(Form("rtopel_%s_bin_%d.png",observable.c_str(),ihisto));
     ihisto++;
 
 
