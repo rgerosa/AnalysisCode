@@ -444,6 +444,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   // ratio post fit at 1 with uncertaitny
   TH1* htemp = (TH1*) tohist->Clone("postfit_over_prefit");
+  if(plotSBFit && sighist)
+    tohist->Add(sighist);
+
   tohist->Divide(mchist);
   tohist->SetLineColor(0);
   tohist->SetMarkerColor(0);
