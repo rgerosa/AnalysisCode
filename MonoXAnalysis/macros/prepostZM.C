@@ -265,5 +265,12 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_zmm.pdf");
   canvas->SaveAs("prepostfit_zmm.png");
 
+  TFile* outFile = new TFile("postfit_weights_ZM.root","RECREATE");
+  outFile->cd();
+  TH1* htemp = (TH1*) pohist->Clone("postfit_over_prefit");
+  htemp->Divide(prhist);
+  htemp->Write("postfit_over_prefit");
+  outFile->Close();
+  
 }
 

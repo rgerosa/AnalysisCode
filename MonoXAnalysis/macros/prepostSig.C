@@ -443,6 +443,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   dphist->Divide(mphist);
 
   // ratio post fit at 1 with uncertaitny
+  TH1* htemp = (TH1*) tohist->Clone("postfit_over_prefit");
   tohist->Divide(mchist);
   tohist->SetLineColor(0);
   tohist->SetMarkerColor(0);
@@ -531,5 +532,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     canvas->SaveAs("postfit_sig.pdf");
     canvas->SaveAs("postfit_sig.png");
   }
+
+  TFile* outFile = new TFile("postfit_weights_Sig.root","RECREATE");
+  outFile->cd();
+  htemp->Divide(tphist);
+  htemp->Write("postfit_over_prefit");
+  outFile->Close();
 }
 
