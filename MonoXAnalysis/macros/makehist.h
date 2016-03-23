@@ -77,8 +77,7 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
 
-  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");
-  
+  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");  
   // in case you want to weight the NVTX distribution
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
@@ -408,13 +407,13 @@ void makehist4(TTree* tree, /*input tree*/
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
-    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){
+    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){// single and double muon
       hlt = *hltm90+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
     }
-    else if (sample == 3 || sample == 4 || sample == 8) {
+    else if (sample == 3 || sample == 4 || sample == 8) { // single and double electron
       hlt = *hlte+*hltp165+*hltp175;
     }
-    else if (sample == 5 || sample == 6){
+    else if (sample == 5 || sample == 6){ // single photon
       if(isMC){
 	  hlt = *hltp165+*hltp175+*hltp120;	  
       }
