@@ -268,6 +268,14 @@ void prepostZL(string fitFilename, string templateFileName, string observable, i
   TFile* outFile = new TFile("postfit_weights_ZL.root","RECREATE");
   outFile->cd();
   TH1* htemp = (TH1*) pohist->Clone("postfit_over_prefit");
+  d1hist->GetXaxis()->SetLabelOffset(1.0);
+  d1hist->GetXaxis()->SetLabelSize(0.05);
+  d1hist->GetXaxis()->SetTitleOffset(1.0);
+  d1hist->GetXaxis()->SetTitleSize(0.05);
+  d1hist->SetName("prefit_ratio");
+  d2hist->SetName("postfit_ratio");
+  d1hist->Write("prefit_ratio");
+  d2hist->Write("postfit_ratio");
   htemp->Divide(prhist);
   htemp->Write("postfit_over_prefit");
   outFile->Close();

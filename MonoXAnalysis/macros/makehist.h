@@ -1031,17 +1031,23 @@ void makehist4(TTree* tree, /*input tree*/
       }      
       //
       else if(name.Contains("dphiJJ")){
-	float minDphi= TMath::Pi();
+	float minDphi = TMath::Pi();
+	bool  isfound = false;
 	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
 	  for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
 	    float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
-	    if(deltaPhi > 0 and deltaPhi < minDphi)
-	      minDphi= deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi){
+	      minDphi = deltaPhi;
+	      isfound = true;
+	    }
 	  }
 	}
-	fillvar = minDphi; 
+	if(isfound)
+	  fillvar = minDphi; 
+	else
+	  fillvar = 0.;
       }
       
       // overflow bin
