@@ -665,13 +665,13 @@ void makehist4(TTree* tree, /*input tree*/
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
     // MET Filters
-    if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
+    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
+    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
 
     // Additional met filters
     if (not isMC){
-      if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters
+      if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters   
     }
-
     // N-jets
     if (*njets  < 1) continue; 
 
@@ -1030,7 +1030,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = 0;
       }      
       //
-      else if(name.Contains("dphiJJ")){
+      else if(name.Contains("minDphiJJ")){
 	float minDphi = TMath::Pi();
 	bool  isfound = false;
 	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
@@ -1047,7 +1047,15 @@ void makehist4(TTree* tree, /*input tree*/
 	if(isfound)
 	  fillvar = minDphi; 
 	else
-	  fillvar = 0.;
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+      }
+      else if(name.Contains("dphiJJ")){
+	if(jetphi->size() < 2)
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+	else 
+	  fillvar = fabs(jetphi->at(0)-jetphi->at(1));
+	if(fillvar > TMath::Pi())
+	  fillvar = 2*TMath::Pi()-fillvar;
       }
       
       // overflow bin
@@ -1145,10 +1153,10 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvarX = pfmet;
 	fillvarY = jetQGL->at(0);
       }
-      else if(name.Contains("met_dphiJJ")){
+      else if(name.Contains("met_minDphiJJ")){
 	fillvarX = pfmet;
 	if(jetphi->size() <= 1)
-	  fillvarY = 0.;	    
+	  fillvarY = hist->GetYaxis()->GetBinCenter(1);	    
 	else{
 	  float minDphi = TMath::Pi();
 	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
@@ -1162,6 +1170,15 @@ void makehist4(TTree* tree, /*input tree*/
 	  }
 	  fillvarY = minDphi;
 	}
+      }
+      else if(name.Contains("met_dphiJJ")){
+	fillvarX = pfmet;
+	if(jetphi->size() < 2)
+	  fillvarY = hist->GetYaxis()->GetBinCenter(1);
+	else 
+	  fillvarY = fabs(jetphi->at(0)-jetphi->at(1));
+	if(fillvarY > TMath::Pi())
+	  fillvarY = 2*TMath::Pi()-fillvarY;
       }
       
       // overflow bin

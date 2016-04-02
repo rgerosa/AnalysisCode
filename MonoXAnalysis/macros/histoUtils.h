@@ -36,14 +36,15 @@ class VectorSorter{
 
 // define binnings for the different observables                                 
 vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
+//vector<double> bins_monoV_met         = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
 vector<double> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
 vector<double> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
-vector<double> bins_monoJ_dphiJJ      = {0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
-vector<double> bins_monoV_dphiJJ      = {0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
+vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
+vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
 
 vector<double> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
 vector<double> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -54,6 +55,7 @@ vector<double> bins_monoV_mpr_v2      = {65.,73.,81.,89.,97.,105.};
 
 vector<double> bins_monoJ_mpr         = {0.,3.,6.,9.,12.,15.,18.,21.,24.,27.,30.,33.,36.,39.,42.,45.,48.,51.,54.,57.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.};
 vector<double> bins_substructure_mpr  = {0.,7.,14.,21.,28.,35.,42.,49.,56.,63.,70.,77.,84.,91.,98.,105.,112.,119.,126.,133.,140.,147.,154.,161.,168.,175.,182.,189.,196.};
+vector<double> bins_substructure_mpr_v2  = {0.,15.,30.,45.,60.,75.,90.,105.,120.,135.,150.,200};
 
 vector<double> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
@@ -96,13 +98,14 @@ vector<double> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28
 vector<double> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 vector<double> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 
-vector<double> bins_monoJ_met_2D      = {200.,250.,300.,350,400.,500.,600.,750.,900.,1300.};
+vector<double> bins_monoJ_met_2D      = {200.,250.,300.,350,400.,500.,600.,750.,950.,1300.};
 vector<double> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
 vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
+vector<double> bins_monoJ_njet_2D_v2  = {1,2,3,4,10};
 vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
 vector<double> bins_monoJ_mT_2D       = {50.,450.,650.,950.,2000.};
-vector<double> bins_monoJ_dphiJJ_2D   = {0.,0.25,1.3,3.14};
+vector<double> bins_monoJ_dphiJJ_2D   = {-0.2,0.0,0.6,1.5,3.14};
 vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
 
 // binning selections                                                                                                                                                          
@@ -134,6 +137,8 @@ vector<double> selectBinning (string observable, int category){
     return bins_monoV_mpr;
   else if((observable == "mpruned" or observable == "msoftdrop" or observable == "mraw") and category > 3)
     return bins_substructure_mpr;
+  else if((observable == "mpruned_v2" or observable == "msoftdrop_v2" or observable == "mraw") and category >= 3)
+    return bins_substructure_mpr_v2;
   else if((observable == "mpruned_v2" or observable == "msoftdrop_v2" or observable == "mraw_v2") and category == 2)
     return bins_monoV_mpr_v2;
 
@@ -214,11 +219,11 @@ vector<double> selectBinning (string observable, int category){
   else if(TString(observable).Contains("QGL") and category > 3)
     return bins_monoV_QGL;
 
-  else if(observable == "dphiJJ" and category <= 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category <= 1)
     return bins_monoJ_dphiJJ;
-  else if(observable == "dphiJJ" and category > 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category > 1)
     return bins_monoV_dphiJJ;
-
+  
 
   vector<double> dummy;
   return dummy;
@@ -256,6 +261,11 @@ bin2D selectBinning2D (string observable, int category){
     bins.binY = bins_monoJ_njet_2D;
     return bins;
   }
+  else if(observable == "met_njet_v2" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_njet_2D_v2;
+    return bins;
+  }
   else if(observable == "met_ht" and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_ht_2D;
@@ -273,7 +283,7 @@ bin2D selectBinning2D (string observable, int category){
     return bins;    
   }
 
-  else if(observable == "met_dphiJJ" and category <=1){
+  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ") and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_dphiJJ_2D;
     return bins;    
@@ -519,6 +529,10 @@ void changeInLatexName(string & variable){
     variable = "N_{jet}";
   else if(variable == "nbjet")
     variable = "N_{bjet}";
+  else if(variable == "dphiJJ")
+    variable = "#Delta#phi_{jj}";
+  else if(variable == "minDphiJJ")
+    variable = "min(#Delta#phi_{jj})";
   else if(variable == "mpruned")
     variable = "m_{pruned} [GeV]";
   else if(variable == "tau2tau1")
@@ -542,12 +556,21 @@ pair<string,string> observableName (string name, bool alongX = false){
     seglist.push_back(segment);
   }
 
-  string variableX = seglist.back();
-  string variableY = seglist.at(seglist.size()-2);
+  string variableX;
+  string variableY;
 
-  changeInLatexName(variableX);
-  changeInLatexName(variableY);
-  
+  if(seglist.size() == 2){
+    variableX = seglist.back();
+    variableY = seglist.front();    
+    changeInLatexName(variableX);
+    changeInLatexName(variableY);
+  }
+  else{
+    variableX = seglist.at(1);
+    variableY = seglist.front();
+    changeInLatexName(variableX);
+    changeInLatexName(variableY);
+  }
 
   if(alongX)
     return make_pair(variableX,variableY);

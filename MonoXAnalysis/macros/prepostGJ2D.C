@@ -1,7 +1,7 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
+void prepostGJ2D(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   

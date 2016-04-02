@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostWE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
+void prepostWE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   

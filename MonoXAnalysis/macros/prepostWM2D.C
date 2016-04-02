@@ -1,7 +1,7 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void prepostWM(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
+void prepostWM2D(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   

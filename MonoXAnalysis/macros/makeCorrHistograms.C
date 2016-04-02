@@ -249,7 +249,6 @@ void makezeecorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
     tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
     tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }

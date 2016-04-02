@@ -1911,9 +1911,9 @@ void sigdatamchist(TFile* outfile,
   }
 
   cout<<"signal region: Diboson sample "<<endl;
-  makehist4(ditree, dihist,dihist_2D,true, 0, category, isWJet, 1.00, lumi, 0, ehists, "",false, true);
+  makehist4(ditree, dihist,dihist_2D,true, 0, category, isWJet, 1.00, lumi, 0, ehists, "",false, true,0,isHInv,applyPFWeight);
   cout<<"signal region: QCD sample "<<endl;
-  makehist4(qcdtree, qcdhist,qcdhist_2D,true, 0, category, false, 1.00, lumi, 0,ehists, "", false, true);
+  makehist4(qcdtree, qcdhist,qcdhist_2D,true, 0, category, false, 1.00, lumi, 0,ehists, "", false, true,0,isHInv,applyPFWeight);
 
   if(doShapeSystematics){
     cout<<"signal region analysis --> do top shape sys "<<endl;

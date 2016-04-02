@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostWM(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
+void prepostWM(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   
@@ -265,11 +265,29 @@ void prepostWM(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_wmn.pdf");
   canvas->SaveAs("prepostfit_wmn.png");
 
-  TFile* outFile = new TFile("postfit_weights_WM.root","RECREATE");
-  outFile->cd();
-  TH1* htemp = (TH1*) pohist->Clone("postfit_over_prefit");
-  htemp->Divide(prhist);
-  htemp->Write("postfit_over_prefit");
-  outFile->Close();
+  if(dumpHisto){
+
+    TFile* outFile = new TFile("postfit_weights_WM.root","RECREATE");
+    outFile->cd();
+
+    dthist->Write("data");
+    wlhist->Write("zjets_post_fit");
+    tthist->Write("top_post_fit");
+    dihist->Write("diboson_post_fit");
+
+    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/ZJets_WM");
+    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Top");
+    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Dibosons");
+
+    wlhist_prefit->Write("zjets_pre_fit");
+    tthist_prefit->Write("top_pre_fit");
+    dihist_prefit->Write("diboson_pre_fit");
+
+    pohist->Write("post_fit_post_fit");
+    prhist->Write("pre_fit_post_fit");
+
+    outFile->Close();
+  }
+
 }
 

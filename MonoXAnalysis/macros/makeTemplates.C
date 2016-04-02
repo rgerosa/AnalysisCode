@@ -486,6 +486,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   bool runOnlySignal         = false, // produce a file with only signal templates
 		   bool runOnlyBackground     = false, // produce a file with only background templates
 		   bool applyPostFitWeights   = false,
+		   bool addTopTFs             = false,
 		   string ext ="") {
 
   system(("mkdir -p "+outDir).c_str());
@@ -502,14 +503,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
     makezmmcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-    		   baseInputTreePath+"/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
+       		   baseInputTreePath+"/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
 
     cout<<"make correction histogram for Zee to Znn"<<endl;
     makezeecorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   baseInputTreePath+"/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
-
+    
     cout<<"make correction histogram for Wmn to WJets"<<endl;
     makewmncorhist(baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   baseInputTreePath+"/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
@@ -619,67 +620,70 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
 		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"pdf"+ext,7);
+    
 
-    cout<<"make TOP+MU ratio"<<endl;
-    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"",runHiggsInvisible,ext);
-
-    cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
-    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
-
-
-    cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
-    maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
-
-    cout<<"make TOP+EL ratio"<<endl;
-    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"",runHiggsInvisible,ext);
-
-
-    cout<<"systematics on TOP+EL ratio --> bUp"<<endl;
-    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
-
-    cout<<"systematics on TOP+EL ratio --> bDw"<<endl;
-    maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
-		     category,observables,observables_2D,lumi,
-		     baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		     baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
-		     applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
-
-
+    if(addTopTFs){
+      cout<<"make TOP+MU ratio"<<endl;
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"",runHiggsInvisible,ext);
+      
+      cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
+      
+      
+      cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
+      
+      cout<<"make TOP+EL ratio"<<endl;
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"",runHiggsInvisible,ext);
+      
+      
+      cout<<"systematics on TOP+EL ratio --> bUp"<<endl;
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
+      
+      cout<<"systematics on TOP+EL ratio --> bDw"<<endl;
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+		       category,observables,observables_2D,lumi,
+		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
+		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
+      
+      
+    }
   }
-
+  
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
-
+  
   if(not skipCorrectionHistograms){
     fillAndSaveCorrHistograms(observables,outfile,outDir,ext);
     fillAndSaveCorrHistograms(observables_2D,outfile,outDir,ext);
   }
-
+  
   // signal region templates
   cout<<"start signal region shapes for signal"<<endl;
   if(not runHiggsInvisible and not runOnlyBackground){

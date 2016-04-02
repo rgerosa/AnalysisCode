@@ -1,15 +1,15 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void prepostSig(string fitFilename, // from combine, mlfit
-		string templateFileName, // input templates
-		string observable, int category, 
-		bool isHiggsInvisible, 
-		int scaleSig = 1, 
-		bool alongX  = false,
-		bool blind   = true, 
-		bool plotSBFit = false, 
-		string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
+void prepostSig2D(string fitFilename, // from combine, mlfit
+		  string templateFileName, // input templates
+		  string observable, int category, 
+		  bool isHiggsInvisible, 
+		  int scaleSig = 1, 
+		  bool alongX  = false,
+		  bool blind   = true, 
+		  bool plotSBFit = false, 
+		  string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
   
 
   gROOT->SetBatch(kTRUE);

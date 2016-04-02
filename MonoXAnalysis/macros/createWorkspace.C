@@ -783,8 +783,7 @@ void createWorkspace(string inputName,
   
     addTemplate("data_obs_ZM_"+suffix, vars, *wspace_ZM, (TH1F*)templatesfile->FindObjectAny(("datahistzmm_"+observable).c_str()));
     // Z->mumu connected with Z->nunu SR
-    vector<pair<RooRealVar*, TH1*> >   znn_syst;
-    makeConnectedBinList("Znunu_ZM_"+suffix, met, *wspace_ZM, (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()), znn_syst, znn_SR_bins,NULL, observable);
+    vector<pair<RooRealVar*, TH1*> >   znn_ZM_syst;
   
     // Other MC backgrounds in dimuon control region
     addTemplate("WJets_ZM_"+suffix, vars, *wspace_ZM, (TH1F*)templatesfile->FindObjectAny(("vlbkghistzmm_"+observable).c_str()));
@@ -886,8 +885,63 @@ void createWorkspace(string inputName,
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_jDown", vars, *wspace_ZM, histoJerDw);
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncUp", vars, *wspace_ZM, histoUncUp);
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncDown", vars, *wspace_ZM, histoUncDw);
+
+      // temp Znunu shape systematics
+      /*
+      TFile* file_tmp = new TFile("monoV_hinv/postfit_weights_ZM.root");
+      TH1F*   data     = (TH1F*) file_tmp->Get("data");
+      TH1F*   prefit   = (TH1F*) file_tmp->Get("pre_fit_post_fit");
+      data->Divide(prefit);
+      TH1F*   zjets_pre_fit = (TH1F*) file_tmp->Get("zjets_pre_fit");
+      TH1F*   wjets_pre_fit = (TH1F*) file_tmp->Get("wjets_pre_fit");
+      TH1F*   top_pre_fit = (TH1F*) file_tmp->Get("top_pre_fit");
+      TH1F*   dibos_pre_fit = (TH1F*) file_tmp->Get("diboson_pre_fit");
       
+      TH1F*   zjets_pre_fit_shapeUp = (TH1F*) zjets_pre_fit->Clone("ZM_DMC");
+      TH1F*   wjets_pre_fit_shapeUp = (TH1F*) wjets_pre_fit->Clone("wjets_pre_fit_shapeUp");
+      TH1F*   wjets_pre_fit_shapeDw = (TH1F*) wjets_pre_fit->Clone("wjets_pre_fit_shapeDw");
+      TH1F*   top_pre_fit_shapeUp = (TH1F*) top_pre_fit->Clone("top_pre_fit_shapeUp");
+      TH1F*   top_pre_fit_shapeDw = (TH1F*) top_pre_fit->Clone("top_pre_fit_shapeDw");
+      TH1F*   dibos_pre_fit_shapeUp = (TH1F*) dibos_pre_fit->Clone("diboson_pre_fit_shapeUp");
+      TH1F*   dibos_pre_fit_shapeDw = (TH1F*) dibos_pre_fit->Clone("diboson_pre_fit_shapeDw");
+      
+      for(int iBin = 1 ; iBin <= zjets_pre_fit_shapeUp->GetNbinsX(); iBin++){
+	if(data->GetBinContent(iBin) != 0)
+	  zjets_pre_fit_shapeUp->SetBinContent(iBin,fabs(1-data->GetBinContent(iBin)));
+	else 
+	  zjets_pre_fit_shapeUp->SetBinContent(iBin,0.);
+	wjets_pre_fit_shapeUp->SetBinContent(iBin,wjets_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
+	top_pre_fit_shapeUp->SetBinContent(iBin,top_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
+	dibos_pre_fit_shapeUp->SetBinContent(iBin,dibos_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
+      }
+      
+      for(int iBin = 1 ; iBin <= wjets_pre_fit_shapeDw->GetNbinsX(); iBin++){
+	if(data->GetBinContent(iBin) != 0){
+	  top_pre_fit_shapeDw->SetBinContent(iBin,top_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
+	  dibos_pre_fit_shapeDw->SetBinContent(iBin,dibos_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
+	  wjets_pre_fit_shapeDw->SetBinContent(iBin,wjets_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
+	}
+	else{
+	  wjets_pre_fit_shapeDw->SetBinContent(iBin,0);
+	  top_pre_fit_shapeDw->SetBinContent(iBin,0);
+	  dibos_pre_fit_shapeDw->SetBinContent(iBin,0);
+	}
+      }
+
+      addTemplate("WJets_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, wjets_pre_fit_shapeUp);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, wjets_pre_fit_shapeDw);
+      addTemplate("Top_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, top_pre_fit_shapeUp);
+      addTemplate("Top_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, top_pre_fit_shapeDw);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, dibos_pre_fit_shapeUp);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, dibos_pre_fit_shapeDw);
+
+      RooRealVar* znn_ZM_re1 = new RooRealVar("Znunu_ZM_Shape"  , "", 0., -5., 5.);
+      znn_ZM_syst.push_back(pair<RooRealVar*, TH1*>(znn_ZM_re1 , zjets_pre_fit_shapeUp));      
+      */
     }
+
+    makeConnectedBinList("Znunu_ZM_"+suffix, met, *wspace_ZM, (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()), znn_ZM_syst, znn_SR_bins,NULL, observable);
+ 
     
     ////////////////////////////////////////
     // -------- CR Di-Electron  -------- //
