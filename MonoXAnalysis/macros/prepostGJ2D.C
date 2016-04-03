@@ -1,7 +1,7 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
+void prepostGJ2D(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   
@@ -165,9 +165,9 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
     ttext.SetTextSize(0.04);
 
     if(ihist < bin.size()-2)
-      ttext.DrawLatex(0.35,0.75,Form("%d <= %s < %d ",int(bin.at(ihist)),text.second.c_str(),int(bin.at(ihist+1))));
+      ttext.DrawLatex(0.35,0.75,Form("%.1f <= %s < %.1f ",bin.at(ihist),text.second.c_str(),bin.at(ihist+1)));
     else
-      ttext.DrawLatex(0.35,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihist))));
+      ttext.DrawLatex(0.35,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihist)));
 
 
     pad1->RedrawAxis("sameaxis");

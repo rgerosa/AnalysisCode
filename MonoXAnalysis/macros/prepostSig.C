@@ -49,10 +49,10 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     mzhist->Scale(1.0, "width");
   }
   else{
-    ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+observable).c_str());
-    vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+observable).c_str());
-    wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+observable).c_str());
-    zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+observable).c_str());
+    ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str());
+    vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
+    wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());
+    zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());
     ggHhist->Scale(1.0, "width");
     vbfhist->Scale(1.0, "width");
     wHhist->Scale(1.0, "width");
@@ -81,7 +81,6 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
     tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
     tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
-    
   }
   else{
     znhist = (TH1*)pfile->Get("shapes_fit_s/ch1/Znunu");    
@@ -443,6 +442,10 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   dphist->Divide(mphist);
 
   // ratio post fit at 1 with uncertaitny
+  TH1* htemp = (TH1*) tohist->Clone("postfit_over_prefit");
+  if(plotSBFit && sighist)
+    tohist->Add(sighist);
+
   tohist->Divide(mchist);
   tohist->SetLineColor(0);
   tohist->SetMarkerColor(0);
@@ -531,5 +534,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     canvas->SaveAs("postfit_sig.pdf");
     canvas->SaveAs("postfit_sig.png");
   }
+
+  TFile* outFile = new TFile("postfit_weights_Sig.root","RECREATE");
+  outFile->cd();
+  htemp->Divide(tphist);
+  htemp->Write("postfit_over_prefit");
+  outFile->Close();
 }
 

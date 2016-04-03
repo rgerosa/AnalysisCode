@@ -66,8 +66,9 @@ void makehist4(TTree* tree, /*input tree*/
 	       bool   reweightNVTX  = true,
 	       int    resonantSelection = 0,
 	       bool   isHiggsInvisible  = false, // reject VBF events
+	       bool   applyPostFitWeight = false,
 	       float  XSEC = -1.,// fix the cross section from extern
-	       TH1*  hhist = NULL
+	       TH1*   hhist = NULL
 	       ) {
 
   if(not tree){
@@ -76,8 +77,7 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
 
-  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");
-  
+  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");  
   // in case you want to weight the NVTX distribution
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
@@ -103,6 +103,41 @@ void makehist4(TTree* tree, /*input tree*/
   // trigger efficiency for met trigger
   TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF/mettrigSF.root");
   TH1*   trmhist = (TH1*) trmfile->Get("mettrigSF");
+
+  // Post-fit weights
+  TFile* postFitFile = NULL;
+  if(sample == 0 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_Sig.root");
+  if(sample == 1 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZM.root");
+  else if(sample == 2 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WM.root");
+  else if(sample == 3 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZE.root");
+  else if(sample == 4 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WE.root");
+  else if(sample == 5 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
+  else if(sample == 6 and applyPostFitWeight and category == 1)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
+  else if(sample == 0 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_Sig.root");
+  else if(sample == 1 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZM.root");
+  else if(sample == 2 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WM.root");
+  else if(sample == 3 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZE.root");
+  else if(sample == 4 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WE.root");
+  else if(sample == 5 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
+  else if(sample == 6 and applyPostFitWeight and category == 2)
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
+
+  TH1* postFitWeight = NULL;
+  if(postFitFile != NULL)
+    postFitWeight = (TH1*) postFitFile->FindObjectAny("postfit_over_prefit");
 
   // QGL rewight
   TFile* QGLReweight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QGLWeight/QGLWeight.root ");
@@ -372,13 +407,13 @@ void makehist4(TTree* tree, /*input tree*/
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
-    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){
+    if (sample == 0 || sample == 1 || sample == 2 || sample == 7){// single and double muon
       hlt = *hltm90+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
     }
-    else if (sample == 3 || sample == 4 || sample == 8) {
+    else if (sample == 3 || sample == 4 || sample == 8) { // single and double electron
       hlt = *hlte+*hltp165+*hltp175;
     }
-    else if (sample == 5 || sample == 6){
+    else if (sample == 5 || sample == 6){ // single photon
       if(isMC){
 	  hlt = *hltp165+*hltp175+*hltp120;	  
       }
@@ -611,6 +646,17 @@ void makehist4(TTree* tree, /*input tree*/
       hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
     }
 
+    // post fit re-weight
+    Double_t pfwgt = 1.0;
+    if(postFitWeight){
+      double pmet = pfmet;
+      if(pmet < postFitWeight->GetBinLowEdge(1))
+	pmet = postFitWeight->GetBinLowEdge(1)+1;
+      else if(pmet > postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1))
+	pmet = postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1)-1;
+      pfwgt =  postFitWeight->GetBinContent(postFitWeight->FindBin(pmet));
+    }
+
     // Top quark pt re-weight
     Double_t topptwgt = 1.0;
     if(reWeightTopPt)
@@ -619,13 +665,13 @@ void makehist4(TTree* tree, /*input tree*/
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
     // MET Filters
-    if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
+    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
+    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
 
     // Additional met filters
     if (not isMC){
-      if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters
+      if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters   
     }
-
     // N-jets
     if (*njets  < 1) continue; 
 
@@ -984,18 +1030,32 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = 0;
       }      
       //
-      else if(name.Contains("dphiJJ")){
-	float minDphi= TMath::Pi();
+      else if(name.Contains("minDphiJJ")){
+	float minDphi = TMath::Pi();
+	bool  isfound = false;
 	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
 	  for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
 	    float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
-	    if(deltaPhi > 0 and deltaPhi < minDphi)
-	      minDphi= deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi){
+	      minDphi = deltaPhi;
+	      isfound = true;
+	    }
 	  }
 	}
-	fillvar = minDphi; 
+	if(isfound)
+	  fillvar = minDphi; 
+	else
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+      }
+      else if(name.Contains("dphiJJ")){
+	if(jetphi->size() < 2)
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+	else 
+	  fillvar = fabs(jetphi->at(0)-jetphi->at(1));
+	if(fillvar > TMath::Pi())
+	  fillvar = 2*TMath::Pi()-fillvar;
       }
       
       // overflow bin
@@ -1007,20 +1067,20 @@ void makehist4(TTree* tree, /*input tree*/
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
-	evtwgt = sfwgt;
+	evtwgt = sfwgt*pfwgt;
       else if (!isMC)
 	evtwgt = hltw;
 
@@ -1093,10 +1153,10 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvarX = pfmet;
 	fillvarY = jetQGL->at(0);
       }
-      else if(name.Contains("met_dphiJJ")){
+      else if(name.Contains("met_minDphiJJ")){
 	fillvarX = pfmet;
 	if(jetphi->size() <= 1)
-	  fillvarY = 0.;	    
+	  fillvarY = hist->GetYaxis()->GetBinCenter(1);	    
 	else{
 	  float minDphi = TMath::Pi();
 	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
@@ -1110,6 +1170,15 @@ void makehist4(TTree* tree, /*input tree*/
 	  }
 	  fillvarY = minDphi;
 	}
+      }
+      else if(name.Contains("met_dphiJJ")){
+	fillvarX = pfmet;
+	if(jetphi->size() < 2)
+	  fillvarY = hist->GetYaxis()->GetBinCenter(1);
+	else 
+	  fillvarY = fabs(jetphi->at(0)-jetphi->at(1));
+	if(fillvarY > TMath::Pi())
+	  fillvarY = 2*TMath::Pi()-fillvarY;
       }
       
       // overflow bin

@@ -1,15 +1,15 @@
 #include "CMS_lumi.h"
 #include "makehist.h"
 
-void prepostSig(string fitFilename, // from combine, mlfit
-		string templateFileName, // input templates
-		string observable, int category, 
-		bool isHiggsInvisible, 
-		int scaleSig = 1, 
-		bool alongX  = false,
-		bool blind   = true, 
-		bool plotSBFit = false, 
-		string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
+void prepostSig2D(string fitFilename, // from combine, mlfit
+		  string templateFileName, // input templates
+		  string observable, int category, 
+		  bool isHiggsInvisible, 
+		  int scaleSig = 1, 
+		  bool alongX  = false,
+		  bool blind   = true, 
+		  bool plotSBFit = false, 
+		  string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
   
 
   gROOT->SetBatch(kTRUE);
@@ -436,9 +436,9 @@ void prepostSig(string fitFilename, // from combine, mlfit
     ttext.SetTextSize(0.04);
 
     if(ihist < bin.size()-2)
-      ttext.DrawLatex(0.35,0.75,Form("%d <= %s < %d ",int(bin.at(ihist)),text.second.c_str(),int(bin.at(ihist+1))));
+      ttext.DrawLatex(0.35,0.75,Form("%.1f <= %s < %.1f ",bin.at(ihist),text.second.c_str(),bin.at(ihist+1)));
     else
-      ttext.DrawLatex(0.35,0.75,Form("%s >= %d ",text.second.c_str(),int(bin.at(ihist))));
+      ttext.DrawLatex(0.35,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihist)));
 
     
     canvas->cd();

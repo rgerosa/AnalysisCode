@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
+void prepostGJ(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   
@@ -240,5 +240,20 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_gam.pdf");
   canvas->SaveAs("prepostfit_gam.png");
 
+  if(dumpHisto){
+
+    TFile* outFile = new TFile("postfit_weights_GJ.root","RECREATE");
+    outFile->cd();
+
+    dthist->Write("data");
+    qchist->Write("qcd_post_fit");
+    TH1* qchist_prefit = (TH1*) pfile->Get("shapes_prefit/ch4/QCD_GJ");
+    qchist_prefit->Write("wjets_pre_fit");
+    pohist->Write("post_fit_post_fit");
+    prhist->Write("pre_fit_post_fit");
+
+
+    outFile->Close();
+  }
 }
 

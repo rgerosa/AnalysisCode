@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostWE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
+void prepostWE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   
@@ -265,5 +265,11 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   canvas->SaveAs("prepostfit_wen.pdf");
   canvas->SaveAs("prepostfit_wen.png");
 
+  TFile* outFile = new TFile("postfit_weights_WE.root","RECREATE");
+  outFile->cd();
+  TH1* htemp = (TH1*) pohist->Clone("postfit_over_prefit");
+  htemp->Divide(prhist);
+  htemp->Write("postfit_over_prefit");
+  outFile->Close();
 }
 

@@ -1,6 +1,6 @@
 #include "CMS_lumi.h"
 
-void prepostZM(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false, bool dumpHisto = false) {
+void prepostWL(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   
@@ -24,48 +24,43 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
 
-  TH1* dthist  = NULL;
-  TH1* zllhist = NULL;
-  TH1* wlhist  = NULL;
-  TH1* tthist  = NULL;
-  TH1* dihist  = NULL;
-  TH1* pohist  = NULL;
-  TH1* prhist  = NULL;
+  TH1* dthist = NULL;
+  TH1* wlhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* pohist = NULL;
+  TH1* prhist = NULL;
 
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_b/ch2/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch2/WJets_ZM");
-    tthist = (TH1*)pfile->Get("shapes_fit_b/ch2/Top");
-    dihist = (TH1*)pfile->Get("shapes_fit_b/ch2/Dibosons");
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch2/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwln_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch3/ZJets_WL");
+    tthist = (TH1*)pfile->Get("shapes_fit_b/ch3/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_b/ch3/Dibosons");
+    pohist = (TH1*)pfile->Get("shapes_fit_b/ch3/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch3/total_background");
 
   }
   else{
 
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_s/ch2/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch2/WJets_ZM");
-    tthist = (TH1*)pfile->Get("shapes_fit_s/ch2/Top");
-    dihist = (TH1*)pfile->Get("shapes_fit_s/ch2/Dibosons");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch2/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwln_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch3/ZJets_WL");
+    tthist = (TH1*)pfile->Get("shapes_fit_s/ch3/Top");
+    dihist = (TH1*)pfile->Get("shapes_fit_s/ch3/Dibosons");
+    pohist = (TH1*)pfile->Get("shapes_fit_s/ch3/total_background");
+    prhist = (TH1*)pfile->Get("shapes_prefit/ch3/total_background");
 
   }
   dthist->Scale(1.0, "width");
- 
+
   ofstream  outputfile;
-  outputfile.open("prepostZM.txt");
+  outputfile.open("prepostWL.txt");
   stringstream TopRate;
   TopRate << "Process: Top";
   stringstream VVRate;
   VVRate << "Process: DiBoson";
   stringstream WJetRate;
   WJetRate << "Process: WJet";
-  stringstream ZJetRate;
-  ZJetRate << "Process: ZJet";
   stringstream PreRate;
   PreRate << "Process: Pre-fit (total)";
   stringstream PostRate;
@@ -73,39 +68,34 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   stringstream DataRate;
   DataRate << "Process: Data";
 
-  for(int iBin = 1; iBin <= tthist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
     TopRate << "   ";
-    TopRate << tthist->GetBinContent(iBin) <<" pm "<<tthist->GetBinError(iBin);
+    TopRate << tthist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= dihist->GetNbinsX(); iBin++){
-    VVRate <<"   ";
-    VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
+  for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
+    VVRate << "   ";
+    VVRate << dihist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
     WJetRate << "   ";
-    WJetRate << wlhist->GetBinContent(iBin)<< " pm "<<wlhist->GetBinError(iBin);
+    WJetRate << wlhist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= zllhist->GetNbinsX(); iBin++){
-    ZJetRate << "   ";
-    ZJetRate << zllhist->GetBinContent(iBin)<< " pm "<<zllhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= prhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
     PreRate << "   ";
-    PreRate << prhist->GetBinContent(iBin) << " pm "<<prhist->GetBinError(iBin);
+    PreRate << prhist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= pohist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
     PostRate << "   ";
-    PostRate << pohist->GetBinContent(iBin) <<" pm "<<pohist->GetBinError(iBin);
+    PostRate << pohist->GetBinContent(iBin);
   }  
 
-  for(int iBin = 1; iBin <= dthist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
     DataRate << "   ";
-    DataRate << dthist->GetBinContent(iBin) << " pm "<<dthist->GetBinError(iBin);
+    DataRate << dthist->GetBinContent(iBin);
   }
 
   outputfile<<"######################"<<endl;
@@ -114,8 +104,6 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   outputfile<<VVRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<WJetRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<ZJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<PreRate.str()<<endl;
   outputfile<<"######################"<<endl;
@@ -174,8 +162,8 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (Z #rightarrow #mu#mu)","L");
-  leg->AddEntry(prhist, "Pre-fit (Z #rightarrow #mu#mu)","L");
+  leg->AddEntry(pohist, "Post-fit (W #rightarrow #mu#nu)","L");
+  leg->AddEntry(prhist, "Pre-fit (W #rightarrow #mu#nu)","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
@@ -274,35 +262,14 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   unhist->Draw("hist same");  
   pad2->RedrawAxis("G sameaxis");
   
-  canvas->SaveAs("prepostfit_zmm.pdf");
-  canvas->SaveAs("prepostfit_zmm.png");
+  canvas->SaveAs("prepostfit_wln.pdf");
+  canvas->SaveAs("prepostfit_wln.png");
 
-  if(dumpHisto){
-
-    TFile* outFile = new TFile("postfit_weights_ZM.root","RECREATE");
-    outFile->cd();
-    
-    dthist->Write("data");
-    zllhist->Write("zjets_post_fit");
-    wlhist->Write("wjets_post_fit");
-    tthist->Write("top_post_fit");
-    dihist->Write("diboson_post_fit");
-
-    TH1* zllhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Znunu");
-    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/WJets_ZM");
-    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Top");
-    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Dibosons");
-    
-    zllhist_prefit->Write("zjets_pre_fit");
-    wlhist_prefit->Write("wjets_pre_fit");
-    tthist_prefit->Write("top_pre_fit");
-    dihist_prefit->Write("diboson_pre_fit");
-
-    pohist->Write("post_fit_post_fit");
-    prhist->Write("pre_fit_post_fit");      
-
-
-    outFile->Close();
-  }
+  TFile* outFile = new TFile("postfit_weights_WL.root","RECREATE");
+  outFile->cd();
+  TH1* htemp = (TH1*) pohist->Clone("postfit_over_prefit");
+  htemp->Divide(prhist);
+  htemp->Write("postfit_over_prefit");
+  outFile->Close();
 }
 

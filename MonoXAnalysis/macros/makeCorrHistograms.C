@@ -25,8 +25,10 @@ void makezmmcorhist( string  signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -92,32 +94,41 @@ void makezmmcorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2); // smooth numerator in case
     smoothEmptyBins(dhist.at(ihist),2); // smooth denominator in case
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2); // smooth ratio
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2); // smooth ratio
   
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+  
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }  
  
@@ -129,8 +140,10 @@ void makezmmcorhist( string  signalRegionFile,
 
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
+  tfhist_2D.clear();
   unrolled.clear();
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
@@ -160,8 +173,10 @@ void makezeecorhist( string  signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -227,32 +242,41 @@ void makezeecorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }  
 
@@ -263,8 +287,10 @@ void makezeecorhist( string  signalRegionFile,
 
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
+  tfhist_2D.clear();
   unrolled.clear();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
@@ -295,8 +321,10 @@ void makewmncorhist( string  signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -364,34 +392,44 @@ void makewmncorhist( string  signalRegionFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write();
+
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
+
 
   outfile.Close();
   nfile->Close();
@@ -431,8 +469,10 @@ void makewencorhist( string signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -500,32 +540,40 @@ void makewencorhist( string signalRegionFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
@@ -536,8 +584,10 @@ void makewencorhist( string signalRegionFile,
 
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
+  tfhist_2D.clear();
   unrolled.clear();
 
   cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
