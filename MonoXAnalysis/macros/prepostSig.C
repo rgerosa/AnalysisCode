@@ -78,6 +78,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
     qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
+    if(category  ==  2) qchist->Scale(50);
     gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
     tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
     tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
@@ -89,6 +90,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch1/Top");    
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch1/Dibosons");    
     qchist = (TH1*)pfile->Get("shapes_fit_s/ch1/QCD");    
+    if(category  ==  2) qchist->Scale(50);
     gmhist = (TH1*)pfile->Get("shapes_fit_s/ch1/GJets");    
     tohist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_background");    
     tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");      
@@ -258,7 +260,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   if(vbfhist){
     vbfhist->SetFillColor(0);
     vbfhist->SetFillStyle(0);
-    vbfhist->SetLineColor(kViolet);
+    vbfhist->SetLineColor(kOrange+1);
     vbfhist->SetLineWidth(3);
     vbfhist->SetLineStyle(7);
     vbfhist->Scale(scaleSig);
@@ -276,29 +278,34 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   if(wHhist){
     wHhist->SetFillColor(0);
     wHhist->SetFillStyle(0);
-    wHhist->SetLineColor(kOrange+1);
+    wHhist->SetLineColor(kViolet);
     wHhist->SetLineWidth(3);
-    wHhist->SetLineStyle(7);
+    //    wHhist->SetLineStyle(7);
     wHhist->Scale(scaleSig);
   }
 
   if(zHhist){
     zHhist->SetFillColor(0);
     zHhist->SetFillStyle(0);
-    zHhist->SetLineColor(kGreen);
+    zHhist->SetLineColor(kViolet);
     zHhist->SetLineWidth(3);
-    zHhist->SetLineStyle(7);
+    //    zHhist->SetLineStyle(7);
     zHhist->Scale(scaleSig);
   }
+
+  if(wHhist and zHhist)
+    wHhist->Add(zHhist);
   
-  znhist->SetFillColor(kGreen+1);
-  znhist->SetLineColor(kBlack);
+  qchist->SetFillColor(kGray);
+  qchist->SetLineColor(kBlack);
 
   gmhist->SetFillColor(13);
   gmhist->SetLineColor(13);
-
   zlhist->SetFillColor(13);
   zlhist->SetLineColor(kBlack);
+
+  znhist->SetFillColor(kGreen+1);
+  znhist->SetLineColor(kBlack);
 
   wlhist->SetFillColor(kRed);
   wlhist->SetLineColor(kBlack);
@@ -306,11 +313,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   tthist->SetFillColor(kBlue);
   tthist->SetLineColor(kBlack);
 
-  dihist->SetFillColor(13);
-  dihist->SetLineColor(13);
+  dihist->SetFillColor(kCyan);
+  dihist->SetLineColor(kBlack);
 
-  qchist->SetFillColor(kGray);
-  qchist->SetLineColor(kBlack);
 
   if(sighist){
     sighist->SetFillColor(kBlack);
@@ -320,11 +325,11 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   // make the stack
   THStack* stack = new THStack("stack", "stack");
-  stack->Add(gmhist);
-  stack->Add(dihist);
-  stack->Add(zlhist); 
-  stack->Add(tthist);
   stack->Add(qchist);
+  stack->Add(gmhist);
+  stack->Add(zlhist); 
+  stack->Add(dihist);
+  stack->Add(tthist);
   stack->Add(wlhist);
   stack->Add(znhist);
   if(plotSBFit && sighist)
@@ -334,9 +339,9 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category <=1)
-    frame->GetYaxis()->SetRangeUser(0.0005,1000000);
+    frame->GetYaxis()->SetRangeUser(0.002,stack->GetMaximum()*50);
   else
-    frame->GetYaxis()->SetRangeUser(0.002,9000);
+    frame->GetYaxis()->SetRangeUser(0.002,stack->GetMaximum()*50);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -361,8 +366,6 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     vbfhist->Draw("HIST SAME");
   if(wHhist && !plotSBFit)
     wHhist->Draw("HIST SAME");
-  if(zHhist && !plotSBFit)
-    zHhist->Draw("HIST SAME");
 
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
@@ -373,7 +376,7 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
   
-  TLegend* leg = new TLegend(0.38, 0.38, 0.93, 0.92);
+  TLegend* leg = new TLegend(0.45, 0.40, 0.91, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);  
@@ -477,6 +480,16 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
   dahist->Draw("PE1 SAME");
+
+  TLegend* leg2 = new TLegend(0.13,0.7,0.45,0.85);
+  leg2->SetFillColor(0);
+  leg2->SetFillStyle(0);
+  leg2->SetBorderSize(0);
+  leg2->SetNColumns(2);
+  leg2->AddEntry(dahist,"Post-fit b-only","PLE");
+  leg2->AddEntry(dphist,"Pre-fit b-only","PLE");
+  leg2->Draw("same");
+
   if(!blind)
     dphist->Draw("PE1 SAME");
   
@@ -491,9 +504,10 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
 
   leg->AddEntry(znhist, "Z #rightarrow #nu#nu", "F");
   leg->AddEntry(wlhist, "W #rightarrow l#nu", "F");
-  leg->AddEntry(qchist, "QCD", "F");
   leg->AddEntry(tthist, "Top Quark", "F");
-  leg->AddEntry(zlhist, "Others", "F");
+  leg->AddEntry(dihist, "Di-Bosons", "F");
+  leg->AddEntry(zlhist, "Others: DY,#gamma+jets", "F");
+  leg->AddEntry(qchist, "QCD", "F");
 
   if(mjhist && !plotSBFit)
     leg->AddEntry(mjhist, Form("Mono-J (V,2 TeV x%d)",scaleSig));
@@ -505,19 +519,13 @@ void prepostSig(string fitFilename, string templateFileName, string observable, 
     leg->AddEntry(mzhist, Form("Mono-Z (V,2 TeV x%d)",scaleSig));
 
   if(ggHhist && !plotSBFit)
-    leg->AddEntry(ggHhist, "gg #rightarrow H (m_{H} = 125 GeV)");
+    leg->AddEntry(ggHhist, "ggH (125 GeV)");
 
   if(vbfhist && !plotSBFit)
-    leg->AddEntry(vbfhist, "qq #rightarrow H (m_{H} = 125 GeV)");
+    leg->AddEntry(vbfhist, "qqH (125 GeV)");
 
   if(wHhist && !plotSBFit)
-    leg->AddEntry(wHhist, "qq #rightarrow WH (m_{H} = 125 GeV)");
-
-  if(zHhist && !plotSBFit)
-    leg->AddEntry(zHhist, "qq #rightarrow ZH (m_{H} = 125 GeV)");
-
-  leg->AddEntry(dahist,"Expected (post-fit)","PEL");
-  leg->AddEntry(dphist,"Expected (pre-fit)","PEL");
+    leg->AddEntry(wHhist, "WH (125 GeV)");
 
 
   leg->Draw("SAME");

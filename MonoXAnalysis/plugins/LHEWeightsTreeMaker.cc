@@ -164,7 +164,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   
   if (addqcdpdfweights) {
 
-      vector<gen::WeightsInfo> weights = lheInfoH->weights();
+      vector<gen::WeightsInfo> weights = lheInfoH->weights();      
       for (size_t i = 0; i < weights.size(); i++) {
 	
 	if (weights[i].id == "315")      wgtpdf1 = weights[i].wgt; // cteq6l1
