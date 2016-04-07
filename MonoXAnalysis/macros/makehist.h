@@ -757,8 +757,8 @@ void makehist4(TTree* tree, /*input tree*/
       if(jets.size() >= 2){
 	std::sort(jets.begin(),jets.end(),jetSorter);
 	
-	//	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
-	//	  continue;
+	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
+	  continue;
       }     
     }
 
@@ -1049,6 +1049,26 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
       }
+
+      else if(name.Contains("minDphiJ1J")){
+	float minDphi = TMath::Pi();
+	bool  isfound = false;
+	if(jetphi->size() > 1){
+	  for(size_t jjet = 1 ; jjet < jetphi->size(); jjet++){
+	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(jjet));
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi){
+	      minDphi = deltaPhi;
+	      isfound = true;
+	    }
+	  }
+	}
+	if(isfound)
+	  fillvar = minDphi; 
+	else
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+      }
       else if(name.Contains("dphiJJ")){
 	if(jetphi->size() < 2)
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
@@ -1168,6 +1188,22 @@ void makehist4(TTree* tree, /*input tree*/
 		minDphi = deltaPhi;
 	    }
 	  }
+	  fillvarY = minDphi;
+	}
+      }
+      else if(name.Contains("met_minDphiJ1J")){
+	fillvarX = pfmet;
+	if(jetphi->size() <= 1)
+	  fillvarY = hist->GetYaxis()->GetBinCenter(1);	    
+	else{
+	  float minDphi = TMath::Pi();
+	  for(size_t jjet = 1 ; jjet < jetphi->size(); jjet++){
+	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(jjet));
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphi)
+	      minDphi = deltaPhi;
+	  }	
 	  fillvarY = minDphi;
 	}
       }

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -39,16 +40,16 @@ vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000
 //vector<double> bins_monoV_met         = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
 vector<double> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
-vector<double> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,750.,1000.};
+vector<double> bins_substructure_met  = {200.,225.,250.,275.,300.,325,350.,400.,500.,600.,750.,1000.};
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
-vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
-vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
+vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,2.75,3.14};
+vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,2.75,3.14};
 
-vector<double> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<double> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<double> bins_monoJ_mT          = {50.,80.,110.,140.,170,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250,1350,1550,1750,2000};
+vector<double> bins_monoV_mT          = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<double> bins_substructure_mT   = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<double> bins_monoJ_mT          = {200.,280,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250,1350,1550,1750,2000};
 
 vector<double> bins_monoV_mpr         = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
 vector<double> bins_monoV_mpr_v2      = {65.,73.,81.,89.,97.,105.};
@@ -61,9 +62,9 @@ vector<double> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_substructure_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 
-vector<double> bins_monoV_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<double> bins_monoJ_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<double> bins_substructure_HT   = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_monoV_HT          = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_monoJ_HT          = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_substructure_HT   = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
 
 vector<double> bins_monoV_jetPt        = {200.,225.,250.,300.,350.,400.,500.,600.,1000.};
 vector<double> bins_monoJ_jetPt        = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
@@ -219,9 +220,9 @@ vector<double> selectBinning (string observable, int category){
   else if(TString(observable).Contains("QGL") and category > 3)
     return bins_monoV_QGL;
 
-  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category <= 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ" or observable == "minDphiJ1J") and category <= 1)
     return bins_monoJ_dphiJJ;
-  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category > 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ" or observable == "minDphiJ1J") and category > 1)
     return bins_monoV_dphiJJ;
   
 
@@ -283,7 +284,7 @@ bin2D selectBinning2D (string observable, int category){
     return bins;    
   }
 
-  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ") and category <=1){
+  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ" or observable == "met_minDphiJ1J") and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_dphiJJ_2D;
     return bins;    

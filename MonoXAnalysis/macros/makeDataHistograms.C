@@ -22,16 +22,16 @@ void signalHiggshist(TFile* outfile,
   if(typeOfHiggsSignal == 0){
     ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
     vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
   }
   else if(typeOfHiggsSignal == 1){ // fermion only
     ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
     vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
   }
   else if(typeOfHiggsSignal == 2){  // boson only
-    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-10_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
   }
 
   vector<TH1*>  ggHhist;
