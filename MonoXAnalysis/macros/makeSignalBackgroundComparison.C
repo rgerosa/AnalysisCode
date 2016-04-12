@@ -10,6 +10,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TChain.h"
+#include "TMath.h"
 #include "TH2F.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -23,8 +24,12 @@
 
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
-vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1,1.3,1.5,1.7,1.9,2.1,2.3,2.5,2.7,3.14};
+vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,2.75,3.14};
+//vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.1,1.3,1.5,1.7,1.9,2.1,2.3,2.5,2.7,3.14};
 vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
+vector<double> bins_monoJ_dRJJ        = {-0.1,0.,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6,6.5,7.,7.5};
+vector<double> bins_monoV_dRJJ        = {-0.1,0.,0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5,6,6.5,7.,7.5};
+
 vector<double> bins_monoJ_mT          = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250,1350,1550,1750,2000};
 vector<double> bins_monoV_mT          = {200.,250.,300.,350.,400.,500.,600.,1000,1250,1500,1750,2000};
 vector<double> bins_monoJ_HT          = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
@@ -228,6 +233,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   vector<TH1F*> dphijj_monoV;
   vector<TH1F*> mindphijj_monoV;
   vector<TH1F*> mindphij1j_monoV;
+  vector<TH1F*> dRjj_monoV;
+  vector<TH1F*> mindRj1j_monoV;
   vector<TH1F*> leadingJetQGL_monoV;
 
   vector<TH1F*> boostedJetPt_monoJet;
@@ -244,6 +251,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   vector<TH1F*> dphijj_monoJet;
   vector<TH1F*> mindphijj_monoJet;
   vector<TH1F*> mindphij1j_monoJet;
+  vector<TH1F*> dRjj_monoJet;
+  vector<TH1F*> mindRj1j_monoJet;
   vector<TH1F*> leadingJetQGL_monoJet;
 
   cout<<"Run signal analysis "<<endl;
@@ -289,6 +298,11 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 					  (bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dphiJJ.size()-1,&bins_monoV_dphiJJ[0]));
       leadingJetQGL_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetQGL").c_str(),
 					     (bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_QGL.size()-1,&bins_monoV_QGL[0]));
+
+      dRjj_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_dRjj").c_str(),
+				    (bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]));
+      mindRj1j_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_mindRj1j").c_str(),
+					(bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]));
     }
     else{
       
@@ -319,8 +333,13 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 
       leadingJetQGL_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetQGL").c_str(),
 					     (bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_QGL.size()-1,&bins_monoJ_QGL[0]));
-    }
 
+      dRjj_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_dRjj").c_str(),
+				    (bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoJ_dRJJ[0]));
+      mindRj1j_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_mindRj1j").c_str(),
+					(bosonMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoJ_dRJJ[0]));
+    }
+  
     boostedJetPt_monoV.back()->Sumw2();
     boostedJetEta_monoV.back()->Sumw2();
     boostedJetTau2Tau1_monoV.back()->Sumw2();
@@ -336,7 +355,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     mindphijj_monoV.back()->Sumw2();
     mindphij1j_monoV.back()->Sumw2();
     leadingJetQGL_monoV.back()->Sumw2();
-
+    dRjj_monoV.back()->Sumw2();
+    mindRj1j_monoV.back()->Sumw2();
     
     TTreeReader myReader_monoV(treeMonoV_Sig.at(iMass).second);
     TTreeReaderValue<vector<double> > boostedJetpt_MV    (myReader_monoV,"boostedJetpt");
@@ -402,18 +422,27 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	mT_monoV.back()->Fill(sqrt(2*jetpt_MV->at(0)*(*met_MV)*(1-cos(deltaPhi))),weight);
       }
 
-      if(jetphi_MV->size() < 2)
+
+      if(jetphi_MV->size() < 2){
 	dphijj_monoV.back()->Fill(dphijj_monoV.back()->GetBinCenter(1),weight);
+	dRjj_monoV.back()->Fill(dRjj_monoV.back()->GetBinCenter(1),weight);
+      }
       else{
-	if(fabs(jetphi_MV->at(0)-jetphi_MV->at(1)) > TMath::Pi())
+	if(fabs(jetphi_MV->at(0)-jetphi_MV->at(1)) > TMath::Pi()){
 	  dphijj_monoV.back()->Fill(2*TMath::Pi()-fabs(jetphi_MV->at(0)-jetphi_MV->at(1)),weight);
-	else
+	  dRjj_monoV.back()->Fill(sqrt(TMath::Power(2*TMath::Pi()-fabs(jetphi_MV->at(0)-jetphi_MV->at(1)),2)+TMath::Power(jeteta_MV->at(0)-jeteta_MV->at(1),2)),weight);
+	}
+	else{
 	  dphijj_monoV.back()->Fill(fabs(jetphi_MV->at(0)-jetphi_MV->at(1)),weight);
+	  dRjj_monoV.back()->Fill(sqrt(TMath::Power(fabs(jetphi_MV->at(0)-jetphi_MV->at(1)),2)+TMath::Power(jeteta_MV->at(0)-jeteta_MV->at(1),2)),weight);
+	}
+	
       }
 
       if(jetphi_MV->size() < 2){
 	mindphijj_monoV.back()->Fill(mindphijj_monoV.back()->GetBinCenter(1),weight);
 	mindphij1j_monoV.back()->Fill(mindphij1j_monoV.back()->GetBinCenter(1),weight);
+	mindRj1j_monoV.back()->Fill(dRjj_monoV.back()->GetBinCenter(1),weight);
       }
       else{
 	float minDphijj  = 2*TMath::Pi();
@@ -422,6 +451,7 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	bool  isfound_j1j = false;
 	for(size_t ijet = 0 ; ijet < jetphi_MV->size(); ijet++){
 	  for(size_t jjet = ijet+1 ; jjet < jetphi_MV->size(); jjet++){
+	    if(jetpt_MV->at(ijet) < 30 or jetpt_MV->at(jjet) < 30) continue; 
 	    float deltaPhi = fabs(jetphi_MV->at(ijet)-jetphi_MV->at(jjet));
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
@@ -434,6 +464,7 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	
 	for(size_t jjet = 1 ; jjet < jetphi_MV->size(); jjet++){
 	  float deltaPhi = fabs(jetphi_MV->at(0)-jetphi_MV->at(jjet));
+	  if(jetpt_MV->at(0) < 30 or jetpt_MV->at(jjet) < 30) continue;
 	  if(deltaPhi > TMath::Pi())
 	    deltaPhi = 2*TMath::Pi() - deltaPhi;
 	  if(deltaPhi > 0 and deltaPhi < minDphij1j){
@@ -448,16 +479,21 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	else 
 	  mindphijj_monoV.back()->Fill(mindphijj_monoV.back()->GetBinCenter(1),weight);
 
-	if(isfound_j1j)
+	if(isfound_j1j){
 	  mindphij1j_monoV.back()->Fill(minDphij1j,weight);
-	else
+	  mindRj1j_monoV.back()->Fill(sqrt(minDphij1j*minDphij1j+TMath::Power(jeteta_MV->at(0)-jeteta_MV->at(1),2)),weight);
+	}
+	else{
 	  mindphij1j_monoV.back()->Fill(mindphij1j_monoV.back()->GetBinCenter(1),weight);
+	  mindRj1j_monoV.back()->Fill(mindphij1j_monoV.back()->GetBinCenter(1),weight);
+	}
       }
     }
+  
     ////
     leadingJetEta_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_leadingJetEta").c_str(),(jetMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));  
     boostedJetEta_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedJetEta").c_str(),(jetMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));  
-
+    
     if(category == 2){
       boostedJetPt_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedJetPt").c_str(),
 					    (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_jetPt.size()-1,&bins_monoJ_jetPt[0]));
@@ -486,11 +522,18 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 					  (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_dphiJJ.size()-1,&bins_monoJ_dphiJJ[0]));
       leadingJetQGL_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_leadingJetQGL").c_str(),
 					     (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_QGL.size()-1,&bins_monoJ_QGL[0]));
+
+      dRjj_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_dRjj").c_str(),
+                                    (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]));
+      mindRj1j_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_mindRj1j").c_str(),
+                                        (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]));
+
     }
+ 
     else{
       
       boostedJetPt_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedJetPt").c_str(),
-					    (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_jetPt.size()-1,&bins_monoJ_jetPt[0]));      
+					      (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_jetPt.size()-1,&bins_monoJ_jetPt[0]));      
       boostedJetTau2Tau1_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedJetTau2Tau1").c_str(),
 						  (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_tau2tau1.size()-1,&bins_monoJ_tau2tau1[0]));    
       boostedPrunedJetm_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedPrunedJetm").c_str(),
@@ -516,8 +559,14 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 
       leadingJetQGL_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_leadingJetQGL").c_str(),
 					     (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_QGL.size()-1,&bins_monoJ_QGL[0]));
+      
+      dRjj_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_dRjj").c_str(),
+                                    (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_dRJJ.size()-1,&bins_monoJ_dRJJ[0]));
+      mindRj1j_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_mindRj1j").c_str(),
+                                        (jetMode+"_"+interactionModel+"_"+name).c_str(),bins_monoJ_dRJJ.size()-1,&bins_monoJ_dRJJ[0]));
     }
-
+     
+    
     boostedJetPt_monoJet.back()->Sumw2();
     boostedJetEta_monoJet.back()->Sumw2();
     boostedJetTau2Tau1_monoJet.back()->Sumw2();
@@ -533,6 +582,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     mindphijj_monoJet.back()->Sumw2();
     mindphij1j_monoJet.back()->Sumw2();
     leadingJetQGL_monoJet.back()->Sumw2();
+    dRjj_monoJet.back()->Sumw2();
+    mindRj1j_monoJet.back()->Sumw2();
 
     TTreeReader myReader_monoJet(treeMonoJet_Sig.at(iMass).second);
     TTreeReaderValue<vector<double> > boostedJetpt_MJ    (myReader_monoJet,"boostedJetpt");
@@ -594,61 +645,72 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
 	mT_monoJet.back()->Fill(sqrt(2*jetpt_MJ->at(0)*(*met_MJ)*(1-cos(deltaPhi))),weight);
       }
-
-      if(jetphi_MJ->size() < 2)
+      //////
+      if(jetphi_MJ->size() < 2){
 	dphijj_monoJet.back()->Fill(dphijj_monoJet.back()->GetBinCenter(1),weight);
-      else{
-	if(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)) > TMath::Pi())
-	  dphijj_monoJet.back()->Fill(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
-	else
-	  dphijj_monoJet.back()->Fill(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
+	dRjj_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
       }
-  
+      else{
+	if(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)) > TMath::Pi()){
+	  dphijj_monoJet.back()->Fill(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
+	  dRjj_monoJet.back()->Fill(sqrt(TMath::Power(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	}
+	else{
+	  dphijj_monoJet.back()->Fill(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
+	  dRjj_monoJet.back()->Fill(sqrt(TMath::Power(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	}	
+      }
+      
       if(jetphi_MJ->size() < 2){
 	mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
 	mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
+	mindRj1j_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
       }
       else{
-	float minDphijj = 2*TMath::Pi();
+	float minDphijj  = 2*TMath::Pi();
 	float minDphij1j = 2*TMath::Pi();
-	bool  isfound_jj = false;
+	bool  isfound_jj  = false;
 	bool  isfound_j1j = false;
 	for(size_t ijet = 0 ; ijet < jetphi_MJ->size(); ijet++){
 	  for(size_t jjet = ijet+1 ; jjet < jetphi_MJ->size(); jjet++){
 	    float deltaPhi = fabs(jetphi_MJ->at(ijet)-jetphi_MJ->at(jjet));
+	    if(jetpt_MJ->at(ijet) < 30 or jetpt_MJ->at(jjet) < 30) continue;
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
 	    if(deltaPhi > 0 and deltaPhi < minDphijj){
-	      minDphijj = deltaPhi;
+	      minDphijj  = deltaPhi;
 	      isfound_jj = true;
 	    }
 	  }
 	}
-
 	for(size_t jjet = 1 ; jjet < jetphi_MJ->size(); jjet++){
-          float deltaPhi = fabs(jetphi_MJ->at(0)-jetphi_MJ->at(jjet));
-          if(deltaPhi > TMath::Pi())
-            deltaPhi = 2*TMath::Pi() - deltaPhi;
-          if(deltaPhi > 0 and deltaPhi < minDphij1j){
-            minDphij1j  = deltaPhi;
-            isfound_j1j = true;
+	  if(jetpt_MJ->at(0) < 30 or jetpt_MJ->at(jjet) < 30) continue;
+	  float deltaPhi = fabs(jetphi_MJ->at(0)-jetphi_MJ->at(jjet));
+	  if(deltaPhi > TMath::Pi())
+	    deltaPhi = 2*TMath::Pi() - deltaPhi;
+	  if(deltaPhi > 0 and deltaPhi < minDphij1j){
+	    minDphij1j  = deltaPhi;
+	    isfound_j1j = true;
 	  }
-        }
-		
+	}
+      
 	if(isfound_jj)
 	  mindphijj_monoJet.back()->Fill(minDphijj,weight);
-	else
+	else 
 	  mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
 
-	if(isfound_j1j)
+	if(isfound_j1j){
 	  mindphij1j_monoJet.back()->Fill(minDphij1j,weight);
-	else
+	  mindRj1j_monoJet.back()->Fill(sqrt(minDphij1j*minDphij1j+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	}
+	else{
 	  mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
-
+	  mindRj1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
+	}
       }
     }
   }
-  
+    
   cout<<"Backgroud analysis"<<endl;
   TTreeReader myReader(backgroundZnunu);
   TTreeFormula* formula_bkg = new TTreeFormula("Znunu_formula",cut.c_str(),backgroundZnunu);  
@@ -668,7 +730,9 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   TH1F* dphijj_bkg   = NULL;
   TH1F* mindphijj_bkg   = NULL;
   TH1F* mindphij1j_bkg   = NULL;
-  
+  TH1F* dRjj_bkg = NULL;
+  TH1F* mindRj1j_bkg = NULL;
+
   if(category == 2){
     boostedJetPt_bkg = new TH1F("boostedJetPt_bkg","Z #rightarrow #nu #nu",bins_monoV_jetPt.size()-1,&bins_monoV_jetPt[0]);
     boostedJetTau2Tau1_bkg = new TH1F("boostedJetTau2Tau1_bkg","Z #rightarrow #nu #nu",bins_monoV_tau2tau1.size()-1,&bins_monoV_tau2tau1[0]);
@@ -683,6 +747,9 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     dphijj_bkg = new TH1F("dphijj_bkg","Z #rightarrow #nu #nu",bins_monoV_dphiJJ.size()-1,&bins_monoV_dphiJJ[0]);
     mindphijj_bkg = new TH1F("mindphijj_bkg","Z #rightarrow #nu #nu",bins_monoV_dphiJJ.size()-1,&bins_monoV_dphiJJ[0]);
     mindphij1j_bkg = new TH1F("mindphij1j_bkg","Z #rightarrow #nu #nu",bins_monoV_dphiJJ.size()-1,&bins_monoV_dphiJJ[0]);
+    dRjj_bkg = new TH1F("dRjj_bkg","Z #rightarrow #nu #nu",bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]);
+    mindRj1j_bkg = new TH1F("mindRj1j_bkg","Z #rightarrow #nu #nu",bins_monoV_dRJJ.size()-1,&bins_monoV_dRJJ[0]);
+
   }
   else{
     boostedJetPt_bkg = new TH1F("boostedJetPt_bkg","Z #rightarrow #nu #nu",bins_monoJ_jetPt.size()-1,&bins_monoJ_jetPt[0]);
@@ -698,6 +765,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     dphijj_bkg = new TH1F("dphijj_bkg","Z #rightarrow #nu #nu",bins_monoJ_dphiJJ.size()-1,&bins_monoJ_dphiJJ[0]);
     mindphijj_bkg = new TH1F("mindphijj_bkg","Z #rightarrow #nu #nu",bins_monoJ_dphiJJ.size()-1,&bins_monoJ_dphiJJ[0]);
     mindphij1j_bkg = new TH1F("mindphij1j_bkg","Z #rightarrow #nu #nu",bins_monoJ_dphiJJ.size()-1,&bins_monoJ_dphiJJ[0]);    
+    dRjj_bkg = new TH1F("dRjj_bkg","Z #rightarrow #nu #nu",bins_monoJ_dRJJ.size()-1,&bins_monoJ_dRJJ[0]);
+    mindRj1j_bkg = new TH1F("mindRj1j_bkg","Z #rightarrow #nu #nu",bins_monoJ_dRJJ.size()-1,&bins_monoJ_dRJJ[0]);
   }
 
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
@@ -796,37 +865,48 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
       mT_bkg->Fill(sqrt(2*jetpt->at(0)*(*met)*(1-cos(deltaPhi))),weight);
     }
-    
-    if(jetphi->size() < 2)
+   
+
+    //////
+    if(jetphi->size() < 2){
       dphijj_bkg->Fill(dphijj_bkg->GetBinCenter(1),weight);
+      dRjj_bkg->Fill(dRjj_bkg->GetBinCenter(1),weight);
+    }
     else{
-      if(fabs(jetphi->at(0)-jetphi->at(1)) > TMath::Pi())
+      if(fabs(jetphi->at(0)-jetphi->at(1)) > TMath::Pi()){
 	dphijj_bkg->Fill(2*TMath::Pi()-fabs(jetphi->at(0)-jetphi->at(1)),weight);
-      else
+	dRjj_bkg->Fill(sqrt(TMath::Power(2*TMath::Pi()-fabs(jetphi->at(0)-jetphi->at(1)),2)+TMath::Power(jeteta->at(0)-jeteta->at(1),2)),weight);
+      }
+      else{
 	dphijj_bkg->Fill(fabs(jetphi->at(0)-jetphi->at(1)),weight);
+	dRjj_bkg->Fill(sqrt(TMath::Power(fabs(jetphi->at(0)-jetphi->at(1)),2)+TMath::Power(jeteta->at(0)-jeteta->at(1),2)),weight);
+      }	
     }
     
     if(jetphi->size() < 2){
       mindphijj_bkg->Fill(mindphijj_bkg->GetBinCenter(1),weight);
       mindphij1j_bkg->Fill(mindphij1j_bkg->GetBinCenter(1),weight);
+      mindRj1j_bkg->Fill(dRjj_bkg->GetBinCenter(1),weight);
     }
     else{
-      float minDphijj = TMath::Pi();
-      float minDphij1j = TMath::Pi();
-      bool  isfound_jj = false;
+      float minDphijj  = 2*TMath::Pi();
+      float minDphij1j = 2*TMath::Pi();
+      bool  isfound_jj  = false;
       bool  isfound_j1j = false;
       for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
 	for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	  if(jetpt->at(ijet) < 30 or jetpt->at(jjet) < 30) continue;
 	  float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
-	  if(deltaPhi > TMath::Pi())
-	    deltaPhi = 2*TMath::Pi() - deltaPhi;
-	  if(deltaPhi > 0 and deltaPhi < minDphijj){
-	    minDphijj = deltaPhi;
-	    isfound_jj = true;
-	  }
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphijj){
+	      minDphijj  = deltaPhi;
+	      isfound_jj = true;
+	    }
 	}
       }
       for(size_t jjet = 1 ; jjet < jetphi->size(); jjet++){
+	if(jetpt->at(0) < 30 or jetpt->at(jjet) < 30) continue;
 	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(jjet));
 	if(deltaPhi > TMath::Pi())
 	  deltaPhi = 2*TMath::Pi() - deltaPhi;
@@ -835,19 +915,22 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	  isfound_j1j = true;
 	}
       }
-
+      
       if(isfound_jj)
 	mindphijj_bkg->Fill(minDphijj,weight);
-      else
+      else 
 	mindphijj_bkg->Fill(mindphijj_bkg->GetBinCenter(1),weight);
       
-
-      if(isfound_j1j)
+      if(isfound_j1j){
 	mindphij1j_bkg->Fill(minDphij1j,weight);
-      else
-	mindphij1j_bkg->Fill(mindphij1j_bkg->GetBinCenter(1),weight);
+	mindRj1j_bkg->Fill(sqrt(minDphij1j*minDphij1j+TMath::Power(jeteta->at(0)-jeteta->at(1),2)),weight);
+      }
+      else{
+	  mindphij1j_bkg->Fill(mindphij1j_bkg->GetBinCenter(1),weight);
+	  mindRj1j_bkg->Fill(mindphij1j_bkg->GetBinCenter(1),weight);
+      }
     }
-  }    
+  }
 
   // make single plots
   if(category == 0){
@@ -883,6 +966,11 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 		   legend,outputDirectory,"mindphijj","min(#Delta#phi(j,j))");    
     makeShapePlots(cCanvas,mindphij1j_monoV,mindphij1j_monoJet,mindphij1j_bkg,
 		   legend,outputDirectory,"mindphij1j","min(#Delta#phi(j_{1},j))");    
+
+    makeShapePlots(cCanvas,dRjj_monoV,dRjj_monoJet,dRjj_bkg,
+		   legend,outputDirectory,"dRjj","#DeltaR(j_{1},j_{2})");    
+    makeShapePlots(cCanvas,mindRj1j_monoV,mindRj1j_monoJet,mindRj1j_bkg,
+		   legend,outputDirectory,"mindRj1j","min(#DeltaR(j_{1},j))");    
   }
   else if(category == 1){
 
@@ -918,6 +1006,11 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     makeShapePlots(cCanvas,mindphij1j_monoJet,mindphij1j_bkg,
 		   legend,outputDirectory,"mindphij1j","min(#Delta#phi(j_{1},j))");    
 
+    makeShapePlots(cCanvas,dRjj_monoJet,dRjj_bkg,
+		   legend,outputDirectory,"dRjj","#DeltaR(j_{1},j_{2})");    
+    makeShapePlots(cCanvas,mindRj1j_monoJet,mindRj1j_bkg,
+		   legend,outputDirectory,"mindRj1j","min(#DeltaR(j_{1},j))");    
+
   }
   else if(category == 2){
 
@@ -952,6 +1045,10 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 		   legend,outputDirectory,"mindphijj","min(#Delta#phi(j_{1},j_{2}))");    
     makeShapePlots(cCanvas,mindphij1j_monoV,mindphij1j_bkg,
 		   legend,outputDirectory,"mindphij1j","min(#Delta#phi(j_{1},j))");    
+    makeShapePlots(cCanvas,dRjj_monoV,dRjj_bkg,
+		   legend,outputDirectory,"dRjj","#DeltaR(j_{1},j_{2})");    
+    makeShapePlots(cCanvas,mindRj1j_monoV,mindRj1j_bkg,
+		   legend,outputDirectory,"mindRj1j","min(#DeltaR(j_{1},j))");    
 
   }
 
@@ -997,7 +1094,7 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
 
     if(histoList_MV.at(iHisto)->GetMaximum() > maxYScale)
       maxYScale = histoList_MV.at(iHisto)->GetMaximum();
-    if(histoList_MV.at(iHisto)->GetMinimum() < maxYScale)
+    if(histoList_MV.at(iHisto)->GetMinimum() < minYScale)
       minYScale = histoList_MV.at(iHisto)->GetMinimum();
 
   }
@@ -1064,9 +1161,9 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB.pdf").c_str(),"pdf");
 
   if(minYScale != 0)
-    histoBkg->GetYaxis()->SetRangeUser(minYScale*0.5,maxYScale*1.5);
+    histoBkg->GetYaxis()->SetRangeUser(minYScale*0.5,maxYScale*50);
   else
-    histoBkg->GetYaxis()->SetRangeUser(0.0001,maxYScale*500);
+    histoBkg->GetYaxis()->SetRangeUser(0.0001,maxYScale*50);
   cCanvas->SetLogy();
 
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB_log.png").c_str(),"png");
@@ -1113,7 +1210,7 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV,
 
     if(histoList_MV.at(iHisto)->GetMaximum() > maxYScale)
       maxYScale = histoList_MV.at(iHisto)->GetMaximum();
-    if(histoList_MV.at(iHisto)->GetMinimum() < maxYScale)
+    if(histoList_MV.at(iHisto)->GetMinimum() < minYScale)
       minYScale = histoList_MV.at(iHisto)->GetMinimum();
 
   }

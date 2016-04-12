@@ -26,6 +26,7 @@ void rzmm(string fileName, int category, string observable) {
     frame->GetXaxis()->SetLabelSize(0.040);
 
     frame->GetYaxis()->SetTitle("R_{Z(#mu#mu)}");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetYaxis()->CenterTitle();
 
     frame->GetYaxis()->SetLabelSize(0.040);
@@ -87,6 +88,7 @@ void rzee(string fileName, int category, string observable) {
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetYaxis()->SetTitle("R_{Z(ee)}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 
@@ -151,6 +153,7 @@ void rwmn(string fileName, int category, string observable) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.0, "");
     frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 
@@ -215,6 +218,7 @@ void rwen(string fileName, int category, string observable) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2., "");
     frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 
@@ -290,6 +294,7 @@ void rgam(string fileName, int category, string observable) {
     frame->GetYaxis()->SetTitle("R_{#gamma}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
 
     frame->GetYaxis()->CenterTitle();
@@ -371,6 +376,7 @@ void rzwj(string fileName, int category, string observable) {
     frame->GetYaxis()->SetTitle("R_{Z/W}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
 
     frame->GetYaxis()->CenterTitle();
@@ -446,6 +452,7 @@ void rtopmu(string fileName, int category, string observable) {
     frame->GetYaxis()->SetTitle("R_{top,#mu}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
 
     frame->GetYaxis()->CenterTitle();
@@ -511,6 +518,7 @@ void rtopel(string fileName, int category, string observable) {
     frame->GetYaxis()->SetTitle("R_{top,el}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
 
     frame->GetYaxis()->CenterTitle();
@@ -572,6 +580,7 @@ void rsidebandZ(string fileName, int category, string observable) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 4.0, "");
     frame->GetYaxis()->SetTitle("R_{sideband,Z}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 
@@ -634,6 +643,7 @@ void rsidebandW(string fileName, int category, string observable) {
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 4.0, "");
     frame->GetYaxis()->SetTitle("R_{sideband,W}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 

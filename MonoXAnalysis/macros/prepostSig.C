@@ -233,8 +233,8 @@ void prepostSig(string fitFilename,
     mjhist->SetFillColor(0);
     mjhist->SetFillStyle(0);
     mjhist->SetLineColor(kBlack);
-    mjhist->SetLineWidth(3);
     mjhist->SetLineStyle(7);
+    mjhist->SetLineWidth(3);
     mjhist->Scale(scaleSig);
     mjhist->SetMarkerSize(0);
   }
@@ -243,8 +243,8 @@ void prepostSig(string fitFilename,
     ggHhist->SetFillColor(0);
     ggHhist->SetFillStyle(0);
     ggHhist->SetLineColor(kBlack);
-    ggHhist->SetLineWidth(3);
     ggHhist->SetLineStyle(7);
+    ggHhist->SetLineWidth(3);
     ggHhist->Scale(scaleSig);
     ggHhist->SetMarkerSize(0);
   }
@@ -395,7 +395,8 @@ void prepostSig(string fitFilename,
   pad2->Draw();
   pad2->cd();
 
-  TH1* frame2 = (TH1*) pad2->DrawFrame(dthist->GetXaxis()->GetXmin(),dthist->GetYaxis()->GetXmin(),dthist->GetXaxis()->GetXmax(),dthist->GetYaxis()->GetXmax());
+  TH1* frame2 = (TH1*) dthist->Clone("frame2");
+  frame2->Reset();
   if(category <=1)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
@@ -547,10 +548,71 @@ void prepostSig(string fitFilename,
   else{
     canvas->SaveAs("postfit_sig.pdf");
     canvas->SaveAs("postfit_sig.png");
-    canvas->SaveAs("postfit_sig.root");
-
   }
   
+  TH1* totalSignal = NULL;
+
+  if(isHiggsInvisible and not plotSBFit){
+    totalSignal = (TH1*) ggHhist->Clone("totalSignal");
+    totalSignal->Add(vbfhist);
+    totalSignal->Add(wHhist);
+    totalSignal->Add(zHhist);
+  }
+  else if(not isHiggsInvisible and not plotSBFit){
+    totalSignal = (TH1*) mjhist->Clone("totalSignal");
+    totalSignal->Add(mwhist);
+    totalSignal->Add(mzhist);
+  }
+  else if(plotSBFit)
+    totalSignal = (TH1*) sighist->Clone("totalSignal");
+
+  canvas->cd();
+  pad2->Draw();
+  pad2->cd();
+  if(not plotSBFit)
+    frame2->GetYaxis()->SetTitle("(S+B)/B");
+  else
+    frame2->GetYaxis()->SetTitle("(S_{fit}+B)/B");
+
+  TH1* SoverB_prefit = (TH1*) totalSignal->Clone("SoverB_prefit");
+  TH1* SoverB_postfit = (TH1*) totalSignal->Clone("SoverB_postfit");
+  SoverB_prefit->SetLineColor(kRed);
+  SoverB_prefit->SetMarkerColor(kRed);
+  SoverB_prefit->SetMarkerSize(1);
+  SoverB_prefit->SetMarkerStyle(20);
+  SoverB_postfit->SetLineColor(kBlue);
+  SoverB_postfit->SetMarkerColor(kBlue);
+  SoverB_postfit->SetMarkerSize(1);
+  SoverB_postfit->SetMarkerStyle(20);
+
+  SoverB_prefit->Add(tphist);
+  SoverB_prefit->Divide(tphist);
+  SoverB_postfit->Add(htemp);
+  SoverB_postfit->Divide(htemp);
+
+  frame2->GetYaxis()->SetRangeUser(0.5,SoverB_postfit->GetMaximum()*1.2);
+  frame2->Draw();
+
+  SoverB_postfit->Draw("hist same");
+  TH1* SoverB_postfit_d = (TH1*) SoverB_postfit->Clone("SoverB_postfit_d");
+  for(int iBin = 0; iBin < SoverB_postfit_d->GetNbinsX(); iBin++)
+    SoverB_postfit_d->SetBinContent(iBin+1,1);
+  SoverB_postfit_d->SetLineColor(0);
+  
+  SoverB_postfit->Draw("hist same");
+  SoverB_postfit_d->SetMarkerColor(0);
+  SoverB_postfit_d->SetMarkerSize(0);
+  SoverB_postfit_d->SetFillColor(kGray);
+  SoverB_postfit_d->SetFillStyle(1001);
+  SoverB_postfit_d->Draw("E2 SAME");
+  unhist->Draw("SAME");
+  SoverB_prefit->Draw("hist same");
+  SoverB_postfit->Draw("hist same");
+  pad2->RedrawAxis("sameaxis");
+  
+  canvas->SaveAs("postfit_sig_SoB.pdf");
+  canvas->SaveAs("postfit_sig_SoB.png");
+ 
   TFile* outFile = new TFile("postfit_weights_Sig.root","RECREATE");
   outFile->cd();
   htemp->Divide(tphist);

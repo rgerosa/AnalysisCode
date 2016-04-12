@@ -1031,31 +1031,39 @@ void makehist4(TTree* tree, /*input tree*/
       }      
       //
       else if(name.Contains("minDphiJJ")){
-	float minDphi = TMath::Pi();
-	bool  isfound = false;
-	for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
-	  for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
-	    float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
-	    if(deltaPhi > TMath::Pi())
-	      deltaPhi = 2*TMath::Pi() - deltaPhi;
-	    if(deltaPhi > 0 and deltaPhi < minDphi){
-	      minDphi = deltaPhi;
-	      isfound = true;
+	if(jetphi->size() <= 1)
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+	else{
+	  float minDphi = 2*TMath::Pi();
+	  bool  isfound = false;
+	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
+	    for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	      if(jetpt->at(ijet) < 30 or jetpt->at(jjet) < 30) continue;
+	      float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
+	      if(deltaPhi > TMath::Pi())
+		deltaPhi = 2*TMath::Pi() - deltaPhi;
+	      if(deltaPhi > 0 and deltaPhi < minDphi){
+		minDphi = deltaPhi;
+		isfound = true;
+	      }
 	    }
 	  }
+	  if(isfound)
+	    fillvar = minDphi; 
+	  else
+	    fillvar = hist->GetXaxis()->GetBinCenter(1);
 	}
-	if(isfound)
-	  fillvar = minDphi; 
-	else
-	  fillvar = hist->GetXaxis()->GetBinCenter(1);
       }
 
       else if(name.Contains("minDphiJ1J")){
-	float minDphi = TMath::Pi();
+	float minDphi = 2*TMath::Pi();
 	bool  isfound = false;
-	if(jetphi->size() > 1){
+	if(jetphi->size() <= 1)
+	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+	else{
 	  for(size_t jjet = 1 ; jjet < jetphi->size(); jjet++){
 	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(jjet));
+	    if(jetpt->at(0) < 30 or jetpt->at(jjet) < 30) continue;
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
 	    if(deltaPhi > 0 and deltaPhi < minDphi){
@@ -1063,19 +1071,20 @@ void makehist4(TTree* tree, /*input tree*/
 	      isfound = true;
 	    }
 	  }
+	  if(isfound)
+	    fillvar = minDphi; 
+	  else
+	    fillvar = hist->GetXaxis()->GetBinCenter(1);
 	}
-	if(isfound)
-	  fillvar = minDphi; 
-	else
-	  fillvar = hist->GetXaxis()->GetBinCenter(1);
       }
       else if(name.Contains("dphiJJ")){
 	if(jetphi->size() < 2)
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
-	else 
+	else {
 	  fillvar = fabs(jetphi->at(0)-jetphi->at(1));
-	if(fillvar > TMath::Pi())
-	  fillvar = 2*TMath::Pi()-fillvar;
+	  if(fillvar > TMath::Pi())
+	    fillvar = 2*TMath::Pi()-fillvar;
+	}
       }
       
       // overflow bin
@@ -1178,17 +1187,24 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jetphi->size() <= 1)
 	  fillvarY = hist->GetYaxis()->GetBinCenter(1);	    
 	else{
-	  float minDphi = TMath::Pi();
+	  float minDphi = 2*TMath::Pi();
+	  bool isfound = false;
 	  for(size_t ijet = 0 ; ijet < jetphi->size(); ijet++){
 	    for(size_t jjet = ijet+1 ; jjet < jetphi->size(); jjet++){
+	      if(jetpt->at(ijet) < 30 or jetpt->at(jjet) < 30) continue;
 	      float deltaPhi = fabs(jetphi->at(ijet)-jetphi->at(jjet));
 	      if(deltaPhi > TMath::Pi())
 		deltaPhi = 2*TMath::Pi() - deltaPhi;
-	      if(deltaPhi > 0 and deltaPhi < minDphi)
+	      if(deltaPhi > 0 and deltaPhi < minDphi){
 		minDphi = deltaPhi;
+	        isfound = true;
+	      }
 	    }
 	  }
-	  fillvarY = minDphi;
+	  if(isfound)
+	    fillvarY = minDphi;
+	  else
+	    fillvarY = hist->GetYaxis()->GetBinCenter(1);
 	}
       }
       else if(name.Contains("met_minDphiJ1J")){
@@ -1196,25 +1212,33 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jetphi->size() <= 1)
 	  fillvarY = hist->GetYaxis()->GetBinCenter(1);	    
 	else{
-	  float minDphi = TMath::Pi();
+	  float minDphi = 2*TMath::Pi();
+	  bool isfound = false;
 	  for(size_t jjet = 1 ; jjet < jetphi->size(); jjet++){
+	    if(jetpt->at(0) < 30 or jetpt->at(jjet) < 30) continue;
 	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(jjet));
 	    if(deltaPhi > TMath::Pi())
 	      deltaPhi = 2*TMath::Pi() - deltaPhi;
-	    if(deltaPhi > 0 and deltaPhi < minDphi)
+	    if(deltaPhi > 0 and deltaPhi < minDphi){
 	      minDphi = deltaPhi;
+	      isfound = true;
+	    }
 	  }	
-	  fillvarY = minDphi;
+	  if(isfound)
+	    fillvarY = minDphi;
+	  else
+	    fillvarY = hist->GetYaxis()->GetBinCenter(1);
 	}
       }
       else if(name.Contains("met_dphiJJ")){
 	fillvarX = pfmet;
 	if(jetphi->size() < 2)
 	  fillvarY = hist->GetYaxis()->GetBinCenter(1);
-	else 
+	else {
 	  fillvarY = fabs(jetphi->at(0)-jetphi->at(1));
-	if(fillvarY > TMath::Pi())
-	  fillvarY = 2*TMath::Pi()-fillvarY;
+	  if(fillvarY > TMath::Pi())
+	    fillvarY = 2*TMath::Pi()-fillvarY;
+	}
       }
       
       // overflow bin

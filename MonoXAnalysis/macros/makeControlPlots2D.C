@@ -11,6 +11,7 @@ void makeControlPlots2D(string templateFileName,
 			bool   plotResonant   = false,
 			bool   isHiggsInvisible = false,
 			bool   alongX = false,
+			bool   addSBPlots = true,
 			string interaction  = "Vector",
 			string mediatorMass = "1000",
 			string DMMass       = "50",
@@ -19,23 +20,7 @@ void makeControlPlots2D(string templateFileName,
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
   gStyle->SetOptStat(0);
-
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
-  canvas->SetTickx();
-  canvas->SetTicky();
-  canvas->cd();
-  canvas->SetBottomMargin(0.3);
-  canvas->SetRightMargin(0.06);
-
   setTDRStyle();
-
-  TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
-  pad1->SetTickx();
-  pad1->SetTicky();
-
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.28);
-  pad2->SetTickx();
-  pad2->SetTicky();
 
   TFile* inputFile = new TFile(templateFileName.c_str());
 
@@ -179,7 +164,22 @@ void makeControlPlots2D(string templateFileName,
 
   for(size_t ihisto = 0; ihisto < datahist.size(); ihisto++){
 
-    canvas->cd();  
+
+    TCanvas* canvas = new TCanvas(Form("canvas_%d",int(ihisto)), "canvas", 600, 700);
+    canvas->SetTickx(1);
+    canvas->SetTicky(1);
+    canvas->cd();
+    canvas->SetBottomMargin(0.3);
+    canvas->SetRightMargin(0.06);
+    
+    TPad *pad2 = new TPad(Form("pad2_%d",int(ihisto)),"pad2",0,0.,1,0.9);
+    pad2->SetTopMargin(0.7);
+    pad2->SetRightMargin(0.06);
+    pad2->SetFillColor(0);
+    pad2->SetGridy(1);
+    pad2->SetFillStyle(0);
+
+
     //SCALE BIN WIDTH
     if(TString(observableLatex).Contains("GeV")){
       
@@ -347,7 +347,7 @@ void makeControlPlots2D(string templateFileName,
       zHhist.at(ihisto)->SetLineWidth(2);
       zHhist.at(ihisto)->SetLineStyle(2);
     }
-  
+
     THStack* stack = new THStack("stack", "stack");
     if(controlRegion == "gam"){
       stack->Add(qcdhist.at(ihisto));
@@ -495,14 +495,6 @@ void makeControlPlots2D(string templateFileName,
       outputfile.close();
     }
 
-
-    pad1->SetRightMargin(0.06);
-    pad1->SetLeftMargin(0.12);
-    pad1->SetTopMargin(0.06);
-    pad1->SetBottomMargin(0.0);
-    pad1->Draw();
-    pad1->cd();
-
     TH1* frame = (TH1*) datahist.at(ihisto)->Clone("frame");
     frame->Reset();
 
@@ -526,12 +518,17 @@ void makeControlPlots2D(string templateFileName,
     frame->GetXaxis()->SetLabelSize(0);
     frame->GetYaxis()->SetLabelSize(0.045);
     frame->GetYaxis()->SetTitleSize(0.055);
-    frame->Draw();
-
-    if(controlRegion == "SR")
-      CMS_lumi(pad1,"2.30",false,true);
+    frame->GetYaxis()->SetTitleOffset(1.15);
+    frame->GetYaxis()->SetLabelSize(0.040);
+    frame->GetYaxis()->SetTitleSize(0.050);
+    if(category <= 1)
+      frame->GetXaxis()->SetNdivisions(510);
     else
-      CMS_lumi(pad1,"2.30");
+      frame->GetXaxis()->SetNdivisions(504);
+    
+    canvas->cd();
+    frame->Draw();
+    CMS_lumi(canvas,"2.3");
 
     stack ->Draw("HIST SAME");
     datahist.at(ihisto)->Draw("PE SAME");
@@ -675,36 +672,33 @@ void makeControlPlots2D(string templateFileName,
     }  
     
     leg->Draw("SAME");
-    
-    pad1->RedrawAxis("sameaxis");
-    if(isLog) pad1->SetLogy();
-    
-    // make data/MC ratio plot
-    canvas->cd();
-    pad2->SetTopMargin(0.08);
-    pad2->SetRightMargin(0.06);
-    pad2->SetLeftMargin(0.12);
-    pad2->SetBottomMargin(0.35);
-    pad2->SetGridy();
+    canvas->RedrawAxis("sameaxis");
+    if(isLog) canvas->SetLogy();
+
+    // make data/MC ratio plot    
     pad2->Draw();
-    pad2->cd();
-    
+    pad2->cd();    
+
     TH1* frame2 = NULL;
     if(category <= 1)
       frame2 =  pad2->DrawFrame(datahist.at(ihisto)->GetBinLowEdge(1), 0.25, datahist.at(ihisto)->GetBinLowEdge(datahist.at(ihisto)->GetNbinsX()+1), 1.75, "");
     else if(category > 1)
       frame2 =  pad2->DrawFrame(datahist.at(ihisto)->GetBinLowEdge(1), 0.25, datahist.at(ihisto)->GetBinLowEdge(datahist.at(ihisto)->GetNbinsX()+1), 1.75, "");
     
+    if(category <= 1)
+      frame2->GetXaxis()->SetNdivisions(510);
+    else
+      frame2->GetXaxis()->SetNdivisions(210);
+    frame2->GetYaxis()->SetNdivisions(5);
+
     frame2->GetXaxis()->SetTitle(observableLatex.c_str());
     frame2->GetYaxis()->SetTitle("Data/Pred.");
     frame2->GetYaxis()->CenterTitle();
-    frame2->GetXaxis()->SetLabelSize(0.11);
-    frame2->GetYaxis()->SetLabelSize(0.10);
-    frame2->GetXaxis()->SetTitleSize(0.135);
-    frame2->GetYaxis()->SetTitleOffset(0.4);
-    frame2->GetYaxis()->SetTitleSize(0.12);
-    frame2->GetYaxis()->SetNdivisions(5);
-    frame2->GetXaxis()->SetNdivisions(510);
+    frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetYaxis()->SetLabelSize(0.04);
+    frame2->GetYaxis()->SetTitleSize(0.04);
+    frame2->GetXaxis()->SetLabelSize(0.04);
+    frame2->GetXaxis()->SetTitleSize(0.05);
     frame2->Draw();
     
     TH1* nhist = (TH1*) datahist.at(ihisto)->Clone("datahist_tot");
@@ -748,14 +742,59 @@ void makeControlPlots2D(string templateFileName,
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
 
-    pad1->cd();
     if(ihisto < bin.size()-2)
       ttext.DrawLatex(0.45,0.75,Form("%.1f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
     else
       ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
-    
+
     canvas->SaveAs(Form("%s_%s_bin_%d.png",observable.c_str(),controlRegion.c_str(),int(ihisto)));
     canvas->SaveAs(Form("%s_%s_bin_%d.pdf",observable.c_str(),controlRegion.c_str(),int(ihisto)));
+
+    if(addSBPlots and controlRegion == "SR"){
+
+      TH1* totalSignal = NULL;
+
+      if(isHiggsInvisible){
+	totalSignal = (TH1*) ggHhist.at(ihist)->Clone("totalSignal");
+	totalSignal->Add(vbfHhist.at(ihist));
+	totalSignal->Add(wHhist.at(ihist));
+	totalSignal->Add(zHhist.at(ihist));
+      }
+      else{
+	totalSignal = (TH1*) monoJhist.at(ihist)->Clone("monoJhist");
+	totalSignal->Add(monoWhist.at(ihist));
+	totalSignal->Add(monoZhist.at(ihist));
+      }
+
+      canvas->cd();
+      pad2->Draw();
+      pad2->cd();
+      frame2->GetYaxis()->SetTitle("(S+B)/B");
+
+      TH1* SoverB_prefit = (TH1*) totalSignal->Clone("SoverB_prefit");
+      SoverB_prefit->Add((TH1*) stack->GetStack()->At(stack->GetNhists()-1));
+      SoverB_prefit->Divide((TH1*) stack->GetStack()->At(stack->GetNhists()-1));
+      frame2->GetYaxis()->SetRangeUser(0.,SoverB_prefit->GetMaximum()*1.1);
+      frame2->Draw();
+      SoverB_prefit->Draw("hist same");
+      TH1* SoverB_prefit_d = (TH1*) SoverB_prefit->Clone("SoverB_prefit_d");
+      for(int iBin = 0; iBin < SoverB_prefit_d->GetNbinsX(); iBin++)
+	SoverB_prefit_d->SetBinContent(iBin+1,1);
+      SoverB_prefit_d->SetLineColor(0);
+      SoverB_prefit_d->SetMarkerColor(0);
+      SoverB_prefit_d->SetMarkerSize(0);
+      SoverB_prefit_d->SetFillColor(kGray);
+      SoverB_prefit_d->SetFillStyle(1001);
+      SoverB_prefit_d->Draw("E2 SAME");
+      unhist->Draw("SAME");
+      SoverB_prefit->Draw("hist same");
+      pad2->RedrawAxis("sameaxis");
+
+      canvas->SaveAs(Form("%s_%s_bin_%d_SoB.png",observable.c_str(),controlRegion.c_str(),int(ihisto)));
+      canvas->SaveAs(Form("%s_%s_bin_%d_SoB.pdf",observable.c_str(),controlRegion.c_str(),int(ihisto)));
+
+    }
+    
   }
 }
 

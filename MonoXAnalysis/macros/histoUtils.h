@@ -105,7 +105,7 @@ vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
 vector<double> bins_monoJ_njet_2D_v2  = {1,2,3,4,10};
 vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
-vector<double> bins_monoJ_mT_2D       = {50.,450.,650.,950.,2000.};
+vector<double> bins_monoJ_mT_2D       = {200.,300,400.,500,600.,800,1100,1400,2000.};
 vector<double> bins_monoJ_dphiJJ_2D   = {-0.2,0.0,0.6,1.5,3.14};
 vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
 
@@ -213,11 +213,11 @@ vector<double> selectBinning (string observable, int category){
   else if((TString(observable).Contains("btag") or TString(observable).Contains("CSV")) and category > 1)
     return bins_monoV_btagCSV;
   
-  else if(TString(observable).Contains("QGL") and category <= 1)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category <= 1)
     return bins_monoJ_QGL;
-  else if(TString(observable).Contains("QGL") and category > 1 and category <= 3)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category > 1 and category <= 3)
     return bins_monoV_QGL;
-  else if(TString(observable).Contains("QGL") and category > 3)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category > 3)
     return bins_monoV_QGL;
 
   else if((observable == "dphiJJ" or  observable == "minDphiJJ" or observable == "minDphiJ1J") and category <= 1)
@@ -275,6 +275,16 @@ bin2D selectBinning2D (string observable, int category){
   else if(observable == "met_mT" and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_mT_2D;
+    return bins;
+  }
+  else if(observable == "mT_njet" and category <=1){
+    bins.binX = bins_monoJ_mT_2D;
+    bins.binY = bins_monoJ_njet_2D;
+    return bins;
+  }
+  else if(observable == "mT_njet_v2" and category <=1){
+    bins.binX = bins_monoJ_mT_2D;
+    bins.binY = bins_monoJ_njet_2D_v2;
     return bins;
   }
 
@@ -365,6 +375,15 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
   if(sysHisto == 0 || sysHisto == NULL) return;
   for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
     if(iBin >= nominalHisto->FindBin(xPoint))
+      sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);
+  }
+}
+
+void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, int xBin, float xValue){
+
+  if(sysHisto == 0 || sysHisto == NULL) return;
+  for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
+    if(iBin >= xBin)
       sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);
   }
 }
@@ -534,6 +553,8 @@ void changeInLatexName(string & variable){
     variable = "#Delta#phi_{jj}";
   else if(variable == "minDphiJJ")
     variable = "min(#Delta#phi_{jj})";
+  else if(variable == "minDphiJ1J")
+    variable = "min(#Delta#phi_{j_{1}j})";
   else if(variable == "mpruned")
     variable = "m_{pruned} [GeV]";
   else if(variable == "tau2tau1")
@@ -579,5 +600,27 @@ pair<string,string> observableName (string name, bool alongX = false){
     return make_pair(variableY,variableX);
 }
 
+TH2* cloneHistoIncludingOverUnderFlow (TH2* histo){
+
+  vector<double> binX;
+  for(int iBinX = 0; iBinX <= histo->GetXaxis()->GetNbins()+2; iBinX++){
+    binX.push_back(histo->GetXaxis()->GetBinLowEdge(iBinX));
+  }
+  vector<double> binY;
+  for(int iBinY = 0; iBinY <= histo->GetYaxis()->GetNbins()+2; iBinY++){
+    binY.push_back(histo->GetYaxis()->GetBinLowEdge(iBinY));
+  }
+
+  TH2F* temp = new TH2F((string(histo->GetName())+"_clone").c_str(),"",int(binX.size()-1),&binX[0],int(binY.size()-1),&binY[0]);
+  
+  for(int iBinX = 1; iBinX <= temp->GetNbinsX(); iBinX++){
+    for(int iBinY = 1; iBinY <= temp->GetNbinsY(); iBinY++){
+	temp->SetBinContent(iBinX,iBinY,histo->GetBinContent(histo->FindBin(temp->GetXaxis()->GetBinCenter(iBinX),temp->GetYaxis()->GetBinCenter(iBinY))));
+    }
+  }
+
+  return dynamic_cast<TH2*>(temp);
+
+}
 
 #endif
