@@ -830,10 +830,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       float sigmaPt = Resolution.getResolution(jetParam);
 	
       if(jet.genJet() !=0){ // gen matched jet found
-	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < 0.2 and fabs(jetP4.pt()-jet.genJet()->pt()) < sigmaPt*3){ // mathing withing dR = 0.2 and deviates less than 3 sigma in E
-	  resCorrection     = 1+std::max(0.,(jerSF-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt()); // 1+correction*
-	  resCorrectionUp   = 1+std::max(0.,(jerSFUp-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt());
-	  resCorrectionDown = 1+std::max(0.,(jerSFDw-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt());
+	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < 0.2 and fabs((jetP4.pt()-jet.genJet()->pt())/jetP4.pt()) < 3*sigmaPt){ // mathing withing dR = 0.2 and deviates less than 3 sigma in E
+	  resCorrection     = 1+(jerSF-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt(); // 1+correction*
+	  resCorrectionUp   = 1+(jerSFUp-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt();
+	  resCorrectionDown = 1+(jerSFDw-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt();
 	  useRandomSmear    = false;
 	}
       }
