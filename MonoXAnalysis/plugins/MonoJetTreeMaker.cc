@@ -307,7 +307,9 @@ private:
 
   // met systematics
   double t1pfmetMuEnUp,t1pfmetMuEnDown,t1pfmetElEnUp,t1pfmetElEnDown,t1pfmetPhoEnUp,t1pfmetPhoEnDown,t1pfmetTauEnUp,t1pfmetTauEnDown;
-  double t1pfmetJetEnUp,t1pfmetJetEnDown,t1pfmetJetResUp,t1pfmetJetResDown,t1pfmetUncEnUp,t1pfmetUncEnDown;
+  double t1pfmetJetEnUp,t1pfmetJetEnDown,t1pfmetJetResUp,t1pfmetJetResDown,t1pfmetUncEnUp,t1pfmetUncEnDown,t1pfmetJetSmear,t1pfmetXY;
+  double t1pfmetMuEnUpPhi,t1pfmetMuEnDownPhi,t1pfmetElEnUpPhi,t1pfmetElEnDownPhi,t1pfmetPhoEnUpPhi,t1pfmetPhoEnDownPhi,t1pfmetTauEnUpPhi,t1pfmetTauEnDownPhi;
+  double t1pfmetJetEnUpPhi,t1pfmetJetEnDownPhi,t1pfmetJetResUpPhi,t1pfmetJetResDownPhi,t1pfmetUncEnUpPhi,t1pfmetUncEnDownPhi,t1pfmetJetSmearPhi,t1pfmetXYPhi;
 
   // met systematics puppi
   double puppit1pfmetMuEnUp,puppit1pfmetMuEnDown,puppit1pfmetElEnUp,puppit1pfmetElEnDown,puppit1pfmetPhoEnUp,puppit1pfmetPhoEnDown,puppit1pfmetTauEnUp;
@@ -1003,13 +1005,39 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	t1pfmetJetResDown = t1metH->front().shiftedPt(pat::MET::METUncertainty::JetResDown, pat::MET::METCorrectionLevel::Type1Smear);
 	t1pfmetUncEnUp    = t1metH->front().shiftedPt(pat::MET::METUncertainty::UnclusteredEnUp,   pat::MET::METCorrectionLevel::Type1);
 	t1pfmetUncEnDown  = t1metH->front().shiftedPt(pat::MET::METUncertainty::UnclusteredEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetJetSmear   = t1metH->front().shiftedPt(pat::MET::NoShift, pat::MET::METCorrectionLevel::Type1Smear);
+	t1pfmetXY         = t1metH->front().shiftedPt(pat::MET::NoShift, pat::MET::METCorrectionLevel::Type1XY);
+
+	t1pfmetMuEnUpPhi     = t1metH->front().shiftedPhi(pat::MET::METUncertainty::MuonEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetMuEnDownPhi   = t1metH->front().shiftedPhi(pat::MET::METUncertainty::MuonEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetElEnUpPhi     = t1metH->front().shiftedPhi(pat::MET::METUncertainty::ElectronEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetElEnDownPhi   = t1metH->front().shiftedPhi(pat::MET::METUncertainty::ElectronEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetPhoEnUpPhi    = t1metH->front().shiftedPhi(pat::MET::METUncertainty::PhotonEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetPhoEnDownPhi  = t1metH->front().shiftedPhi(pat::MET::METUncertainty::PhotonEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetTauEnUpPhi    = t1metH->front().shiftedPhi(pat::MET::METUncertainty::TauEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetTauEnDownPhi  = t1metH->front().shiftedPhi(pat::MET::METUncertainty::TauEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetJetEnUpPhi    = t1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetJetEnDownPhi  = t1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetJetResUpPhi   = t1metH->front().shiftedPhi(pat::MET::METUncertainty::JetResUp,   pat::MET::METCorrectionLevel::Type1Smear);
+	t1pfmetJetResDownPhi = t1metH->front().shiftedPhi(pat::MET::METUncertainty::JetResDown, pat::MET::METCorrectionLevel::Type1Smear);
+	t1pfmetUncEnUpPhi    = t1metH->front().shiftedPhi(pat::MET::METUncertainty::UnclusteredEnUp,   pat::MET::METCorrectionLevel::Type1);
+	t1pfmetUncEnDownPhi  = t1metH->front().shiftedPhi(pat::MET::METUncertainty::UnclusteredEnDown, pat::MET::METCorrectionLevel::Type1);
+	t1pfmetJetSmearPhi   = t1metH->front().shiftedPhi(pat::MET::NoShift, pat::MET::METCorrectionLevel::Type1Smear);
+	t1pfmetXYPhi         = t1metH->front().shiftedPhi(pat::MET::NoShift, pat::MET::METCorrectionLevel::Type1XY);
+
+
       }
     }
     else{
       t1pfmetMuEnUp  = -99.; t1pfmetMuEnDown  = -99.; t1pfmetElEnUp   = -99.; t1pfmetElEnDown   = -99.;
       t1pfmetPhoEnUp = -99.; t1pfmetPhoEnDown = -99.; t1pfmetTauEnUp  = -99.; t1pfmetTauEnDown  = -99.;
       t1pfmetJetEnUp = -99.; t1pfmetJetEnDown = -99.; t1pfmetJetResUp = -99.; t1pfmetJetResDown = -99.;
-      t1pfmetUncEnUp = -99.; t1pfmetUncEnDown = -99.;      
+      t1pfmetUncEnUp = -99.; t1pfmetUncEnDown = -99.; t1pfmetJetSmear = -99.; t1pfmetXY = -99.;     
+
+      t1pfmetMuEnUpPhi  = -99.; t1pfmetMuEnDownPhi  = -99.; t1pfmetElEnUpPhi   = -99.; t1pfmetElEnDownPhi   = -99.;
+      t1pfmetPhoEnUpPhi = -99.; t1pfmetPhoEnDownPhi = -99.; t1pfmetTauEnUpPhi  = -99.; t1pfmetTauEnDownPhi  = -99.;
+      t1pfmetJetEnUpPhi = -99.; t1pfmetJetEnDownPhi = -99.; t1pfmetJetResUpPhi = -99.; t1pfmetJetResDownPhi = -99.;
+      t1pfmetUncEnUpPhi = -99.; t1pfmetUncEnDownPhi = -99.; t1pfmetJetSmearPhi = -99.; t1pfmetXYPhi = -99.;     
     }
 
     // puppi met info
@@ -3072,6 +3100,26 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("t1pfmetJetResDown"   , &t1pfmetJetResDown   , "t1pfmetJetResDown/D");
     tree->Branch("t1pfmetUncEnUp"      , &t1pfmetUncEnUp      , "t1pfmetUncEnUp/D");
     tree->Branch("t1pfmetUncEnDown"    , &t1pfmetUncEnDown    , "t1pfmetUncEnDown/D");
+    tree->Branch("t1pfmetJetSmear"        , &t1pfmetJetSmear        , "t1pfmetJetSmear/D");
+    tree->Branch("t1pfmetXY"           , &t1pfmetXY           , "t1pfmetXY/D");
+
+    tree->Branch("t1pfmetMuEnUpPhi"       , &t1pfmetMuEnUpPhi       , "t1pfmetMuEnUpPhi/D");
+    tree->Branch("t1pfmetMuEnDownPhi"     , &t1pfmetMuEnDownPhi     , "t1pfmetMuEnDownPhi/D");
+    tree->Branch("t1pfmetElEnUpPhi"       , &t1pfmetElEnUpPhi       , "t1pfmetElEnUpPhi/D");
+    tree->Branch("t1pfmetElEnDownPhi"     , &t1pfmetElEnDownPhi     , "t1pfmetElEnDownPhi/D");
+    tree->Branch("t1pfmetPhoEnUpPhi"      , &t1pfmetPhoEnUpPhi      , "t1pfmetPhoEnUpPhi/D");
+    tree->Branch("t1pfmetPhoEnDownPhi"    , &t1pfmetPhoEnDownPhi    , "t1pfmetPhoEnDownPhi/D");
+    tree->Branch("t1pfmetTauEnUpPhi"      , &t1pfmetTauEnUpPhi      , "t1pfmetTauEnUpPhi/D");
+    tree->Branch("t1pfmetTauEnDownPhi"    , &t1pfmetTauEnDownPhi    , "t1pfmetTauEnDownPhi/D");
+    tree->Branch("t1pfmetJetEnUpPhi"      , &t1pfmetJetEnUpPhi      , "t1pfmetJetEnUpPhi/D");
+    tree->Branch("t1pfmetJetEnDownPhi"    , &t1pfmetJetEnDownPhi    , "t1pfmetJetEnDownPhi/D");
+    tree->Branch("t1pfmetJetResUpPhi"     , &t1pfmetJetResUpPhi     , "t1pfmetJetResUpPhi/D");
+    tree->Branch("t1pfmetJetResDownPhi"   , &t1pfmetJetResDownPhi   , "t1pfmetJetResDownPhi/D");
+    tree->Branch("t1pfmetUncEnUpPhi"      , &t1pfmetUncEnUpPhi      , "t1pfmetUncEnUpPhi/D");
+    tree->Branch("t1pfmetUncEnDownPhi"    , &t1pfmetUncEnDownPhi    , "t1pfmetUncEnDownPhi/D");
+    tree->Branch("t1pfmetJetSmearPhi"        , &t1pfmetJetSmearPhi        , "t1pfmetJetSmearPhi/D");
+    tree->Branch("t1pfmetXYPhi"           , &t1pfmetXYPhi           , "t1pfmetXYPhi/D");
+
   }
 
   if(addPuppiMET){

@@ -102,6 +102,7 @@ private:
 
   // JES
   edm::FileInPath jetJECUncFile_;
+  StringCutObjectSelector<pat::Jet> jetSelection_;
 
   // JER
   edm::FileInPath jetJERFile_;
@@ -110,7 +111,7 @@ private:
 
   // unclustered
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
-  std::vector<float> unclusteredUnc_;
+  std::vector<std::string> unclusteredUnc_;
 
   template<typename T>
   class PatPtSorter{
@@ -149,7 +150,8 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   skipElectron_(iConfig.existsAs<bool>("Electron") ? iConfig.getParameter<bool>("skiElectron") : false),
   skipPhoton_(iConfig.existsAs<bool>("skipPhoton") ? iConfig.getParameter<bool>("skipPhoton") : false),
   skipTau_(iConfig.existsAs<bool>("skipTau") ? iConfig.getParameter<bool>("skipTau") : false),
-  skipJet_(iConfig.existsAs<bool>("skipJet") ? iConfig.getParameter<bool>("skipJet") : false)
+  skipJet_(iConfig.existsAs<bool>("skipJet") ? iConfig.getParameter<bool>("skipJet") : false),
+  jetSelection_             (StringCutObjectSelector<pat::Jet>(jetPSet_.getParameter<std::string>("selection")))
  {
 
    jetToken_      = consumes<std::vector<pat::Jet> >  (jetPSet_.getParameter<edm::InputTag>("src"));
@@ -181,14 +183,14 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
 
   for(auto bin : unclusteredPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
     unclusteredSelection_.push_back(StringCutObjectSelector<reco::Candidate>(bin.getParameter<std::string>("binSelection")));
-    unclusteredUnc_.push_back(bin.getParameter<double>("uncertainty"));
+    unclusteredUnc_.push_back(bin.getParameter<std::string>("binUncertainty"));
   }
 
   // file for JEC unc
   jetJECUncFile_ = jetPSet_.getParameter<edm::FileInPath>("JECUncFile");
   if(not jetJECUncFile_.location() and jetPSet_.getParameter<bool> ("useExternalJECUncertainty") and not skipJet_)
     throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
-
+  
   // file for JER truth
   jetJERFile_    = jetPSet_.getParameter<edm::FileInPath>("JERFile");
   jetJERSFFile_  = jetPSet_.getParameter<edm::FileInPath>("JERSFFile");
@@ -350,6 +352,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     isPuppiMET = true;
 
   // loop on muons
+  std::vector<reco::CandidatePtr> particlesInMuon;
+  std::vector<reco::CandidatePtr> particlesInElectron;
+  std::vector<reco::CandidatePtr> particlesInPhoton;
+  std::vector<reco::CandidatePtr> particlesInTau;
+  std::vector<reco::CandidatePtr> particlesInJet;
+
   if(not skipMuon_){
     for(auto muon : *muColl){    
       if(isPuppiMET){
@@ -358,7 +366,13 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  continue;
 	muon.setP4(p4);
       }
-	      
+
+      for(size_t ipart = 0 ; ipart < muon.numberOfSourceCandidatePtrs(); ipart++){
+	if(muon.sourceCandidatePtr(ipart).isNonnull() and muon.sourceCandidatePtr(ipart).isAvailable()){
+	  particlesInMuon.push_back(muon.sourceCandidatePtr(ipart));
+	}
+      }
+
       float ptError = 0.;
       // used numeric uncertainties provided at python level and cloned from: http://cmslxr.fnal.gov/source/PhysicsTools/PatUtils/python/tools/runMETCorrsAndUncertainties.py
       if(muonPSet_.getParameter<bool>("useExternalUncertainty")){	
@@ -445,6 +459,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	if(p4.pt() == 0)
 	  continue;
 	ele.setP4(p4);
+      }
+
+      for(size_t ipart = 0 ; ipart < ele.numberOfSourceCandidatePtrs(); ipart++){
+	if(ele.sourceCandidatePtr(ipart).isNonnull() and ele.sourceCandidatePtr(ipart).isAvailable()){
+          particlesInElectron.push_back(ele.sourceCandidatePtr(ipart));
+	}
       }
 
       float p4Error = 0.;
@@ -542,6 +562,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  continue;
 	pho.setP4(p4);
       }
+      
+      for(size_t ipart = 0 ; ipart < pho.numberOfSourceCandidatePtrs(); ipart++){
+	if(pho.sourceCandidatePtr(ipart).isNonnull() and pho.sourceCandidatePtr(ipart).isAvailable()){
+          particlesInPhoton.push_back(pho.sourceCandidatePtr(ipart));
+	}
+      }
 
       float p4Error = 0.;
       if(photonPSet_.getParameter<bool>("useExternalUncertainty")){	
@@ -636,6 +662,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	tau.setP4(p4);
       }
 
+      for(size_t ipart = 0 ; ipart < tau.numberOfSourceCandidatePtrs(); ipart++){
+	if(tau.sourceCandidatePtr(ipart).isNonnull() and tau.sourceCandidatePtr(ipart).isAvailable()){
+          particlesInTau.push_back(tau.sourceCandidatePtr(ipart));
+	}
+      }
+
       float p4Error = 0.;
       if(tauPSet_.getParameter<bool>("useExternalUncertainty")){	
 	int iBin = 0;
@@ -706,8 +738,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   if(not skipJet_ ){
     
     std::auto_ptr<JetCorrectionUncertainty> jecUnc;
-    std::vector<reco::CandidatePtr> particlesInJet;
-
     JME::JetResolution Resolution;
     JME::JetResolutionScaleFactor ScalarFactor;
 
@@ -739,26 +769,39 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     
     for(auto jet : *jetColl){
+      if(not jetSelection_(jet)) continue;
+      reco::Candidate::LorentzVector muonP4;
+      const std::vector<reco::CandidatePtr> & cands = jet.daughterPtrVector();
+      for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin(); cand != cands.end(); ++cand ) {
+	const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cand->get());
+	const reco::Candidate *mu = (pfcand != 0 ? ( pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : 0) : cand->get());
+	if ( mu != 0 && (mu->isGlobalMuon() || mu->isStandAloneMuon() )) {
+	  muonP4 += (*cand)->p4();
+	}
+      }      
+      
+      reco::Candidate::LorentzVector jetP4 = jet.p4()+muonP4;
+      
       //set eta and pt
-      jecUnc->setJetEta(jet.eta());
-      jecUnc->setJetPt(jet.pt()); 
+      jecUnc->setJetEta(jetP4.eta());
+      jecUnc->setJetPt(jetP4.pt()); 
       float p4Error = jecUnc->getUncertainty(true);
 
       // build vector scaled on the transverse plane                                                                                                                            
       TVector2 p2Up, p2Down;
-      p2Up.SetMagPhi(jet.pt()*(1+p4Error),jet.phi());
-      p2Down.SetMagPhi(jet.pt()*(1-p4Error),jet.phi());
-      corrJetEnUp.mex += (-p2Up.Px()+jet.px());
-      corrJetEnUp.mey += (-p2Up.Py()+jet.py());
-      corrJetEnUp.sumet += fabs(p2Up.Mod()-jet.pt());
-      corrJetEnDown.mex += (-p2Down.Px()+jet.px());
-      corrJetEnDown.mey += (-p2Down.Py()+jet.py());
-      corrJetEnDown.sumet += fabs(p2Down.Mod()-jet.pt());
-
+      p2Up.SetMagPhi(jetP4.pt()*(1+p4Error),jetP4.phi());
+      p2Down.SetMagPhi(jetP4.pt()*(1-p4Error),jetP4.phi());
+      corrJetEnUp.mex += (-p2Up.Px()+jetP4.px());
+      corrJetEnUp.mey += (-p2Up.Py()+jetP4.py());
+      corrJetEnUp.sumet += fabs(p2Up.Mod()-jetP4.pt());
+      corrJetEnDown.mex += (-p2Down.Px()+jetP4.px());
+      corrJetEnDown.mey += (-p2Down.Py()+jetP4.py());
+      corrJetEnDown.sumet += fabs(p2Down.Mod()-jetP4.pt());
+     
       pat::Jet newJetEnUp(jet);
-      newJetEnUp.setP4(jet.p4()*(1+p4Error));
+      newJetEnUp.setP4(jetP4*(1+p4Error));
       pat::Jet newJetEnDown(jet);
-      newJetEnDown.setP4(jet.p4()*(1-p4Error));
+      newJetEnDown.setP4(jetP4*(1-p4Error));
 
       jetEnUp->push_back(newJetEnUp);
       jetEnDown->push_back(newJetEnDown);
@@ -770,11 +813,11 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       // for jet energy resolution
       JME::JetParameters jetParam;
-      jetParam.setJetPt(jet.pt());
-      jetParam.setJetEta(jet.eta());
+      jetParam.setJetPt(jetP4.pt());
+      jetParam.setJetEta(jetP4.eta());
       jetParam.setRho(rho);
 
-      jerSF   = ScalarFactor.getScaleFactor(jetParam);
+      jerSF   = ScalarFactor.getScaleFactor(jetParam, Variation::NOMINAL);
       jerSFUp = ScalarFactor.getScaleFactor(jetParam, Variation::UP);
       jerSFDw = ScalarFactor.getScaleFactor(jetParam, Variation::DOWN);
       
@@ -784,11 +827,13 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       float resCorrectionDown = 0;
 
       bool useRandomSmear = true;
+      float sigmaPt = Resolution.getResolution(jetParam);
+	
       if(jet.genJet() !=0){ // gen matched jet found
-	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < std::min(0.4, 0.1 + 0.3*exp(-0.05*(jet.genJet()->pt()-10.)))){
-	  resCorrection     = std::max(0.,(jerSF-1)*(jet.pt()-jet.genJet()->pt())/jet.pt()); // 1+correction*
-	  resCorrectionUp   = std::max(0.,(jerSFUp-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
-	  resCorrectionDown = std::max(0.,(jerSFDw-1)*(jet.pt()-jet.genJet()->pt())/jet.pt());
+	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < 0.2 and fabs(jetP4.pt()-jet.genJet()->pt()) < sigmaPt*3){ // mathing withing dR = 0.2 and deviates less than 3 sigma in E
+	  resCorrection     = 1+std::max(0.,(jerSF-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt()); // 1+correction*
+	  resCorrectionUp   = 1+std::max(0.,(jerSFUp-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt());
+	  resCorrectionDown = 1+std::max(0.,(jerSFDw-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt());
 	  useRandomSmear    = false;
 	}
       }
@@ -796,42 +841,47 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       if(useRandomSmear){
 	    
 	// take jet resolution from db/text file in case of random smearing
-	float sigmaPt = Resolution.getResolution(jetParam);
 	// apply smearing to jet 4V
 	float smearingWidth     = sqrt(jerSF*jerSF-1)*sigmaPt;
 	float smearingWidthUp   = sqrt(jerSFUp*jerSFUp-1)*sigmaPt;
 	float smearingWidthDown = sqrt(jerSFDw*jerSFDw-1)*sigmaPt;
 	
-	do{ resCorrection   = rand_->Gaus(0,smearingWidth);}       while(resCorrection <= -1.); 
-	do{ resCorrectionUp = rand_->Gaus(0,smearingWidthUp);}     while(resCorrection <= -1.);
-	do{ resCorrectionDown = rand_->Gaus(0,smearingWidthDown);} while(resCorrection <= -1.);
+	do{ resCorrection     = 1+rand_->Gaus(0,smearingWidth)/jetP4.pt();}       while(resCorrection <= 0.); 
+	do{ resCorrectionUp   = 1+rand_->Gaus(0,smearingWidthUp)/jetP4.pt();}     while(resCorrectionUp <= 0.);
+	do{ resCorrectionDown = 1+rand_->Gaus(0,smearingWidthDown)/jetP4.pt();}   while(resCorrectionDown <= 0.);
       }
       
-      float smearedPt     = std::max(1.e-2,jet.pt()*(1+resCorrection));
-      float smearedPtUp   = std::max(1.e-2,jet.pt()*(1+resCorrectionUp));
-      float smearedPtDown = std::max(1.e-2,jet.pt()*(1+resCorrectionDown));
+      pat::Jet newJetSmear(jet);
+      pat::Jet newJetSmearResUp(jet);
+      pat::Jet newJetSmearResDown(jet);
+      newJetSmear.setP4(jet.p4()*resCorrection);
+      newJetSmearResUp.setP4(jet.p4()*resCorrectionUp);
+      newJetSmearResDown.setP4(jet.p4()*resCorrectionDown);           
 	
       // build vector scaled on the transverse plane                                                                                                                            
       TVector2 p2Smear;
-      p2Smear.SetMagPhi(smearedPt,jet.phi());
-      p2Up.SetMagPhi(smearedPtUp,jet.phi());
-      p2Down.SetMagPhi(smearedPtDown,jet.phi());
-      corrJetSmear.mex += (-p2Smear.Px()+jet.px());
-      corrJetSmear.mey += (-p2Smear.Py()+jet.py());
-      corrJetSmear.sumet += p2Smear.Mod()-jet.pt();
-      corrJetSmearResUp.mex += (-p2Up.Px()+jet.px());
-      corrJetSmearResUp.mey += (-p2Up.Py()+jet.py());
-      corrJetSmearResUp.sumet += p2Up.Mod()-jet.pt();
-      corrJetSmearResDown.mex += (-p2Down.Px()+jet.px());
-      corrJetSmearResDown.mey += (-p2Down.Py()+jet.py());
-      corrJetSmearResDown.sumet += p2Down.Mod()-jet.pt();
+      reco::Candidate::LorentzVector jetResMET   = jetP4*resCorrection;
+      reco::Candidate::LorentzVector jetResUpMET = jetP4*resCorrectionUp;
+      reco::Candidate::LorentzVector jetResDwMET = jetP4*resCorrectionDown;
 
-      pat::Jet newJetSmear(jet);
-      newJetSmear.setP4(jet.p4()*(1+resCorrection));
-      pat::Jet newJetSmearResUp(jet);
-      newJetSmearResUp.setP4(jet.p4()*(1+resCorrectionUp));
-      pat::Jet newJetSmearResDown(jet);
-      newJetSmearResDown.setP4(jet.p4()*(1+resCorrectionDown));           
+      p2Smear.SetMagPhi(jetResMET.pt(),jetResMET.phi());
+      p2Up.SetMagPhi(jetResUpMET.pt(),jetResUpMET.phi());
+      p2Down.SetMagPhi(jetResDwMET.pt(),jetResDwMET.phi());
+      if(jetSelection_(newJetSmear)){
+	corrJetSmear.mex += (-p2Smear.Px()+jetP4.px());
+	corrJetSmear.mey += (-p2Smear.Py()+jetP4.py());
+	corrJetSmear.sumet += p2Smear.Mod()-jetP4.pt();
+      }
+      if(jetSelection_(newJetSmearResUp)){
+	corrJetSmearResUp.mex += (-p2Up.Px()+jetP4.px());
+	corrJetSmearResUp.mey += (-p2Up.Py()+jetP4.py());
+	corrJetSmearResUp.sumet += p2Up.Mod()-jetP4.pt();
+      }
+      if(jetSelection_(newJetSmearResDown)){
+	corrJetSmearResDown.mex += (-p2Down.Px()+jetP4.px());
+	corrJetSmearResDown.mey += (-p2Down.Py()+jetP4.py());
+	corrJetSmearResDown.sumet += p2Down.Mod()-jetP4.pt();
+      }
 
       if(newJetSmear.pt() > 1.e-2) 
 	jetSmear->push_back(newJetSmear);
@@ -861,22 +911,81 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  continue;
       }
 
+      // check overlaps with other particles
       bool isfound = false;
       for(auto part : particlesInJet){  	
 	if(part == ptrCand){
 	  isfound = true;
 	  break;
-	}
+	}      	
       }
 
       if(isfound)
 	continue;
        
+      for(auto part : particlesInTau){  	
+	if(part == ptrCand){
+	  isfound = true;
+	  break;
+	}      	
+      }
+
+      if(isfound)
+	continue;
+
+      for(auto part : particlesInMuon){  	
+	if(part == ptrCand){
+	  isfound = true;
+	  break;
+	}      	
+      }
+
+      if(isfound)
+	continue;
+
+      for(auto part : particlesInElectron){  	
+	if(part == ptrCand){
+	  isfound = true;
+	  break;
+	}      	
+      }
+
+      if(isfound)
+	continue;
+
+      for(auto part : particlesInPhoton){  	
+	if(part == ptrCand){
+	  isfound = true;
+	  break;
+	}      	
+      }
+
+      if(isfound)
+	continue;
+
+
       float uncertaintyP4 = 0;
       int iBin = 0;
-      for(auto selection : unclusteredSelection_){	  
+      for(auto selection : unclusteredSelection_){ // use the formula for single particle PF resolution	   
 	if(selection(pfCandCollection->at(icand))){
-	  uncertaintyP4 = unclusteredUnc_.at(iBin);
+	  TString formula (unclusteredUnc_.at(iBin).c_str());
+	  double  varX = 0;
+	  double  varY = 0;
+	  if(formula.Contains("pt")){
+	    formula.ReplaceAll("pt","x");
+	    varX = pfCandCollection->at(icand).pt();
+	  }
+	  else if(formula.Contains("energy")){
+	    formula.ReplaceAll("energy","x");
+	    varX = pfCandCollection->at(icand).energy();
+	  }
+	  if(formula.Contains("eta")){
+	    formula.ReplaceAll("eta","y");
+	    varY = pfCandCollection->at(icand).eta();
+	  }
+	  TFormula form ("form",formula.Data());
+	  uncertaintyP4 = form.Eval(varX,varY);
+	  iBin++;
 	  break;
 	}
 	else

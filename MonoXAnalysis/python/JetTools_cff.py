@@ -2,8 +2,8 @@ import os, copy, re
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetId
 from PhysicsTools.PatAlgos.recoLayer0.jetCorrFactors_cfi import patJetCorrFactors
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
-from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJets
+from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import updatedPatJetCorrFactors
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 ## generic function that corrects jet and MET given a JEC                                                                                                                    
@@ -11,7 +11,7 @@ def JetCorrector(process,jetCollection,payloadName,isMC,applyL2L3Residuals):
     
     ## apply corrections on jets                                                                                                                                             
     if not hasattr(process,"patJetCorrFactorsReapplyJEC"+payloadName):
-        setattr(process,"patJetCorrFactorsReapplyJEC"+payloadName, patJetCorrFactorsUpdated.clone(
+        setattr(process,"patJetCorrFactorsReapplyJEC"+payloadName, updatedPatJetCorrFactors.clone(
                 src     = cms.InputTag(jetCollection),
                 levels  = process.JECLevels.labels,
                 payload = payloadName
@@ -25,7 +25,7 @@ def JetCorrector(process,jetCollection,payloadName,isMC,applyL2L3Residuals):
 
     if not hasattr(process,"slimmedJetsRecorrected"+payloadName):
         setattr(process,"slimmedJetsRecorrected"+payloadName,
-                patJetsUpdated.clone(jetSource = cms.InputTag(jetCollection),
+                updatedPatJets.clone(jetSource = cms.InputTag(jetCollection),
                                      jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"+payloadName))))
 
 
@@ -52,7 +52,7 @@ def addPileupJetID(process,jetCollection,postfix,isMC):
     ## modify jets                                                                                                                                                           
     if not hasattr(process,jetCollection+"PUID"):
         setattr(process,jetCollection+"PUID",
-                patJetsUpdated.clone(jetSource = cms.InputTag(jetCollection),
+                updatedPatJets.clone(jetSource = cms.InputTag(jetCollection),
                                      addJetCorrFactors = cms.bool(False),
                                      jetCorrFactorsSource = cms.VInputTag()))
 
@@ -98,7 +98,7 @@ def addQGLikelihood(process,jetCollection,postfix):
 
         ## modify jets
         setattr(process,jetCollection+"QG",
-                patJetsUpdated.clone(jetSource = cms.InputTag(jetCollection),
+                updatedPatJets.clone(jetSource = cms.InputTag(jetCollection),
                                      addJetCorrFactors = cms.bool(False),
                                      jetCorrFactorsSource = cms.VInputTag()))
 

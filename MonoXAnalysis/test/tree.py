@@ -66,6 +66,10 @@ options.register (
 	'addMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
+options.register (
+	'useOfficialMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
+
 ## do substructure for CHS or Puppi jets
 options.register (
 	'addSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -128,6 +132,10 @@ options.register (
 options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
 		  'default number of threads');
 
+## to be used when running crab jobs with local files                                                                                                                            
+options.register ('isCrab',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+        'to be used to handle local files with crab');
+
 ## parsing command line arguments
 options.parseArguments()
 
@@ -168,6 +176,7 @@ print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
 print "Running with isSignalSample      = ",options.isSignalSample
 print "Running with addGenParticles     = ",options.addGenParticles
 print "Running with nThreads            = ",options.nThreads
+print "Running with isCrab              = ",options.isCrab
 print "#####################"
 
 ## Define the CMSSW process
@@ -224,11 +233,11 @@ process.GlobalTag.globaltag = options.globalTag
 ## Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py
 from AnalysisCode.MonoXAnalysis.JECConfiguration_cff import JECConfiguration
 ## connect to a local SQLite file or take corrections from GT
-JECConfiguration(process,options.usePrivateSQliteJEC,options.JECEra,options.isMC,options.applyL2L3Residuals)
+JECConfiguration(process,options.usePrivateSQliteJEC,options.JECEra,options.isMC,options.applyL2L3Residuals,options.isCrab)
 
 from AnalysisCode.MonoXAnalysis.JERConfiguration_cff import JERConfiguration
 ## connect to a local SQLite file or take corrections from GT
-JERConfiguration(process,options.usePrivateSQliteJER,options.JECEra,options.isMC)
+JERConfiguration(process,options.usePrivateSQliteJER,options.JECEra,options.isMC,options.isCrab)
 
 ## Setup MET filters or not --> 76X everything inside miniAOD is already good
 process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
@@ -288,11 +297,11 @@ if options.addQGLikelihood:
 from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
 if not options.useMiniAODMet:
 	metCollection = "slimmedMETs"
-	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics);
+	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);
 	
 	if options.addPuppiMET:
 		metCollectionPuppi = "slimmedMETsPuppi"
-		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addMETSystematics);
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);
 		
 
 ## in case run the MVA met producer

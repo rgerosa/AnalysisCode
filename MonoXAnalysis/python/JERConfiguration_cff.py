@@ -47,8 +47,18 @@ def JERConfiguration(process,usePrivateSQlite,JEREra,isMC,isCrab):
                     ),
                 cms.PSet(
                     record = cms.string('JetResolutionRcd'),
+                    tag    = cms.string('JR_'+era+'_PhiResolution_AK4PFchs'),
+                    label  = cms.untracked.string('AK4PFchs_phi')
+                    ),
+                cms.PSet(
+                    record = cms.string('JetResolutionRcd'),
                     tag    = cms.string('JR_'+era+'_PtResolution_AK4PFchs'), ## to be fixed in future
                     label  = cms.untracked.string('AK4PFPuppi_pt')
+                    ),
+                cms.PSet(
+                    record = cms.string('JetResolutionRcd'),
+                    tag    = cms.string('JR_'+era+'_PhiResolution_AK4PFchs'), ## to be fixed in future
+                    label  = cms.untracked.string('AK4PFPuppi_phi')
                     ),
         
                 cms.PSet(

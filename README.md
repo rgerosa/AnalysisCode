@@ -5,26 +5,36 @@ Repository for analysis code
 
 Recipe for 76X (temp fixes for pileup jet id):
 
-           cmsrel CMSSW_7_6_3_patch2
-           cd CMSSW_7_6_3_patch2/src
+           cmsrel CMSSW_7_6_4
+           cd CMSSW_7_6_4/src
 	   cmsenv
 	   git cms-init
+	   #echo /CommonTools/PileupAlgos/ > .git/info/sparse-checkout
+	   #echo /CommonTools/Utils/ >> .git/info/sparse-checkout
+	   #echo /JetMETCorrections/Configuration/ >> .git/info/sparse-checkout
+	   #echo /JetMETCorrections/Modules/ >> .git/info/sparse-checkout
+	   #echo /JetMETCorrections/Type1MET/ >> .git/info/sparse-checkout
+	   #echo /PhysicsTools/PatAlgos/ >> .git/info/sparse-checkout
+	   #echo /PhysicsTools/PatUtils/ >> .git/info/sparse-checkout
+	   #echo /RecoMET/METAlgorithms/ >> .git/info/sparse-checkout
+	   #echo /RecoMET/METProducers/ >> .git/info/sparse-checkout
+	   git cms-merge-topic cms-met:metTool76X
 	   git cms-addpkg RecoJets/JetProducers
 	   git-cms-merge-topic jbrands:pileupJetId76X
 	   cd RecoJets/JetProducers/data/
 	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
 	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
 	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
-	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz
+	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz	   
 	   cd ../../..	
 	   git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X
 	   git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
            rm -rf data/.git  
-
-
+	   rm JetMETCorrections/Modules/src/SealModule.cc
+	   
 How to Run the ntuple production (for analysis):
 
-           cd CMSSW_7_6_3_patch2/src/AnalysisCode/MonoXAnalysis/test
+           cd CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/test
 	   cmsRun tree.py <list of options>
 
 Example:
