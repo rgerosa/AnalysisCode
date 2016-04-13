@@ -8,7 +8,7 @@ config = Configuration()
 
 pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
-               'filterHighMETEvents=False',
+               'filterHighMETEvents=True',
                'usePrivateSQliteJEC=False',
                'usePrivateSQliteJER=True',
                'applyL2L3Residuals=True',
@@ -22,7 +22,8 @@ pyCfgParams = ['isMC=False',
                'addMVAMet=False',
                'globalTag=76X_dataRun2_16Dec2015_v0',
                'outputFileName=tree.root',
-               'nThreads=3']
+               'nThreads=3',
+               'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -41,7 +42,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 25000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-14-1-2016/Data/'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'  
 
 #config.Data.runRange

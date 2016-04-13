@@ -7,7 +7,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=True',
-               'filterOnHLT=True',
+               'filterOnHLT=False',
+               'filterHighMETEvents=False',
                'usePrivateSQliteJEC=False',
                'usePrivateSQliteJER=True',
                'applyL2L3Residuals=False',
@@ -21,7 +22,8 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
-               'nThreads=3']
+               'nThreads=3',
+               'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -39,8 +41,8 @@ config.JobType.numCores         = 3
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 8000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-26-02-2016/'
+config.Data.unitsPerJob   = 20000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

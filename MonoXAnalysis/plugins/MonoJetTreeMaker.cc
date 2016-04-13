@@ -1571,8 +1571,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    
 	      // b-tag SF for Puppijets
 	      if(addBTagScaleFactor){
-		calculateBtagSF(*jets[i],"CSV",centralPuppijetBtagSF,centralPuppijetBtagSFUp,centralPuppijetBtagSFDown);
-		calculateBtagSF(*jets[i],"MVA",centralPuppijetBtagMVASF,centralPuppijetBtagMVASFUp,centralPuppijetBtagMVASFDown);
+		calculateBtagSF(*Puppijets[i],"CSV",centralPuppijetBtagSF,centralPuppijetBtagSFUp,centralPuppijetBtagSFDown);
+		calculateBtagSF(*Puppijets[i],"MVA",centralPuppijetBtagMVASF,centralPuppijetBtagMVASFUp,centralPuppijetBtagMVASFDown);
 	      }    	
 	    }
 	  }
@@ -2266,8 +2266,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  prunedSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 		}
-
-		calculateBtagSF(subjets[0],"SubCSV",prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets[0],"SubCSV",prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1);
 	      }
 	    }
 	  
@@ -2294,7 +2294,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedSubJetGeneta_2 .push_back( subjets.at(1)->genJet()->eta());
 		  prunedSubJetGenphi_2 .push_back( subjets.at(1)->genJet()->phi());
 		}
-		calculateBtagSF(subjets.at(1),"SubCSV",prunedSubJetBtagSF_2,prunedSubJetBtagSFUp_2,prunedSubJetBtagSFDown_2);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(1),"SubCSV",prunedSubJetBtagSF_2,prunedSubJetBtagSFUp_2,prunedSubJetBtagSFDown_2);
 	      }
 	    }
 	  }
@@ -2325,7 +2326,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  softDropSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 		}
-		calculateBtagSF(subjets[0],"SubCSV",softDropSubJetBtagSF_1,softDropSubJetBtagSFUp_1,softDropSubJetBtagSFDown_1);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets[0],"SubCSV",softDropSubJetBtagSF_1,softDropSubJetBtagSFUp_1,softDropSubJetBtagSFDown_1);
 	      }
 	    }
 	    
@@ -2351,7 +2353,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		  softDropSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
 		}
-		calculateBtagSF(subjets.at(1),"SubCSV",softDropSubJetBtagSF_2,softDropSubJetBtagSFUp_2,softDropSubJetBtagSFDown_2);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(1),"SubCSV",softDropSubJetBtagSF_2,softDropSubJetBtagSFUp_2,softDropSubJetBtagSFDown_2);
 	      }
 	    }	  
 	  }
@@ -2641,7 +2644,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedPuppiSubJetGeneta_1 .push_back( subjets[0]->genJet()->eta());
 		  prunedPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi());
 		}
-		calculateBtagSF(subjets.at(0),"SubCSV",prunedPuppiSubJetBtagSF_1,prunedPuppiSubJetBtagSFUp_1,prunedPuppiSubJetBtagSFDown_1);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(0),"SubCSV",prunedPuppiSubJetBtagSF_1,prunedPuppiSubJetBtagSFUp_1,prunedPuppiSubJetBtagSFDown_1);
 	      }
 	    }
 	    
@@ -2667,7 +2671,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedPuppiSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
 		  prunedPuppiSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		}	      
-		calculateBtagSF(subjets.at(1),"SubCSV",prunedPuppiSubJetBtagSF_2,prunedPuppiSubJetBtagSFUp_2,prunedPuppiSubJetBtagSFDown_2);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(1),"SubCSV",prunedPuppiSubJetBtagSF_2,prunedPuppiSubJetBtagSFUp_2,prunedPuppiSubJetBtagSFDown_2);
 	      }
 	    }
 	  }
@@ -2697,7 +2702,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  softDropPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 		}
-		calculateBtagSF(subjets.at(0),"SubCSV",softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(0),"SubCSV",softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1);
 	      }
 	    }
 	  
@@ -2722,7 +2728,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		  softDropPuppiSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
 		}
-		calculateBtagSF(subjets.at(1),"SubCSV",softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2);
+		if(addBTagScaleFactor)
+		  calculateBtagSF(subjets.at(1),"SubCSV",softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2);
 	      }
 	    }
 	  }
@@ -3784,7 +3791,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   }
 
   // info about MC cross section in case the xsec parsed has a dummy value
-  if(isMC){    
+  if(isMC and uselheweights){    
     edm::Handle<LHERunInfoProduct> run;
     iRun.getByLabel(lheRunTag,run);
     LHERunInfoProduct myLHERunInfoProduct = *(run.product());

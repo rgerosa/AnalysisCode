@@ -247,47 +247,50 @@ void LHEWeightsTreeMaker::beginJob() {
 void LHEWeightsTreeMaker::endJob() {}
 
 void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  // in cae of MC store XS value                                                                                                                                               
-  edm::Handle<LHERunInfoProduct> run;
-  iRun.getByLabel(lheRunInfoTag,run);
-  LHERunInfoProduct myLHERunInfoProduct = *(run.product());
-  lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0); 
 
-  
-  using namespace boost::algorithm;
+  if(uselheweights){
+    // in cae of MC store XS value                                                                                                                                              
+    edm::Handle<LHERunInfoProduct> run;
+    iRun.getByLabel(lheRunInfoTag,run);
+    LHERunInfoProduct myLHERunInfoProduct = *(run.product());
+    lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0); 
 
-  if(isSignalSample){
-    for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
-      std::vector<std::string> lines = iter->lines();    
-      for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-	std::vector<std::string> tokens;
-	if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
-	  split(tokens, lines.at(iLine), is_any_of(" "));
-	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	  sampledmM = std::stod(tokens.at(1));
-	}
-	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
-	  split(tokens, lines.at(iLine), is_any_of(" "));
-	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	  samplemedM = std::stod(tokens.at(1));
-	}
-	else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
-	  split(tokens, lines.at(iLine), is_any_of(" "));
-	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	  std::vector<std::string> subtokens;
-	  split(subtokens,tokens.at(2),is_any_of("_"));	
-	  samplemedM = std::stod(subtokens.at(3));
-	  sampledmM = std::stod(subtokens.at(4));	
-	}      
-	else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
-	  split(tokens, lines.at(iLine), is_any_of(" "));
-	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	  samplemedM = std::stod(tokens.at(3));
-	  sampledmM  = -1.; 
+    
+    using namespace boost::algorithm;
+    
+    if(isSignalSample){
+      for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+	std::vector<std::string> lines = iter->lines();    
+	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+	  std::vector<std::string> tokens;
+	  if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    sampledmM = std::stod(tokens.at(1));
+	  }
+	  else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    samplemedM = std::stod(tokens.at(1));
+	  }
+	  else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    std::vector<std::string> subtokens;
+	    split(subtokens,tokens.at(2),is_any_of("_"));	
+	    samplemedM = std::stod(subtokens.at(3));
+	    sampledmM = std::stod(subtokens.at(4));	
+	  }      
+	  else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
+	    split(tokens, lines.at(iLine), is_any_of(" "));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    samplemedM = std::stod(tokens.at(3));
+	    sampledmM  = -1.; 
 	  readDMFromGenParticles = true;
+	  }
 	}
-      }
-    }   
+      }   
+    }
   }
 }
 

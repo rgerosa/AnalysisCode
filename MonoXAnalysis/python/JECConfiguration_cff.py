@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 ## setup JEC on PAT jets from miniAOD
-def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
+def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals,isCrab):
 
 	## if true look to a local SQLite file instead of GT entry
 	if usePrivateSQlite:
@@ -51,10 +51,15 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals):
 					),	
 				)
 					   )
+
+		if isCrab:
+			process.jec.connect = cms.string("sqlite_file:src/AnalysisCode/MonoXAnalysis/data/JEC/"+dBFile)
+
      	## give preference wrt to GT
 	if usePrivateSQlite == True:
 	     	process.es_prefer_jec = cms.ESPrefer("PoolDBESSource",'jec')
 		
+
 	# JEC levels when redoing jets and MET
 	if isMC:
 		process.JECLevels = cms.PSet(labels = cms.vstring('L1FastJet', 'L2Relative', 'L3Absolute'))

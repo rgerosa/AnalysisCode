@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 ## setup JEC on PAT jets from miniAOD                                                                                                                                    
-def JERConfiguration(process,usePrivateSQlite,JEREra,isMC):
+def JERConfiguration(process,usePrivateSQlite,JEREra,isMC,isCrab):
 
     process.load("JetMETCorrections.Modules.JetResolutionESProducer_cfi")
     
@@ -88,6 +88,9 @@ def JERConfiguration(process,usePrivateSQlite,JEREra,isMC):
                     ),
                 ),
                                    )
-        
+
+        if isCrab :
+            process.jer.connect = cms.string("sqlite_file:src/AnalysisCode/MonoXAnalysis/data/JER/"+dBFile)
+
         process.es_prefer_jer = cms.ESPrefer('PoolDBESSource', 'jer')
         

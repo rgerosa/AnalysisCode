@@ -21,7 +21,8 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
-               'nThreads=3']
+               'nThreads=3',
+               'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
