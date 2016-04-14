@@ -29,7 +29,7 @@
 #include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Modules/interface/JetResolution.h"
-
+#include "PhysicsTools/PatUtils/interface/PATJetCorrExtractor.h"
 
 #include <iostream>
 #include <fstream>
@@ -72,6 +72,8 @@ private:
   edm::EDGetTokenT<std::vector<pat::Tau> >      tauToken_;
   const edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
   const edm::EDGetTokenT<double>  rhoToken_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_; 
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrTokenRes_; 
 
   // PSet for the object uncertainties
   const edm::ParameterSet electronPSet_;
@@ -80,7 +82,7 @@ private:
   const edm::ParameterSet tauPSet_;
   const edm::ParameterSet jetPSet_;
   const edm::ParameterSet unclusteredPSet_;
-  const edm::InputTag inputMET_;
+  const edm::InputTag     inputMET_;
 
   // options
   bool storeSmearedShiftedCollections_;
@@ -90,7 +92,7 @@ private:
   bool skipTau_;
   bool skipJet_;
 
-  // in case of binning
+  // in case of binning and object selections --> from PSET
   std::vector<StringCutObjectSelector<pat::Muon> > muonSelection_;
   std::vector<float> muonScaleUnc_;
   std::vector<StringCutObjectSelector<pat::Electron> > electronSelection_;
@@ -100,19 +102,21 @@ private:
   std::vector<StringCutObjectSelector<pat::Tau> > tauSelection_;
   std::vector<float> tauScaleUnc_;
 
-  // JES
+  // JES external file
   edm::FileInPath jetJECUncFile_;
   StringCutObjectSelector<pat::Jet> jetSelection_;
 
-  // JER
+  // JER and JERSF external files
   edm::FileInPath jetJERFile_;
   edm::FileInPath jetJERSFFile_;
+  // Random numbers
   std::auto_ptr<TRandom3> rand_;
 
   // unclustered
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
   std::vector<std::string> unclusteredUnc_;
 
+  // sorting
   template<typename T>
   class PatPtSorter{
   public:
@@ -159,6 +163,11 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
    photonToken_   = consumes<std::vector<pat::Photon> >  (photonPSet_.getParameter<edm::InputTag>("src"));
    muonToken_     = consumes<std::vector<pat::Muon> > (muonPSet_.getParameter<edm::InputTag>("src"));
    electronToken_ = consumes<std::vector<pat::Electron> >  (electronPSet_.getParameter<edm::InputTag>("src"));
+   // take correction if exist
+   if(jetPSet_.existsAs<edm::InputTag>("jetCorrLabel"))
+     jetCorrToken_ = mayConsume<reco::JetCorrector>(jetPSet_.getParameter<edm::InputTag>("jetCorrLabel"));
+   if(jetPSet_.existsAs<edm::InputTag>("jetCorrLabelRes"))
+     jetCorrTokenRes_ = mayConsume<reco::JetCorrector>(jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes")); 
 
   // selector definitions
   for(auto bin : muonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
@@ -200,7 +209,9 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
 
   if(not jetJERSFFile_.location() and jetPSet_.getParameter<bool> ("useExternalJERSF") and not skipJet_)
     throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERSFFile_ << " !!\n";
+
   
+
   // produce shifed and smearead particles
   produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label()));
 
@@ -250,6 +261,8 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     }
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnDown");
+    produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetResUp");
+    produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetResDown");    
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"Smear");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"SmearJetResUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"SmearJetResDown");
@@ -280,6 +293,11 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   //get objects
   edm::Handle<std::vector<pat::Jet> > jetColl;
   iEvent.getByToken(jetToken_, jetColl);
+  edm::Handle<reco::JetCorrector> jetCorr;
+  iEvent.getByToken(jetCorrToken_, jetCorr);
+  edm::Handle<reco::JetCorrector> jetCorrRes;
+  if(iEvent.isRealData())
+    iEvent.getByToken(jetCorrTokenRes_, jetCorrRes);
 
   edm::Handle<std::vector<pat::Electron> > eleColl;
   iEvent.getByToken(electronToken_, eleColl);
@@ -333,11 +351,15 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   std::auto_ptr<pat::JetCollection> jetSmearResDown(new pat::JetCollection);
   CorrMETData corrJetEnUp;
   CorrMETData corrJetEnDown;
+  CorrMETData corrJetResUp;
+  CorrMETData corrJetResDown;
   CorrMETData corrJetSmear;
   CorrMETData corrJetSmearResUp;
   CorrMETData corrJetSmearResDown;
   std::auto_ptr<pat::METCollection> metJetEnUp(new pat::METCollection);
   std::auto_ptr<pat::METCollection> metJetEnDown(new pat::METCollection);
+  std::auto_ptr<pat::METCollection> metJetResUp(new pat::METCollection);
+  std::auto_ptr<pat::METCollection> metJetResDown(new pat::METCollection);
   std::auto_ptr<pat::METCollection> metJetSmearResUp(new pat::METCollection);
   std::auto_ptr<pat::METCollection> metJetSmearResDown(new pat::METCollection);
   std::auto_ptr<pat::METCollection> metJetSmear(new pat::METCollection);
@@ -347,26 +369,30 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   std::auto_ptr<pat::METCollection> metUnclusteredEnUp (new pat::METCollection);
   std::auto_ptr<pat::METCollection> metUnclusteredEnDown (new pat::METCollection);
 
+  // boolean for puppi MET
   bool isPuppiMET = false;
   if(TString(inputMET_.label()).Contains("Puppi") or TString(inputMET_.label()).Contains("puppi") or TString(inputMET_.label()).Contains("PUPPI")) 
     isPuppiMET = true;
 
-  // loop on muons
+  // link from high level objects to pfCandidates
   std::vector<reco::CandidatePtr> particlesInMuon;
   std::vector<reco::CandidatePtr> particlesInElectron;
   std::vector<reco::CandidatePtr> particlesInPhoton;
   std::vector<reco::CandidatePtr> particlesInTau;
   std::vector<reco::CandidatePtr> particlesInJet;
 
+  // loop on muons
   if(not skipMuon_){
     for(auto muon : *muColl){    
       if(isPuppiMET){
+	// find the particle in the puppi pfCandidate rescaling correctly the momentum
 	reco::Candidate::LorentzVector p4 = findParticle(muon,*pfCandCollection);
 	if(p4.pt() == 0)
 	  continue;
 	muon.setP4(p4);
       }
 
+      // store PF candidates connected
       for(size_t ipart = 0 ; ipart < muon.numberOfSourceCandidatePtrs(); ipart++){
 	if(muon.sourceCandidatePtr(ipart).isNonnull() and muon.sourceCandidatePtr(ipart).isAvailable()){
 	  particlesInMuon.push_back(muon.sourceCandidatePtr(ipart));
@@ -383,8 +409,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	      ptError = muonScaleUnc_.at(iBin);	    	      
 	      break;
 	    }
-	    else
-	      iBin++;
+	    else iBin++;
 	  }	
 	}
       }
@@ -452,7 +477,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // loop on electrons
   if(not skipElectron_){
-
     for(auto ele : *eleColl){    
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(ele,*pfCandCollection);
@@ -476,8 +500,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	      p4Error = electronScaleUnc_.at(iBin);	    
 	      break;
 	    }
-	    else
-	      iBin++;
+	    else iBin++;
 	  }	
 	}
       }
@@ -491,8 +514,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 		p4Error = electronScaleUnc_.at(iBin);
 		break;
 	      }
-	      else
-		iBin++;
+	      else iBin++;
 	    }
 	  }
 	}
@@ -555,7 +577,6 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   // loop on photons
   if(not skipPhoton_){
     for(auto pho : *phColl){    
-
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(pho,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -578,8 +599,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	      p4Error = photonScaleUnc_.at(iBin);	    
 	      break;
 	    }	
-	    else
-	      iBin++;
+	    else iBin++;
 	  }
 	}
       }
@@ -594,8 +614,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 		p4Error = photonScaleUnc_.at(iBin);
 		break;
 	      }
-	      else
-		iBin++;
+	      else iBin++;
 	    }
 	  }	  
 	}
@@ -652,9 +671,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   
   // taus
   if(not skipTau_){
-
     for(auto tau : *tauColl){    
-
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(tau,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -677,8 +694,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	      p4Error = tauScaleUnc_.at(iBin);	    
 	      break;
 	    }	
-	    else
-	      iBin++;
+	    else iBin++;
 	  }
 	}
       }
@@ -767,9 +783,14 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     else
       ScalarFactor = JME::JetResolutionScaleFactor(jetJERSFFile_.fullPath());
 
-    
+    // loop on jets
     for(auto jet : *jetColl){
+      // skip jets
       if(not jetSelection_(jet)) continue;
+
+      // subtract muons that are global or standAlone
+      reco::Candidate::LorentzVector rawJetP4 = jet.correctedP4("Uncorrected");
+
       reco::Candidate::LorentzVector muonP4;
       const std::vector<reco::CandidatePtr> & cands = jet.daughterPtrVector();
       for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin(); cand != cands.end(); ++cand ) {
@@ -780,32 +801,54 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}
       }      
       
-      reco::Candidate::LorentzVector jetP4 = jet.p4()+muonP4;
-      
-      //set eta and pt
-      jecUnc->setJetEta(jetP4.eta());
-      jecUnc->setJetPt(jetP4.pt()); 
-      float p4Error = jecUnc->getUncertainty(true);
+      rawJetP4 -= muonP4;
 
+      // re-correct jets
+      reco::Candidate::LorentzVector correctedP4;
+      PATJetCorrExtractor jetCorrExtractor;
+      const pat::Jet & jet_temp = jet;
+      if(iEvent.isRealData())
+	correctedP4 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawJetP4);      
+      else
+	correctedP4 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawJetP4);
+
+      // residual just in case of data
+      float residualJES = 0.;
+      if(iEvent.isRealData()){
+	if (rawJetP4.pt() > 1.e-1 ) {
+	  reco::Candidate::LorentzVector corrJetP4upToL3 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawJetP4);
+	  reco::Candidate::LorentzVector corrJetP4upToL3Res = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawJetP4);
+	  if ( corrJetP4upToL3.pt() > 1.e-1 && corrJetP4upToL3Res.pt() > 1.e-1 ) 
+	    residualJES =  (corrJetP4upToL3Res.pt()/corrJetP4upToL3.pt()) - 1.;
+	}
+      }
+
+      //set eta and pt
+      jecUnc->setJetEta(correctedP4.eta());
+      jecUnc->setJetPt(correctedP4.pt());
+      float uncertainty = jecUnc->getUncertainty(true);
+      float p4Error     = sqrt(uncertainty*uncertainty+residualJES*residualJES);
+      
+           
       // build vector scaled on the transverse plane                                                                                                                            
       TVector2 p2Up, p2Down;
-      p2Up.SetMagPhi(jetP4.pt()*(1+p4Error),jetP4.phi());
-      p2Down.SetMagPhi(jetP4.pt()*(1-p4Error),jetP4.phi());
-      corrJetEnUp.mex += (-p2Up.Px()+jetP4.px());
-      corrJetEnUp.mey += (-p2Up.Py()+jetP4.py());
-      corrJetEnUp.sumet += fabs(p2Up.Mod()-jetP4.pt());
-      corrJetEnDown.mex += (-p2Down.Px()+jetP4.px());
-      corrJetEnDown.mey += (-p2Down.Py()+jetP4.py());
-      corrJetEnDown.sumet += fabs(p2Down.Mod()-jetP4.pt());
+      p2Up.SetMagPhi(correctedP4.pt()*(1+p4Error),correctedP4.phi());
+      p2Down.SetMagPhi(correctedP4.pt()*(1-p4Error),correctedP4.phi());
+      corrJetEnUp.mex += (-p2Up.Px()+correctedP4.px());
+      corrJetEnUp.mey += (-p2Up.Py()+correctedP4.py());
+      corrJetEnUp.sumet += fabs(p2Up.Mod()-correctedP4.pt());
+      corrJetEnDown.mex += (-p2Down.Px()+correctedP4.px());
+      corrJetEnDown.mey += (-p2Down.Py()+correctedP4.py());
+      corrJetEnDown.sumet += fabs(p2Down.Mod()-correctedP4.pt());
      
       pat::Jet newJetEnUp(jet);
-      newJetEnUp.setP4(jetP4*(1+p4Error));
+      newJetEnUp.setP4(jet.p4()*(1+p4Error));
       pat::Jet newJetEnDown(jet);
-      newJetEnDown.setP4(jetP4*(1-p4Error));
+      newJetEnDown.setP4(jet.p4()*(1-p4Error));
 
       jetEnUp->push_back(newJetEnUp);
       jetEnDown->push_back(newJetEnDown);
-      
+
       //take scale factor value for JER
       float jerSF   = 1.;
       float jerSFUp = 1.;
@@ -813,8 +856,8 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       // for jet energy resolution
       JME::JetParameters jetParam;
-      jetParam.setJetPt(jetP4.pt());
-      jetParam.setJetEta(jetP4.eta());
+      jetParam.setJetPt(correctedP4.pt());
+      jetParam.setJetEta(correctedP4.eta());
       jetParam.setRho(rho);
 
       jerSF   = ScalarFactor.getScaleFactor(jetParam, Variation::NOMINAL);
@@ -828,12 +871,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       bool useRandomSmear = true;
       float sigmaPt = Resolution.getResolution(jetParam);
-	
+
       if(jet.genJet() !=0){ // gen matched jet found
-	if(reco::deltaR(jet.p4(),jet.genJet()->p4()) < 0.2 and fabs((jetP4.pt()-jet.genJet()->pt())/jetP4.pt()) < 3*sigmaPt){ // mathing withing dR = 0.2 and deviates less than 3 sigma in E
-	  resCorrection     = 1+(jerSF-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt(); // 1+correction*
-	  resCorrectionUp   = 1+(jerSFUp-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt();
-	  resCorrectionDown = 1+(jerSFDw-1)*(jetP4.pt()-jet.genJet()->pt())/jetP4.pt();
+	if(reco::deltaR(correctedP4,jet.genJet()->p4()) < 0.2 and fabs((correctedP4.pt()-jet.genJet()->pt()))/correctedP4.pt() < 3*sigmaPt){ // mathing withing dR = 0.2 and deviates less than 3 sigma in E
+	  resCorrection     = 1+(jerSF-1)*(correctedP4.pt()-jet.genJet()->pt())/correctedP4.pt(); // 1+correction*
+	  resCorrectionUp   = 1+(jerSFUp-1)*(correctedP4.pt()-jet.genJet()->pt())/correctedP4.pt();
+	  resCorrectionDown = 1+(jerSFDw-1)*(correctedP4.pt()-jet.genJet()->pt())/correctedP4.pt();
 	  useRandomSmear    = false;
 	}
       }
@@ -845,10 +888,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	float smearingWidth     = sqrt(jerSF*jerSF-1)*sigmaPt;
 	float smearingWidthUp   = sqrt(jerSFUp*jerSFUp-1)*sigmaPt;
 	float smearingWidthDown = sqrt(jerSFDw*jerSFDw-1)*sigmaPt;
-	
-	do{ resCorrection     = 1+rand_->Gaus(0,smearingWidth)/jetP4.pt();}       while(resCorrection <= 0.); 
-	do{ resCorrectionUp   = 1+rand_->Gaus(0,smearingWidthUp)/jetP4.pt();}     while(resCorrectionUp <= 0.);
-	do{ resCorrectionDown = 1+rand_->Gaus(0,smearingWidthDown)/jetP4.pt();}   while(resCorrectionDown <= 0.);
+	resCorrection     = 1+rand_->Gaus(0,smearingWidth)/correctedP4.pt();       
+	resCorrectionUp   = 1+rand_->Gaus(0,smearingWidthUp)/correctedP4.pt(); 
+        resCorrectionDown = 1+rand_->Gaus(0,smearingWidthDown)/correctedP4.pt();
       }
       
       pat::Jet newJetSmear(jet);
@@ -857,38 +899,61 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       newJetSmear.setP4(jet.p4()*resCorrection);
       newJetSmearResUp.setP4(jet.p4()*resCorrectionUp);
       newJetSmearResDown.setP4(jet.p4()*resCorrectionDown);           
-	
+
+      jetSmear->push_back(newJetSmear);
+      jetSmearResUp->push_back(newJetSmearResUp);
+      jetSmearResDown->push_back(newJetSmearResDown);
+      
+
       // build vector scaled on the transverse plane                                                                                                                            
       TVector2 p2Smear;
-      reco::Candidate::LorentzVector jetResMET   = jetP4*resCorrection;
-      reco::Candidate::LorentzVector jetResUpMET = jetP4*resCorrectionUp;
-      reco::Candidate::LorentzVector jetResDwMET = jetP4*resCorrectionDown;
+      pat::Jet jetResMET   = jet;
+      pat::Jet jetResUpMET = jet;
+      pat::Jet jetResDwMET = jet;
+      jetResMET.setP4(correctedP4*resCorrection);
+      jetResUpMET.setP4(correctedP4*resCorrectionUp);
+      jetResDwMET.setP4(correctedP4*resCorrectionDown);
 
+      // re-correct jets after smearing, only the central value for smeared met                                                                                                                  
+      const pat::Jet & jet_temp_2 = jetResMET;
+      reco::Candidate::LorentzVector rawP4Smear = jet_temp_2.correctedP4("Uncorrected");
+      reco::Candidate::LorentzVector correctedP4Smear;
+      if(iEvent.isRealData())
+        correctedP4Smear = jetCorrExtractor(jet_temp_2, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawP4Smear);
+      else
+        correctedP4Smear = jetCorrExtractor(jet_temp_2, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawP4Smear);
+
+      jetResMET.setP4(correctedP4Smear);
+      
+
+      // clone correction level from imput jet      
       p2Smear.SetMagPhi(jetResMET.pt(),jetResMET.phi());
       p2Up.SetMagPhi(jetResUpMET.pt(),jetResUpMET.phi());
       p2Down.SetMagPhi(jetResDwMET.pt(),jetResDwMET.phi());
-      if(jetSelection_(newJetSmear)){
-	corrJetSmear.mex += (-p2Smear.Px()+jetP4.px());
-	corrJetSmear.mey += (-p2Smear.Py()+jetP4.py());
-	corrJetSmear.sumet += p2Smear.Mod()-jetP4.pt();
-      }
-      if(jetSelection_(newJetSmearResUp)){
-	corrJetSmearResUp.mex += (-p2Up.Px()+jetP4.px());
-	corrJetSmearResUp.mey += (-p2Up.Py()+jetP4.py());
-	corrJetSmearResUp.sumet += p2Up.Mod()-jetP4.pt();
-      }
-      if(jetSelection_(newJetSmearResDown)){
-	corrJetSmearResDown.mex += (-p2Down.Px()+jetP4.px());
-	corrJetSmearResDown.mey += (-p2Down.Py()+jetP4.py());
-	corrJetSmearResDown.sumet += p2Down.Mod()-jetP4.pt();
-      }
 
-      if(newJetSmear.pt() > 1.e-2) 
-	jetSmear->push_back(newJetSmear);
-      if(newJetSmearResUp.pt() > 1.e-2)     
-	jetSmearResUp->push_back(newJetSmearResUp);
-      if(newJetSmearResDown.pt() > 1.e-2)
-	jetSmearResDown->push_back(newJetSmearResDown);
+      corrJetResUp.mex += (-p2Up.Px()+correctedP4.px());
+      corrJetResUp.mey += (-p2Up.Py()+correctedP4.py());
+      corrJetResUp.sumet += p2Up.Mod()-correctedP4.pt();
+
+      corrJetResDown.mex += (-p2Down.Px()+correctedP4.px());
+      corrJetResDown.mey += (-p2Down.Py()+correctedP4.py());
+      corrJetResDown.sumet += p2Down.Mod()-correctedP4.pt();
+
+      if(jetSelection_(jetResMET)){
+	corrJetSmear.mex += (-p2Smear.Px()+correctedP4.px());
+	corrJetSmear.mey += (-p2Smear.Py()+correctedP4.py());
+	corrJetSmear.sumet += p2Smear.Mod()-correctedP4.pt();
+      }
+      if(jetSelection_(jetResUpMET)){
+	corrJetSmearResUp.mex += (-p2Up.Px()+jetResMET.px());
+	corrJetSmearResUp.mey += (-p2Up.Py()+jetResMET.py());
+	corrJetSmearResUp.sumet += p2Up.Mod()-jetResMET.pt();
+      }
+      if(jetSelection_(jetResDwMET)){
+	corrJetSmearResDown.mex += (-p2Down.Px()+jetResMET.px());
+	corrJetSmearResDown.mey += (-p2Down.Py()+jetResMET.py());
+	corrJetSmearResDown.sumet += p2Down.Mod()-jetResMET.pt();
+      }
       
       //store all the candidates inside the jet
       particlesInJet.insert(particlesInJet.end(), jet.daughterPtrVector().begin(), jet.daughterPtrVector().end());
@@ -920,8 +985,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}      	
       }
 
-      if(isfound)
-	continue;
+      if(isfound) continue;
        
       for(auto part : particlesInTau){  	
 	if(part == ptrCand){
@@ -930,8 +994,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}      	
       }
 
-      if(isfound)
-	continue;
+      if(isfound) continue;
 
       for(auto part : particlesInMuon){  	
 	if(part == ptrCand){
@@ -940,8 +1003,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}      	
       }
 
-      if(isfound)
-	continue;
+      if(isfound) continue;
 
       for(auto part : particlesInElectron){  	
 	if(part == ptrCand){
@@ -950,8 +1012,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}      	
       }
 
-      if(isfound)
-	continue;
+      if(isfound) continue;
 
       for(auto part : particlesInPhoton){  	
 	if(part == ptrCand){
@@ -960,8 +1021,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	}      	
       }
 
-      if(isfound)
-	continue;
+      if(isfound) continue;
 
 
       float uncertaintyP4 = 0;
@@ -1019,25 +1079,42 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       pat::MET metJetDown(corrMETJetEnDown,met);
       metJetEnUp->push_back(metJetUp);
       metJetEnDown->push_back(metJetDown);
+
+      reco::MET corrMETJetResUp(met.sumEt()+corrJetResUp.sumet,
+		reco::Candidate::LorentzVector(met.px()+corrJetResUp.mex, met.py()+corrJetResUp.mey, 0.,
+		sqrt((met.px()+corrJetResUp.mex)*(met.px()+corrJetResUp.mex)+(met.py()+corrJetResUp.mey)*(met.py()+corrJetResUp.mey))),met.vertex());
+
+      reco::MET corrMETJetResDown(met.sumEt()-corrJetResDown.sumet,
+		reco::Candidate::LorentzVector(met.px()+corrJetResDown.mex, met.py()+corrJetResDown.mey, 0.,
+		sqrt((met.px()+corrJetResDown.mex)*(met.px()+corrJetResDown.mex)+(met.py()+corrJetResDown.mey)*(met.py()+corrJetResDown.mey))),met.vertex());
+
+      pat::MET metJetRUp(corrMETJetResUp,met);
+      pat::MET metJetRDown(corrMETJetResDown,met);
+      metJetResUp->push_back(metJetRUp);
+      metJetResDown->push_back(metJetRDown);
+
       
       reco::MET corrMETJetSmear(met.sumEt()+corrJetSmear.sumet,
 		reco::Candidate::LorentzVector(met.px()+corrJetSmear.mex, met.py()+corrJetSmear.mey, 0.,
 		sqrt((met.px()+corrJetSmear.mex)*(met.px()+corrJetSmear.mex)+(met.py()+corrJetSmear.mey)*(met.py()+corrJetSmear.mey))),met.vertex());
 
+      pat::MET metJetSme(corrMETJetSmear,met);
+      metJetSmear->push_back(metJetSme);
+
       reco::MET corrMETJetSmearResUp(met.sumEt()+corrJetSmearResUp.sumet,
 		reco::Candidate::LorentzVector(met.px()+corrJetSmearResUp.mex, met.py()+corrJetSmearResUp.mey, 0.,
-		sqrt((met.px()+corrJetSmearResUp.mex)*(met.px()+corrJetSmearResUp.mex)+(met.py()+corrJetSmearResUp.mey)*(met.py()+corrJetSmearResUp.mey))),met.vertex());
+					       sqrt((met.px()+corrJetSmearResUp.mex)*(met.px()+corrJetSmearResUp.mex)+(met.py()+corrJetSmearResUp.mey)*(met.py()+corrJetSmearResUp.mey))),met.vertex());
 
       reco::MET corrMETJetSmearResDown(met.sumEt()+corrJetSmearResDown.sumet,
 		reco::Candidate::LorentzVector(met.px()+corrJetSmearResDown.mex, met.py()+corrJetSmearResDown.mey, 0.,
 		sqrt((met.px()+corrJetSmearResDown.mex)*(met.px()+corrJetSmearResDown.mex)+(met.py()+corrJetSmearResDown.mey)*(met.py()+corrJetSmearResDown.mey))),met.vertex());
 
-      pat::MET metJetSme(corrMETJetSmear,met);
-      pat::MET metJetRUp(corrMETJetSmearResUp,met);
-      pat::MET metJetRDown(corrMETJetSmearResDown,met);
-      metJetSmear->push_back(metJetSme);
-      metJetSmearResUp->push_back(metJetRUp);
-      metJetSmearResDown->push_back(metJetRDown);
+      pat::MET metJetSmeUp(corrMETJetSmearResUp,met);
+      pat::MET metJetSmeDown(corrMETJetSmearResDown,met);
+
+
+      metJetSmearResUp->push_back(metJetSmeUp);
+      metJetSmearResDown->push_back(metJetSmeDown);
 
       // unclustered
       reco::MET corrMETUnclusteredEnUp(met.sumEt()+corrUnclusteredEnUp.sumet,
@@ -1072,6 +1149,8 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       std::sort(jetSmearResDown->begin(),jetSmearResDown->end(),jetSorter);
       iEvent.put(jetSmearResDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
     }
+    iEvent.put(metJetResUp,std::string(inputMET_.label())+"JetResUp");
+    iEvent.put(metJetResDown,std::string(inputMET_.label())+"JetResDown");    
     iEvent.put(metJetSmear,std::string(inputMET_.label())+"Smear");
     iEvent.put(metJetSmearResUp,std::string(inputMET_.label())+"SmearJetResUp");
     iEvent.put(metJetSmearResDown,std::string(inputMET_.label())+"SmearJetResDown");    
@@ -1089,12 +1168,14 @@ reco::Candidate::LorentzVector METSystematicsProducer::findParticle(const T & pa
   reco::Candidate::LorentzVector total4V;
   std::vector<reco::CandidatePtr> particles;
 
+  // take all the PF candidate linked to the particles
   for(size_t ipart = 0 ; ipart < particle.numberOfSourceCandidatePtrs(); ipart++){      
     if(particle.sourceCandidatePtr(ipart).isNonnull() and particle.sourceCandidatePtr(ipart).isAvailable()){
       particles.push_back(particle.sourceCandidatePtr(ipart));
     }
   }
 
+  // no-pfCandidates return 0
   if(particles.size() == 0)
     return particle.p4();  
 
@@ -1102,9 +1183,11 @@ reco::Candidate::LorentzVector METSystematicsProducer::findParticle(const T & pa
     
     reco::CandidatePtr ptrCand = pfCandCollection.ptrAt(icand);
     const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>(&(pfCandCollection.at(icand)));	
+    // check the puppiWeight used in the met calculation
     if(lPack->puppiWeightNoLep() == 0) // in case of puppi, only the one used for MET calculations are useful
       continue;
-
+    
+    // find and return the resclae 4V
     for(auto ipart : particles){
       if(ipart == ptrCand){
 	total4V += ptrCand->p4()*lPack->puppiWeightNoLep();
