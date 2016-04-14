@@ -67,7 +67,7 @@ options.register (
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
 options.register (
-	'useOfficialMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'useOfficialMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
 
 ## do substructure for CHS or Puppi jets
