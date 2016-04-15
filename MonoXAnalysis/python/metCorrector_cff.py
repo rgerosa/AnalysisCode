@@ -180,8 +180,10 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 						useExternalJECUncertainty = cms.bool(False),
 						JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_DATA_Uncertainty_"+payloadName+".txt"),
 						#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-						JERFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_PtResolution_"+payloadName+".txt"),
-						JERSFFile  = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_"+payloadName+".txt"),
+						JERFile      = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_PtResolution_"+payloadName+".txt"),
+						JERSFFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_"+payloadName+".txt"),
+						jetCorrLabel    = cms.InputTag("L3Absolute"),
+						jetCorrLabelRes = cms.InputTag("L2L3Residual"), 
 						useExternalJERSF = cms.bool(False),
 						useExternalJER   = cms.bool(False)),
 					       ## unclustered component
