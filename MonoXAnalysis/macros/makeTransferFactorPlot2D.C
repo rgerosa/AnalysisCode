@@ -4,7 +4,7 @@
 
 using namespace std;
 
-void rzmm(string fileName, int category, string observable, bool alongX = true) {
+void rzmm(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file = new TFile(fileName.c_str());  
   TH1F*  hist = (TH1F*)file->FindObjectAny(("zmmcorhist_"+observable).c_str());
@@ -39,6 +39,7 @@ void rzmm(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetXaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitle("R_{Z(#mu#mu)}");
     (*hist)->GetYaxis()->CenterTitle();
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
     (*hist)->GetYaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitleSize(0.045);
     (*hist)->SetLineColor(kBlack);
@@ -77,11 +78,12 @@ void rzmm(string fileName, int category, string observable, bool alongX = true) 
     ttext.SetTextFont(42);
     ttext.SetTextAlign(31);
     ttext.SetTextSize(0.04);
-  
+
     if(ihisto < bin.size()-2)
-      ttext.DrawLatex(0.45,0.75,Form("%1.f <= %s < %.1f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
+      ttext.DrawLatex(0.45,0.75,Form("%2.f <= %s < %.2f ",bin.at(ihisto),text.second.c_str(),bin.at(ihisto+1)));
+    
     else
-      ttext.DrawLatex(0.45,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihisto)));
+      ttext.DrawLatex(0.45,0.75,Form("%s >= %.2f ",text.second.c_str(),bin.at(ihisto)));
    
     canvas->SaveAs(Form("rzmm_%s_bin_%d.pdf",observable.c_str(),ihisto));
     canvas->SaveAs(Form("rzmm_%s_bin_%d.png",observable.c_str(),ihisto));
@@ -90,7 +92,7 @@ void rzmm(string fileName, int category, string observable, bool alongX = true) 
 }
 
 
-void rzee(string fileName, int category, string observable, bool alongX = true) {
+void rzee(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file = new TFile(fileName.c_str());  
   TH1F*  hist = (TH1F*)file->FindObjectAny(("zeecorhist_"+observable).c_str());
@@ -124,6 +126,7 @@ void rzee(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetXaxis()->SetTitleSize(0.045);
     (*hist)->GetXaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->CenterTitle();
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
     (*hist)->GetYaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitleSize(0.045);
     (*hist)->SetLineColor(kBlack);
@@ -176,7 +179,7 @@ void rzee(string fileName, int category, string observable, bool alongX = true) 
 }
 
 
-void rwmn(string fileName, int category, string observable, bool alongX = true) {
+void rwmn(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file = new TFile(fileName.c_str());  
   TH1F*  hist = (TH1F*)file->FindObjectAny(("wmncorhist_"+observable).c_str());
@@ -208,6 +211,7 @@ void rwmn(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
     (*hist)->GetXaxis()->SetTitle(text.first.c_str());
     (*hist)->GetXaxis()->SetTitleSize(0.045);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
     (*hist)->GetXaxis()->SetLabelSize(0.040);
 
     (*hist)->GetYaxis()->CenterTitle();
@@ -266,7 +270,7 @@ void rwmn(string fileName, int category, string observable, bool alongX = true) 
   }
 }
 
-void rwen(string fileName, int category, string observable, bool alongX = true) {
+void rwen(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file = new TFile(fileName.c_str());  
   TH1F*  hist = (TH1F*)file->FindObjectAny(("wencorhist_"+observable).c_str());
@@ -300,6 +304,7 @@ void rwen(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetXaxis()->SetTitle(text.first.c_str());
     (*hist)->GetXaxis()->SetTitleSize(0.045);
     (*hist)->GetXaxis()->SetLabelSize(0.040);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
     (*hist)->GetYaxis()->CenterTitle();
     (*hist)->GetYaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitleSize(0.045);
@@ -355,7 +360,7 @@ void rwen(string fileName, int category, string observable, bool alongX = true) 
   }
 }
 
-void rgam(string fileName, int category, string observable, bool alongX = true) {
+void rgam(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file    = new TFile(fileName.c_str());  
   TH1F*  hist    = (TH1F*)file->FindObjectAny(("gamcorewkhist_"+observable).c_str());
@@ -409,6 +414,7 @@ void rgam(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetYaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitleSize(0.045);
     (*hist)->SetLineColor(kBlack);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
     (*hist)->SetLineWidth(1);
     (*hist)->SetMarkerSize(1.2);
     (*hist)->SetMarkerStyle(20);
@@ -469,7 +475,7 @@ void rgam(string fileName, int category, string observable, bool alongX = true) 
   }    
 }
 
-void rzwj(string fileName, int category, string observable, bool alongX = true) {
+void rzwj(string fileName, int category, string observable, bool alongX = false) {
 
   TFile* file = new TFile(fileName.c_str());
   TH1F*  hist = (TH1F*)file->FindObjectAny(("zwjcorewkhist_"+observable).c_str());
@@ -517,6 +523,7 @@ void rzwj(string fileName, int category, string observable, bool alongX = true) 
     (*hist)->GetXaxis()->SetTitle(text.first.c_str());
     (*hist)->GetXaxis()->SetTitleSize(0.045);
     (*hist)->GetXaxis()->SetLabelSize(0.040);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
 
     (*hist)->GetYaxis()->CenterTitle();
 
@@ -619,6 +626,7 @@ void rtopmu(string fileName, int category, string observable, bool alongX) {
     (*hist)->GetXaxis()->SetTitle(text.first.c_str());
     (*hist)->GetXaxis()->SetTitleSize(0.045);
     (*hist)->GetXaxis()->SetLabelSize(0.040);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
 
     (*hist)->GetYaxis()->CenterTitle();
 
@@ -719,6 +727,7 @@ void rtopel(string fileName, int category, string observable, bool alongX) {
 
     (*hist)->GetYaxis()->SetLabelSize(0.040);
     (*hist)->GetYaxis()->SetTitleSize(0.045);
+    (*hist)->GetYaxis()->SetTitleOffset(1.15);
 
     (*hist)->SetLineColor(kBlack);
     (*hist)->SetLineWidth(1);
@@ -774,7 +783,7 @@ void rtopel(string fileName, int category, string observable, bool alongX) {
 
 
 
-void makeTransferFactorPlot(string fileName, int category, string observable, bool addtop = false, bool alongX = true) {
+void makeTransferFactorPlot(string fileName, int category, string observable, bool addtop = false, bool alongX = false) {
 
   gROOT->SetBatch(kTRUE);
 

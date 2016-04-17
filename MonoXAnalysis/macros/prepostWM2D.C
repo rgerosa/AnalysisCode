@@ -4,24 +4,7 @@
 void prepostWM2D(string fitFilename, string templateFileName, string observable, int category, bool alongX = false, bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
-  
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 675);
-  canvas->SetTickx();
-  canvas->SetTicky();
-  canvas->cd();
-  canvas->SetBottomMargin(0.3);
-  canvas->SetRightMargin(0.06);
- 
-  setTDRStyle();
-  
-  TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
-  pad1->SetTickx();
-  pad1->SetTicky();
-  
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.295);
-  pad2->SetTickx();
-  pad2->SetTicky();
-  
+  setTDRStyle();  
 
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
@@ -68,6 +51,21 @@ void prepostWM2D(string fitFilename, string templateFileName, string observable,
 
 
   for(size_t ihist = 0 ; ihist < dthist.size(); ihist++){
+
+    TCanvas* canvas = new TCanvas(Form("canvas_%d",int(ihist)), "canvas", 600, 700);
+    canvas->SetTickx(1);
+    canvas->SetTicky(1);
+    canvas->cd();
+    canvas->SetBottomMargin(0.3);
+    canvas->SetRightMargin(0.06);
+
+    TPad *pad2 = new TPad(Form("pad2_%d",int(ihist)),"pad2",0,0.,1,0.9);
+    pad2->SetTopMargin(0.7);
+    pad2->SetRightMargin(0.06);
+    pad2->SetFillColor(0);
+    pad2->SetGridy(1);
+    pad2->SetFillStyle(0);
+
 
     dthist.at(ihist)->Scale(1.0,"width");
     zlhist.at(ihist)->Scale(1.0,"width");
@@ -149,28 +147,27 @@ void prepostWM2D(string fitFilename, string templateFileName, string observable,
     zlhist.at(ihist)->Add(dihist.at(ihist));
     
     canvas->cd();
-    pad1->SetRightMargin(0.06);
-    pad1->SetLeftMargin(0.12);
-    pad1->SetTopMargin(0.06);
-    pad1->SetBottomMargin(0.0);
-    pad1->Draw();
-    pad1->cd();
-
-    TH1* frame = (TH1*) dthist.at(ihist)->Clone(Form("frame_bin_%d",int(ihist)));
+    TH1* frame = (TH1*) dthist.at(ihist)->Clone("frame");
     frame->Reset();
     if(category <=1)
-      frame->GetYaxis()->SetRangeUser(0.0005,6000);
+      frame->GetYaxis()->SetRangeUser(0.002,zlhist.at(ihist)->GetMaximum()*50);
     else
-      frame->GetYaxis()->SetRangeUser(0.0005,100);
-    
+      frame->GetYaxis()->SetRangeUser(0.002,zlhist.at(ihist)->GetMaximum()*100);
+
     frame->GetXaxis()->SetTitleSize(0);
     frame->GetXaxis()->SetLabelSize(0);
     frame->GetYaxis()->SetTitle("Events / GeV");
-    frame->GetYaxis()->SetLabelSize(0.045);
-    frame->GetYaxis()->SetTitleSize(0.055);  
-    frame ->Draw();
-    
-    CMS_lumi(pad1,"2.30");
+    frame->GetYaxis()->SetTitleOffset(1.15);
+    frame->GetYaxis()->SetLabelSize(0.040);
+    frame->GetYaxis()->SetTitleSize(0.050);
+    if(category <= 1)
+      frame->GetXaxis()->SetNdivisions(510);
+    else
+      frame->GetXaxis()->SetNdivisions(504);
+
+    frame->Draw();
+
+    CMS_lumi(canvas,"2.3");
     prhist.at(ihist)->Draw("HIST SAME");
     pohist.at(ihist)->Draw("HIST SAME");
     zlhist.at(ihist)->Draw("HIST SAME");
@@ -180,7 +177,7 @@ void prepostWM2D(string fitFilename, string templateFileName, string observable,
     
     dthist.at(ihist)->Draw("EP SAME");
     
-    TLegend* leg = new TLegend(0.55, 0.55, 0.90, 0.90);
+    TLegend* leg = new TLegend(0.5, 0.65, 0.90, 0.90);
     leg->SetBorderSize(0);
     leg->SetFillColor(0);
     leg->AddEntry(dthist.at(ihist), "Data","PEL");
@@ -200,35 +197,36 @@ void prepostWM2D(string fitFilename, string templateFileName, string observable,
     else
       ttext.DrawLatex(0.35,0.75,Form("%s >= %.1f ",text.second.c_str(),bin.at(ihist)));
     
-    
-    pad1->RedrawAxis("sameaxis");
-    pad1->SetLogy();
-    
+
+    canvas->RedrawAxis("sameaxis");
+    canvas->SetLogy();
+
     canvas->cd();
-    pad2->SetTopMargin(0.08);
-    pad2->SetRightMargin(0.06);
-    pad2->SetLeftMargin(0.12);    
-    pad2->SetBottomMargin(0.35);
-    pad2->SetGridy();
     pad2->Draw();
     pad2->cd();
-    
-    TH1* frame2 = NULL;
+
+    TH1* frame2 =  (TH1*) dthist.at(ihist)->Clone("frame");
+    frame2->Reset("ICES");
+
+    if(category <=1)
+      frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    else
+      frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+
     if(category <= 1)
-      frame2 =  pad2->DrawFrame(dthist.at(ihist)->GetBinLowEdge(1), 0.25, dthist.at(ihist)->GetBinLowEdge(dthist.at(ihist)->GetNbinsX()+1), 1.75, "");
-    else if(category > 1)
-      frame2 =  pad2->DrawFrame(dthist.at(ihist)->GetBinLowEdge(1), 0.25, dthist.at(ihist)->GetBinLowEdge(dthist.at(ihist)->GetNbinsX()+1), 1.75, "");
+      frame2->GetXaxis()->SetNdivisions(510);
+    else
+      frame2->GetXaxis()->SetNdivisions(210);
+    frame2->GetYaxis()->SetNdivisions(5);
 
     frame2->GetXaxis()->SetTitle(text.first.c_str());
     frame2->GetYaxis()->SetTitle("Data/Pred.");
     frame2->GetYaxis()->CenterTitle();
-    frame2->GetXaxis()->SetLabelSize(0.11);
-    frame2->GetYaxis()->SetLabelSize(0.10);
-    frame2->GetXaxis()->SetTitleSize(0.135);
-    frame2->GetYaxis()->SetTitleOffset(0.4);
-    frame2->GetYaxis()->SetTitleSize(0.12);
-    frame2->GetYaxis()->SetNdivisions(5);
-    frame2->GetXaxis()->SetNdivisions(510);
+    frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetYaxis()->SetLabelSize(0.04);
+    frame2->GetYaxis()->SetTitleSize(0.04);
+    frame2->GetXaxis()->SetLabelSize(0.04);
+    frame2->GetXaxis()->SetTitleSize(0.05);
     frame2->Draw();
 
     TH1* d1hist = (TH1*)dthist.at(ihist)->Clone(Form("d1hist_bin_%d",int(ihist)));

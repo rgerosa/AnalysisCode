@@ -163,7 +163,7 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
 }
 
 /////////////////////////////
-void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outputFile, const string & outDir, const string & ext){
+void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outputFile, const string & outDir, const bool & addTop, const string & ext){
 
   // take correction files --> central value
   cout<<"Re-open file for correction histo"<<endl;
@@ -173,9 +173,12 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
   TFile* wencorfile = TFile::Open((outDir+"/wencor"+ext+".root").c_str());
   TFile* zwjcorfile = TFile::Open((outDir+"/zwjcor"+ext+".root").c_str());
   TFile* gamcorfile = TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
-  TFile* topmucorfile = TFile::Open((outDir+"/topmucor"+ext+".root").c_str());
-  TFile* topelcorfile = TFile::Open((outDir+"/topelcor"+ext+".root").c_str());
-
+  TFile* topmucorfile = NULL;
+  TFile* topelcorfile = NULL;
+  if(addTop){
+    topmucorfile = TFile::Open((outDir+"/topmucor"+ext+".root").c_str());
+    topelcorfile = TFile::Open((outDir+"/topelcor"+ext+".root").c_str());
+  }
   
   // QCD, EWK, factm re and footprint on Z/gamma
   TFile* gamcorqcdfile = TFile::Open((outDir+"/gamcorqcd"+ext+".root").c_str());
@@ -197,11 +200,16 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
   TFile* zwjcorpdffile = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
   
   // Top btag up and down
-  TFile* topmucorbupfile   = TFile::Open((outDir+"/topmucor"+ext+"bUp.root").c_str());
-  TFile* topmucorbdownfile = TFile::Open((outDir+"/topmucor"+ext+"bDown.root").c_str());
-  TFile* topelcorbupfile   = TFile::Open((outDir+"/topelcor"+ext+"bUp.root").c_str());
-  TFile* topelcorbdownfile = TFile::Open((outDir+"/topelcor"+ext+"bDown.root").c_str());
-  
+  TFile* topmucorbupfile   = NULL;
+  TFile* topmucorbdownfile = NULL;
+  TFile* topelcorbupfile   = NULL;
+  TFile* topelcorbdownfile = NULL;
+  if(addTop){
+    topmucorbupfile   = TFile::Open((outDir+"/topmucor"+ext+"bUp.root").c_str());
+    topmucorbdownfile = TFile::Open((outDir+"/topmucor"+ext+"bDown.root").c_str());
+    topelcorbupfile   = TFile::Open((outDir+"/topelcor"+ext+"bUp.root").c_str());
+    topelcorbdownfile = TFile::Open((outDir+"/topelcor"+ext+"bDown.root").c_str());
+  }
   // get histograms  
   vector<TH1*> zmmcorhist;
   vector<TH1*> zeecorhist;
@@ -247,10 +255,11 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     wmncorhist.push_back( (TH1*)wmncorfile->FindObjectAny(("wmncor"+ext+"hist_"+obs).c_str()));    
     wencorhist.push_back( (TH1*)wencorfile->FindObjectAny(("wencor"+ext+"hist_"+obs).c_str()));    
     zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjcor"+ext+"hist_"+obs).c_str()));    
-    gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamcor"+ext+"hist_"+obs).c_str()));    
-    topmucorhist.push_back( (TH1*)topmucorfile->FindObjectAny(("topmucor"+ext+"hist_"+obs).c_str()));    
-    topelcorhist.push_back( (TH1*)topelcorfile->FindObjectAny(("topelcor"+ext+"hist_"+obs).c_str()));    
-    
+    gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamcor"+ext+"hist_"+obs).c_str()));  
+    if(addTop){
+      topmucorhist.push_back( (TH1*)topmucorfile->FindObjectAny(("topmucor"+ext+"hist_"+obs).c_str()));    
+      topelcorhist.push_back( (TH1*)topelcorfile->FindObjectAny(("topelcor"+ext+"hist_"+obs).c_str()));    
+    }
     // get histograms Z/gamma
     cout<<"Make Z/gamma sys histograms"<<endl;
     gamcorewkhist.push_back( (TH1*)gamcorewkfile->FindObjectAny(("gamcor"+ext+"ewkhist_"+obs).c_str()));    
@@ -351,37 +360,42 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
       zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
     zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());
     
-      // make b-tagging top
-    cout<<"Make top sys histograms"<<endl;
-    topmucorbuphist.push_back( (TH1*) topmucorbupfile->FindObjectAny(("topmucor"+ext+"bUphist_"+obs).c_str()));    
-    topmucorbdownhist.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("topmucor"+ext+"bDownhist_"+obs).c_str()));    
-    topelcorbuphist.push_back( (TH1*) topelcorbupfile->FindObjectAny(("topelcor"+ext+"bUphist_"+obs).c_str()));    
-    topelcorbdownhist.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
-    
-    // make symmetrization
-    TH1* topmucorbuphist_tmp = (TH1*) topmucorbuphist.back()->Clone(("topmucorbup_tmp"+ext+"hist_"+obs).c_str());    
-    topmucorbuphist_tmp->Divide(topmucorhist.back());
-    TH1* topmucorbdownhist_tmp = (TH1*) topmucorbdownhist.back()->Clone(("topmucorbdown_tmp"+ext+"hist_"+obs).c_str());    
-    topmucorbdownhist_tmp->Divide(topmucorhist.back());
-    
-    TH1* topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());    
-    for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) 
-      topmucoruncbhist->SetBinContent(i, fabs(fabs(topmucorbuphist_tmp->GetBinContent(i)+topmucorbdownhist_tmp->GetBinContent(i))/2-1.0));
-    
-    topmucoruncbhist->SetName(("TOP_MU_B_"+obs).c_str());
-    
-    // make symmetrization
-    TH1* topelcorbuphist_tmp = (TH1*) topelcorbuphist.back()->Clone(("topelcorbup_tmp"+ext+"hist_"+obs).c_str());    
-    topelcorbuphist_tmp->Divide(topelcorhist.back());
-    TH1* topelcorbdownhist_tmp = (TH1*) topelcorbdownhist.back()->Clone(("topelcorbdown_tmp"+ext+"hist_"+obs).c_str());    
-    topelcorbdownhist_tmp->Divide(topelcorhist.back());
+    // make b-tagging top
+    TH1* topmucoruncbhist = NULL;
+    TH1* topelcoruncbhist = NULL;
+
+    if(addTop){
+      cout<<"Make top sys histograms"<<endl;
+      topmucorbuphist.push_back( (TH1*) topmucorbupfile->FindObjectAny(("topmucor"+ext+"bUphist_"+obs).c_str()));    
+      topmucorbdownhist.push_back( (TH1*) topmucorbdownfile->FindObjectAny(("topmucor"+ext+"bDownhist_"+obs).c_str()));    
+      topelcorbuphist.push_back( (TH1*) topelcorbupfile->FindObjectAny(("topelcor"+ext+"bUphist_"+obs).c_str()));    
+      topelcorbdownhist.push_back( (TH1*) topelcorbdownfile->FindObjectAny(("topelcor"+ext+"bDownhist_"+obs).c_str()));    
       
-    TH1* topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());    
-    for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) 
-      topelcoruncbhist->SetBinContent(i, fabs(fabs(topelcorbuphist_tmp->GetBinContent(i)+topelcorbdownhist_tmp->GetBinContent(i))/2-1.0));
-    
-    topelcoruncbhist->SetName(("TOP_EL_B_"+obs).c_str());
-    
+      // make symmetrization
+      TH1* topmucorbuphist_tmp = (TH1*) topmucorbuphist.back()->Clone(("topmucorbup_tmp"+ext+"hist_"+obs).c_str());    
+      topmucorbuphist_tmp->Divide(topmucorhist.back());
+      TH1* topmucorbdownhist_tmp = (TH1*) topmucorbdownhist.back()->Clone(("topmucorbdown_tmp"+ext+"hist_"+obs).c_str());    
+      topmucorbdownhist_tmp->Divide(topmucorhist.back());
+      
+      topmucoruncbhist = (TH1*) topmucorhist.back()->Clone(("topmucoruncbhist"+ext+"hist_"+obs).c_str());    
+      for (int i = 1; i <= topmucoruncbhist->GetNbinsX(); i++) 
+	topmucoruncbhist->SetBinContent(i, fabs(fabs(topmucorbuphist_tmp->GetBinContent(i)+topmucorbdownhist_tmp->GetBinContent(i))/2-1.0));
+      
+      topmucoruncbhist->SetName(("TOP_MU_B_"+obs).c_str());
+      
+      // make symmetrization
+      TH1* topelcorbuphist_tmp = (TH1*) topelcorbuphist.back()->Clone(("topelcorbup_tmp"+ext+"hist_"+obs).c_str());    
+      topelcorbuphist_tmp->Divide(topelcorhist.back());
+      TH1* topelcorbdownhist_tmp = (TH1*) topelcorbdownhist.back()->Clone(("topelcorbdown_tmp"+ext+"hist_"+obs).c_str());    
+      topelcorbdownhist_tmp->Divide(topelcorhist.back());
+      
+      topelcoruncbhist = (TH1*) topelcorhist.back()->Clone(("topelcoruncbhist"+ext+"hist_"+obs).c_str());    
+      for (int i = 1; i <= topelcoruncbhist->GetNbinsX(); i++) 
+	topelcoruncbhist->SetBinContent(i, fabs(fabs(topelcorbuphist_tmp->GetBinContent(i)+topelcorbdownhist_tmp->GetBinContent(i))/2-1.0));
+      
+      topelcoruncbhist->SetName(("TOP_EL_B_"+obs).c_str());
+    }
+
     outputFile.cd();
     
     cout<<"Save transfer factor"<<endl;
@@ -449,19 +463,21 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     gamuncfpchist->Write();
 
     outputFile.cd();
-    if(not outputFile.GetDirectory("TF_TM"))
-      outputFile.mkdir("TF_TM");
-    outputFile.cd("TF_TM");
-    topmucorhist.back()->Write();
-    topmucoruncbhist->Write();
-
-    outputFile.cd();
-    if(not outputFile.GetDirectory("TF_TE"))
-      outputFile.mkdir("TF_TE");
-    outputFile.cd("TF_TE");
-    topelcorhist.back()->Write();          
-    topelcoruncbhist->Write();      
-    outputFile.cd();
+    if(addTop){
+      if(not outputFile.GetDirectory("TF_TM"))
+	outputFile.mkdir("TF_TM");
+      outputFile.cd("TF_TM");
+      topmucorhist.back()->Write();
+      topmucoruncbhist->Write();
+      
+      outputFile.cd();
+      if(not outputFile.GetDirectory("TF_TE"))
+	outputFile.mkdir("TF_TE");
+      outputFile.cd("TF_TE");
+      topelcorhist.back()->Write();          
+      topelcoruncbhist->Write();      
+      outputFile.cd();
+    }
   }
 }
 
@@ -486,7 +502,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   bool runOnlySignal         = false, // produce a file with only signal templates
 		   bool runOnlyBackground     = false, // produce a file with only background templates
 		   bool applyPostFitWeights   = false,
-		   bool addTopTFs             = false,
+		   bool addTop                = false,
 		   string ext ="") {
 
   system(("mkdir -p "+outDir).c_str());
@@ -621,8 +637,8 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"pdf"+ext,7);
     
-
-    if(addTopTFs){
+    /*
+    if(addTop){
       cout<<"make TOP+MU ratio"<<endl;
       maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
 		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
@@ -675,13 +691,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       
     }
+    */
   }
   
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
   
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrHistograms(observables,outfile,outDir,ext);
-    fillAndSaveCorrHistograms(observables_2D,outfile,outDir,ext);
+    fillAndSaveCorrHistograms(observables,outfile,outDir,addTop,ext);
+    fillAndSaveCorrHistograms(observables_2D,outfile,outDir,addTop,ext);
   }
   
   // signal region templates
@@ -719,11 +736,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     cout<<"start wenu region data"<<endl;
     lepdatamchist(&outfile,4,category,observables,observables_2D,lumi,applyQGLReweight,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);     
     // top control regions
-    cout<<"start top+mu region data"<<endl;
-    topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
-    cout<<"start Top+el region data"<<endl;
-    topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
-    
+    if(addTop){
+      cout<<"start top+mu region data"<<endl;
+      topdatamchist(&outfile,7,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
+      cout<<"start Top+el region data"<<endl;
+      topdatamchist(&outfile,8,category,observables,observables_2D,lumi,applyQGLReweight,makeResonantSelection,doShapeSystematics,runHiggsInvisible,applyPostFitWeights);
+    }
+
     //add qcd data templates
     TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
     if(qcdfile_data){

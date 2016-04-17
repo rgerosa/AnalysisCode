@@ -30,9 +30,9 @@ void prepostSig_fromScan(string fitFilename,
 
   TFile* pfile = new TFile(fitFilename.c_str());
 
-  TFile* dfileMonoJ = TFile::Open(("root://eoscms.cern.ch//"+templateFileMonoJ).c_str());
-  TFile* dfileMonoW = TFile::Open(("root://eoscms.cern.ch//"+templateFileMonoW).c_str());
-  TFile* dfileMonoZ = TFile::Open(("root://eoscms.cern.ch//"+templateFileMonoZ).c_str());
+  TFile* dfileMonoJ = TFile::Open(templateFileMonoJ.c_str());
+  TFile* dfileMonoW = TFile::Open(templateFileMonoW.c_str());
+  TFile* dfileMonoZ = TFile::Open(templateFileMonoZ.c_str());
   TFile* dfile = TFile::Open((dataFile).c_str());
   // in case of b-only fit just dispaly three possible signal on the stack
   string nameInteraction;

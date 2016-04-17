@@ -259,6 +259,7 @@ void createWorkspace(string inputName,
   else{
     bins.clear();
     bin2D bin = selectBinning2D(observable,category);
+    
     if(not bin.binX.empty() and not bin.binY.empty()){ // in case of 2D analysis --> unrolled histo
       xMin = 0.;
       xMax = double((bin.binX.size()-1)*(bin.binY.size()-1));
@@ -311,14 +312,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("MonoJ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -344,14 +345,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("MonoW_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -378,14 +379,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("MonoZ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -431,14 +432,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptUp", vars, wspace_SR, histoRenUp);
@@ -469,14 +470,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("vbfH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -503,14 +504,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("wH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -538,14 +539,14 @@ void createWorkspace(string inputName,
       if(nominalHisto){
 	
 	if(nominalHisto->GetNbinsX() > 10){
-	  fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	  fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	  fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	  fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	  fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	  fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
 	addTemplate("zH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
@@ -598,14 +599,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghist_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
       addTemplate("Top_SR_"+suffix+"_CMS_btagUp",vars, wspace_SR, histobUp);
@@ -664,14 +665,14 @@ void createWorkspace(string inputName,
     TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("zjethist_metUncDw_"+observable).c_str());
     
     if(nominalHisto->GetNbinsX() > 10){
-      fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-      fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-      fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-      fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+      fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+      fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+      fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+      fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
     addTemplate("ZJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
@@ -696,14 +697,14 @@ void createWorkspace(string inputName,
     histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghist_metUncDw_"+observable).c_str());
     
     if(nominalHisto->GetNbinsX() > 10){
-      fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-      fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-      fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-      fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+      fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+      fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+      fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+      fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
     addTemplate("Dibosons_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
@@ -729,14 +730,14 @@ void createWorkspace(string inputName,
     histoUncDw = (TH1F*)templatesfile->FindObjectAny(("gbkghist_metUncDw_"+observable).c_str());
     
     if(nominalHisto->GetNbinsX() > 10){
-      fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-      fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-      fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-      fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-      fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-      fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+      fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+      fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+      fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+      fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
     addTemplate("GJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
@@ -804,14 +805,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vlbkghistzmm_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("WJets_ZM_"+suffix+"_CMS_btagUp", vars, *wspace_ZM, histobUp);
@@ -835,14 +836,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistzmm_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_ZM_"+suffix+"_CMS_btagUp", vars, *wspace_ZM, histobUp);
@@ -866,14 +867,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistzmm_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       
@@ -975,14 +976,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vlbkghistzee_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
       addTemplate("WJets_ZE_"+suffix+"_CMS_btagUp", vars, *wspace_ZE, histobUp);
@@ -1006,14 +1007,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistzee_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_ZE_"+suffix+"_CMS_btagUp", vars, *wspace_ZE, histobUp);
@@ -1037,14 +1038,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistzee_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       
@@ -1087,14 +1088,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vlbkghistzll_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("WJets_ZL_"+suffix+"_CMS_btagUp", vars, *wspace_ZL, histobUp);
@@ -1118,14 +1119,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistzll_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_ZL_"+suffix+"_CMS_btagUp", vars, *wspace_ZL, histobUp);
@@ -1149,14 +1150,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistzll_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       
@@ -1231,14 +1232,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vllbkghistwmn_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("ZJets_WM_"+suffix+"_CMS_btagUp", vars, *wspace_WM, histobUp);
@@ -1262,14 +1263,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistwmn_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_WM_"+suffix+"_CMS_btagUp", vars, *wspace_WM, histobUp);
@@ -1293,14 +1294,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       
@@ -1345,14 +1346,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vllbkghistwen_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
       addTemplate("ZJets_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
@@ -1376,14 +1377,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistwen_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
@@ -1407,14 +1408,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistwen_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Dibosons_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
@@ -1458,14 +1459,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vllbkghistwln_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
       addTemplate("ZJets_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
@@ -1489,14 +1490,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("tbkghistwln_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.10);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.90);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.03);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.97);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.10);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.90);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.03);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.97);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Top_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
@@ -1520,14 +1521,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghistwln_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("Dibosons_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
@@ -1580,14 +1581,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopmu_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("ZJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
@@ -1611,14 +1612,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopmu_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("WJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
@@ -1642,14 +1643,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopmu_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       
@@ -1696,14 +1697,14 @@ void createWorkspace(string inputName,
       TH1F* histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vllbkghisttopel_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("ZJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
@@ -1727,14 +1728,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopel_metUncDw_"+observable).c_str());
 
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       addTemplate("WJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
@@ -1758,14 +1759,14 @@ void createWorkspace(string inputName,
       histoUncDw = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopel_metUncDw_"+observable).c_str());
       
       if(nominalHisto->GetNbinsX() > 10){
-	fixShapeUncertainty(nominalHisto,histobUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histobDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoJesUp,500.,1.06);
-	fixShapeUncertainty(nominalHisto,histoJesDw,500.,0.94);
-	fixShapeUncertainty(nominalHisto,histoJerUp,500.,1.02);
-	fixShapeUncertainty(nominalHisto,histoJerDw,500.,0.98);
-	fixShapeUncertainty(nominalHisto,histoUncUp,500.,1.01);
-	fixShapeUncertainty(nominalHisto,histoUncDw,500.,0.99);
+	fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
       

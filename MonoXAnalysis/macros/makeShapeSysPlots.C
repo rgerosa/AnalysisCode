@@ -175,24 +175,24 @@ void makeShapeSysPlots(string inputFileName, string controlRegion, string proces
   if(category <= 1){
 
     if(process == "Top"){
-      fixShapeUncertainty(nominalHist,hist_bUp,500.,1.06);
-      fixShapeUncertainty(nominalHist,hist_bDw,500.,0.94);
-      fixShapeUncertainty(nominalHist,hist_jesUp,500.,1.10);
-      fixShapeUncertainty(nominalHist,hist_jesDw,500.,0.90);
-      fixShapeUncertainty(nominalHist,hist_jerUp,500.,1.03);
-      fixShapeUncertainty(nominalHist,hist_jerDw,500.,0.97);
-      fixShapeUncertainty(nominalHist,hist_uncUp,500.,1.01);
-      fixShapeUncertainty(nominalHist,hist_uncDw,500.,0.99);
+      fixShapeUncertainty(nominalHist,hist_bUp,int(nominalHist->GetNbinsX()/2),1.06);
+      fixShapeUncertainty(nominalHist,hist_bDw,int(nominalHist->GetNbinsX()/2),0.94);
+      fixShapeUncertainty(nominalHist,hist_jesUp,int(nominalHist->GetNbinsX()/2),1.10);
+      fixShapeUncertainty(nominalHist,hist_jesDw,int(nominalHist->GetNbinsX()/2),0.90);
+      fixShapeUncertainty(nominalHist,hist_jerUp,int(nominalHist->GetNbinsX()/2),1.03);
+      fixShapeUncertainty(nominalHist,hist_jerDw,int(nominalHist->GetNbinsX()/2),0.97);
+      fixShapeUncertainty(nominalHist,hist_uncUp,int(nominalHist->GetNbinsX()/2),1.01);
+      fixShapeUncertainty(nominalHist,hist_uncDw,int(nominalHist->GetNbinsX()/2),0.99);
     }
     else{
-      fixShapeUncertainty(nominalHist,hist_bUp,500.,1.02);
-      fixShapeUncertainty(nominalHist,hist_bDw,500.,0.98);
-      fixShapeUncertainty(nominalHist,hist_jesUp,500.,1.06);
-      fixShapeUncertainty(nominalHist,hist_jesDw,500.,0.94);
-      fixShapeUncertainty(nominalHist,hist_jerUp,500.,1.02);
-      fixShapeUncertainty(nominalHist,hist_jerDw,500.,0.98);
-      fixShapeUncertainty(nominalHist,hist_uncUp,500.,1.01);
-      fixShapeUncertainty(nominalHist,hist_uncDw,500.,0.99);
+      fixShapeUncertainty(nominalHist,hist_bUp,int(nominalHist->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHist,hist_bDw,int(nominalHist->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHist,hist_jesUp,int(nominalHist->GetNbinsX()/2),1.06);
+      fixShapeUncertainty(nominalHist,hist_jesDw,int(nominalHist->GetNbinsX()/2),0.94);
+      fixShapeUncertainty(nominalHist,hist_jerUp,int(nominalHist->GetNbinsX()/2),1.02);
+      fixShapeUncertainty(nominalHist,hist_jerDw,int(nominalHist->GetNbinsX()/2),0.98);
+      fixShapeUncertainty(nominalHist,hist_uncUp,int(nominalHist->GetNbinsX()/2),1.01);
+      fixShapeUncertainty(nominalHist,hist_uncDw,int(nominalHist->GetNbinsX()/2),0.99);
     }
   }
 

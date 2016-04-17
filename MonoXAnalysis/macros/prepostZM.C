@@ -3,23 +3,21 @@
 void prepostZM(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false, bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
-  
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 675);
-  canvas->SetTickx();
-  canvas->SetTicky();
+  setTDRStyle();
+
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
   canvas->cd();
   canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
-   
-  TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
-  pad1->SetTickx();
-  pad1->SetTicky();
-  
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.295);
-  pad2->SetTickx();
-  pad2->SetTicky();
-  
-  setTDRStyle();
+
+  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9); 
+  pad2->SetTopMargin(0.7);
+  pad2->SetRightMargin(0.06);
+  pad2->SetFillColor(0);
+  pad2->SetGridy(1);
+  pad2->SetFillStyle(0);
 
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
@@ -138,29 +136,28 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   wlhist->Add(tthist);
   wlhist->Add(dihist);
 
-  
-  pad1->SetRightMargin(0.06);
-  pad1->SetLeftMargin(0.12);
-  pad1->SetTopMargin(0.06);
-  pad1->SetBottomMargin(0.0);
-  pad1->Draw();
-  pad1->cd();
-
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category <=1)
-    frame->GetYaxis()->SetRangeUser(0.0005,6000);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
   else
-    frame->GetYaxis()->SetRangeUser(0.0005,100);
+    frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*100);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
   frame->GetYaxis()->SetTitle("Events / GeV");
-  frame->GetYaxis()->SetLabelSize(0.045);
-  frame->GetYaxis()->SetTitleSize(0.055);  
+  frame->GetYaxis()->SetTitleOffset(1.15);
+  frame->GetYaxis()->SetLabelSize(0.040);
+  frame->GetYaxis()->SetTitleSize(0.050);  
+  if(category <= 1)
+    frame->GetXaxis()->SetNdivisions(510);
+  else
+    frame->GetXaxis()->SetNdivisions(504);
+
+
   frame ->Draw();
   
-  CMS_lumi(pad1,"2.30");
+  CMS_lumi(canvas,"2.3");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -170,7 +167,7 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.55, 0.55, 0.90, 0.90);
+  TLegend* leg = new TLegend(0.5, 0.65, 0.90, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
@@ -179,15 +176,10 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
-  pad1->RedrawAxis("sameaxis");
-  pad1->SetLogy();
-  
+  canvas->RedrawAxis("sameaxis");
+  canvas->SetLogy();  
   canvas->cd();
-  pad2->SetTopMargin(0.08);
-  pad2->SetRightMargin(0.06);
-  pad2->SetLeftMargin(0.12);    
-  pad2->SetBottomMargin(0.35);
-  pad2->SetGridy();
+
   pad2->Draw();
   pad2->cd();
 
@@ -199,16 +191,21 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   else
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
 
+  if(category <= 1)
+    frame2->GetXaxis()->SetNdivisions(510);
+  else
+    frame2->GetXaxis()->SetNdivisions(210);
+  frame2->GetYaxis()->SetNdivisions(5);
+  
+
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
-  frame2->GetXaxis()->SetLabelSize(0.11);
-  frame2->GetYaxis()->SetLabelSize(0.10);
-  frame2->GetXaxis()->SetTitleSize(0.135);
-  frame2->GetYaxis()->SetTitleOffset(0.4);
-  frame2->GetYaxis()->SetTitleSize(0.12);
-  frame2->GetYaxis()->SetNdivisions(5);
-  frame2->GetXaxis()->SetNdivisions(510);
+  frame2->GetYaxis()->SetTitleOffset(1.5);
+  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetTitleSize(0.04);
+  frame2->GetXaxis()->SetLabelSize(0.04);
+  frame2->GetXaxis()->SetTitleSize(0.05);
   frame2->Draw();
 
   TH1* d1hist = (TH1*)dthist->Clone("d1hist");
@@ -251,9 +248,9 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
       erhist->SetBinError(iBin,erhist->GetBinError(iBin+1)*0.9);
   }
 
-  d1hist->GetYaxis()->SetTitleOffset(0.3);
-  d1hist->GetYaxis()->SetLabelSize(0.12);
-  d1hist->GetYaxis()->SetTitleSize(0.15);
+  d1hist->GetYaxis()->SetTitleOffset(1.5);
+  d1hist->GetYaxis()->SetLabelSize(0.03);
+  d1hist->GetYaxis()->SetTitleSize(0.04);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
   d1hist->Draw("PE1 SAME");    
@@ -273,6 +270,8 @@ void prepostZM(string fitFilename, string templateFileName, string observable, i
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
   pad2->RedrawAxis("G sameaxis");
+
+  canvas->Update();
   
   canvas->SaveAs("prepostfit_zmm.pdf");
   canvas->SaveAs("prepostfit_zmm.png");

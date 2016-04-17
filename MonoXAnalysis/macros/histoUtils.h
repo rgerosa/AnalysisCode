@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <fstream>
+#include <sstream>
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1F.h"
@@ -39,16 +40,16 @@ vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000
 //vector<double> bins_monoV_met         = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
 vector<double> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
-vector<double> bins_substructure_met  = {250.,300.,350.,400.,500.,600.,1000.};
+vector<double> bins_substructure_met  = {200.,225.,250.,275.,300.,325,350.,400.,500.,600.,750.,1000.};
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
 
-vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
-vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,3.14};
+vector<double> bins_monoJ_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,2.75,3.14};
+vector<double> bins_monoV_dphiJJ      = {-0.1,0.,0.25,0.5,0.75,1.,1.25,1.5,1.75,2.,2.25,2.5,2.75,3.14};
 
-vector<double> bins_monoV_mT          = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<double> bins_substructure_mT   = {50.,100.,150.,200.,250.,300.,350.,400.,500.,600.,1000.};
-vector<double> bins_monoJ_mT          = {50.,80.,110.,140.,170,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250,1350,1550,1750,2000};
+vector<double> bins_monoV_mT          = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<double> bins_substructure_mT   = {200.,250.,300.,350.,400.,500.,600.,1000.};
+vector<double> bins_monoJ_mT          = {200.,280,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250,1350,1550,1750,2000};
 
 vector<double> bins_monoV_mpr         = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
 vector<double> bins_monoV_mpr_v2      = {65.,73.,81.,89.,97.,105.};
@@ -61,9 +62,9 @@ vector<double> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_substructure_njet = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 
-vector<double> bins_monoV_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<double> bins_monoJ_HT          = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
-vector<double> bins_substructure_HT   = {0,50.,100.,150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_monoV_HT          = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_monoJ_HT          = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
+vector<double> bins_substructure_HT   = {150.,200.,250.,300.,350.,400.,450.500,550,600.,650,700.,750,850,950,1050,1250,1450,1650,1850,2100};
 
 vector<double> bins_monoV_jetPt        = {200.,225.,250.,300.,350.,400.,500.,600.,1000.};
 vector<double> bins_monoJ_jetPt        = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
@@ -104,7 +105,7 @@ vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
 vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
 vector<double> bins_monoJ_njet_2D_v2  = {1,2,3,4,10};
 vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
-vector<double> bins_monoJ_mT_2D       = {50.,450.,650.,950.,2000.};
+vector<double> bins_monoJ_mT_2D       = {200.,300,400.,500,600.,800,1100,1400,2000.};
 vector<double> bins_monoJ_dphiJJ_2D   = {-0.2,0.0,0.6,1.5,3.14};
 vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
 
@@ -212,16 +213,16 @@ vector<double> selectBinning (string observable, int category){
   else if((TString(observable).Contains("btag") or TString(observable).Contains("CSV")) and category > 1)
     return bins_monoV_btagCSV;
   
-  else if(TString(observable).Contains("QGL") and category <= 1)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category <= 1)
     return bins_monoJ_QGL;
-  else if(TString(observable).Contains("QGL") and category > 1 and category <= 3)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category > 1 and category <= 3)
     return bins_monoV_QGL;
-  else if(TString(observable).Contains("QGL") and category > 3)
+  else if((observable == "QGL" or TString(observable).Contains("QGL_")) and category > 3)
     return bins_monoV_QGL;
 
-  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category <= 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ" or observable == "minDphiJ1J") and category <= 1)
     return bins_monoJ_dphiJJ;
-  else if((observable == "dphiJJ" or  observable == "minDphiJJ") and category > 1)
+  else if((observable == "dphiJJ" or  observable == "minDphiJJ" or observable == "minDphiJ1J") and category > 1)
     return bins_monoV_dphiJJ;
   
 
@@ -276,6 +277,16 @@ bin2D selectBinning2D (string observable, int category){
     bins.binY = bins_monoJ_mT_2D;
     return bins;
   }
+  else if(observable == "mT_njet" and category <=1){
+    bins.binX = bins_monoJ_mT_2D;
+    bins.binY = bins_monoJ_njet_2D;
+    return bins;
+  }
+  else if(observable == "mT_njet_v2" and category <=1){
+    bins.binX = bins_monoJ_mT_2D;
+    bins.binY = bins_monoJ_njet_2D_v2;
+    return bins;
+  }
 
   else if(observable == "met_QGL" and category <=1){
     bins.binX = bins_monoJ_met_2D;
@@ -283,7 +294,7 @@ bin2D selectBinning2D (string observable, int category){
     return bins;    
   }
 
-  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ") and category <=1){
+  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ" or observable == "met_minDphiJ1J") and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_dphiJJ_2D;
     return bins;    
@@ -364,6 +375,15 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, float xPoint, float x
   if(sysHisto == 0 || sysHisto == NULL) return;
   for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
     if(iBin >= nominalHisto->FindBin(xPoint))
+      sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);
+  }
+}
+
+void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, int xBin, float xValue){
+
+  if(sysHisto == 0 || sysHisto == NULL) return;
+  for(int iBin = 0; iBin < sysHisto->GetNbinsX(); iBin++){
+    if(iBin >= xBin)
       sysHisto->SetBinContent(iBin+1,nominalHisto->GetBinContent(iBin+1)*xValue);
   }
 }
@@ -533,6 +553,8 @@ void changeInLatexName(string & variable){
     variable = "#Delta#phi_{jj}";
   else if(variable == "minDphiJJ")
     variable = "min(#Delta#phi_{jj})";
+  else if(variable == "minDphiJ1J")
+    variable = "min(#Delta#phi_{j_{1}j})";
   else if(variable == "mpruned")
     variable = "m_{pruned} [GeV]";
   else if(variable == "tau2tau1")
@@ -578,5 +600,27 @@ pair<string,string> observableName (string name, bool alongX = false){
     return make_pair(variableY,variableX);
 }
 
+TH2* cloneHistoIncludingOverUnderFlow (TH2* histo){
+
+  vector<double> binX;
+  for(int iBinX = 0; iBinX <= histo->GetXaxis()->GetNbins()+2; iBinX++){
+    binX.push_back(histo->GetXaxis()->GetBinLowEdge(iBinX));
+  }
+  vector<double> binY;
+  for(int iBinY = 0; iBinY <= histo->GetYaxis()->GetNbins()+2; iBinY++){
+    binY.push_back(histo->GetYaxis()->GetBinLowEdge(iBinY));
+  }
+
+  TH2F* temp = new TH2F((string(histo->GetName())+"_clone").c_str(),"",int(binX.size()-1),&binX[0],int(binY.size()-1),&binY[0]);
+  
+  for(int iBinX = 1; iBinX <= temp->GetNbinsX(); iBinX++){
+    for(int iBinY = 1; iBinY <= temp->GetNbinsY(); iBinY++){
+	temp->SetBinContent(iBinX,iBinY,histo->GetBinContent(histo->FindBin(temp->GetXaxis()->GetBinCenter(iBinX),temp->GetYaxis()->GetBinCenter(iBinY))));
+    }
+  }
+
+  return dynamic_cast<TH2*>(temp);
+
+}
 
 #endif

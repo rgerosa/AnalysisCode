@@ -12,31 +12,32 @@ void makeControlPlots(string templateFileName,
 		      bool isLog,
 		      bool plotResonant   = false,
 		      bool isHiggsInvisible = false,
+		      bool addSBPlots     = false,
+		      bool addShapePlots  = false,
 		      string interaction  = "Vector",
 		      string mediatorMass = "1000",
 		      string DMMass       = "50",
-		      int signalScale     = 100) {
+		      int signalScale     = 1) {
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
+  setTDRStyle();
   gStyle->SetOptStat(0);
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
-  canvas->SetTickx();
-  canvas->SetTicky();
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
   canvas->cd();
   canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
 
-  setTDRStyle();
+  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+  pad2->SetTopMargin(0.7);
+  pad2->SetRightMargin(0.06);
+  pad2->SetFillColor(0);
+  pad2->SetGridy(1);
+  pad2->SetFillStyle(0);
 
-  TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1);
-  pad1->SetTickx();
-  pad1->SetTicky();
-
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.28);
-  pad2->SetTickx();
-  pad2->SetTicky();
 
   TFile* inputFile = new TFile(templateFileName.c_str());
 
@@ -173,7 +174,7 @@ void makeControlPlots(string templateFileName,
       zHhist   = (TH1*)inputFile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());    
     }
   }
-  
+
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
 
@@ -203,6 +204,7 @@ void makeControlPlots(string templateFileName,
     
     if(monoJhist){
       monoJhist->Scale(1.0,"width");
+      monoJhist->Scale(signalScale);
     }
     if(monoWhist){
       monoWhist->Scale(1.0,"width");
@@ -215,23 +217,37 @@ void makeControlPlots(string templateFileName,
 
     if(ggHhist){
       ggHhist->Scale(1.0,"width");
+      ggHhist->Scale(signalScale);
     }
     if(vbfHhist){
       vbfHhist->Scale(1.0,"width");
+      vbfHhist->Scale(signalScale);
     }
     if(wHhist){
       wHhist->Scale(1.0,"width");
+      wHhist->Scale(signalScale);
     }
     if(zHhist){
       zHhist->Scale(1.0,"width");
+      zHhist->Scale(signalScale);
     }
   }
   else{
     if(controlRegion == "SR" and not TString(qcdhist->GetName()).Contains("qbkghistDD"))
       qcdhist->Scale(2.);
 
+    if(ggHhist)
+      ggHhist->Scale(signalScale);
+    if(vbfHhist)
+      vbfHhist->Scale(signalScale);
+    if(wHhist)
+      wHhist->Scale(signalScale);
+    if(zHhist)
+      zHhist->Scale(signalScale);
+    if(monoJhist)
+      monoJhist->Scale(signalScale);
     if(monoWhist)
-      monoWhist->Scale(signalScale);    
+      monoWhist->Scale(signalScale);
     if(monoZhist)
       monoZhist->Scale(signalScale);
   }
@@ -263,21 +279,45 @@ void makeControlPlots(string templateFileName,
     datahist->SetMarkerSize(1.2);
   }
 
-  if(vnnhist)  {
-    vnnhist->SetFillColor(kGreen+1);
-    vnnhist->SetLineColor(kBlack);
+  if(vnnhist) {
+    if(controlRegion == "SR"){
+      vnnhist->SetFillColor(TColor::GetColor("#258039"));
+      vnnhist->SetLineColor(kBlack);
+    }
+    else{
+      vnnhist->SetFillColor(kGreen+1);
+      vnnhist->SetLineColor(kBlack);
+    }
   }
   if(vllhist){
-    vllhist->SetFillColor(kCyan);
-    vllhist->SetLineColor(kBlack);
+    if(controlRegion == "SR"){
+      vllhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+      vllhist->SetLineColor(kBlack);
+    }
+    else{
+      vllhist->SetFillColor(kCyan);
+      vllhist->SetLineColor(kBlack);
+    }
   }
   if(vlhist){
-    vlhist->SetFillColor(kRed);
-    vlhist->SetLineColor(kBlack);
+    if(controlRegion == "SR"){
+      vlhist->SetFillColor(TColor::GetColor("#FAAF08"));
+      vlhist->SetLineColor(kBlack);
+    }
+    else{
+      vlhist->SetFillColor(kRed);
+      vlhist->SetLineColor(kBlack);
+    }
   }
   if(tophist){
-    tophist->SetFillColor(kBlue);
-    tophist->SetLineColor(kBlack);
+    if(controlRegion == "SR"){
+      tophist->SetFillColor(TColor::GetColor("#CF3721"));
+      tophist->SetLineColor(kBlack);
+    }
+    else{
+      tophist->SetFillColor(kBlue);
+      tophist->SetLineColor(kBlack);
+    }
   }
   if(tophist_matched){
     tophist_matched->SetFillColor(kGreen+1);
@@ -288,72 +328,88 @@ void makeControlPlots(string templateFileName,
     tophist_unmatched->SetLineColor(kBlack);
   }
   if(dbhist){
-    dbhist->SetFillColor(kViolet);
-    dbhist->SetLineColor(kBlack);
+    if(controlRegion == "SR"){      
+      dbhist->SetFillColor(TColor::GetColor("#4897D8"));
+      dbhist->SetLineColor(kBlack);
+    }
+    else{
+      dbhist->SetFillColor(kViolet);
+      dbhist->SetLineColor(kBlack);
+    }
   }
   if(qcdhist) {
-    qcdhist->SetFillColor(kGray+1);
+    if(controlRegion == "SR")
+      qcdhist->SetFillColor(TColor::GetColor("#F1F1F2"));
+    else
+      qcdhist->SetFillColor(kGray);
     qcdhist->SetLineColor(kBlack);
   }
   if(gamhist){
-    gamhist->SetFillColor(kOrange);
-    gamhist->SetLineColor(kBlack);
+    if(controlRegion == "SR"){
+      gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+      gamhist->SetLineColor(TColor::GetColor("#9A9EAB"));
+    }
+    else{
+      gamhist->SetFillColor(kOrange);
+      gamhist->SetLineColor(kBlack);
+    }
   }
 
   if(monoJhist){
     monoJhist->SetFillColor(0);
     monoJhist->SetFillStyle(0);
     monoJhist->SetLineColor(kBlack);
-    monoJhist->SetLineWidth(2);
+    monoJhist->SetLineWidth(3);
+    monoJhist->SetLineStyle(7);
   }
 
   if(monoWhist){
     monoWhist->SetFillColor(0);
     monoWhist->SetFillStyle(0);
-    monoWhist->SetLineColor(kBlack);
-    monoWhist->SetLineWidth(2);
-    monoWhist->SetLineStyle(7);
+    monoWhist->SetLineColor(kBlue);
+    monoWhist->SetLineWidth(3);
   }
 
   if(monoZhist){
     monoZhist->SetFillColor(0);
     monoZhist->SetFillStyle(0);
-    monoZhist->SetLineColor(kBlack);
-    monoZhist->SetLineWidth(2);
-    monoZhist->SetLineStyle(4);
+    monoZhist->SetLineColor(TColor::GetColor("#A2C523"));
+    monoZhist->SetLineWidth(3);
   }
 
   if(ggHhist){
     ggHhist->SetFillColor(0);
     ggHhist->SetFillStyle(0);
     ggHhist->SetLineColor(kBlack);
-    ggHhist->SetLineWidth(2);
+    ggHhist->SetLineWidth(3);
+    ggHhist->SetLineStyle(7);
   }
 
   if(vbfHhist){
     vbfHhist->SetFillColor(0);
     vbfHhist->SetFillStyle(0);
-    vbfHhist->SetLineColor(kBlack);
-    vbfHhist->SetLineWidth(2);
-    vbfHhist->SetLineStyle(7);
+    vbfHhist->SetLineColor(kBlue);
+    vbfHhist->SetLineWidth(3);
   }
 
   if(wHhist){
     wHhist->SetFillColor(0);
     wHhist->SetFillStyle(0);
-    wHhist->SetLineColor(kBlack);
-    wHhist->SetLineWidth(2);
-    wHhist->SetLineStyle(4);
+    wHhist->SetLineColor(TColor::GetColor("#A2C523"));
+    wHhist->SetLineWidth(3);
   }
 
   if(zHhist){
     zHhist->SetFillColor(0);
     zHhist->SetFillStyle(0);
-    zHhist->SetLineColor(kBlack);
-    zHhist->SetLineWidth(2);
-    zHhist->SetLineStyle(2);
+    zHhist->SetLineColor(TColor::GetColor("#A2C523"));
+    zHhist->SetLineWidth(3);
   }
-  
+
+  if(wHhist and zHhist) // add them together in vH
+    wHhist->Add(zHhist);
+
+
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
     stack->Add(qcdhist);
@@ -394,10 +450,10 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
-    stack->Add(gamhist);
-    stack->Add(dbhist);
-    stack->Add(tophist);
+    vllhist->Add(gamhist);
     stack->Add(vllhist);
+    stack->Add(tophist);
+    stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(vnnhist);
   }
@@ -500,19 +556,10 @@ void makeControlPlots(string templateFileName,
 
     outputfile.close();
   }
-
-
+  
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();
   vector<double> bins = selectBinning(observable,category);
-
-  pad1->SetRightMargin(0.06);
-  pad1->SetLeftMargin(0.12);
-  pad1->SetTopMargin(0.06);
-  pad1->SetBottomMargin(0.0);
-  pad1->Draw();
-  pad1->cd();
-
 
   float xMin = bins.front();
   if(observable == "tau2tau1")
@@ -541,14 +588,17 @@ void makeControlPlots(string templateFileName,
   frame->GetXaxis()->SetLabelSize(0);
   frame->GetYaxis()->SetLabelSize(0.045);
   frame->GetYaxis()->SetTitleSize(0.055);
-  frame ->Draw();
-
-  if(controlRegion == "SR")
-    CMS_lumi(pad1,"2.30",false,true);
+  frame->GetYaxis()->SetTitleOffset(1.15);
+  frame->GetYaxis()->SetLabelSize(0.040);
+  frame->GetYaxis()->SetTitleSize(0.050);
+  if(category <= 1)
+    frame->GetXaxis()->SetNdivisions(510);
   else
-    CMS_lumi(pad1,"2.30");
-
-
+    frame->GetXaxis()->SetNdivisions(504);
+  
+  frame->Draw();
+  CMS_lumi(canvas,"2.3");
+  
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
 
@@ -568,9 +618,9 @@ void makeControlPlots(string templateFileName,
   if(controlRegion == "gam")
     leg = new TLegend(0.62, 0.70, 0.85, 0.90);
   else if(controlRegion == "SR" and isLog)
-    leg = new TLegend(0.42, 0.50, 0.88, 0.90);  
+    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
   else if(controlRegion == "SR" and not isLog)
-    leg = new TLegend(0.42, 0.50, 0.88, 0.90);  
+    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
   else
     leg = new TLegend(0.62, 0.50, 0.85, 0.90);
 
@@ -667,14 +717,12 @@ void makeControlPlots(string templateFileName,
   }
 
   else if(controlRegion == "SR"){
-    leg->SetNColumns(2);
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
     leg->AddEntry(vlhist,  "W(l#nu)", "F");
-    leg->AddEntry(vllhist, "Z(ll)", "F");
-    leg->AddEntry(tophist, "Top", "F");
     leg->AddEntry(dbhist,  "Dibosons", "F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
+    leg->AddEntry(tophist, "Top", "F");
+    leg->AddEntry(vllhist, "Others: Z(ll), #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
     if( not isHiggsInvisible){
       TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
@@ -685,44 +733,44 @@ void makeControlPlots(string templateFileName,
     else{
       leg->AddEntry(ggHhist,"ggH(m_{H}=125 GeV)", "L");
       leg->AddEntry(vbfHhist,"vbfH(m_{H}=125 GeV)", "L");
-      leg->AddEntry(wHhist,"wH(m_{H}=125 GeV)", "L");
-      leg->AddEntry(zHhist,"zH(m_{H}=125 GeV)", "L");
+      leg->AddEntry(wHhist,"vH(m_{H}=125 GeV)", "L");
     }
   }  
 
   leg->Draw("SAME");
   
-  pad1->RedrawAxis("sameaxis");
+  canvas->RedrawAxis("sameaxis");
   if(isLog)
-    pad1->SetLogy();
+    canvas->SetLogy();
 
   // make data/MC ratio plot
   canvas->cd();
-  pad2->SetTopMargin(0.08);
-  pad2->SetRightMargin(0.06);
-  pad2->SetLeftMargin(0.12);
-  pad2->SetBottomMargin(0.35);
-  pad2->SetGridy();
   pad2->Draw();
   pad2->cd();
 
-  TH1* frame2 = NULL;
+  TH1* frame2 = (TH1*) datahist->Clone("frame");
+  frame2->Reset();
   if(category <= 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   else if(category > 1)
-    frame2 =  pad2->DrawFrame(xMin, 0.25, xMax, 1.75, "");
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+  
+  if(category <= 1)
+    frame2->GetXaxis()->SetNdivisions(510);
+  else
+    frame2->GetXaxis()->SetNdivisions(210);
+  frame2->GetYaxis()->SetNdivisions(5);
 
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
-  frame2->GetXaxis()->SetLabelSize(0.11);
-  frame2->GetYaxis()->SetLabelSize(0.10);
-  frame2->GetXaxis()->SetTitleSize(0.135);
-  frame2->GetYaxis()->SetTitleOffset(0.4);
-  frame2->GetYaxis()->SetTitleSize(0.12);
-  frame2->GetYaxis()->SetNdivisions(5);
-  frame2->GetXaxis()->SetNdivisions(510);
+  frame2->GetYaxis()->SetTitleOffset(1.5);
+  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetTitleSize(0.04);
+  frame2->GetXaxis()->SetLabelSize(0.04);
+  frame2->GetXaxis()->SetTitleSize(0.05);
   frame2->Draw();
+
 
   TH1* nhist = (TH1*) datahist->Clone("datahist_tot");
   TH1* unhist = (TH1*) datahist->Clone("unhist");
@@ -761,6 +809,161 @@ void makeControlPlots(string templateFileName,
 
   canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
-  //  canvas->SaveAs((observable+"_"+controlRegion+".C").c_str());
+
+  if(addSBPlots){
+
+    TH1* totalSignal = NULL;
+
+    if(isHiggsInvisible){
+      totalSignal = (TH1*) ggHhist->Clone("totalSignal");
+      totalSignal->Add(vbfHhist);
+      totalSignal->Add(wHhist);
+      totalSignal->Add(zHhist);
+    }
+    else{
+      totalSignal = (TH1*) monoJhist->Clone("monoJhist");
+      totalSignal->Add(monoWhist);
+      totalSignal->Add(monoZhist);
+    }
+    
+    pad2->Draw();
+    pad2->cd();
+    frame2->GetYaxis()->SetTitle("(S+B)/B");
+
+    TH1* SoverB_prefit = (TH1*) totalSignal->Clone("SoverB_prefit");
+    SoverB_prefit->Add((TH1*) stack->GetStack()->At(stack->GetNhists()-1));
+    SoverB_prefit->Divide((TH1*) stack->GetStack()->At(stack->GetNhists()-1));
+    TH1* SoverB_prefit_d = (TH1*) SoverB_prefit->Clone("SoverB_prefit_d");
+    for(int iBin = 0; iBin < SoverB_prefit_d->GetNbinsX(); iBin++)
+      SoverB_prefit_d->SetBinContent(iBin+1,1);
+    frame2->GetYaxis()->SetRangeUser(std::max(SoverB_prefit->GetMinimum(),SoverB_prefit_d->GetMinimum())*0.5,std::max(SoverB_prefit->GetMaximum(),SoverB_prefit_d->GetMaximum()) *1.2);
+    frame2->Draw();
+    SoverB_prefit->Draw("hist same");
+    SoverB_prefit_d->SetLineColor(0);
+    SoverB_prefit_d->SetMarkerColor(0);
+    SoverB_prefit_d->SetMarkerSize(0);
+    SoverB_prefit_d->SetFillColor(kGray);
+    SoverB_prefit_d->SetFillStyle(1001);
+    SoverB_prefit_d->Draw("E2 SAME");
+    unhist->Draw("SAME");
+    SoverB_prefit->Draw("hist same");
+    pad2->RedrawAxis("sameaxis");
+    canvas->SaveAs((observable+"_"+controlRegion+"_SoB.png").c_str());
+    canvas->SaveAs((observable+"_"+controlRegion+"_SoB.pdf").c_str());   
+
+  }
+
+  if(addShapePlots and controlRegion == "SR"){
+
+    canvas->cd();    
+    TH1* totalBkg = (TH1*) stack->GetStack()->At(stack->GetNhists()-1);
+    totalBkg->Scale(1./totalBkg->Integral());
+    totalBkg->SetLineWidth(2);
+    totalBkg->SetLineColor(kBlack);
+    totalBkg->SetFillColor(kGray);
+    totalBkg->SetFillStyle(3001);
+    frame->GetYaxis()->SetTitle("A.U.");
+    if(isLog)
+      frame->GetYaxis()->SetRangeUser(totalBkg->GetMinimum()/10,totalBkg->GetMaximum()*30);
+    else
+      frame->GetYaxis()->SetRangeUser(0.,totalBkg->GetMaximum()*1.2);
+
+    frame->Draw();
+    CMS_lumi(canvas,"2.3");
+    totalBkg->Draw("hist same");
+    
+    TLegend* leg2 = NULL;
+    
+    if(isHiggsInvisible){
+      ggHhist->SetLineStyle(1);
+      ggHhist->Scale(1./ggHhist->Integral());
+      ggHhist->Draw("hist same");
+      vbfHhist->Scale(1./vbfHhist->Integral());
+      vbfHhist->Draw("hist same");
+      wHhist->Scale(1./wHhist->Integral());
+      wHhist->Draw("hist same");
+      zHhist->Scale(1./wHhist->Integral());
+      zHhist->Draw("hist same");
+
+      leg2 = new TLegend(0.52, 0.65, 0.88, 0.90);
+      leg2->SetFillColor(0);
+      leg2->SetFillStyle(0);
+      leg2->SetBorderSize(0);
+      leg2->AddEntry(ggHhist,"ggH(m_{H}=125 GeV)", "L");
+      leg2->AddEntry(vbfHhist,"vbfH(m_{H}=125 GeV)", "L");
+      leg2->AddEntry(wHhist,"vH(m_{H}=125 GeV)", "L");
+      leg2->AddEntry(totalBkg,"total background","FL");
+
+    }
+    else{
+      monoJhist->SetLineStyle(1);
+      monoJhist->Scale(1./monoJhist->Integral());
+      monoJhist->Draw("hist same");
+      monoWhist->Scale(1./monoWhist->Integral());
+      monoWhist->Draw("hist same");
+      monoZhist->Scale(1./monoZhist->Integral());
+      monoZhist->Draw("hist same");
+
+      leg2 = new TLegend(0.52, 0.65, 0.88, 0.90);
+      leg2->SetFillColor(0);
+      leg2->SetFillStyle(0);
+      leg2->SetBorderSize(0);
+      TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
+      leg2->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
+      leg2->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+      leg2->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+      leg2->AddEntry(totalBkg,"total background","FL");
+
+    }
+    
+    leg2->Draw("same");
+    
+    TH1* totalSignal = NULL;
+    if(isHiggsInvisible){
+      totalSignal = (TH1*) ggHhist->Clone("totalSignal");
+      totalSignal->Add(vbfHhist);
+      totalSignal->Add(wHhist);
+      totalSignal->Add(zHhist);
+    }
+    else{
+      totalSignal = (TH1*) monoJhist->Clone("monoJhist");
+      totalSignal->Add(monoWhist);
+      totalSignal->Add(monoZhist);
+    }
+
+    TPad *pad3 = new TPad("pad3","pad3",0,0.,1,0.9);
+    pad3->SetTopMargin(0.7);
+    pad3->SetRightMargin(0.06);
+    pad3->SetFillColor(0);
+    pad3->SetGridy(1);
+    pad3->SetFillStyle(0);
+    pad3->Draw();
+    pad3->cd();
+    frame2->GetYaxis()->SetTitle("(S+B)/B");
+
+    TH1* SoverB_prefit = (TH1*) totalSignal->Clone("SoverB_prefit");
+    SoverB_prefit->Add(totalBkg);
+    SoverB_prefit->Divide(totalBkg);
+    TH1* SoverB_prefit_d = (TH1*) SoverB_prefit->Clone("SoverB_prefit_d");
+    for(int iBin = 0; iBin < SoverB_prefit_d->GetNbinsX(); iBin++)
+      SoverB_prefit_d->SetBinContent(iBin+1,1);
+    frame2->GetYaxis()->SetRangeUser(std::max(SoverB_prefit->GetMinimum(),SoverB_prefit_d->GetMinimum())*0.5,std::max(SoverB_prefit->GetMaximum(),SoverB_prefit_d->GetMaximum())*1.2);
+    frame2->Draw();
+    SoverB_prefit->Draw("hist same");
+    SoverB_prefit_d->SetLineColor(0);
+    SoverB_prefit_d->SetMarkerColor(0);
+    SoverB_prefit_d->SetMarkerSize(0);
+    SoverB_prefit_d->SetFillColor(kGray);
+    SoverB_prefit_d->SetFillStyle(1001);
+    SoverB_prefit_d->Draw("E2 SAME");
+    unhist->Draw("SAME");
+    SoverB_prefit->Draw("hist same");
+    pad3->RedrawAxis("sameaxis");
+    
+    canvas->SaveAs((observable+"_"+controlRegion+"_Shape.png").c_str());
+    canvas->SaveAs((observable+"_"+controlRegion+"_Shape.pdf").c_str());
+
+  }
+
 }
 
