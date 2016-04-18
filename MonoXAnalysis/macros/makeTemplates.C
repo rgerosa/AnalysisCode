@@ -16,22 +16,22 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
   string baseDirMonoZ;
 
   if(interaction == "Vector"){
-    baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter_v2/";
+    baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter/";
   }
   else if(interaction == "Axial"){
-    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter_v2/";
+    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter/";
   }
   else if(interaction == "Scalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter_v2/";
+    baseDirMonoJet = baseInputTreePath+"/DMS_Scalar/sigfilter/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
   }
   else if(interaction == "Pseudoscalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter_v2/";
+    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
   }
@@ -509,184 +509,186 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 
   // find all possible mass pont to use in the analysis for each Model: Vector, Axial, Scalar and Pseudoscalar .. if onlyMonoJetSignal is true just use all the available mono-j signals in the directories
   vector<signalSample> signalMassPoint;
-  findAllPossibleMassPoints(signalMassPoint,"Vector",typeOfDMSignal);  
-  findAllPossibleMassPoints(signalMassPoint,"Axial",typeOfDMSignal);
-  findAllPossibleMassPoints(signalMassPoint,"Scalar",typeOfDMSignal);
-  findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",typeOfDMSignal);
+  if(not runHiggsInvisible){
+    findAllPossibleMassPoints(signalMassPoint,"Vector",typeOfDMSignal);  
+    findAllPossibleMassPoints(signalMassPoint,"Axial",typeOfDMSignal);
+    findAllPossibleMassPoints(signalMassPoint,"Scalar",typeOfDMSignal);
+    findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",typeOfDMSignal);
+  }
 
   if(doCorrectionHistograms){
 
     cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
-    makezmmcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-       		   baseInputTreePath+"/DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root",
+    makezmmcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+       		   baseInputTreePath+"/DYJets/zmmfilter/",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
 
     cout<<"make correction histogram for Zee to Znn"<<endl;
-    makezeecorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root",
+    makezeecorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/DYJets/zeefilter/",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
     
     cout<<"make correction histogram for Wmn to WJets"<<endl;
-    makewmncorhist(baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   baseInputTreePath+"/WJets/wmnfilter/wmn_tree_WJetsToLNu.root",
+    makewmncorhist(baseInputTreePath+"/WJets/sigfilter/",
+		   baseInputTreePath+"/WJets/wmnfilter/",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
 
     cout<<"make correction histogram for Wen to WJets"<<endl;
-    makewencorhist(baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
-		   baseInputTreePath+"/WJets/wenfilter/wen_tree_WJetsToLNu.root",
+    makewencorhist(baseInputTreePath+"/WJets/sigfilter/",
+		   baseInputTreePath+"/WJets/wenfilter/",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
    
     cout<<"make correction histogram for Gam+jets to Znn"<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root", 		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/", 		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext);
 
 
     cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"qcd"+ext,1);
 
     cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"ewk"+ext,2);
     
     cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"re1"+ext,3);
 
     cout<<"systematics on Z/gamma ratio --> FA 1 "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fa1"+ext,4);
 
 
     cout<<"systematics on Z/gamma ratio --> RE 2 "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"re2"+ext,5);
 
     cout<<"systematics on Z/gamma ratio --> FA 2 "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fa2"+ext,6);
 
     cout<<"systematics on Z/gamma ratio --> PDF "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"pdf"+ext,7);
 
     cout<<"systematics on Z/gamma ratio --> FP "<<endl;
-    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/PhotonJets/gamfilter/gam_tree_GJets.root",		   
+    makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fpc"+ext,8);
 
 
     cout<<"make Z/W ratio"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
     		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,ext); 
 
     cout<<"systematics on Z/W ratio --> NLO QCD"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"qcd"+ext,1);
 
     cout<<"systematics on Z/W ratio --> NLO EWK"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"ewk"+ext,2);
 
     cout<<"systematics on Z/W ratio --> RE 1"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",		   
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",		   
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"re1"+ext,3);
 
 
     cout<<"systematics on Z/W ratio --> FA 1"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fa1"+ext,4);
 
 
     cout<<"systematics on Z/W ratio --> RE 2"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"re2"+ext,5);
 
 
     cout<<"systematics on Z/W ratio --> FA 2"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fa2"+ext,6);
 
     cout<<"systematics on Z/W ratio --> PDF"<<endl;
-    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root",
-		   baseInputTreePath+"/WJets/sigfilter/sig_tree_WJetsToLNu.root",
+    makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
+		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"pdf"+ext,7);
     
     /*
     if(addTop){
       cout<<"make TOP+MU ratio"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"",runHiggsInvisible,ext);
       
       cout<<"systematics on TOP+MU ratio --> bUp"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
       
       
       cout<<"systematics on TOP+MU ratio --> bDw"<<endl;
-      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
       
       cout<<"make TOP+EL ratio"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"",runHiggsInvisible,ext);
       
       
       cout<<"systematics on TOP+EL ratio --> bUp"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"btagUp",runHiggsInvisible,ext+"bUp");
       
       cout<<"systematics on TOP+EL ratio --> bDw"<<endl;
-      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/sig_tree_Top_amc.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top_amc.root",
+      maketopelcorhist(baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       category,observables,observables_2D,lumi,
-		       baseInputTreePath+"/Top/sigfilter/sig_tree_Top.root",
-		       baseInputTreePath+"/Top/topfilter/top_tree_Top.root",
+		       baseInputTreePath+"/Top/sigfilter/",
+		       baseInputTreePath+"/Top/topfilter/",
 		       applyQGLReweight,outDir,"btagDown",runHiggsInvisible,ext+"bDown");
       
       

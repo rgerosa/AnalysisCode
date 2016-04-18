@@ -10,7 +10,8 @@ void drawCorrelationSignalAndBackground(string inputFileName,
 					string mediatorMass = "1000", 
 					string DMMass = "50",
 					bool isHiggsInvisible = false,
-					bool isLog = false){
+					bool isLog = false,
+					bool divideByBinWidth = false){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -49,15 +50,17 @@ void drawCorrelationSignalAndBackground(string inputFileName,
   if(isLog)
     canvas->SetLogz();
 
-  //for(auto hist : bkghist)
-  //  hist->Scale(1.0,"width");
-  //for(auto hist : monoJhist)
-  //    hist->Scale(1.0,"width");
-  //for(auto hist : monoWhist)
-  //    hist->Scale(1.0,"width");
-  //for(auto hist : monoZhist)
-  //    hist->Scale(1.0,"width");
-
+  if(divideByBinWidth){
+    for(auto hist : bkghist)
+      hist->Scale(1.0,"width");
+    for(auto hist : monoJhist)
+      hist->Scale(1.0,"width");
+    for(auto hist : monoWhist)
+      hist->Scale(1.0,"width");
+    for(auto hist : monoZhist)
+      hist->Scale(1.0,"width");
+  }
+  
   int iObs = 0;
   for(auto obs : observables2D){    
 

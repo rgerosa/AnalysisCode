@@ -17,21 +17,21 @@ void signalHiggshist(TFile* outfile,
     cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
 
   cout<<"Start HiggsInvisible: signalHiggshist --> "<<mH<<endl;
-  
+
   TFile* ggHFile = NULL, *vbfHFile = NULL, *wHFile = NULL, *zHFile = NULL;
   if(typeOfHiggsSignal == 0){
-    ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_GluGlu_HToInvisible_M"+mH+"_13TeV_powheg_pythia8.root").c_str());
+    vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M"+mH+"_13TeV_powheg_pythia8.root").c_str());
+    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
   }
   else if(typeOfHiggsSignal == 1){ // fermion only
-    ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_GluGlu_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
-    vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_VBF_HToInvisible_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str());
+    ggHFile  = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_GluGlu_HToInvisible_M"+mH+"_13TeV_powheg_pythia8.root").c_str());
+    vbfHFile = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M"+mH+"_13TeV_powheg_pythia8.root").c_str());
   }
   else if(typeOfHiggsSignal == 2){  // boson only
-    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
-    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_tree_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    wHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_DM_ScalarWH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
+    zHFile   = TFile::Open((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_DM_ScalarZH_Mphi-"+mH+"_Mchi-0_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str());
   }
 
   vector<TH1*>  ggHhist;
@@ -744,33 +744,33 @@ void signalmchist(TFile* outfile,
 
   for(auto iPoint : massPoint){
     if(iPoint.interaction == interaction and interaction == "Vector"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Vector/sigfilter/sig_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+iPoint.mediatorMass+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Vector/sigfilter/sig_VectorMonoW_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Vector/sigfilter/sig_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Axial"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_AxialMonoW_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Scalar"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Scalar/sigfilter/sig_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));      
     }
     else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Pseudoscalar/sigfilter/sig_DMS_NNPDF30_Pseudoscalar_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarWH_Mphi-"+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Pseudoscalar/sigfilter/sig_DM_PseudoscalarWH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Pseudoscalar/sigfilter/sig_tree_DM_PseudoscalarZH_Mphi-"+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Pseudoscalar/sigfilter/sig_DM_PseudoscalarZH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
     }
   }
@@ -1411,25 +1411,32 @@ void sigdatamchist(TFile* outfile,
 		   bool doShapeSystematics  = false,
 		   bool doAlternativeTop    = false,
                    bool blind               = false,
-		   bool isHInv    = false,
-		   bool applyPFWeight = false) {
+		   bool isHInv              = false,
+		   bool applyPFWeight       = false) {
 
   // Files for Znunu, Wlnu, Zll, top, qcd , diboson, signal, data                                                                                                            
-  TFile* znfile  = TFile::Open((baseInputTreePath+"ZJets/sigfilter/sig_tree_ZJetsToNuNu.root").c_str());
-  TFile* wlfile  = TFile::Open((baseInputTreePath+"WJets/sigfilter/sig_tree_WJetsToLNu.root").c_str());
-  TFile* zlfile  = TFile::Open((baseInputTreePath+"DYJets/sigfilter/sig_tree_DYJetsToLL_M-50.root").c_str());
-  TFile* ttfile  = TFile::Open((baseInputTreePath+"Top/sigfilter/sig_tree_Top_amc.root").c_str());
-  TFile* qcdfile = TFile::Open((baseInputTreePath+"QCD/sigfilter/sig_tree_QCD.root").c_str());
-  TFile* dbfile  = TFile::Open((baseInputTreePath+"DiBoson/sigfilter/sig_tree_DiBoson.root").c_str());
-  TFile* gmfile  = TFile::Open((baseInputTreePath+"PhotonJets/sigfilter/sig_tree_GJets.root").c_str());
-
-  // additional top sample
-  TFile* ttfile_alt  = NULL;
+  TChain* zntree = new TChain("tree/tree");
+  TChain* wltree = new TChain("tree/tree");
+  TChain* zltree = new TChain("tree/tree");
+  TChain* tttree = new TChain("tree/tree");
+  TChain* tttree_alt = NULL;
   if(doAlternativeTop)
-    ttfile_alt = TFile::Open((baseInputTreePath+"Top/sigfilter/sig_tree_Top.root").c_str());
+    tttree_alt = new TChain("tree/tree");
+  TChain* ditree = new TChain("tree/tree");
+  TChain* gmtree = new TChain("tree/tree");
+  TChain* qcdtree = new TChain("tree/tree");
+  TChain* dttree = new TChain("tree/tree");
 
-  //data                                                                                                                                                                        
-  TFile* dtfile = TFile::Open((baseInputTreePath+"MET/sigfilter/sig_tree_crab_MET-Run2015.root").c_str());
+  zntree->Add((baseInputTreePath+"ZJets/sigfilter/*").c_str());
+  wltree->Add((baseInputTreePath+"WJets/sigfilter/*").c_str());
+  zltree->Add((baseInputTreePath+"DYJets/sigfilter/*").c_str());
+  tttree->Add((baseInputTreePath+"Top/sigfilter/*").c_str());
+  if(doAlternativeTop and tttree_alt != NULL)
+    tttree_alt->Add((baseInputTreePath+"Top_alt/sigfilter/*").c_str());
+  qcdtree->Add((baseInputTreePath+"QCD/sigfilter/*").c_str());
+  ditree->Add((baseInputTreePath+"DiBoson/sigfilter/*").c_str());
+  gmtree->Add((baseInputTreePath+"PhotonJets/sigfilter/*").c_str());
+  dttree->Add((baseInputTreePath+"MET/sigfilter/*").c_str());
 
   // make met histograms                                                                                                                                                        
   vector<TH1*> znhist;
@@ -1798,20 +1805,6 @@ void sigdatamchist(TFile* outfile,
   }
 
   
-  TTree* zntree = (TTree*)znfile->Get("tree/tree");
-  TTree* wltree = (TTree*)wlfile->Get("tree/tree");
-  TTree* zltree = (TTree*)zlfile->Get("tree/tree");
-  TTree* tttree = (TTree*)ttfile->Get("tree/tree");
-  TTree* tttree_alt = NULL;
-  if(ttfile_alt and doAlternativeTop)
-    tttree_alt = (TTree*)ttfile_alt->Get("tree/tree");
-
-  TTree* ditree  = (TTree*)dbfile->Get("tree/tree");
-  TTree* gmtree  = (TTree*)gmfile->Get("tree/tree");
-  TTree* qcdtree = (TTree*)qcdfile->Get("tree/tree");
-
-  TTree* dttree = (TTree*)dtfile->Get("tree");
-
   // get k-factors NLO                                                                                                                                                         
   TFile kffile (kfactorFile.c_str());
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
@@ -2268,16 +2261,16 @@ void sigdatamchist(TFile* outfile,
 
   outfile->cd();
 
-  znfile->Close();
-  wlfile->Close();
-  zlfile->Close();
-  ttfile->Close();
-  dbfile->Close();
-  gmfile->Close();
-  qcdfile->Close();
-  dtfile->Close();
-  kffile.Close();
-  if(ttfile_alt) ttfile_alt->Close();
+  //  znfile->Close();
+  //  wlfile->Close();
+  //  zlfile->Close();
+  //  ttfile->Close();
+  //  dbfile->Close();
+  //  gmfile->Close();
+  //  qcdfile->Close();
+  // dtfile->Close();
+  //  kffile.Close();
+  //  if(ttfile_alt) ttfile_alt->Close();
 
   znhist.clear();
   wlhist.clear();
@@ -2396,8 +2389,10 @@ void gamdatamchist(TFile* outfile,
                    ) {
 
 
-  TFile* dtfile =  TFile::Open((baseInputTreePath+"SinglePhoton/gamfilter/gam_tree_crab_SinglePhoton-Run2015.root").c_str());
-  TFile* gmfile =  TFile::Open((baseInputTreePath+"PhotonJets/gamfilter/gam_tree_GJets.root").c_str());
+  TChain* dttree = new TChain("tree/tree");
+  TChain* gmtree = new TChain("tree/tree");
+  dttree->Add((baseInputTreePath+"SinglePhoton/gamfilter/*").c_str());
+  gmtree->Add((baseInputTreePath+"PhotonJets/gamfilter/*").c_str());
 
   vector<TH1*> dthist;
   vector<TH1*> qcdhist;
@@ -2440,9 +2435,6 @@ void gamdatamchist(TFile* outfile,
     dthist_2D.push_back(dynamic_cast<TH2*>(dthist_temp));
   }
 
-
-  TTree* dttree = (TTree*)dtfile->Get("tree");
-  TTree* gmtree = (TTree*)gmfile->Get("tree/tree");
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                           
   // get k-factors NLO                                                                                                                                                        
@@ -2501,8 +2493,8 @@ void gamdatamchist(TFile* outfile,
 
   outfile->cd();
 
-  dtfile->Close();
-  gmfile->Close();
+  //  dtfile->Close();
+  //  gmfile->Close();
   kffile.Close();
 
   dthist.clear();
@@ -2529,62 +2521,63 @@ void lepdatamchist(TFile* outfile,
 
   if (sample != 1 && sample != 2 && sample != 3 && sample != 4) return;
 
-  TFile* ttfile  = NULL;
-  TFile* dbfile  = NULL; 
-  TFile* gmfile  = NULL;
-  TFile* qcfile  = NULL;
-  TFile* vlfile  = NULL;
-  TFile* vllfile = NULL;
-  TFile* dtfile  = NULL;
-  TFile* dtfile_2  = NULL;
-
+  TChain* tttree  = new TChain("tree/tree");
+  TChain* dbtree  = new TChain("tree/tree"); 
+  TChain* gmtree  = new TChain("tree/tree");
+  TChain* qctree  = new TChain("tree/tree");
+  TChain* vltree  = new TChain("tree/tree");
+  TChain* vlltree = new TChain("tree/tree");
+  TChain* dttree  = new TChain("tree/tree");
+  TChain* dttree_2  = NULL;
   string suffix;
 
   if(sample == 1){
 
     suffix = "zmm";
-    vllfile = TFile::Open((baseInputTreePath+"DYJets/zmmfilter/zmm_tree_DYJetsToLL_M-50.root").c_str());
-    vlfile = TFile::Open((baseInputTreePath+"WJets/zmmfilter/zmm_tree_WJetsToLNu.root").c_str());
-    qcfile = TFile::Open((baseInputTreePath+"QCD/zmmfilter/zmm_tree_QCD.root").c_str());
-    dbfile = TFile::Open((baseInputTreePath+"DiBoson/zmmfilter/zmm_tree_DiBoson.root").c_str());
-    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/zmmfilter/zmm_tree_GJets.root").c_str());
-    ttfile = TFile::Open((baseInputTreePath+"Top/zmmfilter/zmm_tree_Top_amc.root").c_str());
-    dtfile = TFile::Open((baseInputTreePath+"MET/zmmfilter/zmm_tree_crab_MET-Run2015.root").c_str());
+    vlltree->Add((baseInputTreePath+"DYJets/zmmfilter/*").c_str());
+    vltree->Add((baseInputTreePath+"WJets/zmmfilter/*").c_str());
+    qctree->Add((baseInputTreePath+"QCD/zmmfilter/*").c_str());
+    dbtree->Add((baseInputTreePath+"DiBoson/zmmfilter/*").c_str());
+    gmtree->Add((baseInputTreePath+"PhotonJets/zmmfilter/*").c_str());
+    tttree->Add((baseInputTreePath+"Top/zmmfilter/*").c_str());
+    dttree->Add((baseInputTreePath+"MET/zmmfilter/*").c_str());
   }
   else if(sample == 2){
 
     suffix = "wmn";
-    vllfile = TFile::Open((baseInputTreePath+"DYJets/wmnfilter/wmn_tree_DYJetsToLL_M-50.root").c_str());
-    vlfile = TFile::Open((baseInputTreePath+"WJets/wmnfilter/wmn_tree_WJetsToLNu.root").c_str());
-    qcfile = TFile::Open((baseInputTreePath+"QCD/wmnfilter/wmn_tree_QCD.root").c_str());
-    dbfile = TFile::Open((baseInputTreePath+"DiBoson/wmnfilter/wmn_tree_DiBoson.root").c_str());
-    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/wmnfilter/wmn_tree_GJets.root").c_str());
-    ttfile = TFile::Open((baseInputTreePath+"Top/wmnfilter/wmn_tree_Top_amc.root").c_str());
-    dtfile = TFile::Open((baseInputTreePath+"MET/wmnfilter/wmn_tree_crab_MET-Run2015.root").c_str());
+    vlltree->Add((baseInputTreePath+"DYJets/wmnfilter/*").c_str());
+    vltree->Add((baseInputTreePath+"WJets/wmnfilter/*").c_str());
+    qctree->Add((baseInputTreePath+"QCD/wmnfilter/*").c_str());
+    dbtree->Add((baseInputTreePath+"DiBoson/wmnfilter/*").c_str());
+    gmtree->Add((baseInputTreePath+"PhotonJets/wmnfilter/*").c_str());
+    tttree->Add((baseInputTreePath+"Top/wmnfilter/*").c_str());
+    dttree->Add((baseInputTreePath+"MET/wmnfilter/*").c_str());
   }
   else if(sample == 3){
 
     suffix = "zee";
-    vllfile = TFile::Open((baseInputTreePath+"DYJets/zeefilter/zee_tree_DYJetsToLL_M-50.root").c_str());
-    vlfile = TFile::Open((baseInputTreePath+"WJets/zeefilter/zee_tree_WJetsToLNu.root").c_str());
-    qcfile = TFile::Open((baseInputTreePath+"QCD/zeefilter/zee_tree_QCD.root").c_str());
-    dbfile = TFile::Open((baseInputTreePath+"DiBoson/zeefilter/zee_tree_DiBoson.root").c_str());
-    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/zeefilter/zee_tree_GJets.root").c_str());
-    ttfile = TFile::Open((baseInputTreePath+"Top/zeefilter/zee_tree_Top_amc.root").c_str());
-    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/zeefilter/zee_tree_crab_SingleEle-Run2015.root").c_str());
-    dtfile_2 = TFile::Open((baseInputTreePath+"SinglePhoton/zeefilter/zee_tree_crab_SinglePhoton-Run2015.root").c_str());
+    vlltree->Add((baseInputTreePath+"DYJets/zeefilter/*").c_str());
+    vltree->Add((baseInputTreePath+"WJets/zeefilter/*").c_str());
+    qctree->Add((baseInputTreePath+"QCD/zeefilter/*").c_str());
+    dbtree->Add((baseInputTreePath+"DiBoson/zeefilter/*").c_str());
+    gmtree->Add((baseInputTreePath+"PhotonJets/zeefilter/*").c_str());
+    tttree->Add((baseInputTreePath+"Top/zeefilter/*").c_str());
+    dttree->Add((baseInputTreePath+"SingleElectron/zeefilter/*").c_str());
+    dttree_2 = new TChain("tree/tree");
+    dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*").c_str());
   }
   else if(sample == 4){
 
     suffix = "wen";
-    vllfile = TFile::Open((baseInputTreePath+"DYJets/wenfilter/wen_tree_DYJetsToLL_M-50.root").c_str());
-    vlfile = TFile::Open((baseInputTreePath+"WJets/wenfilter/wen_tree_WJetsToLNu.root").c_str());
-    qcfile = TFile::Open((baseInputTreePath+"QCD/wenfilter/wen_tree_QCD.root").c_str());
-    dbfile = TFile::Open((baseInputTreePath+"DiBoson/wenfilter/wen_tree_DiBoson.root").c_str());
-    gmfile = TFile::Open((baseInputTreePath+"PhotonJets/wenfilter/wen_tree_GJets.root").c_str());
-    ttfile = TFile::Open((baseInputTreePath+"Top/wenfilter/wen_tree_Top_amc.root").c_str());
-    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/wenfilter/wen_tree_crab_SingleEle-Run2015.root").c_str());
-    dtfile_2 = TFile::Open((baseInputTreePath+"SinglePhoton/wenfilter/wen_tree_crab_SinglePhoton-Run2015.root").c_str());
+    vlltree->Add((baseInputTreePath+"DYJets/wenfilter/*").c_str());
+    vltree->Add((baseInputTreePath+"WJets/wenfilter/*").c_str());
+    qctree->Add((baseInputTreePath+"QCD/wenfilter/*").c_str());
+    dbtree->Add((baseInputTreePath+"DiBoson/wenfilter/*").c_str());
+    gmtree->Add((baseInputTreePath+"PhotonJets/wenfilter/*").c_str());
+    tttree->Add((baseInputTreePath+"Top/wenfilter/*").c_str());
+    dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*").c_str());
+    dttree_2 = new TChain("tree/tree");
+    dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*").c_str());
   }
 
 
@@ -2934,19 +2927,12 @@ void lepdatamchist(TFile* outfile,
     }
   }
 
-  TChain* dttree = new TChain("tree");
-  dttree->Add(dtfile->GetName());
-  if(dtfile_2)
-    dttree->Add(dtfile_2->GetName());
+  // make a chain of two files
+  TChain* dttree_merged = new TChain("tree");
+  dttree_merged->Add(dttree);
+  if(dttree_2)
+    dttree_merged->Add(dttree_2);
   
-  TTree* vltree  = (TTree*)vlfile->Get("tree/tree");
-  TTree* vlltree = (TTree*)vllfile->Get("tree/tree");
-  TTree* tttree  = (TTree*)ttfile->Get("tree/tree");
-  TTree* dbtree  = (TTree*)dbfile->Get("tree/tree");
-  TTree* gmtree  = (TTree*)gmfile->Get("tree/tree");
-  TTree* qctree  = (TTree*)qcfile->Get("tree/tree");
-
-
   TFile kffile(kfactorFile.c_str());  
 
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
@@ -3097,7 +3083,7 @@ void lepdatamchist(TFile* outfile,
   }
   
   cout<<"lepton+jets control region --> Data"<<endl;
-  makehist4(dttree, dthist, dthist_2D, false, sample, category, false,1.00, lumi, 0, ehists, "", false, true,0,isHInv,applyPFWeight);
+  makehist4(dttree_merged, dthist, dthist_2D, false, sample, category, false,1.00, lumi, 0, ehists, "", false, true,0,isHInv,applyPFWeight);
 
   //smooth
   for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
@@ -3348,13 +3334,13 @@ void lepdatamchist(TFile* outfile,
   
   outfile->cd();
 
-  dtfile->Close();
-  vlfile->Close();
-  vllfile->Close();
-  ttfile->Close();
-  dbfile->Close();
-  gmfile->Close();
-  qcfile->Close();
+  //  dtfile->Close();
+  //  vlfile->Close();
+  //  vllfile->Close();
+  //  ttfile->Close();
+  //  dbfile->Close();
+  //  gmfile->Close();
+  //  qcfile->Close();
 
   dthist.clear();
   tthist.clear();
@@ -3470,14 +3456,14 @@ void topdatamchist(TFile* outfile,
 
   if (sample != 7 && sample != 8) return;
 
-  TFile* ttfile      = NULL;
-  TFile* ttfile_alt  = NULL;
-  TFile* dbfile  = NULL;
-  TFile* gmfile  = NULL;
-  TFile* qcfile  = NULL;
-  TFile* vlfile  = NULL;
-  TFile* vllfile = NULL;
-  TFile* dtfile  = NULL;
+  TChain* tttree      = new TChain("tree/tree");
+  TChain* tttree_alt  = new TChain("tree/tree");
+  TChain* dbtree  = new TChain("tree/tree");
+  TChain* gmtree  = new TChain("tree/tree");
+  TChain* qctree  = new TChain("tree/tree");
+  TChain* vltree  = new TChain("tree/tree");
+  TChain* vlltree = new TChain("tree/tree");
+  TChain* dttree  = new TChain("tree/tree");
 
   string suffix;
 
@@ -3486,19 +3472,19 @@ void topdatamchist(TFile* outfile,
   else if(sample == 8)
     suffix = "topel";
 
-  vllfile = TFile::Open((baseInputTreePath+"DYJets/topfilter/top_tree_DYJetsToLL_M-50.root").c_str());
-  vlfile = TFile::Open((baseInputTreePath+"WJets/topfilter/top_tree_WJetsToLNu.root").c_str());
-  qcfile = TFile::Open((baseInputTreePath+"QCD/topfilter/top_tree_QCD.root").c_str());
-  dbfile = TFile::Open((baseInputTreePath+"DiBoson/topfilter/top_tree_DiBoson.root").c_str());
-  gmfile = TFile::Open((baseInputTreePath+"DiBoson/topfilter/top_tree_DiBoson.root").c_str());
-  ttfile = TFile::Open((baseInputTreePath+"Top/topfilter/top_tree_Top_amc.root").c_str());
-  ttfile_alt = TFile::Open((baseInputTreePath+"Top/topfilter/top_tree_Top.root").c_str());
+  vlltree->Add((baseInputTreePath+"DYJets/"+suffix+"/*").c_str());
+  vltree->Add((baseInputTreePath+"WJets/"+suffix+"/*").c_str());
+  qctree->Add((baseInputTreePath+"QCD/"+suffix+"/*").c_str());
+  dbtree->Add((baseInputTreePath+"DiBoson/"+suffix+"/*").c_str());
+  gmtree->Add((baseInputTreePath+"PhotonJets/"+suffix+"/*").c_str());
+  tttree->Add((baseInputTreePath+"Top/"+suffix+"/*").c_str());
+  tttree_alt->Add((baseInputTreePath+"Top_alt/"+suffix+"/*").c_str());
 
   if(sample == 7)
-    dtfile = TFile::Open((baseInputTreePath+"MET/topfilter/top_tree_crab_MET-Run2015.root").c_str());
+    dttree->Add((baseInputTreePath+"MET/"+suffix+"/*").c_str());
   else if(sample == 8)
-    dtfile = TFile::Open((baseInputTreePath+"SingleElectron/topfilter/top_tree_crab_SingleEle-Run2015.root").c_str());
-
+    dttree->Add((baseInputTreePath+"SingleElectron/"+suffix+"/*").c_str());
+  
   vector<TH1*> dthist;
   vector<TH1*> tthist;
   vector<TH1*> tthist_alt;
@@ -3816,19 +3802,6 @@ void topdatamchist(TFile* outfile,
       
     }
   }
-
-  TTree* dttree  = (TTree*)dtfile->Get("tree");
-  TTree* vltree  = (TTree*)vlfile->Get("tree/tree");
-  TTree* vlltree = (TTree*)vllfile->Get("tree/tree");
-  TTree* tttree  = (TTree*)ttfile->Get("tree/tree");
-  TTree* tttree_alt = NULL;
-
-  if(ttfile_alt)
-    tttree_alt = (TTree*) ttfile_alt->Get("tree/tree");
-
-  TTree* dbtree = (TTree*)dbfile->Get("tree/tree");
-  TTree* gmtree = (TTree*)gmfile->Get("tree/tree");
-  TTree* qctree = (TTree*)qcfile->Get("tree/tree");
 
   // k-factors
   TFile kffile(kfactorFile.c_str());  
@@ -4206,14 +4179,14 @@ void topdatamchist(TFile* outfile,
 
   outfile->cd();
 
-  dtfile->Close();
-  vlfile->Close();
-  gmfile->Close();
-  vllfile->Close();
-  ttfile->Close();
-  if(ttfile_alt) ttfile_alt->Close();
-  dbfile->Close();
-  qcfile->Close();
+  //  dtfile->Close();
+  //  vlfile->Close();
+  //  gmfile->Close();
+  //  vllfile->Close();
+  //  ttfile->Close();
+  //  if(ttfile_alt) ttfile_alt->Close();
+  //  dbfile->Close();
+  //  qcfile->Close();
 
   dthist.clear();
   tthist.clear();

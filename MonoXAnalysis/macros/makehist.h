@@ -31,7 +31,7 @@ const int   nBjets         = 1;
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
 //string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-17-04-2016/";
 
 VectorSorter jetSorter;
 
@@ -241,35 +241,15 @@ void makehist4(TTree* tree, /*input tree*/
   // prescale
   TTreeReaderValue<double> pswgt(myReader,prescalename.c_str());
 
-  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbheloose");
+  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-  
-  // MET filters
-  string cscname;
-  string feebname;
-  string fmutrkname;
-  string fbtrkname;
-
-  if(isMC){
-    cscname    = "flagcsctight";
-    feebname   = "flageebadsc";
-    fmutrkname = "flagcsctight";
-    fbtrkname  = "flagcsctight";
-  }
-  else{
-    cscname    = "flagcscnew";
-    feebname   = "flageescnew";
-    fmutrkname = "flagmuontrack";
-    fbtrkname  = "flagbadtrack";
-  }
-  
-  TTreeReaderValue<UChar_t> fcsc (myReader,cscname.c_str());
-  TTreeReaderValue<UChar_t> feeb (myReader,feebname.c_str());
-
-  TTreeReaderValue<UChar_t> fmutrk (myReader,fmutrkname.c_str());
-  TTreeReaderValue<UChar_t> fbtrk  (myReader,fbtrkname.c_str());
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
 
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int> nincjets  (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets (myReader,"nbjetslowpt");
 
   TTreeReaderValue<double> j1pt (myReader,"leadingjetpt");
@@ -664,14 +644,11 @@ void makehist4(TTree* tree, /*input tree*/
         
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
-    // MET Filters
-    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
-    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0)) continue;
 
-    // Additional met filters
-    if (not isMC){
-      if(*fmutrk == 0 || *fbtrk == 0) continue; // met filters   
-    }
+    // MET Filters
+    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp || *fvtx)) continue;
+    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp || *fvtx)) continue;
+
     // N-jets
     if (*njets  < 1) continue; 
 
@@ -936,8 +913,10 @@ void makehist4(TTree* tree, /*input tree*/
 	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
 	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
       }   
-      else if(name.Contains("njet"))
+      else if(name.Contains("ncjet"))
 	fillvar = *njets;      
+      else if(name.Contains("njet"))
+	fillvar = *nincjets;      
       else if(name.Contains("nbjet_hpt_loose")){
 	int nbjet = 0;
 	for(size_t iJet = 0; iJet < jetbtag->size(); iJet++){
@@ -1154,17 +1133,28 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvarY = boostedJettau2->at(0)/boostedJettau1->at(0);			
       }
 
-      else if(name.Contains("met_njet")){
+      else if(name.Contains("met_ncjet")){
 	fillvarX = pfmet;
 	fillvarY = *njets;
       }
+      else if(name.Contains("met_njet")){
+	fillvarX = pfmet;
+	fillvarY = *nincjets;
+      }
 
-      else if(name.Contains("mT_njet")){
+      else if(name.Contains("mT_ncjet")){
 	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
         if(deltaPhi > TMath::Pi())
           deltaPhi = 2*TMath::Pi() - deltaPhi;
 	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
 	fillvarY = *njets;
+      }
+      else if(name.Contains("mT_njet")){
+	float deltaPhi = fabs(jetphi->at(0)-pfmetphi);
+        if(deltaPhi > TMath::Pi())
+          deltaPhi = 2*TMath::Pi() - deltaPhi;
+	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
+	fillvarY = *nincjets;
       }
 
       else if(name.Contains("met_ht")){

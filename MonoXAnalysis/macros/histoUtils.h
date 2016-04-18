@@ -37,9 +37,9 @@ class VectorSorter{
 
 // define binnings for the different observables                                 
 vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
-//vector<double> bins_monoV_met         = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
 vector<double> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
+vector<double> bins_monoV_met_v4      = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_substructure_met  = {200.,225.,250.,275.,300.,325,350.,400.,500.,600.,750.,1000.};
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -149,6 +149,13 @@ vector<double> selectBinning (string observable, int category){
     return bins_monoV_tau2tau1;
   else if(observable == "tau2tau1" and category > 1)
     return bins_substructure_tau2tau1;
+
+  else if(observable == "ncjet" and category <= 1)
+    return bins_monoJ_njet;
+  else if(observable == "ncjet" and category > 1 and category <= 3)
+    return bins_monoV_njet;
+  else if(observable == "ncjet" and category > 3)
+    return bins_substructure_njet;
 
   else if(observable == "njet" and category <= 1)
     return bins_monoJ_njet;
@@ -262,7 +269,17 @@ bin2D selectBinning2D (string observable, int category){
     bins.binY = bins_monoJ_njet_2D;
     return bins;
   }
+  else if(observable == "met_ncjet" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_njet_2D;
+    return bins;
+  }
   else if(observable == "met_njet_v2" and category <=1){
+    bins.binX = bins_monoJ_met_2D;
+    bins.binY = bins_monoJ_njet_2D_v2;
+    return bins;
+  }
+  else if(observable == "met_ncjet_v2" and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_njet_2D_v2;
     return bins;
