@@ -97,12 +97,12 @@ void makezmmcorhist( string  signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, select the right QGL re-weight
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 1, zhists, sysName, false, true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 1, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("zmmcor")+ext;
@@ -142,6 +142,12 @@ void makezmmcorhist( string  signalRegionFile,
     tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
     tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
 
   for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
     tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
@@ -260,12 +266,12 @@ void makezeecorhist( string  signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 1, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 3, category, false, 1.00, lumi, 0, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
   }
   string name = string("zeecor")+ext;
 
@@ -303,6 +309,12 @@ void makezeecorhist( string  signalRegionFile,
     tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
     tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
 
   for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
     tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
@@ -421,12 +433,12 @@ void makewmncorhist( string  signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 2, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 2, category, false, 1.00, lumi, 0, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("wmncor")+ext;
@@ -465,6 +477,12 @@ void makewmncorhist( string  signalRegionFile,
     tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
     tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
 
   for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
     tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
@@ -581,12 +599,12 @@ void makewencorhist( string signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 2, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 4, category, false, 1.00, lumi, 0, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("wencor")+ext;
@@ -625,6 +643,12 @@ void makewencorhist( string signalRegionFile,
     tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
     tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
+
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
 
   for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
     tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
@@ -670,8 +694,10 @@ void  makezwjcorhist(string znunuFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -801,12 +827,12 @@ void  makezwjcorhist(string znunuFile,
   
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 2, whists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category, false, 1.00, lumi, 0, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("zwjcor")+ext;
@@ -815,32 +841,46 @@ void  makezwjcorhist(string znunuFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
-    nhist.at(ihist)->Write("",TObject::kOverwrite);
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
+    nhist.at(ihist)->Write("",TObject::kOverwrite);  
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
@@ -851,8 +891,10 @@ void  makezwjcorhist(string znunuFile,
 
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
+  tfhist_2D.clear();
   unrolled.clear();
 
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
@@ -883,8 +925,10 @@ void makegamcorhist( string znunuFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -1025,12 +1069,12 @@ void makegamcorhist( string znunuFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", false, true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", false, true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 1, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 3, ahists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", false, true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", false, true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 5, category, false, 1.00, lumi, 0, ahists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("gamcor")+ext;
@@ -1039,32 +1083,46 @@ void makegamcorhist( string znunuFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
   }
 
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
   }
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
   
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+  
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
@@ -1075,8 +1133,10 @@ void makegamcorhist( string znunuFile,
 
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
+  tfhist_2D.clear();
   unrolled.clear();
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
@@ -1118,12 +1178,16 @@ void maketopmucorhist( string signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH1*> nhist_alt;
   vector<TH1*> dhist_alt;
+  vector<TH1*> tfhist_alt;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH2*> nhist_2D_alt;
   vector<TH2*> dhist_2D_alt;
+  vector<TH2*> tfhist_2D_alt;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -1186,16 +1250,16 @@ void maketopmucorhist( string signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 7, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("topmucor")+ext;
@@ -1204,11 +1268,13 @@ void maketopmucorhist( string signalRegionFile,
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
     if(nhist_alt.size() >= ihist){
       smoothEmptyBins(nhist_alt.at(ihist),2);
       smoothEmptyBins(dhist_alt.at(ihist),2);
-      nhist_alt.at(ihist)->Divide(dhist_alt.at(ihist));
+      tfhist_alt.push_back((TH1*) nhist_alt.at(ihist)->Clone(Form("%s_temp",nhist_alt.at(ihist)->GetName())));
+      tfhist_alt.back()->Divide(dhist_alt.at(ihist));
     }
   }
 
@@ -1216,56 +1282,73 @@ void maketopmucorhist( string signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
     if(nhist_2D_alt.size() >= ihist){
       smoothEmptyBins(nhist_2D_alt.at(ihist),2);
       smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      nhist_2D_alt.at(ihist)->Divide(dhist_2D_alt.at(ihist));
+      tfhist_2D_alt.push_back((TH2*) nhist_2D_alt.at(ihist)->Clone(Form("%s_temp",nhist_2D_alt.at(ihist)->GetName())));
+      tfhist_2D_alt.back()->Divide(dhist_2D_alt.at(ihist));
     }
   }
 
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
-  for(size_t ihist = 0; ihist < nhist_alt.size(); ihist++)
-    smoothEmptyBins(nhist_alt.at(ihist),2);
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
-  for(size_t ihist = 0; ihist < nhist_2D_alt.size(); ihist++)
-    smoothEmptyBins(nhist_2D_alt.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist_alt.size(); ihist++)
+    smoothEmptyBins(tfhist_alt.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D_alt.size(); ihist++)
+    smoothEmptyBins(tfhist_2D_alt.at(ihist),1);
 
   // make average
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    makeAverage(nhist.at(ihist),nhist_alt.at(ihist));
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    makeAverage(tfhist.at(ihist),tfhist_alt.at(ihist));
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    makeAverage(nhist_2D.at(ihist),nhist_2D_alt.at(ihist));
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    makeAverage(tfhist_2D.at(ihist),tfhist_2D_alt.at(ihist));
 
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
-  unrolled.clear();
-
+  tfhist_2D.clear();
   nhist_alt.clear();
   dhist_alt.clear();
+  tfhist_alt.clear();
   nhist_2D_alt.clear();
   dhist_2D_alt.clear();
+  tfhist_2D_alt.clear();
   unrolled.clear();
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
@@ -1308,12 +1391,16 @@ void maketopelcorhist( string signalRegionFile,
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
   vector<TH1*> dhist;
+  vector<TH1*> tfhist;
   vector<TH1*> nhist_alt;
   vector<TH1*> dhist_alt;
+  vector<TH1*> tfhist_alt;
   vector<TH2*> nhist_2D;
   vector<TH2*> dhist_2D;
+  vector<TH2*> tfhist_2D;
   vector<TH2*> nhist_2D_alt;
   vector<TH2*> dhist_2D_alt;
+  vector<TH2*> tfhist_2D_alt;
   vector<TH1*> unrolled;
 
   vector<double> bins;
@@ -1376,30 +1463,32 @@ void maketopelcorhist( string signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region,
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 4, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
-    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_alt, nhist_alt, nhist_2D_alt,  true, 0, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_alt, dhist_alt, dhist_2D_alt,  true, 8, category, false, 1.00, lumi, 0, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("topelcor")+ext;
 
-  // divide the two                                                                                                                                                          
+
   // divide the two                                                                                                                                                          
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
     smoothEmptyBins(nhist.at(ihist),2);
     smoothEmptyBins(dhist.at(ihist),2);
-    nhist.at(ihist)->Divide(dhist.at(ihist));
+    tfhist.push_back((TH1*) nhist.at(ihist)->Clone(Form("%s_temp",nhist.at(ihist)->GetName())));
+    tfhist.back()->Divide(dhist.at(ihist));
     if(nhist_alt.size() >= ihist){
       smoothEmptyBins(nhist_alt.at(ihist),2);
       smoothEmptyBins(dhist_alt.at(ihist),2);
-      nhist_alt.at(ihist)->Divide(dhist_alt.at(ihist));
+      tfhist_alt.push_back((TH1*) nhist_alt.at(ihist)->Clone(Form("%s_temp",nhist_alt.at(ihist)->GetName())));
+      tfhist_alt.back()->Divide(dhist_alt.at(ihist));
     }
   }
 
@@ -1407,56 +1496,74 @@ void maketopelcorhist( string signalRegionFile,
   for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
     smoothEmptyBins(nhist_2D.at(ihist),2);
     smoothEmptyBins(dhist_2D.at(ihist),2);
-    nhist_2D.at(ihist)->Divide(dhist_2D.at(ihist));
+    tfhist_2D.push_back((TH2*) nhist_2D.at(ihist)->Clone(Form("%s_temp",nhist_2D.at(ihist)->GetName())));
+    tfhist_2D.back()->Divide(dhist_2D.at(ihist));
     if(nhist_2D_alt.size() >= ihist){
       smoothEmptyBins(nhist_2D_alt.at(ihist),2);
       smoothEmptyBins(dhist_2D_alt.at(ihist),2);
-      nhist_2D_alt.at(ihist)->Divide(dhist_2D_alt.at(ihist));
+      tfhist_2D_alt.push_back((TH2*) nhist_2D_alt.at(ihist)->Clone(Form("%s_temp",nhist_2D_alt.at(ihist)->GetName())));
+      tfhist_2D_alt.back()->Divide(dhist_2D_alt.at(ihist));
     }
   }
 
 
   //check for empty bins and apply smoothing
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    smoothEmptyBins(nhist.at(ihist),2);
-  for(size_t ihist = 0; ihist < nhist_alt.size(); ihist++)
-    smoothEmptyBins(nhist_alt.at(ihist),2);
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    smoothEmptyBins(nhist_2D.at(ihist),1);
-  for(size_t ihist = 0; ihist < nhist_2D_alt.size(); ihist++)
-    smoothEmptyBins(nhist_2D_alt.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    smoothEmptyBins(tfhist.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist_alt.size(); ihist++)
+    smoothEmptyBins(tfhist_alt.at(ihist),2);
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    smoothEmptyBins(tfhist_2D.at(ihist),1);
+  for(size_t ihist = 0; ihist < tfhist_2D_alt.size(); ihist++)
+    smoothEmptyBins(tfhist_2D_alt.at(ihist),1);
 
   // make average
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
-    makeAverage(nhist.at(ihist),nhist_alt.at(ihist));
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++)
+    makeAverage(tfhist.at(ihist),tfhist_alt.at(ihist));
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
-    makeAverage(nhist_2D.at(ihist),nhist_2D_alt.at(ihist));
-  
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++)
+    makeAverage(tfhist_2D.at(ihist),tfhist_2D_alt.at(ihist));
+
   // create output file                                                                                                                                                        
   TFile outfile((outDir+"/"+name+".root").c_str(), "RECREATE");
-  for(size_t ihist = 0; ihist < nhist.size(); ihist++){
-    nhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+
+  for(size_t ihist = 0; ihist < nhist.size(); ihist++)
     nhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist.size(); ihist++)
+    dhist.at(ihist)->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist.size(); ihist++){
+    tfhist.at(ihist)->SetName((name+"hist_"+observables.at(ihist)).c_str());
+    tfhist.at(ihist)->Write("",TObject::kOverwrite);
   }
 
-  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++){
-    nhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
-    unrolled.push_back(unroll2DHistograms(nhist_2D.at(ihist)));
+  for(size_t ihist = 0; ihist < nhist_2D.size(); ihist++)
+    unroll2DHistograms(nhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < dhist_2D.size(); ihist++)
+    unroll2DHistograms(dhist_2D.at(ihist))->Write("",TObject::kOverwrite);
+
+  for(size_t ihist = 0; ihist < tfhist_2D.size(); ihist++){
+    tfhist_2D.at(ihist)->SetName((name+"hist_"+observables_2D.at(ihist)+"_2D").c_str());
+    unrolled.push_back(unroll2DHistograms(tfhist_2D.at(ihist)));
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
   outfile.Close();
   nhist.clear();
   dhist.clear();
+  tfhist.clear();
   nhist_2D.clear();
   dhist_2D.clear();
-  unrolled.clear();
-
+  tfhist_2D.clear();
   nhist_alt.clear();
   dhist_alt.clear();
+  tfhist_alt.clear();
   nhist_2D_alt.clear();
   dhist_2D_alt.clear();
+  tfhist_2D_alt.clear();
+  unrolled.clear();
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -1534,12 +1641,12 @@ void makesidebandcorhist( string signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 7 == b-tagged region, 
   if(applyQGLReweight){
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 1, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 1, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", false,true, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", false,true, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, 0, category_num, false, 1.00, 0, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, 0, category_den, false, 1.00, 0, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   string name = string("sidebandcor")+ext;

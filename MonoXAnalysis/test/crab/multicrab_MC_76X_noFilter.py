@@ -23,6 +23,7 @@ pyCfgParams = ['isMC=True',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
                'nThreads=3',
+               'miniAODProcess=PAT',
                'isCrab=True']
 
 config.section_('General')

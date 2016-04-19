@@ -557,7 +557,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"ewk"+ext,2);
-    
+
     cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
     makegamcorhist(baseInputTreePath+"/ZJets/sigfilter/",
 		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
@@ -594,7 +594,6 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   baseInputTreePath+"/PhotonJets/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"fpc"+ext,8);
-
 
     cout<<"make Z/W ratio"<<endl;
     makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
@@ -638,8 +637,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     makezwjcorhist(baseInputTreePath+"/ZJets/sigfilter/",
 		   baseInputTreePath+"/WJets/sigfilter/",
 		   category,observables,observables_2D,lumi,applyQGLReweight,outDir,"",runHiggsInvisible,"pdf"+ext,7);
-    
-    /*
+
     if(addTop){
       cout<<"make TOP+MU ratio"<<endl;
       maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
@@ -693,7 +691,6 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       
     }
-    */
   }
   
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");

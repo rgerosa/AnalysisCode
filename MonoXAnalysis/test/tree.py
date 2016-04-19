@@ -149,6 +149,9 @@ if options.isMC and options.applyL2L3Residuals:
 if not options.isMC:
 	options.crossSection = -1.;
 
+if options.isMC and options.miniAODProcess != 'PAT':
+	options.miniAODProcess  = 'PAT'
+
 print "##### Settings ######"
 print "Running with isMC                = ",options.isMC	
 print "Running with filterHighMETEvents = ",options.filterHighMETEvents	

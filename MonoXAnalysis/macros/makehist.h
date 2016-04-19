@@ -27,6 +27,7 @@ const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge   = 0;
 const int   nBjets         = 1;
+const bool reweightNVTX    = false;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
 //string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
@@ -83,11 +84,9 @@ void makehist4(TTree* tree, /*input tree*/
   TH1*   puhist = (TH1*) pufile->Get("puhist");
     
   // Lepton ID scale factor from tag and probe: muons, electrons 
-  TFile* sffile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");
-  
+  TFile* sffile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");  
   TH2*  msflhist = (TH2*)sffile->Get("muon_loose_SF");
   TH2*  msfthist = (TH2*)sffile->Get("muon_tight_SF");
-  
   TH2*  esflhist = (TH2*)sffile->Get("electron_veto_SF");
   TH2*  esfthist = (TH2*)sffile->Get("electron_tight_SF");
   
@@ -646,8 +645,8 @@ void makehist4(TTree* tree, /*input tree*/
     if (hlt  == 0) continue; // trigger
 
     // MET Filters
-    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp || *fvtx)) continue;
-    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp || *fvtx)) continue;
+    if(not isMC and isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0)) continue;
+    else if (not isHiggsInvisible and (*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0)) continue;
 
     // N-jets
     if (*njets  < 1) continue; 
