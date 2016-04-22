@@ -99,15 +99,23 @@ vector<double> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28
 vector<double> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 vector<double> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 
-vector<double> bins_monoJ_met_2D      = {200.,250.,300.,350,400.,500.,600.,750.,950.,1300.};
+//###########  2D binnings
+
+vector<double> bins_monoJ_met_2D_v1  = {200.,230.,260.,300.,350.,400.,450.,500.,500.,600.,700.,800.,900.,1000.,1150.,1500.}; // to be used with 3 bins on the second observable 15x2 = 30 bins
+vector<double> bins_monoJ_met_2D_v2  = {200.,250.,300.,350,400.,500.,600.,700,850.,1000,1500.}; // to be used with 3 bins on the second observable 10x3 = 30 bins 
+vector<double> bins_monoJ_met_2D_v3  = {200.,250.,300.,400.,500.,600.,700,850.,1500.}; // to be used with 8 bins on the second observable 8x4 = 32 bins 
+
 vector<double> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
 vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
-vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
-vector<double> bins_monoJ_njet_2D_v2  = {1,2,3,4,10};
 vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
 vector<double> bins_monoJ_mT_2D       = {200.,300,400.,500,600.,800,1100,1400,2000.};
-vector<double> bins_monoJ_dphiJJ_2D   = {-0.2,0.0,0.6,1.5,3.14};
-vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
+
+vector<double> bins_monoJ_njet_2D_v1   = {1,2,3,8};
+vector<double> bins_monoJ_njet_2D_v2   = {1,2,3,4,8};
+vector<double> bins_monoJ_dphiJJ_2D_v1 = {-0.2,0.0,1.0,3.14};
+vector<double> bins_monoJ_dphiJJ_2D_v2 = {-0.2,0.0,0.6,1.5,3.14};
+vector<double> bins_monoJ_QGL_2D_v1    = {0.,0.20,1.};
+vector<double> bins_monoJ_QGL_2D_v2    = {0.,0.05,0.2,1.};
 
 // binning selections                                                                                                                                                          
 vector<double> selectBinning (string observable, int category){
@@ -264,33 +272,33 @@ bin2D selectBinning2D (string observable, int category){
     bins.binY = bins_monoJ_tau2tau1_2D;
     return bins;
   }
-  else if(observable == "met_njet" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_njet_2D;
+  else if(observable == "met_njet_v1" and category <=1){
+    bins.binX = bins_monoJ_met_2D_v1;
+    bins.binY = bins_monoJ_njet_2D_v1;
     return bins;
   }
-  else if(observable == "met_ncjet" and category <=1){
+  else if(observable == "met_ncjet_v1" and category <=1){
     bins.binX = bins_monoJ_met_2D;
     bins.binY = bins_monoJ_njet_2D;
     return bins;
   }
   else if(observable == "met_njet_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
+    bins.binX = bins_monoJ_met_2D_v2;
     bins.binY = bins_monoJ_njet_2D_v2;
     return bins;
   }
   else if(observable == "met_ncjet_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
+    bins.binX = bins_monoJ_met_2D_v2;
     bins.binY = bins_monoJ_njet_2D_v2;
     return bins;
   }
   else if(observable == "met_ht" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
+    bins.binX = bins_monoJ_met_2D_v1;
     bins.binY = bins_monoJ_ht_2D;
     return bins;
   }
   else if(observable == "met_mT" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
+    bins.binX = bins_monoJ_met_2D_v1;
     bins.binY = bins_monoJ_mT_2D;
     return bins;
   }
@@ -305,15 +313,26 @@ bin2D selectBinning2D (string observable, int category){
     return bins;
   }
 
-  else if(observable == "met_QGL" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_QGL_2D;
+  else if(observable == "met_QGL_v1" and category <=1){
+    bins.binX = bins_monoJ_met_2D_v1;
+    bins.binY = bins_monoJ_QGL_2D_v1;
+    return bins;    
+  }
+  else if(observable == "met_QGL_v2" and category <=1){
+    bins.binX = bins_monoJ_met_2D_v2;
+    bins.binY = bins_monoJ_QGL_2D_v2;
     return bins;    
   }
 
-  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ" or observable == "met_minDphiJ1J") and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_dphiJJ_2D;
+  else if((observable == "met_dphiJJ_v1" or observable == "met_minDphiJJ_v1" or observable == "met_minDphiJ1J_v1") and category <=1){
+    bins.binX = bins_monoJ_met_2D_v1;
+    bins.binY = bins_monoJ_dphiJJ_2D_v1;
+    return bins;    
+  }
+  
+  else if((observable == "met_dphiJJ_v2" or observable == "met_minDphiJJ_v2" or observable == "met_minDphiJ1J_v2") and category <=1){
+    bins.binX = bins_monoJ_met_2D_v2;
+    bins.binY = bins_monoJ_dphiJJ_2D_v2;
     return bins;    
   }
   
@@ -362,7 +381,7 @@ void smoothEmptyBins(TH2* hist, int nsteps = 1){
 // make the average of two histograms (TH1)
 void makeAverage(TH1* histo, TH1* histo_2){
 
-  if(histo_2->Integral() != 0){ // sanity check to understand if the second has been filled
+  if(histo_2->Integral() != 0 and histo->Integral() != 0){ // sanity check to understand if the second has been filled
     for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
       histo->SetBinContent(iBin+1,(histo->GetBinContent(iBin+1)+histo_2->GetBinContent(iBin+1))/2);
       histo->SetBinError(iBin+1,sqrt(histo->GetBinError(iBin+1)*histo->GetBinError(iBin+1)+histo_2->GetBinError(iBin+1)*histo_2->GetBinError(iBin+1))*0.5);
@@ -374,7 +393,7 @@ void makeAverage(TH1* histo, TH1* histo_2){
 // make the average of two histograms (TH2)
 void makeAverage(TH2* histo, TH2* histo_2){
 
-  if(histo_2->Integral() != 0){ // sanity check to understand if the second has been filled
+  if(histo_2->Integral() != 0 and histo->Integral() != 0){ // sanity check to understand if the second has been filled
     for(int iBinX = 0; iBinX < histo->GetNbinsX(); iBinX++){
       for(int iBinY = 0; iBinY < histo->GetNbinsY(); iBinY++){
 	histo->SetBinContent(iBinX+1,iBinY+1,(histo->GetBinContent(iBinX+1,iBinY+1)+histo_2->GetBinContent(iBinX+1,iBinY+1))/2);

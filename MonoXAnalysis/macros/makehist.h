@@ -733,7 +733,7 @@ void makehist4(TTree* tree, /*input tree*/
       if(jets.size() >= 2){
 	std::sort(jets.begin(),jets.end(),jetSorter);
 	
-	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
+	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and jets.at(0).Eta()*jets.at(1).Eta() < 0 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
 	  continue;
       }     
     }
