@@ -77,7 +77,7 @@ void makehist4(TTree* tree, /*input tree*/
   }
 
 
-  ofstream dump("dump_sample_"+to_string(sample)+".txt");  
+  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");  
   // in case you want to weight the NVTX distribution
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
@@ -757,8 +757,10 @@ void makehist4(TTree* tree, /*input tree*/
 
       if(jets.size() >= 2){
 	std::sort(jets.begin(),jets.end(),jetSorter);
+	//	dump<< "event id "<<*event<<" run "<<*run<<" lum "<<*lum<<" deta jj "<<fabs(jets.at(0).Eta()-jets.at(1).Eta())<<" mjj "<<(jets.at(0)+jets.at(1)).M()<<" pfmet "<<pfmet<<" ptj1 "<<jets.at(0).Pt()<<" ptj2 "<<jets.at(1).Pt()<<" dphi "<<jmdphi<<" eta1*eta2 "<<jets.at(0).Eta()*jets.at(1).Eta()<<" eta1 "<<jets.at(0).Eta()<<" eta 2"<<jets.at(1).Eta()<<" \n";
 	
 	if(jets.at(0).Pt() > 80 and jets.at(1).Pt() > 70 and fabs(jets.at(0).Eta()-jets.at(1).Eta()) > 3.6 and jets.at(0).Eta()*jets.at(1).Eta() < 0 and (jets.at(0)+jets.at(1)).M() > 1100 and jmdphi > 2.3)
+
 	  continue;
       }     
     }
@@ -826,6 +828,8 @@ void makehist4(TTree* tree, /*input tree*/
 	}
       	
 	if(not goodMonoJet) continue;
+	//	if(not isMC)
+	//	  dump<< "event id "<<*event<<" run "<<*run<<" lum "<<*lum<<" jet pt "<<jetpt->at(0)<<" dphi "<<jmdphi<<" boosted jet pt "<<boostedJetpt->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" met "<<pfmet<<" \n";
       }
 
       else if(category >= 2){
@@ -903,9 +907,8 @@ void makehist4(TTree* tree, /*input tree*/
 	  goodMonoV   = true;
 	
 	if(not goodMonoV) continue;	
-	if(not isMC)
 	  //	  dump<< "event id "<<*event<<" run "<<*run<<" lum "<<*lum<<" jet pt "<<jetpt->at(0)<<" dphi "<<jmdphi<<" boosted jet pt "<<boostedJetpt->at(0)<<" pruned mass "<<prunedJetm->at(0)<<" tau2tau1 "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" met "<<pfmet<<" \n";
-	  dump<<*run<<" "<<*lum<<" "<<*event<<" \n";
+	  //	  dump<<*run<<" "<<*lum<<" "<<*event<<" \n";
       }
     }
 
@@ -1276,7 +1279,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
   }
 
-  dump.close();
+  //  dump.close();
   sffile  ->Close();
   psffile ->Close();
   trefile ->Close();

@@ -11,31 +11,32 @@ shapes Top         signal_MV   workspace_MV.root SR_MV:Top_SR_MV      SR_MV:Top_
 shapes QCD         signal_MV   workspace_MV.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
 shapes GJets       signal_MV   workspace_MV.root SR_MV:GJets_SR_MV    SR_MV:GJets_SR_MV_$SYSTEMATIC       
 shapes ggH         signal_MV   workspace_MV.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
-shapes vbfH        signal_MV   workspace_MV.root SR_MV:vbfH_SR_MV     SR_MV:vbfH_SR_MV_$SYSTEMATIC
-shapes wH          signal_MV   workspace_MV.root SR_MV:wH_SR_MV       SR_MV:wH_SR_MV_$SYSTEMATIC
-shapes zH          signal_MV   workspace_MV.root SR_MV:zH_SR_MV       SR_MV:zH_SR_MV_$SYSTEMATIC
+shapes qqH         signal_MV   workspace_MV.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
+shapes WH          signal_MV   workspace_MV.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
+shapes ZH          signal_MV   workspace_MV.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 bin         signal_MV
 observation -1
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 bin                             signal_MV  signal_MV signal_MV  signal_MV signal_MV signal_MV signal_MV  signal_MV  signal_MV  signal_MV   signal_MV  
-process                         ggH        vbfH      wH         zH        Znunu     WJets     ZJets      Dibosons   Top        QCD         GJets
+process                         ggH        qqH       WH         ZH        Znunu     WJets     ZJets      Dibosons   Top        QCD         GJets
 process                         0          -1        -2         -3        1         2         3          4          5          6           7
 rate                            -1         -1        -1         -1        1         1        -1         -1         -1         -1          -1
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 lumi_13TeV                lnN        1.027    1.027   1.027  1.027        -         -        1.027     1.027      1.027        -          1.027
 ZJets_Norm13TeV           lnN        -        -         -    -            -         -        1.200       -          -          -          -
 Dibosons_Norm13TeV        lnN        -        -         -    -            -         -        -         1.200        -          -          -
-Top_Norm13TeV             lnN        -        -         -    -            -         -        -           -        1.200        -          -
+Top_Norm13TeV             lnN        -        -         -    -            -         -        -           -        1.100        -          -
+Top_Reweight13TeV         lnN        -        -         -    -            -         -        -           -        1.100        -          -
 GJets_Norm13TeV           lnN        -        -         -    -            -         -        -           -          -          -          1.200
-CMS_btag                  shapeN2    1        1         1    1            -         -        1           1          1	       -          1
-CMS_scale_j               shapeN2    1        1         1    1            -         -        1           1          1          -          1 
-CMS_res_j                 shapeN2    1        1         1    1            -         -        1           1          1          -          1  
-CMS_unc                   shapeN2    1        1         1    1            -         -        1           1          1          -          1
-CMS_qcd                   shapeN2    -        -         -    -            -         -        -           -          -          1          -
-CMS_eff_Vtag              lnN        -        -  1.13/0.87 1.13/0.87      -         -        -        1.13/0.87  1.13/0.87     -          -
-QCDScale_ggH_ren_accept   shapeN2    1        -         -    -            -         -        -           -          -          -          -
-QCDScale_ggH_fac_accept   shapeN2    1        -         -    -            -         -        -           -          -          -          -
+CMS_btag_13TeV            shapeN2    1        1         1    1            -         -        1           1          1	       -          1
+CMS_scale_j_13TeV         shapeN2    1        1         1    1            -         -        1           1          1          -          1 
+CMS_res_j_13TeV           shapeN2    1        1         1    1            -         -        1           1          1          -          1  
+CMS_scale_met             shapeN2    1        1         1    1            -         -        1           1          1          -          1
+CMS_QCD_SR                shapeN2    -        -         -    -            -         -        -           -          -          1          -
+CMS_eff_Vtag_stat         lnN        -        -  1.065/0.935 1.065/0.935  -         -        -        1.065/0.935  1.065/0.935 -          -
+CMS_eff_Vtag_PS           lnN        -        -  1.065/0.935 1.065/0.935  -         -        -        1.065/0.935  1.065/0.935 -          -
+hpt                       shapeN2    1        -         -    -            -         -        -           -          -          -          -
 QCDScale_qqbar_accept     lnN        -       1.02     1.02  1.02          -         -        -           -          -          -          -
 QCDScale_ggH              lnN    0.919/1.076  -         -    -            -         -        -           -          -          -          -
 QCDScale_qqH              lnN        -     0.997/1.004  -    -            -         -        -           -          -          -          -
@@ -52,27 +53,27 @@ ggH_SR_MV_CMS_bin4_stat   shapeN2    1        -         -    -            -     
 ggH_SR_MV_CMS_bin5_stat   shapeN2    1        -         -    -            -         -        -           -          -          -          -
 ggH_SR_MV_CMS_bin6_stat   shapeN2    1        -         -    -            -         -        -           -          -          -          -
 ggH_SR_MV_CMS_bin7_stat   shapeN2    1        -         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin1_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin2_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin3_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin4_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin5_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin6_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-vbfH_SR_MV_CMS_bin7_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin1_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin2_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin3_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin4_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin5_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin6_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-wH_SR_MV_CMS_bin7_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin1_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin2_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin3_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin4_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin5_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin6_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
-zH_SR_MV_CMS_bin7_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin1_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin2_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin3_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin4_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin5_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin6_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+qqH_SR_MV_CMS_bin7_stat   shapeN2    -        1         -    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin1_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin2_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin3_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin4_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin5_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin6_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+WH_SR_MV_CMS_bin7_stat   shapeN2    -        -         1    -            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin1_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin2_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin3_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin4_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin5_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin6_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
+ZH_SR_MV_CMS_bin7_stat   shapeN2    -        -         -    1            -         -        -           -          -          -          -
 WJets_SR_RenScale1        param     0     1
 WJets_SR_FactScale1       param     0     1
 WJets_SR_RenScale2        param     0     1

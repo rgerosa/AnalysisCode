@@ -25,6 +25,61 @@ void addDummyBinContent(TH1* histo){
 
 }
 
+TH1F* generateEnvelopeMax(vector<TH1F*> & histoVec){
+
+  if(histoVec.size() == 0){
+    cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
+    return new TH1F();
+  }
+
+  TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMax");
+  histo->Reset();
+  
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    for(auto hist : histoVec){
+      if(hist->GetBinContent(iBin+1) > histo->GetBinContent(iBin+1) and histo->GetBinContent(iBin+1) != 0){
+	histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+	histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }	
+      else if(histo->GetBinContent(iBin+1) == 0){
+	histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));       
+      }
+    }
+  }
+
+  return histo;    
+
+}
+
+
+TH1F* generateEnvelopeMin(vector<TH1F*> & histoVec){
+
+  if(histoVec.size() == 0){
+    cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
+    return new TH1F();
+  }
+
+  TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMin");
+  histo->Reset();
+  
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    for(auto hist : histoVec){
+      if(hist->GetBinContent(iBin+1) < histo->GetBinContent(iBin+1) and histo->GetBinContent(iBin+1) != 0){
+	histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+	histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }	
+      else if(histo->GetBinContent(iBin+1) == 0){
+	histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }
+    }
+  }
+
+  return histo;    
+
+}
+
 
 // function to create a RooDataHist from TH1F and import it in a workspace
 void addTemplate(string procname, RooArgList& varlist, RooWorkspace& ws, TH1F* hist) {  
@@ -225,6 +280,7 @@ void createWorkspace(string inputName,
 		     bool   connectTop    = false,
 		     bool   addShapeSystematics = false,
 		     bool   mergeLeptons  = false,
+		     bool   isCombination = false,
 		     string interaction   = "Vector",
 		     string mediatorMass  = "1000", 
 		     string DMMass        = "50"
@@ -322,14 +378,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-      addTemplate("MonoJ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+      addTemplate("MonoJ_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
     }
       
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
@@ -355,14 +411,14 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("MonoW_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("MonoW_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("MonoW_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
 
       // monoW
@@ -389,14 +445,14 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("MonoZ_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("MonoZ_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
       // statistics
       generateStatTemplate("MonoJ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str()));
@@ -407,9 +463,9 @@ void createWorkspace(string inputName,
   else{
 
     addTemplate("ggH_SR_"+suffix, vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str()));
-    addTemplate("vbfH_SR_"+suffix,vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()));
-    addTemplate("wH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()));
-    addTemplate("zH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()));
+    addTemplate("qqH_SR_"+suffix,vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()));
+    addTemplate("WH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()));
+    addTemplate("ZH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()));
 
     if(addShapeSystematics){
 
@@ -442,19 +498,24 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptUp", vars, wspace_SR, histoRenUp);
-	addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_ren_acceptDown", vars, wspace_SR, histoRenDw);
-	addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptUp", vars, wspace_SR, histoFacUp);
-	addTemplate("ggH_SR_"+suffix+"_QCDScale_ggH_fac_acceptDown", vars, wspace_SR, histoFacDw);
+
+	vector<TH1F*> histoVec;
+	histoVec.push_back(histoRenUp);
+	histoVec.push_back(histoRenDw);
+	histoVec.push_back(histoFacUp);
+	histoVec.push_back(histoFacDw);
+		
+	addTemplate("ggH_SR_"+suffix+"_hptUp", vars, wspace_SR, generateEnvelopeMax(histoVec));
+	addTemplate("ggH_SR_"+suffix+"_hptDown", vars, wspace_SR, generateEnvelopeMin(histoVec));
 	
-	addTemplate("ggH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("ggH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("ggH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("ggH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("ggH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("ggH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("ggH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("ggH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
       
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
@@ -480,14 +541,14 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("vbfH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("vbfH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("qqH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("qqH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("qqH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("qqH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
 
       // vbfH
@@ -514,14 +575,14 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("wH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("wH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("wH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("wH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("wH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("wH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("wH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("wH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("WH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("WH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("WH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("WH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
 
       }
 
@@ -549,21 +610,21 @@ void createWorkspace(string inputName,
 	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
 	}
 	
-	addTemplate("zH_SR_"+suffix+"_CMS_btagUp",   vars, wspace_SR, histobUp);
-	addTemplate("zH_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-	addTemplate("zH_SR_"+suffix+"_CMS_scale_jUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("zH_SR_"+suffix+"_CMS_scale_jDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("zH_SR_"+suffix+"_CMS_res_jUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("zH_SR_"+suffix+"_CMS_res_jDown",  vars, wspace_SR, histoJerDw);
-	addTemplate("zH_SR_"+suffix+"_CMS_uncUp",    vars, wspace_SR, histoUncUp);
-	addTemplate("zH_SR_"+suffix+"_CMS_uncDown",  vars, wspace_SR, histoUncDw);
+	addTemplate("ZH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("ZH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	addTemplate("ZH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("ZH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
     }
     // statistics
     generateStatTemplate("ggH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
-    generateStatTemplate("vbfH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
-    generateStatTemplate("wH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
-    generateStatTemplate("zH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("qqH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("WH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("ZH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
   }
   
   // Zvv background --> to be extracted from CRs
@@ -609,14 +670,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
-      addTemplate("Top_SR_"+suffix+"_CMS_btagUp",vars, wspace_SR, histobUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_btagDown",vars, wspace_SR, histobDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_scale_jUp",vars, wspace_SR, histoJesUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_scale_jDown",vars, wspace_SR, histoJesDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_res_jUp",vars, wspace_SR, histoJerUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_res_jDown",vars, wspace_SR, histoJerDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_uncUp",vars, wspace_SR, histoUncUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_uncDown",vars, wspace_SR, histoUncDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_btag_13TeVUp",vars, wspace_SR, histobUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_btag_13TeVDown",vars, wspace_SR, histobDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVUp",vars, wspace_SR, histoJesUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVDown",vars, wspace_SR, histoJesDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVUp",vars, wspace_SR, histoJerUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVDown",vars, wspace_SR, histoJerDw);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_metUp",vars, wspace_SR, histoUncUp);
+      addTemplate("Top_SR_"+suffix+"_CMS_scale_metDown",vars, wspace_SR, histoUncDw);
       
       generateStatTemplate("Top_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("tbkghist_"+observable).c_str()));
     }
@@ -675,14 +736,14 @@ void createWorkspace(string inputName,
       fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
-    addTemplate("ZJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
+    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
     generateStatTemplate("ZJets_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zjethist_"+observable).c_str()));
 
@@ -707,14 +768,14 @@ void createWorkspace(string inputName,
       fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
+    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
     generateStatTemplate("Dibosons_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("dbkghist_"+observable).c_str()));
 
@@ -740,14 +801,14 @@ void createWorkspace(string inputName,
       fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
     
-    addTemplate("GJets_SR_"+suffix+"_CMS_btagUp", vars, wspace_SR, histobUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_btagDown", vars, wspace_SR, histobDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_scale_jUp", vars, wspace_SR, histoJesUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_scale_jDown", vars, wspace_SR, histoJesDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_res_jUp", vars, wspace_SR, histoJerUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_res_jDown", vars, wspace_SR, histoJerDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_uncUp", vars, wspace_SR, histoUncUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_uncDown", vars, wspace_SR, histoUncDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
+    addTemplate("GJets_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
     generateStatTemplate("GJets_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("gbkghist_"+observable).c_str()));
 
@@ -757,8 +818,8 @@ void createWorkspace(string inputName,
   TH1F* qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_"+observable).c_str());
   if(qcdhist){
     addTemplate("QCD_SR_"+suffix, vars, wspace_SR, qcdhist);
-    addTemplate("QCD_SR_"+suffix+"_CMS_qcdUp", vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()));
-    addTemplate("QCD_SR_"+suffix+"_CMS_qcdDown", vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()));
+    addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRUp", vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()));
+    addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRDown", vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()));
   }
   else{
     qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghist_"+observable).c_str());
@@ -815,14 +876,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("WJets_ZM_"+suffix+"_CMS_btagUp", vars, *wspace_ZM, histobUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_btagDown", vars, *wspace_ZM, histobDw);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_res_jUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_res_jDown", vars, *wspace_ZM, histoJerDw);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_uncUp", vars, *wspace_ZM, histoUncUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_uncDown", vars, *wspace_ZM, histoUncDw);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
+      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistzmm_"+observable).c_str());
@@ -846,14 +907,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_ZM_"+suffix+"_CMS_btagUp", vars, *wspace_ZM, histobUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_btagDown", vars, *wspace_ZM, histobDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_res_jUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_res_jDown", vars, *wspace_ZM, histoJerDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_uncUp", vars, *wspace_ZM, histoUncUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_uncDown", vars, *wspace_ZM, histoUncDw);
+      addTemplate("Top_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
+      addTemplate("Top_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
+      addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+      addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+      addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+      addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      addTemplate("Top_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
+      addTemplate("Top_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistzmm_"+observable).c_str());
@@ -878,67 +939,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_btagUp", vars, *wspace_ZM, histobUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_btagDown", vars, *wspace_ZM, histobDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_jUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_jDown", vars, *wspace_ZM, histoJerDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncUp", vars, *wspace_ZM, histoUncUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_uncDown", vars, *wspace_ZM, histoUncDw);
-
-      // temp Znunu shape systematics
-      /*
-      TFile* file_tmp = new TFile("monoV_hinv/postfit_weights_ZM.root");
-      TH1F*   data     = (TH1F*) file_tmp->Get("data");
-      TH1F*   prefit   = (TH1F*) file_tmp->Get("pre_fit_post_fit");
-      data->Divide(prefit);
-      TH1F*   zjets_pre_fit = (TH1F*) file_tmp->Get("zjets_pre_fit");
-      TH1F*   wjets_pre_fit = (TH1F*) file_tmp->Get("wjets_pre_fit");
-      TH1F*   top_pre_fit = (TH1F*) file_tmp->Get("top_pre_fit");
-      TH1F*   dibos_pre_fit = (TH1F*) file_tmp->Get("diboson_pre_fit");
-      
-      TH1F*   zjets_pre_fit_shapeUp = (TH1F*) zjets_pre_fit->Clone("ZM_DMC");
-      TH1F*   wjets_pre_fit_shapeUp = (TH1F*) wjets_pre_fit->Clone("wjets_pre_fit_shapeUp");
-      TH1F*   wjets_pre_fit_shapeDw = (TH1F*) wjets_pre_fit->Clone("wjets_pre_fit_shapeDw");
-      TH1F*   top_pre_fit_shapeUp = (TH1F*) top_pre_fit->Clone("top_pre_fit_shapeUp");
-      TH1F*   top_pre_fit_shapeDw = (TH1F*) top_pre_fit->Clone("top_pre_fit_shapeDw");
-      TH1F*   dibos_pre_fit_shapeUp = (TH1F*) dibos_pre_fit->Clone("diboson_pre_fit_shapeUp");
-      TH1F*   dibos_pre_fit_shapeDw = (TH1F*) dibos_pre_fit->Clone("diboson_pre_fit_shapeDw");
-      
-      for(int iBin = 1 ; iBin <= zjets_pre_fit_shapeUp->GetNbinsX(); iBin++){
-	if(data->GetBinContent(iBin) != 0)
-	  zjets_pre_fit_shapeUp->SetBinContent(iBin,fabs(1-data->GetBinContent(iBin)));
-	else 
-	  zjets_pre_fit_shapeUp->SetBinContent(iBin,0.);
-	wjets_pre_fit_shapeUp->SetBinContent(iBin,wjets_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
-	top_pre_fit_shapeUp->SetBinContent(iBin,top_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
-	dibos_pre_fit_shapeUp->SetBinContent(iBin,dibos_pre_fit->GetBinContent(iBin)*data->GetBinContent(iBin));
-      }
-      
-      for(int iBin = 1 ; iBin <= wjets_pre_fit_shapeDw->GetNbinsX(); iBin++){
-	if(data->GetBinContent(iBin) != 0){
-	  top_pre_fit_shapeDw->SetBinContent(iBin,top_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
-	  dibos_pre_fit_shapeDw->SetBinContent(iBin,dibos_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
-	  wjets_pre_fit_shapeDw->SetBinContent(iBin,wjets_pre_fit->GetBinContent(iBin)*1./data->GetBinContent(iBin));
-	}
-	else{
-	  wjets_pre_fit_shapeDw->SetBinContent(iBin,0);
-	  top_pre_fit_shapeDw->SetBinContent(iBin,0);
-	  dibos_pre_fit_shapeDw->SetBinContent(iBin,0);
-	}
-      }
-
-      addTemplate("WJets_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, wjets_pre_fit_shapeUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, wjets_pre_fit_shapeDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, top_pre_fit_shapeUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, top_pre_fit_shapeDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_datamcUp", vars, *wspace_ZM, dibos_pre_fit_shapeUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_datamcDown", vars, *wspace_ZM, dibos_pre_fit_shapeDw);
-
-      RooRealVar* znn_ZM_re1 = new RooRealVar("Znunu_ZM_Shape"  , "", 0., -5., 5.);
-      znn_ZM_syst.push_back(pair<RooRealVar*, TH1*>(znn_ZM_re1 , zjets_pre_fit_shapeUp));      
-      */
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
+      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
     }
 
     makeConnectedBinList("Znunu_ZM_"+suffix, met, *wspace_ZM, (TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()), znn_ZM_syst, znn_SR_bins,NULL, observable);
@@ -986,14 +994,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
-      addTemplate("WJets_ZE_"+suffix+"_CMS_btagUp", vars, *wspace_ZE, histobUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_btagDown", vars, *wspace_ZE, histobDw);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_res_jUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_res_jDown", vars, *wspace_ZE, histoJerDw);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_uncUp", vars, *wspace_ZE, histoUncUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_uncDown", vars, *wspace_ZE, histoUncDw);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
+      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistzee_"+observable).c_str());
@@ -1017,14 +1025,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_ZE_"+suffix+"_CMS_btagUp", vars, *wspace_ZE, histobUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_btagDown", vars, *wspace_ZE, histobDw);
-      addTemplate("Top_ZE_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("Top_ZE_"+suffix+"_CMS_res_jUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_res_jDown", vars, *wspace_ZE, histoJerDw);
-      addTemplate("Top_ZE_"+suffix+"_CMS_uncUp", vars, *wspace_ZE, histoUncUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_uncDown", vars, *wspace_ZE, histoUncDw);
+      addTemplate("Top_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
+      addTemplate("Top_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
+      addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+      addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+      addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+      addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      addTemplate("Top_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
+      addTemplate("Top_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistzee_"+observable).c_str());
@@ -1049,14 +1057,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_btagUp", vars, *wspace_ZE, histobUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_btagDown", vars, *wspace_ZE, histobDw);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_jUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_jDown", vars, *wspace_ZE, histoJerDw);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_uncUp", vars, *wspace_ZE, histoUncUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_uncDown", vars, *wspace_ZE, histoUncDw);          
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
+      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);          
     }
   }
   else{
@@ -1098,14 +1106,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("WJets_ZL_"+suffix+"_CMS_btagUp", vars, *wspace_ZL, histobUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_btagDown", vars, *wspace_ZL, histobDw);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_res_jUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_res_jDown", vars, *wspace_ZL, histoJerDw);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_uncUp", vars, *wspace_ZL, histoUncUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_uncDown", vars, *wspace_ZL, histoUncDw);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
+      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistzll_"+observable).c_str());
@@ -1129,14 +1137,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_ZL_"+suffix+"_CMS_btagUp", vars, *wspace_ZL, histobUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_btagDown", vars, *wspace_ZL, histobDw);
-      addTemplate("Top_ZL_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("Top_ZL_"+suffix+"_CMS_res_jUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_res_jDown", vars, *wspace_ZL, histoJerDw);
-      addTemplate("Top_ZL_"+suffix+"_CMS_uncUp", vars, *wspace_ZL, histoUncUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_uncDown", vars, *wspace_ZL, histoUncDw);
+      addTemplate("Top_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
+      addTemplate("Top_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
+      addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+      addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+      addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+      addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      addTemplate("Top_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
+      addTemplate("Top_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistzll_"+observable).c_str());
@@ -1161,14 +1169,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_btagUp", vars, *wspace_ZL, histobUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_btagDown", vars, *wspace_ZL, histobDw);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_jUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_jDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_jUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_jDown", vars, *wspace_ZL, histoJerDw);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_uncUp", vars, *wspace_ZL, histoUncUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_uncDown", vars, *wspace_ZL, histoUncDw);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
+      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
     }            
   }
@@ -1181,12 +1189,29 @@ void createWorkspace(string inputName,
   addTemplate("data_obs_GJ_"+suffix, vars, wspace_GJ, (TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str()));
   // Gamma+jets --> connected with Z->nunu
   vector<pair<RooRealVar*, TH1*> > znn_GJ_syst;
-  RooRealVar* znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1" , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2"  , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2" , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"        , "", 0., -5., 5.);
-  RooRealVar* znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint"  , "", 0., -5., 5.);
+  RooRealVar* znn_GJ_re1 = 0;
+  RooRealVar* znn_GJ_fa1 = 0;
+  RooRealVar* znn_GJ_re2 = 0;
+  RooRealVar* znn_GJ_fa2 = 0;
+  RooRealVar* znn_GJ_pdf = 0;
+  RooRealVar* znn_GJ_fpc = 0;
+  if(not isCombination){
+    znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  , "", 0., -5., 5.);
+    znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1" , "", 0., -5., 5.);
+    znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2"  , "", 0., -5., 5.);
+    znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2" , "", 0., -5., 5.);
+    znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"        , "", 0., -5., 5.);
+    znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint"  , "", 0., -5., 5.);
+  }
+  else{
+    znn_GJ_re1 = new RooRealVar("mr"  , "", 0., -5., 5.);
+    znn_GJ_re2 = new RooRealVar("mr2"  , "", 0., -5., 5.);
+    znn_GJ_fa1 = new RooRealVar("mf"  , "", 0., -5., 5.);
+    znn_GJ_fa2 = new RooRealVar("mf2"  , "", 0., -5., 5.);
+    znn_GJ_pdf = new RooRealVar("pdf"  , "", 0., -5., 5.);
+    znn_GJ_fpc = new RooRealVar("fp"  , "", 0., -5., 5.);
+  }
+
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(NULL      , (TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str())));
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_re1, (TH1F*)templatesfile->FindObjectAny(("ZG_RenScale1_"+observable).c_str())));
   znn_GJ_syst.push_back(pair<RooRealVar*, TH1*>(znn_GJ_fa1, (TH1F*)templatesfile->FindObjectAny(("ZG_FactScale1_"+observable).c_str())));
@@ -1242,14 +1267,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("ZJets_WM_"+suffix+"_CMS_btagUp", vars, *wspace_WM, histobUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_btagDown", vars, *wspace_WM, histobDw);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_jUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_jDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_res_jUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_res_jDown", vars, *wspace_WM, histoJerDw);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_uncUp", vars, *wspace_WM, histoUncUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_uncDown", vars, *wspace_WM, histoUncDw);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
+      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistwmn_"+observable).c_str());
@@ -1273,14 +1298,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_WM_"+suffix+"_CMS_btagUp", vars, *wspace_WM, histobUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_btagDown", vars, *wspace_WM, histobDw);
-      addTemplate("Top_WM_"+suffix+"_CMS_scale_jUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_scale_jDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("Top_WM_"+suffix+"_CMS_res_jUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_res_jDown", vars, *wspace_WM, histoJerDw);
-      addTemplate("Top_WM_"+suffix+"_CMS_uncUp", vars, *wspace_WM, histoUncUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_uncDown", vars, *wspace_WM, histoUncDw);
+      addTemplate("Top_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
+      addTemplate("Top_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
+      addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+      addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+      addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+      addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      addTemplate("Top_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
+      addTemplate("Top_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_"+observable).c_str());
@@ -1305,14 +1330,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_btagUp", vars, *wspace_WM, histobUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_btagDown", vars, *wspace_WM, histobDw);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_jUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_jDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_jUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_jDown", vars, *wspace_WM, histoJerDw);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_uncUp", vars, *wspace_WM, histoUncUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_uncDown", vars, *wspace_WM, histoUncDw);      
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
+      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);      
     }
   
     //////////////////////////////////..../////
@@ -1356,14 +1381,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
-      addTemplate("ZJets_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_btagDown", vars, *wspace_WE, histobDw);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_jUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_jDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_res_jUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_res_jDown", vars, *wspace_WE, histoJerDw);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_uncUp", vars, *wspace_WE, histoUncUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_uncDown", vars, *wspace_WE, histoUncDw);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
+      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistwen_"+observable).c_str());
@@ -1387,14 +1412,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_btagDown", vars, *wspace_WE, histobDw);
-      addTemplate("Top_WE_"+suffix+"_CMS_scale_jUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_scale_jDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("Top_WE_"+suffix+"_CMS_res_jUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_res_jDown", vars, *wspace_WE, histoJerDw);
-      addTemplate("Top_WE_"+suffix+"_CMS_uncUp", vars, *wspace_WE, histoUncUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_uncDown", vars, *wspace_WE, histoUncDw);
+      addTemplate("Top_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
+      addTemplate("Top_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
+      addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+      addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+      addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+      addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      addTemplate("Top_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
+      addTemplate("Top_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistwen_"+observable).c_str());
@@ -1418,14 +1443,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_btagUp", vars, *wspace_WE, histobUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_btagDown", vars, *wspace_WE, histobDw);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_jUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_jDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_jUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_jDown", vars, *wspace_WE, histoJerDw);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_uncUp", vars, *wspace_WE, histoUncUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_uncDown", vars, *wspace_WE, histoUncDw);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
+      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
 
     }
   }
@@ -1469,14 +1494,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
 
-      addTemplate("ZJets_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_btagDown", vars, *wspace_WL, histobDw);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_jUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_jDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_res_jUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_res_jDown", vars, *wspace_WL, histoJerDw);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_uncUp", vars, *wspace_WL, histoUncUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_uncDown", vars, *wspace_WL, histoUncDw);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
+      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("tbkghistwln_"+observable).c_str());
@@ -1500,14 +1525,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Top_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_btagDown", vars, *wspace_WL, histobDw);
-      addTemplate("Top_WL_"+suffix+"_CMS_scale_jUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_scale_jDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("Top_WL_"+suffix+"_CMS_res_jUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_res_jDown", vars, *wspace_WL, histoJerDw);
-      addTemplate("Top_WL_"+suffix+"_CMS_uncUp", vars, *wspace_WL, histoUncUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_uncDown", vars, *wspace_WL, histoUncDw);
+      addTemplate("Top_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
+      addTemplate("Top_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
+      addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+      addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+      addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+      addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      addTemplate("Top_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
+      addTemplate("Top_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghistwln_"+observable).c_str());
@@ -1531,14 +1556,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_btagUp", vars, *wspace_WL, histobUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_btagDown", vars, *wspace_WL, histobDw);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_jUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_jDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_jUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_jDown", vars, *wspace_WL, histoJerDw);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_uncUp", vars, *wspace_WL, histoUncUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_uncDown", vars, *wspace_WL, histoUncDw);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
+      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
 
     }
   }
@@ -1591,14 +1616,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("ZJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopmu_"+observable).c_str());
@@ -1622,14 +1647,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("WJets_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("WJets_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopmu_"+observable).c_str());
@@ -1654,14 +1679,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagUp", vars, *wspace_TM, histobUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_btagDown", vars, *wspace_TM, histobDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_jDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_jDown", vars, *wspace_TM, histoJerDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncUp", vars, *wspace_TM, histoUncUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_uncDown", vars, *wspace_TM, histoUncDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
+      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
            
     }
 
@@ -1707,14 +1732,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("ZJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("vlbkghisttopel_"+observable).c_str());
@@ -1738,14 +1763,14 @@ void createWorkspace(string inputName,
 	fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
       }
       
-      addTemplate("WJets_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("WJets_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
       
       ///
       nominalHisto = (TH1F*)templatesfile->FindObjectAny(("dbkghisttopel_"+observable).c_str());
@@ -1770,14 +1795,14 @@ void createWorkspace(string inputName,
       }
       
       
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagUp", vars, *wspace_TE, histobUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_btagDown", vars, *wspace_TE, histobDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_jDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_jDown", vars, *wspace_TE, histoJerDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncUp", vars, *wspace_TE, histoUncUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_uncDown", vars, *wspace_TE, histoUncDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
+      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
       
       
     }
