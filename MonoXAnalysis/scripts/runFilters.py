@@ -19,23 +19,23 @@ parser = OptionParser()
 parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
 
 ## parse files                                                                                                                                                                 
-parser.add_option('--inputDIR',     action="store", type="string", dest="inputDIR",     default="",   help="input DIR")
+parser.add_option('--inputDIR',     action="store", type="string", dest="inputDIR",     default="",   help="input directory where files are contained")
 parser.add_option('--outputDIR',    action="store", type="string", dest="outputDIR",    default="",   help="output DIR")
-parser.add_option('--filterName',   action="store", type="string", dest="filterName",   default="",   help="filter name")
-parser.add_option('--calculateXSfromSW', action="store_true", dest="calculateXSfromSW",         help="calculateXSfromSW")
-parser.add_option('--calculateXSfromLHE',action="store_true", dest="calculateXSfromLHE",        help="calculateXSfromLHE")
-parser.add_option('--isMC',         action="store_true", dest="isMC",         help="isMC")
-parser.add_option('--applyBTagSF',  action="store_true", dest="applyBTagSF",  help="applyBTagSF")
-parser.add_option('--storeGenTree', action="store_true", dest="storeGenTree", help="storeGenTree")
-parser.add_option('--isSinglePhoton', action="store_true", dest="isSinglePhoton", help="isSinglePhoton")
-parser.add_option('--isCrabDirectory', action="store_true", dest="isCrabDirectory", help="isCrabDirectory")
-parser.add_option('--isOnEOS',         action="store_true", dest="isOnEOS", help="isOnEOS")
+parser.add_option('--filterName',   action="store", type="string", dest="filterName",   default="",   help="filter name to be run .. all means all filters")
+parser.add_option('--calculateXSfromSW', action="store_true",      dest="calculateXSfromSW",          help="calculateXSfromSW means use event weight for XS")
+parser.add_option('--calculateXSfromLHE',action="store_true",      dest="calculateXSfromLHE",         help="calculateXSfromLHE means take the values in the LHE")
+parser.add_option('--isMC',         action="store_true",           dest="isMC",                       help="isMC")
+parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBTagSF",                help="applyBTagSF")
+parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
+parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
+parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
+parser.add_option('--isOnEOS',      action="store_true",           dest="isOnEOS",                    help="isOnEOS when the input directory is located in EOS")
 
 ##  for submitting jobs in lxbatch
-parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
-parser.add_option('--jobDIR',       action="store", type="string", dest="jobDIR", default="",   help="directory for job")
-parser.add_option('--queque',        action="store", type="string", dest="queque", default="",   help="queque for LSF")
-parser.add_option('--submit',       action="store_true", dest="submit", help="submit")
+parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
+parser.add_option('--jobDIR',       action="store", type="string", dest="jobDIR",  default="",        help="directory for job")
+parser.add_option('--queque',       action="store", type="string", dest="queque",  default="",        help="queque for LSF")
+parser.add_option('--submit',       action="store_true",           dest="submit",                     help="submit")
 
 (options, args) = parser.parse_args()
 
@@ -54,8 +54,8 @@ if __name__ == '__main__':
         os.system("mkdir -p "+options.outputDIR);
 
     fileList = [];
-    ## if the input is a directory
-    if not options.batchMode and not options.isCrabDirectory:
+    ## if the input is a directory --> make the list of files
+    if not options.isCrabDirectory and not options.isOnEOS and not options.batchMode:
         os.system("ls | grep -v txt | grep root  > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
@@ -63,15 +63,17 @@ if __name__ == '__main__':
             fileList.append(line);
         os.system("rm file_temp.txt");
 
-    elif not options.isCrabDirectory:
+    elif not options.isCrabDirectory and options.isOnEOS: ## not a crab directory do the same with eos ls command
         os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep root  > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
             line = line.replace('\n','');
             fileList.append(line);
         os.system("rm file_temp.txt");
-    elif options.isCrabDirectory:
+    elif options.isCrabDirectory and options.isOnEOS:
         fileList.append(options.inputDIR);
+    else:
+        print "Problem in parsing the following job informations: batchMode = ",options.batchMode," isOnEOS = ",options.isOnEOS," isCrabDir ",options.isCrabDirectory;
         
 
     ## fix options
@@ -107,12 +109,12 @@ if __name__ == '__main__':
     if options.calculateXSfromSW and options.calculateXSfromLHE:
         sys.exit("decide to fix the cross section as sum of weights or taking LHE value");
 
-    #######################
+    ####################### loop on the file list
     for ifile in fileList:        
 
         fileName    = ifile;
         outFileName = ifile;
-        ## in case of running over unmerged crab files
+        ## in case of running over unmerged crab files: fix input file path and output file name
         if isCrabDirectory:
            nameList = ifile.split("/");
            while True:                 
@@ -122,7 +124,7 @@ if __name__ == '__main__':
                    nameList.pop();
            fileName    = nameList[len(nameList)-1]; 
            outFileName = nameList[len(nameList)-1]+".root";
-
+           options.outputDIR += "/"+fileName ## modify this for a better organization of output files
         ########
         if options.filterName == "sigfilter" or options.filterName == "all":
 
@@ -132,6 +134,7 @@ if __name__ == '__main__':
                 print command
                 
                 ROOT.gROOT.ProcessLine(command.Data());
+                os.system("mkdir -p "+options.outputDIR);
                 os.system("mkdir -p "+options.outputDIR+"/sigfilter")
                 os.system("mv sig_"+outFileName+" "+options.outputDIR+"/sigfilter/")
                 
@@ -159,8 +162,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_sig_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/sigfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir -p "+options.outputDIR+"/sigfilter/\n");
                 jobscript.write("xrdcp -f sig_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/sigfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_sig_"+subdirName))
@@ -178,7 +181,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i)"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p zmmfilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/zmmfilter")
                 os.system("mv zmm_"+outFileName+" "+options.outputDIR+"/zmmfilter/")
 
             else:
@@ -221,7 +225,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i)"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p zeefilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/zeefilter")
                 os.system("mv zee_"+outFileName+" "+options.outputDIR+"/zeefilter/")
 
             else:
@@ -264,7 +269,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i)"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p wmnfilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/wmnfilter")
                 os.system("mv wmn_"+outFileName+" "+options.outputDIR+"/wmnfilter/")
 
             else:
@@ -307,7 +313,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i)"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p wenfilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/wenfilter")
                 os.system("mv wen_"+outFileName+" "+options.outputDIR+"/wenfilter/")
 
             else:
@@ -350,7 +357,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i)"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p gamfilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/gamfilter")
                 os.system("mv gam_"+outFileName+" "+options.outputDIR+"/gamfilter/")
 
             else:
@@ -394,7 +402,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("topmufilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i)"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p topmufilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/topmufilter")
                 os.system("mv top_"+fileName+" "+options.outputDIR+"/topmufilter/")
 
             else:
@@ -438,7 +447,8 @@ if __name__ == '__main__':
                 command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i)"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
-                os.system("mkdir -p topelfilter")
+                os.system("mkdir -p "+options.outputDIR);
+                os.system("mkdir -p "+options.outputDIR+"/topelfilter")
                 os.system("mv top_"+fileName+" "+options.outputDIR+"/topelfilter/")
 
             else:

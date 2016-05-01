@@ -207,7 +207,9 @@ if options.inputFiles == []:
 			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
 	else:
 		process.source.fileNames.append(
-			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root')    	
+#			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
+			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
+			)    	
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -270,6 +272,7 @@ process.selectedObjects = cms.EDProducer("PFCleaner",
      pfcands   = cms.InputTag("packedPFCandidates"),
      muons     = cms.InputTag("slimmedMuons"),
      electrons = cms.InputTag("slimmedElectrons"),
+     taus      = cms.InputTag("slimmedTaus"),					 
      photons   = cms.InputTag("slimmedPhotons"),
      rho       = cms.InputTag("fixedGridRhoFastjetAll"),
      jets      = cms.InputTag(jetCollName),
@@ -345,6 +348,15 @@ process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
 if options.useMiniAODMet:
 	process.t1phmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 
+process.t1taumet = cms.EDProducer("TauCorrectedMETProducer",
+   met     = cms.InputTag("slimmedMETs","",options.processName),
+   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "taus")),
+   isPuppi = cms.bool(False),
+   pfCandidates = cms.InputTag("packedPFCandidates"))
+
+if options.useMiniAODMet:
+	process.t1phmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
+
 if options.addPuppiMET:
 
 	process.puppit1mumet = process.t1mumet.clone(
@@ -367,6 +379,13 @@ if options.addPuppiMET:
 
 	if options.useMiniAODMet:
 		process.puppit1phmet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
+
+	process.puppit1taumet = process.t1taumet.clone(
+		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
+		isPuppi = cms.bool(True))
+
+	if options.useMiniAODMet:
+		process.puppit1taumet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 	
 
 ## Create output file
@@ -489,7 +508,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
    photonTightId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
    ## taus
-   taus = cms.InputTag("slimmedTaus"),
+   taus = cms.InputTag("selectedObjects","taus"),
    ## jets AK4
    jets         = cms.InputTag(jetCollName),
    addPuppiJets = cms.bool(options.addPuppiJets),			      
@@ -499,12 +518,14 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    t1mumet = cms.InputTag("t1mumet"),
    t1elmet = cms.InputTag("t1elmet"),
    t1phmet = cms.InputTag("t1phmet"),
+   t1taumet = cms.InputTag("t1taumet"),
    ## Puppi MET
    addPuppiMET = cms.bool(options.addPuppiMET),
    puppit1met = cms.InputTag("slimmedMETsPuppi","",options.processName),
    puppit1mumet = cms.InputTag("puppit1mumet"),
    puppit1elmet = cms.InputTag("puppit1elmet"),
    puppit1phmet = cms.InputTag("puppit1phmet"),
+   puppit1taumet = cms.InputTag("puppit1taumet"),
    ## MET systematics
    addMETSystematics = cms.bool(options.addMETSystematics),    			      
    ## mvaMet

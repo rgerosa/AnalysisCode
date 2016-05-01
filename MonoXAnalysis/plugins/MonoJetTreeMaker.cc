@@ -108,7 +108,7 @@ private:
 
   bool readDMFromGenParticle;
 
-  // Gen Particles
+  // Gen Particles and MC info
   const bool isMC;
   const bool uselheweights;
   const edm::InputTag lheEventTag;
@@ -123,7 +123,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
   double xsec;
 
-  // InputTags
+  // InputTags for triggers and met filters
   const edm::InputTag triggerResultsTag;
   const edm::InputTag filterResultsTag;
   const edm::InputTag prescalesTag;
@@ -174,7 +174,7 @@ private:
 
   // Taus
   const edm::InputTag tausTag;
-  edm::EDGetTokenT<std::vector<pat::Tau> >  tausToken;
+  edm::EDGetTokenT<pat::TauRefVector>  tausToken;
 
   //Jets AK4
   const edm::InputTag jetsTag;
@@ -189,31 +189,33 @@ private:
   const edm::InputTag t1mumetTag;
   const edm::InputTag t1elmetTag;
   const edm::InputTag t1phmetTag;
+  const edm::InputTag t1taumetTag;
 
   edm::EDGetTokenT<edm::View<pat::MET> >  t1metToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1elemetToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1taumetToken;
 
   // Puppi MET
   const bool addPuppiMET;
-
   const edm::InputTag puppit1metTag;
   const edm::InputTag puppit1mumetTag;
   const edm::InputTag puppit1elemetTag;
   const edm::InputTag puppit1phmetTag;
+  const edm::InputTag puppit1taumetTag;
 
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1metToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1mumetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1elemetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1phmetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1taumetToken;
 
   // MET systematics
   const bool addMETSystematics;
 
   // MVA met
   const bool addMVAMet;
-
   const edm::InputTag mvaMETTag;
   edm::EDGetTokenT<edm::View<reco::MET> > mvaMETToken;
 
@@ -227,8 +229,8 @@ private:
   const bool addSubstructureCHS;
   const bool addSubstructurePuppi;  
   edm::EDGetTokenT<std::vector<pat::Jet> > boostedJetsToken;
-  TString boostedJetsCHSLabel;
   edm::EDGetTokenT<std::vector<pat::Jet> > boostedPuppiJetsToken;
+  TString boostedJetsCHSLabel;
   TString boostedJetsPuppiLabel;
   
   // inner vectors
@@ -269,6 +271,7 @@ private:
   int32_t top_1,top_2;  
   int32_t mu1pid,mu2pid,mu1id,mu2id,mu1idm,mu2idm,mu1idt,mu2idt;
   int32_t el1pid,el2pid,el1id,el1idl,el2id,el2idl;
+  int32_t tau1pid,tau2pid;
   int32_t phidl,phidm,phidt,phidh,parid,ancid; 
 
   // event info
@@ -289,15 +292,17 @@ private:
   // muon, ele, dilepton info
   double mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
   double el1pt,el1eta,el1phi,ele1e,el2pt,ele2e,el2eta,el2phi,phpt,pheta,phphi,phe;
-  double zmass,zpt,zeta,zphi,wmt,emumass,emupt,emueta,emuphi,zeemass,zeept,zeeeta,zeephi,wemt; 
+  double tau1pt,tau1eta,tau1phi,tau1m,tau1iso,tau2pt,tau2eta,tau2phi,tau2m,tau2iso;
+  double zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
+  double emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
 
   // PF MET info (typeI and Raw)
-  double t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi;
-  double pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi;
+  double t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
+  double pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
 
   // Puppi MET info (typeI and Raw)
-  double puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi;
-  double puppit1pfmet,puppit1pfmetphi,puppit1mumet,puppit1mumetphi,puppit1elmet,puppit1elmetphi,puppit1phmet,puppit1phmetphi;
+  double puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi,puppitaumet,puppitaumetphi;
+  double puppit1pfmet,puppit1pfmetphi,puppit1mumet,puppit1mumetphi,puppit1elmet,puppit1elmetphi,puppit1phmet,puppit1phmetphi,puppit1taumet,puppit1taumetphi;
 
   // mva met
   double mvamet,mvametphi;
@@ -314,6 +319,10 @@ private:
   // met systematics puppi
   double puppit1pfmetMuEnUp,puppit1pfmetMuEnDown,puppit1pfmetElEnUp,puppit1pfmetElEnDown,puppit1pfmetPhoEnUp,puppit1pfmetPhoEnDown,puppit1pfmetTauEnUp;
   double puppit1pfmetTauEnDown,puppit1pfmetJetEnUp,puppit1pfmetJetEnDown,puppit1pfmetJetResUp,puppit1pfmetJetResDown,puppit1pfmetUncEnUp,puppit1pfmetUncEnDown;
+  double puppit1pfmetMuEnUpPhi,puppit1pfmetMuEnDownPhi,puppit1pfmetElEnUpPhi,puppit1pfmetElEnDownPhi;
+  double puppit1pfmetPhoEnUpPhi,puppit1pfmetPhoEnDownPhi,puppit1pfmetTauEnUpPhi,puppit1pfmetTauEnDownPhi;
+  double puppit1pfmetJetEnUpPhi,puppit1pfmetJetEnDownPhi,puppit1pfmetJetResUpPhi,puppit1pfmetJetResDownPhi;
+  double puppit1pfmetUncEnUpPhi,puppit1pfmetUncEnDownPhi,puppit1pfmetJetSmearPhi,puppit1pfmetXYPhi;
 
   // AK4 CHS jets
   double leadingjetpt,leadingjeteta,leadingjetphi,leadingjetm; 
@@ -456,6 +465,7 @@ private:
   // weights
   double wgt,kfact,puwgt,pswgt;
 
+  // sorting objects
   template<typename T> 
   class PatPtSorter{
   public:
@@ -469,6 +479,7 @@ private:
   PatPtSorter<pat::MuonRef>     muonSorter;
   PatPtSorter<pat::ElectronRef> electronSorter;
   PatPtSorter<pat::PhotonRef>   photonSorter;
+  PatPtSorter<pat::TauRef>      tauSorter;
   
 };
 
@@ -518,6 +529,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   t1mumetTag(iConfig.getParameter<edm::InputTag>("t1mumet")),
   t1elmetTag(iConfig.getParameter<edm::InputTag>("t1elmet")),
   t1phmetTag(iConfig.getParameter<edm::InputTag>("t1phmet")),
+  t1taumetTag(iConfig.getParameter<edm::InputTag>("t1taumet")),
   // puppi met
   addPuppiMET(iConfig.existsAs<bool>("addPuppiMET") ? iConfig.getParameter<bool>("addPuppiMET") : false),
   // MET Systematics
@@ -564,7 +576,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   photonTightIdToken  = consumes<edm::ValueMap<bool> > (photonTightIdTag);
   photonHighPtIdToken = consumes<edm::ValueMap<bool> > (photonHighPtIdTag);
   // taus
-  tausToken = consumes<std::vector<pat::Tau> > (tausTag);
+  tausToken = consumes<pat::TauRefVector> (tausTag);
   // jets AK4
   jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
 
@@ -572,6 +584,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   t1mumetToken  = consumes<edm::View<pat::MET> > (t1mumetTag);
   t1elemetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
   t1phmetToken  = consumes<edm::View<pat::MET> > (t1phmetTag);
+  t1taumetToken  = consumes<edm::View<pat::MET> > (t1taumetTag);
    
   // only for simulated samples
   if( isMC ){
@@ -592,6 +605,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     puppit1mumetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1mumet"));
     puppit1elemetToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1elmet"));
     puppit1phmetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1phmet"));		      
+    puppit1taumetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1taumet"));		      
   }
   
   // consumes MVA met
@@ -686,9 +700,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // GEN INFO    
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
-    Handle<GenEventInfoProduct> genevtInfoH;
-    Handle<LHEEventProduct> lheInfoH;
-    Handle<View<GenParticle> > gensH;
+    Handle<GenEventInfoProduct>        genevtInfoH;
+    Handle<LHEEventProduct>            lheInfoH;
+    Handle<View<GenParticle> >         gensH;
 
     if(isMC){
       iEvent.getByToken(pileupInfoToken, pileupInfoH);
@@ -752,8 +766,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(photonHighPtIdToken, photonHighPtIdH);
 
     // TAUS
-    Handle<vector<pat::Tau> > tausH;
+    Handle<pat::TauRefVector > tausH;
     iEvent.getByToken(tausToken, tausH);
+    pat::TauRefVector taus = *tausH;
 
     // AK4 Jets
     Handle<vector<pat::Jet> > jetsH;
@@ -787,6 +802,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<View<pat::MET> > puppit1phmetH;
     if(addPuppiMET)
       iEvent.getByToken(puppit1phmetToken, puppit1phmetH);
+
+    Handle<View<pat::MET> > t1taumetH;
+    iEvent.getByToken(t1taumetToken, t1taumetH);
+    Handle<View<pat::MET> > puppit1taumetH;
+    if(addPuppiMET)
+      iEvent.getByToken(puppit1taumetToken, puppit1taumetH);
 
 
     Handle<View<reco::MET> > mvaMetH;
@@ -989,6 +1010,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phmetphi   = t1phmetH->front().uncorPhi();
     }
 
+    if(t1taumetH.isValid()){
+      t1taumet    = t1taumetH->front().corPt();
+      t1taumetphi = t1taumetH->front().corPhi();
+      taumet      = t1taumetH->front().uncorPt();
+      taumetphi   = t1taumetH->front().uncorPhi();
+    }
+
     if(addMETSystematics){          
       if(t1metH.isValid()){
 	t1pfmetMuEnUp     = t1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnUp,   pat::MET::METCorrectionLevel::Type1);
@@ -1056,6 +1084,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puppit1pfmetJetEnUp = -99.; puppit1pfmetJetEnDown = -99.; puppit1pfmetJetResUp = -99.; puppit1pfmetJetResDown = -99.;
     puppit1pfmetUncEnUp = -99.; puppit1pfmetUncEnDown = -99.;
 
+    puppit1pfmetMuEnUpPhi  = -99.; puppit1pfmetMuEnDownPhi  = -99.; puppit1pfmetElEnUpPhi   = -99.; puppit1pfmetElEnDownPhi   = -99.;
+    puppit1pfmetPhoEnUpPhi = -99.; puppit1pfmetPhoEnDownPhi = -99.; puppit1pfmetTauEnUpPhi  = -99.; puppit1pfmetTauEnDownPhi  = -99.;
+    puppit1pfmetJetEnUpPhi = -99.; puppit1pfmetJetEnDownPhi = -99.; puppit1pfmetJetResUpPhi = -99.; puppit1pfmetJetResDownPhi = -99.;
+    puppit1pfmetUncEnUpPhi = -99.; puppit1pfmetUncEnDownPhi = -99.;
+
     if(addPuppiMET){
 
       if(puppit1metH.isValid()){
@@ -1086,6 +1119,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	puppiphmetphi       = puppit1phmetH->front().uncorPhi();
       }
 
+      if(puppit1taumetH.isValid()){
+	puppit1taumet        = puppit1taumetH->front().corPt();
+	puppit1taumetphi     = puppit1taumetH->front().corPhi();
+	puppitaumet          = puppit1taumetH->front().uncorPt();
+	puppitaumetphi       = puppit1taumetH->front().uncorPhi();
+      }
+
       if(addMETSystematics){	
 	if(puppit1metH.isValid()){
 	  puppit1pfmetMuEnUp     = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnUp, pat::MET::METCorrectionLevel::Type1);
@@ -1104,6 +1144,23 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  puppit1pfmetJetResDown = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::JetResDown, pat::MET::METCorrectionLevel::Type1Smear);     
 	  puppit1pfmetUncEnUp    = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::UnclusteredEnUp, pat::MET::METCorrectionLevel::Type1);
 	  puppit1pfmetUncEnDown  = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::UnclusteredEnDown, pat::MET::METCorrectionLevel::Type1);      
+
+	  puppit1pfmetMuEnUpPhi     = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::MuonEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetMuEnDownPhi   = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::MuonEnDown, pat::MET::METCorrectionLevel::Type1);       
+	  puppit1pfmetElEnUpPhi     = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::ElectronEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetElEnDownPhi   = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::ElectronEnDown, pat::MET::METCorrectionLevel::Type1);	
+	  puppit1pfmetPhoEnUpPhi    = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::PhotonEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetPhoEnDownPhi  = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::PhotonEnDown, pat::MET::METCorrectionLevel::Type1);	
+	  puppit1pfmetTauEnUpPhi    = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::TauEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetTauEnDownPhi  = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::TauEnDown, pat::MET::METCorrectionLevel::Type1);	
+	  puppit1pfmetJetEnUpPhi    = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetJetEnDownPhi  = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnDown, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetJetEnUpPhi    = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetJetEnDownPhi  = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetEnDown, pat::MET::METCorrectionLevel::Type1);	
+	  puppit1pfmetJetResUpPhi   = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetResUp, pat::MET::METCorrectionLevel::Type1Smear);
+	  puppit1pfmetJetResDownPhi = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::JetResDown, pat::MET::METCorrectionLevel::Type1Smear);     
+	  puppit1pfmetUncEnUpPhi    = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::UnclusteredEnUp, pat::MET::METCorrectionLevel::Type1);
+	  puppit1pfmetUncEnDownPhi  = puppit1metH->front().shiftedPhi(pat::MET::METUncertainty::UnclusteredEnDown, pat::MET::METCorrectionLevel::Type1);      
 	}
       }
     }
@@ -1772,24 +1829,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    // Lepton counts
-    ntaus  = 0;
-    if(tausH.isValid()){
-      for (auto taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
-	bool skiptau = false;
-	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
-	}
-	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
-	}
-      if (taus_iter->pt() > 18 && 
-	  fabs(taus_iter->eta()) < 2.3 && 
-	  taus_iter->tauID("decayModeFinding") > 0.5 && 
-	  taus_iter->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") < 5 && !skiptau) ntaus++;
-      }
-    }
-    
+    // Tau counts leptons
     vector<pat::MuonRef> muonvector;
     if(muonsH.isValid() and tightmuonsH.isValid() and highptmuonsH.isValid()){
       nmuons          = muonsH->size();
@@ -1811,11 +1851,32 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	electronvector.push_back(electrons[i]);
     }
 
+    // re-apply the cleaning to be sure
+    vector<pat::TauRef> tauvector;
+    ntaus = 0;
+    if(tausH.isValid()){
+      for(std::size_t itau =0 ; itau < taus.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < 0.4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < 0.4) skiptau = true;
+	}
+	if(skiptau) continue;
+	tauvector.push_back(taus[itau]);
+	ntaus++;
+      }
+    }
+
     // W, Z control sample information
     zmass       = 0.0; zpt         = 0.0; zeta        = 0.0; zphi        = 0.0;
     zeemass     = 0.0; zeept       = 0.0; zeeeta      = 0.0; zeephi      = 0.0;
-    wmt         = 0.0; wemt        = 0.0; emumass     = 0.0; emupt       = 0.0;
-    emueta      = 0.0; emuphi      = 0.0;
+    zttmass     = 0.0; zttpt       = 0.0; ztteta      = 0.0; zttphi      = 0.0;
+    wmt         = 0.0; wemt        = 0.0; wtmt        = 0.0; 
+    emumass     = 0.0; emupt       = 0.0; emueta      = 0.0; emuphi      = 0.0;
+    taumumass   = 0.0; taumupt     = 0.0; taumueta    = 0.0; taumuphi    = 0.0;
+    tauemass    = 0.0; tauept      = 0.0; taueeta     = 0.0; tauephi     = 0.0;
 
     mu1pid      = 0;   mu1pt       = 0.0; mu1eta      = 0.0; mu1phi      = 0.0;
     mu1pfpt     = 0.0; mu1pfeta    = 0.0; mu1pfphi    = 0.0; mu1id       = 0;
@@ -1828,14 +1889,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     el1pid      = 0; el1pt       = 0.0; el1eta      = 0.0; el1phi      = 0.0; el1id       = 0;
     el2pid      = 0; el2pt       = 0.0; el2eta      = 0.0; el2phi      = 0.0; el2id       = 0;
 
+    tau1pid     = 0;   tau1pt    = 0.0; tau1eta     = 0.0; tau1phi     = 0.0; tau1m       = 0.0; tau1iso = 0.0;
+    tau2pid     = 0;   tau2pt    = 0.0; tau2eta     = 0.0; tau2phi     = 0.0; tau2m       = 0.0; tau2iso = 0.0;
+
+
     // sort electrons and muons
     sort(muonvector.begin(), muonvector.end(), muonSorter);
     sort(electronvector.begin(), electronvector.end(), electronSorter);
-    
+    sort(tauvector.begin(), tauvector.end(), tauSorter);
+
     // one or two loose muons
     if (nmuons == 1 || nmuons == 2) {
       
-      pat::MuonRef muon = muons[0];
+      pat::MuonRef muon = muonvector[0];
       mu1pid   = muon->pdgId(); 
       mu1pt    = muon->pt(); 
       mu1eta   = muon->eta(); 
@@ -1866,7 +1932,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // two loose muons
     if (nmuons == 2) {        
 
-      pat::MuonRef muon = muons[1];
+      pat::MuonRef muon = muonvector[1];
       mu2pid   = muon->pdgId(); 
       mu2pt    = muon->pt(); 
       mu2eta   = muon->eta(); 
@@ -1891,7 +1957,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
       
       TLorentzVector mu1vec; 
-      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muons[0]->p());
+      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muonvector[0]->p());
       TLorentzVector mu2vec; 
       mu2vec.SetPtEtaPhiE(mu2pt, mu2eta, mu2phi, muon->p());
       
@@ -1906,7 +1972,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     // one or two loose electrons
     if (nelectrons == 1 || nelectrons == 2) {
-      pat::ElectronRef electron = electrons[0];
+      pat::ElectronRef electron = electronvector[0];
       el1pid = electron->pdgId();
       el1pt  = electron->pt();
       el1eta = electron->eta();
@@ -1929,7 +1995,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     // two loose electrons
     if (nelectrons == 2) {
-        pat::ElectronRef electron = electrons[1];
+        pat::ElectronRef electron = electronvector[1];
         el2pid = electron->pdgId();
         el2pt  = electron->pt();
         el2eta = electron->eta();
@@ -1945,7 +2011,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    el2id = 2;
 	}
  
-        TLorentzVector el1vec; el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi, electrons[0]->p());
+        TLorentzVector el1vec; el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi, electronvector[0]->p());
         TLorentzVector el2vec; el2vec.SetPtEtaPhiE(el2pt, el2eta, el2phi, electron->p());
 
         TLorentzVector zvec(el1vec);
@@ -1957,12 +2023,54 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         zeephi  = zvec.Phi();
     }
 
+    ///// taus
+    // one or two loose muons
+    if (ntaus == 1 || ntaus == 2) {
+      
+      pat::TauRef tau = tauvector[0];
+      tau1pid   = tau->pdgId(); 
+      tau1pt    = tau->pt(); 
+      tau1eta   = tau->eta(); 
+      tau1phi   = tau->phi();
+      tau1m     = tau->mass();
+      tau1iso   = tau->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+
+      if (ntaus == 1) 
+	wtmt = sqrt(2.0 * tau1pt * t1pfmet * (1.0 - cos(deltaPhi(tau1phi, t1pfmetphi))));
+    }
+   
+    // two loose muons
+    if (ntaus == 2) {        
+
+      pat::TauRef tau = tauvector[1];
+      tau2pid   = tau->pdgId(); 
+      tau2pt    = tau->pt(); 
+      tau2eta   = tau->eta(); 
+      tau2phi   = tau->phi();
+      tau2m     = tau->mass();
+      tau2iso   = tau->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits");
+      
+      TLorentzVector tau1vec; 
+      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
+      TLorentzVector tau2vec; 
+      tau2vec.SetPtEtaPhiE(tau2pt, tau2eta, tau2phi, tau->p());
+      
+      TLorentzVector zvec(tau1vec);
+      zvec += tau2vec;
+    
+      zttmass = zvec.M();
+      zttpt   = zvec.Pt();
+      ztteta  = zvec.Eta();            
+      zttphi  = zvec.Phi();
+    }
+      
+
     // one electron and one muon (ttbar DF fully leptonic)
     if (nmuons == 1 && nelectrons == 1) {
       TLorentzVector mu1vec; 
-      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muons[0]->p());
+      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muonvector[0]->p());
       TLorentzVector el1vec; 
-      el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi, electrons[0]->p());
+      el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi, electronvector[0]->p());
       
       TLorentzVector emuvec(mu1vec);
       emuvec += el1vec;
@@ -1971,6 +2079,38 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       emupt   = emuvec.Pt();
       emueta  = emuvec.Eta();
       emuphi  = emuvec.Phi();
+    } 
+
+    // one electron and one tau (ttbar DF fully leptonic)
+    if (ntaus == 1 && nelectrons == 1) {
+      TLorentzVector tau1vec; 
+      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
+      TLorentzVector el1vec; 
+      el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi,  electronvector[0]->p());
+      
+      TLorentzVector emuvec(tau1vec);
+      emuvec += el1vec;
+      
+      tauemass = emuvec.M();
+      tauept   = emuvec.Pt();
+      taueeta  = emuvec.Eta();
+      tauephi  = emuvec.Phi();
+    } 
+
+    // one tau and one muon (ttbar DF fully leptonic)
+    if (nmuons == 1 && ntaus == 1) {
+      TLorentzVector mu1vec; 
+      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muonvector[0]->p());
+      TLorentzVector tau1vec; 
+      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
+      
+      TLorentzVector emuvec(tau1vec);
+      emuvec += mu1vec;
+      
+      taumumass = emuvec.M();
+      taumupt   = emuvec.Pt();
+      taumueta  = emuvec.Eta();
+      taumuphi  = emuvec.Phi();
     } 
     
     // Photon information
@@ -2868,7 +3008,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
 	     abs(gens_iter->daughter(0)->pdgId()) > 10 && 
-	     abs(gens_iter->daughter(0)->pdgId()) < 17)  { // decays into leptons, neutrinos and quarks
+	     abs(gens_iter->daughter(0)->pdgId()) < 17)  { // decays into leptons, neutrinos 
 	  
 	  wzid   = gens_iter->pdgId();
 	  wzmass = gens_iter->mass();
@@ -2891,7 +3031,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	else if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 		  gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
 		  ( (abs(gens_iter->daughter(0)->pdgId()) > 0 && abs(gens_iter->daughter(0)->pdgId()) <= 5) or
-		    (abs(gens_iter->daughter(1)->pdgId()) > 0 && abs(gens_iter->daughter(1)->pdgId()) <= 5)))  { // decays into leptons, neutrinos and quarks
+		    (abs(gens_iter->daughter(1)->pdgId()) > 0 && abs(gens_iter->daughter(1)->pdgId()) <= 5)))  { // decays into quarks
 	  
 	  wzid_h   = gens_iter->pdgId();
 	  wzmass_h = gens_iter->mass();
@@ -3076,6 +3216,10 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/D");
   tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
   tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
+  tree->Branch("taumet"                , &taumet                , "taumet/D");
+  tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/D");
+  tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/D");
+  tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/D");
 
   tree->Branch("genmet",    &genmet,   "genmet/D");
   tree->Branch("genmetphi", &genmetphi,"genmetphi/D");
@@ -3155,6 +3299,23 @@ void MonoJetTreeMaker::beginJob() {
       tree->Branch("puppit1pfmetJetResDown"   , &puppit1pfmetJetResDown   , "puppit1pfmetJetResDown/D");
       tree->Branch("puppit1pfmetUncEnUp"      , &puppit1pfmetUncEnUp      , "puppit1pfmetUncEnUp/D");
       tree->Branch("puppit1pfmetUncEnDown"    , &puppit1pfmetUncEnDown    , "puppit1pfmetUncEnDown/D");
+
+      tree->Branch("puppit1pfmetMuEnUpPhi"       , &puppit1pfmetMuEnUpPhi       , "puppit1pfmetMuEnUpPhi/D");
+      tree->Branch("puppit1pfmetMuEnDownPhi"     , &puppit1pfmetMuEnDownPhi     , "puppit1pfmetMuEnDownPhi/D");
+      tree->Branch("puppit1pfmetElEnUpPhi"       , &puppit1pfmetElEnUpPhi       , "puppit1pfmetElEnUpPhi/D");
+      tree->Branch("puppit1pfmetElEnDownPhi"     , &puppit1pfmetElEnDownPhi     , "puppit1pfmetElEnDownPhi/D");
+      tree->Branch("puppit1pfmetPhoEnUpPhi"      , &puppit1pfmetPhoEnUpPhi      , "puppit1pfmetPhoEnUpPhi/D");
+      tree->Branch("puppit1pfmetPhoEnDownPhi"    , &puppit1pfmetPhoEnDownPhi    , "puppit1pfmetPhoEnDownPhi/D");
+      tree->Branch("puppit1pfmetTauEnUpPhi"      , &puppit1pfmetTauEnUpPhi      , "puppit1pfmetTauEnUpPhi/D");
+      tree->Branch("puppit1pfmetTauEnDownPhi"    , &puppit1pfmetTauEnDownPhi    , "puppit1pfmetTauEnDownPhi/D");
+      tree->Branch("puppit1pfmetJetEnUpPhi"      , &puppit1pfmetJetEnUpPhi      , "puppit1pfmetJetEnUpPhi/D");
+      tree->Branch("puppit1pfmetJetEnDownPhi"    , &puppit1pfmetJetEnDownPhi    , "puppit1pfmetJetEnDownPhi/D");
+      tree->Branch("puppit1pfmetJetResUpPhi"     , &puppit1pfmetJetResUpPhi     , "puppit1pfmetJetResUpPhi/D");
+      tree->Branch("puppit1pfmetJetResDownPhi"   , &puppit1pfmetJetResDownPhi   , "puppit1pfmetJetResDownPhi/D");
+      tree->Branch("puppit1pfmetUncEnUpPhi"      , &puppit1pfmetUncEnUpPhi      , "puppit1pfmetUncEnUpPhi/D");
+      tree->Branch("puppit1pfmetUncEnDownPhi"    , &puppit1pfmetUncEnDownPhi    , "puppit1pfmetUncEnDownPhi/D");
+
+
     }
 
   }
@@ -3353,6 +3514,21 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("el2id"                , &el2id                , "el2id/I");
   tree->Branch("el2idl"               , &el2idl               , "el2idl/I");
 
+  tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
+  tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/D");
+  tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/D");
+  tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/D");
+  tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/D");
+  tree->Branch("tau1m"               , &tau1m               , "tau1m/D");
+
+  tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
+  tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/D");
+  tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/D");
+  tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/D");
+  tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/D");
+  tree->Branch("tau2m"               , &tau2m               , "tau2m/D");
+
+
     // Dilepton info
   tree->Branch("zmass"                , &zmass                , "zmass/D");
   tree->Branch("zpt"                  , &zpt                  , "zpt/D");
@@ -3368,6 +3544,19 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/D");
   tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
   tree->Branch("wemt"                 , &wemt                 , "wemt/D");
+  tree->Branch("zttmass"              , &zttmass              , "zttmass/D");
+  tree->Branch("zttpt"                , &zttpt                , "zttept/D");
+  tree->Branch("ztteta"               , &ztteta               , "ztteta/D");
+  tree->Branch("zttphi"               , &zttphi               , "zttphi/D");
+  tree->Branch("wtmt"                 , &wtmt                 , "wtmt/D");
+  tree->Branch("taumumass"              , &taumumass              , "taumumass/D");
+  tree->Branch("taumupt"                , &taumupt                , "taumupt/D");
+  tree->Branch("taumueta"               , &taumueta               , "taumueta/D");
+  tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/D");
+  tree->Branch("tauemass"              , &tauemass              , "tauemass/D");
+  tree->Branch("tauept"                , &tauept                , "tauept/D");
+  tree->Branch("taueeta"               , &taueeta               , "taueeta/D");
+  tree->Branch("tauephi"               , &tauephi               , "tauephi/D");
 
   // Photon info
   tree->Branch("phidl"                , &phidl                , "phidl/I");

@@ -961,7 +961,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   std::cout<<"wmnfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
   TBranch* bwgtsum = NULL;
-  TBrancch* bwgtpileup = NULL;
+  TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
   double wgtpileup = 1;
   double xsec;

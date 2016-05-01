@@ -48,6 +48,7 @@ class PFCleaner : public edm::stream::EDProducer<> {
         const edm::EDGetTokenT<edm::View<reco::Candidate> > pfcandsToken;
         const edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken;
         const edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
+        const edm::EDGetTokenT<std::vector<pat::Tau> >  tausToken;
         const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
         const edm::EDGetTokenT<std::vector<pat::Photon> > photonsToken;
 
@@ -75,6 +76,7 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     pfcandsToken             (consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("pfcands"))),
     jetsToken                (consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
     muonsToken               (consumes<std::vector<pat::Muon> > (iConfig.getParameter<edm::InputTag>("muons"))), 
+    tausToken                (consumes<std::vector<pat::Tau> >  (iConfig.getParameter<edm::InputTag>("taus"))),
     electronsToken           (consumes<std::vector<pat::Electron> > (iConfig.getParameter<edm::InputTag>("electrons"))),
     photonsToken             (consumes<std::vector<pat::Photon> > (iConfig.getParameter<edm::InputTag>("photons"))),
     electronVetoIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronidveto"))),
@@ -93,6 +95,8 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     produces<pat::MuonRefVector>("muons");
     produces<pat::MuonRefVector>("tightmuons");
     produces<pat::MuonRefVector>("highptmuons");
+
+    produces<pat::TauRefVector>("taus");
 
     produces<pat::ElectronRefVector>("electrons");
     produces<pat::ElectronRefVector>("looseelectrons");
@@ -132,6 +136,9 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     Handle<std::vector<pat::Electron> > electronsH;
     iEvent.getByToken(electronsToken, electronsH);
+
+    Handle<std::vector<pat::Tau> > tausH;
+    iEvent.getByToken(tausToken, tausH);
 
     Handle<std::vector<pat::Photon> > photonsH;
     iEvent.getByToken(photonsToken, photonsH);
@@ -181,6 +188,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<pat::PhotonRefVector> outputtightphotons(new pat::PhotonRefVector);
     std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
     std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
+    std::auto_ptr<pat::TauRefVector> outputtaus(new pat::TauRefVector);
     //livia
     std::auto_ptr<edm::ValueMap<bool> > outputphotonhighptidmap(new ValueMap<bool>());
 
@@ -208,6 +216,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	}
     }
 
+
     //electron info https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
     for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
 
@@ -232,6 +241,29 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  outputheepelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
 	
     }
+    
+    // taus
+    for (vector<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
+        if (verticesH->size() == 0) continue;
+	// clean tau candidates from identified muons and electrons (loosely identified)
+	bool skiptau = false;
+        for (std::size_t j = 0; j < outputmuons->size(); j++) {
+          if (deltaR(outputmuons->at(j)->eta(), outputmuons->at(j)->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
+        }
+        for (std::size_t j = 0; j < outputelectrons->size(); j++) {
+          if (deltaR(outputelectrons->at(j)->eta(), outputelectrons->at(j)->phi(), taus_iter->eta(), taus_iter->phi()) < 0.4) skiptau = true;
+        }
+	
+	// apply loose id and store vector
+	if (taus_iter->pt() > 18 &&
+            fabs(taus_iter->eta()) < 2.3 &&
+            taus_iter->tauID("decayModeFinding") > 0.5 &&
+            taus_iter->tauID("byCombinedIsolationDeltaBetaCorrRaw3Hits") < 5 && !skiptau){
+	  outputtaus->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
+	}
+	else continue;
+    }
+
 
     // photon https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2
     std::vector<float> rndgammaiso;
@@ -322,6 +354,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     iEvent.put(outputgammaisomap, "rndgammaiso");
     iEvent.put(outputchhadisomap, "rndchhadiso");
+
+    iEvent.put(outputtaus, "taus");
 
 }
 
