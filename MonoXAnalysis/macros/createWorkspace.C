@@ -466,6 +466,7 @@ void createWorkspace(string inputName,
     addTemplate("qqH_SR_"+suffix,vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()));
     addTemplate("WH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()));
     addTemplate("ZH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()));
+    addTemplate("ggZH_SR_"+suffix,  vars, wspace_SR, (TH1F*)templatesfile->FindObjectAny(("ggzHhist_"+mediatorMass+"_"+observable).c_str()));
 
     if(addShapeSystematics){
 
@@ -510,10 +511,19 @@ void createWorkspace(string inputName,
 	
 	addTemplate("ggH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
 	addTemplate("ggH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-	addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	if(not isCombination){
+	  addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	else{
+	  addTemplate("ggH_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("ggH_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+
+	}
 	addTemplate("ggH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
 	addTemplate("ggH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
@@ -543,10 +553,18 @@ void createWorkspace(string inputName,
 	
 	addTemplate("qqH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
 	addTemplate("qqH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-	addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	if(not isCombination){
+	  addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	else{
+	  addTemplate("qqH_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("qqH_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
 	addTemplate("qqH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
 	addTemplate("qqH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
@@ -577,13 +595,21 @@ void createWorkspace(string inputName,
 	
 	addTemplate("WH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
 	addTemplate("WH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-	addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	if(not isCombination){
+	  addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("WH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("WH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	else{
+	  addTemplate("WH_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("WH_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("WH_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("WH_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+
 	addTemplate("WH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
 	addTemplate("WH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
-
       }
 
       // vbfH
@@ -612,12 +638,63 @@ void createWorkspace(string inputName,
 	
 	addTemplate("ZH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
 	addTemplate("ZH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-	addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
-	addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
-	addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
-	addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	if(not isCombination){
+	  addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	else{
+	  addTemplate("ZH_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("ZH_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
 	addTemplate("ZH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
 	addTemplate("ZH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
+      }
+      
+
+      //ggZH            
+      nominalHisto = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_"+mediatorMass+"_"+observable).c_str());
+      histobUp  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_bUp_"+mediatorMass+"_"+observable).c_str());
+      histobDw  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_bDw_"+mediatorMass+"_"+observable).c_str());
+      histoJesUp  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metJetUp_"+mediatorMass+"_"+observable).c_str());
+      histoJesDw  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metJetDw_"+mediatorMass+"_"+observable).c_str());
+      histoJerUp  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metResUp_"+mediatorMass+"_"+observable).c_str());
+      histoJerDw  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metResDw_"+mediatorMass+"_"+observable).c_str());
+      histoUncUp  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metUncUp_"+mediatorMass+"_"+observable).c_str());
+      histoUncDw  = (TH1F*)templatesfile->FindObjectAny(("ggzHhist_metUncDw_"+mediatorMass+"_"+observable).c_str());
+    
+      if(nominalHisto){
+	
+	if(nominalHisto->GetNbinsX() > 10){
+	  fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
+	  fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
+	  fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
+	  fixShapeUncertainty(nominalHisto,histoJerDw,int(nominalHisto->GetNbinsX()/2),0.98);
+	  fixShapeUncertainty(nominalHisto,histoUncUp,int(nominalHisto->GetNbinsX()/2),1.01);
+	  fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
+	}
+	
+	addTemplate("ggZH_SR_"+suffix+"_CMS_btag_13TeVUp",   vars, wspace_SR, histobUp);
+	addTemplate("ggZH_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
+	if(not isCombination){
+	  addTemplate("ggZH_SR_"+suffix+"_CMS_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	  addTemplate("ggZH_SR_"+suffix+"_CMS_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	  addTemplate("ggZH_SR_"+suffix+"_CMS_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	  addTemplate("ggZH_SR_"+suffix+"_CMS_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	else{
+	addTemplate("ggZH_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",    vars, wspace_SR, histoJesUp);
+	addTemplate("ggZH_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",  vars, wspace_SR, histoJesDw);
+	addTemplate("ggZH_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",    vars, wspace_SR, histoJerUp);
+	addTemplate("ggZH_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",  vars, wspace_SR, histoJerDw);
+	}
+	addTemplate("ggZH_SR_"+suffix+"_CMS_scale_metUp",    vars, wspace_SR, histoUncUp);
+	addTemplate("ggZH_SR_"+suffix+"_CMS_scale_metDown",  vars, wspace_SR, histoUncDw);
       }
     }
     // statistics
@@ -625,6 +702,7 @@ void createWorkspace(string inputName,
     generateStatTemplate("qqH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
     generateStatTemplate("WH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
     generateStatTemplate("ZH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
+    generateStatTemplate("ggZH_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str()),0.5);
   }
   
   // Zvv background --> to be extracted from CRs
@@ -672,10 +750,18 @@ void createWorkspace(string inputName,
 
       addTemplate("Top_SR_"+suffix+"_CMS_btag_13TeVUp",vars, wspace_SR, histobUp);
       addTemplate("Top_SR_"+suffix+"_CMS_btag_13TeVDown",vars, wspace_SR, histobDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVUp",vars, wspace_SR, histoJesUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVDown",vars, wspace_SR, histoJesDw);
-      addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVUp",vars, wspace_SR, histoJerUp);
-      addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVDown",vars, wspace_SR, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVUp",vars, wspace_SR, histoJesUp);
+	addTemplate("Top_SR_"+suffix+"_CMS_scale_j_13TeVDown",vars, wspace_SR, histoJesDw);
+	addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVUp",vars, wspace_SR, histoJerUp);
+	addTemplate("Top_SR_"+suffix+"_CMS_res_j_13TeVDown",vars, wspace_SR, histoJerDw);
+      }
+      else{
+	addTemplate("Top_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp",vars, wspace_SR, histoJesUp);
+	addTemplate("Top_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown",vars, wspace_SR, histoJesDw);
+	addTemplate("Top_SR_"+suffix+"_CMS_mono_res_j_13TeVUp",vars, wspace_SR, histoJerUp);
+	addTemplate("Top_SR_"+suffix+"_CMS_mono_res_j_13TeVDown",vars, wspace_SR, histoJerDw);
+      }
       addTemplate("Top_SR_"+suffix+"_CMS_scale_metUp",vars, wspace_SR, histoUncUp);
       addTemplate("Top_SR_"+suffix+"_CMS_scale_metDown",vars, wspace_SR, histoUncDw);
       
@@ -738,10 +824,18 @@ void createWorkspace(string inputName,
     
     addTemplate("ZJets_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
     addTemplate("ZJets_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
-    addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    if(not isCombination){
+      addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
+    else{
+      addTemplate("ZJets_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("ZJets_SR_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
     addTemplate("ZJets_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
     addTemplate("ZJets_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
@@ -770,10 +864,18 @@ void createWorkspace(string inputName,
     
     addTemplate("Dibosons_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
     addTemplate("Dibosons_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
-    addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    if(not isCombination){
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
+    else{
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("Dibosons_SR_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
     addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
     addTemplate("Dibosons_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
@@ -803,10 +905,18 @@ void createWorkspace(string inputName,
     
     addTemplate("GJets_SR_"+suffix+"_CMS_btag_13TeVUp", vars, wspace_SR, histobUp);
     addTemplate("GJets_SR_"+suffix+"_CMS_btag_13TeVDown", vars, wspace_SR, histobDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
-    addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
-    addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    if(not isCombination){
+      addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("GJets_SR_"+suffix+"_CMS_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("GJets_SR_"+suffix+"_CMS_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
+    else{
+      addTemplate("GJets_SR_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, wspace_SR, histoJesUp);
+      addTemplate("GJets_SR_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, wspace_SR, histoJesDw);
+      addTemplate("GJets_SR_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, wspace_SR, histoJerUp);
+      addTemplate("GJets_SR_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, wspace_SR, histoJerDw);
+    }
     addTemplate("GJets_SR_"+suffix+"_CMS_scale_metUp", vars, wspace_SR, histoUncUp);
     addTemplate("GJets_SR_"+suffix+"_CMS_scale_metDown", vars, wspace_SR, histoUncDw);
 
@@ -878,10 +988,19 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
       addTemplate("WJets_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      if(not isCombination){
+	addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
+      else{
+	addTemplate("WJets_ZM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("WJets_ZM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
+
       addTemplate("WJets_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
       addTemplate("WJets_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
       
@@ -909,10 +1028,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
       addTemplate("Top_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("Top_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("Top_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
+      else{ 
+	addTemplate("Top_ZM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("Top_ZM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("Top_ZM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("Top_ZM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
       addTemplate("Top_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
       addTemplate("Top_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
       
@@ -941,10 +1068,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZM, histobUp);
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZM, histobDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
-      addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZM, histoJesUp);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZM, histoJesDw);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZM, histoJerUp);
+	addTemplate("Dibosons_ZM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZM, histoJerDw);
+      }
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZM, histoUncUp);
       addTemplate("Dibosons_ZM_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZM, histoUncDw);
     }
@@ -996,10 +1131,18 @@ void createWorkspace(string inputName,
 
       addTemplate("WJets_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
       addTemplate("WJets_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      if(not isCombination){
+	addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
+      else{
+	addTemplate("WJets_ZE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("WJets_ZE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
       addTemplate("WJets_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
       addTemplate("WJets_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);
       
@@ -1027,10 +1170,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
       addTemplate("Top_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
-      addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("Top_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("Top_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
+      else{
+	addTemplate("Top_ZE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("Top_ZE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("Top_ZE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("Top_ZE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
       addTemplate("Top_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
       addTemplate("Top_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);
       
@@ -1059,10 +1210,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_ZE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZE, histobUp);
       addTemplate("Dibosons_ZE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZE, histobDw);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
-      addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZE, histoJesUp);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZE, histoJesDw);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZE, histoJerUp);
+	addTemplate("Dibosons_ZE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZE, histoJerDw);
+      }
       addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZE, histoUncUp);
       addTemplate("Dibosons_ZE_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZE, histoUncDw);          
     }
@@ -1108,10 +1267,18 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
       addTemplate("WJets_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      if(not isCombination){
+	addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      }
+      else{
+	addTemplate("WJets_ZL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("WJets_ZL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      }
       addTemplate("WJets_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
       addTemplate("WJets_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
@@ -1139,10 +1306,19 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
       addTemplate("Top_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
-      addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("Top_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("Top_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      }
+      else{
+	addTemplate("Top_ZL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("Top_ZL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("Top_ZL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("Top_ZL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+
+      }
       addTemplate("Top_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
       addTemplate("Top_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
@@ -1171,10 +1347,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_ZL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_ZL, histobUp);
       addTemplate("Dibosons_ZL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_ZL, histobDw);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
-      addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_ZL, histoJesUp);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_ZL, histoJesDw);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_ZL, histoJerUp);
+	addTemplate("Dibosons_ZL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_ZL, histoJerDw);
+      }
       addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_metUp", vars, *wspace_ZL, histoUncUp);
       addTemplate("Dibosons_ZL_"+suffix+"_CMS_scale_metDown", vars, *wspace_ZL, histoUncDw);
       
@@ -1269,10 +1453,18 @@ void createWorkspace(string inputName,
       
       addTemplate("ZJets_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
       addTemplate("ZJets_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      if(not isCombination){
+ 	addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
+      else{
+ 	addTemplate("ZJets_WM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("ZJets_WM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
       addTemplate("ZJets_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
       addTemplate("ZJets_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);
       
@@ -1300,10 +1492,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
       addTemplate("Top_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
-      addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("Top_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("Top_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
+      else{
+	addTemplate("Top_WM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("Top_WM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("Top_WM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("Top_WM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
       addTemplate("Top_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
       addTemplate("Top_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);
       
@@ -1332,10 +1532,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_WM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WM, histobUp);
       addTemplate("Dibosons_WM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WM, histobDw);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
-      addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WM, histoJesUp);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WM, histoJesDw);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WM, histoJerUp);
+	addTemplate("Dibosons_WM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WM, histoJerDw);
+      }
       addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_metUp", vars, *wspace_WM, histoUncUp);
       addTemplate("Dibosons_WM_"+suffix+"_CMS_scale_metDown", vars, *wspace_WM, histoUncDw);      
     }
@@ -1383,10 +1591,18 @@ void createWorkspace(string inputName,
 
       addTemplate("ZJets_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
       addTemplate("ZJets_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      if(not isCombination){
+	addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
+      else{
+	addTemplate("ZJets_WE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("ZJets_WE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
       addTemplate("ZJets_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
       addTemplate("ZJets_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
       
@@ -1414,10 +1630,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
       addTemplate("Top_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
-      addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("Top_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("Top_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
+      else{
+	addTemplate("Top_WE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("Top_WE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("Top_WE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("Top_WE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
       addTemplate("Top_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
       addTemplate("Top_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
       
@@ -1445,10 +1669,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_WE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WE, histobUp);
       addTemplate("Dibosons_WE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WE, histobDw);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
-      addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WE, histoJesUp);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WE, histoJesDw);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WE, histoJerUp);
+	addTemplate("Dibosons_WE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WE, histoJerDw);
+      }
       addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_metUp", vars, *wspace_WE, histoUncUp);
       addTemplate("Dibosons_WE_"+suffix+"_CMS_scale_metDown", vars, *wspace_WE, histoUncDw);
 
@@ -1496,10 +1728,18 @@ void createWorkspace(string inputName,
 
       addTemplate("ZJets_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
       addTemplate("ZJets_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      if(not isCombination){
+	addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
+      else{
+	addTemplate("ZJets_WL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("ZJets_WL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
       addTemplate("ZJets_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
       addTemplate("ZJets_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
       
@@ -1527,10 +1767,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Top_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
       addTemplate("Top_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
-      addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      if(not isCombination){
+	addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("Top_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("Top_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
+      else{
+	addTemplate("Top_WL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("Top_WL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("Top_WL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("Top_WL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
       addTemplate("Top_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
       addTemplate("Top_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
       
@@ -1558,10 +1806,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_WL_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_WL, histobUp);
       addTemplate("Dibosons_WL_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_WL, histobDw);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
-      addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_WL, histoJesUp);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_WL, histoJesDw);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_WL, histoJerUp);
+	addTemplate("Dibosons_WL_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_WL, histoJerDw);
+      }
       addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_metUp", vars, *wspace_WL, histoUncUp);
       addTemplate("Dibosons_WL_"+suffix+"_CMS_scale_metDown", vars, *wspace_WL, histoUncDw);
 
@@ -1618,10 +1874,18 @@ void createWorkspace(string inputName,
       
       addTemplate("ZJets_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
       addTemplate("ZJets_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      if(not isCombination){
+	addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
+      else{
+	addTemplate("ZJets_TM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("ZJets_TM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
       addTemplate("ZJets_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
       addTemplate("ZJets_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
       
@@ -1649,10 +1913,18 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
       addTemplate("WJets_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      if(not isCombination){
+	addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("WJets_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("WJets_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
+      else{
+	addTemplate("WJets_TM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("WJets_TM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("WJets_TM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("WJets_TM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
       addTemplate("WJets_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
       addTemplate("WJets_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
       
@@ -1681,10 +1953,18 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_TM_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TM, histobUp);
       addTemplate("Dibosons_TM_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TM, histobDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
-      addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TM, histoJesUp);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TM, histoJesDw);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TM, histoJerUp);
+	addTemplate("Dibosons_TM_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TM, histoJerDw);
+      }
       addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_metUp", vars, *wspace_TM, histoUncUp);
       addTemplate("Dibosons_TM_"+suffix+"_CMS_scale_metDown", vars, *wspace_TM, histoUncDw);
            
@@ -1734,10 +2014,18 @@ void createWorkspace(string inputName,
       
       addTemplate("ZJets_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
       addTemplate("ZJets_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      if(not isCombination){
+	addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
+      else{
+	addTemplate("ZJets_TE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("ZJets_TE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
       addTemplate("ZJets_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
       addTemplate("ZJets_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
       
@@ -1765,10 +2053,18 @@ void createWorkspace(string inputName,
       
       addTemplate("WJets_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
       addTemplate("WJets_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      if(not isCombination){
+	addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("WJets_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("WJets_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
+      else{
+	addTemplate("WJets_TE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("WJets_TE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("WJets_TE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("WJets_TE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
       addTemplate("WJets_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
       addTemplate("WJets_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
       
@@ -1797,17 +2093,22 @@ void createWorkspace(string inputName,
       
       addTemplate("Dibosons_TE_"+suffix+"_CMS_btag_13TeVUp", vars, *wspace_TE, histobUp);
       addTemplate("Dibosons_TE_"+suffix+"_CMS_btag_13TeVDown", vars, *wspace_TE, histobDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
-      addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      if(not isCombination){
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
+      else{
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_mono_scale_j_13TeVUp", vars, *wspace_TE, histoJesUp);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_mono_scale_j_13TeVDown", vars, *wspace_TE, histoJesDw);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_mono_res_j_13TeVUp", vars, *wspace_TE, histoJerUp);
+	addTemplate("Dibosons_TE_"+suffix+"_CMS_mono_res_j_13TeVDown", vars, *wspace_TE, histoJerDw);
+      }
       addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_metUp", vars, *wspace_TE, histoUncUp);
       addTemplate("Dibosons_TE_"+suffix+"_CMS_scale_metDown", vars, *wspace_TE, histoUncDw);
-      
-      
+            
     }
-
-
   }
 
   // ---------------------------- Write out the workspace -----------------------------------------------------------------//

@@ -25,8 +25,8 @@ Dibosons_Norm13TeV        lnN       -           -           1.200           -
 Top_Norm13TeV             lnN       -           -           -               1.100 
 Top_Reweight13TeV         lnN       -           -           -               1.100 
 CMS_btag_13TeV            shapeN2   -           1           1               1
-CMS_scale_j_13TeV         shapeN2   -           1           1               1
-CMS_res_j_13TeV           shapeN2   -           1           1               1
+CMS_mono_scale_j_13TeV    shapeN2   -           1           1               1
+CMS_mono_res_j_13TeV      shapeN2   -           1           1               1
 CMS_scale_met             shapeN2   -           1           1               1
 Znunu_ZE_MJ_bin1_Runc     param     0     1
 Znunu_ZE_MJ_bin2_Runc     param     0     1

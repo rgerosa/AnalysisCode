@@ -13,8 +13,8 @@ void signalHiggshist(TFile* outfile,
 		     vector<double> xs = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
 		     int typeOfHiggsSignal = 0){
 
-  if(xs.size() != 4)
-    cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
+  if(xs.size() != 4 and xs.size() != 5)
+    cerr<<"signalHiggshist: xs size wrong, should be 4 or 5 numbers for each mass points"<<endl;
 
   cout<<"Start HiggsInvisible: signalHiggshist --> "<<mH<<endl;
   
@@ -38,11 +38,13 @@ void signalHiggshist(TFile* outfile,
   vector<TH1*>  vbfHhist;
   vector<TH1*>  wHhist;
   vector<TH1*>  zHhist;
+  vector<TH1*>  ggzHhist;
   vector<TH1*>  ggHhist_renUp, ggHhist_renDw, ggHhist_facUp, ggHhist_facDw;
   vector<TH1*>  ggHhist_bUp, ggHhist_bDw, ggHhist_metJetUp, ggHhist_metJetDw, ggHhist_metResUp, ggHhist_metResDw, ggHhist_metUncUp, ggHhist_metUncDw;
   vector<TH1*>  vbfHhist_bUp, vbfHhist_bDw, vbfHhist_metJetUp, vbfHhist_metJetDw, vbfHhist_metResUp, vbfHhist_metResDw, vbfHhist_metUncUp, vbfHhist_metUncDw;
   vector<TH1*>  wHhist_bUp, wHhist_bDw, wHhist_metJetUp, wHhist_metJetDw, wHhist_metResUp, wHhist_metResDw, wHhist_metUncUp, wHhist_metUncDw;
   vector<TH1*>  zHhist_bUp, zHhist_bDw, zHhist_metJetUp, zHhist_metJetDw, zHhist_metResUp, zHhist_metResDw, zHhist_metUncUp, zHhist_metUncDw;
+  vector<TH1*>  ggzHhist_bUp, ggzHhist_bDw, ggzHhist_metJetUp, ggzHhist_metJetDw, ggzHhist_metResUp, ggzHhist_metResDw, ggzHhist_metUncUp, ggzHhist_metUncDw;
   vector<double> bins;
 
   for(auto obs : observables){
@@ -60,8 +62,10 @@ void signalHiggshist(TFile* outfile,
     if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
       TH1F* wHhist_temp   = new TH1F(("wHhist_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* zHhist_temp   = new TH1F(("zHhist_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* ggzHhist_temp   = new TH1F(("ggzHhist_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       wHhist.push_back(dynamic_cast<TH1*>(wHhist_temp));
       zHhist.push_back(dynamic_cast<TH1*>(zHhist_temp));
+      ggzHhist.push_back(dynamic_cast<TH1*>(ggzHhist_temp));
     }
 
     if(doShapeSystematics){
@@ -121,43 +125,59 @@ void signalHiggshist(TFile* outfile,
 	
 	TH1F* wHhist_bUp_temp   = new TH1F(("wHhist_bUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_bUp_temp   = new TH1F(("zHhist_bUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_bUp_temp   = new TH1F(("ggzHhist_bUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_bUp.push_back(dynamic_cast<TH1*>(wHhist_bUp_temp));
 	zHhist_bUp.push_back(dynamic_cast<TH1*>(zHhist_bUp_temp));
+	ggzHhist_bUp.push_back(dynamic_cast<TH1*>(ggzHhist_bUp_temp));
 
 	TH1F* wHhist_bDw_temp   = new TH1F(("wHhist_bDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_bDw_temp   = new TH1F(("zHhist_bDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_bDw_temp   = new TH1F(("ggzHhist_bDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_bDw.push_back(dynamic_cast<TH1*>(wHhist_bDw_temp));
 	zHhist_bDw.push_back(dynamic_cast<TH1*>(zHhist_bDw_temp));
+	ggzHhist_bDw.push_back(dynamic_cast<TH1*>(ggzHhist_bDw_temp));
 	
 	TH1F* wHhist_metJetUp_temp   = new TH1F(("wHhist_metJetUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metJetUp_temp   = new TH1F(("zHhist_metJetUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metJetUp_temp   = new TH1F(("ggzHhist_metJetUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	zHhist_metJetUp.push_back(dynamic_cast<TH1*>(zHhist_metJetUp_temp));
 	wHhist_metJetUp.push_back(dynamic_cast<TH1*>(wHhist_metJetUp_temp));
+	ggzHhist_metJetUp.push_back(dynamic_cast<TH1*>(ggzHhist_metJetUp_temp));
 	
 	TH1F* wHhist_metJetDw_temp   = new TH1F(("wHhist_metJetDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metJetDw_temp   = new TH1F(("zHhist_metJetDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metJetDw_temp   = new TH1F(("ggzHhist_metJetDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_metJetDw.push_back(dynamic_cast<TH1*>(wHhist_metJetDw_temp));
 	zHhist_metJetDw.push_back(dynamic_cast<TH1*>(zHhist_metJetDw_temp));
+	ggzHhist_metJetDw.push_back(dynamic_cast<TH1*>(ggzHhist_metJetDw_temp));
 	
 	TH1F* wHhist_metResUp_temp   = new TH1F(("wHhist_metResUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metResUp_temp   = new TH1F(("zHhist_metResUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metResUp_temp   = new TH1F(("ggzHhist_metResUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_metResUp.push_back(dynamic_cast<TH1*>(wHhist_metResUp_temp));
 	zHhist_metResUp.push_back(dynamic_cast<TH1*>(zHhist_metResUp_temp));
+	ggzHhist_metResUp.push_back(dynamic_cast<TH1*>(ggzHhist_metResUp_temp));
 	
 	TH1F* wHhist_metResDw_temp   = new TH1F(("wHhist_metResDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metResDw_temp   = new TH1F(("zHhist_metResDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metResDw_temp   = new TH1F(("ggzHhist_metResDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_metResDw.push_back(dynamic_cast<TH1*>(wHhist_metResDw_temp));
 	zHhist_metResDw.push_back(dynamic_cast<TH1*>(zHhist_metResDw_temp));
+	ggzHhist_metResDw.push_back(dynamic_cast<TH1*>(ggzHhist_metResDw_temp));
 	
 	TH1F* wHhist_metUncUp_temp   = new TH1F(("wHhist_metUncUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metUncUp_temp   = new TH1F(("zHhist_metUncUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metUncUp_temp   = new TH1F(("ggzHhist_metUncUp_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_metUncUp.push_back(dynamic_cast<TH1*>(wHhist_metUncUp_temp));
 	zHhist_metUncUp.push_back(dynamic_cast<TH1*>(zHhist_metUncUp_temp));
+	ggzHhist_metUncUp.push_back(dynamic_cast<TH1*>(ggzHhist_metUncUp_temp));
 	
 	TH1F* wHhist_metUncDw_temp   = new TH1F(("wHhist_metUncDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	TH1F* zHhist_metUncDw_temp   = new TH1F(("zHhist_metUncDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+	TH1F* ggzHhist_metUncDw_temp   = new TH1F(("ggzHhist_metUncDw_"+mH+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
 	wHhist_metUncDw.push_back(dynamic_cast<TH1*>(wHhist_metUncDw_temp));
 	zHhist_metUncDw.push_back(dynamic_cast<TH1*>(zHhist_metUncDw_temp));
+	ggzHhist_metUncDw.push_back(dynamic_cast<TH1*>(ggzHhist_metUncDw_temp));
 	
       }  
     }
@@ -167,12 +187,14 @@ void signalHiggshist(TFile* outfile,
   vector<TH2*> vbfHhist_2D;
   vector<TH2*> wHhist_2D;
   vector<TH2*> zHhist_2D;
+  vector<TH2*> ggzHhist_2D;
 
   vector<TH2*> ggHhist_renUp_2D, ggHhist_renDw_2D, ggHhist_facUp_2D, ggHhist_facDw_2D;
   vector<TH2*> ggHhist_bUp_2D, ggHhist_bDw_2D, ggHhist_metJetUp_2D, ggHhist_metJetDw_2D, ggHhist_metResUp_2D, ggHhist_metResDw_2D, ggHhist_metUncUp_2D, ggHhist_metUncDw_2D;
   vector<TH2*> vbfHhist_bUp_2D, vbfHhist_bDw_2D, vbfHhist_metJetUp_2D, vbfHhist_metJetDw_2D, vbfHhist_metResUp_2D, vbfHhist_metResDw_2D, vbfHhist_metUncUp_2D, vbfHhist_metUncDw_2D;
   vector<TH2*> wHhist_bUp_2D, wHhist_bDw_2D, wHhist_metJetUp_2D, wHhist_metJetDw_2D, wHhist_metResUp_2D, wHhist_metResDw_2D, wHhist_metUncUp_2D, wHhist_metUncDw_2D;
   vector<TH2*> zHhist_bUp_2D, zHhist_bDw_2D, zHhist_metJetUp_2D, zHhist_metJetDw_2D, zHhist_metResUp_2D, zHhist_metResDw_2D, zHhist_metUncUp_2D, zHhist_metUncDw_2D;
+  vector<TH2*> ggzHhist_bUp_2D, ggzHhist_bDw_2D, ggzHhist_metJetUp_2D, ggzHhist_metJetDw_2D, ggzHhist_metResUp_2D, ggzHhist_metResDw_2D, ggzHhist_metUncUp_2D, ggzHhist_metUncDw_2D;
 
   for(auto obs : observables_2D){
 
@@ -189,8 +211,10 @@ void signalHiggshist(TFile* outfile,
     if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
       TH2F* wHhist_temp   = new TH2F(("wHhist_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       TH2F* zHhist_temp   = new TH2F(("zHhist_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* ggzHhist_temp   = new TH2F(("ggzHhist_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       wHhist_2D.push_back(dynamic_cast<TH2*>(wHhist_temp));
       zHhist_2D.push_back(dynamic_cast<TH2*>(zHhist_temp));
+      ggzHhist_2D.push_back(dynamic_cast<TH2*>(ggzHhist_temp));
     }
     
     if(doShapeSystematics){
@@ -251,44 +275,60 @@ void signalHiggshist(TFile* outfile,
 
 	TH2F* wHhist_bUp_temp   = new TH2F(("wHhist_bUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_bUp_temp   = new TH2F(("zHhist_bUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_bUp_temp   = new TH2F(("ggzHhist_bUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_bUp_2D.push_back(dynamic_cast<TH2*>(wHhist_bUp_temp));
 	zHhist_bUp_2D.push_back(dynamic_cast<TH2*>(zHhist_bUp_temp));
+	ggzHhist_bUp_2D.push_back(dynamic_cast<TH2*>(ggzHhist_bUp_temp));
 	
 	TH2F* wHhist_bDw_temp   = new TH2F(("wHhist_bDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_bDw_temp   = new TH2F(("zHhist_bDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_bDw_temp   = new TH2F(("ggzHhist_bDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_bDw_2D.push_back(dynamic_cast<TH2*>(wHhist_bDw_temp));
 	zHhist_bDw_2D.push_back(dynamic_cast<TH2*>(zHhist_bDw_temp));
+	ggzHhist_bDw_2D.push_back(dynamic_cast<TH2*>(ggzHhist_bDw_temp));
 
 	TH2F* wHhist_metJetUp_temp   = new TH2F(("wHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metJetUp_temp   = new TH2F(("zHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metJetUp_temp   = new TH2F(("ggzHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	zHhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(zHhist_metJetUp_temp));
 	wHhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(wHhist_metJetUp_temp));
+	ggzHhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metJetUp_temp));
 	
 	TH2F* wHhist_metJetDw_temp   = new TH2F(("wHhist_metJetDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metJetDw_temp   = new TH2F(("zHhist_metJetDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metJetDw_temp   = new TH2F(("ggzHhist_metJetDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_metJetDw_2D.push_back(dynamic_cast<TH2*>(wHhist_metJetDw_temp));
 	zHhist_metJetDw_2D.push_back(dynamic_cast<TH2*>(zHhist_metJetDw_temp));
+	ggzHhist_metJetDw_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metJetDw_temp));
 	
 	TH2F* wHhist_metResUp_temp   = new TH2F(("wHhist_metResUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metResUp_temp   = new TH2F(("zHhist_metResUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metResUp_temp   = new TH2F(("ggzHhist_metResUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_metResUp_2D.push_back(dynamic_cast<TH2*>(wHhist_metResUp_temp));
 	zHhist_metResUp_2D.push_back(dynamic_cast<TH2*>(zHhist_metResUp_temp));
+	ggzHhist_metResUp_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metResUp_temp));
 
 	TH2F* wHhist_metResDw_temp   = new TH2F(("wHhist_metResDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metResDw_temp   = new TH2F(("zHhist_metResDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metResDw_temp   = new TH2F(("ggzHhist_metResDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_metResDw_2D.push_back(dynamic_cast<TH2*>(wHhist_metResDw_temp));
 	zHhist_metResDw_2D.push_back(dynamic_cast<TH2*>(zHhist_metResDw_temp));
+	ggzHhist_metResDw_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metResDw_temp));
 	
 	TH2F* wHhist_metUncUp_temp   = new TH2F(("wHhist_metUncUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metUncUp_temp   = new TH2F(("zHhist_metUncUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metUncUp_temp   = new TH2F(("ggzHhist_metUncUp_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	wHhist_metUncUp_2D.push_back(dynamic_cast<TH2*>(wHhist_metUncUp_temp));
 	zHhist_metUncUp_2D.push_back(dynamic_cast<TH2*>(zHhist_metUncUp_temp));
+	ggzHhist_metUncUp_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metUncUp_temp));
 	
 	TH2F* wHhist_metUncDw_temp   = new TH2F(("wHhist_metUncDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 	TH2F* zHhist_metUncDw_temp   = new TH2F(("zHhist_metUncDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+	TH2F* ggzHhist_metUncDw_temp   = new TH2F(("ggzHhist_metUncDw_"+mH+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
 
 	wHhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(wHhist_metUncDw_temp));
 	zHhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(zHhist_metUncDw_temp));
+	ggzHhist_metUncDw_2D.push_back(dynamic_cast<TH2*>(ggzHhist_metUncDw_temp));
       }
     }  
   }
@@ -307,6 +347,7 @@ void signalHiggshist(TFile* outfile,
 
   //Take histograms for Higgs
   TFile* higgsPT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/HiggsPT/hpt_ggH_125_13TeV_POWHEG_weights.root");
+  TFile* ggZHPT  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/HiggsPT/ggZH_weight.root");
 
   TH1* renUp = (TH1*) higgsPT->FindObjectAny("weight_pT_rup");
   TH1* renDw = (TH1*) higgsPT->FindObjectAny("weight_pT_rdn");
@@ -314,6 +355,8 @@ void signalHiggshist(TFile* outfile,
   TH1* facDw = (TH1*) higgsPT->FindObjectAny("weight_pT_fdn");
   for(int iBinX = 1; iBinX <= facDw->GetNbinsX(); iBinX++)
     facDw->SetBinContent(iBinX,1./facUp->GetBinContent(iBinX));
+
+  TH2* ggZH_weight = (TH2*) ggZHPT->FindObjectAny("Graph2D_from_weight");
 
   // higgs re-weight
   if(typeOfHiggsSignal <=1){
@@ -323,6 +366,8 @@ void signalHiggshist(TFile* outfile,
   if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
     makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,false,xs.at(2));
     makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,false,xs.at(3));
+    if(xs.size() > 4) // apply ZH re-weight to estimated ggZH
+      makehist4(zHTree,ggzHhist,ggzHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
   }
 
   if(doShapeSystematics){
@@ -368,6 +413,18 @@ void signalHiggshist(TFile* outfile,
       makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,false,xs.at(3));
       makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,false,xs.at(2));
       makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,false,xs.at(3));
+
+      if(xs.size() >4){ // re-weight qqZH to get ggZH contribution
+	makehist4(zHTree,ggzHhist_bUp,ggzHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);      
+	makehist4(zHTree,ggzHhist_bDw,ggzHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);   
+	makehist4(zHTree,ggzHhist_metJetUp,ggzHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);    
+	makehist4(zHTree,ggzHhist_metJetDw,ggzHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);    
+	makehist4(zHTree,ggzHhist_metResUp,ggzHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+	makehist4(zHTree,ggzHhist_metResDw,ggzHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+	makehist4(zHTree,ggzHhist_metUncUp,ggzHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+	makehist4(zHTree,ggzHhist_metUncDw,ggzHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+
+      }
     }
   }
   
@@ -383,6 +440,9 @@ void signalHiggshist(TFile* outfile,
 
   for(auto hist: zHhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
   for(auto hist: zHhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+  for(auto hist: ggzHhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+  for(auto hist: ggzHhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
 
   if(doShapeSystematics){
 
@@ -497,6 +557,31 @@ void signalHiggshist(TFile* outfile,
     for(auto hist: zHhist_metUncDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
     for(auto hist: zHhist_metUncDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
 
+    //
+    for(auto hist: ggzHhist_bUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_bUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_bDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metJetUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metJetUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metJetDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metJetDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metResUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metResUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metResDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metResDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metUncUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metUncUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
+    for(auto hist: ggzHhist_metUncDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist: ggzHhist_metUncDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+
   }
 
   // store tempaltes in the output file                                                                                                                                     
@@ -527,6 +612,13 @@ void signalHiggshist(TFile* outfile,
   outfile->cd("zH");  
   for(auto hist : zHhist)   hist->Write();
   for(auto hist : zHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+
+  outfile->cd();
+  if(not outfile->GetDirectory("ggzH"))
+    outfile->mkdir("ggzH");
+  outfile->cd("ggzH");  
+  for(auto hist : ggzHhist)   hist->Write();
+  for(auto hist : ggzHhist_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
 
   if(doShapeSystematics){
 
@@ -631,6 +723,32 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : zHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : zHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : zHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
+
+
+    outfile->cd();
+    if(not outfile->GetDirectory("ggzH/sysShape"))
+      outfile->mkdir("ggzH/sysShape");
+    outfile->cd("ggzH/sysShape");
+
+    for(auto hist : ggzHhist_bUp) hist->Write();
+    for(auto hist : ggzHhist_bDw) hist->Write();
+    for(auto hist : ggzHhist_metJetUp) hist->Write();
+    for(auto hist : ggzHhist_metJetDw) hist->Write();
+    for(auto hist : ggzHhist_metResUp) hist->Write();
+    for(auto hist : ggzHhist_metResDw) hist->Write();
+    for(auto hist : ggzHhist_metUncUp) hist->Write();
+    for(auto hist : ggzHhist_metUncDw) hist->Write();
+
+
+    for(auto hist : ggzHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : wHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metUncUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
+    for(auto hist : ggzHhist_metUncDw_2D){TH1* temp = unroll2DHistograms(hist);temp->Write();}
   }
 
   outfile->cd();
@@ -639,6 +757,7 @@ void signalHiggshist(TFile* outfile,
   vbfHhist.clear();
   wHhist.clear();
   zHhist.clear();
+  ggzHhist.clear();
   ggHhist_renUp.clear(); 
   ggHhist_renDw.clear(); 
   ggHhist_facUp.clear(); 
@@ -675,11 +794,20 @@ void signalHiggshist(TFile* outfile,
   zHhist_metResDw.clear(); 
   zHhist_metUncUp.clear(); 
   zHhist_metUncDw.clear();
+  ggzHhist_bUp.clear(); 
+  ggzHhist_bDw.clear(); 
+  ggzHhist_metJetUp.clear(); 
+  ggzHhist_metJetDw.clear(); 
+  ggzHhist_metResUp.clear(); 
+  ggzHhist_metResDw.clear(); 
+  ggzHhist_metUncUp.clear(); 
+  ggzHhist_metUncDw.clear();
 
   ggHhist_2D.clear();
   vbfHhist_2D.clear();
   wHhist_2D.clear();
   zHhist_2D.clear();
+  ggzHhist_2D.clear();
   ggHhist_renUp_2D.clear(); 
   ggHhist_renDw_2D.clear(); 
   ggHhist_facUp_2D.clear(); 
@@ -716,12 +844,21 @@ void signalHiggshist(TFile* outfile,
   zHhist_metResDw_2D.clear(); 
   zHhist_metUncUp_2D.clear(); 
   zHhist_metUncDw_2D.clear();
+  ggzHhist_bUp_2D.clear(); 
+  ggzHhist_bDw_2D.clear(); 
+  ggzHhist_metJetUp_2D.clear(); 
+  ggzHhist_metJetDw_2D.clear(); 
+  ggzHhist_metResUp_2D.clear(); 
+  ggzHhist_metResDw_2D.clear(); 
+  ggzHhist_metUncUp_2D.clear(); 
+  ggzHhist_metUncDw_2D.clear();
 
   if(ggHFile) ggHFile->Close();
   if(vbfHFile) vbfHFile->Close();
   if(wHFile) wHFile->Close();
   if(zHFile) zHFile->Close();
   if(higgsPT) higgsPT->Close();
+  if(ggZHPT) ggZHPT->Close();
 
   cout << "Templates for the Higgs invisible ..." << endl;
 }
