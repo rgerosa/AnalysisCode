@@ -6,41 +6,41 @@ Repository for analysis code
 
 Recipe for 76X (temp fixes for pileup jet id):
 
-           cmsrel CMSSW_7_6_4
-           cd CMSSW_7_6_4/src
-	   cmsenv
-	   git cms-init
-	   #echo /CommonTools/PileupAlgos/ > .git/info/sparse-checkout
-	   #echo /CommonTools/Utils/ >> .git/info/sparse-checkout
-	   #echo /JetMETCorrections/Configuration/ >> .git/info/sparse-checkout
-	   #echo /JetMETCorrections/Modules/ >> .git/info/sparse-checkout
-	   #echo /JetMETCorrections/Type1MET/ >> .git/info/sparse-checkout
-	   #echo /PhysicsTools/PatAlgos/ >> .git/info/sparse-checkout
-	   #echo /PhysicsTools/PatUtils/ >> .git/info/sparse-checkout
-	   #echo /RecoMET/METAlgorithms/ >> .git/info/sparse-checkout
-	   #echo /RecoMET/METProducers/ >> .git/info/sparse-checkout
-	   git cms-merge-topic cms-met:metTool76X
-	   git cms-addpkg RecoJets/JetProducers
-	   git-cms-merge-topic jbrands:pileupJetId76X
-	   cd RecoJets/JetProducers/data/
-	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
-	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
-	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
-	   wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz	   
-	   cd ../../..	
-	   git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X
-	   git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
-           rm -rf data/.git  
-	   rm JetMETCorrections/Modules/src/SealModule.cc
+       cmsrel CMSSW_7_6_4
+       cd CMSSW_7_6_4/src
+       cmsenv
+       git cms-init
+       #echo /CommonTools/PileupAlgos/ > .git/info/sparse-checkout
+       #echo /CommonTools/Utils/ >> .git/info/sparse-checkout
+       #echo /JetMETCorrections/Configuration/ >> .git/info/sparse-checkout
+       #echo /JetMETCorrections/Modules/ >> .git/info/sparse-checkout
+       #echo /JetMETCorrections/Type1MET/ >> .git/info/sparse-checkout
+       #echo /PhysicsTools/PatAlgos/ >> .git/info/sparse-checkout
+       #echo /PhysicsTools/PatUtils/ >> .git/info/sparse-checkout
+       #echo /RecoMET/METAlgorithms/ >> .git/info/sparse-checkout
+       #echo /RecoMET/METProducers/ >> .git/info/sparse-checkout
+       git cms-merge-topic cms-met:metTool76X
+       git cms-addpkg RecoJets/JetProducers
+       git-cms-merge-topic jbrands:pileupJetId76X
+       cd RecoJets/JetProducers/data/
+       wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta0to2p5_BDT.weights.xml.gz
+       wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p5to2p75_BDT.weights.xml.gz
+       wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
+       wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz	   
+       cd ../../..	
+       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X
+       git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
+       rm -rf data/.git  
+       rm JetMETCorrections/Modules/src/SealModule.cc
 	   
 How to Run the ntuple production (for analysis):
 
-           cd CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/test
-	   cmsRun tree.py <list of options>
+       cd CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/test
+       cmsRun tree.py <list of options>
 
 Example:
 
-           cmsRun tree.py isMC=True 	  
+	cmsRun tree.py isMC=True 	  
 
 
 Options:   
@@ -149,7 +149,7 @@ Install a private release of fastjet + contrib
 	mkdir fastjet
 	cd fastjet
 	FASTJET_URL="http://fastjet.fr/repo"
-	FASTJET_TGZ="fastjet-3.2.0.tar.gz" 
+	FASTJET_TGZ="fastjet-3.2.0.tar.gz" 	
 	FASTJET_DIR=`echo $PWD/$FASTJET_TGZ | sed 's/.tar.gz//'`
 	FASTJET_VER=`echo $FASTJET_TGZ | sed 's/.tar.gz//' |cut -d'-' -f2`
 	wget "$FASTJET_URL/$FASTJET_TGZ" -O $FASTJET_TGZ
@@ -157,13 +157,13 @@ Install a private release of fastjet + contrib
 	rm -rf $FASTJET_TGZ
 	export FASTJET_BASE=$PWD
 	cd $FASTJET_DIR
-	./configure --prefix=$FASTJET_BASE
+	./configure --prefix=$FASTJET_BASE --enable-allplugins --enable-allcxxplugins
 	make -j
 	make check -j
 	make install -j
 	cd ..
 	svn checkout http://fastjet.hepforge.org/svn/contrib/trunk fjcontrib 
-    	cd fjcontrib
+	cd fjcontrib
 	./scripts/update-contribs.sh 
 	./configure --fastjet-config=$FASTJET_BASE/bin/fastjet-config CXXFLAGS="-I$FASTJET_BASE/include -I$FASTJET_BASE/tools"
 	make -j
@@ -177,8 +177,9 @@ Install a private release of fastjet + contrib
 	cat fastjet.xml | sed -e "s%<lib name=\"fastjet\"/>%<lib name=\"fastjet\"/> <lib name=\"fastjetcontribfragile\"/>%g" > fastjet2.xml
 	mv fastjet2.xml fastjet.xml
 	mv fastjet.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
-    	scram setup fastjet
+	scram setup fastjet
 	cmsenv
-
+	rm -r $FASTJET_BASE/$FASTJET_VER
+	scramv1 b -j 4
 
 
