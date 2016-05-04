@@ -1,3 +1,4 @@
+============
 AnalysisCode
 ============
 
@@ -132,3 +133,52 @@ Some useful information:
 	 
      Recipe for Recoil Correction:
      	    https://twiki.cern.ch/twiki/bin/view/CMS/MissingETRun2RecoilCorrection
+
+==========================
+Combine Package and ROOT 6
+==========================
+
+Please have a look to the following twiki: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHiggsAnalysisCombinedLimit#ROOT6_SLC6_release_CMSSW_7_4_X
+
+
+==============================================
+Install a private release of fastjet + contrib 
+==============================================
+
+	cd $CMSSW_BASE/src
+	mkdir fastjet
+	cd fastjet
+	FASTJET_URL="http://fastjet.fr/repo"
+	FASTJET_TGZ="fastjet-3.2.0.tar.gz" 
+	FASTJET_DIR=`echo $PWD/$FASTJET_TGZ | sed 's/.tar.gz//'`
+	FASTJET_VER=`echo $FASTJET_TGZ | sed 's/.tar.gz//' |cut -d'-' -f2`
+	wget "$FASTJET_URL/$FASTJET_TGZ" -O $FASTJET_TGZ
+	tar fzx $FASTJET_TGZ
+	rm -rf $FASTJET_TGZ
+	export FASTJET_BASE=$PWD
+	cd $FASTJET_DIR
+	./configure --prefix=$FASTJET_BASE
+	make -j
+	make check -j
+	make install -j
+	cd ..
+	svn checkout http://fastjet.hepforge.org/svn/contrib/trunk fjcontrib 
+    	cd fjcontrib
+	./scripts/update-contribs.sh 
+	./configure --fastjet-config=$FASTJET_BASE/bin/fastjet-config CXXFLAGS="-I$FASTJET_BASE/include -I$FASTJET_BASE/tools"
+	make -j
+	make check -j
+	make install -j
+	make fragile-shared -j
+	make fragile-shared-install -j
+	cd ..
+	cd ..
+	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet.xml | sed -e "s%/cvmfs/cms.cern.ch/$SCRAM_ARCH/external/fastjet/3.1.0%$FASTJET_BASE%g" > fastjet.xml
+	cat fastjet.xml | sed -e "s%<lib name=\"fastjet\"/>%<lib name=\"fastjet\"/> <lib name=\"fastjetcontribfragile\"/>%g" > fastjet2.xml
+	mv fastjet2.xml fastjet.xml
+	mv fastjet.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
+    	scram setup fastjet
+	cmsenv
+
+
+
