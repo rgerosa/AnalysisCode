@@ -37,7 +37,7 @@ def addPileupJetID(process,jetCollection,postfix,isMC):
     from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets 
         
     ## add pileup jet id modules for the jetCollection
-    setattr(process,'pileupJetId'+postfix,
+    setattr(process,'puid'+postfix,
             pileupJetId.clone(
             jets     = cms.InputTag(jetCollection),
             rho      = cms.InputTag("fixedGridRhoFastjetAll"),
@@ -46,8 +46,8 @@ def addPileupJetID(process,jetCollection,postfix,isMC):
             inputIsCorrected = cms.bool(True))) ## if already calibrated jets are parsed, there is no need to re-calibrate
 
     if "Puppi" in postfix or "puppi" in postfix or "PUPPI" in postfix:
-        getattr(process,'pileupJetId'+postfix).jec = cms.string("AK4PFPuppi")
-
+        getattr(process,'puid'+postfix).jec = cms.string("AK4PFPuppi")
+        
 
     ## modify jets                                                                                                                                                           
     if not hasattr(process,jetCollection+"PUID"):
@@ -58,7 +58,7 @@ def addPileupJetID(process,jetCollection,postfix,isMC):
 
 
         ## add info inside PAT jets
-        getattr(process,jetCollection+"PUID").userData.userFloats.src = cms.VInputTag("pileupJetId"+postfix+":fullDiscriminant");
+        getattr(process,jetCollection+"PUID").userData.userFloats.src = cms.VInputTag("puid"+postfix+":fullDiscriminant");
 
     return jetCollection+"PUID";
 

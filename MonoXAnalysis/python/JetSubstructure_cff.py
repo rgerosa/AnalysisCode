@@ -104,7 +104,8 @@ def runGroomedMethod(process, isMC,
             genParticles     = cms.InputTag("prunedGenParticles")
             )
 
-        getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
+        if  "Puppi" in payloadName:
+            getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
 
 
     ## matched fat jet with groomed one adding info as user float                                                                                                            
@@ -229,7 +230,8 @@ def runGroomedMethod(process, isMC,
                 groomedFatJets=cms.InputTag(jetCollection+postfix), # needed for subjet flavor clustering
                 ) 
 
-            getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
+            if  "Puppi" in payloadName:
+                getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
 
         ## adding sub-jet QGL
         if addQGLikelihood:

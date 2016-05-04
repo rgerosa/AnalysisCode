@@ -194,6 +194,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     TRandom3 rand;
 
+    //    std::cout<<"new event "<<iEvent.id().event()<<std::endl;
+
     //muon info https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
     for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
         if (verticesH->size() == 0) continue;
@@ -227,6 +229,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         bool passeslooseid  = (*electronLooseIdH)[electronPtr];
         bool passestightid  = (*electronTightIdH)[electronPtr];
         bool passesheepid   = (*electronHeepIdH)[electronPtr];
+
+	//cout<<"electron pt "<<electrons_iter->pt()<<" eta "<<electrons_iter->eta()<<" dEta "<<electrons_iter->deltaEtaSuperClusterTrackAtVtx()<<" dPhi "<<electrons_iter->deltaPhiSuperClusterTrackAtVtx()<<" sigmaIetaIeta "<<electrons_iter->full5x5_sigmaIetaIeta()<<" HoverE "<<electrons_iter->hadronicOverEm()<<" dxy "<<electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())<<" dZ "<<electrons_iter->gsfTrack()->dz(verticesH->at(0).position())<<" ooemoop "<<std::abs(1.0 - electrons_iter->eSuperClusterOverP())*1.0/electrons_iter->ecalEnergy()<<" EoverP "<<electrons_iter->eSuperClusterOverP()<<" ecalEnergy "<<electrons_iter->ecalEnergy()<<" chIso "<<electrons_iter->pfIsolationVariables().sumChargedHadronPt<<" nhIso "<<electrons_iter->pfIsolationVariables().sumNeutralHadronEt<<" emIso "<<electrons_iter->pfIsolationVariables().sumPhotonEt<<" rho "<<rho<<" missing hits "<<electrons_iter->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)<<endl;
 
         if (passeskincuts && passesvetoid) 
 	  outputelectrons->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
