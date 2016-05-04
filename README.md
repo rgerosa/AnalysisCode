@@ -141,9 +141,9 @@ Combine Package and ROOT 6
 Please have a look to the following twiki: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHiggsAnalysisCombinedLimit#ROOT6_SLC6_release_CMSSW_7_4_X
 
 
-==============================================
-Install a private release of fastjet + contrib 
-==============================================
+===============================================================================================================
+Install a private release of fastjet --> gives problems with cmssw 76X, not yet ready to switch to this version
+===============================================================================================================
 
 	cd $CMSSW_BASE/src
 	mkdir fastjet
@@ -161,25 +161,42 @@ Install a private release of fastjet + contrib
 	make -j
 	make check -j
 	make install -j
+	rm -r $FASTJET_BASE/fastjet-$FASTJET_VER
 	cd ..
+	cd ..
+	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet.xml | sed -e "s%/cvmfs/cms.cern.ch/$SCRAM_ARCH/external/fastjet/3.1.0%$FASTJET_BASE%g" > fastjet.xml
+	mv fastjet.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
+	scram setup fastjet
+	cmsenv
+	rm -r $FASTJET_BASE/$FASTJET_VER
+	
+=======================================================
+Install a private release of contrib compliant with 76X 
+=======================================================
+
+	mkdir fastjet-contrib
+	cd fastjet-contrib
+	export FASTJET_BASE=`scramv1 tool tag fastjet FASTJET_BASE`
+	export FASTJETCONTRIB_BASE=$PWD
 	svn checkout http://fastjet.hepforge.org/svn/contrib/trunk fjcontrib 
 	cd fjcontrib
+	cat contribs.svn | sed -e "s%ConstituentSubtractor            tags/1.1.1%ConstituentSubtractor            tags/1.0.0%g" > contribs.svn.temp
+	mv contribs.svn.temp contribs.svn
 	./scripts/update-contribs.sh 
-	./configure --fastjet-config=$FASTJET_BASE/bin/fastjet-config CXXFLAGS="-I$FASTJET_BASE/include -I$FASTJET_BASE/tools"
+	./configure --fastjet-config=$FASTJET_BASE/bin/fastjet-config --prefix=$PWD CXXFLAGS="-I$FASTJET_BASE/include -I$FASTJET_BASE/tools"
 	make -j
 	make check -j
 	make install -j
 	make fragile-shared -j
 	make fragile-shared-install -j
+	mv include/ ../
+	mv etc/ ../
+	mv lib/ ../
 	cd ..
+	rm -rf fjcontrib
 	cd ..
-	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet.xml | sed -e "s%/cvmfs/cms.cern.ch/$SCRAM_ARCH/external/fastjet/3.1.0%$FASTJET_BASE%g" > fastjet.xml
-	cat fastjet.xml | sed -e "s%<lib name=\"fastjet\"/>%<lib name=\"fastjet\"/> <lib name=\"fastjetcontribfragile\"/>%g" > fastjet2.xml
-	mv fastjet2.xml fastjet.xml
-	mv fastjet.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
-	scram setup fastjet
+	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet-contrib.xml | sed -e "s%/cvmfs/cms.cern.ch/slc6_amd64_gcc493/external/fastjet-contrib/1.020%$FASTJETCONTRIB_BASE%g" > fastjet-contrib.xml
+	mv fastjet-contrib.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
+	scram setup fastjet-contrib
 	cmsenv
-	rm -r $FASTJET_BASE/$FASTJET_VER
-	scramv1 b -j 4
-
-
+	scramv1 b -j 4	
