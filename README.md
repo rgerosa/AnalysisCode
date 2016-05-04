@@ -170,9 +170,9 @@ Install a private release of fastjet --> gives problems with cmssw 76X, not yet 
 	cmsenv
 	rm -r $FASTJET_BASE/$FASTJET_VER
 	
-=======================================================
-Install a private release of contrib compliant with 76X 
-=======================================================
+===========================================
+Install a private release of contrib in 76X 
+===========================================
 
 	mkdir fastjet-contrib
 	cd fastjet-contrib
@@ -200,3 +200,9 @@ Install a private release of contrib compliant with 76X
 	scram setup fastjet-contrib
 	cmsenv
 	scramv1 b -j 4	
+
+When doing "make check" one warning is appearing:
+
+WARNING from FastJet: Subtractor::_amount_to_subtract(...): Background estimator indicates non-zero rho_m, but use_rho_m()==false in subtractor; consider calling set_use_rho_m(true) to include the rho_m information
+
+which should be not important
