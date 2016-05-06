@@ -169,6 +169,12 @@ Install a private release of fastjet --> gives problems with cmssw 76X, not yet 
 	scram setup fastjet
 	cmsenv
 	rm -r $FASTJET_BASE/$FASTJET_VER
+
+After the installation, in order to use properly the new fast-jet version, please andd and re-compile the following packages:
+
+      git cms-addpkg RecoBTag/SecondaryVertex 	
+      git cms-addpkg RecoJets/JetAlgorithms
+      git cms-addpkg PhysicsTools/JetMCAlgos
 	
 ===========================================
 Install a private release of contrib in 76X 
