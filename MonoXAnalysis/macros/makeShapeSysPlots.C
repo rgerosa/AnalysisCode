@@ -1,5 +1,6 @@
 #include "CMS_lumi.h"
 #include "histoUtils.h"
+#include "histoUtils2D.h"
 
 void makeShapeSysPlots(string inputFileName, string controlRegion, string process, string observable, string observableLatex, int category,
 		       string MediatorMass, string DMMass){

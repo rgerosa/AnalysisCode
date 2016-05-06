@@ -1,6 +1,7 @@
 #include <cmath>
 #include "CMS_lumi.h"
 #include "histoUtils.h"
+#include "histoUtils2D.h"
 
 using namespace std;
 

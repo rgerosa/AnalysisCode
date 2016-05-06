@@ -142,3 +142,65 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
   }
 }
 
+
+void changeInLatexName(string & variable){
+
+  if(variable == "met")
+    variable = "Recoil [GeV]";
+  else if(variable == "ht")
+    variable = "H_{T} [GeV]";
+  else if(variable == "mT")
+    variable = "m_{T} [GeV]";
+  else if(variable == "njet")
+    variable = "N_{jet}";
+  else if(variable == "nbjet")
+    variable = "N_{bjet}";
+  else if(variable == "dphiJJ")
+    variable = "#Delta#phi_{jj}";
+  else if(variable == "minDphiJJ")
+    variable = "min(#Delta#phi_{jj})";
+  else if(variable == "minDphiJ1J")
+    variable = "min(#Delta#phi_{j_{1}j})";
+  else if(variable == "mpruned")
+    variable = "m_{pruned} [GeV]";
+  else if(variable == "tau2tau1")
+    variable = "#tau_{2}/#tau_{1}";
+  else if(variable == "bosonPt")
+    variable = "p_{T}^{V} [GeV]";
+  else if(variable == "jetPt")
+    variable = "p_{T}^{jet} [GeV]";
+  else if(variable == "boostedJetPt")
+    variable = "p_{T}^{jet} [GeV]";
+
+}
+
+pair<string,string> observableName (string name, bool alongX = false){
+
+  stringstream name_tmp(name.c_str());
+  string segment;
+  vector<string> seglist;
+  while(getline(name_tmp, segment,'_')){
+    seglist.push_back(segment);
+  }
+
+  string variableX;
+  string variableY;
+
+  if(seglist.size() == 2){
+    variableX = seglist.back();
+    variableY = seglist.front();
+    changeInLatexName(variableX);
+    changeInLatexName(variableY);
+  }
+  else{
+    variableX = seglist.at(1);
+    variableY = seglist.front();
+    changeInLatexName(variableX);
+    changeInLatexName(variableY);
+  }
+
+  if(alongX)
+    return make_pair(variableX,variableY);
+  else
+    return make_pair(variableY,variableX);
+}

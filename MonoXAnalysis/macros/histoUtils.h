@@ -35,11 +35,14 @@ class VectorSorter{
   }
 };
 
-// define binnings for the different observables                                 
+////////////////////////////////////////////////////
+// define binnings for the different observables // 
+///////////////////////////////////////////////////                               
+
 vector<double> bins_monoV_met         = {250.,300.,350.,400.,500.,600.,750.,1000.};
+//vector<double> bins_monoV_met         = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_monoV_met_v2      = {250.,300.,350.,400.,500.,600.,700.,1000.};
 vector<double> bins_monoV_met_v3      = {250.,300.,350.,400.,500.,600.,800.,1000.};
-vector<double> bins_monoV_met_v4      = {250.,260.,275.,300.,325.,350.,375.,400.,450.,500.,550.,600.,700.,800.,1000.};
 vector<double> bins_substructure_met  = {200.,225.,250.,275.,300.,325,350.,400.,500.,600.,750.,1000.};
 vector<double> bins_monoJ_met         = {200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoJ_met_v2      = {200.,250.,300.,350.,400.,500.,600.,1000.};
@@ -99,24 +102,6 @@ vector<double> bins_substructure_nhfrac = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28
 vector<double> bins_monoJ_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 vector<double> bins_monoV_btagCSV = {0,0.03,0.06,0.09,0.12,0.15,0.18,0.21,0.24,0.27,0.30,0.33,0.36,0.39,0.42,0.45,0.48,0.51,0.54,0.57,0.60,0.63,0.66,0.69,0.72,0.75,0.78,0.81,0.84,0.87,0.91,0.94,0.96,0.98,1.};
 
-//###########  2D binnings
-
-vector<double> bins_monoJ_met_2D_v1  = {200.,230.,260.,300.,350.,400.,450.,500.,500.,600.,700.,800.,900.,1000.,1150.,1500.}; // to be used with 3 bins on the second observable 15x2 = 30 bins
-vector<double> bins_monoJ_met_2D_v2  = {200.,250.,300.,350,400.,500.,600.,700,850.,1000,1500.}; // to be used with 3 bins on the second observable 10x3 = 30 bins 
-vector<double> bins_monoJ_met_2D_v3  = {200.,250.,300.,400.,500.,600.,700,850.,1500.}; // to be used with 8 bins on the second observable 8x4 = 32 bins 
-
-vector<double> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
-vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
-vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
-vector<double> bins_monoJ_mT_2D       = {200.,300,400.,500,600.,800,1100,1400,2000.};
-
-vector<double> bins_monoJ_njet_2D_v1   = {1,2,3,8};
-vector<double> bins_monoJ_njet_2D_v2   = {1,2,3,4,8};
-vector<double> bins_monoJ_dphiJJ_2D_v1 = {-0.2,0.0,1.0,3.14};
-vector<double> bins_monoJ_dphiJJ_2D_v2 = {-0.2,0.0,0.6,1.5,3.14};
-vector<double> bins_monoJ_QGL_2D_v1    = {0.,0.20,1.};
-vector<double> bins_monoJ_QGL_2D_v2    = {0.,0.05,0.2,1.};
-
 // binning selections                                                                                                                                                          
 vector<double> selectBinning (string observable, int category){
 
@@ -157,13 +142,6 @@ vector<double> selectBinning (string observable, int category){
     return bins_monoV_tau2tau1;
   else if(observable == "tau2tau1" and category > 1)
     return bins_substructure_tau2tau1;
-
-  else if(observable == "ncjet" and category <= 1)
-    return bins_monoJ_njet;
-  else if(observable == "ncjet" and category > 1 and category <= 3)
-    return bins_monoV_njet;
-  else if(observable == "ncjet" and category > 3)
-    return bins_substructure_njet;
 
   else if(observable == "njet" and category <= 1)
     return bins_monoJ_njet;
@@ -246,99 +224,6 @@ vector<double> selectBinning (string observable, int category){
 
 }
 
-struct bin2D {
-  
-  vector<double> binX;
-  vector<double> binY;
-
-};
-
-bin2D selectBinning2D (string observable, int category){
-
-  bin2D bins;
-
-  if(observable == "met_mpruned" and category <= 1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_mpruned_2D;
-    return bins;
-  }
-  else if(observable == "met_tau2tau1" and category <= 1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_tau2tau1_2D;
-    return bins;
-  }
-  else if(observable == "mpruned_tau2tau1" and category <=1){
-    bins.binX = bins_monoJ_mpruned_2D;
-    bins.binY = bins_monoJ_tau2tau1_2D;
-    return bins;
-  }
-  else if(observable == "met_njet_v1" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v1;
-    bins.binY = bins_monoJ_njet_2D_v1;
-    return bins;
-  }
-  else if(observable == "met_ncjet_v1" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_njet_2D;
-    return bins;
-  }
-  else if(observable == "met_njet_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v2;
-    bins.binY = bins_monoJ_njet_2D_v2;
-    return bins;
-  }
-  else if(observable == "met_ncjet_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v2;
-    bins.binY = bins_monoJ_njet_2D_v2;
-    return bins;
-  }
-  else if(observable == "met_ht" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v1;
-    bins.binY = bins_monoJ_ht_2D;
-    return bins;
-  }
-  else if(observable == "met_mT" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v1;
-    bins.binY = bins_monoJ_mT_2D;
-    return bins;
-  }
-  else if(observable == "mT_njet" and category <=1){
-    bins.binX = bins_monoJ_mT_2D;
-    bins.binY = bins_monoJ_njet_2D;
-    return bins;
-  }
-  else if(observable == "mT_njet_v2" and category <=1){
-    bins.binX = bins_monoJ_mT_2D;
-    bins.binY = bins_monoJ_njet_2D_v2;
-    return bins;
-  }
-
-  else if(observable == "met_QGL_v1" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v1;
-    bins.binY = bins_monoJ_QGL_2D_v1;
-    return bins;    
-  }
-  else if(observable == "met_QGL_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D_v2;
-    bins.binY = bins_monoJ_QGL_2D_v2;
-    return bins;    
-  }
-
-  else if((observable == "met_dphiJJ_v1" or observable == "met_minDphiJJ_v1" or observable == "met_minDphiJ1J_v1") and category <=1){
-    bins.binX = bins_monoJ_met_2D_v1;
-    bins.binY = bins_monoJ_dphiJJ_2D_v1;
-    return bins;    
-  }
-  
-  else if((observable == "met_dphiJJ_v2" or observable == "met_minDphiJJ_v2" or observable == "met_minDphiJ1J_v2") and category <=1){
-    bins.binX = bins_monoJ_met_2D_v2;
-    bins.binY = bins_monoJ_dphiJJ_2D_v2;
-    return bins;    
-  }
-  
-  return bins;
-}
-
 // to smooth empty bins in TH1
 void smoothEmptyBins(TH1* hist, int nsteps = 2){
 
@@ -357,49 +242,13 @@ void smoothEmptyBins(TH1* hist, int nsteps = 2){
   }
 }
 
-// to smooth empty bins in TH2
-void smoothEmptyBins(TH2* hist, int nsteps = 1){
-  for(int xBin = 1 ; xBin <= hist->GetNbinsX(); xBin++){
-    for(int yBin = 1 ; yBin <= hist->GetNbinsY(); yBin++){
-      if(hist->GetBinContent(xBin,yBin) <= 0 or hist->GetBinError(xBin,yBin) >= hist->GetBinContent(xBin,yBin)){
-        float average = 0.;
-        for(int jBin = xBin -nsteps; jBin < xBin+nsteps; jBin++){
-          for(int kBin = yBin -nsteps; kBin < yBin+nsteps; kBin++){
-            if(jBin == xBin and kBin == yBin) continue;
-            if((jBin > 0 and jBin <= hist->GetNbinsX()) and (kBin > 0 and kBin <= hist->GetNbinsY())){
-              average += hist->GetBinContent(jBin,kBin);
-            }
-          }
-        }
-        hist->SetBinContent(xBin,yBin,average/((nsteps*2+1)*(nsteps*2+1)-1));
-        hist->SetBinError(xBin,yBin,hist->GetBinContent(xBin,yBin)*2);
-      }
-    }
-  }
-}
-
 // make the average of two histograms (TH1)
 void makeAverage(TH1* histo, TH1* histo_2){
 
-  if(histo_2->Integral() != 0 and histo->Integral() != 0){ // sanity check to understand if the second has been filled
+  if(histo_2->Integral() != 0){ // sanity check to understand if the second has been filled
     for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
       histo->SetBinContent(iBin+1,(histo->GetBinContent(iBin+1)+histo_2->GetBinContent(iBin+1))/2);
       histo->SetBinError(iBin+1,sqrt(histo->GetBinError(iBin+1)*histo->GetBinError(iBin+1)+histo_2->GetBinError(iBin+1)*histo_2->GetBinError(iBin+1))*0.5);
-    }
-  }
-}
-
-
-// make the average of two histograms (TH2)
-void makeAverage(TH2* histo, TH2* histo_2){
-
-  if(histo_2->Integral() != 0 and histo->Integral() != 0){ // sanity check to understand if the second has been filled
-    for(int iBinX = 0; iBinX < histo->GetNbinsX(); iBinX++){
-      for(int iBinY = 0; iBinY < histo->GetNbinsY(); iBinY++){
-	histo->SetBinContent(iBinX+1,iBinY+1,(histo->GetBinContent(iBinX+1,iBinY+1)+histo_2->GetBinContent(iBinX+1,iBinY+1))/2);
-	histo->SetBinError(iBinX+1,iBinY+1,sqrt(histo->GetBinError(iBinX+1,iBinY+1)*histo->GetBinError(iBinX+1,iBinY+1)+
-						histo_2->GetBinError(iBinX+1,iBinY+1)*histo_2->GetBinError(iBinX+1,iBinY+1))*0.5);
-      }
     }
   }
 }
@@ -424,238 +273,69 @@ void fixShapeUncertainty(TH1* nominalHisto, TH1* sysHisto, int xBin, float xValu
   }
 }
 
-// un-roll a 2D histo into a TH1 with nxm bins from 0 to nxm
-// alongX when true means that the 2D histogram is un-rolled looping in x,y order, when false in y,x
-TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = true){
+// dummy bin content
+void addDummyBinContent(TH1* histo){
 
-  vector<double> axisLimit;
-  for(int binLimit = 0.; binLimit <= nominalHisto->GetNbinsX()*nominalHisto->GetNbinsY(); binLimit++)
-    axisLimit.push_back(double(binLimit));
-
-  TH1F* unrolledHist = new TH1F(TString(nominalHisto->GetName()).ReplaceAll("_2D",""),"",axisLimit.size()-1,&axisLimit[0]);
-  unrolledHist->Sumw2();
-  
-  if(alongX){
-    int iBin = 1; // for 1D histo
-    for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ // overflow already included by makehist.h
-      for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ 
-	unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
-	unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
-	iBin++;
-      }
-    }
-  }
-  else{
-
-    int iBin = 1; // for 1D histo
-    for(int iBinY = 1; iBinY <= nominalHisto->GetNbinsY(); iBinY++){ // overflow already included by makehist.h
-      for(int iBinX = 1; iBinX <= nominalHisto->GetNbinsX(); iBinX++){ 
-	unrolledHist->SetBinContent(iBin,nominalHisto->GetBinContent(iBinX,iBinY));
-	unrolledHist->SetBinError(iBin,nominalHisto->GetBinError(iBinX,iBinY));
-	iBin++;
-      }
-    }
-  }
-
-  return dynamic_cast<TH1*>(unrolledHist);  
-}
-
-// re-construct the 2D histo from the 1D unrolled ones
-TH2* roll2DHistograms(TH1* nominalHisto, const string & observable_2D, const int & category, bool alongX = true){
-
-  bin2D bins = selectBinning2D(observable_2D,category);
-  TH2F* outputHisto = new TH2F(Form("%s_2D",nominalHisto->GetName()),"",bins.binX.size()-1,&bins.binX[0],bins.binY.size()-1,&bins.binY[0]);
-
-  if(outputHisto->GetNbinsX()*outputHisto->GetNbinsY() != nominalHisto->GetNbinsX())
-    cout<<"roll2DHistograms: Huston we have a problem with binning --> please check"<<endl;
-
-  if(alongX){
-    int iBinX = 1; 
-    for(int iBin = 1; iBin < nominalHisto->GetNbinsX(); iBin++){
-      if(iBin <= int((bins.binY.size()-1))){
-	outputHisto->SetBinContent(iBinX,iBin,nominalHisto->GetBinContent(iBin));
-	outputHisto->SetBinError(iBinX,iBin,nominalHisto->GetBinError(iBin));	
-      }
-      else{
-	outputHisto->SetBinContent(iBinX,iBin-(iBinX-1)*(bins.binY.size()-1),nominalHisto->GetBinContent(iBin));
-	outputHisto->SetBinError(iBinX,iBin-(iBinX-1)*(bins.binY.size()-1),nominalHisto->GetBinError(iBin));	
-      }
-      
-      if(iBin % (iBinX*(bins.binY.size()-1)) == 0)
-	iBinX++;
-    }
-  }
-  else{
-
-    int iBinY = 1;
-    for(int iBin = 1; iBin < nominalHisto->GetNbinsX(); iBin++){
-      if(iBin <= int((bins.binX.size()-1))){
-        outputHisto->SetBinContent(iBin,iBinY,nominalHisto->GetBinContent(iBin));
-        outputHisto->SetBinError(iBin,iBinY,nominalHisto->GetBinError(iBin));
-      }
-      else{
-	outputHisto->SetBinContent(iBin-(iBinY-1)*(bins.binX.size()-1),iBinY,nominalHisto->GetBinContent(iBin));
-        outputHisto->SetBinError(iBin-(iBinY-1)*(bins.binX.size()-1),iBinY,nominalHisto->GetBinError(iBin));
-      }
-
-      if(iBin > 1 and iBin % (iBinY*(bins.binX.size()-1)) == 0)
-        iBinY++;
-    }
-  }
-
-  return outputHisto;
-  
-}
-
-// from un-rolled hist, obtain a vector of 1D histograms recovering the real physical binning
-// when alongX is false means plot in bin of X, otherwise in bin of Y
-vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & observable_2D, const int & category, const bool & alongX = false, const string & suffix = ""){
-
-  vector<TH1F*> outputHistograms;  
-  bin2D bins = selectBinning2D(observable_2D,category);
-
-  if(alongX){
-
-    if(unrolledHisto->GetNbinsX() % (bins.binY.size()-1) != 0)
-	cerr<<"transforUnrolledHistogram: Problem with binning --> please check"<<endl;
-      
-    for(size_t iBinX = 1; iBinX <= (bins.binX.size()-1); iBinX++){
-      if(suffix == "")
-	outputHistograms.push_back(new TH1F(Form("%s_binX_%d",unrolledHisto->GetName(),int(iBinX)),"",bins.binY.size()-1,&bins.binY[0]));
-      else
-	outputHistograms.push_back(new TH1F(Form("%s_%s_binX_%d",unrolledHisto->GetName(),suffix.c_str(),int(iBinX)),"",bins.binY.size()-1,&bins.binY[0]));
-    }
-
-    int nstep = 1;
-    for(int iBinX = 1; iBinX <= unrolledHisto->GetNbinsX(); iBinX++){ // loop on x-axis and create a new histogram every bins.binY bins      
-      outputHistograms.at(nstep-1)->SetBinContent(iBinX-(nstep-1)*(bins.binY.size()-1),unrolledHisto->GetBinContent(iBinX));
-      outputHistograms.at(nstep-1)->SetBinError(iBinX-(nstep-1)*(bins.binY.size()-1),unrolledHisto->GetBinError(iBinX));	
-
-      if(iBinX > 1 and iBinX %(nstep*(bins.binY.size()-1)) == 0)
-	nstep++;
-      
-    }
-    return outputHistograms;
-  }
-
-  else{ // do the same for bins belonging to the same y-axis one
-
-    if(unrolledHisto->GetNbinsX() % (bins.binX.size()-1) != 0)
-      cerr<<"transforUnrolledHistogram: Problem with binning --> please check"<<endl;
-      
-    for(size_t iBinY = 1; iBinY <= (bins.binY.size()-1); iBinY++){
-      if(suffix == "")
-	outputHistograms.push_back(new TH1F(Form("%s_binY_%d",unrolledHisto->GetName(),int(iBinY)),"",bins.binX.size()-1,&bins.binX[0]));
-      else
-	outputHistograms.push_back(new TH1F(Form("%s_%s_binY_%d",unrolledHisto->GetName(),suffix.c_str(),int(iBinY)),"",bins.binX.size()-1,&bins.binX[0]));
-    }
-
-    for(size_t iBinY = 1; iBinY <= (bins.binY.size()-1); iBinY++){
-      int nstep = iBinY;     
-      int ntimes = 1;
-      for(int iBinX = 1; iBinX <= unrolledHisto->GetNbinsX(); iBinX++){
-
-	if(iBinX < int(iBinY)) continue;
-
-	if(int(iBinY) == iBinX){
-	  outputHistograms.at(iBinY-1)->SetBinContent(nstep-iBinY+1,unrolledHisto->GetBinContent(iBinX));
-	  outputHistograms.at(iBinY-1)->SetBinError(nstep-iBinY+1,unrolledHisto->GetBinError(iBinX));
-	}
-	else if(iBinX == nstep+ntimes*(int(bins.binY.size()-1))){
-	  ntimes++;
-	  outputHistograms.at(iBinY-1)->SetBinContent(ntimes,unrolledHisto->GetBinContent(iBinX));
-	  outputHistograms.at(iBinY-1)->SetBinError(ntimes,unrolledHisto->GetBinError(iBinX));
-	}	
-      }
-    }    
-    return outputHistograms;
+  cerr<<"addDummyBinContent: called for histo "<<histo->GetName()<<endl;
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    histo->SetBinContent(iBin+1,10.e-6);
+    histo->SetBinError(iBin+1,10.e-6);
   }
 
 }
 
-void changeInLatexName(string & variable){
+// maxium envelop between histograms
+TH1F* generateEnvelopeMax(vector<TH1F*> & histoVec){
 
-  if(variable == "met")
-    variable = "Recoil [GeV]";
-  else if(variable == "ht")
-    variable = "H_{T} [GeV]";
-  else if(variable == "mT")
-    variable = "m_{T} [GeV]";
-  else if(variable == "njet")
-    variable = "N_{jet}";
-  else if(variable == "nbjet")
-    variable = "N_{bjet}";
-  else if(variable == "dphiJJ")
-    variable = "#Delta#phi_{jj}";
-  else if(variable == "minDphiJJ")
-    variable = "min(#Delta#phi_{jj})";
-  else if(variable == "minDphiJ1J")
-    variable = "min(#Delta#phi_{j_{1}j})";
-  else if(variable == "mpruned")
-    variable = "m_{pruned} [GeV]";
-  else if(variable == "tau2tau1")
-    variable = "#tau_{2}/#tau_{1}";
-  else if(variable == "bosonPt")
-    variable = "p_{T}^{V} [GeV]";
-  else if(variable == "jetPt")
-    variable = "p_{T}^{jet} [GeV]";
-  else if(variable == "boostedJetPt")
-    variable = "p_{T}^{jet} [GeV]";
-
-}
-
-
-pair<string,string> observableName (string name, bool alongX = false){
-
-  stringstream name_tmp(name.c_str());
-  string segment;
-  vector<string> seglist;
-  while(getline(name_tmp, segment,'_')){
-    seglist.push_back(segment);
+  if(histoVec.size() == 0){
+    cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
+    return new TH1F();
   }
 
-  string variableX;
-  string variableY;
+  TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMax");
+  histo->Reset();
 
-  if(seglist.size() == 2){
-    variableX = seglist.back();
-    variableY = seglist.front();    
-    changeInLatexName(variableX);
-    changeInLatexName(variableY);
-  }
-  else{
-    variableX = seglist.at(1);
-    variableY = seglist.front();
-    changeInLatexName(variableX);
-    changeInLatexName(variableY);
-  }
-
-  if(alongX)
-    return make_pair(variableX,variableY);
-  else
-    return make_pair(variableY,variableX);
-}
-
-TH2* cloneHistoIncludingOverUnderFlow (TH2* histo){
-
-  vector<double> binX;
-  for(int iBinX = 0; iBinX <= histo->GetXaxis()->GetNbins()+2; iBinX++){
-    binX.push_back(histo->GetXaxis()->GetBinLowEdge(iBinX));
-  }
-  vector<double> binY;
-  for(int iBinY = 0; iBinY <= histo->GetYaxis()->GetNbins()+2; iBinY++){
-    binY.push_back(histo->GetYaxis()->GetBinLowEdge(iBinY));
-  }
-
-  TH2F* temp = new TH2F((string(histo->GetName())+"_clone").c_str(),"",int(binX.size()-1),&binX[0],int(binY.size()-1),&binY[0]);
-  
-  for(int iBinX = 1; iBinX <= temp->GetNbinsX(); iBinX++){
-    for(int iBinY = 1; iBinY <= temp->GetNbinsY(); iBinY++){
-	temp->SetBinContent(iBinX,iBinY,histo->GetBinContent(histo->FindBin(temp->GetXaxis()->GetBinCenter(iBinX),temp->GetYaxis()->GetBinCenter(iBinY))));
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    for(auto hist : histoVec){
+      if(hist->GetBinContent(iBin+1) > histo->GetBinContent(iBin+1) and histo->GetBinContent(iBin+1) != 0){
+        histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }
+      else if(histo->GetBinContent(iBin+1) == 0){
+        histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }
     }
   }
 
-  return dynamic_cast<TH2*>(temp);
+  return histo;
+
+}
+
+TH1F* generateEnvelopeMin(vector<TH1F*> & histoVec){
+
+  if(histoVec.size() == 0){
+    cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
+    return new TH1F();
+  }
+
+  TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMin");
+  histo->Reset();
+
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    for(auto hist : histoVec){
+      if(hist->GetBinContent(iBin+1) < histo->GetBinContent(iBin+1) and histo->GetBinContent(iBin+1) != 0){
+        histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }
+      else if(histo->GetBinContent(iBin+1) == 0){
+        histo->SetBinContent(iBin+1,hist->GetBinContent(iBin+1));
+        histo->SetBinError(iBin+1,hist->GetBinError(iBin+1));
+      }
+    }
+  }
+
+  return histo;
 
 }
 

@@ -237,8 +237,8 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
   vector<TH1*> zwjcorfa2hist;
   vector<TH1*> zwjcorpdfhist;
   
-  vector<TH1F*> sidebandZhist;
-  vector<TH1F*> sidebandWhist;
+  vector<TH1*> sidebandZhist;
+  vector<TH1*> sidebandWhist;
   
   vector<TH1*> topmucorbuphist;
   vector<TH1*> topmucorbdownhist;
@@ -710,7 +710,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   }
   else if(runHiggsInvisible and not runOnlyBackground){
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03},1);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.414E+04,3.782E+03,1.373E+03,1.066E+03},0);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.414E+04,3.782E+03,1.373E+03,7.612E+02,1.227E+02},0);
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02},1);
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02},1);
     signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01},1);

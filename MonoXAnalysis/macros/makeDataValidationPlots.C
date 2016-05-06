@@ -1,4 +1,5 @@
 #include "histoUtils.h"
+#include "histoUtils2D.h"
 #include "CMS_lumi.h"
 
 void makeDataValidationPlots(string inputFileName, int category, string observable, string observableLatex){

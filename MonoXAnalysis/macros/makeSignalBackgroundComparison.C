@@ -38,13 +38,13 @@ vector<double> bins_monoV_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 vector<double> bins_monoJ_njet        = {0.,1.,2.,3.,4.,5.,6.,7.,8.};
 
 vector<double> bins_monoV_mpr        = {65.,67.5,70.,72.5,75.,77.5,80.,82.5,85.,87.5,90.,92.5,95.,97.5,100.,102.5,105.};
-vector<double> bins_monoJ_mpr        = {0.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,44.,48.,52.,56.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.,104.,110.,116.,140.};
+vector<double> bins_monoJ_mpr        = {0.,4.,8.,12.,16.,20.,24.,28.,32.,36.,40.,44.,48.,52.,56.,60.,64.,68.,72.,76.,80.,84.,88.,92.,96.,100.,104.,110.,116.,125.,135.};
 vector<double> bins_monoV_QGL        = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 vector<double> bins_monoJ_QGL        = {0.,0.04,0.08,0.12,0.16,0.24,0.32,0.40,0.48,0.60,0.68,0.76,0.84,0.88,0.92,0.96,1.};
 vector<double> bins_monoJ_jetPt      = {100.,120.,140.,160.,180.,200.,230.,260,290,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
 vector<double> bins_monoV_jetPt      = {250,280,320,350,390,430,470,510,550,590,640,690,740,790,840,900,960,1020,1090,1160,1250};
-vector<double> bins_monoV_tau2tau1   = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
-vector<double> bins_monoJ_tau2tau1   = {0.,0.04,0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.90,1.};
+vector<double> bins_monoV_tau2tau1   = {0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
+vector<double> bins_monoJ_tau2tau1   = {0.08,0.12,0.16,0.20,0.24,0.28,0.32,0.36,0.40,0.44,0.48,0.52,0.56,0.60,0.64,0.68,0.72,0.76,0.80,0.84,0.88,0.92,0.96,1.};
 
 vector<int> color = {2,4,6,7,12,3,9,46};
 
@@ -62,7 +62,8 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 				    string bosonMode, // MonoW or MonoZ depending on which mono-V signal to display
 				    int    category, // 3 no monoV cuts, 1 mono-jet channel, 2 mono-V channel
 				    vector<string> Mphi,
-				    vector<string> Mchi
+				    vector<string> Mchi,
+				    bool   displayOnlyMonoV
 				    ){
 
   gROOT->SetBatch(1);
@@ -93,7 +94,7 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   cCanvas->SetBottomMargin(0.12);
   cCanvas->SetFrameBorderMode(0);
   
-  TLegend* legend = new TLegend(0.25,0.68,0.7,0.89);
+  TLegend* legend = new TLegend(0.18,0.68,0.7,0.89);
   legend->SetBorderSize(0);
   legend->SetFillColor(0);
   legend->SetFillStyle(0);
@@ -262,9 +263,6 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     string name = treeMonoV_Sig.at(iMass).first;
     TTreeFormula* formula_MV = new TTreeFormula((bosonMode+"_"+interactionModel+"_"+name+"_formula").c_str(),
 						cut.c_str(),treeMonoV_Sig.at(iMass).second);
-    TTreeFormula* formula_MJ = new TTreeFormula((jetMode+"_"+interactionModel+"_"+name+"_formula").c_str(),
-						cut.c_str(),treeMonoJet_Sig.at(iMass).second);
-    
     // allocate all the histograms
     cout<<"histogram name "<<bosonMode+"_"+interactionModel+"_"+name<<endl;
     leadingJetEta_monoV.push_back(new TH1F((bosonMode+"_"+interactionModel+"_"+name+"_leadingJetEta").c_str(),(bosonMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));  
@@ -378,22 +376,23 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     TTreeReaderValue<double> met_MV  (myReader_monoV,"t1pfmet");
     TTreeReaderValue<double> metphi_MV  (myReader_monoV,"t1pfmetphi");
 
-    TTreeReaderValue<double> xsec_MV         (myReader_monoV,"xsec");
-    TTreeReaderValue<double> wgt_MV          (myReader_monoV,"wgt");
-    TTreeReaderValue<double> wgtbtag_MV      (myReader_monoV,"wgtbtag");
-    TTreeReaderValue<double> wgtsum_MV       (myReader_monoV,"wgtsum");
+    //    TTreeReaderValue<double> xsec_MV         (myReader_monoV,"xsec");
+    //    TTreeReaderValue<double> wgt_MV          (myReader_monoV,"wgt");
+    //    TTreeReaderValue<double> wgtbtag_MV      (myReader_monoV,"wgtbtag");
+    //    TTreeReaderValue<double> wgtsum_MV       (myReader_monoV,"wgtsum");
     TTreeReaderValue<unsigned int> nvtx_MV   (myReader_monoV,"nvtx");
 
     int iEvent = 0;
     cout<<"Run on monoV events "<<treeMonoV_Sig.at(iMass).second->GetEntries()<<endl;
 
     while(myReader_monoV.Next()){
-      treeMonoV_Sig.at(iMass).second->GetEntry(iEvent);
-      if(iEvent %50000 == 0) cout<<"iEvent "<<iEvent<<endl;
+      treeMonoV_Sig.at(iMass).second->GetEntry(iEvent); 
+      cout.flush();
+      if(iEvent %5000 == 0) cout<<"\r"<<"iEvent "<<100*float(iEvent)/treeMonoV_Sig.at(iMass).second->GetEntries()<<" %";
       iEvent++;
       if(not formula_MV->EvalInstance()) continue;
 
-      float weight = (*wgtbtag_MV)*(puhist->GetBinContent(*nvtx_MV))*(trmhist->GetBinContent(trmhist->FindBin(*met_MV)));
+      float weight = (puhist->GetBinContent(*nvtx_MV))*(trmhist->GetBinContent(trmhist->FindBin(*met_MV)));
 
       if(boostedJetpt_MV->size()>0)
 	boostedJetPt_monoV.back()->Fill(boostedJetpt_MV->at(0),weight);
@@ -489,7 +488,7 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 	}
       }
     }
-  
+    std::cout<<std::endl;
     ////
     leadingJetEta_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_leadingJetEta").c_str(),(jetMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));  
     boostedJetEta_monoJet.push_back(new TH1F((jetMode+"_"+interactionModel+"_"+name+"_boostedJetEta").c_str(),(jetMode+"_"+interactionModel+"_"+name).c_str(),20,-2.5,2.5));  
@@ -585,130 +584,138 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     dRjj_monoJet.back()->Sumw2();
     mindRj1j_monoJet.back()->Sumw2();
 
-    TTreeReader myReader_monoJet(treeMonoJet_Sig.at(iMass).second);
-    TTreeReaderValue<vector<double> > boostedJetpt_MJ    (myReader_monoJet,"boostedJetpt");
-    TTreeReaderValue<vector<double> > boostedJeteta_MJ   (myReader_monoJet,"boostedJeteta");
-    TTreeReaderValue<vector<double> > boostedJetphi_MJ   (myReader_monoJet,"boostedJetphi");
-    TTreeReaderValue<vector<double> > boostedJetm_MJ     (myReader_monoJet,"boostedJetm");
-    TTreeReaderValue<vector<double> > boostedJettau2_MJ  (myReader_monoJet,"boostedJettau2");
-    TTreeReaderValue<vector<double> > boostedJettau1_MJ  (myReader_monoJet,"boostedJettau1");
-    TTreeReaderValue<vector<double> > boostedJetm_pr_MJ  (myReader_monoJet,"prunedJetm");
-    TTreeReaderValue<vector<double> > jetpt_MJ    (myReader_monoJet,"centraljetpt");
-    TTreeReaderValue<vector<double> > jeteta_MJ   (myReader_monoJet,"centraljeteta");
-    TTreeReaderValue<vector<double> > jetphi_MJ   (myReader_monoJet,"centraljetphi");
-    TTreeReaderValue<vector<double> > jetQGL_MJ   (myReader_monoJet,"centraljetQGL");
-    TTreeReaderValue<unsigned int> njets_MJ  (myReader_monoJet,"njets");
-    TTreeReaderValue<vector<double> > fwdjetpt_MJ  (myReader_monoJet,"forwardjetpt");
-    TTreeReaderValue<double> ht_MJ  (myReader_monoJet,"ht");
-    TTreeReaderValue<double> met_MJ  (myReader_monoJet,"t1pfmet");
-    TTreeReaderValue<double> metphi_MJ  (myReader_monoJet,"t1pfmetphi");
-    TTreeReaderValue<double> xsec_MJ         (myReader_monoJet,"xsec");
-    TTreeReaderValue<double> wgt_MJ          (myReader_monoJet,"wgt");
-    TTreeReaderValue<double> wgtbtag_MJ      (myReader_monoJet,"wgtbtag");
-    TTreeReaderValue<double> wgtsum_MJ       (myReader_monoJet,"wgtsum");
-    TTreeReaderValue<unsigned int> nvtx_MJ   (myReader_monoJet,"nvtx");
-
-    iEvent = 0;
-    cout<<"Run on mono-Jet events "<<treeMonoJet_Sig.at(iMass).second->GetEntries()<<endl;
-    while(myReader_monoJet.Next()){
-
-      float weight = (*wgtbtag_MJ)*(puhist->GetBinContent(*nvtx_MJ))*(trmhist->GetBinContent(trmhist->FindBin(*met_MJ)));
+    if(not displayOnlyMonoV){
       
-      treeMonoJet_Sig.at(iMass).second->GetEntry(iEvent);
-      if(iEvent %50000 == 0) cout<<"iEvent "<<iEvent<<endl;
-      iEvent++;
-      if(not formula_MJ->EvalInstance()) continue;
+      TTreeFormula* formula_MJ = new TTreeFormula((jetMode+"_"+interactionModel+"_"+name+"_formula").c_str(),
+						  cut.c_str(),treeMonoJet_Sig.at(iMass).second);
+    
+      TTreeReader myReader_monoJet(treeMonoJet_Sig.at(iMass).second);
+      TTreeReaderValue<vector<double> > boostedJetpt_MJ    (myReader_monoJet,"boostedJetpt");
+      TTreeReaderValue<vector<double> > boostedJeteta_MJ   (myReader_monoJet,"boostedJeteta");
+      TTreeReaderValue<vector<double> > boostedJetphi_MJ   (myReader_monoJet,"boostedJetphi");
+      TTreeReaderValue<vector<double> > boostedJetm_MJ     (myReader_monoJet,"boostedJetm");
+      TTreeReaderValue<vector<double> > boostedJettau2_MJ  (myReader_monoJet,"boostedJettau2");
+      TTreeReaderValue<vector<double> > boostedJettau1_MJ  (myReader_monoJet,"boostedJettau1");
+      TTreeReaderValue<vector<double> > boostedJetm_pr_MJ  (myReader_monoJet,"prunedJetm");
+      TTreeReaderValue<vector<double> > jetpt_MJ    (myReader_monoJet,"centraljetpt");
+      TTreeReaderValue<vector<double> > jeteta_MJ   (myReader_monoJet,"centraljeteta");
+      TTreeReaderValue<vector<double> > jetphi_MJ   (myReader_monoJet,"centraljetphi");
+      TTreeReaderValue<vector<double> > jetQGL_MJ   (myReader_monoJet,"centraljetQGL");
+      TTreeReaderValue<unsigned int> njets_MJ  (myReader_monoJet,"njets");
+      TTreeReaderValue<vector<double> > fwdjetpt_MJ  (myReader_monoJet,"forwardjetpt");
+      TTreeReaderValue<double> ht_MJ  (myReader_monoJet,"ht");
+      TTreeReaderValue<double> met_MJ  (myReader_monoJet,"t1pfmet");
+      TTreeReaderValue<double> metphi_MJ  (myReader_monoJet,"t1pfmetphi");
+      //      TTreeReaderValue<double> xsec_MJ         (myReader_monoJet,"xsec");
+      //      TTreeReaderValue<double> wgt_MJ          (myReader_monoJet,"wgt");
+      //      TTreeReaderValue<double> wgtbtag_MJ      (myReader_monoJet,"wgtbtag");
+      //      TTreeReaderValue<double> wgtsum_MJ       (myReader_monoJet,"wgtsum");
+      TTreeReaderValue<unsigned int> nvtx_MJ   (myReader_monoJet,"nvtx");
       
-      if(boostedJetpt_MJ->size()>0)
-	boostedJetPt_monoJet.back()->Fill(boostedJetpt_MJ->at(0),weight);
-      if(boostedJeteta_MJ->size()>0)
-	boostedJetEta_monoJet.back()->Fill(boostedJeteta_MJ->at(0),weight);
-      if(boostedJettau2_MJ->size()>0 and boostedJettau1_MJ->size()>0 )
-	boostedJetTau2Tau1_monoJet.back()->Fill(boostedJettau2_MJ->at(0)/boostedJettau1_MJ->at(0),weight);
-      if(boostedJetm_pr_MJ->size()>0)
-	boostedPrunedJetm_monoJet.back()->Fill(boostedJetm_pr_MJ->at(0),weight);
-      if(jetpt_MJ->size()>0)
-	leadingJetPt_monoJet.back()->Fill(jetpt_MJ->at(0),weight);
-      if(jeteta_MJ->size()>0)
-	leadingJetEta_monoJet.back()->Fill(jeteta_MJ->at(0),weight);
-      if(jetQGL_MJ->size()>0)
-	leadingJetQGL_monoJet.back()->Fill(jetQGL_MJ->at(0),weight);
-
-      njets_monoJet.back()->Fill(*njets_MJ,weight);
-      njets_fwd_monoJet.back()->Fill(*njets_MJ+fwdjetpt_MJ->size(),weight);
-      ht_monoJet.back()->Fill(*ht_MJ,weight);
-      met_monoJet.back()->Fill(*met_MJ,weight);
-
-      if(jetpt_MJ->size()>0){
-	float deltaPhi = fabs(jetphi_MJ->at(0)-*metphi_MJ);
-	if(deltaPhi > TMath::Pi())
-	  deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
-	mT_monoJet.back()->Fill(sqrt(2*jetpt_MJ->at(0)*(*met_MJ)*(1-cos(deltaPhi))),weight);
-      }
-      //////
-      if(jetphi_MJ->size() < 2){
-	dphijj_monoJet.back()->Fill(dphijj_monoJet.back()->GetBinCenter(1),weight);
-	dRjj_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
-      }
-      else{
-	if(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)) > TMath::Pi()){
-	  dphijj_monoJet.back()->Fill(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
-	  dRjj_monoJet.back()->Fill(sqrt(TMath::Power(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+      iEvent = 0;
+      cout<<"Run on mono-Jet events "<<treeMonoJet_Sig.at(iMass).second->GetEntries()<<endl;
+      while(myReader_monoJet.Next()){
+	
+	float weight = (puhist->GetBinContent(*nvtx_MJ))*(trmhist->GetBinContent(trmhist->FindBin(*met_MJ)));
+	
+	treeMonoJet_Sig.at(iMass).second->GetEntry(iEvent);
+	cout.flush();
+	if(iEvent %5000 == 0) cout<<"\r"<<"iEvent "<<100*float(iEvent)/treeMonoJet_Sig.at(iMass).second->GetEntries()<<" %";
+	iEvent++;
+	if(not formula_MJ->EvalInstance()) continue;
+	
+	if(boostedJetpt_MJ->size()>0)
+	  boostedJetPt_monoJet.back()->Fill(boostedJetpt_MJ->at(0),weight);
+	if(boostedJeteta_MJ->size()>0)
+	  boostedJetEta_monoJet.back()->Fill(boostedJeteta_MJ->at(0),weight);
+	if(boostedJettau2_MJ->size()>0 and boostedJettau1_MJ->size()>0 )
+	  boostedJetTau2Tau1_monoJet.back()->Fill(boostedJettau2_MJ->at(0)/boostedJettau1_MJ->at(0),weight);
+	if(boostedJetm_pr_MJ->size()>0)
+	  boostedPrunedJetm_monoJet.back()->Fill(boostedJetm_pr_MJ->at(0),weight);
+	if(jetpt_MJ->size()>0)
+	  leadingJetPt_monoJet.back()->Fill(jetpt_MJ->at(0),weight);
+	if(jeteta_MJ->size()>0)
+	  leadingJetEta_monoJet.back()->Fill(jeteta_MJ->at(0),weight);
+	if(jetQGL_MJ->size()>0)
+	  leadingJetQGL_monoJet.back()->Fill(jetQGL_MJ->at(0),weight);
+	
+	njets_monoJet.back()->Fill(*njets_MJ,weight);
+	njets_fwd_monoJet.back()->Fill(*njets_MJ+fwdjetpt_MJ->size(),weight);
+	ht_monoJet.back()->Fill(*ht_MJ,weight);
+	met_monoJet.back()->Fill(*met_MJ,weight);
+	
+	if(jetpt_MJ->size()>0){
+	  float deltaPhi = fabs(jetphi_MJ->at(0)-*metphi_MJ);
+	  if(deltaPhi > TMath::Pi())
+	    deltaPhi = fabs(2*TMath::Pi() - deltaPhi);
+	  mT_monoJet.back()->Fill(sqrt(2*jetpt_MJ->at(0)*(*met_MJ)*(1-cos(deltaPhi))),weight);
+	}
+	//////
+	if(jetphi_MJ->size() < 2){
+	  dphijj_monoJet.back()->Fill(dphijj_monoJet.back()->GetBinCenter(1),weight);
+	  dRjj_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
 	}
 	else{
-	  dphijj_monoJet.back()->Fill(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
-	  dRjj_monoJet.back()->Fill(sqrt(TMath::Power(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
-	}	
-      }
-      
-      if(jetphi_MJ->size() < 2){
-	mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
-	mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
-	mindRj1j_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
-      }
-      else{
-	float minDphijj  = 2*TMath::Pi();
-	float minDphij1j = 2*TMath::Pi();
-	bool  isfound_jj  = false;
-	bool  isfound_j1j = false;
-	for(size_t ijet = 0 ; ijet < jetphi_MJ->size(); ijet++){
-	  for(size_t jjet = ijet+1 ; jjet < jetphi_MJ->size(); jjet++){
-	    float deltaPhi = fabs(jetphi_MJ->at(ijet)-jetphi_MJ->at(jjet));
-	    if(jetpt_MJ->at(ijet) < 30 or jetpt_MJ->at(jjet) < 30) continue;
-	    if(deltaPhi > TMath::Pi())
-	      deltaPhi = 2*TMath::Pi() - deltaPhi;
-	    if(deltaPhi > 0 and deltaPhi < minDphijj){
-	      minDphijj  = deltaPhi;
-	      isfound_jj = true;
+	  if(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)) > TMath::Pi()){
+	    dphijj_monoJet.back()->Fill(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
+	    dRjj_monoJet.back()->Fill(sqrt(TMath::Power(2*TMath::Pi()-fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	  }
+	  else{
+	    dphijj_monoJet.back()->Fill(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),weight);
+	    dRjj_monoJet.back()->Fill(sqrt(TMath::Power(fabs(jetphi_MJ->at(0)-jetphi_MJ->at(1)),2)+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	  }	
+	}
+	
+	if(jetphi_MJ->size() < 2){
+	  mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
+	  mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
+	  mindRj1j_monoJet.back()->Fill(dRjj_monoJet.back()->GetBinCenter(1),weight);
+	}
+	else{
+	  float minDphijj  = 2*TMath::Pi();
+	  float minDphij1j = 2*TMath::Pi();
+	  bool  isfound_jj  = false;
+	  bool  isfound_j1j = false;
+	  for(size_t ijet = 0 ; ijet < jetphi_MJ->size(); ijet++){
+	    for(size_t jjet = ijet+1 ; jjet < jetphi_MJ->size(); jjet++){
+	      float deltaPhi = fabs(jetphi_MJ->at(ijet)-jetphi_MJ->at(jjet));
+	      if(jetpt_MJ->at(ijet) < 30 or jetpt_MJ->at(jjet) < 30) continue;
+	      if(deltaPhi > TMath::Pi())
+		deltaPhi = 2*TMath::Pi() - deltaPhi;
+	      if(deltaPhi > 0 and deltaPhi < minDphijj){
+		minDphijj  = deltaPhi;
+		isfound_jj = true;
+	      }
 	    }
 	  }
-	}
-	for(size_t jjet = 1 ; jjet < jetphi_MJ->size(); jjet++){
-	  if(jetpt_MJ->at(0) < 30 or jetpt_MJ->at(jjet) < 30) continue;
-	  float deltaPhi = fabs(jetphi_MJ->at(0)-jetphi_MJ->at(jjet));
-	  if(deltaPhi > TMath::Pi())
-	    deltaPhi = 2*TMath::Pi() - deltaPhi;
-	  if(deltaPhi > 0 and deltaPhi < minDphij1j){
-	    minDphij1j  = deltaPhi;
-	    isfound_j1j = true;
+	  for(size_t jjet = 1 ; jjet < jetphi_MJ->size(); jjet++){
+	    if(jetpt_MJ->at(0) < 30 or jetpt_MJ->at(jjet) < 30) continue;
+	    float deltaPhi = fabs(jetphi_MJ->at(0)-jetphi_MJ->at(jjet));
+	    if(deltaPhi > TMath::Pi())
+	      deltaPhi = 2*TMath::Pi() - deltaPhi;
+	    if(deltaPhi > 0 and deltaPhi < minDphij1j){
+	      minDphij1j  = deltaPhi;
+	      isfound_j1j = true;
+	    }
+	  }
+	  
+	  if(isfound_jj)
+	    mindphijj_monoJet.back()->Fill(minDphijj,weight);
+	  else 
+	    mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
+	  
+	  if(isfound_j1j){
+	    mindphij1j_monoJet.back()->Fill(minDphij1j,weight);
+	    mindRj1j_monoJet.back()->Fill(sqrt(minDphij1j*minDphij1j+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
+	  }
+	  else{
+	    mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
+	    mindRj1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
 	  }
 	}
-      
-	if(isfound_jj)
-	  mindphijj_monoJet.back()->Fill(minDphijj,weight);
-	else 
-	  mindphijj_monoJet.back()->Fill(mindphijj_monoJet.back()->GetBinCenter(1),weight);
-
-	if(isfound_j1j){
-	  mindphij1j_monoJet.back()->Fill(minDphij1j,weight);
-	  mindRj1j_monoJet.back()->Fill(sqrt(minDphij1j*minDphij1j+TMath::Power(jeteta_MJ->at(0)-jeteta_MJ->at(1),2)),weight);
-	}
-	else{
-	  mindphij1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
-	  mindRj1j_monoJet.back()->Fill(mindphij1j_monoJet.back()->GetBinCenter(1),weight);
-	}
       }
-    }
+      std::cout<<std::endl;
+    }    
   }
     
   cout<<"Backgroud analysis"<<endl;
@@ -821,9 +828,9 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   int iEvent = 0;
   cout<<"Run on Znunu events "<<backgroundZnunu->GetEntries()<<endl;
   while(myReader.Next()){
-    
     backgroundZnunu->GetEntry(iEvent);
-    if(iEvent %50000 == 0) cout<<"iEvent "<<iEvent<<endl;
+    cout.flush();
+    if(iEvent %25000 == 0) cout<<"\r"<<"iEvent "<<100*float(iEvent)/backgroundZnunu->GetEntries()<<" %";
     iEvent++;
     if(not formula_bkg->EvalInstance()) continue;
 
@@ -931,9 +938,9 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
       }
     }
   }
-
+  std::cout<<std::endl;
   // make single plots
-  if(category == 0){
+  if(category == 0 and not displayOnlyMonoV){
     
     makeShapePlots(cCanvas,boostedJetPt_monoV,boostedJetPt_monoJet,boostedJetPt_bkg,
 		   legend,outputDirectory,"jetPt","p_{T}^{AK8} (GeV)");
@@ -1012,7 +1019,7 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 		   legend,outputDirectory,"mindRj1j","min(#DeltaR(j_{1},j))");    
 
   }
-  else if(category == 2){
+  else if(category == 2 or (category == 0 and displayOnlyMonoV)){
 
     makeShapePlots(cCanvas,boostedJetPt_monoV,boostedJetPt_bkg,
 		   legend,outputDirectory,"jetPt","p_{T}^{AK8} (GeV)");
@@ -1073,7 +1080,7 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
   tex2->SetTextFont(61);
   tex2->SetTextSize(0.04);
   tex2->SetLineWidth(2);
-  TLatex * tex3 = new TLatex(0.286,0.92,"Preliminary Simulation");
+  TLatex * tex3 = new TLatex(0.276,0.92,"Preliminary Simulation");
   tex3->SetNDC();
   tex3->SetTextFont(52);
   tex3->SetTextSize(0.035);
@@ -1114,9 +1121,11 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
   histoBkg->SetLineColor(kBlack);
   histoBkg->SetLineWidth(2);
   histoBkg->SetFillColor(kGray);
-  histoBkg->SetFillStyle(3001);
+  histoBkg->GetXaxis()->SetTitleOffset(1.15);
   histoBkg->GetXaxis()->SetTitle(xAxisTitle.c_str());
   histoBkg->GetYaxis()->SetRangeUser(0,maxYScale*1.5);
+  histoBkg->GetYaxis()->SetTitle("a.u.");
+  histoBkg->GetYaxis()->SetTitleOffset(1.15);
   histoBkg->Draw("hist");
 
   legend->AddEntry(histoBkg,histoBkg->GetTitle(),"FL");
@@ -1130,7 +1139,8 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
 
     histoList_MV.at(iHisto)->SetMarkerStyle(20);
     histoList_MV.at(iHisto)->SetMarkerSize(1.5);
-
+        
+    
     legend->AddEntry(histoList_MV.at(iHisto),histoList_MV.at(iHisto)->GetTitle(),"l");
     
     histoList_MV.at(iHisto)->Draw("histsame");
@@ -1161,9 +1171,9 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV, vector<TH1F*> 
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB.pdf").c_str(),"pdf");
 
   if(minYScale != 0)
-    histoBkg->GetYaxis()->SetRangeUser(minYScale*0.5,maxYScale*50);
+    histoBkg->GetYaxis()->SetRangeUser(minYScale*0.5,maxYScale*500);
   else
-    histoBkg->GetYaxis()->SetRangeUser(0.0001,maxYScale*50);
+    histoBkg->GetYaxis()->SetRangeUser(0.0001,maxYScale*500);
   cCanvas->SetLogy();
 
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB_log.png").c_str(),"png");
@@ -1219,12 +1229,18 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV,
   histoBkg->SetLineColor(kBlack);
   histoBkg->SetLineWidth(2);
   histoBkg->SetFillColor(kGray);
-  histoBkg->SetFillStyle(3001);
+  histoBkg->GetXaxis()->SetTitleOffset(0.97);
+  histoBkg->GetXaxis()->SetNdivisions(509);
+  histoBkg->GetYaxis()->SetNdivisions(509);
   histoBkg->GetXaxis()->SetTitle(xAxisTitle.c_str());
   histoBkg->GetYaxis()->SetRangeUser(0,maxYScale*1.5);
+  histoBkg->GetYaxis()->SetTitle("a.u.");
+  histoBkg->GetXaxis()->SetTitleSize(0.05);
+  histoBkg->GetYaxis()->SetTitleSize(0.05);
+  histoBkg->GetYaxis()->SetTitleOffset(1.27);
   histoBkg->Draw("hist");
 
-  legend->AddEntry(histoBkg,histoBkg->GetTitle(),"FL");
+  legend->AddEntry(histoBkg,histoBkg->GetTitle(),"F");
 
   int icolor = 0;
 
@@ -1237,8 +1253,33 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV,
     histoList_MV.at(iHisto)->SetMarkerStyle(20);
     histoList_MV.at(iHisto)->SetMarkerSize(1.5);
 
-    legend->AddEntry(histoList_MV.at(iHisto),histoList_MV.at(iHisto)->GetTitle(),"l");
+    string legendName;
+    TString title (histoList_MV.at(iHisto)->GetTitle());
+    if(title.Contains("Vector"))
+      legendName += "Mono-W Vector, ";
+    else if(title.Contains("Axial"))
+      legendName += "Mono-W Axial, ";
+    else if(title.Contains("Scalar"))
+      legendName += "Mono-W Scalar, ";
+    else if(title.Contains("Pseudoscalar"))
+      legendName += "Mono-W Pseudoscalar, ";
+
+    std::stringstream test(title.Data());
+    std::string segment;
+    std::vector<std::string> seglist;
+
+    while(std::getline(test, segment, '_')){
+      seglist.push_back(segment);
+    }
+
+    for(auto seg : seglist){
+      if(TString(seg).Contains("Mphi-"))
+	legendName += "m_{med} = "+TString(seg).ReplaceAll("Mphi-","")+" GeV, ";
+      else if(TString(seg).Contains("Mchi-"))
+	legendName += "m_{DM} = "+TString(seg).ReplaceAll("Mchi-","")+" GeV";
+    }
     
+    legend->AddEntry(histoList_MV.at(iHisto),legendName.c_str(),"l");
     histoList_MV.at(iHisto)->Draw("histsame");
     
   }
@@ -1249,8 +1290,8 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV,
   tex2->Draw("same");
   tex3->Draw("same");
   
-  cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB.png").c_str(),"png");
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB.pdf").c_str(),"pdf");
+  cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB.png").c_str(),"png");
 
   if(minYScale != 0)
     histoBkg->GetYaxis()->SetRangeUser(minYScale*0.5,maxYScale*1.5);
@@ -1258,7 +1299,7 @@ void makeShapePlots(TCanvas* cCanvas, vector<TH1F*> histoList_MV,
     histoBkg->GetYaxis()->SetRangeUser(0.0001,maxYScale*500);
   cCanvas->SetLogy();
 
-  cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB_log.png").c_str(),"png");
   cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB_log.pdf").c_str(),"pdf");
+  cCanvas->SaveAs((outputDirectory+"/"+plotName+"_SandB_log.png").c_str(),"png");
   cCanvas->SetLogy(0);  
 }

@@ -13,6 +13,7 @@
 #include "TString.h"
 
 #include "histoUtils.h"
+#include "histoUtils2D.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ const float tau2tau1LP    = 0.75;
 const float prunedMassMin = 65.;
 const float prunedMassMax = 105.;
 const float ptJetMinAK8   = 250.;
-const float jetEtaAK8     = 2.4;
+const float jetEtaAK8       = 2.4;
 const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge   = 0;
@@ -30,7 +31,6 @@ const int   nBjets         = 1;
 const bool reweightNVTX    = false;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_Wseparated_24bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS/Production-17-04-2016/";
 
@@ -69,7 +69,8 @@ void makehist4(TTree* tree, /*input tree*/
 	       bool   isHiggsInvisible  = false, // reject VBF events
 	       bool   applyPostFitWeight = false,
 	       float  XSEC = -1.,// fix the cross section from extern
-	       TH1*   hhist = NULL
+	       TH1*   hhist = NULL,
+	       TH2*   ggZHhist = NULL
 	       ) {
 
   if(not tree){
@@ -357,6 +358,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> phphi (myReader,"phphi");
   
   TTreeReaderValue<double> wzpt (myReader,"wzpt");
+  TTreeReaderValue<double> wzpt_h (myReader,"wzpt_h");
   TTreeReaderValue<double> wzeta (myReader,"wzeta");
   TTreeReaderValue<double> zmass (myReader,"zmass");
   TTreeReaderValue<double> zmmpt (myReader,"zpt");
@@ -640,7 +642,27 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t topptwgt = 1.0;
     if(reWeightTopPt)
       topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
+
+    // ggZH re-weight in case of a non null pointer                                                                                                                             
+    Double_t ggZHwgt = 1.0;
+    if(isHiggsInvisible and ggZHhist and isMC){
+      int binX = ggZHhist->GetXaxis()->FindBin(*dmpt);
+      int binY = 0;
+      if(*wzpt_h != 0)
+        binY = ggZHhist->GetYaxis()->FindBin(*wzpt_h);
+      else
+        binY = ggZHhist->GetYaxis()->FindBin(*wzpt);
+
+      if(binX == 0) binX = 1;
+      if(binY == 0) binY = 1;
+      if(binX == ggZHhist->GetNbinsX()+1) binX = ggZHhist->GetNbinsX();
+      if(binY == ggZHhist->GetNbinsY()+1) binY = ggZHhist->GetNbinsY();
+      ggZHwgt = ggZHhist->GetBinContent(binX,binY);
+      if(ggZHwgt == 0)
+        ggZHwgt = 1;
+    }
         
+
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
 
@@ -1074,17 +1096,17 @@ void makehist4(TTree* tree, /*input tree*/
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*pfwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt*pfwgt;
@@ -1242,17 +1264,17 @@ void makehist4(TTree* tree, /*input tree*/
 
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
 	  puwgt = puhist->GetBinContent(*nvtx);
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
       }
       if (!isMC && sample == 6) 
 	evtwgt = sfwgt;

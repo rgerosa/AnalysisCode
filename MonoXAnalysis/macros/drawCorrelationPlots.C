@@ -1,5 +1,6 @@
 #include "CMS_lumi.h"
 #include "histoUtils.h"
+#include "histoUtils2D.h"
 
 void drawCorrelationSignalAndBackground(string inputFileName, 
 					int category,
