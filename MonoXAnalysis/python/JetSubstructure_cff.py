@@ -120,11 +120,11 @@ def runGroomedMethod(process, isMC,
                                values  = cms.vstring("mass","pt","eta","phi",
                                                      "bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",
                                                      "bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",
-                                                     "correctedP4(0).mass()","correctedP4(0).pt()"),                               
+                                                     "correctedP4(0).mass()","correctedP4(0).pt()","correctedP4(0).eta()","correctedP4(0).phi()"),                             
                                valueLabels = cms.vstring("mass","pt","eta","phi",
                                                          "pfCombinedInclusiveSecondaryVertexV2BJetTags",
                                                          "pfBoostedDoubleSecondaryVertexAK8BJetTags",
-                                                         "rawmass","rawpt")))            
+                                                         "rawmass","rawpt","raweta","rawphi")))            
             
         if isMC:
             getattr(process,jetCollection+postfix+'Matched').valueLabels += ["hadronFlavour","partonFlavour","genMass","genPt","genEta","genPhi"]
@@ -138,6 +138,8 @@ def runGroomedMethod(process, isMC,
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:phi']                                                          
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawmass']                                                          
         getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawpt']                                                          
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:raweta']                                                          
+        getattr(process,'patJets'+jetCollection).userData.userFloats.src += [jetCollection+postfix+'Matched:rawphi']                                                          
 
 
         if isMC:
@@ -424,6 +426,16 @@ def JetSubstructure(process,
         if "Puppi" in pfCand or "puppi" in pfCand:
             getattr(process,"patJetCorrFactors"+jetCollection).useRho = cms.bool(False)
 
+        ### special jec set for pruned/sof-drop mass correction
+        if hasattr(process,"patJetCorrFactors"+jetCollection):
+            if isMC:
+                setattr(process,"patJetCorrFactors"+jetCollection+"v2",getattr(process,"patJetCorrFactors"+jetCollection).clone(
+                        levels = cms.vstring('L2Relative','L3Absolute')))
+            else:
+                setattr(process,"patJetCorrFactors"+jetCollection+"v2",getattr(process,"patJetCorrFactors"+jetCollection).clone(
+                        levels = cms.vstring('L2Relative','L3Absolute','L2L3Residual')))
+            
+            getattr(process,"patJets"+jetCollection).jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactors"+jetCollection),cms.InputTag("patJetCorrFactors"+jetCollection+"v2"));
 
     ## match reco-jets with hadronically decaying genBosons (W,Z,H)
     if isMC:

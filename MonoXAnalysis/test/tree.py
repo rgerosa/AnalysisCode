@@ -215,7 +215,6 @@ else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
 
-
 ## Set the process options -- Display summary at the end, enable unscheduled execution
 if options.nThreads == 1 or options.nThreads == 0:
 	process.options = cms.untracked.PSet( 

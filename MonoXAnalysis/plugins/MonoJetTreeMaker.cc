@@ -375,15 +375,20 @@ private:
   std::vector<double> boostedJetHFlav,boostedJetPFlav,boostedJetQGL,boostedJetBtag,boostedJetDoubleBtag;
   std::vector<double> boostedJetBosonpt,boostedJetBosoneta,boostedJetBosonphi,boostedJetBosonm;
 
-  std::vector<double> prunedJetpt,prunedJetm,prunedJetphi,prunedJeteta,prunedJetGenpt,prunedJetGenm,prunedJetGeneta,prunedJetGenphi;
+  std::vector<double> prunedJetpt,prunedJetm,prunedJetphi,prunedJeteta;
+  std::vector<double> prunedJetm_v2, prunedJetpt_v2, prunedJetphi_v2, prunedJeteta_v2;
+  std::vector<double> prunedJetGenpt,prunedJetGenm,prunedJetGeneta,prunedJetGenphi;
   std::vector<double> prunedJetptraw,prunedJetmraw;
   std::vector<double> prunedJetHFlav,prunedJetPFlav,prunedJetQGL,prunedJetBtag,prunedJetDoubleBtag;
 
-  std::vector<double> softDropJetpt,softDropJetm,softDropJeteta,softDropJetphi,softDropJetGenpt,softDropJetGenm,softDropJetGeneta,softDropJetGenphi;
+  std::vector<double> softDropJetpt,softDropJetm,softDropJeteta,softDropJetphi;
+  std::vector<double> softDropJetm_v2, softDropJetpt_v2, softDropJetphi_v2, softDropJeteta_v2;
+  std::vector<double> softDropJetGenpt,softDropJetGenm,softDropJetGeneta,softDropJetGenphi;
   std::vector<double> softDropJetHFlav,softDropJetPFlav,softDropJetQGL,softDropJetBtag,softDropJetDoubleBtag;
   std::vector<double> softDropJetptraw,softDropJetmraw;
 
-  std::vector<double> prunedSubJetpt_1,prunedSubJetm_1,prunedSubJetphi_1,prunedSubJeteta_1,prunedSubJetHFlav_1,prunedSubJetQGL_1,prunedSubJetBtag_1;
+  std::vector<double> prunedSubJetpt_1,prunedSubJetm_1,prunedSubJetphi_1,prunedSubJeteta_1;
+  std::vector<double> prunedSubJetHFlav_1,prunedSubJetQGL_1,prunedSubJetBtag_1;
   std::vector<double> prunedSubJetGenpt_1,prunedSubJetGenm_1,prunedSubJetGeneta_1,prunedSubJetGenphi_1,prunedSubJetPFlav_1;
   std::vector<double> prunedSubJetptraw_1,prunedSubJetmraw_1;
   std::vector<double> prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1;
@@ -413,11 +418,14 @@ private:
   std::vector<double> boostedPuppiJetHFlav,boostedPuppiJetPFlav,boostedPuppiJetQGL,boostedPuppiJetBtag,boostedPuppiJetDoubleBtag;
   std::vector<double> boostedPuppiJetBosonpt,boostedPuppiJetBosoneta,boostedPuppiJetBosonphi,boostedPuppiJetBosonm;
 
-  std::vector<double> prunedPuppiJetpt,prunedPuppiJetm,prunedPuppiJetphi,prunedPuppiJeteta, prunedPuppiJetGenpt,prunedPuppiJetGenm,prunedPuppiJetGeneta,prunedPuppiJetGenphi;
+  std::vector<double> prunedPuppiJetpt,prunedPuppiJetm,prunedPuppiJetphi,prunedPuppiJeteta;
+  std::vector<double> prunedPuppiJetm_v2, prunedPuppiJetpt_v2, prunedPuppiJetphi_v2, prunedPuppiJeteta_v2;
+  std::vector<double> prunedPuppiJetGenpt,prunedPuppiJetGenm,prunedPuppiJetGeneta,prunedPuppiJetGenphi;
   std::vector<double> prunedPuppiJetptraw,prunedPuppiJetmraw;
   std::vector<double> prunedPuppiJetHFlav,prunedPuppiJetPFlav,prunedPuppiJetQGL,prunedPuppiJetBtag,prunedPuppiJetDoubleBtag;
 
   std::vector<double> softDropPuppiJetpt,softDropPuppiJetm,softDropPuppiJeteta,softDropPuppiJetphi;
+  std::vector<double> softDropPuppiJetm_v2, softDropPuppiJetpt_v2, softDropPuppiJeteta_v2, softDropPuppiJetphi_v2;
   std::vector<double> softDropPuppiJetGenpt,softDropPuppiJetGenm,softDropPuppiJetGeneta,softDropPuppiJetGenphi;
   std::vector<double> softDropPuppiJetHFlav,softDropPuppiJetPFlav,softDropPuppiJetQGL,softDropPuppiJetBtag,softDropPuppiJetDoubleBtag;
   std::vector<double> softDropPuppiJetptraw,softDropPuppiJetmraw;
@@ -2207,11 +2215,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	prunedJetpt     .clear(); prunedJetm    .clear(); prunedJetGenpt.clear(); prunedJetGenm .clear();
 	prunedJeteta    .clear(); prunedJetphi  .clear(); prunedJetGeneta.clear(); prunedJetGenphi.clear();
+	prunedJetm_v2 .clear();   prunedJetpt_v2 .clear(); prunedJeteta_v2 .clear(); prunedJetphi_v2 .clear(); 
 	prunedJetHFlav  .clear(); prunedJetPFlav.clear(); prunedJetQGL  .clear(); prunedJetBtag .clear(); prunedJetDoubleBtag.clear();
 	prunedJetptraw  .clear(); prunedJetmraw .clear();
 
-	softDropJetpt   .clear(); softDropJetm.clear();    softDropJetGenpt.clear();  softDropJetGenm.clear(); 
-	softDropJetphi  .clear(); softDropJeteta.clear();  softDropJetGenphi.clear(); softDropJetGeneta.clear(); 
+	softDropJetpt   .clear(); softDropJetm.clear();    softDropJetGenpt.clear();  softDropJetGenm.clear(); 	
+	softDropJetphi  .clear(); softDropJeteta.clear();  softDropJetGenphi.clear(); softDropJetGeneta.clear();
+	softDropJetm_v2.clear(); softDropJetpt_v2.clear(); softDropJetphi_v2 .clear(); softDropJeteta_v2. clear();
 	softDropJetHFlav.clear(); softDropJetPFlav.clear();softDropJetQGL.clear();    softDropJetBtag.clear(); softDropJetDoubleBtag.clear();
 	softDropJetptraw.clear(); softDropJetmraw.clear();
 	
@@ -2251,7 +2261,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  boostedJetm   .push_back( jetsBoosted[i]->mass());	
 	  boostedJetBtag .push_back( jetsBoosted[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
 	  boostedJetDoubleBtag .push_back( jetsBoosted[i]->bDiscriminator("pfBoostedDoubleSecondaryVertexAK8BJetTags"));
-
 	  // N-jettiness
 	  if(jetsBoosted[i]->hasUserFloat("Njettiness"+boostedJetsCHSLabel+":tau1"))
 	    boostedJettau1 .push_back( jetsBoosted[i]->userFloat("Njettiness"+boostedJetsCHSLabel+":tau1"));
@@ -2345,11 +2354,35 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
 	    prunedJetDoubleBtag .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"));
 
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"))
-	    prunedJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"));
-
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawpt"))
 	    prunedJetptraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawpt"));
+
+	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass")){
+	    prunedJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"));
+	    if(jetsBoosted[i]->availableJECSets().size()>1 and 
+	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:raweta")	and
+	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawphi") and
+	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawpt")){
+	      
+	      TLorentzVector correctedP4;
+	      correctedP4.SetPtEtaPhiM(jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawpt"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:raweta"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawphi"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass")
+				       );
+	      correctedP4 *= 1./jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1));
+	      prunedJetm_v2 .push_back(correctedP4.M());
+	      prunedJetpt_v2 .push_back(correctedP4.Pt());
+	      prunedJeteta_v2 .push_back(correctedP4.Eta());
+	      prunedJetphi_v2 .push_back(correctedP4.Phi());
+	    }
+	    else{
+	      prunedJetm_v2 .push_back(0.);
+	      prunedJetpt_v2 .push_back(0.);
+	      prunedJeteta_v2 .push_back(0.);
+	      prunedJetphi_v2 .push_back(0.);
+	    }
+	  }
 
 	  if(isMC){
 	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:hadronFlavour"))
@@ -2388,11 +2421,36 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
 	    softDropJetDoubleBtag .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"));
 
-	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass"))
-	    softDropJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass"));
-
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:ptraw"))
 	    softDropJetptraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:ptraw"));
+
+	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass")){
+	    softDropJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass"));
+
+            if(jetsBoosted[i]->availableJECSets().size()>1 and
+               jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:raweta") and
+	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:rawphi") and 
+	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:rawpt")){
+
+              TLorentzVector correctedP4;
+	      correctedP4.SetPtEtaPhiM(jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawpt"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:raweta"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawphi"),
+				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"SoftDropMatched:rawmass")
+                                       );
+	      correctedP4 *= 1./jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1));
+              softDropJetm_v2 .push_back(correctedP4.M());
+              softDropJetpt_v2 .push_back(correctedP4.Pt());
+              softDropJeteta_v2 .push_back(correctedP4.Eta());
+              softDropJetphi_v2 .push_back(correctedP4.Phi());
+            }
+            else{
+              softDropJetm_v2 .push_back(0.);
+              softDropJetpt_v2 .push_back(0.);
+              softDropJeteta_v2 .push_back(0.);
+              softDropJetphi_v2 .push_back(0.);
+            }
+	  }
 
 	  if(isMC){
 	    if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"SoftDropMatched:hadronFlavour"))
@@ -2591,12 +2649,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	boostedPuppiJetBosonpt .clear(); boostedPuppiJetBosoneta .clear(); boostedPuppiJetBosonphi .clear(); boostedPuppiJetBosonm .clear();
 	
 	prunedPuppiJetpt     .clear(); prunedPuppiJetm      .clear(); prunedPuppiJetGenpt .clear(); prunedPuppiJetGenm  .clear();
+	prunedPuppiJetm_v2   .clear();
+	prunedPuppiJetpt_v2   .clear();
+	prunedPuppiJeteta_v2   .clear();
+	prunedPuppiJetphi_v2   .clear();
 	prunedPuppiJeteta     .clear(); prunedPuppiJetphi   .clear(); prunedPuppiJetGeneta .clear(); prunedPuppiJetGenphi  .clear();
 	prunedPuppiJetHFlav  .clear(); prunedPuppiJetPFlav  .clear(); prunedPuppiJetQGL   .clear(); prunedPuppiJetBtag  .clear();
 	prunedPuppiJetDoubleBtag  .clear(); prunedPuppiJetmraw .clear(); prunedPuppiJetptraw .clear();
 	
 
 	softDropPuppiJetpt    .clear(); softDropPuppiJetm .clear(); softDropPuppiJetGenpt .clear(); softDropPuppiJetGenm .clear(); 
+	softDropPuppiJetm_v2.clear();
+	softDropPuppiJetpt_v2.clear();
+	softDropPuppiJeteta_v2.clear();
+	softDropPuppiJetphi_v2.clear();
 	softDropPuppiJeteta    .clear(); softDropPuppiJetphi .clear(); softDropPuppiJetGeneta .clear(); softDropPuppiJetGenphi .clear(); 
 	softDropPuppiJetHFlav .clear(); softDropPuppiJetPFlav .clear(); softDropPuppiJetQGL .clear(); softDropPuppiJetBtag .clear();
 	softDropPuppiJetDoubleBtag .clear(); softDropPuppiJetmraw .clear(); softDropPuppiJetptraw .clear();
@@ -2722,11 +2788,36 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
 	    prunedPuppiJetDoubleBtag .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"));
 
-	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass"))
-	    prunedPuppiJetmraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass"));
-
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawpt"))
 	    prunedPuppiJetptraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawpt"));
+
+	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass")){
+	    prunedPuppiJetmraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass"));
+
+            if(puppiJetsBoosted[i]->availableJECSets().size()>1 and
+               puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:raweta") and
+               puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawphi") and 
+	       puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:rawpt")){
+
+              TLorentzVector correctedP4;
+              correctedP4.SetPtEtaPhiM(puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawpt"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:raweta"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawphi"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"PrunedMatched:rawmass")
+                                       );
+              correctedP4 *= 1./puppiJetsBoosted[i]->jecFactor("Uncorrected","none",puppiJetsBoosted[i]->availableJECSets().at(1));
+              prunedPuppiJetm_v2 .push_back(correctedP4.M());
+              prunedPuppiJetpt_v2 .push_back(correctedP4.Pt());
+              prunedPuppiJeteta_v2 .push_back(correctedP4.Eta());
+              prunedPuppiJetphi_v2 .push_back(correctedP4.Phi());
+            }
+            else{
+              prunedPuppiJetm_v2 .push_back(0.);
+              prunedPuppiJetpt_v2 .push_back(0.);
+              prunedPuppiJeteta_v2 .push_back(0.);
+              prunedPuppiJetphi_v2 .push_back(0.);
+            }
+	  }
 	  
 	  if(isMC){
 	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"PrunedMatched:hadronFlavour"))
@@ -2766,12 +2857,38 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"))
 	    softDropPuppiJetDoubleBtag .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:pfBoostedDoubleSecondaryVertexAK8BJetTags"));
 
-	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass"))
-	    softDropPuppiJetmraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass"));
-
 	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawpt"))
 	    softDropPuppiJetptraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawpt"));
 	  
+	  if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass")){
+	    softDropPuppiJetmraw .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass"));
+
+            if(puppiJetsBoosted[i]->availableJECSets().size()>1 and
+               puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:raweta") and
+               puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawphi") and
+               puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawpt")){
+
+              TLorentzVector correctedP4;
+              correctedP4.SetPtEtaPhiM(puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawpt"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:raweta"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawphi"),
+                                       puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:rawmass")
+                                       );
+              correctedP4 *= 1./puppiJetsBoosted[i]->jecFactor("Uncorrected","none",puppiJetsBoosted[i]->availableJECSets().at(1));
+              softDropPuppiJetm_v2 .push_back(correctedP4.M());
+              softDropPuppiJetpt_v2 .push_back(correctedP4.Pt());
+              softDropPuppiJeteta_v2 .push_back(correctedP4.Eta());
+              softDropPuppiJetphi_v2 .push_back(correctedP4.Phi());
+            }
+            else{
+              softDropPuppiJetm_v2 .push_back(0.);
+              softDropPuppiJetpt_v2 .push_back(0.);
+              softDropPuppiJeteta_v2 .push_back(0.);
+              softDropPuppiJetphi_v2 .push_back(0.);
+            }
+
+	  }
+
 	  if(isMC){
 	    if(puppiJetsBoosted[i]->hasUserFloat(boostedJetsPuppiLabel+"SoftDropMatched:hadronFlavour"))
 	      softDropPuppiJetHFlav  .push_back( puppiJetsBoosted[i]->userFloat(boostedJetsPuppiLabel+"SoftDropMatched:hadronFlavour"));
@@ -3685,6 +3802,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("prunedJeteta",   "std::vector<double>", &prunedJeteta);
     tree->Branch("prunedJetphi",   "std::vector<double>", &prunedJetphi);
     tree->Branch("prunedJetm",     "std::vector<double>", &prunedJetm);
+    tree->Branch("prunedJetm_v2",   "std::vector<double>", &prunedJetm_v2);
+    tree->Branch("prunedJetpt_v2",  "std::vector<double>", &prunedJetpt_v2);
+    tree->Branch("prunedJeteta_v2", "std::vector<double>", &prunedJeteta_v2);
+    tree->Branch("prunedJetphi_v2", "std::vector<double>", &prunedJetphi_v2);
     tree->Branch("prunedJetptraw", "std::vector<double>", &prunedJetptraw);
     tree->Branch("prunedJetmraw",  "std::vector<double>", &prunedJetmraw);
 
@@ -3704,6 +3825,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropJeteta",   "std::vector<double>", &softDropJeteta);
     tree->Branch("softDropJetphi",   "std::vector<double>", &softDropJetphi);
     tree->Branch("softDropJetm",     "std::vector<double>", &softDropJetm);
+    tree->Branch("softDropJetm_v2",  "std::vector<double>", &softDropJetm_v2);
+    tree->Branch("softDropJetpt_v2",  "std::vector<double>", &softDropJetpt_v2);
+    tree->Branch("softDropJeteta_v2",  "std::vector<double>", &softDropJeteta_v2);
+    tree->Branch("softDropJetphi_v2",  "std::vector<double>", &softDropJetphi_v2);
     tree->Branch("softDropJetptraw", "std::vector<double>", &softDropJetptraw);
     tree->Branch("softDropJetmraw",  "std::vector<double>", &softDropJetmraw);
 
@@ -3834,6 +3959,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("prunedPuppiJeteta", "std::vector<double>", &prunedPuppiJeteta);
     tree->Branch("prunedPuppiJetphi", "std::vector<double>", &prunedPuppiJetphi);
     tree->Branch("prunedPuppiJetm", "std::vector<double>", &prunedPuppiJetm);
+    tree->Branch("prunedPuppiJetm_v2", "std::vector<double>", &prunedPuppiJetm_v2);
+    tree->Branch("prunedPuppiJetpt_v2", "std::vector<double>", &prunedPuppiJetpt_v2);
+    tree->Branch("prunedPuppiJeteta_v2", "std::vector<double>", &prunedPuppiJeteta_v2);
+    tree->Branch("prunedPuppiJetphi_v2", "std::vector<double>", &prunedPuppiJetphi_v2);
     tree->Branch("prunedPuppiJetptraw", "std::vector<double>", &prunedPuppiJetptraw);
     tree->Branch("prunedPuppiJetmraw", "std::vector<double>", &prunedPuppiJetmraw);
 
@@ -3853,6 +3982,10 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropPuppiJeteta", "std::vector<double>", &softDropPuppiJeteta);
     tree->Branch("softDropPuppiJetphi", "std::vector<double>", &softDropPuppiJetphi);
     tree->Branch("softDropPuppiJetm", "std::vector<double>", &softDropPuppiJetm);
+    tree->Branch("softDropPuppiJetm_v2", "std::vector<double>", &softDropPuppiJetm_v2);
+    tree->Branch("softDropPuppiJetpt_v2", "std::vector<double>", &softDropPuppiJetpt_v2);
+    tree->Branch("softDropPuppiJeteta_v2", "std::vector<double>", &softDropPuppiJeteta_v2);
+    tree->Branch("softDropPuppiJetphi_v2", "std::vector<double>", &softDropPuppiJetphi_v2);
     tree->Branch("softDropPuppiJetptraw", "std::vector<double>", &softDropPuppiJetptraw);
     tree->Branch("softDropPuppiJetmraw", "std::vector<double>", &softDropPuppiJetmraw);
 
