@@ -13,7 +13,7 @@ using namespace std;
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName,  // input template file
-		     int category,  // analysis category
+		     int    category,  // analysis category
 		     string outputName    = "workspace.root", // output workspace name
 		     string observable    = "met",    // observable 1D or 2D
 		     bool   isHiggsInvisible = false, // Higgs invisible or DM analsysis
