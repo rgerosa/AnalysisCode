@@ -79,6 +79,10 @@ options.register (
 	'addSubstructurePuppi',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8Puppi jets (Pruning, softDrop)');
 
+options.register (
+	'addXConeJets',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'run XCone algo from both puppi and chs candidates');
+
 ## processName
 options.register (
 	'processName','TREE',VarParsing.multiplicity.singleton,VarParsing.varType.string,
@@ -174,6 +178,7 @@ print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addMVAMet           = ",options.addMVAMet
 print "Running with addSubstructureCHS  = ",options.addSubstructureCHS
 print "Running with addSubstructurePuppi= ",options.addSubstructurePuppi
+print "Running with addXConeJets        = ",options.addXConeJets
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
 print "Running with isSignalSample      = ",options.isSignalSample
@@ -207,9 +212,9 @@ if options.inputFiles == []:
 			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
 	else:
 		process.source.fileNames.append(
-			'file:pickevents.root'
+#			'file:pickevents.root'
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
-#			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
+			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
 			)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -441,6 +446,60 @@ if options.addSubstructurePuppi:
 						    addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
 						    addQGLikelihood = True);
 
+
+## run XCone
+from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import runXConeAlgo
+xConeCHSCollection = "";
+xConePuppiCollection = "";
+
+if options.addXConeJets and options.addSubstructureCHS:
+	if options.isMC :
+		jecLevel = ["L1FastJet","L2Relative","L3Absolute"];
+	else:
+		if options.applyL2L3Residuals:
+			jecLevel = ["L1FastJet","L2Relative","L3Absolute","L2L3Residual"];
+		else:
+			jecLevel = ["L1FastJet","L2Relative","L3Absolute"];
+		
+	xConeCHSCollection = runXConeAlgo(process,
+		     isMC        = options.isMC,
+                     coneSize    = 0.4,
+                     puAlgo      = "chs",
+                     payloadName = "AK4PFchs",
+                     JECLevel    = jecLevel,
+                     pfCand      = "chs",
+                     genCand     = "genParticlesForJetsNoNu",
+                     N           = 3,
+                     jetSelection   =  "pt > 20 && abs(eta) < 2.5",
+                     genJetSelection = "pt > 10 && abs(eta) < 2.5",
+                     btagDiscriminators = ["pfCombinedInclusiveSecondaryVertexV2BJetTags"],
+                     addNSubjettinssJets = False) ## run XCone for 2-prong boosted objects                                                                                  
+
+if options.addXConeJets and options.addSubstructurePuppi:
+
+	if options.isMC :
+		jecLevel = ["L2Relative","L3Absolute"];
+	else:
+		if options.applyL2L3Residuals:
+			jecLevel = ["L2Relative","L3Absolute","L2L3Residual"];
+		else:
+			jecLevel = ["L2Relative","L3Absolute"];
+
+        xConePuppiCollection = runXConeAlgo(process,
+                     isMC        = options.isMC,
+                     coneSize    = 0.4,
+                     puAlgo      = "Puppi",
+                     payloadName = "AK4PFPuppi",
+                     JECLevel    = jecLevel,
+                     pfCand      = "puppi",
+                     genCand     = "genParticlesForJetsNoNu",
+                     N           = 3,
+                     jetSelection    = "pt > 20 && abs(eta) < 2.5",
+                     genJetSelection = "pt > 15 && abs(eta) < 2.5",
+                     btagDiscriminators = ["pfCombinedInclusiveSecondaryVertexV2BJetTags"],
+                     addNSubjettinssJets = False) ## run XCone for 2-prong boosted objects                                                                                  
+
+
 # MET filter --> making the or of different met
 process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
     metCollections = cms.VPSet(
@@ -542,6 +601,9 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    boostedJetsCHS     = cms.InputTag(boostedJetCollection),
    addSubstructurePuppi = cms.bool(options.addSubstructurePuppi),
    boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
+   addXConeJets   = cms.bool(options.addXConeJets),
+   xconeJetsCHS   = cms.InputTag(xConeCHSCollection),
+   xconePuppiJets = cms.InputTag(xConePuppiCollection),
    ## b-tag scale factors
    addBTagScaleFactor  = cms.bool(True),
    bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     

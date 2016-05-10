@@ -257,6 +257,122 @@ def runGroomedMethod(process, isMC,
                                     ))
 
 
+######## to run XCone algorithm --> jet finder
+def runXConeAlgo(process,
+                 puAlgo, ## puAlgo to be considered
+                 isMC,   ##
+                 coneSize,    ## cone size
+                 payloadName, ## for the right JEC
+                 JECLevel,    
+                 pfCand,
+                 genCand,
+                 N,
+                 btagDiscriminators,
+                 addNSubjettinssJets,
+                 jetSelection,
+                 genJetSelection = "pt > 10 && abs(eta) < 2.5",
+                 ):
+
+    print "###########################################"
+    print "isMC        = ",isMC;
+    print "coneSize    = ",coneSize;
+    print "payloadName = ",payloadName;
+    print "JECLevel    = ",JECLevel;
+    print "N           = ",N;
+    print "pfCand  = ",pfCand;
+    print "genCand = ",genCand;
+    print "jetSelection        = ",jetSelection;
+    print "genJetSelection     = ",genJetSelection;
+    print "btagDiscriminators  = ",btagDiscriminators;
+    print "addNSubjettinssJets = ",addNSubjettinssJets;
+    print "##########################################"
+
+    coneSizeStr = str(coneSize).replace("0","").replace(".","")
+    jetCollection = "XCone"+coneSizeStr+"PFJets"+puAlgo;
+    genJetCollection = "XCone"+coneSizeStr+"GenJets";
+
+    ## filter original jets AK4 from miniAOD
+    if not hasattr(process,"AK"+coneSizeStr+"PFJets"+puAlgo):
+        setattr(process,"AK"+coneSizeStr+"PFJets"+puAlgo,
+                ak4PFJetsCHS.clone( src = cms.InputTag(pfCand),
+                                    doAreaFastjet = True,
+                                    rParam = coneSize,
+                                    jetAlgorithm = "AntiKt"))
+
+    if not hasattr(process,"AK"+coneSizeStr+"PFJets"+puAlgo+"Reduced"):
+        setattr(process,"AK"+coneSizeStr+"PFJets"+puAlgo+"Reduced",
+                cms.EDProducer("PFSelectorJetConstituent",
+                               src = cms.InputTag("AK"+coneSizeStr+"PFJets"+puAlgo),
+                               cut = cms.string(jetSelection)))        
+    
+    
+    ## for reco jets
+    if not hasattr(process,jetCollection):
+        setattr(process,jetCollection,cms.EDProducer("XConeJetProducer",
+                                                     src = cms.InputTag("AK"+coneSizeStr+"PFJets"+puAlgo+"Reduced","constituents"),
+                                                     srcVertex = cms.InputTag("offlineSlimmedPrimaryVertices"),
+                                                     xConeParameters = cms.PSet(
+                    N = cms.uint32(N),
+                    beta = cms.double(1.0),
+                    Rcut = cms.double(coneSize)),
+                                                     addArea = cms.bool(False),
+                                                     addNsubjettnessJets = cms.bool(addNSubjettinssJets),
+                                                     nSubjettinessParameters = cms.PSet(
+                    N = cms.uint32(N),
+                    delta = cms.double(1.0),
+                    p = cms.double(0.5),
+                    Rcut = cms.double(coneSize)),
+                                                     jetType = cms.string("PFJet"),
+                                                     GhostEtaMax = cms.double(5.0),
+                                                     jetSelection = cms.string(jetSelection)
+                                                     )
+                )
+    ## for GenJets --> vertex are not used, (0,0,0) instead 
+    if not hasattr(process,"genJetsAK"+coneSizeStr):
+        setattr(process,"genJetsAK"+coneSizeStr,
+                ak4GenJets.clone( src = cms.InputTag(genCand),
+                                  doAreaFastjet = True,
+                                  rParam = coneSize,
+                                  jetAlgorithm = "AntiKt"))
+    
+    if not hasattr(process,"genJetsAK"+coneSizeStr+"Reduced"):
+        setattr(process,"genJetsAK"+coneSizeStr+"Reduced",
+                cms.EDProducer("GenSelectorJetConstituent",
+                               src = cms.InputTag("genJetsAK"+coneSizeStr),
+                               cut = cms.string(genJetSelection)))        
+        
+    
+
+    if not hasattr(process,genJetCollection):
+        setattr(process,genJetCollection,getattr(process,jetCollection).clone(
+                src = cms.InputTag("genJetsAK"+coneSizeStr+"Reduced","constituents"),
+                jetType = cms.string("GenJet"),
+                jetSelection = cms.string(genJetSelection)));
+
+    ## pattify xcone jets
+    if not hasattr(process,"patJets"+jetCollection):
+        addJetCollection(
+            process,
+            labelName = jetCollection,
+            jetSource = cms.InputTag(jetCollection),
+            pfCandidates = cms.InputTag(pfCand),
+            rParam       = coneSize,
+            jetCorrections = (payloadName, JECLevel, 'None'),
+            svSource       = cms.InputTag('slimmedSecondaryVertices'),
+            genJetCollection = cms.InputTag(genJetCollection),
+            pvSource         = cms.InputTag('offlineSlimmedPrimaryVertices'),
+            btagDiscriminators = btagDiscriminators, ## no b-tag info for pruned jets                                                                                     
+            getJetMCFlavour  = isMC, ## no flavor info                                                                                                                       
+            genParticles     = cms.InputTag("prunedGenParticles")
+            )
+
+        if  "Puppi" in payloadName:
+            getattr(process,"patJetCorrFactors"+jetCollection).useRho = cms.bool(False)
+
+    ### to be added as additional jet collection in the analysis tree
+    return "patJets"+jetCollection;
+
+###########################
 def JetSubstructure(process,
                     isMC, 
                     coneSize = 0.8, algo = "AK", 
@@ -400,9 +516,9 @@ def JetSubstructure(process,
     ## apply selection and produce a restricted set of consituents only for jets passig the selection
     if not hasattr(process,jetCollection+"Reduced"):
         setattr(process,jetCollection+"Reduced",
-                cms.EDFilter("MiniAODJetConstituentSelector",
-                             src = cms.InputTag(jetCollection), 
-                             cut = cms.string(selection)))
+                cms.EDProducer("PFSelectorJetConstituent",
+                               src = cms.InputTag(jetCollection), 
+                               cut = cms.string(selection)))
 
     ## build pat-jets from this skimmed collection: example
     if not hasattr(process,"patJets"+jetCollection):

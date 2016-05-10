@@ -232,6 +232,11 @@ private:
   edm::EDGetTokenT<std::vector<pat::Jet> > boostedPuppiJetsToken;
   TString boostedJetsCHSLabel;
   TString boostedJetsPuppiLabel;
+
+  // XCone
+  const bool addXConeJets;
+  edm::EDGetTokenT<std::vector<pat::Jet> > xConeJetsCHSToken;
+  edm::EDGetTokenT<std::vector<pat::Jet> > xConeJetsPuppiToken;
   
   // inner vectors
   std::vector<std::string>   triggerPathsVector;
@@ -454,6 +459,20 @@ private:
   std::vector<double> softDropPuppiSubJetptraw_2,softDropPuppiSubJetmraw_2;
   std::vector<double> softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2;
 
+  // XCone xcone jet
+  std::vector<double> xconejetpt,xconejeteta,xconejetphi,xconejetm,xconejetbtag,xconejetbtagMVA;
+  std::vector<double> xconejetCHfrac,xconejetNHfrac,xconejetEMfrac,xconejetCEMfrac,xconejetmetdphi;
+  std::vector<double> xconejetHFlav,xconejetPFlav;
+  std::vector<double> xconejetGenpt,xconejetGeneta,xconejetGenphi,xconejetGenm;
+
+  // Xconepuppi puppi jet
+  std::vector<double> xconepuppijetpt,xconepuppijeteta,xconepuppijetphi,xconepuppijetm,xconepuppijetbtag,xconepuppijetbtagMVA;
+  std::vector<double> xconepuppijetCHfrac,xconepuppijetNHfrac,xconepuppijetEMfrac,xconepuppijetCEMfrac,xconepuppijetmetdphi;
+  std::vector<double> xconepuppijetHFlav,xconepuppijetPFlav;
+  std::vector<double> xconepuppijetGenpt,xconepuppijetGeneta,xconepuppijetGenphi,xconepuppijetGenm;
+
+
+
   // gen info leptoni W/Z boson (1 per event)
   double wzmass,wzmt,wzpt,wzeta,wzphi,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
   // photon info
@@ -553,6 +572,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   // substructure
   addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
+  addXConeJets(iConfig.existsAs<bool>("addXConeJets") ? iConfig.getParameter<bool>("addXConeJets") : false),
   // btagging
   addBTagScaleFactor(iConfig.existsAs<bool>("addBTagScaleFactor") ? iConfig.getParameter<bool>("addBTagScaleFactor") : false){
   
@@ -636,6 +656,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     boostedJetsPuppiLabel.ReplaceAll("packed","");
     boostedJetsPuppiLabel.ReplaceAll("PatJets","");
     boostedJetsPuppiLabel.ReplaceAll("patJets","");
+  }
+  
+  // xcone jets CHS
+  if(addXConeJets and addSubstructureCHS){
+    xConeJetsCHSToken = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("xconeJetsCHS"));
+  }
+  // xcone jets Puppi
+  if(addXConeJets and addSubstructurePuppi){
+    xConeJetsPuppiToken = consumes<std::vector<pat::Jet> >(iConfig.getParameter<edm::InputTag>("xconeJetsPuppi"));
   }
 
   if(addBTagScaleFactor and isMC){
@@ -826,11 +855,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<vector<pat::Jet> > boostedJetsH;
     if(addSubstructureCHS)
       iEvent.getByToken(boostedJetsToken,boostedJetsH);
-    
-
+        
     Handle<vector<pat::Jet> > boostedPuppiJetsH;
     if(addSubstructurePuppi)
       iEvent.getByToken(boostedPuppiJetsToken,boostedPuppiJetsH);
+
+    // xcone
+    Handle<vector<pat::Jet> > xConeJetsH;
+    if(addSubstructureCHS and addXConeJets)
+      iEvent.getByToken(xConeJetsCHSToken,xConeJetsH);
+
+    Handle<vector<pat::Jet> > xConePuppiJetsH;
+    if(addSubstructurePuppi and addXConeJets)
+      iEvent.getByToken(xConeJetsPuppiToken,xConePuppiJetsH);
+
 
     // Event, lumi, run info
     event = iEvent.id().event();
@@ -3023,6 +3061,163 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
+    // xCone jets
+    if(addXConeJets and addSubstructureCHS){
+      xconejetpt.clear();   xconejeteta.clear();  xconejetphi.clear();  xconejetm.clear();
+      xconejetbtag.clear();
+      xconejetCHfrac.clear(); xconejetNHfrac.clear(); xconejetEMfrac.clear(); xconejetCEMfrac.clear(); 
+      xconejetmetdphi.clear();
+      xconejetHFlav.clear(); xconejetPFlav.clear();
+      xconejetGenpt.clear(); xconejetGeneta.clear(); xconejetGenphi.clear(); xconejetGenm.clear();
+
+      float minJetPtCentral  = 20.;
+
+      vector<pat::JetRef> jets;
+      if(xConeJetsH.isValid()){
+	for (auto jets_iter = xConeJetsH->begin(); jets_iter != xConeJetsH->end(); ++jets_iter) {
+	  //clean from leptons                                                                                                                                             
+	  bool skipjet = false;
+	  if(muonsH.isValid()){
+	    for (std::size_t j = 0; j < muons.size(); j++) {
+	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  if(electronsH.isValid()){
+	    for (std::size_t j = 0; j < electrons.size(); j++) {
+	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  if(photonsH.isValid()){
+	    for (std::size_t j = 0; j < photons.size(); j++) {
+	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  
+	  // jet in overlap with lepton                                                                                                                                    
+	  if (skipjet) continue;
+	  pat::JetRef jetref(xConeJetsH, jets_iter - xConeJetsH->begin());
+	  // apply jet id                                                                                                                                                     
+	  bool passjetid = applyJetID(*jets_iter,"loose");
+	  if (!passjetid)
+	    continue;
+	  if(jetref.isAvailable() and jetref.isNonnull())
+	    jets.push_back(jetref);
+	}
+
+	//sort
+	if(jets.size() > 0) sort(jets.begin(), jets.end(), jetSorter);
+
+	for (size_t i = 0; i < jets.size(); i++){
+	  if (jets[i]->pt() > minJetPtCentral){	    
+	    xconejetpt.push_back(jets[i]->pt());
+	    xconejeteta.push_back(jets[i]->eta());
+	    xconejetphi.push_back(jets[i]->phi());
+	    xconejetm.push_back(jets[i]->mass());
+	    xconejetbtag.push_back(jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	    xconejetCHfrac  .push_back(jets[i]->chargedHadronEnergyFraction());
+	    xconejetNHfrac  .push_back(jets[i]->neutralHadronEnergyFraction());
+	    xconejetEMfrac  .push_back(jets[i]->neutralEmEnergyFraction());
+	    xconejetCEMfrac .push_back(jets[i]->chargedEmEnergyFraction());
+	    // fill jet met dphi                                                                                                                                            
+	    xconejetmetdphi.push_back(deltaPhi(jets[i]->phi(), t1pfmetphi));
+	    // MC based info                                                                                                                                               
+	    if(isMC){
+	      xconejetHFlav.push_back(jets[i]->hadronFlavour());
+	      xconejetPFlav.push_back(jets[i]->partonFlavour());
+	      if(jets[i]->genJet()){
+		xconejetGenpt.push_back(jets[i]->genJet()->pt());
+		xconejetGeneta.push_back(jets[i]->genJet()->eta());
+		xconejetGenphi.push_back(jets[i]->genJet()->phi());
+		xconejetGenm.push_back(jets[i]->genJet()->mass());
+	      }
+	    }
+	  }
+	}
+      }
+    }
+
+    if(addXConeJets and addSubstructurePuppi){
+      xconepuppijetpt.clear();   xconepuppijeteta.clear();  xconepuppijetphi.clear();  xconepuppijetm.clear();
+      xconepuppijetbtag.clear();
+      xconepuppijetCHfrac.clear(); xconepuppijetNHfrac.clear(); xconepuppijetEMfrac.clear(); xconepuppijetCEMfrac.clear();
+      xconepuppijetmetdphi.clear();
+      xconepuppijetHFlav.clear(); xconepuppijetPFlav.clear();
+      xconepuppijetGenpt.clear(); xconepuppijetGeneta.clear(); xconepuppijetGenphi.clear(); xconepuppijetGenm.clear();
+
+      float minJetPtCentral  = 20.;
+ 
+      vector<pat::JetRef> jets;
+      if(xConePuppiJetsH.isValid()){
+	for (auto jets_iter = xConePuppiJetsH->begin(); jets_iter != xConePuppiJetsH->end(); ++jets_iter) {
+	  //clean from leptons                                                                                                                                             
+	  bool skipjet = false;
+	  if(muonsH.isValid()){
+	    for (std::size_t j = 0; j < muons.size(); j++) {
+	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  if(electronsH.isValid()){
+	    for (std::size_t j = 0; j < electrons.size(); j++) {
+	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  if(photonsH.isValid()){
+	    for (std::size_t j = 0; j < photons.size(); j++) {
+	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4)
+		skipjet = true;
+	    }
+	  }
+	  
+	  // jet in overlap with lepton                                                                                                                                    
+	  if (skipjet) continue;
+	  pat::JetRef jetref(xConePuppiJetsH, jets_iter - xConePuppiJetsH->begin());
+	  // apply jet id                                                                                                                                                     
+	  bool passjetid = applyJetID(*jets_iter,"loose");
+	  if (!passjetid)
+	    continue;
+	  if(jetref.isAvailable() and jetref.isNonnull())
+	    jets.push_back(jetref);
+	}
+
+	//sort
+	if(jets.size() > 0) sort(jets.begin(), jets.end(), jetSorter);
+
+	for (size_t i = 0; i < jets.size(); i++){
+	  if (jets[i]->pt() > minJetPtCentral){	    
+	    xconepuppijetpt.push_back(jets[i]->pt());
+	    xconepuppijeteta.push_back(jets[i]->eta());
+	    xconepuppijetphi.push_back(jets[i]->phi());
+	    xconepuppijetm.push_back(jets[i]->mass());
+	    xconepuppijetbtag.push_back(jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	    xconepuppijetCHfrac  .push_back(jets[i]->chargedHadronEnergyFraction());
+	    xconepuppijetNHfrac  .push_back(jets[i]->neutralHadronEnergyFraction());
+	    xconepuppijetEMfrac  .push_back(jets[i]->neutralEmEnergyFraction());
+	    xconepuppijetCEMfrac .push_back(jets[i]->chargedEmEnergyFraction());
+	    // fill jet met dphi                                                                                                                                            
+	    xconepuppijetmetdphi.push_back(deltaPhi(jets[i]->phi(), t1pfmetphi));
+	    // MC based info                                                                                                                                               
+	    if(isMC){
+	      xconepuppijetHFlav.push_back(jets[i]->hadronFlavour());
+	      xconepuppijetPFlav.push_back(jets[i]->partonFlavour());
+	      if(jets[i]->genJet()){
+		xconepuppijetGenpt.push_back(jets[i]->genJet()->pt());
+		xconepuppijetGeneta.push_back(jets[i]->genJet()->eta());
+		xconepuppijetGenphi.push_back(jets[i]->genJet()->phi());
+		xconepuppijetGenm.push_back(jets[i]->genJet()->mass());
+	      }
+	    }
+	  }
+	}
+      }
+
+    }
+
+
     // Generator-level information
     wzid          = 0; wzmass        = 0.0; wzpt          = 0.0; wzeta         = 0.0; wzphi         = 0.0;
     l1id          = 0; l1pt          = 0.0; l1eta         = 0.0; l1phi         = 0.0;
@@ -4074,6 +4269,44 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<double>", &softDropPuppiSubJetBtagSFDown_2);
 
   }
+
+  if(addXConeJets and addSubstructureCHS){
+    tree->Branch("xconejetpt","std::vector<double>",&xconejetpt);
+    tree->Branch("xconejeteta","std::vector<double>",&xconejeteta);
+    tree->Branch("xconejetphi","std::vector<double>",&xconejetphi);
+    tree->Branch("xconejetm","std::vector<double>",&xconejetm);
+    tree->Branch("xconejetbtag","std::vector<double>",&xconejetbtag);
+    tree->Branch("xconejetCHfrac","std::vector<double>",&xconejetCHfrac);
+    tree->Branch("xconejetNHfrac","std::vector<double>",&xconejetNHfrac);
+    tree->Branch("xconejetEMfrac","std::vector<double>",&xconejetEMfrac);
+    tree->Branch("xconejetCEMfrac","std::vector<double>",&xconejetCEMfrac);
+    tree->Branch("xconejetmetdphi","std::vector<double>",&xconejetmetdphi);
+    tree->Branch("xconejetHFlav","std::vector<double>",&xconejetHFlav);
+    tree->Branch("xconejetPFlav","std::vector<double>",&xconejetPFlav);
+    tree->Branch("xconejetGenpt","std::vector<double>",&xconejetGenpt);
+    tree->Branch("xconejetGeneta","std::vector<double>",&xconejetGeneta);
+    tree->Branch("xconejetGenphi","std::vector<double>",&xconejetGenphi);
+    tree->Branch("xconejetGenm","std::vector<double>",&xconejetGenm);
+  }
+  if(addXConeJets and addSubstructurePuppi){
+    tree->Branch("xconepuppijetpt","std::vector<double>",&xconepuppijetpt);
+    tree->Branch("xconepuppijeteta","std::vector<double>",&xconepuppijeteta);
+    tree->Branch("xconepuppijetphi","std::vector<double>",&xconepuppijetphi);
+    tree->Branch("xconepuppijetm","std::vector<double>",&xconepuppijetm);
+    tree->Branch("xconepuppijetbtag","std::vector<double>",&xconepuppijetbtag);
+    tree->Branch("xconepuppijetCHfrac","std::vector<double>",&xconepuppijetCHfrac);
+    tree->Branch("xconepuppijetNHfrac","std::vector<double>",&xconepuppijetNHfrac);
+    tree->Branch("xconepuppijetEMfrac","std::vector<double>",&xconepuppijetEMfrac);
+    tree->Branch("xconepuppijetCEMfrac","std::vector<double>",&xconepuppijetCEMfrac);
+    tree->Branch("xconepuppijetmetdphi","std::vector<double>",&xconepuppijetmetdphi);
+    tree->Branch("xconepuppijetHFlav","std::vector<double>",&xconepuppijetHFlav);
+    tree->Branch("xconepuppijetPFlav","std::vector<double>",&xconepuppijetPFlav);
+    tree->Branch("xconepuppijetGenpt","std::vector<double>",&xconepuppijetGenpt);
+    tree->Branch("xconepuppijetGeneta","std::vector<double>",&xconepuppijetGeneta);
+    tree->Branch("xconepuppijetGenphi","std::vector<double>",&xconepuppijetGenphi);
+    tree->Branch("xconepuppijetGenm","std::vector<double>",&xconepuppijetGenm);
+  }
+
 }
 
 void MonoJetTreeMaker::endJob() {}

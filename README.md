@@ -28,11 +28,11 @@ Recipe for 76X (temp fixes for pileup jet id):
        wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta2p75to3_BDT.weights.xml.gz
        wget https://github.com/jbrands/RecoJets-JetProducers/raw/3dad903ed25d025f68be94d6f781ca957d6f86ac/pileupJetId_76x_Eta3to5_BDT.weights.xml.gz	   
        cd ../../..	
-       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X
-       git clone https://github.com/rfriese/RecoMET-METPUSubtraction data -b 74X-13TeV-Summer15-July2015
-       rm -rf data/.git  
-       rm JetMETCorrections/Modules/src/SealModule.cc
-	   
+       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_76X_XCone
+       rm -r Validation
+       rm -r DQMOffline
+       scramv1 b -j 4
+
 How to Run the ntuple production (for analysis):
 
        cd CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/test
