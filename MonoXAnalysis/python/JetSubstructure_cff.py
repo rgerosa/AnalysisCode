@@ -101,7 +101,7 @@ def runGroomedMethod(process, isMC,
             pvSource         = cms.InputTag('offlineSlimmedPrimaryVertices'),
             btagDiscriminators = btagDiscriminators, ## no b-tag info for pruned jets                                                                                     
             getJetMCFlavour  = isMC, ## no flavor info                                                                                                                       
-            genParticles     = cms.InputTag("prunedGenParticles")
+            genParticles     = cms.InputTag("prunedGenParticles"),
             )
 
         if  "Puppi" in payloadName:
@@ -363,7 +363,8 @@ def runXConeAlgo(process,
             pvSource         = cms.InputTag('offlineSlimmedPrimaryVertices'),
             btagDiscriminators = btagDiscriminators, ## no b-tag info for pruned jets                                                                                     
             getJetMCFlavour  = isMC, ## no flavor info                                                                                                                       
-            genParticles     = cms.InputTag("prunedGenParticles")
+            genParticles     = cms.InputTag("prunedGenParticles"),
+            # needed for subjet flavor clustering                                                               
             )
 
         if  "Puppi" in payloadName:

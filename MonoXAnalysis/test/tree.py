@@ -603,7 +603,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
    boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
    addXConeJets   = cms.bool(options.addXConeJets),
    xconeJetsCHS   = cms.InputTag(xConeCHSCollection),
-   xconePuppiJets = cms.InputTag(xConePuppiCollection),
+   xconeJetsPuppi = cms.InputTag(xConePuppiCollection),
    ## b-tag scale factors
    addBTagScaleFactor  = cms.bool(True),
    bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
