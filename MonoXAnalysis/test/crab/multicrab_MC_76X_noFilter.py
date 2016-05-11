@@ -23,8 +23,9 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
-               'nThreads=3',
+               'nThreads=1',
                'miniAODProcess=PAT',
+               'addXConeJets=True'
                'isCrab=True']
 
 config.section_('General')
@@ -37,7 +38,7 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 3
+config.JobType.numCores         = 1
 
 
 config.section_('Data')    

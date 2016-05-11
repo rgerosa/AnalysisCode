@@ -23,7 +23,8 @@ pyCfgParams = ['isMC=False',
                'addMVAMet=False',
                'globalTag=76X_dataRun2_16Dec2015_v0',
                'outputFileName=tree.root',
-               'nThreads=3',
+               'addXConeJets=True'
+               'nThreads=1',
                'isCrab=True']
 
 config.section_('General')
@@ -35,7 +36,7 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 3
+config.JobType.numCores         = 1
 config.JobType.maxMemoryMB      = 2500
 
 

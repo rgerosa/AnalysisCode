@@ -212,3 +212,13 @@ When doing "make check" one warning is appearing:
 WARNING from FastJet: Subtractor::_amount_to_subtract(...): Background estimator indicates non-zero rho_m, but use_rho_m()==false in subtractor; consider calling set_use_rho_m(true) to include the rho_m information
 
 which should be not important
+
+
+===========================================
+To submit crab jobs with external package 
+===========================================
+
+After compiling the CMSSW area and if you can successfully run local cmsRun jobs, you need to create symbolic links for the shared libraries in the external directory into the lib one:
+
+      cd $CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/test/crab
+      python libExternalSymbolicLink.py

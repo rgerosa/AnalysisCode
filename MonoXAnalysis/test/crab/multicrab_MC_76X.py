@@ -23,13 +23,14 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
-               'nThreads=3',
+               'nThreads=1',
+               'addXConeJets=True',
                'miniAODProcess=PAT',
                'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_MC_76X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_MC_76X_XCone_v2'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -37,14 +38,13 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 3
-
+config.JobType.numCores         = 1
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
+config.Data.unitsPerJob   = 2500
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-10-05-2016/XConeTest_v2/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
