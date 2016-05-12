@@ -176,27 +176,27 @@ The filter step macro allows to reduce the event content of the trees produced b
 To run the macro:
 
        cd AnalysisCode/MonoXAnalysis/;
-        root -l ;
-   	.L fiters.C+
-   	sigfilter(...), zmmfilter(....), zeefilter(...), wmnfilter(...), wenfilter(...), gamfilter(...), topmufilter(...), topelfilter(...)
+       root -l ;
+       .L fiters.C+
+       sigfilter(...), zmmfilter(....), zeefilter(...), wmnfilter(...), wenfilter(...), gamfilter(...), topmufilter(...), topelfilter(...)
 
 These function are used to select signal like events, Z->mm, Z->ee, W->mnu, W->enu, gamma+jets, semi-leptonic ttbar muon, semi-leptionc ttbar electron
 
 Basic options:
 
-      inputFileName : name of the input file or name of the crab directory in which different files are locate (TChain is used in this case)
-      outputFileName : output file .. the code can take a list of files in input but will produce a single output
-      isMC : flag to indicate data or MC
-      applyBTagWeights : calculates b-tag scale factors and related uncertainties
-      isInputDirectory : specify if the inputFileName is a single file or a directory
-      isEOS : in case of a directoy this indicates if it is located in EOS or in a local directory
-      xsType: 0 means use the xsec branch stored in the origin MonoJetTreeMaker tree, 1 valuate the xs as sumwgt/Nevents (useful for powheg+minlo mono-jet samples), 2 means take the xs from LHE header stored in the genTree.
-      storeGenTree : save the whole gen tree in the output 
-      isSinglePhoton: options available only for zeefilter, wenfilter and topelfilter allows to run on single photon dataset keeping events triggered by singlephoton but not by single electron triggers .. aim is to increase the statistics at high pt.
+      --inputFileName : name of the input file or name of the crab directory in which different files are locate (TChain is used in this case)
+      --outputFileName : output file .. the code can take a list of files in input but will produce a single output
+      --isMC : flag to indicate data or MC
+      --applyBTagWeights : calculates b-tag scale factors and related uncertainties
+      --isInputDirectory : specify if the inputFileName is a single file or a directory
+      --isEOS : in case of a directoy this indicates if it is located in EOS or in a local directory
+      --xsType: 0 means use the xsec branch stored in the origin MonoJetTreeMaker tree, 1 valuate the xs as sumwgt/Nevents (useful for powheg+minlo mono-jet samples), 2 means take the xs from LHE header stored in the genTree.
+      --storeGenTree : save the whole gen tree in the output 
+      --isSinglePhoton: options available only for zeefilter, wenfilter and topelfilter allows to run on single photon dataset keeping events triggered by singlephoton but not by single electron triggers .. aim is to increase the statistics at high pt.
 
 To run the filter step on a crab output:
 
-   python scripts/runFilters.py -b <options>
+       python scripts/runFilters.py -b <options>
 
 Options:
 	
@@ -227,7 +227,7 @@ Run Filter step for all the crab outputs
 
 If you want to run in one shot filters on a set of outputs produced by crab for different datasets you can use:
 
-   python scripts/submitFilters.py <options>
+      python scripts/submitFilters.py <options>
 
 Options:
 
@@ -262,9 +262,9 @@ Example:
 	python scripts/files/copyAllDirectoriesEOS.py --inputDIR /store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/SkimmedProduction-12-05-2016/ --outputDIR /home/rgerosa/test/ --grepName Axial,1000
 
 
-To copy only files belonging to a single directory each time, please use: scripts/files/copyFilesEOS.py
+To copy only files belonging to a single directory each time, please use: 
 
-   python scripts/files/copyFilesEOS.py <options>     
+      python scripts/files/copyFilesEOS.py <options>     
 
 =================================
 Merge directories in a clever way
@@ -325,24 +325,24 @@ To run:
 
 Options:
       
-      doCorrectionHistograms : true when you want to prodce root files with Transfer Factors
+      doCorrectionHistograms   : true when you want to prodce root files with Transfer Factors
       skipCorrectionHistograms : when true the codes tries to open root files with TFs and clone them in the template file used to create combine workspace
-      category : it rules the analysis selection  0 means mono=jet inclusive, 1 means mono-jet exclusive, 2 means mono-V .. 3,4,5..etc are used to apply on some sub-structure cuts
-      lumi : luminosity value in fb-1
-      outDir: directory where TFs and template file will be created
-      templateSuffix : suffix to be added to the template file name
-      observables: different observebales to be considered when created templates {"met","jetPt","njet"} .. names are delcared in macros/histoUtils.h
-      observables_2D: 2D combinations {"met_ht","met_njet"} ... names are declared in macros/histoUtils2D.h
-      applyQGLReweight : if true re-weight QGL leading AK8 jet MC to data using pre-existing files in the data directory
-      doShapeSystematics : if true evaluate MET systematics (JEC, JER, unclustered) and b-tagging SF effects for each MC based process
-      makeResonantSelection : split ttbar in resonant and non resonant (substructure studies)
-      typeOfDMSignal : run only on some signal production mechanism .. 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V  
-      runHiggsInvisible : run Higgs invisible analysis instead of DM one (when trye the value of typeOfDMSignal doesn't matter)
-      runOnlySignal : when true apply selections only on signal MC in SR
-      runOnlyBackground : generate templates for data and bkg processes in SR and CRs					 
-      applyPostFitWeights : when true post-fit met binned weights are applied to the event
-      addTop : to run selections also for the top enriched control samples
-      ext : additional string
+      category                 : it rules the analysis selection  0 means mono=jet inclusive, 1 means mono-jet exclusive, 2 means mono-V .. 3,4,5..etc are used to apply on some sub-structure cuts
+      lumi                     : luminosity value in fb-1
+      outDir                   : directory where TFs and template file will be created
+      templateSuffix           : suffix to be added to the template file name
+      observables              : different observebales to be considered when created templates {"met","jetPt","njet"} .. names are delcared in macros/histoUtils.h
+      observables_2D           : 2D combinations {"met_ht","met_njet"} ... names are declared in macros/histoUtils2D.h
+      applyQGLReweight         : if true re-weight QGL leading AK8 jet MC to data using pre-existing files in the data directory
+      doShapeSystematics       : if true evaluate MET systematics (JEC, JER, unclustered) and b-tagging SF effects for each MC based process
+      makeResonantSelection    : split ttbar in resonant and non resonant (substructure studies)
+      typeOfDMSignal           : run only on some signal production mechanism .. 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V  
+      runHiggsInvisible        : run Higgs invisible analysis instead of DM one (when trye the value of typeOfDMSignal doesn't matter)
+      runOnlySignal            : when true apply selections only on signal MC in SR
+      runOnlyBackground        : generate templates for data and bkg processes in SR and CRs					 
+      applyPostFitWeights      : when true post-fit met binned weights are applied to the event
+      addTop                   : to run selections also for the top enriched control samples
+      ext                      : additional string
 
 ==========================
 Create analysis Worksapce
