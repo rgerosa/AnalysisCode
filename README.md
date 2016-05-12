@@ -175,10 +175,10 @@ The filter step macro allows to reduce the event content of the trees produced b
 
 To run the macro:
 
-   cd AnalysisCode/MonoXAnalysis/;
-   root -l ;
-   .L fiters.C+
-   sigfilter(...), zmmfilter(....), zeefilter(...), wmnfilter(...), wenfilter(...), gamfilter(...), topmufilter(...), topelfilter(...)
+       cd AnalysisCode/MonoXAnalysis/;
+        root -l ;
+   	.L fiters.C+
+   	sigfilter(...), zmmfilter(....), zeefilter(...), wmnfilter(...), wenfilter(...), gamfilter(...), topmufilter(...), topelfilter(...)
 
 These function are used to select signal like events, Z->mm, Z->ee, W->mnu, W->enu, gamma+jets, semi-leptonic ttbar muon, semi-leptionc ttbar electron
 
