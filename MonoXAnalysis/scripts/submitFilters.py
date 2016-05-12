@@ -44,11 +44,12 @@ parser.add_option('--queque',       action="store", type="string", dest="queque"
 if __name__ == '__main__':
 
     ###### make the directory list
-    command = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root > dir_list.txt";
+    command = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root ";
     for name in options.grepName:
         command += " | grep "+name;
     for name in options.skipName:
         command += " | grep -v "+name;
+    command += " > dir_list.txt";
     print command
     os.system(command);
     fs = open("dir_list.txt","r");
@@ -59,7 +60,7 @@ if __name__ == '__main__':
     os.system("rm dir_list.txt");
 
     for dir in dirList:
-        command = "python runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS ";
+        command = "python scripts/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS ";
         if options.calculateXSfromSW:
             command += "--calculateXSfromSW ";
         if options.calculateXSfromLHE:
@@ -74,6 +75,6 @@ if __name__ == '__main__':
             command += "--isSinglePhoton ";
         if options.isCrabDirectory:
             command += "--isCrabDirectory ";
-        
-        print command;
+
+        print command    
         os.system(command)

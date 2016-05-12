@@ -56,7 +56,7 @@ if __name__ == '__main__':
     fileList = [];
     ## if the input is a directory --> make the list of files
     if not options.isCrabDirectory and not options.isOnEOS and not options.batchMode:
-        os.system("ls | grep -v txt | grep root  > file_temp.txt");
+        os.system("ls | grep -v txt | grep root | grep -v failed   > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
             line = line.replace('\n','');
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         os.system("rm file_temp.txt");
 
     elif not options.isCrabDirectory and options.isOnEOS: ## not a crab directory do the same with eos ls command
-        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep root  > file_temp.txt");
+        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep root | grep -v failed  > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
             line = line.replace('\n','');

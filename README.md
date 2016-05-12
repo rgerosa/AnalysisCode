@@ -47,7 +47,8 @@ Options:
 
 	   isMC                : set to True when running on simulated events
 	   isFastSIM           : set to True when running on fast sim miniAOD (still temp and relying on Emanuele miniAOD)
-	   filterHighMETEvents : apply 200 GeV seletion on recoil/met (mumet or elmet or phmet or met)
+	   filterHighMETEvents : apply metCut GeV seletion on recoil/met (mumet or elmet or phmet or met)
+	   metCut              : met threshold
 	   filterOnHLT         : require the OR of all the trigger path definied in the MonoJetTreeMaker (beginRun)
 	   usePrivateSQliteJEC : use a local db file for jet energy correction
 	   usePrivateSQliteJER : use a local db file for jet energy smearings (by default true since no records in existing GT)
@@ -59,6 +60,7 @@ Options:
 	   addMVAMet           : add the MVA met (still not working in 76X)
 	   useMiniAODMet       : set to True when using miniAOD computed met and related systematics
 	   addMETSystematics   : dump MET systematic variations in the tree and, when useMiniAODMet = False, re-evaluate thorugh METSystematicProducer (for PUPPI too)
+	   useOfficialMETSystematics : use the official MET tool for systematics and not the private code
 	   addSubstructureCHS  : compute all substructure info for PFCHS jets (different parameters can be changed directly in tree.py)
 	   addSubstructurePuppi: compute all substructure info for PFPuppi jets 
 	   processName         : name of the cms.Process
@@ -73,6 +75,7 @@ Options:
 	   crossSection        : fix the cross section branch in fb-1 from an external value
 	   dropAnalyzerDumpEDM : to debug, avoid analyzers and dump edm collections produced in the event
 	   nThreads            : number of threads
+	   isCrab              : to be used to handle correctly local files with Crab
 
 	   
 Some useful information:
@@ -140,75 +143,46 @@ Combine Package and ROOT 6
 
 Please have a look to the following twiki: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideHiggsAnalysisCombinedLimit#ROOT6_SLC6_release_CMSSW_7_4_X
 
+=================================
+Run Crab Jobs for a given dataset
+=================================
 
-===============================================================================================================
-Install a private release of fastjet --> gives problems with cmssw 76X, not yet ready to switch to this version
-===============================================================================================================
+Python multicrab script can be used to submit on multiple dataset in one shot
 
-	cd $CMSSW_BASE/src
-	mkdir fastjet
-	cd fastjet
-	FASTJET_URL="http://fastjet.fr/repo"
-	FASTJET_TGZ="fastjet-3.2.0.tar.gz" 	
-	FASTJET_DIR=`echo $PWD/$FASTJET_TGZ | sed 's/.tar.gz//'`
-	FASTJET_VER=`echo $FASTJET_TGZ | sed 's/.tar.gz//' |cut -d'-' -f2`
-	wget "$FASTJET_URL/$FASTJET_TGZ" -O $FASTJET_TGZ
-	tar fzx $FASTJET_TGZ
-	rm -rf $FASTJET_TGZ
-	export FASTJET_BASE=$PWD
-	cd $FASTJET_DIR
-	./configure --prefix=$FASTJET_BASE --enable-allplugins --enable-allcxxplugins
-	make -j
-	make check -j
-	make install -j
-	rm -r $FASTJET_BASE/fastjet-$FASTJET_VER
-	cd ..
-	cd ..
-	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet.xml | sed -e "s%/cvmfs/cms.cern.ch/$SCRAM_ARCH/external/fastjet/3.1.0%$FASTJET_BASE%g" > fastjet.xml
-	mv fastjet.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
-	scram setup fastjet
-	cmsenv
-	rm -r $FASTJET_BASE/$FASTJET_VER
+       cd AnalysisCode/MonoXAnalysis/test/crab
+       python <multicrab.py> <multicrab cfg> 
 
-After the installation, in order to use properly the new fast-jet version, please andd and re-compile the following packages:
+Examples on how to setup the python for data and MC are crab/multicrab_MC_76X.py crab/multicrab_DATA_76X.py:
 
-      git cms-addpkg RecoBTag/SecondaryVertex 	
-      git cms-addpkg RecoJets/JetAlgorithms
-      git cms-addpkg PhysicsTools/JetMCAlgos
-	
-===========================================
-Install a private release of contrib in 76X 
-===========================================
+	 pyCfgParams : list of all the parameters to be given to the cmsRun application when the job is executed on the grid
+	 config.JobType.numCores : to allow multi-thread process .. the value should be the same of nThread
+	 All the other parameters are the standard crab3 ones: https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile
 
-	mkdir fastjet-contrib
-	cd fastjet-contrib
-	export FASTJET_BASE=`scramv1 tool tag fastjet FASTJET_BASE`
-	export FASTJETCONTRIB_BASE=$PWD
-	svn checkout http://fastjet.hepforge.org/svn/contrib/trunk fjcontrib 
-	cd fjcontrib
-	cat contribs.svn | sed -e "s%ConstituentSubtractor            tags/1.1.1%ConstituentSubtractor            tags/1.0.0%g" > contribs.svn.temp
-	mv contribs.svn.temp contribs.svn
-	./scripts/update-contribs.sh 
-	./configure --fastjet-config=$FASTJET_BASE/bin/fastjet-config --prefix=$PWD CXXFLAGS="-I$FASTJET_BASE/include -I$FASTJET_BASE/tools"
-	make -j
-	make check -j
-	make install -j
-	make fragile-shared -j
-	make fragile-shared-install -j
-	mv include/ ../
-	mv etc/ ../
-	mv lib/ ../
-	cd ..
-	rm -rf fjcontrib
-	cd ..
-	cat $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/fastjet-contrib.xml | sed -e "s%/cvmfs/cms.cern.ch/slc6_amd64_gcc493/external/fastjet-contrib/1.020%$FASTJETCONTRIB_BASE%g" > fastjet-contrib.xml
-	mv fastjet-contrib.xml $CMSSW_BASE/config/toolbox/$SCRAM_ARCH/tools/selected/
-	scram setup fastjet-contrib
-	cmsenv
-	scramv1 b -j 4	
+The config file which defines the dataset and additional parmaters for the cmsRun application can be found in SampleList_DATA_76X and SampleList_MC_76X. 
 
-When doing "make check" one warning is appearing:
+    samples[<name of crab di>] = [<dataset name>, [<additional parameters>]]
+    
+Example: 
 
-WARNING from FastJet: Subtractor::_amount_to_subtract(...): Background estimator indicates non-zero rho_m, but use_rho_m()==false in subtractor; consider calling set_use_rho_m(true) to include the rho_m information
+    samples['ZJetsToNuNu_HT-100To200']  = ['/ZJetsToNuNu_HT-100To200_13TeV-madgraph/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM',
+    					   ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=280.5']]
 
-which should be not important
+=================================
+Run Filter step for a dataset
+=================================
+
+==========================================
+Run Filter step for all the crab outputs
+==========================================
+
+=================================
+Copy Files to a local laptop
+=================================
+
+=================================
+Merge directories in a clever way
+=================================
+
+=======================================
+Run Basic makeTemplate for the analysis
+======================================

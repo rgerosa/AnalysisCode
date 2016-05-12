@@ -20,6 +20,10 @@ options.register (
 	'flag to indicate if apply or not MET filters');
 
 options.register (
+	'metCut',125.,VarParsing.multiplicity.singleton,VarParsing.varType.float,
+	'met/recoil cut to be applied if filterHighMETEvents is set to true');
+
+options.register (
 	'filterOnHLT',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not trigger requirements');
 
@@ -129,12 +133,13 @@ options.register (
 	'dropAnalyzerDumpEDM',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
 	'not run the analyzer and store an edm file');
 
-options.register ('nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
-		  'default number of threads');
+options.register (
+	'nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
+	'default number of threads');
 
-## to be used when running crab jobs with local files                                                                                                                            
+## to be used when running crab jobs with local files                                                                                                                           
 options.register ('isCrab',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
-        'to be used to handle local files with crab');
+		  'to be used to handle local files with crab');
 
 ## parsing command line arguments
 options.parseArguments()
@@ -155,6 +160,8 @@ if options.isMC and options.miniAODProcess != 'PAT':
 print "##### Settings ######"
 print "Running with isMC                = ",options.isMC	
 print "Running with filterHighMETEvents = ",options.filterHighMETEvents	
+if options.filterHighMETEvents:
+	print "Running with metCut              = ",options.metCut
 print "Running with filterOnHLT         = ",options.filterOnHLT	
 print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
 print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
@@ -445,13 +452,13 @@ if options.addSubstructurePuppi:
 process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
     metCollections = cms.VPSet(
 		cms.PSet( srcMet = cms.InputTag("slimmedMETs","",options.processName),
-			  metCut = cms.double(100)),
+			  metCut = cms.double(options.metCut)),
 		cms.PSet(srcMet = cms.InputTag("t1mumet","",options.processName),
-			 metCut = cms.double(100)),
+			 metCut = cms.double(options.metCut)),
 		cms.PSet(srcMet = cms.InputTag("t1elmet","",options.processName),
-			 metCut = cms.double(100)),
+			 metCut = cms.double(options.metCut)),
 		cms.PSet(srcMet = cms.InputTag("t1phmet","",options.processName),
-			 metCut = cms.double(100)),
+			 metCut = cms.double(options.metCut)),
 		),
     filterEvents = cms.bool(options.filterHighMETEvents),
     graterThan = cms.bool(True),
