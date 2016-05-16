@@ -403,6 +403,10 @@ Options:
 	interaction : type of interaction in case of DM analysis
 	mediatorMass : mass of the higgs boson in case of Higgs invisible, mediator mass for DM analysis
 	DMMass : DM mass
+	isCutAndCount : set to true when you want to produce a workspace for a cut and count analysis
+	normalizeSignal: when doing a cut and count, you can decide to change the signal normalization to a reference value (typically 1 to extract model independent limit on the production cross section)
+	xAxisSelection: in case of 1D templates, limits to be considered for the cut and count -> should match bin limits of the tempalte.root histograms
+	yAxisSelection: to be set when performing a 2D analysis, i.e. a 1D un-rolled histograms derived from a 2D (y-axis range of integration for the cut and count)
 
 There is an automatic script to produce all the workspace for all the signal mass points in one shot .. so that each worksapce can be use to run the limit since signal, data and backgroudn templates are there in each root file. 
 
@@ -429,12 +433,31 @@ Options:
 	--jobDIR:  directory to put the job executable.. must be accessible from the job itself so typically a directory in afs
 	--queque: queque name on lxbatch
 	--interaction: to run workspaces for all the mass combination of a given interaction ("Vector","Scalar","Pseudoscalar","Axial")
+	--isCutAndCount: to produce a workspace for a cut and count analysis
+	--normalizeSignal: absolute normalization of the singla for a cut and count analysis
+	--xAxisSelection : x-axis extreme integration for cut and count
+	--yAxisSelection : y-axis extreme integration for cut and count
 
 The script works in the following way: 
 1) make a list of all the TKey in the template file
 2) try to recognize according to the template name the ones belonging to signal samples
 3) If isHiggsInvisible: make one list for each production mode ggH, qqH, wH, zH and ggZH and submit one job per mass point (only common mass points are considered)
 4) if not isHiggsInvisible: make a list of each production mode monoJ, monoW and monoZ for a given interaction and submit one job per mass point combination (mMED:mDM), only for common mass points.
+
+===================
+Datacards Templates
+===================
+
+Datacards templates used for 2015 results (DM analysis, Higgs Invisible interpretation and combination) are available in the github area at this path: AnalysisCode/MonoXAnalysis/cards. They are organized in different directories .. in particular:
+
+	  AnalysisCode/MonoXAnalysis/cards/HiggsInvisible : datacards used for Higgs invisible analysis. You cand find two subdirectories, monoJ contains datacards for the monoJet channel, monoV for the monoV(Vhad) one.
+	  AnalysisCode/MonoXAnalysis/cards/monoJet: datacards used for mono-jet channel DM results.
+	  					    monoJet/onlyMonoJ --> fermion only datacards, in which only mono-jet signal is considered
+						    monoJet/MonoJMonoV --> in the signal region, also contamintion from monoV(Vhad) signals is taken into account
+						    monoJet/CutAndCount --> example cards to be used for a model-independent cross section limit
+
+						    In each of the aforementioned directory, there are three sub-directories: noShapes means just lnN for b-tag and met systematics, Shapes means use a template morphing (shapeN2) for b-tagging, met sys (jes, jer and unclustered met) and bin-by-bin stat uncertainty for the signal has been added. Finally Top means datacards where two control regions are added (top-mu and top-el) to extract top background from data.
+
 
 
 

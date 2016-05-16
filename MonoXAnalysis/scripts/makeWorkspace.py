@@ -15,6 +15,9 @@ from subprocess import Popen
 #            Job steering                  #                                                                                                                                 
 ############################################                                                                                                                                  
 
+def foo_callback(option, opt, value, parser):
+  setattr(parser.values, option.dest, value.split(','))
+
 parser = OptionParser()
 
 ############################################                                                                                                                                 
@@ -33,7 +36,11 @@ parser.add_option('--isHiggsInvisible', action="store_true",  dest="isHiggsInvis
 parser.add_option('--scaleQCD',     action="store", type=int, dest="scaleQCD",          default=1,      help="scale factor for QCD backgrond in SR")
 parser.add_option('--mergeLeptons', action="store_true",  dest="mergeLeptons",          default=False,  help="merge muon and electron datasets")
 parser.add_option('--isCombination',action="store_true",  dest="isCombination",         default=False,  help="naming convention for Higgs invisible combination")
-parser.add_option('--interaction',  action="store", type="string", dest="interaction",  default="",     help="Inteaction type")
+parser.add_option('--interaction',  action="store",       type="string", dest="interaction",  default="",     help="Inteaction type")
+parser.add_option('--isCutAndCount',action="store_true",  dest="isCutAndCount",   default=False, help="to decide when performing a cut and count analysis")
+parser.add_option('--normalizeSignal', action="store", type=float, dest="normalizeSignal", default=1.0,   help="absolute normalization of the singla for a cut and count analysis")
+parser.add_option('--xAxisSelection',action="callback", type="string", dest="xAxisSelection", default=["-1000","1000"], callback=foo_callback, help="x-axis extreme integration for cut and count")
+parser.add_option('--yAxisSelection',action="callback", type="string", dest="yAxisSelection", default=["-1000","1000"], callback=foo_callback, help="x-axis extreme integration for cut and count")
 
 ############################################                                                                                                                                 
 parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
@@ -72,6 +79,17 @@ if __name__ == '__main__':
     isCombination = 0;
     if options.isCombination:
         isCombination = 1;
+
+    isCutAndCount = 0;
+    if options.isCutAndCount:
+        isCutAndCount = 1;
+
+    if options.isCutAndCount:
+      if len(xAxisSelection) < 2:
+        sys.exit("xAxis selection --> at least two values to define a range");
+      if len(yAxisSelection) < 2:
+        sys.exit("yAxis selection --> at least two values to define a range");
+      
 
     ## load the create workspace macro
     ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so");
@@ -199,8 +217,14 @@ if __name__ == '__main__':
 
                 os.system("mkdir -p "+options.outputDIR);
     
-                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\")"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]))
-                ROOT.gROOT.ProcessLine(command.Data());
+                if not isCutAndCount:
+                  command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",%d,%f)"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],isCutAndCount,options.normalizeSignal))
+                  ROOT.gROOT.ProcessLine(command.Data());
+                else:
+                  command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",%d,%f,{%f,%f},{%f,%f})"%(options.templateFile,options.category,options.outputDIR,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],isCutAndCount,options.normalizeSignal,float(options.xAxisSelection[0]),float(xAxisSelection[1]),float(yAxisSelection[0]),float(yAxisSelection[1])))
+                  ROOT.gROOT.ProcessLine(command.Data());
+                  
+
             else:
             
                 os.system("mkdir -p "+options.jobDIR);
@@ -213,8 +237,13 @@ if __name__ == '__main__':
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so\");\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\")\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig]))
-                jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
+                if not isCutAndCount:
+                  command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],isCutAndCount,options.normalizeSignal))
+                  jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
+                else:
+                  command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f,{%f,%f},{%f,%f})\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],isCutAndCount,options.normalizeSignal,float(xAxisSelection[0]),float(xAxisSelection[1]),float(yAxisSelection[0]),float(yAxisSelection[1])))
+                  jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
+
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -241,10 +270,13 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\")"%(options.templateFile,options.category,options.outputDIR,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,""))
-            
-                os.system("mkdir -p "+options.outputDIR);
-                ROOT.gROOT.ProcessLine(command.Data());
+              if not options.isCutAndCount:
+                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",%d,%f)"%(options.templateFile,options.category,options.outputDIR,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,"",isCutAndCount,options.normalizeSignal))
+              else:
+                command = ROOT.TString("createWorkspace(\"%s\",%d,\"%s/workspace_%s_%s.root\",\"%s\",%d,%f,%d,%d,%d,%d,%d,\"%s\",\"%s\",\"%s\",%d,%f,{%f,%f},{%f,%f})"%(options.templateFile,options.category,options.outputDIR,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,"",isCutAndCount,options.normalizeSignal,float(xAxisSelection[0]),float(xAxisSelection[1]),float(yAxisSelection[0]),float(yAxisSelection[1])))
+                
+              os.system("mkdir -p "+options.outputDIR);
+              ROOT.gROOT.ProcessLine(command.Data());
             else:
                 
                 os.system("mkdir -p "+options.jobDIR);
@@ -257,7 +289,11 @@ if __name__ == '__main__':
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so\");\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
-                command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\")\""%(options.templateFile,options.category,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,""))
+                if options.isCutAndCount:
+                  command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f)\""%(options.templateFile,options.category,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,"",isCutAndCount,options.normalizeSignal))
+                else:
+                  command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f,{%f,%f},{%f,%f})\""%(options.templateFile,options.category,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,"",isCutAndCount,options.normalizeSignal,float(xAxisSelection[0]),float(xAxisSelection[1]),float(yAxisSelection[0]),float(yAxisSelection[1])))
+                  
                 jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
