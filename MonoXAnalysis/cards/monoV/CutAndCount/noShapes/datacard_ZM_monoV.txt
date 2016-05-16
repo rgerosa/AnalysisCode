@@ -1,0 +1,32 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+----------------------------------------------------------------------------------
+shapes data_obs      dimuon_MV   workspace_MV.root ZM_MV:data_obs_ZM_MV
+shapes Znunu         dimuon_MV   workspace_MV.root ZM_MV:Znunu_ZM_MV
+shapes WJets_ZM      dimuon_MV   workspace_MV.root ZM_MV:WJets_ZM_MV
+shapes Dibosons      dimuon_MV   workspace_MV.root ZM_MV:Dibosons_ZM_MV
+shapes Top	     dimuon_MV   workspace_MV.root ZM_MV:Top_ZM_MV
+----------------------------------------------------------------------------------
+bin         dimuon_MV
+observation -1
+----------------------------------------------------------------------------------
+bin                                 dimuon_MV      dimuon_MV      dimuon_MV          dimuon_MV
+process                             Znunu       WJets_ZM    Dibosons        Top  
+process                             1           8           4               5     
+rate                                1          -1           -1              -1    
+----------------------------------------------------------------------------------
+lumi_13TeV                lnN       -           1.027       1.027           1.027
+CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
+WJets_ZM_Norm13TeV        lnN       -           1.200       -               -     
+Dibosons_Norm13TeV        lnN       -           -           1.200           -     
+Top_Norm13TeV		  lnN       -           -           -               1.100 
+Top_Reweight13TeV         lnN       -           -           -               1.100 
+CMS_met_13TeV             lnN       -           1.040       1.040           1.040 
+CMS_btag_13TeV            lnN       -           1.020       1.020           1.060 
+CMS_eff_Vtag_stat         lnN       -           -           1.065/0.935  1.065/0.935
+CMS_eff_Vtag_PS           lnN       -           -           1.065/0.935  1.065/0.935
+Znunu_ZM_MV_Runc        param     0     1
+----------------------------------------------------------------------------------
+

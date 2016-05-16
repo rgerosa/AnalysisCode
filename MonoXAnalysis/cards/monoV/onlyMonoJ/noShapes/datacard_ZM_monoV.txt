@@ -21,9 +21,12 @@ lumi_13TeV                lnN       -           1.027       1.027           1.02
 CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
 WJets_ZM_Norm13TeV        lnN       -           1.200       -               -     
 Dibosons_Norm13TeV        lnN       -           -           1.200           -     
-Top_Norm13TeV		  lnN       -           -           -               1.200 
-CMS_met                   lnN       -           1.040       1.040           1.040 
-CMS_btag                  lnN       -           1.020       1.020           1.060 
+Top_Norm13TeV		  lnN       -           -           -               1.100 
+Top_Reweight13TeV         lnN       -           -           -               1.100 
+CMS_met_13TeV             lnN       -           1.040       1.040           1.040 
+CMS_btag_13TeV            lnN       -           1.020       1.020           1.060 
+CMS_eff_Vtag_stat         lnN       -           -           1.065/0.935  1.065/0.935
+CMS_eff_Vtag_PS           lnN       -           -           1.065/0.935  1.065/0.935
 Znunu_ZM_MV_bin1_Runc        param     0     1
 Znunu_ZM_MV_bin2_Runc        param     0     1
 Znunu_ZM_MV_bin3_Runc        param     0     1

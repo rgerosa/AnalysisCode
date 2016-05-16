@@ -25,12 +25,14 @@ rate                                 -1       -1      -1       1            1   
 lumi_13TeV                lnN        1.027    1.027   1.027    -            -          1.027          1.027         1.027         -         1.027
 ZJets_Norm13TeV           lnN        -        -         -      -            -          1.200          -              -            -         -
 Dibosons_Norm13TeV        lnN        -        -         -      -            -            -            1.200          -            -         -
-Top_Norm13TeV             lnN        -        -         -      -            -            -            -             1.200         -         -
+Top_Norm13TeV             lnN        -        -         -      -            -            -            -             1.100         -         -
+Top_Reweight13TeV         lnN        -        -         -      -            -            -            -             1.100         -         -
 GJets_Norm13TeV           lnN        -        -         -      -            -            -            -              -            -         1.200
-CMS_met                   lnN        1.040    1.040   1.040    -            -          1.040          1.040         1.040         -         1.040
-CMS_btag                  lnN        1.020    1.020   1.020    -            -          1.020          1.020         1.060         -         1.020
-CMS_eff_Vtag              lnN        -     0.87/1.13 0.87/1.13  -            -            -         0.87/1.13     0.87/1.13       -         -
-CMS_qcd                   shapeN2    -        -         -      -            -            -            -              -            1         -
+CMS_met_13TeV             lnN        1.040    1.040   1.040    -            -          1.040          1.040         1.040         -         1.040
+CMS_btag_13TeV            lnN        1.020    1.020   1.020    -            -          1.020          1.020         1.060         -         1.020
+CMS_eff_Vtag_stat         lnN        -        0.87/1.13 0.87/1.13   -       -            -         0.99/1.01     0.99/1.01        -         -
+CMS_eff_Vtag_PS           lnN        -        0.87/1.13 0.87/1.13   -       -            -         0.99/1.01     0.99/1.01        -         -
+CMS_QCD_SR                shapeN2    -        -         -      -            -            -            -              -            1         -
 WJets_SR_MJ_bin1_Runc        param     0     1
 WJets_SR_MJ_bin2_Runc        param     0     1
 WJets_SR_MJ_bin3_Runc        param     0     1

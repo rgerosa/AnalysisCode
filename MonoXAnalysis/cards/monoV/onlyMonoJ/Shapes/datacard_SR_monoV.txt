@@ -20,17 +20,19 @@ process                              MonoJ    Znunu        WJets       ZJets    
 process                              0         1            2            3             4             5             6         7
 rate                                 -1        1            1           -1            -1            -1            -1        -1
 ------------------------------------------------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN        1.027    -            -          1.027          1.027         1.027         -        1.027
-ZJets_Norm13TeV           lnN        -        -            -          1.200          -              -            -        -
-Dibosons_Norm13TeV        lnN        -        -            -            -            1.200          -            -        -
-Top_Norm13TeV             lnN        -        -            -            -            -             1.200         -        -
-GJets_Norm13TeV           lnN        -        -            -            -            -              -            -        1.200
-CMS_btag                  shapeN2    1        -            -            1            1              1	         -          1
-CMS_scale_j               shapeN2    1        -            -            1            1              1            -          1 
-CMS_res_j                 shapeN2    1        -            -            1            1              1            -          1  
-CMS_unc                   shapeN2    1        -            -            1            1              1            -          1
-CMS_qcd                   shapeN2    -        -            -            -            -              -            1          -
-CMS_eff_Vtag              lnN        -        -            -            -         1.13/0.87     1.13/0.87        -          -
+lumi_13TeV                lnN        1.027    -            -          1.027          1.027         1.027          -          1.027
+ZJets_Norm13TeV           lnN        -        -            -          1.200          -              -             -          -
+Dibosons_Norm13TeV        lnN        -        -            -            -            1.200          -             -          -
+Top_Norm13TeV             lnN        -        -            -            -            -             1.100          -          -
+Top_Reweight13TeV         lnN        -        -            -            -            -             1.100          -          -
+GJets_Norm13TeV           lnN        -        -            -            -            -              -             -          1.200
+CMS_btag_13TeV            shapeN2    1        -            -            1            1              1	          -          1
+CMS_scale_j_13TeV         shapeN2    1        -            -            1            1              1             -          1 
+CMS_res_j_13TeV           shapeN2    1        -            -            1            1              1             -          1  
+CMS_scale_met_13TeV       shapeN2    1        -            -            1            1              1             -          1
+CMS_QCD_SR                shapeN2    -        -            -            -            -              -             1          -
+CMS_eff_Vtag_stat         lnN        -        -            -            -        1.065/0.935  1.065/0.935         -          -
+CMS_eff_Vtag_PS           lnN        -        -            -            -        1.065/0.935  1.065/0.935         -          -
 MonoJ_SR_MV_CMS_bin1_stat    shapeN2  1        -            -            -            -              -            -          -
 MonoJ_SR_MV_CMS_bin2_stat    shapeN2  1        -            -            -            -              -            -          -  
 MonoJ_SR_MV_CMS_bin3_stat    shapeN2  1        -            -            -            -              -            -          -     
@@ -38,34 +40,6 @@ MonoJ_SR_MV_CMS_bin4_stat    shapeN2  1        -            -            -      
 MonoJ_SR_MV_CMS_bin5_stat    shapeN2  1        -            -            -            -              -            -          -       		       
 MonoJ_SR_MV_CMS_bin6_stat    shapeN2  1        -            -            -            -              -            -          -       
 MonoJ_SR_MV_CMS_bin7_stat    shapeN2  1        -            -            -            -              -            -          -       
-Top_SR_MV_CMS_bin1_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin2_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin3_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin4_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin5_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin6_stat      shapeN2  -        -            -            -            -              1            -          -
-Top_SR_MV_CMS_bin7_stat      shapeN2  -        -            -            -            -              1            -          -
-Dibosons_SR_MV_CMS_bin1_stat    shapeN2       -         -            -              -            1   -      -   -
-Dibosons_SR_MV_CMS_bin2_stat    shapeN2       -         -            -              -            1   -      -   -
-Dibosons_SR_MV_CMS_bin3_stat    shapeN2       -         -            -              -            1   -      -   - 
-Dibosons_SR_MV_CMS_bin4_stat    shapeN2       -         -            -              -            1   -      -   -
-Dibosons_SR_MV_CMS_bin5_stat    shapeN2       -         -            -              -            1   -      -   -
-Dibosons_SR_MV_CMS_bin6_stat    shapeN2       -         -            -              -            1   -      -   -
-Dibosons_SR_MV_CMS_bin7_stat    shapeN2       -         -            -              -            1   -      -   -
-GJets_SR_MV_CMS_bin1_stat    shapeN2       -         -            -              -            -   -      -   1
-GJets_SR_MV_CMS_bin2_stat    shapeN2       -         -            -              -            -   -      -   1
-GJets_SR_MV_CMS_bin3_stat    shapeN2       -         -            -              -            -   -      -   1 
-GJets_SR_MV_CMS_bin4_stat    shapeN2       -         -            -              -            -   -      -   1
-GJets_SR_MV_CMS_bin5_stat    shapeN2       -         -            -              -            -   -      -   1
-GJets_SR_MV_CMS_bin6_stat    shapeN2       -         -            -              -            -   -      -   1
-GJets_SR_MV_CMS_bin7_stat    shapeN2       -         -            -              -            -   -      -   1
-ZJets_SR_MV_CMS_bin1_stat    shapeN2       -         -            -              1            -   -      -   -
-ZJets_SR_MV_CMS_bin2_stat    shapeN2       -         -            -              1            -   -      -   -
-ZJets_SR_MV_CMS_bin3_stat    shapeN2       -         -            -              1            -   -      -   - 
-ZJets_SR_MV_CMS_bin4_stat    shapeN2       -         -            -              1            -   -      -   -
-ZJets_SR_MV_CMS_bin5_stat    shapeN2       -         -            -              1            -   -      -   -
-ZJets_SR_MV_CMS_bin6_stat    shapeN2       -         -            -              1            -   -      -   -
-ZJets_SR_MV_CMS_bin7_stat    shapeN2       -         -            -              1            -   -      -   -
 WJets_SR_RenScale1        param     0     1
 WJets_SR_FactScale1       param     0     1
 WJets_SR_RenScale2        param     0     1

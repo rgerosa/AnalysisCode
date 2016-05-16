@@ -311,9 +311,13 @@ After the filter step, once all the files are copied to a local machine and corr
 
       macros/makeCorrHistograms.C : set of functions used to create Transfer factors and variations for the different control regions (also top regions in case needed)
       
-      macros/makeDataHistograms.C : set of functions used to select data and MC events belonging to Z->mm, Z->ee, W->mn, W->en, gamma+jets, SR, ttbar mu, ttbar e. Indipendent functions applied selections on signal samples: one function for Higgs invisible vs mH, one function for DM analysis
+      macros/makeDataHistograms.C : set of functions used to select data and MC events belonging to Z->mm, Z->ee, W->mn, W->en, gamma+jets, SR, ttbar mu, ttbar e. 
+
+      macros/makeSignalHistograms.C: functions used to apply selections on signal samples -> one function for Higgs invisible vs mH, one function for DM analysis
 
       macros/makeTemplates.C: main code to be run
+
+      macros/makeSignalTemplates.C: alternative code just to run on signal samples
 
 
 To run:
@@ -321,7 +325,7 @@ To run:
    cd AnalysisCode/MonoXAnalysis/macros;
    root -l;
    .L makeTemplates.C+;
-   makeTemplates.C(....options ...);
+   makeTemplates(....options ...);
 
 Options:
       
@@ -344,6 +348,94 @@ Options:
       addTop                   : to run selections also for the top enriched control samples
       ext                      : additional string
 
+
+To run signal templates analysis only:
+
+   cd AnalysisCode/MonoXAnalysis/macros;
+   root -l;
+   .L makeSignalTemplates.C+;
+   makeSignalTemplates(<options>);
+
+Options:
+
+	category : it rules the analysis selection  0 means mono=jet inclusive, 1 means mono-jet exclusive, 2 means mono-V 
+	lumi     : luminosity value in fb-1
+	outDir   : output directory
+	templateSuffix  : suffix on root file with templates "outDir+"/templates_signal_"+interactionType+"_"+templateSuffix+".root"
+	observables     : 1D observables list to produce histograms
+	observables_2D  : 2D list to produce histograms
+	interactionType : string to indicate the type of interaction "Vector","Axial","Scalar","Pseudoscalar"
+	doShapeSystematics : perform template variations for sys uncertainty
+	typeOfDMSignal  : run only on some signal production mechanism .. 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
+	runHiggsInvisible : run Higgs invisible analysis instead of DM one (when trye the value of typeOfDMSignal doesn't matter)
+	ext             : additional string 
+	    
+
+
 ==========================
-Create analysis Worksapce
+Create Combine Worksapce
 ==========================
+
+The code to create the workspace assumes that all the templates for CRs and SR (background, data and signal) are located in a common file. In case signal templates have been produced independently from background ones, you can just hadd the templates*.root file. 
+
+
+To run: make sure that the combine tool is properly installed in your CMSSW release
+
+   cd AnalysisCode/MonoXAnalysis/macros;
+   root -l;
+   gSystem->Load("$CMSSW_BASE/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+   .L createWorksapce.C;
+   createWorksapce.C(<option>);
+   
+Options:
+
+	inputName : template file with all the histograms and TFs needed to build the workspace for the Likelihood model
+	category  : same as in the makeTemplates .. used to retrive the right binning for the observable
+	outputName : name of the output root file with the workspaces
+	observable : 1D or 2D observable to be considered .. the code does a grep of a substring in the template file (2D are unrolled in 1D histo)
+	isHiggsInvisible : produce signal templates for higgs invisible analysis (qqH, ggH, wH, zH and ggZH) .. if not monoJ, monoW, monoZ
+	scaleQCD  : to scale the QCD background in the SR
+	connectWZ : to use the W/Z link for the signal region
+	connectTop : to link the top-enriched control sample .. not used in the baseline analysis and require to run the makeTemplate with addTop = True
+	addShapeSystematics : add shape systematics for MC bkg and signal 
+	mergeLeptons : to merge muon and electron control regions (useful as cross check)
+	isCombination : naming convention used in HIG-16-016
+	interaction : type of interaction in case of DM analysis
+	mediatorMass : mass of the higgs boson in case of Higgs invisible, mediator mass for DM analysis
+	DMMass : DM mass
+
+There is an automatic script to produce all the workspace for all the signal mass points in one shot .. so that each worksapce can be use to run the limit since signal, data and backgroudn templates are there in each root file. 
+
+To run the automatic production:
+
+   cd AnalysisCode/MonoXAnalysis/;
+   python scripts/makeWorkspace.py <options>
+
+Options:
+	--inputDIR: working directory to be used .. typically the same directory in which the template file is located
+	--outputDIR: output directory where all the workspaces will be copied (typically a directory on afs in the work area)
+	--templateFile: name of the template file
+	--category : same meaning as before
+	--observable: observable to be considered
+	--addShapeSystematics
+	--connectWZ
+	--connectTop
+	--isHiggsInvisible
+	--scaleQCD
+	--mergeLeptons
+	--isCombination
+	--batchMode: to use lxbatch as scheduler
+	--submit : to submit jobs
+	--jobDIR:  directory to put the job executable.. must be accessible from the job itself so typically a directory in afs
+	--queque: queque name on lxbatch
+	--interaction: to run workspaces for all the mass combination of a given interaction ("Vector","Scalar","Pseudoscalar","Axial")
+
+The script works in the following way: 
+1) make a list of all the TKey in the template file
+2) try to recognize according to the template name the ones belonging to signal samples
+3) If isHiggsInvisible: make one list for each production mode ggH, qqH, wH, zH and ggZH and submit one job per mass point (only common mass points are considered)
+4) if not isHiggsInvisible: make a list of each production mode monoJ, monoW and monoZ for a given interaction and submit one job per mass point combination (mMED:mDM), only for common mass points.
+
+
+
+	

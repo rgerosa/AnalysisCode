@@ -24,12 +24,15 @@ CMS_eff_trig_e            lnN       1.010       1.010       1.010           1.01
 CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
 ZJets_WE_Norm13TeV        lnN       -           1.200       -               -             -
 Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
-Top_Norm13TeV             lnN       -           -           -               1.200         -
+Top_Norm13TeV             lnN       -           -           -               1.100         -
+Top_Reweight13TeV         lnN       -           -           -               1.100         -
 QCD_WE_Norm13TeV          lnN       -           -           -               -             1.500
-CMS_btag                  shapeN2   -           1           1               1             -
-CMS_scale_j               shapeN2   -           1           1               1             -
-CMS_res_j                 shapeN2   -           1           1               1             -
-CMS_unc                   shapeN2   -           1           1               1             -
+CMS_btag_13TeV            shapeN2   -           1           1               1             -
+CMS_scale_j_13TeV         shapeN2   -           1           1               1             -
+CMS_res_j_13TeV           shapeN2   -           1           1               1             -
+CMS_scale_met_13TeV       shapeN2   -           1           1               1             -
+CMS_eff_Vtag_stat         lnN       -            -         0.99/1.01     0.99/1.01        -
+CMS_eff_Vtag_PS           lnN       -            -         0.99/1.01     0.99/1.01        -
 WJets_WE_MJ_bin1_Runc     param     0     1
 WJets_WE_MJ_bin2_Runc     param     0     1
 WJets_WE_MJ_bin3_Runc     param     0     1

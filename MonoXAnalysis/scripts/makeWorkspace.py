@@ -33,6 +33,7 @@ parser.add_option('--isHiggsInvisible', action="store_true",  dest="isHiggsInvis
 parser.add_option('--scaleQCD',     action="store", type=int, dest="scaleQCD",          default=1,      help="scale factor for QCD backgrond in SR")
 parser.add_option('--mergeLeptons', action="store_true",  dest="mergeLeptons",          default=False,  help="merge muon and electron datasets")
 parser.add_option('--isCombination',action="store_true",  dest="isCombination",         default=False,  help="naming convention for Higgs invisible combination")
+parser.add_option('--interaction',  action="store", type="string", dest="interaction",  default="",     help="Inteaction type")
 
 ############################################                                                                                                                                 
 parser.add_option('--batchMode',    action="store_true", dest="batchMode",   help="batchMode")
@@ -127,10 +128,12 @@ if __name__ == '__main__':
                             continue;
                         if ROOT.TString(h1.GetName()).Contains("Up") or ROOT.TString(h1.GetName()).Contains("Down") or ROOT.TString(h1.GetName()).Contains("Dw"):
                             continue;
+                        if not ROOT.TString(h1.GetName()).Contains(options.interaction):
+                            continue;
                         list = str(h1.GetName()).split("_")
                         if(len(list) < 4):
                             sys.exit("Problem in the signal template name convention ---> exit ");
-                        else:
+                        else:                            
                             if(ROOT.TString(h1.GetName()).Contains("monoJ")):                
                                 monoJInteraction.append(list [1]);
                                 monoJMediatorMass.append(list[2]);

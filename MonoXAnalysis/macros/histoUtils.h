@@ -285,11 +285,13 @@ void addDummyBinContent(TH1* histo){
 }
 
 // maxium envelop between histograms
-TH1F* generateEnvelopeMax(vector<TH1F*> & histoVec){
+TH1F* generateEnvelopeMax(vector<TH1F*> & histoVec, string nameBase){
 
   if(histoVec.size() == 0){
     cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
-    return new TH1F();
+    TH1F* temp = new TH1F();
+    temp->SetName((nameBase+"_envelopeMax").c_str());
+    return temp;
   }
 
   TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMax");
@@ -312,11 +314,13 @@ TH1F* generateEnvelopeMax(vector<TH1F*> & histoVec){
 
 }
 
-TH1F* generateEnvelopeMin(vector<TH1F*> & histoVec){
+TH1F* generateEnvelopeMin(vector<TH1F*> & histoVec, string nameBase){
 
   if(histoVec.size() == 0){
     cerr<<"generateEnvelopeMax: empty input histogram collection "<<endl;
-    return new TH1F();
+    TH1F* temp = new TH1F();
+    temp->SetName((nameBase+"_envelopeMin").c_str());
+    return temp;
   }
 
   TH1F* histo = (TH1F*) histoVec.at(0)->Clone("envelopeMin");
