@@ -2,6 +2,7 @@ import os, copy
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
 from RecoMET.METProducers.PFMET_cfi import pfMet
+from PhysicsTools.PatUtils.patPFMETCorrections_cff import patPFMetT1T2Corr
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import pfMEtMultShiftCorr
 
@@ -81,28 +82,12 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		 
  	        ## derive type-I corrector object
 		setattr(process,"patPFMetT1Corr"+postfix, 
-			cms.EDProducer("PATPFJetMETcorrInputProducer",
-				       isMC = cms.bool(isMC),
-				       offsetCorrLabel = cms.InputTag("L1FastJet"),
-				       jetCorrLabel = cms.InputTag("L3Absolute"), ## info embedded in the jet object
-				       jetCorrLabelRes = cms.InputTag("L2L3Residual"), ## info embedded in the jet object 
-				       skipEM = cms.bool(True),
-				       skipEMfractionThreshold = cms.double(0.9),
-				       skipMuonSelection = cms.string('isGlobalMuon | isStandAloneMuon'),
-				       skipMuons = cms.bool(True),
-				       src = cms.InputTag(jetCollection),
-				       type1JetPtThreshold = cms.double(15.0),
-				       type2ExtraCorrFactor = cms.double(1.0),
-				       type2ResidualCorrEtaMax = cms.double(9.9),
-				       type2ResidualCorrLabel = cms.InputTag(""),
-				       type2ResidualCorrOffset = cms.double(0.0)
-				       ))
+			patPFMetT1T2Corr.clone(
+				src = cms.InputTag(jetCollection),
+				type1JetPtThreshold = cms.double(15.0),
+				))
 	
 
-
-         	## if not residuals
-		if applyL2L3Residuals == False :
-			getattr(process,"patPFMetT1Corr"+postfix).isMC = cms.bool(True) ## avoid to apply residual JEC
 
   	        ## no L1 correction for Puppi
 		if postfix == "Puppi":

@@ -99,7 +99,7 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','76X_dataRun2_16Dec2015_v0',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','80X_dataRun2_Prompt_v8',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## JEC    
@@ -134,7 +134,7 @@ options.register (
 	'not run the analyzer and store an edm file');
 
 options.register (
-	'nThreads',4,VarParsing.multiplicity.singleton, VarParsing.varType.int,
+	'nThreads',1,VarParsing.multiplicity.singleton, VarParsing.varType.int,
 	'default number of threads');
 
 ## to be used when running crab jobs with local files                                                                                                                           
@@ -146,8 +146,8 @@ options.parseArguments()
 
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
-	options.globalTag = '76X_mcRun2_asymptotic_RunIIFall15DR76_v1';
-
+	options.globalTag = '80X_mcRun2_asymptotic_2016_miniAODv2';
+	options.JECEra  = 'Spring16_25nsV1';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 	
@@ -211,10 +211,10 @@ if options.inputFiles == []:
 
 	if not options.isMC :
 		process.source.fileNames.append(
-			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
+			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root')
 	else:
 		process.source.fileNames.append(
-			'file:pickevents.root'
+			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
 #			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
 			)    	

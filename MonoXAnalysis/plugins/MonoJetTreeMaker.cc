@@ -4137,7 +4137,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   }
   
   // MET filter Paths
-  filterPathsVector.push_back("Flag_CSCTightHaloFilter");
+  filterPathsVector.push_back("Flag_CSCTightHalo2015Filter");
   filterPathsVector.push_back("Flag_HBHENoiseFilter");
   filterPathsVector.push_back("Flag_eeBadScFilter");
   filterPathsVector.push_back("Flag_HBHENoiseIsoFilter");

@@ -1,6 +1,7 @@
 import os
 import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
+from CondCore.CondDB.CondDB_cfi import*
 
 ## setup JEC on PAT jets from miniAOD
 def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals,isCrab):

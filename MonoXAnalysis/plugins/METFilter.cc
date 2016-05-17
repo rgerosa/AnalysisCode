@@ -72,7 +72,6 @@ bool METFilter<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(filterEvents_ == false) return true;
 
   bool eventAccepted = false;
-
   // get by token
   edm::Handle<T> metCollectionH;
   size_t iMetColl = 0;

@@ -21,21 +21,21 @@ pyCfgParams = ['isMC=False',
                'addQGLikelihood=True',
                'addPileupJetID=True',
                'addMVAMet=False',
-               'globalTag=76X_dataRun2_16Dec2015_v0',
+               'globalTag=80X_dataRun2_Prompt_v8',
                'outputFileName=tree.root',
-               'nThreads=3',
+               'nThreads=1',
                'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_76X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_80X'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 3
+config.JobType.numCores         = 1
 config.JobType.maxMemoryMB      = 2500
 
 
@@ -43,8 +43,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 25000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/Reprocessing/Cert_13TeV_16Dec2015ReReco_Collisions15_25ns_JSON_v2.txt'  
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/early2016DATA'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/DCSOnly/json_DCSONLY.txt'  
 #config.Data.runRange
 config.Data.publication   = False
 
