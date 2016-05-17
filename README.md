@@ -275,7 +275,6 @@ Once all the files are copied to a local machine, is a good thing to arrange the
      python scripts/files/mergeDirectories.py <options>
 
 Options:
-
 	--inputDIR : mother directory that containes all the sub-directories that you wanna merge
 	--outputDIR : name of the output common directory
 	--grepName name1,name2... : merge only a	set of sub-dirs
@@ -292,6 +291,7 @@ Merge ROOT files in a clever way
 	python scripts/files/mergeFile.py <options>
 
 Options:
+
 	--inputDIR : directory that contains all the files to be merged
 	--outputName : name of the single root file created
 
@@ -321,11 +321,10 @@ After the filter step, once all the files are copied to a local machine and corr
 
 
 To run:
-
-   cd AnalysisCode/MonoXAnalysis/macros;
-   root -l;
-   .L makeTemplates.C+;
-   makeTemplates(....options ...);
+	cd AnalysisCode/MonoXAnalysis/macros;
+   	root -l;
+   	.L makeTemplates.C+;
+   	makeTemplates(....options ...);
 
 Options:
       
@@ -351,10 +350,10 @@ Options:
 
 To run signal templates analysis only:
 
-   cd AnalysisCode/MonoXAnalysis/macros;
-   root -l;
-   .L makeSignalTemplates.C+;
-   makeSignalTemplates(<options>);
+       cd AnalysisCode/MonoXAnalysis/macros;
+       root -l;
+       .L makeSignalTemplates.C+;
+       makeSignalTemplates(<options>);
 
 Options:
 
@@ -381,11 +380,11 @@ The code to create the workspace assumes that all the templates for CRs and SR (
 
 To run: make sure that the combine tool is properly installed in your CMSSW release
 
-   cd AnalysisCode/MonoXAnalysis/macros;
-   root -l;
-   gSystem->Load("$CMSSW_BASE/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
-   .L createWorksapce.C;
-   createWorksapce.C(<option>);
+   	cd AnalysisCode/MonoXAnalysis/macros;
+	root -l;
+	gSystem->Load("$CMSSW_BASE/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
+	.L createWorksapce.C;
+	createWorksapce.C(<option>);
    
 Options:
 
@@ -412,10 +411,11 @@ There is an automatic script to produce all the workspace for all the signal mas
 
 To run the automatic production:
 
-   cd AnalysisCode/MonoXAnalysis/;
-   python scripts/makeWorkspace.py <options>
+       cd AnalysisCode/MonoXAnalysis/;
+       python scripts/makeWorkspace.py <options>
 
 Options:
+
 	--inputDIR: working directory to be used .. typically the same directory in which the template file is located
 	--outputDIR: output directory where all the workspaces will be copied (typically a directory on afs in the work area)
 	--templateFile: name of the template file
@@ -452,11 +452,11 @@ Datacards templates used for 2015 results (DM analysis, Higgs Invisible interpre
 
 	  AnalysisCode/MonoXAnalysis/cards/HiggsInvisible : datacards used for Higgs invisible analysis. You cand find two subdirectories, monoJ contains datacards for the monoJet channel, monoV for the monoV(Vhad) one.
 	  AnalysisCode/MonoXAnalysis/cards/monoJet: datacards used for mono-jet channel DM results.
-	  					    monoJet/onlyMonoJ --> fermion only datacards, in which only mono-jet signal is considered
-						    monoJet/MonoJMonoV --> in the signal region, also contamintion from monoV(Vhad) signals is taken into account
-						    monoJet/CutAndCount --> example cards to be used for a model-independent cross section limit
+	  AnalysisCode/MonoXAnalysis/cards/monoJet/onlyMonoJ --> fermion only datacards, in which only mono-jet signal is considered
+	  AnalysisCode/MonoXAnalysis/cards/monoJet/MonoJMonoV --> in the signal region, also contamintion from monoV(Vhad) signals is taken into account
+	  AnalysisCode/MonoXAnalysis/cards/monoJet/CutAndCount --> example cards to be used for a model-independent cross section limit
 
-						    In each of the aforementioned directory, there are three sub-directories: noShapes means just lnN for b-tag and met systematics, Shapes means use a template morphing (shapeN2) for b-tagging, met sys (jes, jer and unclustered met) and bin-by-bin stat uncertainty for the signal has been added. Finally Top means datacards where two control regions are added (top-mu and top-el) to extract top background from data.
+	  In each of the aforementioned directory, there are three sub-directories: noShapes means just lnN for b-tag and met systematics, Shapes means use a template morphing (shapeN2) for b-tagging, met sys (jes, jer and unclustered met) and bin-by-bin stat uncertainty for the signal has been added. Finally Top means datacards where two control regions are added (top-mu and top-el) to extract top background from data.
 
 
 
