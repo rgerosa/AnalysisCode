@@ -303,8 +303,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      outputelectrons.at(ipos)->push_back(pat::ElectronRef(calibratedElectronsH,calibele_iter-calibratedElectronsH->begin()));
 	    }
 	  }
-	  if(not isMatched)
-	    throw cms::Exception("PFCleaner") <<" missing matching for one electorns between calib and un-calib collections --> check \n";
+	  if(not isMatched) // probably due to the pre-selections
+	    outputelectrons.at(ipos)->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
 	}
 	else{	  
 	  outputelectrons.at(ipos)->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
