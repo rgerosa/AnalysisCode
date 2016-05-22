@@ -33,7 +33,7 @@ options.register (
 	'if a private SQL file with JEC to be found in test directory');
 
 options.register (
-	'usePrivateSQliteJER',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'usePrivateSQliteJER',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JER to be found in test directory');
 
 options.register (
@@ -56,6 +56,11 @@ options.register (
 options.register (
 	'addPuppiMET',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add PUPPI met to the output');
+
+#### Add scale and smear corrections for electrons and photons
+options.register (
+	'addEGMSmear',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'add e-gamma scale and resolution corrections for electrons and photons');
 
 options.register (
 	'addMVAMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -168,6 +173,7 @@ print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
 print "Running with addPuppiJets        = ",options.addPuppiJets
 print "Running with addPuppiMET         = ",options.addPuppiMET
+print "Running with addEGMSmear         = ",options.addEGMSmear
 print "Running with useMiniAODMet       = ",options.useMiniAODMet
 print "Running with addMETSystematics   = ",options.addMETSystematics	
 print "Running with processName         = ",options.processName	
@@ -214,9 +220,9 @@ if options.inputFiles == []:
 			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
 	else:
 		process.source.fileNames.append(
-			'file:pickevents.root'
+#			'file:pickevents.root'
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
-#			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
+			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
 			)    	
 else:
    process.source = cms.Source("PoolSource",
@@ -256,11 +262,11 @@ process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process)
+ElectronTools(process,options.addEGMSmear,options.isMC)
 
 # run cut-based photon ID 
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
-PhotonTools(process)
+PhotonTools(process,options.addEGMSmear,options.isMC)
 
 # Apply JEC on jets and update them
 from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
@@ -273,27 +279,11 @@ jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.
 if options.addPuppiJets:
 	jetPuppiCollName = JetCorrector(process,jetPuppiCollName,"AK4PFPuppi",options.isMC,options.applyL2L3Residuals)
 	
-# Create a set of objects to read from
-process.selectedObjects = cms.EDProducer("PFCleaner",
-     vertices  = cms.InputTag("goodVertices"),
-     pfcands   = cms.InputTag("packedPFCandidates"),
-     muons     = cms.InputTag("slimmedMuons"),
-     electrons = cms.InputTag("slimmedElectrons"),
-     taus      = cms.InputTag("slimmedTaus"),					 
-     photons   = cms.InputTag("slimmedPhotons"),
-     rho       = cms.InputTag("fixedGridRhoFastjetAll"),
-     jets      = cms.InputTag(jetCollName),
-     electronidveto  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
-     electronidloose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-     electronidtight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
-     electronidheep  = cms.InputTag("egmGsfElectronIDs:heepElectronID-HEEPV60"),
-     photonidloose  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
-     photonidmedium = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
-     photonidtight  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
-     photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
-     photonphiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
-     photonchiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation")
-)
+# to apply analysis selections
+process.load('AnalysisCode.MonoXAnalysis.selectionObjects_cfi')
+process.selectedObjects.jets = cms.InputTag(jetCollName)
+process.selectedObjects.useCalibratedElectrons = cms.bool(options.addEGMSmear)
+process.selectedObjects.useCalibratedPhotons = cms.bool(options.addEGMSmear)
 
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
@@ -328,72 +318,11 @@ if options.addMVAMet:
 
 
 # Define all the METs corrected for lepton/photon momenta
-process.t1mumet = cms.EDProducer("MuonCorrectedMETProducer",
-   met     = cms.InputTag("slimmedMETs","",options.processName),
-   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
-   isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates"))
-
-if options.useMiniAODMet:
-	process.t1mumet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
-
-process.t1elmet = cms.EDProducer("ElectronCorrectedMETProducer",
-   met     = cms.InputTag("slimmedMETs","",options.processName),
-   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "electrons")),
-   isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates"))
-
-if options.useMiniAODMet:
-	process.t1elmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
-
-process.t1phmet = cms.EDProducer("PhotonCorrectedMETProducer",
-   met     = cms.InputTag("slimmedMETs","",options.processName),
-   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
-   isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates"))
-
-if options.useMiniAODMet:
-	process.t1phmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
-
-process.t1taumet = cms.EDProducer("TauCorrectedMETProducer",
-   met     = cms.InputTag("slimmedMETs","",options.processName),
-   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "taus")),
-   isPuppi = cms.bool(False),
-   pfCandidates = cms.InputTag("packedPFCandidates"))
-
-if options.useMiniAODMet:
-	process.t1phmet.met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
-
+from AnalysisCode.MonoXAnalysis.recoil_cff import recoilComputation
+recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,False)
 if options.addPuppiMET:
+	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,True)
 
-	process.puppit1mumet = process.t1mumet.clone(
-		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
-		isPuppi = cms.bool(True))
-
-	if options.useMiniAODMet:
-		process.puppit1mumet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
-
-	process.puppit1elmet = process.t1elmet.clone(
-		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
-		isPuppi = cms.bool(True))
-
-	if options.useMiniAODMet:
-		process.puppit1elmet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
-
-	process.puppit1phmet = process.t1phmet.clone(
-		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
-		isPuppi = cms.bool(True))
-
-	if options.useMiniAODMet:
-		process.puppit1phmet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
-
-	process.puppit1taumet = process.t1taumet.clone(
-		met     = cms.InputTag("slimmedMETsPuppi","",options.processName),
-		isPuppi = cms.bool(True))
-
-	if options.useMiniAODMet:
-		process.puppit1taumet.met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
-	
 
 ## Create output file
 if options.dropAnalyzerDumpEDM == False:	
@@ -481,80 +410,79 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
 
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
-   ## gen info			     
-   isMC                   = cms.bool(options.isMC),
-   uselheweights          = cms.bool(options.useLHEWeights),
-   isSignalSample         = cms.bool(options.isSignalSample),			      
-   addGenParticles        = cms.bool(options.addGenParticles),			      
-   lheinfo    = cms.InputTag("externalLHEProducer"),			      
-   lheRuninfo = cms.InputTag("externalLHEProducer"),			      
-   pileup     = cms.InputTag("slimmedAddPileupInfo"),
-   genevt     = cms.InputTag("generator"),
-   gens       = cms.InputTag("prunedGenParticles"),
-   xsec       = cms.double(options.crossSection),   
-   ## trigger info
-   triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
-   prescales      = cms.InputTag("patTrigger"),    
-   filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
-   ## vertexes			    
-   vertices = cms.InputTag("goodVertices"),
-   ## muons    
-   muons       = cms.InputTag("selectedObjects","muons"),
-   tightmuons  = cms.InputTag("selectedObjects","tightmuons"),
-   highptmuons = cms.InputTag("selectedObjects","highptmuons"),
-   ## electrons
-   electrons       = cms.InputTag("selectedObjects", "electrons"),
-   tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
-   heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
-   electronLooseId = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-   ## photons
-   photons        = cms.InputTag("selectedObjects", "photons"),
-   tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),
-   photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
-   photonLooseId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
-   photonMediumId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
-   photonTightId  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"),
-   ## taus
-   taus = cms.InputTag("selectedObjects","taus"),
-   ## jets AK4
-   jets         = cms.InputTag(jetCollName),
-   addPuppiJets = cms.bool(options.addPuppiJets),			      
-   puppijets    = cms.InputTag(jetPuppiCollName),			      
-   ## MET
-   t1met = cms.InputTag("slimmedMETs","",options.processName),
-   t1mumet = cms.InputTag("t1mumet"),
-   t1elmet = cms.InputTag("t1elmet"),
-   t1phmet = cms.InputTag("t1phmet"),
-   t1taumet = cms.InputTag("t1taumet"),
-   ## Puppi MET
-   addPuppiMET = cms.bool(options.addPuppiMET),
-   puppit1met = cms.InputTag("slimmedMETsPuppi","",options.processName),
-   puppit1mumet = cms.InputTag("puppit1mumet"),
-   puppit1elmet = cms.InputTag("puppit1elmet"),
-   puppit1phmet = cms.InputTag("puppit1phmet"),
-   puppit1taumet = cms.InputTag("puppit1taumet"),
-   ## MET systematics
-   addMETSystematics = cms.bool(options.addMETSystematics),    			      
-   ## mvaMet
-   addMVAMet = cms.bool(options.addMVAMet),			     
-   mvaMET    = cms.InputTag("mvaMET"),			      
-   ## trigger filter
-   applyHLTFilter = cms.bool(options.filterOnHLT),
-   ## clean objects
-   cleanMuonJet     = cms.bool(True),
-   cleanElectronJet = cms.bool(True),
-   cleanPhotonJet   = cms.bool(True),
-   ## CHS jet substructure
-   addSubstructureCHS = cms.bool(options.addSubstructureCHS),
-   boostedJetsCHS     = cms.InputTag(boostedJetCollection),
-   addSubstructurePuppi = cms.bool(options.addSubstructurePuppi),
-   boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
-   ## b-tag scale factors
-   addBTagScaleFactor  = cms.bool(True),
-   bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
-   bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_76X.csv'), 			      
-   bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv') 	
-)
+			      ## gen info			     
+			      isMC                   = cms.bool(options.isMC),
+			      uselheweights          = cms.bool(options.useLHEWeights),
+			      isSignalSample         = cms.bool(options.isSignalSample),			      
+			      addGenParticles        = cms.bool(options.addGenParticles),			      
+			      lheinfo                = cms.InputTag("externalLHEProducer"),			      
+			      lheRuninfo             = cms.InputTag("externalLHEProducer"),			      
+			      pileup                 = cms.InputTag("slimmedAddPileupInfo"),
+			      genevt                 = cms.InputTag("generator"),
+			      gens                   = cms.InputTag("prunedGenParticles"),
+			      xsec                   = cms.double(options.crossSection),   
+			      ## trigger info
+			      triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+			      prescales      = cms.InputTag("patTrigger"),    
+			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+			      ## vertexes			    
+			      vertices       = cms.InputTag("goodVertices"),
+			      ## muons    
+			      muons          = cms.InputTag("selectedObjects","muons"),
+			      tightmuons     = cms.InputTag("selectedObjects","tightmuons"),
+			      highptmuons    = cms.InputTag("selectedObjects","highptmuons"),
+			      ## electrons
+			      electrons       = cms.InputTag("selectedObjects", "electrons"),
+			      looseelectrons  = cms.InputTag("selectedObjects", "looseelectrons"),
+			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
+			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
+			      ## photons --> can be matched by reference 
+			      photons        = cms.InputTag("selectedObjects", "photons"),
+			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
+			      tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),			     
+			      photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
+			      photonLooseId = cms.InputTag("selectedObjects", "photonLooseId"),			     
+			      ## taus
+			      taus           = cms.InputTag("selectedObjects","taus"),
+			      ## jets AK4
+			      jets         = cms.InputTag(jetCollName),
+			      addPuppiJets = cms.bool(options.addPuppiJets),			      
+			      puppijets    = cms.InputTag(jetPuppiCollName),			      
+			      ## MET
+			      t1met     = cms.InputTag("slimmedMETs","",options.processName),
+			      t1mumet   = cms.InputTag("t1mumet"),
+			      t1elmet   = cms.InputTag("t1elmet"),
+			      t1phmet   = cms.InputTag("t1phmet"),
+			      t1taumet  = cms.InputTag("t1taumet"),
+			      ## Puppi MET
+			      addPuppiMET   = cms.bool(options.addPuppiMET),
+			      puppit1met    = cms.InputTag("slimmedMETsPuppi","",options.processName),
+			      puppit1mumet  = cms.InputTag("puppit1mumet"),
+			      puppit1elmet  = cms.InputTag("puppit1elmet"),
+			      puppit1phmet  = cms.InputTag("puppit1phmet"),
+			      puppit1taumet = cms.InputTag("puppit1taumet"),
+			      ## MET systematics
+			      addMETSystematics = cms.bool(options.addMETSystematics),    			      
+			      ## mvaMet
+			      addMVAMet = cms.bool(options.addMVAMet),			     
+			      mvaMET    = cms.InputTag("mvaMET"),			      
+			      ## trigger filter
+			      applyHLTFilter = cms.bool(options.filterOnHLT),
+			      ## clean objects
+			      cleanMuonJet     = cms.bool(True),
+			      cleanElectronJet = cms.bool(True),
+			      cleanPhotonJet   = cms.bool(True),
+			      ## CHS jet substructure
+			      addSubstructureCHS   = cms.bool(options.addSubstructureCHS),
+			      boostedJetsCHS       = cms.InputTag(boostedJetCollection),
+			      addSubstructurePuppi = cms.bool(options.addSubstructurePuppi),
+			      boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
+			      ## b-tag scale factors
+			      addBTagScaleFactor         = cms.bool(True),
+			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
+			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_76X.csv'), 			      
+			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv') 	  
+			      )
 
 if options.useMiniAODMet:
 	process.tree.t1met = cms.InputTag("slimmedMETs","",options.miniAODProcess)

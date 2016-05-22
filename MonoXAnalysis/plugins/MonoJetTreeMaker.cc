@@ -148,28 +148,28 @@ private:
 
   // electrons
   const edm::InputTag  electronsTag;
+  const edm::InputTag  looseelectronsTag;
   const edm::InputTag  tightelectronsTag;
   const edm::InputTag  heepelectronsTag;
   const edm::InputTag  electronLooseIdTag;  
 
   edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>  looseelectronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  tightelectronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  heepelectronsToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
 
   // Photons
   const edm::InputTag  photonsTag;
+  const edm::InputTag  mediumphotonsTag;
   const edm::InputTag  tightphotonsTag;
   const edm::InputTag  photonLooseIdTag;
-  const edm::InputTag  photonMediumIdTag;
-  const edm::InputTag  photonTightIdTag;
   const edm::InputTag  photonHighPtIdTag;
 
   edm::EDGetTokenT<pat::PhotonRefVector>    photonsToken;
+  edm::EDGetTokenT<pat::PhotonRefVector>    mediumphotonsToken;
   edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
-  edm::EDGetTokenT<edm::ValueMap<bool> >    photonMediumIdToken;
-  edm::EDGetTokenT<edm::ValueMap<bool> >    photonTightIdToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
 
   // Taus
@@ -278,7 +278,7 @@ private:
   uint32_t event, run, lumi;  
   uint32_t nvtx;
   uint32_t nmuons,ntightmuons,nhighptmuons;
-  uint32_t nelectrons,ntightelectrons,nheepelectrons;
+  uint32_t nelectrons,nlooseelectrons,ntightelectrons,nheepelectrons;
   uint32_t ntaus,nphotons;
   uint32_t njets,nbjets,nbjetslowpt,nbjetsMVA,nbjetsMVAlowpt;  
   uint32_t npuppijets,npuppibjets,npuppibjetsMVA,npuppibjetslowpt,npuppibjetsMVAlowpt;
@@ -517,15 +517,14 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   highptmuonsTag(iConfig.getParameter<edm::InputTag>("highptmuons")),
   // electrons
   electronsTag(iConfig.getParameter<edm::InputTag>("electrons")),
+  looseelectronsTag(iConfig.getParameter<edm::InputTag>("looseelectrons")),
   tightelectronsTag(iConfig.getParameter<edm::InputTag>("tightelectrons")),
   heepelectronsTag(iConfig.getParameter<edm::InputTag>("heepelectrons")),
-  electronLooseIdTag(iConfig.getParameter<edm::InputTag>("electronLooseId")),
   // photons
   photonsTag(iConfig.getParameter<edm::InputTag>("photons")),
+  mediumphotonsTag(iConfig.getParameter<edm::InputTag>("mediumphotons")),
   tightphotonsTag(iConfig.getParameter<edm::InputTag>("tightphotons")),
   photonLooseIdTag(iConfig.getParameter<edm::InputTag>("photonLooseId")),
-  photonMediumIdTag(iConfig.getParameter<edm::InputTag>("photonMediumId")),
-  photonTightIdTag(iConfig.getParameter<edm::InputTag>("photonTightId")),
   photonHighPtIdTag(iConfig.getParameter<edm::InputTag>("photonHighPtId")),
   // taus
   tausTag(iConfig.getParameter<edm::InputTag>("taus")),
@@ -573,15 +572,14 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   // electrons
   electronsToken       = consumes<pat::ElectronRefVector> (electronsTag);
-  tightelectronsToken  = consumes<pat::ElectronRefVector>(tightelectronsTag);
+  looseelectronsToken  = consumes<pat::ElectronRefVector> (looseelectronsTag);
+  tightelectronsToken  = consumes<pat::ElectronRefVector> (tightelectronsTag);
   heepelectronsToken   = consumes<pat::ElectronRefVector> (heepelectronsTag);
-  electronLooseIdToken = consumes<edm::ValueMap<bool> > (electronLooseIdTag);
   // photons
   photonsToken        = consumes<pat::PhotonRefVector> (photonsTag);
+  mediumphotonsToken  = consumes<pat::PhotonRefVector> (mediumphotonsTag);
   tightphotonsToken   = consumes<pat::PhotonRefVector> (tightphotonsTag);
   photonLooseIdToken  = consumes<edm::ValueMap<bool> > (photonLooseIdTag);
-  photonMediumIdToken = consumes<edm::ValueMap<bool> > (photonMediumIdTag);
-  photonTightIdToken  = consumes<edm::ValueMap<bool> > (photonTightIdTag);
   photonHighPtIdToken = consumes<edm::ValueMap<bool> > (photonHighPtIdTag);
   // taus
   tausToken = consumes<pat::TauRefVector> (tausTag);
@@ -744,6 +742,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(electronsToken, electronsH);
     pat::ElectronRefVector electrons = *electronsH;
 
+    Handle<pat::ElectronRefVector> looseelectronsH;
+    iEvent.getByToken(looseelectronsToken, looseelectronsH);
+    pat::ElectronRefVector looseelectrons = *looseelectronsH;
+
     Handle<pat::ElectronRefVector> tightelectronsH;
     iEvent.getByToken(tightelectronsToken, tightelectronsH);
     pat::ElectronRefVector tightelectrons = *tightelectronsH;
@@ -752,24 +754,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(heepelectronsToken, heepelectronsH);
     pat::ElectronRefVector heepelectrons = *heepelectronsH;
 
-    Handle<edm::ValueMap<bool> > electronLooseIdH;
-    iEvent.getByToken(electronLooseIdToken, electronLooseIdH);
-
     // PHOTONS
     Handle<pat::PhotonRefVector> photonsH;
     iEvent.getByToken(photonsToken, photonsH);
     pat::PhotonRefVector photons = *photonsH;
 
-    Handle<pat::PhotonRefVector> tightphotonsH;
-    iEvent.getByToken(tightphotonsToken, tightphotonsH);
-    pat::PhotonRefVector tightphotons = *tightphotonsH;
+    Handle<pat::PhotonRefVector> mediumPhotonsH;
+    iEvent.getByToken(mediumphotonsToken, mediumPhotonsH);
+    pat::PhotonRefVector mediumphotons = *mediumPhotonsH;
+
+    Handle<pat::PhotonRefVector> tightPhotonsH;
+    iEvent.getByToken(tightphotonsToken, tightPhotonsH);
+    pat::PhotonRefVector tightphotons = *tightPhotonsH;
 
     Handle<ValueMap<bool> > photonLooseIdH;
     iEvent.getByToken(photonLooseIdToken, photonLooseIdH);
-    Handle<ValueMap<bool> > photonMediumIdH;
-    iEvent.getByToken(photonMediumIdToken, photonMediumIdH);
-    Handle<ValueMap<bool> > photonTightIdH;
-    iEvent.getByToken(photonTightIdToken, photonTightIdH);
     Handle<ValueMap<bool> > photonHighPtIdH;
     iEvent.getByToken(photonHighPtIdToken, photonHighPtIdH);
 
@@ -817,7 +816,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(addPuppiMET)
       iEvent.getByToken(puppit1taumetToken, puppit1taumetH);
 
-
+    /// MVA MET
     Handle<View<reco::MET> > mvaMetH;
     if(addMVAMet)
       iEvent.getByToken(mvaMETToken,mvaMetH);
@@ -1837,7 +1836,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
-    // Tau counts leptons
+    // Lepton part
     vector<pat::MuonRef> muonvector;
     if(muonsH.isValid() and tightmuonsH.isValid() and highptmuonsH.isValid()){
       nmuons          = muonsH->size();
@@ -1849,9 +1848,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     vector<pat::ElectronRef> electronvector;
-    if(electronsH.isValid() and tightelectronsH.isValid() and heepelectronsH.isValid()){
+    if(electronsH.isValid() and looseelectronsH.isValid() and tightelectronsH.isValid() and heepelectronsH.isValid()){
       
       nelectrons      = electronsH->size();
+      nlooseelectrons = looseelectronsH->size();
       ntightelectrons = tightelectronsH->size();
       nheepelectrons  = heepelectronsH->size();
 
@@ -1924,13 +1924,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       for (std::size_t i = 0; i < tightmuons.size(); i++) {
 	if (muon == tightmuons[i]) 
-	  mu1id = 1;
+	  mu1id = 1; // tight muon
       }
-      
+            
       // store high-pt muons that are not tight ones
       for (std::size_t i = 0; i < highptmuons.size(); i++) {
 	if (muon == highptmuons[i] and mu1id != 1) 
-	  mu1id = 2;
+	  mu1id = 2; // high pt muon
       }
 
       if (nmuons == 1) 
@@ -1948,11 +1948,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       mu2pfpt  = muon->pfP4().Pt();
       mu2pfeta = muon->pfP4().Eta();
       mu2pfphi = muon->pfP4().Phi();
-      mu2iso   = computeMuonIso(*muon); 
+      mu2iso   = computeMuonIso(*muon);       
       mu2idm   = (muon::isMediumMuon(*muon) ? 1 : 0);
       if (verticesH->size() > 0) 
 	mu2idt = (muon::isTightMuon(*muon, *(verticesH->begin())) ? 1 : 0);
-      
+      // check if belong to the tight / high pt collection
       for (std::size_t i = 0; i < tightmuons.size(); i++) {
 	if (muon == tightmuons[i]) 
 	  mu2id = 1;
@@ -1985,7 +1985,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       el1pt  = electron->pt();
       el1eta = electron->eta();
       el1phi = electron->phi();
-      el1idl = ((*electronLooseIdH )[electron] ? 1 : 0);
+      for(std::size_t i = 0; i < looseelectrons.size(); i++) {
+	if(electron == looseelectrons[i])
+	  el1idl = 1;
+      }
       
       for (std::size_t i = 0; i < tightelectrons.size(); i++) {
 	if (electron == tightelectrons[i]) 
@@ -2008,7 +2011,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         el2pt  = electron->pt();
         el2eta = electron->eta();
         el2phi = electron->phi();
-        el2idl = ((*electronLooseIdH )[electron] ? 1 : 0);
+
+        for (std::size_t i = 0; i < looseelectrons.size(); i++) {
+            if (electron == looseelectrons[i]) el2idl = 1;
+        }
 
         for (std::size_t i = 0; i < tightelectrons.size(); i++) {
             if (electron == tightelectrons[i]) el2id = 1;
@@ -2071,7 +2077,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ztteta  = zvec.Eta();            
       zttphi  = zvec.Phi();
     }
-      
+    
 
     // one electron and one muon (ttbar DF fully leptonic)
     if (nmuons == 1 && nelectrons == 1) {
@@ -2128,29 +2134,38 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     int hardestPhotonIndex = -1;
     double hardestPhotonPt = 0.0;
 
-    if(photonsH.isValid() and photonLooseIdH.isValid() and photonMediumIdH.isValid() and photonTightIdH.isValid() and photonHighPtIdH.isValid()){
+    if(photonsH.isValid() and photonLooseIdH.isValid() and mediumPhotonsH.isValid() and tightPhotonsH.isValid() and photonHighPtIdH.isValid()){
       
-      for (size_t i = 0; i < tightphotons.size(); i++) {
-        if (tightphotons[i]->pt() > hardestPhotonPt) {
+      for (size_t i = 0; i < photons.size(); i++) {
+        if (photons[i]->pt() > hardestPhotonPt) {
 	  hardestPhotonIndex = i;
-	  hardestPhotonPt = tightphotons[i]->pt();
+	  hardestPhotonPt = photons[i]->pt();
         }
       }
 
 
-      nphotons = photonsH->size();
+      nphotons = photons.size();
       
       if (hardestPhotonIndex >= 0) {
-	phidl   = ((*photonLooseIdH )[tightphotons[hardestPhotonIndex]] ? 1 : 0);
-	phidm   = ((*photonMediumIdH)[tightphotons[hardestPhotonIndex]] ? 1 : 0);
-	phidt   = ((*photonTightIdH )[tightphotons[hardestPhotonIndex]] ? 1 : 0);
-	phidh   = ((*photonHighPtIdH)[tightphotons[hardestPhotonIndex]] ? 1 : 0);
-	phpt    = tightphotons[hardestPhotonIndex]->pt();
-	pheta   = tightphotons[hardestPhotonIndex]->eta();
-	phphi   = tightphotons[hardestPhotonIndex]->phi();
-	phpt    = tightphotons[hardestPhotonIndex]->pt();
-	pheta   = tightphotons[hardestPhotonIndex]->eta();
-	phphi   = tightphotons[hardestPhotonIndex]->phi();
+	phidl   = ((*photonLooseIdH )[photons[hardestPhotonIndex]] ? 1 : 0);
+	phidh   = ((*photonHighPtIdH)[photons[hardestPhotonIndex]] ? 1 : 0);
+
+	for(size_t i = 0; i < mediumphotons.size(); i++){
+	  if(photons[hardestPhotonIndex] == mediumphotons[i])
+	    phidm = 1;
+	}
+       
+	for(size_t i = 0; i < tightphotons.size(); i++){
+	  if(tightphotons[hardestPhotonIndex] == tightphotons[i])
+	    phidt = 1;
+	}
+
+	phpt    = photons[hardestPhotonIndex]->pt();
+	pheta   = photons[hardestPhotonIndex]->eta();
+	phphi   = photons[hardestPhotonIndex]->phi();
+	phpt    = photons[hardestPhotonIndex]->pt();
+	pheta   = photons[hardestPhotonIndex]->eta();
+	phphi   = photons[hardestPhotonIndex]->phi();
       }
     }
 
@@ -3295,6 +3310,7 @@ void MonoJetTreeMaker::beginJob() {
   // Object counts
   tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
   tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
+  tree->Branch("nlooseelectrons"      , &nlooseelectrons      , "nlooseelectrons/i");
   tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/i");
   tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/i");
   tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
@@ -4137,7 +4153,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   }
   
   // MET filter Paths
-  filterPathsVector.push_back("Flag_CSCTightHaloFilter");
+  filterPathsVector.push_back("Flag_CSCTightHalo2015Filter");
   filterPathsVector.push_back("Flag_HBHENoiseFilter");
   filterPathsVector.push_back("Flag_eeBadScFilter");
   filterPathsVector.push_back("Flag_HBHENoiseIsoFilter");
@@ -4452,37 +4468,88 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
   else 
     return true;
 
+  
   // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon
   if(level == "loose"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.93) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.62) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.51) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.48) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.30) passpuid = true;
+
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.96) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.96) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.96) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.93) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.62) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.62) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.62) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.31) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
+
   }
   else if(level == "medium"){ 
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.61) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.20) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.40) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.22) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.36) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.17) passpuid = true;
+
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.58) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.58) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.58) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.20) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.40) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.40) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.40) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.24) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.19) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
+
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > 0.05) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval >  0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.18) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.23) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.04) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.21) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.02) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.09) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.09) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.09) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.52) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.37) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.19) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.24) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.24) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.24) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.06) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.03) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
   }
+
   return passpuid;
 }
 
