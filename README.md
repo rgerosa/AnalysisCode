@@ -56,7 +56,8 @@ Options:
 	   dropAnalyzerDumpEDM : to debug, avoid analyzers and dump edm collections produced in the event
 	   nThreads            : number of threads
 	   isCrab              : to be used to handle correctly local files with Crab
-
+	   addEGMSmear         : to correct electrons and photons: in MC apply energy smearing, in DATA correct the scale
+	   addMETBreakDown     : break down the raw PF missing energy into the different components
 	   
 Some useful information:
 

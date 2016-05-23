@@ -58,10 +58,14 @@ void prepostSig(string fitFilename,
     vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
     wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());
     zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());
-    ggHhist->Scale(1.0, "width");
-    vbfhist->Scale(1.0, "width");
-    wHhist->Scale(1.0, "width");
-    zHhist->Scale(1.0, "width");
+    if(ggHhist)
+      ggHhist->Scale(1.0, "width");
+    if(vbfhist)
+      vbfhist->Scale(1.0, "width");
+    if(wHhist)
+      wHhist->Scale(1.0, "width");
+    if(zHhist)
+      zHhist->Scale(1.0, "width");
   }
 
   TH1* znhist = NULL;
@@ -123,7 +127,6 @@ void prepostSig(string fitFilename,
     }
   }
 
-  // print in text file yields
   ofstream outputfile;
   outputfile.open("prepostSR.txt");
 
@@ -618,6 +621,5 @@ void prepostSig(string fitFilename,
   htemp->Divide(tphist);
   htemp->Write("postfit_over_prefit");
   outFile->Close();
-  
 }
 

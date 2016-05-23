@@ -11,10 +11,11 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+template <class T>
 class METBreakDownProducer : public edm::stream::EDProducer<> {
     public:
         explicit METBreakDownProducer(const edm::ParameterSet&);
-        ~METBreakDownProducer();
+  ~METBreakDownProducer();
         
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
     
@@ -32,157 +33,178 @@ class METBreakDownProducer : public edm::stream::EDProducer<> {
         edm::EDGetTokenT<edm::View<reco::Candidate> > candsToken;
 };
 
-METBreakDownProducer::METBreakDownProducer(const edm::ParameterSet& iConfig): 
-    candsTag(iConfig.getParameter<edm::InputTag>("pfcands"))
-{
-    produces<reco::METCollection>();
-
-    candsToken = consumes<edm::View<reco::Candidate> >(candsTag);
+template <class T>
+METBreakDownProducer<T>::METBreakDownProducer(const edm::ParameterSet& iConfig): 
+  candsTag(iConfig.getParameter<edm::InputTag>("pfcands")){
+  produces<std::vector<T> >("pfMetHadronHF");
+  produces<std::vector<T> >("pfMetEgammaHF");
+  produces<std::vector<T> >("pfMetChargedHadron");
+  produces<std::vector<T> >("pfMetNeutralHadron");
+  produces<std::vector<T> >("pfMetElectrons");
+  produces<std::vector<T> >("pfMetMuons");
+  produces<std::vector<T> >("pfMetPhotons");
+  produces<std::vector<T> >("pfMetUnclustered");
+  produces<std::vector<T> >("pfMet");
+  candsToken = consumes<edm::View<reco::Candidate> >(candsTag);
 }
 
-
-METBreakDownProducer::~METBreakDownProducer() {
+template <class T>
+METBreakDownProducer<T>::~METBreakDownProducer() {
 }
 
-void METBreakDownProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    using namespace edm;
-    using namespace reco;
-    using namespace std;
+template <class T>
+void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    Handle<View<Candidate> > candsH;
-    iEvent.getByToken(candsToken, candsH);
+  using namespace edm;
+  using namespace reco;
+  using namespace std;
+  
+  Handle<View<Candidate> > candsH;
+  iEvent.getByToken(candsToken, candsH);
+  
+  std::auto_ptr<std::vector<T> > pfMet(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetHadronHF(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetEgammaHF(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetChargedHadron(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetNeutralHadron(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetElectrons(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetMuons(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetPhotons(new std::vector<T>);
+  std::auto_ptr<std::vector<T> > pfMetUnclustered(new std::vector<T>);
+  
+  // full met
+  double metx  = 0.0, mety  = 0.0;
+  // neutral hadron met
+  double hmetx = 0.0, hmety = 0.0;
+  // charged hadron met
+  double cmetx = 0.0, cmety = 0.0;
+  // e-gamma forward region
+  double ametx = 0.0, amety = 0.0;
+  // hadron forward region
+  double bmetx = 0.0, bmety = 0.0;
+  // electrons  
+  double emetx = 0.0, emety = 0.0;
+  // muons 
+  double mmetx = 0.0, mmety = 0.0;
+  // photons 
+  double pmetx = 0.0, pmety = 0.0;
+  // others
+  double ometx = 0.0, omety = 0.0;
 
-    std::auto_ptr<METCollection> output(new METCollection);
+  for (View<Candidate>::const_iterator cands_iter = candsH->begin(); cands_iter != candsH->end(); ++cands_iter) {
+    int absid = abs(cands_iter->pdgId()); // read info from  http://cmslxr.fnal.gov/source/DataFormats/ParticleFlowCandidate/src/PFCandidate.cc#0224
+    if (absid == 211) { // charged hadrons in the tracker covered region
+      cmetx -= cands_iter->pt() * cos(cands_iter->phi());
+      cmety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 130) { // neutral hadrons in the tracker covered region --> 
+      hmetx -= cands_iter->pt() * cos(cands_iter->phi());
+      hmety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 1) { // hadrons in the HF region
+      ametx -= cands_iter->pt() * cos(cands_iter->phi());
+      amety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 2) { // egamma in the HF region
+      bmetx -= cands_iter->pt() * cos(cands_iter->phi());
+      bmety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 11) { // electrons
+      emetx -= cands_iter->pt() * cos(cands_iter->phi());
+      emety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 13) { // muons
+      mmetx -= cands_iter->pt() * cos(cands_iter->phi());
+      mmety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else if (absid == 22) { // photons
+      pmetx -= cands_iter->pt() * cos(cands_iter->phi());
+      pmety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    else {
+      ometx -= cands_iter->pt() * cos(cands_iter->phi());
+      omety -= cands_iter->pt() * sin(cands_iter->phi());
+    }
+    metx -= cands_iter->pt() * cos(cands_iter->phi());
+    mety -= cands_iter->pt() * sin(cands_iter->phi());
+  }            
+  // calculate met values
+  double  met = sqrt( metx* metx +  mety* mety);
+  double hmet = sqrt(hmetx*hmetx + hmety*hmety);
+  double amet = sqrt(ametx*ametx + amety*amety);
+  double bmet = sqrt(bmetx*bmetx + bmety*bmety);
+  double cmet = sqrt(cmetx*cmetx + cmety*cmety);
+  double emet = sqrt(emetx*emetx + emety*emety);
+  double mmet = sqrt(mmetx*mmetx + mmety*mmety);
+  double pmet = sqrt(pmetx*pmetx + pmety*pmety);
+  double omet = sqrt(ometx*ometx + omety*omety);
 
-    double metx  = 0.0;
-    double mety  = 0.0;
+  T metcand; metcand.setP4(reco::Candidate::LorentzVector( metx,  mety, 0., met));
+  pfMet->push_back(metcand);
+  
+  T cmetcand; cmetcand.setP4(reco::Candidate::LorentzVector( cmetx,  cmety, 0., cmet));
+  pfMetChargedHadron->push_back(cmetcand);
 
-    double hmetx = 0.0;
-    double hmety = 0.0;
+  T hmetcand; hmetcand.setP4(reco::Candidate::LorentzVector( hmetx,  hmety, 0., hmet));
+  pfMetNeutralHadron->push_back(hmetcand);
 
-    double ametx = 0.0;
-    double amety = 0.0;
+  T ametcand; ametcand.setP4(reco::Candidate::LorentzVector( ametx,  amety, 0., amet));
+  pfMetHadronHF->push_back(ametcand);
 
-    double bmetx = 0.0;
-    double bmety = 0.0;
+  T bmetcand; bmetcand.setP4(reco::Candidate::LorentzVector( bmetx,  bmety, 0., bmet));
+  pfMetEgammaHF->push_back(bmetcand);
 
-    double cmetx = 0.0;
-    double cmety = 0.0;
+  T emetcand; emetcand.setP4(reco::Candidate::LorentzVector( emetx,  emety, 0., emet));
+  pfMetElectrons->push_back(emetcand);
 
-    double emetx = 0.0;
-    double emety = 0.0;
+  T mmetcand; mmetcand.setP4(reco::Candidate::LorentzVector( mmetx,  mmety, 0., mmet));
+  pfMetMuons->push_back(mmetcand);
 
-    double mmetx = 0.0;
-    double mmety = 0.0;
+  T pmetcand; pmetcand.setP4(reco::Candidate::LorentzVector( pmetx,  pmety, 0., pmet));
+  pfMetPhotons->push_back(pmetcand);
 
-    double pmetx = 0.0;
-    double pmety = 0.0;
+  T ometcand; ometcand.setP4(reco::Candidate::LorentzVector( ometx,  omety, 0., omet));
+  pfMetUnclustered->push_back(ometcand);
 
-    double ometx = 0.0;
-    double omety = 0.0;
+  iEvent.put(pfMet,"pfMet");
+  iEvent.put(pfMetChargedHadron,"pfMetChargedHadron");
+  iEvent.put(pfMetNeutralHadron,"pfMetNeutralHadron");
+  iEvent.put(pfMetHadronHF,"pfMetHadronHF");
+  iEvent.put(pfMetEgammaHF,"pfMetEgammaHF");
+  iEvent.put(pfMetElectrons,"pfMetElectrons");
+  iEvent.put(pfMetMuons,"pfMetMuons");
+  iEvent.put(pfMetPhotons,"pfMetPhotons");
+  iEvent.put(pfMetUnclustered,"pfMetUnclustered");
 
-    for (View<Candidate>::const_iterator cands_iter = candsH->begin(); cands_iter != candsH->end(); ++cands_iter) {
-        int absid = abs(cands_iter->pdgId());
-        if (absid == 130) {
-            hmetx -= cands_iter->pt() * cos(cands_iter->phi());
-            hmety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 1) {
-            ametx -= cands_iter->pt() * cos(cands_iter->phi());
-            amety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 2) {
-            bmetx -= cands_iter->pt() * cos(cands_iter->phi());
-            bmety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 211) {
-            cmetx -= cands_iter->pt() * cos(cands_iter->phi());
-            cmety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 11) {
-            emetx -= cands_iter->pt() * cos(cands_iter->phi());
-            emety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 13) {
-            mmetx -= cands_iter->pt() * cos(cands_iter->phi());
-            mmety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else if (absid == 22) {
-            pmetx -= cands_iter->pt() * cos(cands_iter->phi());
-            pmety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        else {
-            ometx -= cands_iter->pt() * cos(cands_iter->phi());
-            omety -= cands_iter->pt() * sin(cands_iter->phi());
-        }
-        metx -= cands_iter->pt() * cos(cands_iter->phi());
-        mety -= cands_iter->pt() * sin(cands_iter->phi());
-    }            
-    double  met = sqrt( metx* metx +  mety* mety);
-    double hmet = sqrt(hmetx*hmetx + hmety*hmety);
-    double amet = sqrt(ametx*ametx + amety*amety);
-    double bmet = sqrt(bmetx*bmetx + bmety*bmety);
-    double cmet = sqrt(cmetx*cmetx + cmety*cmety);
-    double emet = sqrt(emetx*emetx + emety*emety);
-    double mmet = sqrt(mmetx*mmetx + mmety*mmety);
-    double pmet = sqrt(pmetx*pmetx + pmety*pmety);
-    double omet = sqrt(ometx*ometx + omety*omety);
-
-    MET  metcand;
-    MET hmetcand;
-    MET ametcand;
-    MET bmetcand;
-    MET cmetcand;
-    MET emetcand;
-    MET mmetcand;
-    MET pmetcand;
-    MET ometcand;
-
-    metcand .setP4(reco::Candidate::LorentzVector( metx,  mety, 0.,  met));
-    hmetcand.setP4(reco::Candidate::LorentzVector(hmetx, hmety, 0., hmet));
-    ametcand.setP4(reco::Candidate::LorentzVector(ametx, amety, 0., amet));
-    bmetcand.setP4(reco::Candidate::LorentzVector(bmetx, bmety, 0., bmet));
-    cmetcand.setP4(reco::Candidate::LorentzVector(cmetx, cmety, 0., cmet));
-    emetcand.setP4(reco::Candidate::LorentzVector(emetx, emety, 0., emet));
-    mmetcand.setP4(reco::Candidate::LorentzVector(mmetx, mmety, 0., mmet));
-    pmetcand.setP4(reco::Candidate::LorentzVector(pmetx, pmety, 0., pmet));
-    ometcand.setP4(reco::Candidate::LorentzVector(ometx, omety, 0., omet));
-
-    output->push_back( metcand);
-    output->push_back(hmetcand);
-    output->push_back(ametcand);
-    output->push_back(bmetcand);
-    output->push_back(cmetcand);
-    output->push_back(emetcand);
-    output->push_back(mmetcand);
-    output->push_back(pmetcand);
-    output->push_back(ometcand);
-
-    iEvent.put(output);
 }
 
-void METBreakDownProducer::beginJob() {
-}
+template<class T>
+void METBreakDownProducer<T>::beginJob() {}
 
-void METBreakDownProducer::endJob() {
-}
+template<class T>
+void METBreakDownProducer<T>::endJob() {}
 
-void METBreakDownProducer::beginRun(edm::Run const&, edm::EventSetup const&) {
-}
+template<class T>
+void METBreakDownProducer<T>::beginRun(edm::Run const&, edm::EventSetup const&) {}
 
-void METBreakDownProducer::endRun(edm::Run const&, edm::EventSetup const&) {
-}
+template<class T>
+void METBreakDownProducer<T>::endRun(edm::Run const&, edm::EventSetup const&) {}
 
-void METBreakDownProducer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
+template<class T>
+void METBreakDownProducer<T>::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
-void METBreakDownProducer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {
-}
+template<class T>
+void METBreakDownProducer<T>::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
-void METBreakDownProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+template<class T>
+void METBreakDownProducer<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.setUnknown();
     descriptions.addDefault(desc);
 }
 
-DEFINE_FWK_MODULE(METBreakDownProducer);
+typedef METBreakDownProducer<reco::MET> RecoMETBreakDownProducer;
+DEFINE_FWK_MODULE(RecoMETBreakDownProducer);
+
+typedef METBreakDownProducer<pat::MET> PATMETBreakDownProducer;
+DEFINE_FWK_MODULE(PATMETBreakDownProducer);

@@ -23,7 +23,12 @@ pyCfgParams = ['isMC=False',
                'addMVAMet=False',
                'globalTag=80X_dataRun2_Prompt_v8',
                'outputFileName=tree.root',
+<<<<<<< HEAD:MonoXAnalysis/test/crab/multicrab_DATA_80X.py
                'nThreads=1',
+=======
+               'addEGMSmear=True',
+               'nThreads=3',
+>>>>>>> origin/Raffaele_76X:MonoXAnalysis/test/crab/multicrab_DATA_76X.py
                'isCrab=True']
 
 config.section_('General')
