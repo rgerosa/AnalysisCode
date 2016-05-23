@@ -279,7 +279,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       ipos++;
     }
   }
-
+  
   // electrons --> id applied on standard slimmed, in case of calibrated use them to fill the output collection
   //electron info https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
   for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
@@ -292,19 +292,15 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if(passeskincuts && passesid){
 	// match with calibrate electrons if possible
 	if(calibratedElectronsH.isValid()){ // check if it exists
-	  bool isMatched = false;
 	  for(vector<pat::Electron>::const_iterator calibele_iter = calibratedElectronsH->begin();
 	      calibele_iter != calibratedElectronsH->end(); ++calibele_iter){
 	    // match by reference
 	    if(calibele_iter->pfCandidateRef()     == electrons_iter->pfCandidateRef() or 
 	       calibele_iter->core()               == electrons_iter->core() or
 	       calibele_iter->originalObjectRef()  == electrons_iter->originalObjectRef()){
-	      isMatched = true;
 	      outputelectrons.at(ipos)->push_back(pat::ElectronRef(calibratedElectronsH,calibele_iter-calibratedElectronsH->begin()));
 	    }
 	  }
-	  if(not isMatched) // probably due to the pre-selections
-	    outputelectrons.at(ipos)->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
 	}
 	else{	  
 	  outputelectrons.at(ipos)->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
@@ -423,7 +419,6 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }    
   }
   
-  
   edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
   gafiller.insert(photonsH, rndgammaiso.begin(), rndgammaiso.end());
   gafiller.fill();
@@ -447,7 +442,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   else
     photonlooseidfiller.insert(photonsH, photonloose.begin(), photonloose.end());
   photonlooseidfiller.fill();
-  
+
   iEvent.put(outputphotonhighptidmap,"photonHighPtId");
   iEvent.put(outputloosephotonmap,   "photonLooseId");
   iEvent.put(outputgammaisomap,      "rndgammaiso");
