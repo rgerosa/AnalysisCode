@@ -24,6 +24,7 @@ pyCfgParams = ['isMC=True',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
                'nThreads=3',
+               'addEGMSmear=False',
                'miniAODProcess=PAT',
                'isCrab=True']
 
@@ -44,7 +45,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/TTbarDM'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

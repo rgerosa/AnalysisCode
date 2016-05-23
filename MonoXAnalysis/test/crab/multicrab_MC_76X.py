@@ -23,6 +23,7 @@ pyCfgParams = ['isMC=True',
                'addMVAMet=False',
                'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
                'outputFileName=tree.root',
+               'addEGMSmear=True',
                'nThreads=3',
                'miniAODProcess=PAT',
                'isCrab=True']

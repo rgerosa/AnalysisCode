@@ -23,6 +23,7 @@ pyCfgParams = ['isMC=False',
                'addMVAMet=False',
                'globalTag=76X_dataRun2_16Dec2015_v0',
                'outputFileName=tree.root',
+               'addEGMSmear=True',
                'nThreads=3',
                'isCrab=True']
 

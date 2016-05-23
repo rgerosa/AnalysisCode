@@ -79,6 +79,11 @@ options.register (
 	'useOfficialMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
 
+
+options.register (
+	'addMETBreakDown',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'produce the pf met breakdown in different components: pfMet, pfMetChargedHadrons, pfMetNeutralHadrons, pfMetPhotons ... etc');
+
 ## do substructure for CHS or Puppi jets
 options.register (
 	'addSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -175,7 +180,8 @@ print "Running with addPuppiJets        = ",options.addPuppiJets
 print "Running with addPuppiMET         = ",options.addPuppiMET
 print "Running with addEGMSmear         = ",options.addEGMSmear
 print "Running with useMiniAODMet       = ",options.useMiniAODMet
-print "Running with addMETSystematics   = ",options.addMETSystematics	
+print "Running with addMETSystematics   = ",options.addMETSystematics
+print "Running with addMETBreakDown     = ",options.addMETBreakDown	
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
 print "Running with outputFileName      = ",options.outputFileName	
@@ -220,10 +226,11 @@ if options.inputFiles == []:
 			'/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/00050EF1-F9A6-E511-86B2-0025905A48D0.root')
 	else:
 		process.source.fileNames.append(
-#			'file:pickevents.root'
+			'/store/mc/RunIIFall15MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/0A4E9031-7CB9-E511-8ABE-02163E00EA21.root'),
+		process.source.fileNames.append(
+			'/store/mc/RunIIFall15MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/20000/2A4D5764-7CB9-E511-A4E5-02163E017828.root')
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
-			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
-			)    	
+#			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -323,6 +330,11 @@ recoilComputation(process,options.processName,options.miniAODProcess,options.use
 if options.addPuppiMET:
 	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,True)
 
+### met breakdown
+if options.addMETBreakDown:
+	process.METBreakDown = cms.EDProducer("PATMETBreakDownProducer",
+					      pfcands = cms.InputTag("packedPFCandidates"))
+	
 
 ## Create output file
 if options.dropAnalyzerDumpEDM == False:	
@@ -437,23 +449,33 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
 			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
 			      ## photons --> can be matched by reference 
-			      photons        = cms.InputTag("selectedObjects", "photons"),
+			      photons         = cms.InputTag("selectedObjects", "photons"),
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
-			      tightphotons   = cms.InputTag("selectedObjects", "tightphotons"),			     
-			      photonHighPtId = cms.InputTag("selectedObjects", "photonHighPtId"),
-			      photonLooseId = cms.InputTag("selectedObjects", "photonLooseId"),			     
+			      tightphotons    = cms.InputTag("selectedObjects", "tightphotons"),			     
+			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
+			      photonLooseId   = cms.InputTag("selectedObjects", "photonLooseId"),			     
 			      ## taus
-			      taus           = cms.InputTag("selectedObjects","taus"),
+			      taus            = cms.InputTag("selectedObjects","taus"),
 			      ## jets AK4
-			      jets         = cms.InputTag(jetCollName),
-			      addPuppiJets = cms.bool(options.addPuppiJets),			      
-			      puppijets    = cms.InputTag(jetPuppiCollName),			      
+			      jets            = cms.InputTag(jetCollName),
+			      addPuppiJets    = cms.bool(options.addPuppiJets),			      
+			      puppijets       = cms.InputTag(jetPuppiCollName),			      
 			      ## MET
 			      t1met     = cms.InputTag("slimmedMETs","",options.processName),
 			      t1mumet   = cms.InputTag("t1mumet"),
 			      t1elmet   = cms.InputTag("t1elmet"),
 			      t1phmet   = cms.InputTag("t1phmet"),
 			      t1taumet  = cms.InputTag("t1taumet"),
+			      ## MET
+			      addMETBreakDown    = cms.bool(options.addMETBreakDown),
+			      pfMetHadronHF      = cms.InputTag("METBreakDown","pfMetHadronHF"),
+			      pfMetEgammaHF      = cms.InputTag("METBreakDown","pfMetEgammaHF"),
+			      pfMetChargedHadron = cms.InputTag("METBreakDown","pfMetChargedHadron"),
+			      pfMetNeutralHadron = cms.InputTag("METBreakDown","pfMetNeutralHadron"),
+			      pfMetElectrons     = cms.InputTag("METBreakDown","pfMetElectrons"),
+ 			      pfMetPhotons       = cms.InputTag("METBreakDown","pfMetPhotons"),
+ 			      pfMetMuons         = cms.InputTag("METBreakDown","pfMetMuons"),
+			      pfMetUnclustered   = cms.InputTag("METBreakDown","pfMetUnclustered"),
 			      ## Puppi MET
 			      addPuppiMET   = cms.bool(options.addPuppiMET),
 			      puppit1met    = cms.InputTag("slimmedMETsPuppi","",options.processName),
@@ -591,12 +613,18 @@ if options.dropAnalyzerDumpEDM == False:
 			process.treePath.replace(process.btageff,process.btageff+process.btageffBooostedJet);
 		if options.addSubstructurePuppi:
 			process.treePath.replace(process.btageffPuppi,process.btageffPuppi+process.btageffBooostedPuppiJet);
+
+		if options.addMETBreakDown:
+			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
 			
 	else :
 		process.treePath = cms.Path(
 			process.metFilters+
 			process.filterHighRecoil + 
 			process.tree)
+
+		if options.addMETBreakDown:
+			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

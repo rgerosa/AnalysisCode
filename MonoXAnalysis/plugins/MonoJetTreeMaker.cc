@@ -151,7 +151,6 @@ private:
   const edm::InputTag  looseelectronsTag;
   const edm::InputTag  tightelectronsTag;
   const edm::InputTag  heepelectronsTag;
-  const edm::InputTag  electronLooseIdTag;  
 
   edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  looseelectronsToken;
@@ -197,14 +196,20 @@ private:
   edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1taumetToken;
 
+  // MET breakdown
+  const bool addMETBreakDown;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetHadronHFToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetEgammaHFToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetChargedHadronToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetNeutralHadronToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetElectronsToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetPhotonsToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetMuonsToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  pfMetUnclusteredToken;
+
+
   // Puppi MET
   const bool addPuppiMET;
-  const edm::InputTag puppit1metTag;
-  const edm::InputTag puppit1mumetTag;
-  const edm::InputTag puppit1elemetTag;
-  const edm::InputTag puppit1phmetTag;
-  const edm::InputTag puppit1taumetTag;
-
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1metToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1mumetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1elemetToken;
@@ -216,7 +221,6 @@ private:
 
   // MVA met
   const bool addMVAMet;
-  const edm::InputTag mvaMETTag;
   edm::EDGetTokenT<edm::View<reco::MET> > mvaMETToken;
 
   // inner bools
@@ -299,6 +303,10 @@ private:
   // PF MET info (typeI and Raw)
   double t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
   double pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
+
+  // MET break down
+  double pfmethadronHF,pfmethadronHFphi,pfmetegammaHF,pfmetegammaHFphi,pfmetchargedhadron,pfmetchargedhadronphi;
+  double pfmetneutralhadron,pfmetneutralhadronphi,pfmetelectrons,pfmetelectronsphi,pfmetmuons,pfmetmuonsphi,pfmetphotons,pfmetphotonsphi,pfmetunclustered,pfmetunclusteredphi;
 
   // Puppi MET info (typeI and Raw)
   double puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi,puppitaumet,puppitaumetphi;
@@ -537,6 +545,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   t1elmetTag(iConfig.getParameter<edm::InputTag>("t1elmet")),
   t1phmetTag(iConfig.getParameter<edm::InputTag>("t1phmet")),
   t1taumetTag(iConfig.getParameter<edm::InputTag>("t1taumet")),
+  // add met brekdown
+  addMETBreakDown(iConfig.existsAs<bool>("addMETBreakDown") ? iConfig.getParameter<bool>("addMETBreakDown") : false),
   // puppi met
   addPuppiMET(iConfig.existsAs<bool>("addPuppiMET") ? iConfig.getParameter<bool>("addPuppiMET") : false),
   // MET Systematics
@@ -591,7 +601,18 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   t1elemetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
   t1phmetToken  = consumes<edm::View<pat::MET> > (t1phmetTag);
   t1taumetToken  = consumes<edm::View<pat::MET> > (t1taumetTag);
-   
+
+  if(addMETBreakDown){
+    pfMetHadronHFToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetHadronHF"));
+    pfMetEgammaHFToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetEgammaHF"));
+    pfMetChargedHadronToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetChargedHadron"));
+    pfMetNeutralHadronToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetNeutralHadron"));
+    pfMetElectronsToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetElectrons"));
+    pfMetPhotonsToken   = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetPhotons"));
+    pfMetMuonsToken     = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetMuons"));
+    pfMetUnclusteredToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetUnclustered"));
+  }
+ 
   // only for simulated samples
   if( isMC ){
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
@@ -816,6 +837,27 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(addPuppiMET)
       iEvent.getByToken(puppit1taumetToken, puppit1taumetH);
 
+    // MET breakdown 
+    Handle<View<pat::MET> > pfMetHadronHFH;
+    Handle<View<pat::MET> > pfMetEgammaHFH;
+    Handle<View<pat::MET> > pfMetChargedHadronH;
+    Handle<View<pat::MET> > pfMetNeutralHadronH;
+    Handle<View<pat::MET> > pfMetElectronsH;
+    Handle<View<pat::MET> > pfMetPhotonsH;
+    Handle<View<pat::MET> > pfMetMuonsH;
+    Handle<View<pat::MET> > pfMetUnclusteredH;
+
+    if(addMETBreakDown){
+      iEvent.getByToken(pfMetHadronHFToken,pfMetHadronHFH);
+      iEvent.getByToken(pfMetEgammaHFToken,pfMetEgammaHFH);
+      iEvent.getByToken(pfMetChargedHadronToken,pfMetChargedHadronH);
+      iEvent.getByToken(pfMetNeutralHadronToken,pfMetNeutralHadronH);
+      iEvent.getByToken(pfMetElectronsToken,pfMetElectronsH);
+      iEvent.getByToken(pfMetPhotonsToken,pfMetPhotonsH);
+      iEvent.getByToken(pfMetMuonsToken,pfMetMuonsH);
+      iEvent.getByToken(pfMetUnclusteredToken,pfMetUnclusteredH);
+    }
+
     /// MVA MET
     Handle<View<reco::MET> > mvaMetH;
     if(addMVAMet)
@@ -826,7 +868,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(addSubstructureCHS)
       iEvent.getByToken(boostedJetsToken,boostedJetsH);
     
-
     Handle<vector<pat::Jet> > boostedPuppiJetsH;
     if(addSubstructurePuppi)
       iEvent.getByToken(boostedPuppiJetsToken,boostedPuppiJetsH);
@@ -968,8 +1009,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // MET information 
-    if(t1metH.isValid()){
-      
+    if(t1metH.isValid()){      
       // dump gen met info
       if(t1metH->front().genMET()){
 	genmet    = t1metH->front().genMET()->pt();
@@ -984,7 +1024,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       t1pfmetphi = t1metH->front().corPhi();
       pfmet      = t1metH->front().uncorPt();
       pfmetphi   = t1metH->front().uncorPhi();
-
     }
 
     if(addMVAMet && mvaMetH.isValid()){
@@ -1074,9 +1113,34 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       t1pfmetJetEnUpPhi = -99.; t1pfmetJetEnDownPhi = -99.; t1pfmetJetResUpPhi = -99.; t1pfmetJetResDownPhi = -99.;
       t1pfmetUncEnUpPhi = -99.; t1pfmetUncEnDownPhi = -99.; t1pfmetJetSmearPhi = -99.; t1pfmetXYPhi = -99.;     
     }
-
-    // puppi met info
     
+    // MET break down
+    pfmethadronHF = -99. ; pfmethadronHFphi = -99. ; 
+    pfmetegammaHF = -99. ; pfmetegammaHFphi = -99. ; pfmetchargedhadron = -99. ; pfmetchargedhadronphi = -99.;
+    pfmetneutralhadron = -99. ; pfmetneutralhadronphi = -99. ; pfmetelectrons = -99. ; pfmetelectronsphi = -99. ; 
+    pfmetmuons = -99. ; pfmetmuonsphi = -99. ; pfmetphotons = -99. ; pfmetphotonsphi = -99. ; pfmetunclustered = -99. ; pfmetunclusteredphi = -99.;
+
+    if(addMETBreakDown){
+      pfmethadronHF    = pfMetHadronHFH->front().pt();
+      pfmethadronHFphi = pfMetHadronHFH->front().phi();
+      pfmetegammaHF    = pfMetEgammaHFH->front().pt();
+      pfmetegammaHFphi = pfMetEgammaHFH->front().phi();
+      pfmetchargedhadron    = pfMetChargedHadronH->front().pt();
+      pfmetchargedhadronphi = pfMetChargedHadronH->front().phi();
+      pfmetneutralhadron    = pfMetNeutralHadronH->front().pt();
+      pfmetneutralhadronphi = pfMetNeutralHadronH->front().phi();
+      pfmetelectrons    = pfMetElectronsH->front().pt();
+      pfmetelectronsphi = pfMetElectronsH->front().phi();
+      pfmetmuons        = pfMetMuonsH->front().pt();
+      pfmetmuonsphi     = pfMetMuonsH->front().phi();
+      pfmetphotons      = pfMetPhotonsH->front().pt();
+      pfmetphotonsphi   = pfMetPhotonsH->front().phi();
+      pfmetunclustered  = pfMetUnclusteredH->front().pt();
+      pfmetunclusteredphi = pfMetUnclusteredH->front().phi();	
+    }
+    
+
+    // puppi met info    
     puppit1pfmet = -99.; puppit1pfmetphi = -99.;
     puppipfmet   = -99.; puppipfmetphi   = -99.;
     puppit1mumet = -99.; puppit1mumetphi = -99.;
@@ -3357,6 +3421,26 @@ void MonoJetTreeMaker::beginJob() {
 
   tree->Branch("genmet",    &genmet,   "genmet/D");
   tree->Branch("genmetphi", &genmetphi,"genmetphi/D");
+
+  if(addMETBreakDown){
+    
+    tree->Branch("pfmethadronHF",&pfmethadronHF,"pfmethadronHF/D");
+    tree->Branch("pfmethadronHFphi",&pfmethadronHFphi,"pfmethadronHFphi/D");
+    tree->Branch("pfmetegammaHF",&pfmetegammaHF,"pfmetegammaHF/D");
+    tree->Branch("pfmetegammaHFphi",&pfmetegammaHFphi,"pfmetegammaHFphi/D");
+    tree->Branch("pfmetchargedhadron",&pfmetchargedhadron,"pfmetchargedhadron/D");
+    tree->Branch("pfmetchargedhadronphi",&pfmetchargedhadronphi,"pfmetchargedhadronphi/D");
+    tree->Branch("pfmetneutralhadron",&pfmetneutralhadron,"pfmetneutralhadron/D");
+    tree->Branch("pfmetneutralhadronphi",&pfmetneutralhadronphi,"pfmetneutralhadronphi/D");
+    tree->Branch("pfmetelectrons",&pfmetelectrons,"pfmetelectrons/D");
+    tree->Branch("pfmetelectronsphi",&pfmetelectronsphi,"pfmetelectronsphi/D");
+    tree->Branch("pfmetmuons",&pfmetmuons,"pfmetmuons/D");
+    tree->Branch("pfmetmuonsphi",&pfmetmuonsphi,"pfmetmuonsphi/D");
+    tree->Branch("pfmetphotons",&pfmetphotons,"pfmetphotons/D");
+    tree->Branch("pfmetphotonsphi",&pfmetphotonsphi,"pfmetphotonsphi/D");
+    tree->Branch("pfmetunclustered",&pfmetunclustered,"pfmetunclustered/D");
+    tree->Branch("pfmetunclusteredphi",&pfmetunclusteredphi,"pfmetunclusteredphi/D");
+  }
 
   if(addMVAMet){
     tree->Branch("mvamet"              , &mvamet              , "mvamet/D");
