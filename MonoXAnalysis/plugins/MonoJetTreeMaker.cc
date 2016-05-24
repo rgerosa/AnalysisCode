@@ -228,7 +228,17 @@ private:
   const bool cleanMuonJet;
   const bool cleanElectronJet;
   const bool cleanPhotonJet;   
-
+  const double dRCleaningAK4;
+  const double dRCleaningAK8;
+  const std::string jetidwp;
+  const std::string pileupjetidwp;
+  const double btaggingCSVWP;
+  const double btaggingMVAWP;
+  const double minJetPtCountAK4;
+  const double minJetPtBveto;
+  const double minJetPtAK4CentralStore;
+  const double minJetPtAK4ForwardStore;
+ 
   // Jet AK8
   const bool addSubstructureCHS;
   const bool addSubstructurePuppi;  
@@ -559,6 +569,16 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
   cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
   cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
+  dRCleaningAK4(iConfig.existsAs<double>("dRCleaningAK4") ? iConfig.getParameter<double>("dRCleaningAK4") : 0.4),
+  dRCleaningAK8(iConfig.existsAs<double>("dRCleaningAK8") ? iConfig.getParameter<double>("dRCleaningAK8") : 0.8),
+  jetidwp(iConfig.existsAs<std::string>("jetidwp") ? iConfig.getParameter<std::string>("jetidwp") : "loose"),
+  pileupjetidwp(iConfig.existsAs<std::string>("pileupjetidwp") ? iConfig.getParameter<std::string>("pileupjetidwp") : "medium"),
+  btaggingCSVWP(iConfig.getParameter<double>("btaggingCSVWP")),
+  btaggingMVAWP(iConfig.getParameter<double>("btaggingMVAWP")),
+  minJetPtCountAK4(iConfig.existsAs<double>("minJetPtCountAK4") ? iConfig.getParameter<double>("minJetPtCountAK4") : 30),
+  minJetPtBveto(iConfig.existsAs<double>("minJetPtBveto") ? iConfig.getParameter<double>("minJetPtBveto") : 30),
+  minJetPtAK4CentralStore(iConfig.existsAs<double>("minJetPtAK4CentralStore") ? iConfig.getParameter<double>("minJetPtAK4CentralStore") : 20),
+  minJetPtAK4ForwardStore(iConfig.existsAs<double>("minJetPtAK4ForwardStore") ? iConfig.getParameter<double>("minJetPtAK4ForwardStore") : 25), 
   // substructure
   addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
@@ -1277,12 +1297,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if(jetref.isAvailable() and jetref.isNonnull()) alljets.push_back(jetref);
       
 	// apply jet id
-	bool passjetid = applyJetID(*jets_iter,"loose");            
+	bool passjetid = applyJetID(*jets_iter,jetidwp);            
 	if (!passjetid) 
 	  continue;
 	
 	// apply pileup jet id
-	bool passpuid = applyPileupJetID(*jets_iter,"medium",false);
+	bool passpuid = applyPileupJetID(*jets_iter,pileupjetidwp,false);
 	if (!passpuid) 
 	  continue;
       
@@ -1320,10 +1340,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       nbjetsMVA   = 0;
       nbjetsMVAlowpt = 0;
       
-      float minJetPtCentral  = 20.;
-      float minJetPtForward  = 30.;
-      float minJetPtCount = 30.;
-
       centraljetpt        .clear(); centraljeteta       .clear(); centraljetphi       .clear(); centraljetbtag      .clear(); centraljetCHfrac    .clear();
       centraljetNHfrac    .clear(); centraljetEMfrac    .clear(); centraljetCEMfrac   .clear(); centraljetmetdphi   .clear();
       centraljetHFlav     .clear(); centraljetPFlav     .clear(); centraljetQGL       .clear(); centraljetPUID      .clear();
@@ -1333,21 +1349,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       centraljetBtagMVASF .clear(); centraljetBtagMVASFUp .clear(); centraljetBtagMVASFDown .clear();
 
       for(size_t i = 0; i < incjets.size(); i++){
-	if(incjets[i]->pt() > 30) njetsinc++;
+	if(incjets[i]->pt() > minJetPtCountAK4) njetsinc++;
       }
     
       for (size_t i = 0; i < jets.size(); i++) {
 	
-	if (jets[i]->pt() > minJetPtCount) njets++;
+	if (jets[i]->pt() > minJetPtCountAK4) njets++;
 	// btagging
-	if (jets[i]->pt() > minJetPtCount && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.80) nbjets++;
-	if (jets[i]->pt() > 15 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.80) nbjetslowpt++;
+	if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjets++;
+	if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjetslowpt++;
 	
-	if (jets[i]->pt() > minJetPtCount && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > 0.185) nbjetsMVA++;
-	if (jets[i]->pt() > 15 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > 0.185) nbjetsMVAlowpt++;
+	if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
+	if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
  
 	// fill collections
-	if (jets[i]->pt() > minJetPtCentral){
+	if (jets[i]->pt() > minJetPtAK4CentralStore){
 	  
 	  centraljetpt.push_back(jets[i]->pt());
 	  centraljeteta.push_back(jets[i]->eta());
@@ -1400,7 +1416,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (size_t i = 0; i < forwardjets.size(); i++) {
 
 	// fill collections
-	if (forwardjets[i]->pt() > minJetPtForward){
+	if (forwardjets[i]->pt() > minJetPtAK4ForwardStore){
 
 	  forwardjetpt.push_back(forwardjets[i]->pt());
 	  forwardjeteta.push_back(forwardjets[i]->eta());
@@ -1457,7 +1473,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> alljetphmetdphimin4vector;
 
       for (size_t i = 0; i < alljets.size(); i++) {
-	if (alljets[i]->pt() > minJetPtCount) {
+	if (alljets[i]->pt() > minJetPtCountAK4) {
 	  double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
 	  alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
 	  alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
@@ -1483,7 +1499,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> jetmetdphimin4vector;
       // only central jets
       for (size_t i = 0; i < jets.size(); i++) {
-        if (jets[i]->pt() > minJetPtCount) {
+        if (jets[i]->pt() > minJetPtCountAK4) {
 	  double jetphi = jets[i]->phi();
 	  jetmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1pfmetphi)));
 	  if (i < 4) jetmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1pfmetphi)));
@@ -1497,7 +1513,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> incjetmetdphimin4vector;
       // central and forward jet
       for (size_t i = 0; i < incjets.size(); i++) {
-	if (incjets[i]->pt() > minJetPtCount) {
+	if (incjets[i]->pt() > minJetPtCountAK4) {
 	  double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
 	  incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
 	  if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
@@ -1510,7 +1526,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> jetmumetdphiminvector;
       std::vector<double> jetmumetdphimin4vector;
       for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() >minJetPtCount) {
+	if (jets[i]->pt() >minJetPtCountAK4) {
 	  double jetphi = jets[i]->phi();
 	  jetmumetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
 	  if (i < 4) jetmumetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
@@ -1523,7 +1539,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> incjetmumetdphimin4vector;
       
       for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCount) {
+        if (incjets[i]->pt() > minJetPtCountAK4) {
 	  double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
             incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
             if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
@@ -1536,7 +1552,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> jetelmetdphiminvector;
       std::vector<double> jetelmetdphimin4vector;
       for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCount) {
+	if (jets[i]->pt() > minJetPtCountAK4) {
             double jetphi = jets[i]->phi();
             jetelmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
             if (i < 4) jetelmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
@@ -1548,7 +1564,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> incjetelmetdphiminvector;
       std::vector<double> incjetelmetdphimin4vector;
       for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCount) {
+        if (incjets[i]->pt() > minJetPtCountAK4) {
             double incjetphi = incjets[i]->phi();
             incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
             if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
@@ -1561,7 +1577,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> jetphmetdphiminvector;
       std::vector<double> jetphmetdphimin4vector;
       for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCount) {
+	if (jets[i]->pt() > minJetPtCountAK4) {
 	  double jetphi = jets[i]->phi();
 	  jetphmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
 	  if (i < 4) jetphmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
@@ -1573,7 +1589,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> incjetphmetdphiminvector;
       std::vector<double> incjetphmetdphimin4vector;
       for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCount) {
+        if (incjets[i]->pt() > minJetPtCountAK4) {
 	  double incjetphi = incjets[i]->phi();
 	  incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
 	  if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
@@ -1586,7 +1602,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ht     = 0.;
       std::vector<double> jetEts;
       for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCount) {
+	if (jets[i]->pt() > minJetPtCountAK4) {
 	  ht += jets[i]->pt();
 	  jetEts.push_back(jets[i]->pt());
 	}
@@ -1612,19 +1628,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  bool skipjet = false;
 	  if(muonsH.isValid()){
 	    for (std::size_t j = 0; j < muons.size(); j++) {
-	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 		skipjet = true;
 	    }
 	  }
 	  if(electronsH.isValid()){
 	    for (std::size_t j = 0; j < electrons.size(); j++) {
-	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 		skipjet = true;
 	    }
 	  }
 	  if(photonsH.isValid()){
 	    for (std::size_t j = 0; j < photons.size(); j++) {
-	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 		skipjet = true;
 	    }
 	  }
@@ -1632,7 +1648,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if (skipjet) continue;
 	  
 	  // apply jet id
-	  bool passjetid = applyJetID(*jets_iter,"loose");            
+	  bool passjetid = applyJetID(*jets_iter,jetidwp);            
 	  if (!passjetid) 
 	    continue;
 	  
@@ -1690,11 +1706,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	for (size_t i = 0; i < Puppijets.size(); i++) {
 	  
 	  if (Puppijets[i]->pt() > minPuppiJetPtCount) npuppijets++;
-	  if (Puppijets[i]->pt() > minPuppiJetPtCount && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.80) npuppibjets++;
-	  if (Puppijets[i]->pt() > 15 && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > 0.80) npuppibjetslowpt++;
+	  if (Puppijets[i]->pt() > minPuppiJetPtCount && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjets++;
+	  if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjetslowpt++;
 
-	  if (Puppijets[i]->pt() > minPuppiJetPtCount && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > 0.185) npuppibjetsMVA++;
-	  if (Puppijets[i]->pt() > 15 && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > 0.185) npuppibjetsMVAlowpt++;
+	  if (Puppijets[i]->pt() > minPuppiJetPtCount && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVA++;
+	  if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVAlowpt++;
 	  
 	  // fill collections
 	  if (Puppijets[i]->pt() > minPuppiJetPtCentral){
@@ -1930,10 +1946,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for(std::size_t itau =0 ; itau < taus.size(); itau++){
 	bool skiptau = false;
 	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < 0.4) skiptau = true;
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < 0.4) skiptau = true;
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	if(skiptau) continue;
 	tauvector.push_back(taus[itau]);
@@ -2243,19 +2259,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  bool skipjet = false;
 	  if(muonsH.isValid()){
 	    for (std::size_t j = 0; j < muons.size(); j++) {
-	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }
 	  }
 	  if(electronsH.isValid()){
 	    for (std::size_t j = 0; j < electrons.size(); j++) {
-	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }
 	  }
 	  if(photonsH.isValid()){
 	    for (std::size_t j = 0; j < photons.size(); j++) {
-	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }
 	  }
@@ -2263,7 +2279,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if (skipjet) continue;
 	  
 	  // apply jet id                                                                                                                                                 
-	  bool passjetid = applyJetID(*jets_iter,"loose");
+	  bool passjetid = applyJetID(*jets_iter,jetidwp);
 	  if (!passjetid)
 	    continue;
 	  
@@ -2680,20 +2696,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  bool skipjet = false;
 	  if(muonsH.isValid()){
 	    for (std::size_t j = 0; j < muons.size(); j++) {
-	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }
 	  }
 	  
 	  if(electronsH.isValid()){
 	    for (std::size_t j = 0; j < electrons.size(); j++) {
-	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }
 	  }
 	  if(photonsH.isValid()){
 	    for (std::size_t j = 0; j < photons.size(); j++) {
-	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.8) 
+	      if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 		skipjet = true;
 	    }	  
 	  }
@@ -2701,7 +2717,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if (skipjet) continue;
 
 	  // apply jet id                                                                                                                                                    
-	  bool passjetid = applyJetID(*jets_iter,"loose");
+	  bool passjetid = applyJetID(*jets_iter,jetidwp);
 	  if (!passjetid)
 	    continue;
 	  

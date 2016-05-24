@@ -9,28 +9,26 @@ config = Configuration()
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'filterHighMETEvents=False',
-               'usePrivateSQliteJEC=False',
-               'usePrivateSQliteJER=True',
                'applyL2L3Residuals=False',
-               'addPuppiJets=True',
-               'addPuppiMET=True',
-               'addMETSystematics=True',
-               'useOfficialMETSystematics=True',
-               'addSubstructureCHS=True',
-               'addSubstructurePuppi=False',
                'addQGLikelihood=True',
                'addPileupJetID=True',
-               'addMVAMet=False',
-               'globalTag=76X_mcRun2_asymptotic_RunIIFall15DR76_v1',
-               'outputFileName=tree.root',
-               'addEGMSmear=True',
-               'nThreads=3',
+               'addPuppiJets=True',
+               'addPuppiMET=True',
+               'addEGMSmear=False',
+               'addMETSystematics=True',
+               'useOfficialMETSystematics=True',
+               'addMETBreakDown=True',
+               'addSubstructureCHS=True',
+               'addSubstructurePuppi=False',
                'miniAODProcess=PAT',
+               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
+               'outputFileName=tree.root',
+               'nThreads=4',
                'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_MC_76X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_MC_80X'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -38,14 +36,14 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 3
+config.JobType.numCores         = 4
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-03-04-2016/'
+config.Data.unitsPerJob   = 25000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-24-05-2016_80X/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
