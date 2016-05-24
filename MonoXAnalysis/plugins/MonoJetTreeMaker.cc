@@ -1272,7 +1272,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	// jet in overlap with lepton
 	if (skipjet) continue;
-      
 	pat::JetRef jetref(jetsH, jets_iter - jetsH->begin());	
 	if(jetref.isAvailable() and jetref.isNonnull()) alljets.push_back(jetref);
       

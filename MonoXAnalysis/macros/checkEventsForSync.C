@@ -237,16 +237,26 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8mpruned   = 0;
   n_metHard      = 0;
 
+  ofstream leptonTag_ZM((outputDir+"/leptonTag_ZM.txt").c_str());
+  ofstream leptonVeto_ZM((outputDir+"/leptonVeto_ZM.txt").c_str());
+  ofstream bjetVeto_ZM((outputDir+"/bjetVeto_ZM.txt").c_str());
+  ofstream boostedJets_ZM((outputDir+"/boostedJets_ZM.txt").c_str());
+
   myReader.SetEntry(0);
   while(myReader.Next()){
 
     if(*nmuons != 2) continue;
     n_muons++;
-    if(not (*mu1pt > 20 and (*mu1id == 1 || *mu2id == 1) and *zmass > 60 and *zmass < 120)) continue; 
+    if(not (((*mu1pt > 20 and *mu1id == 1) || (*mu2pt > 20 and *mu2id == 1)) and *zmass > 60 and *zmass < 120 and *mu1pid != *mu2pid )) continue; 
     n_muonTag++;
+
+    leptonTag_ZM << *run << " " <<*lumi<<" "<<*event<<"\n";
 
     if(*nelectrons != 0) continue;
     n_electronVeto++;
+
+    leptonVeto_ZM << *run << " " <<*lumi<<" "<<*event<<"\n";
+
     if(*nphotons != 0) continue;    
     n_photonVeto++;
     if(*ntaus != 0) continue;
@@ -254,7 +264,7 @@ void checkEventsForSync(string inputFile, string outputDir){
         
     if(*nbjetslowpt > 0) continue;
     n_bjetVeto++;
-
+    bjetVeto_ZM << *run << " " <<*lumi<<" "<<*event<<"\n";
     if(jetpt->size() <= 0) continue;
     if(jetpt->at(0) < 100) continue;
     n_jetpt++;
@@ -271,6 +281,7 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
     if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    boostedJets_ZM << *run << " " <<*lumi<<" "<<*event<<"\n";
     n_ak8pt++;
     if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
     n_ak8tau2tau1++;
@@ -281,6 +292,11 @@ void checkEventsForSync(string inputFile, string outputDir){
       n_metHard++;
     
   }
+
+  leptonTag_ZM.close();
+  leptonVeto_ZM.close();
+  boostedJets_ZM.close();
+  bjetVeto_ZM.close();
 
   cout<<"################################"<<endl;
   cout<<"## Event report in the DiMuon ##"<<endl;
@@ -405,7 +421,7 @@ void checkEventsForSync(string inputFile, string outputDir){
 
     if(*nelectrons != 2) continue;
     n_electron++;
-    if(not (*el1pt > 40 and (*el1id == 1 || *el2id == 1) and *zeemass > 60 and *zeemass < 120)) continue; 
+    if(not (((*el1pt > 40 and *el1id == 1)  or (*el2pt > 40 and *el2id == 1)) and *zeemass > 60 and *zeemass < 120 and  *el1pid != *el2pid)) continue; 
     n_electronTag++;
 
     if(*nmuons != 0) continue;
@@ -520,7 +536,7 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
     n_ak8mpruned++;
    
-    if(*mmet<250) continue;
+    if(*emet<250) continue;
       n_metHard++;
     
   }
@@ -559,12 +575,17 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8mpruned   = 0;
   n_metHard      = 0;
 
+  
+  ofstream photonTagSelections((outputDir+"/PhotonTag_GJ.txt").c_str());
+
   myReader.SetEntry(0);
   while(myReader.Next()){
 
     if(*nphotons != 1) continue;    
-    if(*phpt < 175 || fabs(*pheta) > 1.442 or *phidm !=1) continue;    
+    if(*phpt < 175 || fabs(*pheta) > 1.442 or *phidm != 1) continue;    
     n_photonTag++;
+
+    photonTagSelections<< *run << " " <<*lumi<<" "<<*event<<"\n";
 
     if(*nelectrons != 0) continue;
     n_electronVeto++;
@@ -598,10 +619,12 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
     n_ak8mpruned++;
    
-    if(*mmet<250) continue;
+    if(*pmet<250) continue;
       n_metHard++;
     
   }
+
+  photonTagSelections.close();
 
   cout<<"################################"<<endl;
   cout<<"## Event report in the SinglePhoton ##"<<endl;
