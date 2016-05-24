@@ -286,10 +286,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
     size_t ipos = 0;
     for(auto iele : electronSelection){
-      bool passeskincuts  = (electrons_iter->pt() > iele.getParameter<double>("ptMin") && 
-			     fabs(electrons_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
       bool passesid       = (*electronMapH.at(ipos))[electronPtr];
-      if(passeskincuts && passesid){
+      if(passesid){
 	// match with calibrate electrons if possible
 	if(calibratedElectronsH.isValid()){ // check if it exists
 	  for(vector<pat::Electron>::const_iterator calibele_iter = calibratedElectronsH->begin();
@@ -298,11 +296,18 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    if(calibele_iter->pfCandidateRef()     == electrons_iter->pfCandidateRef() or 
 	       calibele_iter->core()               == electrons_iter->core() or
 	       calibele_iter->originalObjectRef()  == electrons_iter->originalObjectRef()){
+	      bool passeskincuts  = (calibele_iter->pt() > iele.getParameter<double>("ptMin") &&
+				     fabs(calibele_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
+	      if(not passeskincuts) continue;
 	      outputelectrons.at(ipos)->push_back(pat::ElectronRef(calibratedElectronsH,calibele_iter-calibratedElectronsH->begin()));
 	    }
 	  }
 	}
 	else{	  
+	  // apply basic kinematic cuts
+	  bool passeskincuts  = (electrons_iter->pt() > iele.getParameter<double>("ptMin") &&
+				 fabs(electrons_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
+	  if(not passeskincuts) continue;
 	  outputelectrons.at(ipos)->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
 	}
       }
@@ -390,7 +395,6 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     size_t ipos = 0;
     for(auto ipho : photonSelection){
       // check only photons with the following proprierties
-      if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or photons_iter->pt() < ipho.getParameter<double>("ptMin") or not photons_iter->passElectronVeto()) continue;
       // standard ID
       bool passesid = (*photonsMapH.at(ipos))[photonPtr];
       if(passesid){	
@@ -405,6 +409,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    if(calibpho_iter->superCluster()     == photons_iter->superCluster() or
 	       calibpho_iter->originalObjectRef()  == photons_iter->originalObjectRef()){
 	      isMatched = true;
+	      if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or calibpho_iter->pt() < ipho.getParameter<double>("ptMin") or not calibpho_iter->passElectronVeto()) continue;	      
 	      outputphotons.at(ipos)->push_back(pat::PhotonRef(calibratedPhotonsH,calibpho_iter-calibratedPhotonsH->begin()));
 	    }
 	  }
@@ -412,6 +417,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    throw cms::Exception("PFCleaner") <<" missing matching for one photons between calib and un-calib collections --> check \n";
 	}
 	else{
+	  if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or photons_iter->pt() < ipho.getParameter<double>("ptMin") or not photons_iter->passElectronVeto()) continue;
 	  outputphotons.at(ipos)->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
 	}
       }

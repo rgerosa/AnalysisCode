@@ -24,7 +24,7 @@ options.register (
 	'met/recoil cut to be applied if filterHighMETEvents is set to true');
 
 options.register (
-	'filterOnHLT',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'filterOnHLT',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not trigger requirements');
 
 ## JEC options
@@ -33,7 +33,7 @@ options.register (
 	'if a private SQL file with JEC to be found in test directory');
 
 options.register (
-	'usePrivateSQliteJER',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'usePrivateSQliteJER',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JER to be found in test directory');
 
 options.register (
@@ -229,6 +229,7 @@ if options.inputFiles == []:
 			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
 #			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
+			)
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
