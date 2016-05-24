@@ -10,6 +10,7 @@ Recipe for 76X (temp fixes for pileup jet id):
        cd CMSSW_8_0_8/src
        cmsenv
        git cms-init
+       git cms-merge-topic -u matteosan1:smearer_76X
        git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_80X
 	   
 How to Run the ntuple production (for analysis):
