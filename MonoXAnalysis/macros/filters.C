@@ -554,7 +554,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
 
     
   // Selections 2 loose muons, 0 loose ele, taus and photons, m(mumu) = m(z) [60,120], mupt > 20, one of the two tight ... no trigger requirement
-  const char* cut = "nmuons == 2 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && zmass > 60 && zmass < 120 && mu1pt > 20 && (mu1id >= 1 || mu2id >= 1) && t1mumet > 175";
+  const char* cut = "nmuons == 2 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && zmass > 60 && zmass < 120 && ((mu1pt > 20 && mu1id >= 1) || (mu2pt > 20 && mu2id >= 1)) && t1mumet > 175 && (mu1pid != mu2pid)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -770,11 +770,11 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 
   const char* cut = "";
   if(not isMC and not isSinglePhoton)
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && hltsingleel > 0 && t1elmet > 175";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && hltsingleel > 0 && t1elmet > 175 && (el1pid != el2pid)";
   else if(not isMC and isSinglePhoton)
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && hltsingleel == 0 && ( hltphoton165 > 0 || hltphoton175 > 0) && t1elmet > 175";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && hltsingleel == 0 && ( hltphoton165 > 0 || hltphoton175 > 0) && t1elmet > 175 && (el1pid != el2pid)";
   else if(isMC)
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && (el1id >= 1 || el2id >= 1) && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0) && t1elmet > 175";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0) && t1elmet > 175 && (el1pid != el2pid)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
