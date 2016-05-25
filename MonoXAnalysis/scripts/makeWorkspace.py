@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     ## load the create workspace macro
     ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so");
-    ROOT.gROOT.ProcessLine(".L ./macros/createWorkspace.C");
+    ROOT.gROOT.ProcessLine(".L ./macros/makeWorkspace/createWorkspace.C");
 
     ## set starting and working dir
     startingDIR = os.getcwd()
@@ -236,7 +236,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so\");\n");
-                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
+                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/makeWorkspace/createWorkspace.C\");\n");
                 if not isCutAndCount:
                   command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f)\""%(options.templateFile,options.category,cat,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,monoJInteraction[isig],monoJMediatorMass[isig],monoJdmMass[isig],isCutAndCount,options.normalizeSignal))
                   jobmacro.write("gROOT->ProcessLine("+command.Data()+");\n");
@@ -288,7 +288,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s.C'%(options.jobDIR,jobName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L $CMSSW_BASE/lib/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so\");\n");
-                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/createWorkspace.C\");\n");
+                jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/makeWorkspace/createWorkspace.C\");\n");
                 if options.isCutAndCount:
                   command = ROOT.TString("\"createWorkspace(\\\"%s\\\",%d,\\\"workspace_%s_%s.root\\\",\\\"%s\\\",%d,%f,%d,%d,%d,%d,%d,\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,%f)\""%(options.templateFile,options.category,cat,mass,options.observable,isHiggsInvisible,options.scaleQCD,connectWZ,connectTop,addShapeSystematics,mergeLeptons,isCombination,"",mass,"",isCutAndCount,options.normalizeSignal))
                 else:
