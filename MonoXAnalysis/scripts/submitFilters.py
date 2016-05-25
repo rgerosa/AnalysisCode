@@ -32,8 +32,10 @@ parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBT
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
 parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
-parser.add_option('--dropPuppiBranches', action="store_true",      dest="dropPuppiBranches",          help="drop all puppi branches")
+parser.add_option('--dropPuppiBranches',   action="store_true",    dest="dropPuppiBranches",          help="drop all puppi branches")
 parser.add_option('--dropSubJetsBranches', action="store_true",    dest="dropSubJetsBranches",        help="drop all subjet branches")
+parser.add_option('--dropHLTFilter',       action="store_true",    dest="dropHLTFilter",              help="drop HLT filter requirement")
+parser.add_option('--metCut',              action="store", type="string"    dest="metCut",        help="apply MET/Recoil threshold")
 
 parser.add_option('--grepName', action="callback", type="string", dest="grepName", default="", callback=foo_callback, help="grep a set of names in the directory") ## useful when submitting only signal or data
 parser.add_option('--skipName', action="callback", type="string", dest="skipName", default="", callback=foo_callback, help="drop a set of names in the directory")
@@ -63,7 +65,7 @@ if __name__ == '__main__':
     os.system("rm dir_list.txt");
 
     for dir in dirList:
-        command = "python scripts/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS ";
+        command = "python scripts/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS --metCut "+options.metCut+" ";
         if options.calculateXSfromSW:
           command += "--calculateXSfromSW ";
         if options.calculateXSfromLHE:
@@ -81,7 +83,9 @@ if __name__ == '__main__':
         if options.dropPuppiBranches:
           command += "--dropPuppiBranches ";
         if options.dropSubJetsBranches:
-          command += "--dropSubJetsBranches";
+          command += "--dropSubJetsBranches ";
+        if options.dropHLTFilter:
+          command += "--dropHLTFilter";        
 
         print command    
         os.system(command)

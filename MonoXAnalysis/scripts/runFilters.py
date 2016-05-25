@@ -32,7 +32,8 @@ parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabD
 parser.add_option('--isOnEOS',      action="store_true",           dest="isOnEOS",                    help="isOnEOS when the input directory is located in EOS")
 parser.add_option('--dropPuppiBranches', action="store_true",      dest="dropPuppiBranches",          help="drop all puppi branches")
 parser.add_option('--dropSubJetsBranches', action="store_true",    dest="dropSubJetsBranches",        help="drop all subjet branches")
-
+parser.add_option('--dropHLTFilter', action="store_true",          dest="dropHLTFilter",              help="drop HLT filter requirement")
+parser.add_option('--metCut',        action="store", type="string",dest="metCut",                     help="met/Recoil threshold to be applied")
 ##  for submitting jobs in lxbatch
 parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
 parser.add_option('--jobDIR',       action="store", type="string", dest="jobDIR",  default="",        help="directory for job")
@@ -111,6 +112,10 @@ if __name__ == '__main__':
     if options.dropSubJetsBranches:
         dropSubJetsBranches = 1;
 
+    dropHLTFilter = 0;
+    if options.dropHLTFilter:
+        dropHLTFilter = 1;
+
     xsType = 0;
     if options.calculateXSfromSW:
         xsType = 1;
@@ -140,7 +145,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
                 
-                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 
                 ROOT.gROOT.ProcessLine(command.Data());
@@ -159,7 +164,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_sig_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                     
                 jobmacro.write("}\n");
                 jobmacro.close();
@@ -188,7 +193,7 @@ if __name__ == '__main__':
             
             if not options.batchMode:
 
-                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -206,7 +211,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zmm_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -232,7 +237,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -250,7 +255,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zee_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -276,7 +281,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -294,7 +299,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wmn_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -320,7 +325,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -338,7 +343,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wen_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -364,7 +369,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -382,7 +387,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_gam_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -409,7 +414,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topmufilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("topmufilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -427,7 +432,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_topmu_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topmufilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topmufilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -454,7 +459,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches))
+                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -472,7 +477,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_topel_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i)"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%s)"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
