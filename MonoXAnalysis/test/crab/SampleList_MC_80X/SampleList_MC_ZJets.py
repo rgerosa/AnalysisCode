@@ -11,5 +11,4 @@
 #    ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=1.183']]
 #samples['ZJetsToNuNu_HT-1200To2500'] = [
 #    ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=0.286']]
-#samples['ZJetsToNuNu_HT-2500ToInf'] = [
-#    ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=6.976000e-03']]
+samples['ZJetsToNuNu_HT-2500ToInf'] = ['/ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=6.976000e-03']]
