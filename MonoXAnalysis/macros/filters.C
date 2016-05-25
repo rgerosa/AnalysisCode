@@ -780,17 +780,17 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 
   string cut = "";
   if(not isMC and not isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
       cut += " && hltsingleel > 0";
   }
   else if(not isMC and isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
       cut += " && ( hltphoton165 > 0 || hltphoton175 > 0) && hltsingleel == 0";    
   }
   else if(isMC){    
-    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (ele2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
+    cut = "nmuons == 0 && nelectrons == 2 && ntaus == 0 && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
       cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0)";
   }

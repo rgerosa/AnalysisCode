@@ -1,0 +1,625 @@
+#include <vector>
+
+#include "TFile.h"
+#include "TTree.h"
+#include "TH1F.h"
+#include "TTreeReader.h"
+
+void checkEventsForSync(string inputFile, string outputDir){
+
+  system(("mkdir -p "+outputDir).c_str());
+  system(("rm "+outputDir+"/*").c_str());
+
+  TFile* input = TFile::Open(inputFile.c_str());
+  TTree* tree  = (TTree*) input->Get("tree/tree");
+  
+  // declare branches
+  TTreeReader myReader(tree);
+  TTreeReaderValue<unsigned int> run    (myReader,"run");
+  TTreeReaderValue<unsigned int> lumi   (myReader,"lumi");
+  TTreeReaderValue<unsigned int> event  (myReader,"event");
+
+  // triggers 
+  TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hlte       (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
+
+  // met filters
+  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
+
+  // njets
+  TTreeReaderValue<unsigned int> njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int> nbjets (myReader,"nbjets");
+  TTreeReaderValue<unsigned int> nbjetslowpt (myReader,"nbjetslowpt");
+
+  // AK4 jets
+  TTreeReaderValue<vector<double> > jetpt   (myReader,"centraljetpt");
+  TTreeReaderValue<vector<double> > jeteta  (myReader,"centraljeteta");
+  TTreeReaderValue<vector<double> > jetphi  (myReader,"centraljetphi");
+  TTreeReaderValue<vector<double> > jetbtag (myReader,"centraljetbtag");
+  TTreeReaderValue<vector<double> > chfrac  (myReader,"centraljetCHfrac");
+  TTreeReaderValue<vector<double> > nhfrac  (myReader,"centraljetNHfrac");
+  TTreeReaderValue<vector<double> > emfrac  (myReader,"centraljetEMfrac");
+  // Boosted jets
+  TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
+  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
+  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedJetm");
+  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm");
+  TTreeReaderValue<vector<double> > prunedJetm_v2   (myReader,"prunedJetm_v2");
+  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
+  TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
+
+  // MET
+  TTreeReaderValue<double> met (myReader,"t1pfmet");
+  TTreeReaderValue<double> mmet        (myReader,"t1mumet");
+  TTreeReaderValue<double> emet        (myReader,"t1elmet");
+  TTreeReaderValue<double> pmet        (myReader,"t1phmet");
+
+  // Dphi
+  TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
+  TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
+  TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
+
+  TTreeReaderValue<unsigned int> nmuons     (myReader,"nmuons");
+  TTreeReaderValue<unsigned int> nelectrons (myReader,"nelectrons");
+  TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
+  TTreeReaderValue<unsigned int> nphotons   (myReader,"nphotons");
+
+  // Muon information
+  TTreeReaderValue<int> mu1pid (myReader,"mu1pid");
+  TTreeReaderValue<int> mu2pid (myReader,"mu2pid");
+  TTreeReaderValue<int> mu1id (myReader,"mu1id");
+  TTreeReaderValue<int> mu2id (myReader,"mu2id");
+  TTreeReaderValue<double> mu1pt (myReader,"mu1pt");
+  TTreeReaderValue<double> mu2pt (myReader,"mu2pt");
+  TTreeReaderValue<double> mu1eta (myReader,"mu1eta");
+  TTreeReaderValue<double> mu2eta (myReader,"mu2eta");
+  TTreeReaderValue<double> mu1phi (myReader,"mu1phi");
+  TTreeReaderValue<double> mu2phi (myReader,"mu2phi");
+
+  // Electron information
+  TTreeReaderValue<int> el1pid (myReader,"el1pid");
+  TTreeReaderValue<int> el2pid (myReader,"el2pid");
+  TTreeReaderValue<int> el1id (myReader,"el1id");
+  TTreeReaderValue<int> el2id (myReader,"el2id");
+  TTreeReaderValue<double> el1pt (myReader,"el1pt");
+  TTreeReaderValue<double> el2pt (myReader,"el2pt");
+  TTreeReaderValue<double> el1eta (myReader,"el1eta");
+  TTreeReaderValue<double> el2eta (myReader,"el2eta");
+  TTreeReaderValue<double> el1phi (myReader,"el1phi");
+  TTreeReaderValue<double> el2phi (myReader,"el2phi");
+
+  // Photon information
+  TTreeReaderValue<int> phidm (myReader,"phidm");
+  TTreeReaderValue<double> phpt (myReader,"phpt");
+  TTreeReaderValue<double> pheta (myReader,"pheta");
+  TTreeReaderValue<double> phphi (myReader,"phphi");
+
+  TTreeReaderValue<double> zmass (myReader,"zmass");
+  TTreeReaderValue<double> zeemass (myReader,"zeemass");
+  TTreeReaderValue<double> zmmpt (myReader,"zpt");
+  TTreeReaderArray<double> zeept (myReader,"zeept.zeeept");
+  TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
+  TTreeReaderValue<double> zmmeta (myReader,"zeta");
+
+  // output text files for the comparison
+  ofstream leptonVeto((outputDir+"/leptonVeto_SR.txt").c_str());
+  ofstream leptonPhtonVeto((outputDir+"/leptonPhtonVeto_SR.txt").c_str());
+  ofstream leptonPhtonTauVeto((outputDir+"/leptonPhtonTauVeto_SR.txt").c_str());
+  ofstream ak4JetSelections((outputDir+"/ak4JetSelections_SR.txt").c_str());
+  ofstream metSelections((outputDir+"/metSelections_SR.txt").c_str());
+  ofstream btagVetoSelections((outputDir+"/btagVeto_SR.txt").c_str());
+  ofstream VtaggingSelections((outputDir+"/Vtagging_SR.txt").c_str());
+
+  long int n_total        = 0;
+  long int n_muonVeto     = 0;
+  long int n_electronVeto = 0;
+  long int n_photonVeto   = 0;
+  long int n_tauVeto      = 0;
+  long int n_bjetVeto     = 0;
+  long int n_jetpt        = 0;
+  long int n_jetid        = 0;
+  long int n_jetdphi      = 0;
+  long int n_metcut       = 0;
+  long int n_ak8pt        = 0;
+  long int n_ak8tau2tau1  = 0;
+  long int n_ak8mpruned   = 0;
+  long int n_metHard      = 0;
+  
+  /// event loop
+  while(myReader.Next()){
+    
+    n_total++;
+
+    if(*nmuons != 0) continue;
+    n_muonVeto++;
+
+    if(*nelectrons != 0) continue;
+    n_electronVeto++;
+    leptonVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
+
+    if(*nphotons != 0) continue;    
+    n_photonVeto++;
+    leptonPhtonVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
+
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+    leptonPhtonTauVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+    btagVetoSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    ak4JetSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
+
+    if(*jmmdphi < 0.5) continue;
+    n_jetdphi++;
+
+    if(*met < 200) continue;
+    n_metcut++;
+    metSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+    VtaggingSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
+   
+    if(*met<250) continue;
+    n_metHard++;
+    
+  }
+  
+  leptonVeto.close();
+  leptonPhtonVeto.close();
+  leptonPhtonTauVeto.close();
+  ak4JetSelections.close();
+  metSelections.close();
+  btagVetoSelections.close();
+  VtaggingSelections.close();
+
+  cout<<"############################"<<endl;
+  cout<<"## Event report in the SR ##"<<endl;
+  cout<<"############################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"muon veto event = "<<n_muonVeto<<endl;
+  cout<<"electron veto event = "<<n_electronVeto<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+  // Double muon CR
+  long int n_muons = 0;
+  long int n_muonTag     = 0;
+  n_electronVeto = 0;
+  n_photonVeto   = 0;
+  n_tauVeto      = 0;
+  n_bjetVeto     = 0;
+  n_jetpt        = 0;
+  n_jetid        = 0;
+  n_jetdphi      = 0;
+  n_metcut       = 0;
+  n_ak8pt        = 0;
+  n_ak8tau2tau1  = 0;
+  n_ak8mpruned   = 0;
+  n_metHard      = 0;
+
+  myReader.SetEntry(0);
+  while(myReader.Next()){
+
+    if(*nmuons != 2) continue;
+    n_muons++;
+    if(not (*mu1pt > 20 and (*mu1id == 1 || *mu2id == 1) and *zmass > 60 and *zmass < 120)) continue; 
+    n_muonTag++;
+
+    if(*nelectrons != 0) continue;
+    n_electronVeto++;
+    if(*nphotons != 0) continue;    
+    n_photonVeto++;
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    if(*jmmdphi < 0.5) continue;
+    n_jetdphi++;
+    if(*mmet < 200) continue;
+    n_metcut++;
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+   
+    if(*mmet<250) continue;
+      n_metHard++;
+    
+  }
+
+  cout<<"################################"<<endl;
+  cout<<"## Event report in the DiMuon ##"<<endl;
+  cout<<"################################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"n muon event = "<<n_muons<<endl;
+  cout<<"muon tag event = "<<n_muonTag<<endl;
+  cout<<"electron veto event = "<<n_electronVeto<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+  // Single muon CR                                                                                                                                                             
+  n_muons        = 0;
+  n_muonTag      = 0;
+  n_electronVeto = 0;
+  n_photonVeto   = 0;
+  n_tauVeto      = 0;
+  n_bjetVeto     = 0;
+  n_jetpt        = 0;
+  n_jetid        = 0;
+  n_jetdphi      = 0;
+  n_metcut       = 0;
+  n_ak8pt        = 0;
+  n_ak8tau2tau1  = 0;
+  n_ak8mpruned   = 0;
+  n_metHard      = 0;
+
+  myReader.SetEntry(0);
+  while(myReader.Next()){
+
+    if(*nmuons != 1) continue;
+    n_muons++;
+    if(not (*mu1pt > 20 and *mu1id == 1)) continue;
+    n_muonTag++;
+
+    if(*nelectrons != 0) continue;
+    n_electronVeto++;
+    if(*nphotons != 0) continue;    
+    n_photonVeto++;
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    if(*jmmdphi < 0.5) continue;
+    n_jetdphi++;
+    if(*mmet < 200) continue;
+    n_metcut++;
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+   
+    if(*mmet<250) continue; 
+      n_metHard++;
+    
+  }
+
+  cout<<"################################"<<endl;
+  cout<<"## Event report in the SingleMuon ##"<<endl;
+  cout<<"################################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"n muon event = "<<n_muons<<endl;
+  cout<<"muon tag event = "<<n_muonTag<<endl;
+  cout<<"electron veto event = "<<n_electronVeto<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+
+  ////////////////////////////////////
+
+  // Double electron CR
+  n_muonVeto = 0;
+  long int n_electron    = 0;
+  long int n_electronTag = 0;
+  n_photonVeto   = 0;
+  n_tauVeto      = 0;
+  n_bjetVeto     = 0;
+  n_jetpt        = 0;
+  n_jetid        = 0;
+  n_jetdphi      = 0;
+  n_metcut       = 0;
+  n_ak8pt        = 0;
+  n_ak8tau2tau1  = 0;
+  n_ak8mpruned   = 0;
+  n_metHard      = 0;
+
+  myReader.SetEntry(0);
+  while(myReader.Next()){
+
+    if(*nelectrons != 2) continue;
+    n_electron++;
+    if(not (*el1pt > 40 and (*el1id == 1 || *el2id == 1) and *zeemass > 60 and *zeemass < 120)) continue; 
+    n_electronTag++;
+
+    if(*nmuons != 0) continue;
+    n_muonVeto++;
+    if(*nphotons != 0) continue;    
+    n_photonVeto++;
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    if(*jemdphi < 0.5) continue;
+    n_jetdphi++;
+    if(*emet < 200) continue;
+    n_metcut++;
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+   
+    if(*emet<250) continue;
+      n_metHard++;
+    
+  }
+
+  cout<<"################################"<<endl;
+  cout<<"## Event report in the DiElectron ##"<<endl;
+  cout<<"################################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"n muon event = "<<n_electron<<endl;
+  cout<<"muon tag event = "<<n_electronTag<<endl;
+  cout<<"electron veto event = "<<n_muonVeto<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+  // Single electron CR                                                                                                                                                        
+  n_electron     = 0;
+  n_electronTag  = 0;
+  n_muonVeto     = 0;
+  n_photonVeto   = 0;
+  n_tauVeto      = 0;
+  n_bjetVeto     = 0;
+  n_jetpt        = 0;
+  n_jetid        = 0;
+  n_jetdphi      = 0;
+  n_metcut       = 0;
+  n_ak8pt        = 0;
+  n_ak8tau2tau1  = 0;
+  n_ak8mpruned   = 0;
+  n_metHard      = 0;
+
+  myReader.SetEntry(0);
+  while(myReader.Next()){
+
+    if(*nelectrons != 1) continue;
+    n_electron++;
+    if(not (*el1pt > 40 and *el1id == 1)) continue; 
+    n_electronTag++;
+
+    if(*nmuons != 0) continue;
+    n_muonVeto++;
+    if(*nphotons != 0) continue;    
+    n_photonVeto++;
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    if(*jemdphi < 0.5) continue;
+    n_jetdphi++;
+    if(*emet < 200) continue;
+    n_metcut++;
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+   
+    if(*mmet<250) continue;
+      n_metHard++;
+    
+  }
+
+  cout<<"################################"<<endl;
+  cout<<"## Event report in the SingleElectron ##"<<endl;
+  cout<<"################################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"n electron event = "<<n_electron<<endl;
+  cout<<"electron tag event = "<<n_electronTag<<endl;
+  cout<<"electron veto event = "<<n_muonVeto<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+  // single photon
+  n_electronVeto = 0;
+  n_muonVeto     = 0;
+  long int n_photonTag = 0;
+  n_tauVeto      = 0;
+  n_bjetVeto     = 0;
+  n_jetpt        = 0;
+  n_jetid        = 0;
+  n_jetdphi      = 0;
+  n_metcut       = 0;
+  n_ak8pt        = 0;
+  n_ak8tau2tau1  = 0;
+  n_ak8mpruned   = 0;
+  n_metHard      = 0;
+
+  myReader.SetEntry(0);
+  while(myReader.Next()){
+
+    if(*nphotons != 1) continue;    
+    if(*phpt < 175 || fabs(*pheta) > 1.442 or *phidm !=1) continue;    
+    n_photonTag++;
+
+    if(*nelectrons != 0) continue;
+    n_electronVeto++;
+    if(*nmuons != 0) continue;
+    n_muonVeto++;
+    if(*ntaus != 0) continue;
+    n_tauVeto++;
+        
+    if(*nbjetslowpt > 0) continue;
+    n_bjetVeto++;
+
+    if(jetpt->size() <= 0) continue;
+    if(jetpt->at(0) < 100) continue;
+    n_jetpt++;
+    
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    n_jetid++;
+
+    if(*jpmdphi < 0.5) continue;
+    n_jetdphi++;
+    if(*pmet < 200) continue;
+    n_metcut++;
+
+    if(boostedJetpt->size() <= 0) continue;
+    if(boostedJetpt->at(0) < 250 ) continue;
+    if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
+    n_ak8pt++;
+    if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
+    n_ak8tau2tau1++;
+    if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+    n_ak8mpruned++;
+   
+    if(*mmet<250) continue;
+      n_metHard++;
+    
+  }
+
+  cout<<"################################"<<endl;
+  cout<<"## Event report in the SinglePhoton ##"<<endl;
+  cout<<"################################"<<endl;
+  cout<<"total event = "<<n_total<<endl;
+  cout<<"n photon tag = "<<n_photonTag<<endl;
+  cout<<"muon veto event = "<<n_muonVeto<<endl;
+  cout<<"electron veto event = "<<n_electronVeto<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<endl;
+  cout<<"jetid event = "<<n_jetid<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<endl;
+  cout<<"met cut event = "<<n_metcut<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
+  cout<<"met hard cut = "<<n_metHard<<endl;
+
+
+}
