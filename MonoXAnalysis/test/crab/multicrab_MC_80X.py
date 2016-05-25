@@ -8,6 +8,7 @@ config = Configuration()
 
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
+               'setHLTFilterFlag=True'
                'filterHighMETEvents=False',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',

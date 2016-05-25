@@ -4,13 +4,20 @@ AnalysisCode
 
 Repository for analysis code
 
-Recipe for 76X (temp fixes for pileup jet id):
+Recipe for 80X: 
 
        cmsrel CMSSW_8_0_8
        cd CMSSW_8_0_8/src
        cmsenv
        git cms-init
        git cms-merge-topic -u matteosan1:smearer_76X
+       git fetch --all		   
+       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_X:refs/heads/CMSSW_8_0_X
+       git checkout CMSSW_8_0_X
+       git merge official-cmssw/CMSSW_8_0_X
+       git cms-merge-topic -u matteosan1:smearer_76X
+       git cms-addpkg FWCore/Framework
+       git revert ccdf67f9dc7ee3968bc489b773561af6025e2115
        git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_80X
 	   
 How to Run the ntuple production (for analysis):
@@ -19,7 +26,6 @@ How to Run the ntuple production (for analysis):
        cmsRun tree.py <list of options>
 
 Example:
-
 	cmsRun tree.py isMC=True 	  
 
 Caveat: multithreading is not working at the moment
@@ -31,6 +37,7 @@ Options:
 	   filterHighMETEvents : apply metCut GeV seletion on recoil/met (mumet or elmet or phmet or met)
 	   metCut              : met threshold
 	   filterOnHLT         : require the OR of all the trigger path definied in the MonoJetTreeMaker (beginRun)
+	   setHLTFilterFlag    : if true set all the HLT bits to 1 --> used only with 80X MC samples without trigger L1/HLT bit info
 	   usePrivateSQliteJEC : use a local db file for jet energy correction
 	   usePrivateSQliteJER : use a local db file for jet energy smearings (by default true since no records in existing GT)
 	   applyL2L3Residuals  : apply or not L2L3 residuals on data
@@ -173,8 +180,10 @@ Basic options:
       --isInputDirectory : specify if the inputFileName is a single file or a directory
       --isEOS : in case of a directoy this indicates if it is located in EOS or in a local directory
       --xsType: 0 means use the xsec branch stored in the origin MonoJetTreeMaker tree, 1 valuate the xs as sumwgt/Nevents (useful for powheg+minlo mono-jet samples), 2 means take the xs from LHE header stored in the genTree.
-      --storeGenTree : save the whole gen tree in the output 
-      --isSinglePhoton: options available only for zeefilter, wenfilter and topelfilter allows to run on single photon dataset keeping events triggered by singlephoton but not by single electron triggers .. aim is to increase the statistics at high pt.
+      --storeGenTree   : save the whole gen tree in the output 
+      --isSinglePhoton : options available only for zeefilter, wenfilter and topelfilter allows to run on single photon dataset keeping events triggered by singlephoton but not by single electron triggers .. aim is to increase the statistics at high pt.
+      --dropHLTFilter  : to drop the HLT selection during the filter stage --> useful for 80X MC
+      --metCut : value to be applied on MET/Recoil
 
 To run the filter step on a crab output:
 
@@ -197,6 +206,8 @@ Options:
 	--jobDIR : direcotry where all the jobs sh are created
 	--queque <string>
 	--submit : to submit while created
+      	--dropHLTFilter 
+        --metCut
 
 Example:
 
@@ -283,23 +294,22 @@ Run Basic makeTemplate for the analysis
 
 After the filter step, once all the files are copied to a local machine and correctly organized in directories, these are the useful codes to run the analysis:
 
-      cd AnalysisCode/MonoXAnalysis/macros
+      cd AnalysisCode/MonoXAnalysis/macros/makeTemplates/
 
-      macros/histoUtils.h : used to define the binning of each 1D observables as std::vector<float>. In addtion there are function usefult to smooth empty bins, make the average of two histograms, fix shape uncertainties, fix empty bins for combine and generate evenvelope given a set of input histograms
+      macros/makeTemplates/histoUtils.h : used to define the binning of each 1D observables as std::vector<float>. In addtion there are function usefult to smooth empty bins, make the average of two histograms, fix shape uncertainties, fix empty bins for combine and generate evenvelope given a set of input histograms
 
-      macros/histoUtils2D.h: same thing for 2D histograms .. this time there are also function to perform rolling and un-rolling (useful for a 2D analysis)
+      macros/makeTemplates/histoUtils2D.h: same thing for 2D histograms .. this time there are also function to perform rolling and un-rolling (useful for a 2D analysis)
 
-      macros/makehist.h: function that makes the loop on the events, apply selections and weights. Some external files are useful here and located in the AnalysisCode/MonoXAnalysis/data directory. baseInputTreePath is a string which indicated the base directory where all the input root files are located.
+      macros/makeTemplates/makehist.h: function that makes the loop on the events, apply selections and weights. Some external files are useful here and located in the AnalysisCode/MonoXAnalysis/data directory. baseInputTreePath is a string which indicated the base directory where all the input root files are located.
 
-      macros/makeCorrHistograms.C : set of functions used to create Transfer factors and variations for the different control regions (also top regions in case needed)
+      macros/makeTemplates/makeCorrHistograms.C : set of functions used to create Transfer factors and variations for the different control regions (also top regions in case needed)
       
-      macros/makeDataHistograms.C : set of functions used to select data and MC events belonging to Z->mm, Z->ee, W->mn, W->en, gamma+jets, SR, ttbar mu, ttbar e. 
+      macros/makeTemplates/makeDataHistograms.C : set of functions used to select data and MC events belonging to Z->mm, Z->ee, W->mn, W->en, gamma+jets, SR, ttbar mu, ttbar e. 
+      macros/makeTemplates/makeSignalHistograms.C: functions used to apply selections on signal samples -> one function for Higgs invisible vs mH, one function for DM analysis
 
-      macros/makeSignalHistograms.C: functions used to apply selections on signal samples -> one function for Higgs invisible vs mH, one function for DM analysis
+      macros/makeTemplates/makeTemplates.C: main code to be run
 
-      macros/makeTemplates.C: main code to be run
-
-      macros/makeSignalTemplates.C: alternative code just to run on signal samples
+      macros/makeTemplates/makeSignalTemplates.C: alternative code just to run on signal samples
 
 
 To run:
@@ -332,7 +342,7 @@ Options:
 
 To run signal templates analysis only:
 
-       cd AnalysisCode/MonoXAnalysis/macros;
+       cd AnalysisCode/MonoXAnalysis/macros/makeTemplates;
        root -l;
        .L makeSignalTemplates.C+;
        makeSignalTemplates(<options>);
@@ -362,7 +372,7 @@ The code to create the workspace assumes that all the templates for CRs and SR (
 
 To run: make sure that the combine tool is properly installed in your CMSSW release
 
-   	cd AnalysisCode/MonoXAnalysis/macros;
+   	cd AnalysisCode/MonoXAnalysis/macros/makeWorkspace/;
 	root -l;
 	gSystem->Load("$CMSSW_BASE/$SCRAM_ARCH/libHiggsAnalysisCombinedLimit.so")
 	.L createWorksapce.C;

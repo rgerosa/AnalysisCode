@@ -301,7 +301,8 @@ private:
 
   // trigger and met filters flags 
   uint8_t hltmet90,hltmet120,hltmetwithmu90,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
-  uint8_t hltjetmet90,hltjetmet120,hltphoton165,hltphoton175,hltphoton120,hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltelnoiso;
+  uint8_t hltjetmet90,hltjetmet120,hltphoton165,hltphoton175,hltphoton120,hltphoton50,hltphoton75,hltphoton90;
+  uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltelnoiso;
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices;
 
   // muon, ele, dilepton info
@@ -490,7 +491,7 @@ private:
   double samplemedM,sampledmM;
 
   // weights
-  double wgt,kfact,puwgt,pswgt;
+  double wgt,kfact,puwgt,pswgt120,pswgt50,pswgt75,pswgt90;
 
   // sorting objects
   template<typename T> 
@@ -911,6 +912,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltphoton165    = 0;
     hltphoton175    = 0;
     hltphoton120    = 0;
+    hltphoton50     = 0;
+    hltphoton75     = 0;
+    hltphoton90     = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
     hltdoubleel     = 0;
@@ -946,18 +950,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
         if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
         if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
-        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton50    = 1; // Photon trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton75    = 1; // Photon trigger
+        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
+        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
         if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
-        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
       }
     }
     else if(setHLTFilterFlag == true){
@@ -972,6 +979,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltphoton165    = 1;
       hltphoton175    = 1;
       hltphoton120    = 1;
+      hltphoton50    = 1;
+      hltphoton75    = 1;
+      hltphoton90    = 1;
       hltdoublemu     = 1;
       hltsinglemu     = 1;
       hltdoubleel     = 1;
@@ -991,6 +1001,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltphoton165    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
+    if (hltphoton50    == 1) triggered = true;
+    if (hltphoton75    == 1) triggered = true;
+    if (hltphoton90    == 1) triggered = true;
     if (hltdoublemu     == 1) triggered = true;
     if (hltsinglemu     == 1) triggered = true;
     if (hltdoubleel     == 1) triggered = true;
@@ -998,10 +1011,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltelnoiso      == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
 
-    pswgt = 1.0;
+    pswgt120 = 1.0;
+    pswgt50 = 1.0;
+    pswgt75 = 1.0;
+    pswgt90 = 1.0;
     const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
     for (size_t i = 0; i < triggerResultsH->size(); i++) {
-        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt120 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon50_v") != string::npos) pswgt50 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon75_v") != string::npos) pswgt75 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt90 = triggerPrescalesH->getPrescaleForIndex(i);
     }
     
     // MET filter info
@@ -3374,7 +3393,10 @@ void MonoJetTreeMaker::beginJob() {
   // Event weights
   tree->Branch("xsec"                 , &xsec                 , "xsec/D");
   tree->Branch("wgt"                  , &wgt                  , "wgt/D");
-  tree->Branch("pswgt"                , &pswgt                , "pswgt/D");
+  tree->Branch("pswgt120"             , &pswgt120             , "pswgt120/D");
+  tree->Branch("pswgt50"              , &pswgt50              , "pswgt50/D");
+  tree->Branch("pswgt75"              , &pswgt75              , "pswgt75/D");
+  tree->Branch("pswgt90"              , &pswgt90              , "pswgt90/D");
   // Pileup info
   tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
   tree->Branch("puobs"                , &puobs                , "puobs/I");
@@ -3389,10 +3411,12 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
   tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
   tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
-  tree->Branch("hltjetmet120"         , &hltjetmet120         , "hltjetmet120/b");
   tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
   tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
   tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+  tree->Branch("hltphoton50"          , &hltphoton50          , "hltphoton50/b");
+  tree->Branch("hltphoton75"          , &hltphoton75          , "hltphoton75/b");
+  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
   tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
   tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
   tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
@@ -3794,7 +3818,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("emueta"               , &emueta               , "emueta/D");
   tree->Branch("emuphi"               , &emuphi               , "emuphi/D");
   tree->Branch("zeemass"              , &zeemass              , "zeemass/D");
-  tree->Branch("zeept"                , &zeept                , "zeeept/D");
+  tree->Branch("zeept"                , &zeept                , "zeept/D");
   tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/D");
   tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
   tree->Branch("wemt"                 , &wemt                 , "wemt/D");
@@ -4241,18 +4265,21 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Photon165_HE10"); //21
   triggerPathsVector.push_back("HLT_Photon175");      //22
   triggerPathsVector.push_back("HLT_Photon120_v");    //23
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"); //24
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"); //25
-  triggerPathsVector.push_back("HLT_IsoMu20"); //26
-  triggerPathsVector.push_back("HLT_IsoTkMu20"); //27
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //28
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //29
-  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //30 
-  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //31
-  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //32
-  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //33
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //34
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //35
+  triggerPathsVector.push_back("HLT_Photon50_v");    //24
+  triggerPathsVector.push_back("HLT_Photon75_v");    //25
+  triggerPathsVector.push_back("HLT_Photon90_v");    //26  
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"); //27
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"); //28
+  triggerPathsVector.push_back("HLT_IsoMu20"); //29
+  triggerPathsVector.push_back("HLT_IsoTkMu20"); //30
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //31
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //32
+  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //33 
+  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //34
+  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //35
+  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //36
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //37
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //38
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;

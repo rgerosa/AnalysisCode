@@ -9,6 +9,7 @@ config = Configuration()
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'filterHighMETEvents=False',
+               'setHLTFilterFlag=True',
                'usePrivateSQliteJEC=False',
                'usePrivateSQliteJER=True',
                'applyL2L3Residuals=False',
