@@ -225,6 +225,7 @@ private:
 
   // inner bools
   const bool applyHLTFilter;
+  const bool setHLTFilterFlag;
   const bool cleanMuonJet;
   const bool cleanElectronJet;
   const bool cleanPhotonJet;   
@@ -565,6 +566,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   addMVAMet(iConfig.existsAs<bool>("addMVAMet") ? iConfig.getParameter<bool>("addMVAMet") : false),
   //filter events based on trigger
   applyHLTFilter(iConfig.existsAs<bool>("applyHLTFilter") ? iConfig.getParameter<bool>("applyHLTFilter") : false),
+  setHLTFilterFlag(iConfig.existsAs<bool>("setHLTFilterFlag") ? iConfig.getParameter<bool>("setHLTFilterFlag") : false),
   // booleans
   cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
   cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
@@ -916,7 +918,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltelnoiso      = 0;
 
     // Which triggers fired
-    if(triggerResultsH.isValid()){
+    if(triggerResultsH.isValid() and setHLTFilterFlag == false){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;	
 	if(triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]]))
@@ -957,6 +959,24 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
         if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
       }
+    }
+    else if(setHLTFilterFlag == true){
+      hltmet90        = 1;
+      hltmet120       = 1;
+      hltmetwithmu90  = 1;
+      hltmetwithmu120 = 1;
+      hltmetwithmu170 = 1;
+      hltmetwithmu300 = 1;
+      hltjetmet90     = 1;
+      hltjetmet120    = 1;
+      hltphoton165    = 1;
+      hltphoton175    = 1;
+      hltphoton120    = 1;
+      hltdoublemu     = 1;
+      hltsinglemu     = 1;
+      hltdoubleel     = 1;
+      hltsingleel     = 1;
+      hltelnoiso      = 1;
     }
 
     bool triggered = false;
@@ -4197,42 +4217,42 @@ void MonoJetTreeMaker::endJob() {}
 void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
   // triggers for the Analysis
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight");
-  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight");
-  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned");
-  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned");
-  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned");
-  triggerPathsVector.push_back("HLT_PFMET170_v");
-  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned");
-  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned");
-  triggerPathsVector.push_back("HLT_PFMET300_v");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight");
-  triggerPathsVector.push_back("HLT_Photon165_HE10");
-  triggerPathsVector.push_back("HLT_Photon175");
-  triggerPathsVector.push_back("HLT_Photon120_v");
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ");
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ");
-  triggerPathsVector.push_back("HLT_IsoMu20");
-  triggerPathsVector.push_back("HLT_IsoTkMu20");
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ");
-  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v");
-  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v");
-  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v");
-  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v");
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v");
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v");
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //0
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //1
+  triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight"); //2
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //3
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //4
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"); //5
+  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight"); //6
+  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //7
+  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned"); //8
+  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned"); //9
+  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //10
+  triggerPathsVector.push_back("HLT_PFMET170_v"); //11
+  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned"); //12
+  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned"); //13
+  triggerPathsVector.push_back("HLT_PFMET300_v"); //14
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //15
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //16
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");              //17
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //18
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //19
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight"); //20
+  triggerPathsVector.push_back("HLT_Photon165_HE10"); //21
+  triggerPathsVector.push_back("HLT_Photon175");      //22
+  triggerPathsVector.push_back("HLT_Photon120_v");    //23
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"); //24
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"); //25
+  triggerPathsVector.push_back("HLT_IsoMu20"); //26
+  triggerPathsVector.push_back("HLT_IsoTkMu20"); //27
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //28
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //29
+  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //30 
+  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //31
+  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //32
+  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //33
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //34
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //35
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;

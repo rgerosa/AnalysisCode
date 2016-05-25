@@ -35,7 +35,7 @@ parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabD
 parser.add_option('--dropPuppiBranches',   action="store_true",    dest="dropPuppiBranches",          help="drop all puppi branches")
 parser.add_option('--dropSubJetsBranches', action="store_true",    dest="dropSubJetsBranches",        help="drop all subjet branches")
 parser.add_option('--dropHLTFilter',       action="store_true",    dest="dropHLTFilter",              help="drop HLT filter requirement")
-parser.add_option('--metCut',              action="store", type="string"    dest="metCut",        help="apply MET/Recoil threshold")
+parser.add_option('--metCut',              action="store", type="string", dest="metCut",        help="apply MET/Recoil threshold")
 
 parser.add_option('--grepName', action="callback", type="string", dest="grepName", default="", callback=foo_callback, help="grep a set of names in the directory") ## useful when submitting only signal or data
 parser.add_option('--skipName', action="callback", type="string", dest="skipName", default="", callback=foo_callback, help="drop a set of names in the directory")

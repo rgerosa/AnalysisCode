@@ -27,6 +27,10 @@ options.register (
 	'filterOnHLT',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not trigger requirements');
 
+options.register (
+	'setHLTFilterFlag',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'flag to dump all the HLT flags to true');
+
 ## JEC options
 options.register (
 	'usePrivateSQliteJEC',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -173,6 +177,7 @@ print "Running with filterHighMETEvents = ",options.filterHighMETEvents
 if options.filterHighMETEvents:
 	print "Running with metCut              = ",options.metCut
 print "Running with filterOnHLT         = ",options.filterOnHLT	
+print "Running with setHLTFilterFlag    = ",options.setHLTFilterFlag
 print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
 print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
@@ -489,6 +494,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      mvaMET    = cms.InputTag("mvaMET"),			      
 			      ## trigger filter
 			      applyHLTFilter = cms.bool(options.filterOnHLT),
+			      setHLTFilterFlag = cms.bool(options.setHLTFilterFlag),
 			      ## clean objects
 			      cleanMuonJet     = cms.bool(True),
 			      cleanElectronJet = cms.bool(True),
