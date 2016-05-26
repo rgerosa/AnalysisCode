@@ -228,7 +228,9 @@ if options.inputFiles == []:
 
 	if not options.isMC :
 		process.source.fileNames.append(
-			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root')
+			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/00DD3222-261A-E611-9FD2-02163E011E34.root'
+#			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root'
+			)
 	else:
 		process.source.fileNames.append(
 			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'

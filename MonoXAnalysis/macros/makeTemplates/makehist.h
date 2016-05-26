@@ -1101,7 +1101,7 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
-	  puwgt = puhist->GetBinContent(*nvtx);
+	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
@@ -1269,7 +1269,7 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 35) 
-	  puwgt = puhist->GetBinContent(*nvtx);
+	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
 	else

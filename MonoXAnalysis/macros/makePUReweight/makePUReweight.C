@@ -1,8 +1,8 @@
 #include "../CMS_lumi.h"
 
 static int nbins     = 40;
-static float nvtxMin = 0.;
-static float nvtxMax = 40.;
+static float nvtxMin = -0.5;
+static float nvtxMax = 39.5;
 
 void makeHisto(TH1F* hist, TChain* chain, bool isData,string controlregion, float lumi){
 
@@ -54,6 +54,7 @@ void makeHisto(TH1F* hist, TChain* chain, bool isData,string controlregion, floa
 
   TTreeReaderValue<unsigned int>    nvtx   (reader, "nvtx");
   TTreeReaderValue<unsigned int>    nbjets (reader, "nbjetslowpt");
+  TTreeReaderValue<unsigned int>    njets  (reader, "njets");
   TTreeReaderValue<double>          wgtsum (reader, wgtsumvar);
   TTreeReaderValue<double>          wgtpu  (reader, wgtpuvar);
   TTreeReaderValue<double>          wgtbtag (reader, wgtbtagvar);
