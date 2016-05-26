@@ -300,9 +300,16 @@ private:
   uint32_t njetsinc,npuppijetsinc;
 
   // trigger and met filters flags 
-  uint8_t hltmet90,hltmet120,hltmetwithmu90,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
-  uint8_t hltjetmet90,hltjetmet120,hltphoton165,hltphoton175,hltphoton120,hltphoton50,hltphoton75,hltphoton90;
+  uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
+  uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
+  uint8_t hltjetmet90,hltjetmet100,hltjetmet110,hltjetmet120;
+  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton50,hltphoton75,hltphoton90;
   uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltelnoiso;
+  uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350, hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
+  //pre-scales
+  double pswgt_ph120,pswgt_ph50,pswgt_ph75,pswgt_ph90;
+  double pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350,pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
+
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices;
 
   // muon, ele, dilepton info
@@ -491,7 +498,7 @@ private:
   double samplemedM,sampledmM;
 
   // weights
-  double wgt,kfact,puwgt,pswgt120,pswgt50,pswgt75,pswgt90;
+  double wgt,kfact,puwgt;
 
   // sorting objects
   template<typename T> 
@@ -901,102 +908,135 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     lumi  = iEvent.luminosityBlock();
     
     // Trigger info
-    hltmet90        = 0;
-    hltmet120       = 0;
-    hltmetwithmu90  = 0;
-    hltmetwithmu120 = 0;
-    hltmetwithmu170 = 0;
-    hltmetwithmu300 = 0;
-    hltjetmet90     = 0;
-    hltjetmet120    = 0;
-    hltphoton165    = 0;
-    hltphoton175    = 0;
-    hltphoton120    = 0;
-    hltphoton50     = 0;
-    hltphoton75     = 0;
-    hltphoton90     = 0;
+    hltmet90        = 0; hltmet100       = 0; hltmet110       = 0; hltmet120       = 0;
+    hltmetwithmu90  = 0; hltmetwithmu100 = 0; hltmetwithmu110 = 0; hltmetwithmu120 = 0;
+    hltmetwithmu170 = 0; hltmetwithmu300 = 0;
+    hltjetmet90     = 0; hltjetmet100    = 0; hltjetmet110    = 0; hltjetmet120    = 0;
+    hltphoton50     = 0; hltphoton75     = 0; hltphoton90     = 0; hltphoton120    = 0;
+    hltphoton165    = 0; hltphoton175    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
     hltdoubleel     = 0;
     hltsingleel     = 0;
     hltelnoiso      = 0;
+    hltPFHT125 = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0; hltPFHT400 = 0;
+    hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
 
     // Which triggers fired
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;	
 	if(triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]]))
+
         if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
         if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
         if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
-        if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
-        if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+
+        if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet100       = 1; // MET trigger
+        if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet110       = 1; // MET trigger
+
         if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
-        if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90  = 1; // MET trigger
-        if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
-        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 11 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 12 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
-        if (i == 13 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
-        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
-        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
-        if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
-        if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
-        if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
-        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
-        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
-        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
-        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
-        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
-        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton50    = 1; // Photon trigger
-        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton75    = 1; // Photon trigger
-        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
-        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
-        if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+        if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+
+        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90  = 1; // MET trigger
+        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu100 = 1; // MET trigger
+        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu110 = 1; // MET trigger
+        if (i == 11  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
+
+        if (i == 12  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+        if (i == 13  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+
+        if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
+        if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
+        if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
+
+        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
+        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
+        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
+
+        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet100     = 1; // Jet-MET trigger
+        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet110     = 1; // Jet-MET trigger
+
+        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
+        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
+
+        if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
+        if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
+        if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
+        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton50    = 1; // Photon trigger
+        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton75    = 1; // Photon trigger
+        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
+
+        if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+
+        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 39 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 40 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+
+        if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 42 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+
+        if (i == 43 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 44 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 45 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 46 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+
+        if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+
+        if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT125      = 1; // jet ht
+        if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT200      = 1; // jet ht
+        if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
+        if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
+        if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
+        if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
+        if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
+        if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
+        if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
+        if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
+        if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
+
       }
     }
     else if(setHLTFilterFlag == true){
-      hltmet90        = 1;
-      hltmet120       = 1;
-      hltmetwithmu90  = 1;
-      hltmetwithmu120 = 1;
-      hltmetwithmu170 = 1;
-      hltmetwithmu300 = 1;
-      hltjetmet90     = 1;
-      hltjetmet120    = 1;
-      hltphoton165    = 1;
-      hltphoton175    = 1;
-      hltphoton120    = 1;
-      hltphoton50    = 1;
-      hltphoton75    = 1;
-      hltphoton90    = 1;
+      hltmet90        = 1; hltmet100       = 1; hltmet110       = 1; hltmet120       = 1;
+      hltmetwithmu90  = 1; hltmetwithmu100 = 1; hltmetwithmu110 = 1; hltmetwithmu120 = 1;
+      hltmetwithmu170 = 1; hltmetwithmu300 = 1;
+      hltjetmet90     = 1; hltjetmet100    = 1; hltjetmet110    = 1; hltjetmet120    = 1;
+      hltphoton50     = 1; hltphoton75     = 1; hltphoton90     = 1; hltphoton120    = 1;
+      hltphoton165    = 1; hltphoton175    = 1;
       hltdoublemu     = 1;
       hltsinglemu     = 1;
       hltdoubleel     = 1;
       hltsingleel     = 1;
       hltelnoiso      = 1;
+      hltPFHT125 = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; hltPFHT400 = 1;
+      hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
     }
 
     bool triggered = false;
     if (hltmet90        == 1) triggered = true;
+    if (hltmet100       == 1) triggered = true;
+    if (hltmet110       == 1) triggered = true;
     if (hltmet120       == 1) triggered = true;
     if (hltmetwithmu90  == 1) triggered = true;
+    if (hltmetwithmu100 == 1) triggered = true;
+    if (hltmetwithmu110 == 1) triggered = true;
     if (hltmetwithmu120 == 1) triggered = true;
     if (hltmetwithmu170 == 1) triggered = true;
     if (hltmetwithmu300 == 1) triggered = true;
     if (hltjetmet90     == 1) triggered = true;
+    if (hltjetmet100    == 1) triggered = true;
+    if (hltjetmet110    == 1) triggered = true;
     if (hltjetmet120    == 1) triggered = true;
     if (hltphoton165    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
@@ -1009,18 +1049,45 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltdoubleel     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
     if (hltelnoiso      == 1) triggered = true;
+    if (hltPFHT125      == 1) triggered = true;
+    if (hltPFHT200      == 1) triggered = true;
+    if (hltPFHT250      == 1) triggered = true;
+    if (hltPFHT300      == 1) triggered = true;
+    if (hltPFHT350      == 1) triggered = true;
+    if (hltPFHT400      == 1) triggered = true;
+    if (hltPFHT475      == 1) triggered = true;
+    if (hltPFHT600      == 1) triggered = true;
+    if (hltPFHT650      == 1) triggered = true;
+    if (hltPFHT800      == 1) triggered = true;
+    if (hltPFHT900      == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
 
-    pswgt120 = 1.0;
-    pswgt50 = 1.0;
-    pswgt75 = 1.0;
-    pswgt90 = 1.0;
+    pswgt_ph120 = 1.0;
+    pswgt_ph50  = 1.0;
+    pswgt_ph75  = 1.0;
+    pswgt_ph90  = 1.0;
+    pswgt_ht125 = 1.0; pswgt_ht200 = 1.0; pswgt_ht250 = 1.0;
+    pswgt_ht300 = 1.0; pswgt_ht350 = 1.0; pswgt_ht400 = 1.0; 
+    pswgt_ht475 = 1.0; pswgt_ht600 = 1.0; pswgt_ht650 = 1.0; pswgt_ht800 = 1.0; 
+    pswgt_ht900 = 1.0;
+
     const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
     for (size_t i = 0; i < triggerResultsH->size(); i++) {
-        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt120 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_Photon50_v") != string::npos) pswgt50 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_Photon75_v") != string::npos) pswgt75 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt90 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon50_v") != string::npos) pswgt_ph50 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon75_v") != string::npos) pswgt_ph75 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt_ph90 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT125_v") != string::npos) pswgt_ht125 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT200_v") != string::npos) pswgt_ht200 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT250_v") != string::npos) pswgt_ht250 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT300_v") != string::npos) pswgt_ht300 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT350_v") != string::npos) pswgt_ht350 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT400_v") != string::npos) pswgt_ht400 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT475_v") != string::npos) pswgt_ht475 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT600_v") != string::npos) pswgt_ht600 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT650_v") != string::npos) pswgt_ht650 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT800_v") != string::npos) pswgt_ht800 = triggerPrescalesH->getPrescaleForIndex(i);
+        if (trignames.triggerName(i).find("HLT_PFHT900_v") != string::npos) pswgt_ht900 = triggerPrescalesH->getPrescaleForIndex(i);
     }
     
     // MET filter info
@@ -3393,10 +3460,6 @@ void MonoJetTreeMaker::beginJob() {
   // Event weights
   tree->Branch("xsec"                 , &xsec                 , "xsec/D");
   tree->Branch("wgt"                  , &wgt                  , "wgt/D");
-  tree->Branch("pswgt120"             , &pswgt120             , "pswgt120/D");
-  tree->Branch("pswgt50"              , &pswgt50              , "pswgt50/D");
-  tree->Branch("pswgt75"              , &pswgt75              , "pswgt75/D");
-  tree->Branch("pswgt90"              , &pswgt90              , "pswgt90/D");
   // Pileup info
   tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
   tree->Branch("puobs"                , &puobs                , "puobs/I");
@@ -3405,23 +3468,59 @@ void MonoJetTreeMaker::beginJob() {
   
   // Triggers
   tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
+  tree->Branch("hltmet100"            , &hltmet100            , "hltmet100/b");
+  tree->Branch("hltmet110"            , &hltmet110            , "hltmet110/b");
   tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
   tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
+  tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/b");
+  tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/b");
   tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
   tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
   tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
   tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
-  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
-  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
-  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+  tree->Branch("hltjetmet100"         , &hltjetmet100          , "hltjetmet100/b");
+  tree->Branch("hltjetmet110"         , &hltjetmet110          , "hltjetmet110/b");
   tree->Branch("hltphoton50"          , &hltphoton50          , "hltphoton50/b");
   tree->Branch("hltphoton75"          , &hltphoton75          , "hltphoton75/b");
   tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
+  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+
   tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
   tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
   tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
   tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
   tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
+
+  tree->Branch("hltPFHT125"           , &hltPFHT125           , "hltPFHT125/b");
+  tree->Branch("hltPFHT200"           , &hltPFHT200           , "hltPFHT200/b");
+  tree->Branch("hltPFHT250"           , &hltPFHT250           , "hltPFHT250/b");
+  tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");
+  tree->Branch("hltPFHT350"           , &hltPFHT350           , "hltPFHT350/b");
+  tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
+  tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
+  tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
+  tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
+  tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
+  tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
+
+  tree->Branch("pswgt_ph50"           , &pswgt_ph50           , "pswgt_ph50/D");
+  tree->Branch("pswgt_ph75"           , &pswgt_ph75           , "pswgt_ph75/D");
+  tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
+  tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
+
+  tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/D");
+  tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/D");
+  tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/D");
+  tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/D");
+  tree->Branch("pswgt_ht300"          , &pswgt_ht350          , "pswgt_ht350/D");
+  tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
+  tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
+  tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
+  tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/D");
+  tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/D");
+  tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/D");
 
   // MET filters
   tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
@@ -4244,42 +4343,65 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //0
   triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //1
   triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight"); //2
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //3
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //4
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"); //5
-  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight"); //6
-  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //7
-  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned"); //8
-  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned"); //9
-  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //10
-  triggerPathsVector.push_back("HLT_PFMET170_v"); //11
-  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned"); //12
-  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned"); //13
-  triggerPathsVector.push_back("HLT_PFMET300_v"); //14
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //15
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //16
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");              //17
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //18
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //19
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight"); //20
-  triggerPathsVector.push_back("HLT_Photon165_HE10"); //21
-  triggerPathsVector.push_back("HLT_Photon175");      //22
-  triggerPathsVector.push_back("HLT_Photon120_v");    //23
-  triggerPathsVector.push_back("HLT_Photon50_v");    //24
-  triggerPathsVector.push_back("HLT_Photon75_v");    //25
-  triggerPathsVector.push_back("HLT_Photon90_v");    //26  
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ"); //27
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ"); //28
-  triggerPathsVector.push_back("HLT_IsoMu20"); //29
-  triggerPathsVector.push_back("HLT_IsoTkMu20"); //30
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //31
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //32
-  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //33 
-  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //34
-  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //35
-  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //36
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //37
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //38
+  triggerPathsVector.push_back("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v");//3
+  triggerPathsVector.push_back("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v");//4
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //5
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //6
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"); //7
+  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight"); //8
+  triggerPathsVector.push_back("HLT_PFMET100_PFMHT100_IDTight_v"); //9 
+  triggerPathsVector.push_back("HLT_PFMET110_PFMHT110_IDTight_v");//10 
+  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //11
+  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned"); //12
+  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned"); //13
+  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //114
+  triggerPathsVector.push_back("HLT_PFMET170_v"); //15
+  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned"); //16
+  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned"); //17
+  triggerPathsVector.push_back("HLT_PFMET300_v"); //18
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //19
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //20
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");    //21
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v");//22
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v");//23
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //24
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //25
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight"); //26
+  triggerPathsVector.push_back("HLT_Photon165_HE10"); //27
+  triggerPathsVector.push_back("HLT_Photon175");      //28
+  triggerPathsVector.push_back("HLT_Photon120_v");    //29
+  triggerPathsVector.push_back("HLT_Photon50_v");     //30
+  triggerPathsVector.push_back("HLT_Photon75_v");     //31
+  triggerPathsVector.push_back("HLT_Photon90_v");     //32  
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //33
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //34
+  triggerPathsVector.push_back("HLT_IsoMu20_v"); //35
+  triggerPathsVector.push_back("HLT_IsoMu22_v"); //36
+  triggerPathsVector.push_back("HLT_IsoMu24_v"); //37
+  triggerPathsVector.push_back("HLT_IsoTkMu20"); //38
+  triggerPathsVector.push_back("HLT_IsoTkMu22"); //39
+  triggerPathsVector.push_back("HLT_IsoTkMu24"); //40
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //41
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //42
+  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //43 
+  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //44
+  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //45
+  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //46
+  triggerPathsVector.push_back("HLT_Ele25_WPTight_Gsf_v");//47
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //48
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //49
+  triggerPathsVector.push_back("HLT_PFHT125_v");//50
+  triggerPathsVector.push_back("HLT_PFHT200_v");//51
+  triggerPathsVector.push_back("HLT_PFHT250_v");//52
+  triggerPathsVector.push_back("HLT_PFHT300_v");//53
+  triggerPathsVector.push_back("HLT_PFHT350_v");//54
+  triggerPathsVector.push_back("HLT_PFHT400_v");//55
+  triggerPathsVector.push_back("HLT_PFHT475_v");//56
+  triggerPathsVector.push_back("HLT_PFHT600_v");//57
+  triggerPathsVector.push_back("HLT_PFHT650_v");//58
+  triggerPathsVector.push_back("HLT_PFHT800_v");//59
+  triggerPathsVector.push_back("HLT_PFHT900_v");//60
+
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
