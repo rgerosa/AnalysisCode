@@ -973,37 +973,39 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
         if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
 
-        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 39 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 40 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 42 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
 
-        if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 42 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 43 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 44 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
 
-        if (i == 43 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 44 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 45 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 46 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
 
-        if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
-        if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
 
-        if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT125      = 1; // jet ht
-        if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT200      = 1; // jet ht
-        if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
-        if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
-        if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
-        if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
-        if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
-        if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
-        if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
-        if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
-        if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
+        if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT125      = 1; // jet ht
+        if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT200      = 1; // jet ht
+        if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
+        if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
+        if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
+        if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
+        if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
+        if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
+        if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
+        if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
+        if (i == 62 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
 
       }
     }
@@ -4375,32 +4377,34 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Photon90_v");     //32  
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //33
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //34
-  triggerPathsVector.push_back("HLT_IsoMu20_v"); //35
-  triggerPathsVector.push_back("HLT_IsoMu22_v"); //36
-  triggerPathsVector.push_back("HLT_IsoMu24_v"); //37
-  triggerPathsVector.push_back("HLT_IsoTkMu20"); //38
-  triggerPathsVector.push_back("HLT_IsoTkMu22"); //39
-  triggerPathsVector.push_back("HLT_IsoTkMu24"); //40
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //41
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //42
-  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //43 
-  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //44
-  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //45
-  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //46
-  triggerPathsVector.push_back("HLT_Ele25_WPTight_Gsf_v");//47
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //48
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //49
-  triggerPathsVector.push_back("HLT_PFHT125_v");//50
-  triggerPathsVector.push_back("HLT_PFHT200_v");//51
-  triggerPathsVector.push_back("HLT_PFHT250_v");//52
-  triggerPathsVector.push_back("HLT_PFHT300_v");//53
-  triggerPathsVector.push_back("HLT_PFHT350_v");//54
-  triggerPathsVector.push_back("HLT_PFHT400_v");//55
-  triggerPathsVector.push_back("HLT_PFHT475_v");//56
-  triggerPathsVector.push_back("HLT_PFHT600_v");//57
-  triggerPathsVector.push_back("HLT_PFHT650_v");//58
-  triggerPathsVector.push_back("HLT_PFHT800_v");//59
-  triggerPathsVector.push_back("HLT_PFHT900_v");//60
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //35
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"); //36
+  triggerPathsVector.push_back("HLT_IsoMu20_v"); //37
+  triggerPathsVector.push_back("HLT_IsoMu22_v"); //38
+  triggerPathsVector.push_back("HLT_IsoMu24_v"); //39
+  triggerPathsVector.push_back("HLT_IsoTkMu20"); //40
+  triggerPathsVector.push_back("HLT_IsoTkMu22"); //41
+  triggerPathsVector.push_back("HLT_IsoTkMu24"); //42
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //43
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //44
+  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //45 
+  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //46
+  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //47
+  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //48
+  triggerPathsVector.push_back("HLT_Ele25_WPTight_Gsf_v");//49
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //50
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //51
+  triggerPathsVector.push_back("HLT_PFHT125_v");//52
+  triggerPathsVector.push_back("HLT_PFHT200_v");//53
+  triggerPathsVector.push_back("HLT_PFHT250_v");//54
+  triggerPathsVector.push_back("HLT_PFHT300_v");//55
+  triggerPathsVector.push_back("HLT_PFHT350_v");//56
+  triggerPathsVector.push_back("HLT_PFHT400_v");//57
+  triggerPathsVector.push_back("HLT_PFHT475_v");//58
+  triggerPathsVector.push_back("HLT_PFHT600_v");//59
+  triggerPathsVector.push_back("HLT_PFHT650_v");//60
+  triggerPathsVector.push_back("HLT_PFHT800_v");//61
+  triggerPathsVector.push_back("HLT_PFHT900_v");//62
 
   
   HLTConfigProvider hltConfig;
