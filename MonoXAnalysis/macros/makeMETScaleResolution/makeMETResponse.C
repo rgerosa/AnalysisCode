@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 
 // met binning used in this study
-vector<double> bins  = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 150., 175., 200., 250., 400.};
+vector<double> bins  = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 150., 175., 200., 400.};
 
 Double_t dphi(Double_t phi1, Double_t phi2) {
   double result = phi1 - phi2;
@@ -11,7 +11,8 @@ Double_t dphi(Double_t phi1, Double_t phi2) {
 }
 
 // Loop on the event in order to make the response in a specific met bin --> re-loop for each bin -> to be changed
-double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, double zptmin, double zptmax, const string & category, const float & lumi) {
+double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, double zptmin, double zptmax, 
+		const string & category, const string & observable, const float & lumi) {
 
     hist->Sumw2();
     
@@ -64,22 +65,23 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     TTreeReaderValue<unsigned int>    nvtx   (reader, "nvtx");
     TTreeReaderValue<unsigned int>    nbjets (reader, "nbjetslowpt");
 
-    TTreeReaderValue<vector<double> > jetpt  (reader, "centraljetpt");
-    TTreeReaderValue<vector<double> > chfrac (reader, "centraljetCHfrac");
-    TTreeReaderValue<vector<double> > nhfrac (reader, "centraljetNHfrac");
     TTreeReaderValue<double>          wgtsum (reader, wgtsumvar);
     TTreeReaderValue<double>          wgtpu  (reader, wgtpuvar);
     TTreeReaderValue<double>          wgtbtag (reader, wgtbtagvar);
     TTreeReaderValue<double>          wgt    (reader, "wgt");
     TTreeReaderValue<double>          xsec   (reader, "xsec");
-    TTreeReaderValue<double>          pfmet  (reader, "pfmet");
-    TTreeReaderValue<double>          pfmetphi  (reader, "pfmetphi");
     TTreeReaderValue<double>          t1pfmet   (reader, "t1pfmet");
     TTreeReaderValue<double>          t1pfmetphi(reader, "t1pfmetphi");
+    TTreeReaderValue<double>          pfmet  (reader, "pfmet");
+    TTreeReaderValue<double>          pfmetphi  (reader, "pfmetphi");
     TTreeReaderValue<double>          t1mumet   (reader, "t1mumet");
     TTreeReaderValue<double>          t1mumetphi(reader, "t1mumetphi");
+    TTreeReaderValue<double>          mumet   (reader, "mumet");
+    TTreeReaderValue<double>          mumetphi(reader, "mumetphi");
     TTreeReaderValue<double>          t1elmet   (reader, "t1elmet");
     TTreeReaderValue<double>          t1elmetphi(reader, "t1elmetphi");
+    TTreeReaderValue<double>          elmet   (reader, "elmet");
+    TTreeReaderValue<double>          elmetphi(reader, "elmetphi");
     TTreeReaderValue<int>             mu1pid (reader, "mu1pid");
     TTreeReaderValue<int>             mu2pid (reader, "mu2pid");
     TTreeReaderValue<int>             mu1id  (reader, "mu1id");
@@ -102,7 +104,7 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     TTreeReaderValue<double>          zeta  (reader, "zeta");
     TTreeReaderValue<double>          zphi  (reader, "zphi");
     TTreeReaderValue<double>          zmass (reader, "zmass");
-    TTreeReaderValue<double>          zeept   (reader, "zeept.zeeept");
+    TTreeReaderArray<double>          zeept (reader,"zeept.zeeept");
     TTreeReaderValue<double>          zeeeta  (reader, "zeeeta");
     TTreeReaderValue<double>          zeephi  (reader, "zeephi");
     TTreeReaderValue<double>          zeemass (reader, "zeemass");
@@ -129,6 +131,7 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
       if (!isMC && *fnvtx   == 0) continue;
 
       if(*nbjets > 1) continue;
+      //      if(*njets  < 1) continue;
       
       if(category == "zmm"){
 	unsigned char hlt = (*hmnm90) + (*hmnm120) + (*hmwm90) + (*hmwm120) + (*hmwm170) + (*hmwm300) +(*hsmu);
@@ -149,8 +152,8 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
        unsigned char hlt = (*hsele) + (*hph165) + (*hph175);
        if (not isMC and hlt == 0) continue;
        bool istight = false;
-       if(*zeept <  zptmin) continue;
-       if(*zeept >= zptmax) continue;
+       if(zeept[0] <  zptmin) continue;
+       if(zeept[0] >= zptmax) continue;
        if (*el1id == 1 && *el1pt > 40.) istight = true;
        if (*el2id == 1 && *el2pt > 40.) istight = true;
        if (!istight) continue;
@@ -167,7 +170,7 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
       double mphi = 0.0;
       double u1 = 0.0;
       double u2 = 0.0;
-      if(category == "zmm"){
+      if(category == "zmm" and observable == "t1pfmet"){
 	metx += *t1mumet * cos(*t1mumetphi);
 	mety += *t1mumet * sin(*t1mumetphi);
 	uphi = atan2(-sin(*zphi)  , -cos(*zphi)  );
@@ -175,13 +178,29 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
 	u1 = *t1mumet * cos(dphi(mphi, uphi));
 	u2 = *t1mumet * sin(dphi(mphi, uphi));
       }
-      else if(category == "zee"){
+      else if(category == "zee" and observable == "t1pfmet"){
 	metx += *t1elmet * cos(*t1elmetphi);
 	mety += *t1elmet * sin(*t1elmetphi);
 	uphi = atan2(-sin(*zeephi)  , -cos(*zeephi)  );
 	mphi = atan2(-sin(*t1elmetphi), -cos(*t1elmetphi));
 	u1 = *t1elmet * cos(dphi(mphi, uphi));
 	u2 = *t1elmet * sin(dphi(mphi, uphi));
+      }
+      if(category == "zmm" and observable == "pfmet"){
+	metx += *mumet * cos(*mumetphi);
+	mety += *mumet * sin(*mumetphi);
+	uphi = atan2(-sin(*zphi)  , -cos(*zphi)  );
+	mphi = atan2(-sin(*mumetphi), -cos(*mumetphi));
+	u1 = *mumet * cos(dphi(mphi, uphi));
+	u2 = *mumet * sin(dphi(mphi, uphi));
+      }
+      else if(category == "zee" and observable == "pfmet"){
+	metx += *elmet * cos(*elmetphi);
+	mety += *elmet * sin(*elmetphi);
+	uphi = atan2(-sin(*zeephi)  , -cos(*zeephi)  );
+	mphi = atan2(-sin(*elmetphi), -cos(*elmetphi));
+	u1 = *elmet * cos(dphi(mphi, uphi));
+	u2 = *elmet * sin(dphi(mphi, uphi));
       }
 
 
@@ -194,7 +213,10 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
       hist->Fill(fillvar, weight);      
       // count the number of events accouring to the weight and the total zpt sum in the bin
       yield  += evtwgt;
-      zptsum += (*zpt)*evtwgt;
+      if(category == "zmm")
+	zptsum += (*zpt)*evtwgt;
+      else if(category == "zee")
+	zptsum += (zeept[0])*evtwgt;
     }
     
     cout << hist->GetName() << " integral : " << yield << ",  <Z pT sum> = " << zptsum/yield << " hist Get Mean "<<hist->GetMean()<<endl;
@@ -202,15 +224,23 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
 }
 
 // get response from tree
-void getresponse(TTree* tree, const char* histname, bool isMC, double zptmin, double zptmax, double& val, double& err, const string & category, const float & lumi, const string & outputDIR) {
+void getresponse(TTree* tree, 
+		 const char* histname, 
+		 bool isMC, 
+		 double zptmin, double zptmax, 
+		 double& val, double& err, 
+		 const string & category, 
+		 const string & observable, 
+		 const float & lumi, const string & outputDIR) {
 
   // define response histogram
   int nbins   = 100;
-  double xmin = -300.;
-  double xmax = 300.;
+  double xmin = -350;
+  double xmax = 350;
   TH1F  hist(histname, "", nbins, xmin, xmax);
 
-  double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax, category, lumi);
+  double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax, category,observable,lumi);
+
   // Gaussian fit around 3 sigma of the mean value
   double fitrangemin = hist.GetMean() - 3.*hist.GetStdDev();
   double fitrangemax = hist.GetMean() + 3.*hist.GetStdDev();
@@ -222,19 +252,26 @@ void getresponse(TTree* tree, const char* histname, bool isMC, double zptmin, do
 
   TH1F* h = (TH1F*)hist.Clone("h");
   TCanvas* c = new TCanvas("c", "c", 600, 600);
-  h->Draw("EP");
+  hist.Draw("EP");
   if(isMC)
-    c->SaveAs((outputDIR+"/histMC_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
+    c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
   else
-    c->SaveAs((outputDIR+"/histDATA_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
+    c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
 
 }
 
 // main function for met response plots
-void makeMETResponse(string baseDIR, string category, string outputDIR, float lumi = 0.218) {
+void makeMETResponse(string baseDIR, string category, string observable, string outputDIR, float lumi = 0.218) {
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
+
+  if(observable != "t1pfmet" and observable!= "pfmet"){
+    cerr<<"Not a good observable --> return"<<endl;
+    return;
+  }
+
+  system(("mkdir -p "+outputDIR).c_str());
 
   TChain* zlltree = new TChain("tree/tree");
   TChain* dattree = new TChain("tree/tree");
@@ -266,10 +303,10 @@ void makeMETResponse(string baseDIR, string category, string outputDIR, float lu
   // loop on the MET bins
   for (int i = 0; i < bins.size()-1; i++) {
     // get the response for MC and data
-    getresponse(zlltree, "zllhist",  true, bins[i], bins[i+1], val, err, category, lumi, outputDIR);
+    getresponse(zlltree, "zllhist",  true, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR);
     zllvalvector.push_back(val);
     zllerrvector.push_back(err);
-    getresponse(dattree, "datthist", false, bins[i], bins[i+1], val, err, category, lumi, outputDIR);
+    getresponse(dattree, "datthist", false, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR);
     datvalvector.push_back(val);
     daterrvector.push_back(err);
   }
@@ -312,7 +349,7 @@ void makeMETResponse(string baseDIR, string category, string outputDIR, float lu
   zllres->Draw("PE SAME");
   datres->Draw("PE SAME");
 
-  TLegend* leg = new TLegend(0.6, 0.6, 0.9, 0.9);
+  TLegend* leg = new TLegend(0.6, 0.3, 0.9, 0.6);
   leg->SetFillColor(0);
   leg->AddEntry(datres, "Data");
   if(category == "zmm")
@@ -323,7 +360,8 @@ void makeMETResponse(string baseDIR, string category, string outputDIR, float lu
   leg->Draw("SAME");
 
   pad1->RedrawAxis();  
-  CMS_lumi(pad1,to_string(lumi),true);
+  TString lumi_ = Form("%.2f",lumi);
+  CMS_lumi(pad1,string(lumi_),true);
 
   canvas->cd();
   pad2->SetTopMargin(0.08);
@@ -347,7 +385,6 @@ void makeMETResponse(string baseDIR, string category, string outputDIR, float lu
   pad1->cd();
   pad1->RedrawAxis();
 
-  system(("mkdir -p "+outputDIR).c_str());
   canvas->SaveAs((outputDIR+"/metResponse_"+category+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/metResponse_"+category+".png").c_str(),"png");
   

@@ -136,9 +136,10 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     Double_t mid = hist->GetBinLowEdge(hist->GetNbinsX()) + hist->GetBinWidth(hist->GetNbinsX())/ 2.0;
 
     while (reader.Next()) {
+
         double weight = 1.0;
         double kfact  = 1.0;
-        double puwgt  = 0.0;
+        double puwgt  = 1.0;
         double effsf  = 1.0;
         double trgsf  = 1.0;
 
@@ -149,8 +150,8 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
         if (!isMC && *fecal   == 0) continue;
         if (!isMC && *fnvtx   == 0) continue;
 
-        if ( (chan != Sample::topmu and chan != Sample::topel) and *njets  < 1) continue;
-        if ( (chan != Sample::topmu and chan != Sample::topel) and *nbjets > 0) continue;	
+	if (not isInclusive and *njets < 1) continue;
+        if ((chan != Sample::topmu and chan != Sample::topel) and *nbjets > 0) continue;	
 	if (not isInclusive and (*chfrac)[0] < 0.1 ) continue;
 	if (not isInclusive and (*nhfrac)[0] > 0.8 ) continue;	
 	if (not isInclusive and (*jetpt )[0] < 100.) continue;
@@ -248,8 +249,8 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  if(*nbjets < 1) continue;	  
 	}
 
-        if ((*nvtx) <= 35) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-        else puwgt = 1.0;
+	if ((*nvtx) <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
+	else puwgt = 1.0;
 
         double genpt = *wzpt;
         if (*wzpt < 100. ) genpt = 100.;
