@@ -13,7 +13,7 @@ Double_t dphi(Double_t phi1, Double_t phi2) {
 
 // Loop on the event in order to make the response in a specific met bin --> re-loop for each bin -> to be changed                                                            
 double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, double zptmin, double zptmax,
-                const string & category, const string & observable, const float & lumi) {
+                const string & category, const string & observable, const float & lumi, const bool & parallelRecoil) {
 
   TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*)pufile->Get("puhist");
@@ -201,7 +201,10 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     }
 
 
-    double fillvar = u2;
+    double fillvar = 0;
+    if(parallelRecoil) fillvar = u1;
+    else fillvar = u2;
+
     if (fillvar >= xmax) continue;
     if (fillvar <  xmin) continue;
 
@@ -223,15 +226,18 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
 void getresolution(TTree* tree, const char* histname, bool isMC, double zptmin, double zptmax, double& val, double& err,
 		   const string & category,
 		   const string & observable,
-		   const float & lumi, const string & outputDIR) {
+		   const float  & lumi, 
+		   const string & outputDIR,
+		   const bool   & parallelRecoil
+		   ) {
 
     int nbins   = 150;
-    double xmin = -350.;
-    double xmax = 350.;
+    double xmin = -bins.back()*1.25;
+    double xmax = bins.back()*1.25;
 
     TH1F  hist(histname, "", nbins, xmin, xmax);
     hist.Sumw2();
-    double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax,category,observable,lumi);
+    double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax,category,observable,lumi,parallelRecoil);
 
     double fitrangemin = hist.GetMean() - 3.*hist.GetStdDev();
     double fitrangemax = hist.GetMean() + 3.*hist.GetStdDev();
@@ -245,14 +251,22 @@ void getresolution(TTree* tree, const char* histname, bool isMC, double zptmin, 
     TH1F* h = (TH1F*)hist.Clone("h");
     TCanvas* c = new TCanvas("c", "c", 600, 600);
     hist.Draw("EP");
-    if(isMC)
-      c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
-    else
-      c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+".png").c_str(),"png");
+    if(isMC){
+      if(parallelRecoil)
+	c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_upara.png").c_str(),"png");
+      else
+	c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_uperp.png").c_str(),"png");
+    }
+    else{
+      if(parallelRecoil)
+	c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_upara.png").c_str(),"png");
+      else
+	c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_uperp.png").c_str(),"png");
+    }
 }
 
 // main function to study met resolution
-void makeMETResolution(string baseDIR, string category, string observable, string outputDIR, float lumi = 0.218) {
+void makeMETResolution(string baseDIR, string category, string observable, bool parallelRecoil, string outputDIR, float lumi = 0.218) {
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -281,7 +295,7 @@ void makeMETResolution(string baseDIR, string category, string observable, strin
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   TPad *pad1 = new TPad("pad1","pad1",0,0.3,1,1.0);
   canvas->cd();
-  TPad *pad2 = new TPad("pad2","pad2",0,0.1,1,0.3);
+  TPad *pad2 = new TPad("pad2","pad2",0,0.1,1,0.295);
 
   double val = 0.0;
   double err = 0.0;
@@ -293,10 +307,10 @@ void makeMETResolution(string baseDIR, string category, string observable, strin
 
   /// loop on the met bins
   for (int i = 0; i < bins.size()-1; i++) {
-    getresolution(zlltree, "zllhist",  true, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR);
+    getresolution(zlltree, "zllhist",  true, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR, parallelRecoil);
     zllvalvector.push_back(val);
     zllerrvector.push_back(err);
-    getresolution(dattree, "dathist", false, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR);
+    getresolution(dattree, "dathist", false, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR, parallelRecoil);
     datvalvector.push_back(val);
     daterrvector.push_back(err);
     canvas->cd();
@@ -322,7 +336,11 @@ void makeMETResolution(string baseDIR, string category, string observable, strin
   datres->SetMarkerStyle(20);
    
 
-  TH1* frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 25.0, "");
+  TH1* frame = NULL;
+  if(parallelRecoil)
+    frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 50.0, "");
+  else
+    frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 25.0, "");
   frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
   frame->GetYaxis()->SetTitle("Resolution u_{#perp}");
   frame->GetYaxis()->CenterTitle();
@@ -369,13 +387,19 @@ void makeMETResolution(string baseDIR, string category, string observable, strin
   dahist->GetYaxis()->SetRangeUser(0.9, 1.1);
   dahist->GetYaxis()->SetNdivisions(504);
   dahist->SetMarkerSize(0);
-  dahist->SetLineWidth(2);
+  dahist->SetMarkerStyle(20);
+  dahist->SetMarkerSize(1.0);
   dahist->Draw("PE");
   
   pad1->cd();
   pad1->RedrawAxis();
   
-  canvas->SaveAs((outputDIR+"/metResolution_"+category+".pdf").c_str(),"pdf");
-  canvas->SaveAs((outputDIR+"/metResolution_"+category+".png").c_str(),"png");
-
+  if(parallelRecoil){
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_upara.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_upara.png").c_str(),"png");
+  }
+  else{
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_uperp.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_uperp.png").c_str(),"png");
+  }
 }

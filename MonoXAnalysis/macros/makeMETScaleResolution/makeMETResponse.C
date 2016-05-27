@@ -234,9 +234,9 @@ void getresponse(TTree* tree,
 		 const float & lumi, const string & outputDIR) {
 
   // define response histogram
-  int nbins   = 100;
-  double xmin = -350;
-  double xmax = 350;
+  int nbins   = 135;
+  double xmin = -bins.back()*1.25;
+  double xmax = bins.back()*1.25;
   TH1F  hist(histname, "", nbins, xmin, xmax);
 
   double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax, category,observable,lumi);
@@ -378,8 +378,9 @@ void makeMETResponse(string baseDIR, string category, string observable, string 
   dahist->GetYaxis()->SetLabelSize(3.0*dahist->GetYaxis()->GetLabelSize());
   dahist->GetYaxis()->SetRangeUser(0.9, 1.1);
   dahist->GetYaxis()->SetNdivisions(504);
+  dahist->SetMarkerStyle(20);
+  dahist->SetMarkerSize(1.0);
   dahist->SetMarkerSize(0);
-  dahist->SetLineWidth(2);
   dahist->Draw("PE");
 
   pad1->cd();
