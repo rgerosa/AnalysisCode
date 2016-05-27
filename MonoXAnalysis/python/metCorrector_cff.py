@@ -28,7 +28,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		## re-run for standard met
 		if postfix == "Puppi" :
 			if isMC:
-				runMetCorAndUncFromMiniAOD(process,isData=False,pfCandColl=cms.InputTag("puppiNoLep"),postfix=postfix)				
+				runMetCorAndUncFromMiniAOD(process,isData=False,pfCandColl=cms.InputTag("puppiNoLep"),postfix=postfix)								
 			else:
 				runMetCorAndUncFromMiniAOD(process,isData=True,pfCandColl=cms.InputTag("puppiNoLep"),postfix=postfix)				
 				

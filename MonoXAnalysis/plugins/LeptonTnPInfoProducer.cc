@@ -20,45 +20,45 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 
 class LeptonTnPInfoProducer : public edm::stream::EDProducer<> {
-    public:
-        explicit LeptonTnPInfoProducer(const edm::ParameterSet&);
-        ~LeptonTnPInfoProducer();
-        
-        static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
-    private:
-        virtual void beginJob() ;
-        virtual void produce(edm::Event&, const edm::EventSetup&) ;
-        virtual void endJob() ;
-        
-        virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-        virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-        virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+public:
+  explicit LeptonTnPInfoProducer(const edm::ParameterSet&);
+  ~LeptonTnPInfoProducer();
+  
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  
+private:
+  virtual void beginJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) ;
+  virtual void endJob() ;
+  
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-        const edm::EDGetTokenT<GenEventInfoProduct> geninfoToken;
-        const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
-        const edm::EDGetTokenT<std::vector<pat::Muon> > muonsToken;
-        const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
-        const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
-        const edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-        const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
-        const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
-        const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
-        const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
+  const edm::EDGetTokenT<GenEventInfoProduct>         geninfoToken;
+  const edm::EDGetTokenT<std::vector<reco::Vertex> >  verticesToken;
+  const edm::EDGetTokenT<std::vector<pat::Muon> >     muonsToken;
+  const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
+  const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
+  const edm::EDGetTokenT<edm::TriggerResults>  triggerResultsToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
 
-        const double loosemuisocut;
-        const double tightmuisocut;
-        const double tagmuonptcut;
-        const double tagmuonetacut;
-        const double tagmuontrigmatchdR;
-        const bool   requiremuonhlt;
-        const std::vector<std::string> tagmuontriggers;
-        const double tagelectronptcut;
-        const double tagelectronetacut;
-        const double tagelectrontrigmatchdR;
-        const bool   requireelectronhlt;
-        const std::vector<std::string> tagelectrontriggers;
+  const double loosemuisocut;
+  const double tightmuisocut;
+  const double tagmuonptcut;
+  const double tagmuonetacut;
+  const double tagmuontrigmatchdR;
+  const bool   requiremuonhlt;
+  const std::vector<std::string> tagmuontriggers;
+  const double tagelectronptcut;
+  const double tagelectronetacut;
+  const double tagelectrontrigmatchdR;
+  const bool   requireelectronhlt;
+  const std::vector<std::string> tagelectrontriggers;
 };
 
 LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig): 
@@ -85,20 +85,25 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
     requireelectronhlt(iConfig.getParameter<bool>("requireelectronhlt")),
     tagelectrontriggers(iConfig.getParameter<std::vector<std::string> >("tagelectrontriggers"))
 {
-    produces<edm::ValueMap<float> >("munvtxmap");
-    produces<edm::ValueMap<float> >("muwgtmap");
-    produces<pat::MuonRefVector>("hltmu20muonrefs");
-    produces<pat::MuonRefVector>("hlttkmu20muonrefs");
-    produces<pat::MuonRefVector>("loosemuonrefs");
-    produces<pat::MuonRefVector>("tightmuonrefs");
-    produces<pat::MuonCollection>("tightmuons");
-    produces<edm::ValueMap<float> >("elnvtxmap");
-    produces<edm::ValueMap<float> >("elwgtmap");
-    produces<pat::ElectronRefVector>("vetoelectronrefs");
-    produces<pat::ElectronRefVector>("looseelectronrefs");
-    produces<pat::ElectronRefVector>("mediumelectronrefs");
-    produces<pat::ElectronRefVector>("tightelectronrefs");
-    produces<pat::ElectronCollection>("tightelectrons");
+  // produce a map with nvtx for a given muon
+  produces<edm::ValueMap<float> >("munvtxmap");
+  // produce a map with the generator weight
+  produces<edm::ValueMap<float> >("muwgtmap");
+  // produce a ref vector with tag muon trigger info
+  produces<pat::MuonRefVector>("hltmu20muonrefs");
+  produces<pat::MuonRefVector>("hlttkmu20muonrefs");
+  // produces collection for loose and tight muons
+  produces<pat::MuonRefVector>("loosemuonrefs");
+  produces<pat::MuonRefVector>("tightmuonrefs");
+  produces<pat::MuonCollection>("tightmuons");
+  /// same logic also for electrons
+  produces<edm::ValueMap<float> >("elnvtxmap");
+  produces<edm::ValueMap<float> >("elwgtmap");
+  produces<pat::ElectronRefVector>("vetoelectronrefs");
+  produces<pat::ElectronRefVector>("looseelectronrefs");
+  produces<pat::ElectronRefVector>("mediumelectronrefs");
+  produces<pat::ElectronRefVector>("tightelectronrefs");
+  produces<pat::ElectronCollection>("tightelectrons");
 }
 
 
@@ -106,148 +111,180 @@ LeptonTnPInfoProducer::~LeptonTnPInfoProducer() {
 }
 
 void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-    using namespace edm;
-    using namespace reco;
-    using namespace std;
 
-    Handle<GenEventInfoProduct> geninfoH;
-    iEvent.getByToken(geninfoToken, geninfoH);
+  using namespace edm;
+  using namespace reco;
+  using namespace std;
+  
+  Handle<GenEventInfoProduct> geninfoH;
+  iEvent.getByToken(geninfoToken, geninfoH);
+  
+  Handle<std::vector<reco::Vertex> > verticesH;
+  iEvent.getByToken(verticesToken, verticesH);
+  
+  Handle<std::vector<pat::Muon> > muonsH;
+  iEvent.getByToken(muonsToken, muonsH);
+  
+  Handle<std::vector<pat::Electron> > electronsH;
+  iEvent.getByToken(electronsToken, electronsH);
+  
+  Handle<pat::TriggerObjectStandAloneCollection> triggerObjectsH;
+  iEvent.getByToken(triggerObjectsToken, triggerObjectsH);
+  
+  Handle<edm::TriggerResults> triggerResultsH;
+  iEvent.getByToken(triggerResultsToken, triggerResultsH);
+  
+  Handle<edm::ValueMap<bool> > electronVetoIdH;
+  iEvent.getByToken(electronVetoIdMapToken, electronVetoIdH);
+  
+  Handle<edm::ValueMap<bool> > electronLooseIdH;
+  iEvent.getByToken(electronLooseIdMapToken, electronLooseIdH);
+  
+  Handle<edm::ValueMap<bool> > electronMediumIdH;
+  iEvent.getByToken(electronMediumIdMapToken, electronMediumIdH);
+  
+  Handle<edm::ValueMap<bool> > electronTightIdH;
+  iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
 
-    Handle<std::vector<reco::Vertex> > verticesH;
-    iEvent.getByToken(verticesToken, verticesH);
+  // output collection
+  std::auto_ptr<edm::ValueMap<float> > outputmunvtxmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmuwgtmap(new ValueMap<float>());
+  std::auto_ptr<pat::MuonRefVector> outputhltmu20muonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhlttkmu20muonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputloosemuonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputtightmuonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonCollection> outputtightmuons(new pat::MuonCollection);
+  std::auto_ptr<edm::ValueMap<float> > outputelnvtxmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputelwgtmap(new ValueMap<float>());
+  std::auto_ptr<pat::ElectronRefVector> outputvetoelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputlooseelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputmediumelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputtightelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronCollection> outputtightelectrons(new pat::ElectronCollection);
+  
+  // event weight
+  float wgt = 1.0;
+  if (geninfoH.isValid()) wgt = geninfoH->weight(); 
+  // take all the trigger name for the event
+  const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResultsH);
 
-    Handle<std::vector<pat::Muon> > muonsH;
-    iEvent.getByToken(muonsToken, muonsH);
+  vector<float> munvtxvector;
+  vector<float> muwgtvector;
+  // loop on the probe muon collection
+  for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
+    // calculate isolation
+    float isoval = muons_iter->pfIsolationR04().sumNeutralHadronEt;
+    isoval += muons_iter->pfIsolationR04().sumPhotonEt;
+    isoval -= 0.5*muons_iter->pfIsolationR04().sumPUPt;
+    if (isoval < 0.) isoval = 0.;
+    isoval += muons_iter->pfIsolationR04().sumChargedHadronPt;
+    isoval /= muons_iter->pt();
 
-    Handle<std::vector<pat::Electron> > electronsH;
-    iEvent.getByToken(electronsToken, electronsH);
-
-    Handle<pat::TriggerObjectStandAloneCollection> triggerObjectsH;
-    iEvent.getByToken(triggerObjectsToken, triggerObjectsH);
-
-    Handle<edm::TriggerResults> triggerResultsH;
-    iEvent.getByToken(triggerResultsToken, triggerResultsH);
-
-    Handle<edm::ValueMap<bool> > electronVetoIdH;
-    iEvent.getByToken(electronVetoIdMapToken, electronVetoIdH);
-
-    Handle<edm::ValueMap<bool> > electronLooseIdH;
-    iEvent.getByToken(electronLooseIdMapToken, electronLooseIdH);
-
-    Handle<edm::ValueMap<bool> > electronMediumIdH;
-    iEvent.getByToken(electronMediumIdMapToken, electronMediumIdH);
-
-    Handle<edm::ValueMap<bool> > electronTightIdH;
-    iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
-
-    std::auto_ptr<edm::ValueMap<float> > outputmunvtxmap(new ValueMap<float>());
-    std::auto_ptr<edm::ValueMap<float> > outputmuwgtmap(new ValueMap<float>());
-    std::auto_ptr<pat::MuonRefVector> outputhltmu20muonrefs(new pat::MuonRefVector);
-    std::auto_ptr<pat::MuonRefVector> outputhlttkmu20muonrefs(new pat::MuonRefVector);
-    std::auto_ptr<pat::MuonRefVector> outputloosemuonrefs(new pat::MuonRefVector);
-    std::auto_ptr<pat::MuonRefVector> outputtightmuonrefs(new pat::MuonRefVector);
-    std::auto_ptr<pat::MuonCollection> outputtightmuons(new pat::MuonCollection);
-    std::auto_ptr<edm::ValueMap<float> > outputelnvtxmap(new ValueMap<float>());
-    std::auto_ptr<edm::ValueMap<float> > outputelwgtmap(new ValueMap<float>());
-    std::auto_ptr<pat::ElectronRefVector> outputvetoelectronrefs(new pat::ElectronRefVector);
-    std::auto_ptr<pat::ElectronRefVector> outputlooseelectronrefs(new pat::ElectronRefVector);
-    std::auto_ptr<pat::ElectronRefVector> outputmediumelectronrefs(new pat::ElectronRefVector);
-    std::auto_ptr<pat::ElectronRefVector> outputtightelectronrefs(new pat::ElectronRefVector);
-    std::auto_ptr<pat::ElectronCollection> outputtightelectrons(new pat::ElectronCollection);
-
-    float wgt = 1.0;
-    if (geninfoH.isValid()) wgt = geninfoH->weight(); 
-
-    const edm::TriggerNames& trigNames = iEvent.triggerNames(*triggerResultsH);
-
-    vector<float> munvtxvector;
-    vector<float> muwgtvector;
-    for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
-        float isoval = muons_iter->pfIsolationR04().sumNeutralHadronEt;
-        isoval += muons_iter->pfIsolationR04().sumPhotonEt;
-        isoval -= 0.5*muons_iter->pfIsolationR04().sumPUPt;
-        if (isoval < 0.) isoval = 0.;
-        isoval += muons_iter->pfIsolationR04().sumChargedHadronPt;
-        isoval /= muons_iter->pt();
-
-        bool triggermatched = false;
-        bool hltisomu20matched = false;
-        bool hltisotkmu20matched = false;
-        for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
-            trgobj.unpackPathNames(trigNames);
-            for (std::string trigpath : tagmuontriggers) {
-                if (trgobj.hasPathName(trigpath, true, true) && deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) triggermatched = true;
-            }
-            if (trgobj.hasPathName("HLT_IsoMu20_v*"  , true, true) && deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisomu20matched   = true;
-            if (trgobj.hasPathName("HLT_IsoTkMu20_v*", true, true) && deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisotkmu20matched = true;
-        }
-        if (!requiremuonhlt) triggermatched = true;
-
-        if (verticesH->size() != 0 && hltisomu20matched                                                               ) outputhltmu20muonrefs  ->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-        if (verticesH->size() != 0 && hltisotkmu20matched                                                             ) outputhlttkmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-        if (verticesH->size() != 0 && muon::isLooseMuon(*muons_iter)                        && isoval <= loosemuisocut) outputloosemuonrefs    ->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-        if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) outputtightmuonrefs    ->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-        if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) {
-            if (triggermatched && muons_iter->pt() > tagmuonptcut && fabs(muons_iter->eta()) < tagmuonetacut) outputtightmuons->push_back(*muons_iter);
-        }
-        munvtxvector.push_back(float(verticesH->size()));
-        muwgtvector.push_back(wgt);
+    bool triggermatched = false;
+    bool hltisomu20matched = false;
+    bool hltisotkmu20matched = false;
+    // loop on the trigger result objects and upack single objects
+    for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
+      trgobj.unpackPathNames(trigNames);
+      for (std::string trigpath : tagmuontriggers) { // loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
+	if (trgobj.hasPathName(trigpath, true, true) && 
+	    deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) triggermatched = true;
+      }
+      // match specifically only IsoMu20
+      if (trgobj.hasPathName("HLT_IsoMu20_v*"  , true, true) && 
+	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisomu20matched   = true;
+      // match specifically on IsoTk20
+      if (trgobj.hasPathName("HLT_IsoTkMu20_v*", true, true) && 
+	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisotkmu20matched = true;
     }
 
-    vector<float> elnvtxvector;
-    vector<float> elwgtvector;
-    for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
-        const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
-        bool triggermatched = false;
-        for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
-            trgobj.unpackPathNames(trigNames);
-            for (std::string trigpath : tagelectrontriggers) {
-                if (trgobj.hasPathName(trigpath, true, false) && deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR) triggermatched = true;
-            }
-        }
-        if (!requireelectronhlt) triggermatched = true;
+    if (!requiremuonhlt) triggermatched = true;
 
-        if (verticesH->size() != 0 && (*electronVetoIdH)  [electronPtr]) outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-        if (verticesH->size() != 0 && (*electronLooseIdH) [electronPtr]) outputlooseelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-        if (verticesH->size() != 0 && (*electronMediumIdH)[electronPtr]) outputmediumelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-        if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-        if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) {
-            if (triggermatched && electrons_iter->pt() > tagelectronptcut && fabs(electrons_iter->eta()) < tagelectronetacut) outputtightelectrons->push_back(*electrons_iter);
-        }
-        elnvtxvector.push_back(float(verticesH->size()));
-        elwgtvector.push_back(wgt);
+    // matched to mu20
+    if (verticesH->size() != 0 && hltisomu20matched) 
+      outputhltmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // matched to IsoMu20
+    if (verticesH->size() != 0 && hltisotkmu20matched) 
+      outputhlttkmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // Loose muons
+    if (verticesH->size() != 0 && muon::isLooseMuon(*muons_iter) && isoval <= loosemuisocut) 
+      outputloosemuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // Tight muons
+    if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) 
+      outputtightmuonrefs    ->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // real tught matched with trigger and passing eta and pt cuts
+    if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) {
+      if (triggermatched && muons_iter->pt() > tagmuonptcut && fabs(muons_iter->eta()) < tagmuonetacut) 
+	outputtightmuons->push_back(*muons_iter);
     }
+    munvtxvector.push_back(float(verticesH->size()));
+    muwgtvector.push_back(wgt);
+  }
 
-    edm::ValueMap<float>::Filler munvtxfiller(*outputmunvtxmap);
-    munvtxfiller.insert(muonsH, munvtxvector.begin(), munvtxvector.end());
-    munvtxfiller.fill();
-
-    edm::ValueMap<float>::Filler muwgtfiller(*outputmuwgtmap);
-    muwgtfiller.insert(muonsH, muwgtvector.begin(), muwgtvector.end());
-    muwgtfiller.fill();
-
-    edm::ValueMap<float>::Filler elnvtxfiller(*outputelnvtxmap);
-    elnvtxfiller.insert(electronsH, elnvtxvector.begin(), elnvtxvector.end());
-    elnvtxfiller.fill();
-
-    edm::ValueMap<float>::Filler elwgtfiller(*outputelwgtmap);
-    elwgtfiller.insert(electronsH, elwgtvector.begin(), elwgtvector.end());
-    elwgtfiller.fill();
-
-    iEvent.put(outputmunvtxmap, "munvtxmap");
-    iEvent.put(outputmuwgtmap, "muwgtmap");
-    iEvent.put(outputhltmu20muonrefs, "hltmu20muonrefs");
-    iEvent.put(outputhlttkmu20muonrefs, "hlttkmu20muonrefs");
-    iEvent.put(outputloosemuonrefs, "loosemuonrefs");
-    iEvent.put(outputtightmuonrefs, "tightmuonrefs");
-    iEvent.put(outputtightmuons, "tightmuons");
-    iEvent.put(outputelnvtxmap, "elnvtxmap");
-    iEvent.put(outputelwgtmap, "elwgtmap");
-    iEvent.put(outputvetoelectronrefs, "vetoelectronrefs");
-    iEvent.put(outputlooseelectronrefs, "looseelectronrefs");
-    iEvent.put(outputmediumelectronrefs, "mediumelectronrefs");
-    iEvent.put(outputtightelectronrefs, "tightelectronrefs");
-    iEvent.put(outputtightelectrons, "tightelectrons");
+  vector<float> elnvtxvector;
+  vector<float> elwgtvector;
+  for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
+    const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
+    bool triggermatched = false;
+    for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
+      trgobj.unpackPathNames(trigNames);
+      for (std::string trigpath : tagelectrontriggers) {
+	if (trgobj.hasPathName(trigpath, true, false) && 
+	    deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR) triggermatched = true;
+      }
+    }
+    if (!requireelectronhlt) triggermatched = true;
+    // veto electrons
+    if (verticesH->size() != 0 && (*electronVetoIdH)  [electronPtr]) 
+      outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    // loose electrons
+    if (verticesH->size() != 0 && (*electronLooseIdH) [electronPtr]) 
+      outputlooseelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    // medium electrons
+    if (verticesH->size() != 0 && (*electronMediumIdH)[electronPtr]) 
+      outputmediumelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    // tight electrons
+    if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) 
+      outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    //
+    if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) {
+      if (triggermatched && electrons_iter->pt() > tagelectronptcut && fabs(electrons_iter->eta()) < tagelectronetacut) 
+	outputtightelectrons->push_back(*electrons_iter);
+    }
+    elnvtxvector.push_back(float(verticesH->size()));
+    elwgtvector.push_back(wgt);
+  }
+  
+  edm::ValueMap<float>::Filler munvtxfiller(*outputmunvtxmap);
+  munvtxfiller.insert(muonsH, munvtxvector.begin(), munvtxvector.end());
+  munvtxfiller.fill();
+  
+  edm::ValueMap<float>::Filler muwgtfiller(*outputmuwgtmap);
+  muwgtfiller.insert(muonsH, muwgtvector.begin(), muwgtvector.end());
+  muwgtfiller.fill();
+  
+  edm::ValueMap<float>::Filler elnvtxfiller(*outputelnvtxmap);
+  elnvtxfiller.insert(electronsH, elnvtxvector.begin(), elnvtxvector.end());
+  elnvtxfiller.fill();
+  
+  edm::ValueMap<float>::Filler elwgtfiller(*outputelwgtmap);
+  elwgtfiller.insert(electronsH, elwgtvector.begin(), elwgtvector.end());
+  elwgtfiller.fill();
+  
+  iEvent.put(outputmunvtxmap, "munvtxmap");
+  iEvent.put(outputmuwgtmap, "muwgtmap");
+  iEvent.put(outputhltmu20muonrefs, "hltmu20muonrefs");
+  iEvent.put(outputhlttkmu20muonrefs, "hlttkmu20muonrefs");
+  iEvent.put(outputloosemuonrefs, "loosemuonrefs");
+  iEvent.put(outputtightmuonrefs, "tightmuonrefs");
+  iEvent.put(outputtightmuons, "tightmuons");
+  iEvent.put(outputelnvtxmap, "elnvtxmap");
+  iEvent.put(outputelwgtmap, "elwgtmap");
+  iEvent.put(outputvetoelectronrefs, "vetoelectronrefs");
+  iEvent.put(outputlooseelectronrefs, "looseelectronrefs");
+  iEvent.put(outputmediumelectronrefs, "mediumelectronrefs");
+  iEvent.put(outputtightelectronrefs, "tightelectronrefs");
+  iEvent.put(outputtightelectrons, "tightelectrons");
 }
 
 void LeptonTnPInfoProducer::beginJob() {
