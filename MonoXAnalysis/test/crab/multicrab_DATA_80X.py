@@ -42,9 +42,9 @@ config.JobType.maxMemoryMB      = 2500
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 25000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-24-05-2016_80X/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-273450_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'  
+config.Data.unitsPerJob   = 40000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-28-05-2016_80X_Data583pb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-273730_13TeV_PromptReco_Collisions16_JSON.txt'  
 #config.Data.runRange
 config.Data.publication   = False
 

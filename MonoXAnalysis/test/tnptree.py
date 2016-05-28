@@ -151,6 +151,10 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
     electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
 )
 
+if options.isMC:
+	process.probeinfo.requiremuonhlt = cms.bool(False)
+	process.probeinfo.requireelectronhlt = cms.bool(False)
+
 # Tag muons --> filter on the collection content --> at least one
 process.tagmuons = cms.EDFilter("PATMuonSelector", 
     src = cms.InputTag("probeinfo", "tightmuons"),
