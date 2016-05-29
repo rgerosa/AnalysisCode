@@ -1,8 +1,48 @@
 #include "../CMS_lumi.h"
 
-// met binning used in the study
-vector<double> bins  = {0.0, 10., 20., 30., 40., 60., 80., 100., 150., 200., 400.};
+// analysis binning
+vector<double> ZPT_bins  = {0.0, 10., 20.,  30., 40., 60., 80., 100., 150., 200., 400.};
+vector<double> Nvtx_bins = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
+vector<double> ZEta_bins = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
 
+// to manage dependance plot
+class analysisBin {
+
+public:
+  analysisBin(){};
+  analysisBin(const string & met, const string & observable, const string & category, const vector<double> & bins = {}):
+    met_(met),
+    observable_(observable),
+    category_(category),
+    bins_(bins)    
+  {
+    
+    if(met_ != "pfmet" and met_ != "t1pfmet" and met_ != "puppit1pfmet" and met_ != "puppipfmet")
+      cout<<"Un-recognized met option --> please check"<<endl;
+    if(observable_ != "zpt" and observable_ != "nvtx" and observable_ != "zeta")
+      cout<<"Un-recognized observable option --> please check"<<endl;
+    if(category_ != "zmm" and category_ !=  "zee")
+      cout<<"Un-recognized category option --> please check"<<endl;
+      
+    if(bins_.empty()){
+      if(observable_ == "zpt")
+	bins_ = ZPT_bins;
+      else if(observable_ == "zeta")
+	bins_ = ZEta_bins;
+      else if(observable_ == "nvtx")
+	bins_ = Nvtx_bins;
+    }
+  }
+  ~analysisBin(){};
+
+  vector<double> bins_;
+  string met_;
+  string category_;
+  string observable_;
+  size_t iBin_;
+};
+
+// calculate dphi
 Double_t dphi(Double_t phi1, Double_t phi2) {
     double result = phi1 - phi2;
     while (result > M_PI) result -= 2*M_PI;
@@ -12,8 +52,13 @@ Double_t dphi(Double_t phi1, Double_t phi2) {
 
 
 // Loop on the event in order to make the response in a specific met bin --> re-loop for each bin -> to be changed                                                            
-double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, double zptmin, double zptmax,
-                const string & category, const string & observable, const float & lumi, const bool & parallelRecoil) {
+double drawplot(TTree* tree, 
+		TH1* hist, 
+		const bool & isMC, 
+		const double & xmin, const double & xmax, 
+		const analysisBin & binning,
+		const float & lumi, 
+		const bool & parallelRecoil) {
 
   TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*)pufile->Get("puhist");
@@ -68,18 +113,16 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
   TTreeReaderValue<double>          wgtbtag (reader, wgtbtagvar);
   TTreeReaderValue<double>          wgt    (reader, "wgt");
   TTreeReaderValue<double>          xsec   (reader, "xsec");
-  TTreeReaderValue<double>          t1pfmet   (reader, "t1pfmet");
-  TTreeReaderValue<double>          t1pfmetphi(reader, "t1pfmetphi");
-  TTreeReaderValue<double>          pfmet  (reader, "pfmet");
-  TTreeReaderValue<double>          pfmetphi  (reader, "pfmetphi");
-  TTreeReaderValue<double>          t1mumet   (reader, "t1mumet");
-  TTreeReaderValue<double>          t1mumetphi(reader, "t1mumetphi");
-  TTreeReaderValue<double>          mumet   (reader, "mumet");
-  TTreeReaderValue<double>          mumetphi(reader, "mumetphi");
-  TTreeReaderValue<double>          t1elmet   (reader, "t1elmet");
-  TTreeReaderValue<double>          t1elmetphi(reader, "t1elmetphi");
-  TTreeReaderValue<double>          elmet   (reader, "elmet");
-  TTreeReaderValue<double>          elmetphi(reader, "elmetphi");
+
+  TString metVar = Form("%s",binning.met_.c_str());
+  if(binning.category_ == "zmm")
+    metVar.ReplaceAll("pf","mu");
+  else if(binning.category_ == "zee")
+    metVar.ReplaceAll("pf","el");
+
+  TTreeReaderValue<double>          met    (reader, metVar);
+  TTreeReaderValue<double>          metphi (reader, metVar+"phi");
+  
   TTreeReaderValue<int>             mu1pid (reader, "mu1pid");
   TTreeReaderValue<int>             mu2pid (reader, "mu2pid");
   TTreeReaderValue<int>             mu1id  (reader, "mu1id");
@@ -88,7 +131,6 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
   TTreeReaderValue<double>          mu1eta (reader, "mu1eta");
   TTreeReaderValue<double>          mu2pt  (reader, "mu2pt");
   TTreeReaderValue<double>          mu2eta (reader, "mu2eta");
-
   TTreeReaderValue<int>             el1pid (reader, "el1pid");
   TTreeReaderValue<int>             el2pid (reader, "el2pid");
   TTreeReaderValue<int>             el1id  (reader, "el1id");
@@ -128,14 +170,25 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     if (!isMC && *fecal   == 0) continue;
     if (!isMC && *fnvtx   == 0) continue;
 
+    double obs = 0;
+    if(binning.observable_ == "nvtx")
+      obs = *nvtx;
+    else if(binning.observable_ == "zpt" and binning.category_ == "zmm")
+      obs = *zpt;
+    else if(binning.observable_ == "zpt" and binning.category_ == "zee")
+      obs = zeept[0];
+    else if(binning.observable_ == "zeta" and binning.category_ == "zmm")
+      obs = fabs(*zeta);
+    else if(binning.observable_ == "zeta" and binning.category_ == "zee")
+      obs = fabs(*zeeeta);
 
     if(*nbjets > 1) continue;
 
-    if(category == "zmm"){
+    if(binning.category_ == "zmm"){
       unsigned char hlt = (*hmnm90) + (*hmnm120) + (*hmwm90) + (*hmwm120) + (*hmwm170) + (*hmwm300) +(*hsmu);
       if(not isMC and hlt == 0) continue;
-      if(*zpt <  zptmin) continue;
-      if(*zpt >= zptmax) continue;
+      if(obs < binning.bins_.at(binning.iBin_)) continue;
+      if(obs >= binning.bins_.at(binning.iBin_+1)) continue;
       bool istight = false;
       if (*mu1id == 1 && *mu1pt > 20.) istight = true;
       if (*mu2id == 1 && *mu2pt > 20.) istight = true;
@@ -145,12 +198,13 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
       if (*mu2id == 1) effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
       else             effsf *= msflhist->GetBinContent(msflhist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
     }
-    if(category == "zee"){
+
+    if(binning.category_ == "zee"){
       unsigned char hlt = (*hsele) + (*hph165) + (*hph175);
       if (not isMC and hlt == 0) continue;
       bool istight = false;
-      if(zeept[0] <  zptmin) continue;
-      if(zeept[0] >= zptmax) continue;
+      if(obs < binning.bins_.at(binning.iBin_)) continue;
+      if(obs >= binning.bins_.at(binning.iBin_+1)) continue;
       if (*el1id == 1 && *el1pt > 40.) istight = true;
       if (*el2id == 1 && *el2pt > 40.) istight = true;
       if (!istight) continue;
@@ -167,39 +221,12 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     double mphi = 0.0;
     double u1 = 0.0;
     double u2 = 0.0;
-    if(category == "zmm" and observable == "t1pfmet"){
-      metx += *t1mumet * cos(*t1mumetphi);
-      mety += *t1mumet * sin(*t1mumetphi);
-      uphi = atan2(-sin(*zphi)  , -cos(*zphi)  );
-      mphi = atan2(-sin(*t1mumetphi), -cos(*t1mumetphi));
-      u1 = *t1mumet * cos(dphi(mphi, uphi));
-      u2 = *t1mumet * sin(dphi(mphi, uphi));
-    }
-    else if(category == "zee" and observable == "t1pfmet"){
-      metx += *t1elmet * cos(*t1elmetphi);
-      mety += *t1elmet * sin(*t1elmetphi);
-      uphi = atan2(-sin(*zeephi)  , -cos(*zeephi)  );
-      mphi = atan2(-sin(*t1elmetphi), -cos(*t1elmetphi));
-      u1 = *t1elmet * cos(dphi(mphi, uphi));
-      u2 = *t1elmet * sin(dphi(mphi, uphi));
-    }
-    if(category == "zmm" and observable == "pfmet"){
-      metx += *mumet * cos(*mumetphi);
-      mety += *mumet * sin(*mumetphi);
-      uphi = atan2(-sin(*zphi)  , -cos(*zphi)  );
-      mphi = atan2(-sin(*mumetphi), -cos(*mumetphi));
-      u1 = *mumet * cos(dphi(mphi, uphi));
-      u2 = *mumet * sin(dphi(mphi, uphi));
-    }
-    else if(category == "zee" and observable == "pfmet"){
-      metx += *elmet * cos(*elmetphi);
-      mety += *elmet * sin(*elmetphi);
-      uphi = atan2(-sin(*zeephi)  , -cos(*zeephi)  );
-      mphi = atan2(-sin(*elmetphi), -cos(*elmetphi));
-      u1 = *elmet * cos(dphi(mphi, uphi));
-      u2 = *elmet * sin(dphi(mphi, uphi));
-    }
-
+    metx += *met * cos(*metphi);
+    mety += *met * sin(*metphi);
+    uphi = atan2(-sin(*zphi)  , -cos(*zphi));
+    mphi = atan2(-sin(*metphi), -cos(*metphi));
+    u1 = *met * cos(dphi(mphi, uphi));
+    u2 = *met * sin(dphi(mphi, uphi));
 
     double fillvar = 0;
     if(parallelRecoil) fillvar = u1;
@@ -213,31 +240,30 @@ double drawplot(TTree* tree, TH1* hist, bool isMC, double xmin, double xmax, dou
     hist->Fill(fillvar, weight);
     // count the number of events accouring to the weight and the total zpt sum in the bin                                                                                  
     yield  += evtwgt;
-    if(category == "zmm")
-      zptsum += (*zpt)*evtwgt;
-    else if(category == "zee")
-      zptsum += (zeept[0])*evtwgt;    
+    zptsum += obs*evtwgt;
   }
   
-  cout << hist->GetName() << " integral : " << yield << ",  <Z pT sum> = " << zptsum/yield << " hist GetRMS "<<hist->GetRMS()<<endl;
+  cout << hist->GetName() << " integral : " << yield << ", <Obs> = " << zptsum/yield << " hist GetRMS "<<hist->GetRMS()<<endl;
   return zptsum/yield;
 }
 
-void getresolution(TTree* tree, const char* histname, bool isMC, double zptmin, double zptmax, double& val, double& err,
-		   const string & category,
-		   const string & observable,
+void getresolution(TTree* tree, 
+		   const char* histname, bool isMC, 
+		   const analysisBin & binning,
+		   double & val, double & err,
 		   const float  & lumi, 
 		   const string & outputDIR,
 		   const bool   & parallelRecoil
 		   ) {
 
     int nbins   = 150;
-    double xmin = -bins.back()*1.25;
-    double xmax = bins.back()*1.25;
+    double xmin = -ZPT_bins.back()*1.25; // integrated over z-pt in case  the analysis is done vs NPV or Zeta
+    double xmax = ZPT_bins.back()*1.25;
 
     TH1F  hist(histname, "", nbins, xmin, xmax);
     hist.Sumw2();
-    double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, zptmin, zptmax,category,observable,lumi,parallelRecoil);
+
+    double zptavg = drawplot(tree, &hist, isMC, xmin, xmax, binning, lumi, parallelRecoil);
 
     double fitrangemin = hist.GetMean() - 3.*hist.GetStdDev();
     double fitrangemax = hist.GetMean() + 3.*hist.GetStdDev();
@@ -253,35 +279,55 @@ void getresolution(TTree* tree, const char* histname, bool isMC, double zptmin, 
     hist.Draw("EP");
     if(isMC){
       if(parallelRecoil)
-	c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_upara.png").c_str(),"png");
+	c->SaveAs((outputDIR+"/histMC_"+binning.category_+"_"+binning.observable_+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+"_upara.png").c_str(),"png");
       else
-	c->SaveAs((outputDIR+"/histMC_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_uperp.png").c_str(),"png");
+	c->SaveAs((outputDIR+"/histMC_"+binning.category_+"_"+binning.observable_+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+"_uperp.png").c_str(),"png");
     }
     else{
       if(parallelRecoil)
-	c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_upara.png").c_str(),"png");
+	c->SaveAs((outputDIR+"/histDATA_"+binning.category_+"_"+binning.observable_+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+"_upara.png").c_str(),"png");
       else
-	c->SaveAs((outputDIR+"/histDATA_"+category+"_"+to_string(zptmin)+"_"+to_string(zptmax)+"_uperp.png").c_str(),"png");
+	c->SaveAs((outputDIR+"/histDATA_"+binning.category_+"_"+binning.observable_+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+"_uperp.png").c_str(),"png");
     }
 }
 
 // main function to study met resolution
-void makeMETResolution(string baseDIR, string category, string observable, bool parallelRecoil, string outputDIR, float lumi = 0.218) {
+void makeMETResolution(string baseDIR,   // directory with ntuples
+		       string category,  // "zmm" or "zee" at the moment
+		       string met,       // can be "t1pfmet", "pfmet", "puppit1pfmet", "puppipfmet" 
+		       string observable, // can be "zpt","zeta" ot "nvtx"
+		       bool   parallelRecoil,  // parallel or perpendicular recoil
+		       string outputDIR, 
+		       float  lumi = 0.218) {
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
 
   system(("mkdir -p "+outputDIR).c_str());
 
-  if(observable != "t1pfmet" and observable!= "pfmet"){
+  if(met != "t1pfmet" and observable!= "pfmet" and met != "puppit1pfmet" and met != "puppipfmet"){
     cerr<<"Not a good observable --> return"<<endl;
     return;
   }
 
+  if(observable != "zpt" and observable != "zeta" and observable != "nvtx"){
+    cerr<<"Not a good observable --> return"<<endl;
+    return;
+  }
+  // select the binning
+  vector<double> bins;
+  if(observable == "zpt")
+    bins = ZPT_bins;
+  else if(observable == "zeta")
+    bins = ZEta_bins;
+  else if(observable == "nvtx")
+    bins = Nvtx_bins;
+  analysisBin binning (met,observable,category,bins);
+
   TChain* zlltree = new TChain("tree/tree");
   TChain* dattree = new TChain("tree/tree");
 
-  if( category != "zmm" and category != "zee"){
+  if(category != "zmm" and category != "zee"){
     cerr<<"Problem with category --> atm only zmm and zee can be used --> exit"<<endl;
     return;
   }
@@ -306,11 +352,12 @@ void makeMETResolution(string baseDIR, string category, string observable, bool 
   std::vector<double> daterrvector;
 
   /// loop on the met bins
-  for (int i = 0; i < bins.size()-1; i++) {
-    getresolution(zlltree, "zllhist",  true, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR, parallelRecoil);
+  for (int i = 0; i < binning.bins_.size()-1; i++) {
+    binning.iBin_ = i;
+    getresolution(zlltree, "zllhist",  true, binning, val, err, lumi, outputDIR, parallelRecoil);
     zllvalvector.push_back(val);
     zllerrvector.push_back(err);
-    getresolution(dattree, "dathist", false, bins[i], bins[i+1], val, err, category, observable, lumi, outputDIR, parallelRecoil);
+    getresolution(dattree, "dathist", false, binning, val, err, lumi, outputDIR, parallelRecoil);
     datvalvector.push_back(val);
     daterrvector.push_back(err);
     canvas->cd();
@@ -339,10 +386,21 @@ void makeMETResolution(string baseDIR, string category, string observable, bool 
   TH1* frame = NULL;
   if(parallelRecoil)
     frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 50.0, "");
+  else if(observable == "nvtx")
+    frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 40.0, "");
   else
     frame = canvas->DrawFrame(bins.front(), 10.0, bins.back(), 25.0, "");
-  frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
-  frame->GetYaxis()->SetTitle("Resolution u_{#perp}");
+  if(observable == "zpt") 
+    frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
+  else if(observable == "zeta")
+    frame->GetXaxis()->SetTitle("Z |#eta|");
+  else if(observable == "nvtx")
+    frame->GetXaxis()->SetTitle("N_{PV}");
+
+  if(not parallelRecoil)
+    frame->GetYaxis()->SetTitle("Resolution u_{#perp}");
+  else
+    frame->GetYaxis()->SetTitle("Resolution u_{#parallel}");
   frame->GetYaxis()->CenterTitle();
   frame->GetXaxis()->SetLabelSize(0);
   frame->GetYaxis()->SetLabelSize(0.9*frame->GetYaxis()->GetLabelSize());
@@ -357,7 +415,12 @@ void makeMETResolution(string baseDIR, string category, string observable, bool 
   zllres->Draw("PE SAME");
   datres->Draw("PE SAME");
 
-  TLegend* leg = new TLegend(0.6, 0.2, 0.9, 0.44);
+  TLegend* leg = NULL;
+  if(observable == "zpt")
+    leg = new TLegend(0.6, 0.2, 0.9, 0.44);
+  else 
+    leg = new TLegend(0.6, 0.16, 0.9, 0.33);
+
   leg->SetFillColor(0);
   leg->AddEntry(datres, "Data");
   if(category == "zmm")
@@ -384,7 +447,7 @@ void makeMETResolution(string baseDIR, string category, string observable, bool 
   
   dahist->GetXaxis()->SetLabelSize(3.0*dahist->GetXaxis()->GetLabelSize());
   dahist->GetYaxis()->SetLabelSize(3.0*dahist->GetYaxis()->GetLabelSize());
-  dahist->GetYaxis()->SetRangeUser(0.9, 1.1);
+  dahist->GetYaxis()->SetRangeUser(0.85, 1.15);
   dahist->GetYaxis()->SetNdivisions(504);
   dahist->SetMarkerSize(0);
   dahist->SetMarkerStyle(20);
@@ -395,11 +458,11 @@ void makeMETResolution(string baseDIR, string category, string observable, bool 
   pad1->RedrawAxis();
   
   if(parallelRecoil){
-    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_upara.pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_upara.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_"+observable+"_upara.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_"+observable+"_upara.png").c_str(),"png");
   }
   else{
-    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_uperp.pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_uperp.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_"+observable+"_uperp.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDIR+"/metResolution_"+category+"_"+observable+"_uperp.png").c_str(),"png");
   }
 }

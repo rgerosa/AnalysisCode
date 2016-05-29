@@ -566,10 +566,11 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(*phpt < 175 || fabs(*pheta) > 1.442 or *phidm !=1) continue;    
     n_photonTag++;
 
-    if(*nelectrons != 0) continue;
-    n_electronVeto++;
     if(*nmuons != 0) continue;
     n_muonVeto++;
+
+    if(*nelectrons != 0) continue;
+    n_electronVeto++;
     if(*ntaus != 0) continue;
     n_tauVeto++;
         
