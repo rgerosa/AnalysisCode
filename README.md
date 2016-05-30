@@ -15,7 +15,6 @@ Recipe for 80X:
        git push my-cmssw remotes/official-cmssw/CMSSW_8_0_X:refs/heads/CMSSW_8_0_X
        git checkout CMSSW_8_0_X
        git merge official-cmssw/CMSSW_8_0_X
-       git cms-merge-topic -u matteosan1:smearer_76X
        git cms-addpkg FWCore/Framework
        git revert ccdf67f9dc7ee3968bc489b773561af6025e2115
        git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_80X
