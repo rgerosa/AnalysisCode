@@ -128,7 +128,6 @@ void plot(Sample chan, // channel
 
     for (size_t i = 1; i < datfiles.size(); i++) 
       makeGenericHist(dtpath+"/"+datfiles[0]+"/"+filter+"filter/"+filter+"_"+datfiles[i]+".root" , dathist, varstr, cut, false, chan, lumi, efac, isInclusive);
-
     if  (chan == Sample::sig) {
       for (size_t i = 1; i < znnfiles.size(); i++) 
 	makeGenericHist(mcpath+"/"+znnfiles[0]+"/"+filter+"filter/"+filter+"_"+znnfiles[i]+".root" , znnhist, varstr, cut, true, chan, lumi, zfac, isInclusive);

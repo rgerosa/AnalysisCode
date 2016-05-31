@@ -43,8 +43,8 @@ config.JobType.numCores         = 4
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-24-05-2016_80X/'
+config.Data.unitsPerJob   = 35000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-30-05-2016-80X-MC/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

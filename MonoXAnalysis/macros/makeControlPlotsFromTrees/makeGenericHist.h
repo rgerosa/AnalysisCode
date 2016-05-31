@@ -136,7 +136,6 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     Double_t mid = hist->GetBinLowEdge(hist->GetNbinsX()) + hist->GetBinWidth(hist->GetNbinsX())/ 2.0;
 
     while (reader.Next()) {
-
         double weight = 1.0;
         double kfact  = 1.0;
         double puwgt  = 1.0;
@@ -217,7 +216,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  trgsf *= trehist ->GetBinContent(trehist ->FindBin(min(999., *el1pt), fabs(*el1eta)));
         }
 	
-        if (chan == Sample::zee) {
+        if (chan == Sample::zee) {	  
 	  unsigned char hlt = (*hsele) + (*hph165) + (*hph175);
 	  if (not isMC and hlt == 0) continue;
 	  bool istight = false;
@@ -260,7 +259,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
                 kfact = khists[i]->GetBinContent(khists[i]->FindBin(genpt));
             }
         }
-	
+
         if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)/(*wgtsum);	
         if (chan == Sample::qcd) weight *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(999., *phpt), fabs(*pheta))));
         is_vector<T> isv;

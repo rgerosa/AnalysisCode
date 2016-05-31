@@ -61,7 +61,8 @@ if options.inputFiles == []:
                 )
         else:
             process.source.fileNames.append(
-                '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
+#                '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
+		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
                 )
             
 else:
@@ -197,6 +198,12 @@ process.muontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
         pfid      = cms.string("isPFMuon"), ## if is a PF muon
         hltmu20   = cms.InputTag("probeinfo", "hltmu20muonrefs"),   ## if it belongs to hltmu20
         hlttkmu20 = cms.InputTag("probeinfo", "hlttkmu20muonrefs"), ## if it belongs to isotk20
+        hltmu22   = cms.InputTag("probeinfo", "hltmu22muonrefs"),   ## if it belongs to hltmu22
+        hlttkmu22 = cms.InputTag("probeinfo", "hlttkmu22muonrefs"), ## if it belongs to isotk22
+        hltmu24   = cms.InputTag("probeinfo", "hltmu24muonrefs"),   ## if it belongs to hltmu22
+        hlttkmu24 = cms.InputTag("probeinfo", "hlttkmu24muonrefs"), ## if it belongs to isotk22
+        hltmu     = cms.InputTag("probeinfo", "hltmumuonrefs"),   ## if it belongs to hltmu22
+        hlttkmu   = cms.InputTag("probeinfo", "hlttkmumuonrefs"), ## if it belongs to isotk22
         looseid   = cms.InputTag("probeinfo", "loosemuonrefs"),     ## if pass the loose
         tightid   = cms.InputTag("probeinfo", "tightmuonrefs"),     ## if pass the tight
     ),
@@ -216,6 +223,13 @@ process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
         wgt  = cms.InputTag("probeinfo", "elwgtmap")
     ),
     flags = cms.PSet(
+	hltele23 = cms.InputTag("probeinfo", "hltele23wplooseelectronrefs"),       
+	hltele27 = cms.InputTag("probeinfo", "hltele27wplooseelectronrefs"),       
+	hltele23Calo = cms.InputTag("probeinfo", "hltele23calotrackisoelectronrefs"),       
+	hltele27WP85 = cms.InputTag("probeinfo", "hltele27wp85electronrefs"),       
+	hltele25WPTight = cms.InputTag("probeinfo", "hltele25wptightelectronrefs"),       
+	hltele105 = cms.InputTag("probeinfo", "hltele105electronrefs"),       
+	hltele    = cms.InputTag("probeinfo", "hltelelectronrefs"),       
         vetoid   = cms.InputTag("probeinfo", "vetoelectronrefs"),
         looseid  = cms.InputTag("probeinfo", "looseelectronrefs"),
         mediumid = cms.InputTag("probeinfo", "mediumelectronrefs"),
