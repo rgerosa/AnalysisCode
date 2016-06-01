@@ -1,12 +1,13 @@
 #include "../CMS_lumi.h"
 
 // met binning used in this study
-vector<double> ZPT_bins  = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 150., 175., 200., 400.};
+vector<double> ZPT_bins  = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 160., 200., 250, 300, 400.};
 vector<double> Nvtx_bins = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
 vector<double> ZEta_bins = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
 
 TH1F* bosonPtWeight = NULL;
-bool metNoHF = false;
+bool  metNoHF_        ;
+bool  isVoigModel_    ;
 
 class analysisBin {
 
@@ -306,14 +307,13 @@ double drawplot(TTree* tree,
     else if(binning.category_ == "zee")
       uphi = atan2(-sin(*zeephi)  , -cos(*zeephi));
 
-    if(not metNoHF){
+    if(not metNoHF_){
       mphi = atan2(-sin(*metphi), -cos(*metphi));
       u1 = *met * cos(dphi(mphi, uphi));
       u2 = *met * sin(dphi(mphi, uphi));
     }
     else{
       if(binning.category_ == "zmm"){
-	cout<<"met not HF "<<endl;
         metx = *pfmetchargedhadron*cos(*pfmetchargedhadronphi)+*pfmetneutralhadron*cos(*pfmetneutralhadronphi)+*pfmetelectrons*cos(*pfmetelectronsphi)+*pfmetphotons*cos(*pfmetphotonsphi);
         mety = *pfmetchargedhadron*sin(*pfmetchargedhadronphi)+*pfmetneutralhadron*sin(*pfmetneutralhadronphi)+*pfmetelectrons*sin(*pfmetelectronsphi)+*pfmetphotons*sin(*pfmetphotonsphi);
 
@@ -330,7 +330,6 @@ double drawplot(TTree* tree,
     }
 
     double fillvar = u1;
-
     if (fillvar >= xmax) continue;
     if (fillvar <  xmin) continue;
     // being at response pleteau
@@ -339,14 +338,14 @@ double drawplot(TTree* tree,
       if(binning.category_ == "zee" and *zeept <= 50) continue;
     }
 
-    double evtwgt = 1.0;
-    
+    double evtwgt = 1.0;    
     double zptwgt = 1.0;
     if(binning.category_      == "zmm" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zpt));
     else if(binning.category_ == "zee" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zeept));
 
     if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)*zptwgt/(*wgtsum);
     hist->Fill(fillvar, weight);
+ 
     // count the number of events accouring to the weight and the total zpt sum in the bin                                                                                     
     yield  += evtwgt;
     if(binning.category_ == "zmm")
@@ -371,7 +370,7 @@ TH1F* getresponse(TTree* tree,
 
   // define response histogram
   int nbins   = 150;
-  double xmin = -ZPT_bins.back()*1.25;
+  double xmin = -ZPT_bins.back()*1.25; // integrated over z-pt in case  the analysis is done vs NPV or Zeta                                                                    
   double xmax = ZPT_bins.back()*1.25;
 
   if(binning.bins_.at(binning.iBin_) >= 100){
@@ -384,29 +383,41 @@ TH1F* getresponse(TTree* tree,
   }
 
   TH1F*  hist =  new TH1F(histname.c_str(), "", nbins, xmin, xmax);
-
   double zptavg = drawplot(tree, hist, isMC, xmin, xmax, binning, lumi);
 
-  double fitrangemin = hist->GetMean() - 3.*hist->GetStdDev();
-  double fitrangemax = hist->GetMean() + 3.*hist->GetStdDev();
+  double fitrangemin = 0;
+  double fitrangemax = 0;
 
-  TF1 fitfunc("fitfunc", "gaus(0)", xmin, xmax);
-  if(isMC){
-    fitfunc.SetLineColor(kBlue);
-    fitfunc.SetLineWidth(2);
+  TF1* fitfunc = 0;
+  if(isVoigModel_){
+   fitrangemin = hist->GetMean() - 5.*hist->GetStdDev();
+   fitrangemax = hist->GetMean() + 5.*hist->GetStdDev();
+   fitfunc = new TF1("fitfunc","[0]*TMath::Voigt(x-[1],[2],[3],4)",xmin,xmax);
+   fitfunc->SetParameter(0,hist->Integral());
+   fitfunc->SetParameter(1,hist->GetMean());
+   fitfunc->SetParameter(3,hist->GetRMS());
+   fitfunc->SetParameter(2,hist->GetRMS());
   }
   else{
-    fitfunc.SetLineColor(kRed);
-    fitfunc.SetLineWidth(2);
+    fitrangemin = hist->GetMean() - 3.*hist->GetStdDev();
+    fitrangemax = hist->GetMean() + 3.*hist->GetStdDev();
+    fitfunc = new TF1("fitfunc", "gaus(0)", xmin, xmax);
   }
+ if(isMC){
+   fitfunc->SetLineColor(kBlue);
+   fitfunc->SetLineWidth(2);
+ }
+ else{
+   fitfunc->SetLineColor(kRed);
+   fitfunc->SetLineWidth(2);
+ }
+ 
+ hist->Fit(fitfunc, "QME", "", fitrangemin, fitrangemax);
+ // take the resolution from fitting u-perpendicular as default                                                                                                               
+ val = fitfunc->GetParameter(1)/zptavg;
+ err = fitfunc->GetParError(1)/zptavg;
 
-  hist->Fit(&fitfunc, "QME", "", fitrangemin, fitrangemax);
-  // Take the mean value of u parallel and divide by zptavg (mean zpt in the bin considered)
-  val = fitfunc.GetParameter(1)/zptavg;
-  err = fitfunc.GetParError(1)/zptavg;
-
-
-  return hist;
+ return hist;
 
 }
 
@@ -417,11 +428,16 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
 		     string observable, // can be "zpt","zeta" ot "nvtx"                                                                                                       
 		     string outputDIR,
 		     float  lumi = 0.590,
-		     bool   doBosonPtRewight = true){
+		     bool   doBosonPtRewight = true,
+		     bool   isVoigModel = false,
+		     bool   metNoHF = false){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
 
+  isVoigModel_ = isVoigModel;
+  metNoHF_ = metNoHF;
+  
   system(("mkdir -p "+outputDIR).c_str());
 
   if(met != "t1pfmet" and met != "pfmet" and met != "puppit1pfmet" and met != "puppipfmet"){
@@ -520,6 +536,7 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
     zllhist->GetYaxis()->SetRangeUser(0,max(zllhist->GetMaximum(),dathist->GetMaximum())*1.2);
     zllhist->Draw("hist"); 
     zllhist->GetListOfFunctions()->At(0)->Draw("Lsame");
+    double chi2_mc = ((TF1*) zllhist->GetListOfFunctions()->At(0))->GetChisquare()/((TF1*) zllhist->GetListOfFunctions()->At(0))->GetNDF();
     TString lumi_ = Form("%.2f",lumi);
     CMS_lumi(can,string(lumi_),true);
     
@@ -529,6 +546,7 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
     dathist->SetLineColor(1);
     dathist->Draw("EPsame");
     dathist->GetListOfFunctions()->At(0)->Draw("Lsame");
+    double chi2_data = ((TF1*) dathist->GetListOfFunctions()->At(0))->GetChisquare()/((TF1*) dathist->GetListOfFunctions()->At(0))->GetNDF();
 
     TLegend* leg = new TLegend(0.65,0.65,0.9,0.9);
     leg->SetBorderSize(0);
@@ -536,6 +554,8 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
     leg->SetFillStyle(0);
     leg->AddEntry(dathist,"Data","EP");
     leg->AddEntry(zllhist,"DY MC","F");
+    leg->AddEntry((TObject*)0,Form("#chi^{2} (MC) = %.2f",chi2_mc),"");
+    leg->AddEntry((TObject*)0,Form("#chi^{2} (DATA) = %.2f",chi2_data),"");
     leg->Draw("same");
     can->SaveAs((outputDIR+"/dataVsMC_"+category+"_"+observable+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+".pdf").c_str(),"pdf");
     can->SaveAs((outputDIR+"/dataVsMC_"+category+"_"+observable+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+".png").c_str(),"png");

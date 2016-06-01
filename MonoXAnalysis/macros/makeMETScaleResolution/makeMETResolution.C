@@ -1,13 +1,13 @@
 #include "../CMS_lumi.h"
 
 // analysis binning
-vector<double> ZPT_bins  = {0.0, 10., 20.,  30., 40., 60., 80., 100., 150., 200., 400.};
+vector<double> ZPT_bins  = {0.0, 10., 20.,  30., 40., 60., 80., 100., 150., 400.};
 vector<double> Nvtx_bins = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
 vector<double> ZEta_bins = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
 
 TH1F* bosonPtWeight = NULL;
-bool metNoHF        = false;
-
+bool  metNoHF_        ;
+bool  isVoigModel_    ;
 // to manage dependance plot
 class analysisBin {
 
@@ -307,7 +307,7 @@ double drawplot(TTree* tree,
     else if(binning.category_ == "zee")
       uphi = atan2(-sin(*zeephi)  , -cos(*zeephi));
 
-    if(not metNoHF){
+    if(not metNoHF_){
       mphi = atan2(-sin(*metphi), -cos(*metphi));
       u1 = *met * cos(dphi(mphi, uphi));
       u2 = *met * sin(dphi(mphi, uphi));
@@ -387,26 +387,38 @@ TH1F* getresolution(TTree* tree,
 
     double zptavg = drawplot(tree, hist, isMC, xmin, xmax, binning, lumi, parallelRecoil);
 
-    double fitrangemin = hist->GetMean() - 3.*hist->GetStdDev();
-    double fitrangemax = hist->GetMean() + 3.*hist->GetStdDev();
+    double fitrangemin = 0;
+    double fitrangemax = 0;
 
-    TF1 fitfunc("fitfunc", "gaus(0)", xmin, xmax);
-    if(isMC){
-      fitfunc.SetLineColor(kBlue);
-      fitfunc.SetLineWidth(2);
+    TF1* fitfunc = 0;
+    if(isVoigModel_){
+      fitrangemin = hist->GetMean() - 4.*hist->GetStdDev();
+      fitrangemax = hist->GetMean() + 4.*hist->GetStdDev();
+      fitfunc = new TF1("fitfunc","[0]*TMath::Voigt(x-[1],[2],[3],4)",xmin,xmax);      
+      fitfunc->SetParameter(0,hist->Integral());
+      fitfunc->SetParameter(1,hist->GetMean());
+      fitfunc->SetParameter(3,hist->GetRMS());
+      fitfunc->SetParameter(2,hist->GetRMS());
     }
     else{
-      fitfunc.SetLineColor(kRed);
-      fitfunc.SetLineWidth(2);
+      fitrangemin = hist->GetMean() - 3.*hist->GetStdDev();
+      fitrangemax = hist->GetMean() + 3.*hist->GetStdDev();
+      fitfunc = new TF1("fitfunc", "gaus(0)", xmin, xmax);
     }
-
-    hist->Fit(&fitfunc, "QME", "", fitrangemin, fitrangemax);
+    if(isMC){
+      fitfunc->SetLineColor(kBlue);
+      fitfunc->SetLineWidth(2);
+    }
+    else{
+      fitfunc->SetLineColor(kRed);
+      fitfunc->SetLineWidth(2);
+    }
+      
+    hist->Fit(fitfunc, "QME", "", fitrangemin, fitrangemax);
     // take the resolution from fitting u-perpendicular as default
-    val = fitfunc.GetParameter(2);
-    err = fitfunc.GetParError(2);
-
+    val = fitfunc->GetParameter(2);
+    err = fitfunc->GetParError(2);    
     return hist;
-    
 }
 
 // main function to study met resolution
@@ -417,10 +429,15 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
 		       bool   parallelRecoil,  // parallel or perpendicular recoil
 		       string outputDIR, 
 		       float  lumi = 0.590,
-		       bool   doBosonPtRewight = true){
+		       bool   doBosonPtRewight = true,
+		       bool   isVoigModel      = false,
+		       bool   metNoHF          = false){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
+
+  metNoHF_ = metNoHF;
+  isVoigModel_ = isVoigModel;
 
   system(("mkdir -p "+outputDIR).c_str());
 
@@ -521,6 +538,7 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     zllhist->GetYaxis()->SetRangeUser(0,max(zllhist->GetMaximum(),dathist->GetMaximum())*1.2);
     zllhist->Draw("hist");
     zllhist->GetListOfFunctions()->At(0)->Draw("Lsame");
+    double chi2_mc = ((TF1*) zllhist->GetListOfFunctions()->At(0))->GetChisquare()/((TF1*) zllhist->GetListOfFunctions()->At(0))->GetNDF();
     TString lumi_ = Form("%.2f",lumi);
     CMS_lumi(can,string(lumi_),true);
 
@@ -530,6 +548,7 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     dathist->SetLineColor(1);
     dathist->Draw("EPsame");
     dathist->GetListOfFunctions()->At(0)->Draw("Lsame");
+    double chi2_data = ((TF1*) dathist->GetListOfFunctions()->At(0))->GetChisquare()/((TF1*) dathist->GetListOfFunctions()->At(0))->GetNDF();
 
     TLegend* leg = new TLegend(0.65,0.65,0.9,0.9);
     leg->SetBorderSize(0);
@@ -537,6 +556,8 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     leg->SetFillStyle(0);
     leg->AddEntry(dathist,"Data","EP");
     leg->AddEntry(zllhist,"DY MC","F");
+    leg->AddEntry((TObject*)0,Form("#chi^{2} (MC) = %.2f",chi2_mc),"");
+    leg->AddEntry((TObject*)0,Form("#chi^{2} (DATA) = %.2f",chi2_data),"");
     leg->Draw("same");
     if(parallelRecoil){
       can->SaveAs((outputDIR+"/dataVsMC_"+category+"_"+observable+"_"+to_string(binning.bins_.at(binning.iBin_))+"_"+to_string(binning.bins_.at(binning.iBin_+1))+"_upara.pdf").c_str(),"pdf");
