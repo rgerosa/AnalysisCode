@@ -287,5 +287,5 @@ if options.isMC :
     process.electrontnptree.checkMotherInUnbiasEff = cms.bool(True)
     process.electrontnptree.allProbes = cms.InputTag("probeelectrons")
 
-process.mutreePath = cms.Path(process.muontnptree)
-process.eltreePath = cms.Path(process.electrontnptree)
+process.muonPath = cms.Path(process.muontnp*process.muontnptree)
+process.electronPath = cms.Path(process.electrontnp*process.electrontnptree)

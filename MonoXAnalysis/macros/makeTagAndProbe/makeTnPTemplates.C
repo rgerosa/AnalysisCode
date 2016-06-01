@@ -64,6 +64,7 @@ void maketemplate(const string & inputDIR,
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
     if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;
+    if(not IsMuon and fabs(*eta) > 1.442 and fabs(*eta) < 1.566) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds
     if(not *mcTrue) continue;
     if (*id == 0) hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);

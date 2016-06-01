@@ -232,41 +232,37 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // loop on the trigger result objects and upack single objects
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)) continue;
       for (std::string trigpath : tagmuontriggers) { 
 	// loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
-	if (trgobj.hasPathName(trigpath, true, true) && 
-	    deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) triggermatched = true;
+	if (trgobj.hasPathName(trigpath, false, true)) triggermatched = true; 
       }
     
       // match specifically only IsoMu20
-      if (trgobj.hasPathName("HLT_IsoMu20_v*"  , true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)
+      if (trgobj.hasPathName("HLT_IsoMu20_v*"  , false, true) and not hltisomu20matched)
 	hltisomu20matched   = true;
       
       // match specifically on IsoTk20
-      if (trgobj.hasPathName("HLT_IsoTkMu20_v*", true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisotkmu20matched = true;
+      if (trgobj.hasPathName("HLT_IsoTkMu20_v*", false, true) and not hltisotkmu20matched)
+	hltisotkmu20matched = true;
       
       // match specifically only IsoMu22
-      if (trgobj.hasPathName("HLT_IsoMu22_v*"  , true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)
+      if (trgobj.hasPathName("HLT_IsoMu22_v*"  , false, true) and not hltisomu22matched)
 	hltisomu22matched   = true;
       
       // match specifically on IsoTk22
-      if (trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisotkmu22matched = true;
+      if (trgobj.hasPathName("HLT_IsoTkMu22_v*", false, true) and not hltisotkmu22matched)
+	hltisotkmu22matched = true;
       // match specifically only IsoMu24
-      if (trgobj.hasPathName("HLT_IsoMu24_v*"  , true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)
+      if (trgobj.hasPathName("HLT_IsoMu24_v*"  , false, true) and not hltisomu24matched)	
 	hltisomu24matched   = true;
       
       // match specifically on IsoTk24
-      if (trgobj.hasPathName("HLT_IsoTkMu24_v*", true, true) && 
-	  deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR) hltisotkmu24matched = true;
+      if (trgobj.hasPathName("HLT_IsoTkMu24_v*", false, true) and not hltisotkmu24matched) 
+	hltisotkmu24matched = true;
       
       if(hltisomu20matched || hltisomu22matched || hltisomu24matched) hltisomumatched = true;
-      if(hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched) hltisotkmumatched = true;
-      
+      if(hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched) hltisotkmumatched = true;      
     }
     
     if (!requiremuonhlt) triggermatched = true;    
@@ -317,6 +313,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   vector<float> elwgtvector;
   for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
     const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
+
     bool triggermatched = false;
     bool hltele23wploosematched = false;
     bool hltele27wploosematched = false;
@@ -329,31 +326,30 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)) continue;
       for (std::string trigpath : tagelectrontriggers) {
-	if (trgobj.hasPathName(trigpath, true, false) && 
-	    deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR) triggermatched = true;
+	if (trgobj.hasPathName(trigpath, false, true)) triggermatched = true;
       }
 
-      if (trgobj.hasPathName("HLT_Ele23_WPLoose_Gsf_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+      if (trgobj.hasPathName("HLT_Ele23_WPLoose_Gsf_v*"  , false, true) and not hltele23wploosematched)
         hltele23wploosematched   = true;
-      if (trgobj.hasPathName("HLT_Ele27_WPLoose_Gsf_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+
+      if (trgobj.hasPathName("HLT_Ele27_WPLoose_Gsf_v*"  , false, true) and not hltele27wploosematched)
         hltele27wploosematched   = true;
-      if (trgobj.hasPathName("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+
+      if (trgobj.hasPathName("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v*"  , false, true) and not hltele23calotrackisomatched)
         hltele23calotrackisomatched = true;
-      if (trgobj.hasPathName("HLT_Ele27_WP85_Gsf_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+
+      if (trgobj.hasPathName("HLT_Ele27_WP85_Gsf_v*"  , false, true) and not hltele27wp85matched)
         hltele27wp85matched = true;
-      if (trgobj.hasPathName("HLT_Ele25_WPTight_Gsf_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+      
+      if (trgobj.hasPathName("HLT_Ele25_WPTight_Gsf_v*"  , false, true) and not hltele25wptightmatched)
         hltele25wptightmatched = true;
-      if (trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+      
+      if (trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"  , false, true) and not hltele105matched)
         hltele105matched = true;
-      if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"  , true, true) &&
-          deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)
+
+      if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"  , false, true) and not hltele115matched)
         hltele115matched = true;
       
       if(hltele23wploosematched || hltele27wploosematched || hltele105matched || hltele115matched) hltelematched = true;

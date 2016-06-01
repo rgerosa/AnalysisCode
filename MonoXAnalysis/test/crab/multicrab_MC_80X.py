@@ -9,7 +9,8 @@ config = Configuration()
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
-               'filterHighMETEvents=False',
+               'filterHighMETEvents=True',
+               'metCut=150',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=True',
@@ -43,7 +44,7 @@ config.JobType.numCores         = 4
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 35000
+config.Data.unitsPerJob   = 30000
 config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-30-05-2016-80X-MC/'
 config.Data.allowNonValidInputDataset = True
 

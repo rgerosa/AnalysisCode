@@ -87,6 +87,8 @@ void setTDRStyle (){
 
   gStyle->SetPaperSize(20.,20.);
 
+  //  gStyle->SetPalette(kBrownCyan);
+
 }
 
 void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
@@ -102,7 +104,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
   latex2->DrawLatex(0.9, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
 
   if(up){
-    latex2->SetTextSize(0.70*pad->GetTopMargin());
+    latex2->SetTextSize(0.65*pad->GetTopMargin());
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
     latex2->DrawLatex(0.15, 0.95, "CMS");
@@ -120,7 +122,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
   }
 
   if(up){
-    latex2->SetTextSize(0.70*pad->GetTopMargin());
+    latex2->SetTextSize(0.65*pad->GetTopMargin());
     latex2->SetTextFont(52);
     latex2->SetTextAlign(11);
     latex2->DrawLatex(0.24, 0.95, "Preliminary");
