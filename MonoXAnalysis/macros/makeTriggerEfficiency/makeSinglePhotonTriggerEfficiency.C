@@ -17,7 +17,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 150, 300, 5);
   fitfunc->SetParameters(160., 5., 5., 4., 1.);
-  vector<float> bins = {155,157.5,160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,190,200};
+  vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,190,200};
   
   TChain* tree = new TChain("tree/tree");
   // should use the wmnu events triggered by single muon
