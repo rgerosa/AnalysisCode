@@ -86,8 +86,7 @@ void setTDRStyle (){
   gStyle->SetOptLogz(0);
 
   gStyle->SetPaperSize(20.,20.);
-
-  //  gStyle->SetPalette(kBrownCyan);
+  gStyle->SetPaintTextFormat(".2f");
 
 }
 
