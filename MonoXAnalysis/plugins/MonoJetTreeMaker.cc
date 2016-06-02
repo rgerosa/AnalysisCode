@@ -4387,11 +4387,11 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_IsoTkMu24"); //42
   triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //43
   triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //44
-  triggerPathsVector.push_back("HLT_Ele23_WPLoose_Gsf_v"); //45 
-  triggerPathsVector.push_back("HLT_Ele27_WPLoose_Gsf_v"); //46
-  triggerPathsVector.push_back("HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v"); //47
-  triggerPathsVector.push_back("HLT_Ele27_WP85_Gsf_v"); //48
-  triggerPathsVector.push_back("HLT_Ele25_WPTight_Gsf_v");//49
+  triggerPathsVector.push_back("HLT_Ele24_eta2p1_WPLoose_Gsf_v"); //45
+  triggerPathsVector.push_back("HLT_Ele25_eta2p1_WPTight_Gsf_v"); //46
+  triggerPathsVector.push_back("HLT_Ele27_WPTight_Gsf_v"); //47
+  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_v"); //48 
+  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf_v"); //49
   triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //50
   triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //51
   triggerPathsVector.push_back("HLT_PFHT125_v");//52

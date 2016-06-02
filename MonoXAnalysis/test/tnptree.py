@@ -115,13 +115,13 @@ tagmuontriggernames = cms.vstring([
 ])
 
 tagelectrontriggernames = cms.vstring([
-        "HLT_Ele23_WPLoose_Gsf_v*",
-        "HLT_Ele27_WPLoose_Gsf_v*",
-        "HLT_Ele27_WP85_Gsf_v*",
-        "HLT_Ele25_WPTight_Gsf_v*",
-        "HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
-        "HLT_Ele115_CaloIdVT_GsfTrkIdT_v*",
-	"HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v*"
+		"HLT_Ele24_eta2p1_WPLoose_Gsf_v*",
+		"HLT_Ele25_eta2p1_WPTight_Gsf_v*",
+		"HLT_Ele27_WPTight_Gsf_v*",
+		"HLT_Ele27_eta2p1_WPLoose_Gsf_v*",
+		"HLT_Ele27_eta2p1_WPTight_Gsf_v*"
+		"HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
+		"HLT_Ele115_CaloIdVT_GsfTrkIdT_v*",
     ])    
 
 # Make the ValueMap for muon tight ID -- cannot pass it through a string selection due to the vertex argument
@@ -223,17 +223,18 @@ process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
         wgt  = cms.InputTag("probeinfo", "elwgtmap")
     ),
     flags = cms.PSet(
-	hltele23 = cms.InputTag("probeinfo", "hltele23wplooseelectronrefs"),       
-	hltele27 = cms.InputTag("probeinfo", "hltele27wplooseelectronrefs"),       
-	hltele23Calo = cms.InputTag("probeinfo", "hltele23calotrackisoelectronrefs"),       
-	hltele27WP85 = cms.InputTag("probeinfo", "hltele27wp85electronrefs"),       
-	hltele25WPTight = cms.InputTag("probeinfo", "hltele25wptightelectronrefs"),       
+	hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       
+	hltele25eta2p1wpt = cms.InputTag("probeinfo", "hltele25eta2p1wptightelectronrefs"),       
+	hltele27eta2p1wpl = cms.InputTag("probeinfo", "hltele27eta2p1wplooseelectronrefs"),       
+	hltele27eta2p1wpt = cms.InputTag("probeinfo", "hltele27eta2p1wptightelectronrefs"),       
+	hltele27wpt       = cms.InputTag("probeinfo", "hltele27wptightelectronrefs"),       
 	hltele105 = cms.InputTag("probeinfo", "hltele105electronrefs"),       
+	hltele115 = cms.InputTag("probeinfo", "hltele115electronrefs"),       
 	hltele    = cms.InputTag("probeinfo", "hltelelectronrefs"),       
-        vetoid   = cms.InputTag("probeinfo", "vetoelectronrefs"),
-        looseid  = cms.InputTag("probeinfo", "looseelectronrefs"),
-        mediumid = cms.InputTag("probeinfo", "mediumelectronrefs"),
-        tightid  = cms.InputTag("probeinfo", "tightelectronrefs"),
+        vetoid    = cms.InputTag("probeinfo", "vetoelectronrefs"),
+        looseid   = cms.InputTag("probeinfo", "looseelectronrefs"),
+        mediumid  = cms.InputTag("probeinfo", "mediumelectronrefs"),
+        tightid   = cms.InputTag("probeinfo", "tightelectronrefs"),
     ),
     isMC = cms.bool(options.isMC)
 )

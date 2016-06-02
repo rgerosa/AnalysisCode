@@ -223,6 +223,7 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   vector<float> binningEta;
   if(isSingleMuon){
     binningPt  = {6,8,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30,32.5,35,37.5,40,45,50,60,70,85,100,125,150,200};
+    binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
     binningEta = {0,1.2,2.4};
   }
   else{
