@@ -1,5 +1,11 @@
 #include "../CMS_lumi.h"
 
+vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,200};
+vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,70.,100,200};
+vector<float> etaBinMuon     = {0.,1.2,2.4};
+vector<float> etaBinElectron = {0.,1.5,2.5};
+
+
 /// make the templates
 void maketemplate(const string & inputDIR, 
 		  const bool   & isMuon, 
@@ -141,11 +147,6 @@ void makeTnPTemplates(string inputDIR, bool isMuon, string outputDIR) {
 
   gROOT->SetBatch(kTRUE);
   system(("mkdir -p "+outputDIR).c_str());
-
-  vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,200};
-  vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,70.,200};
-  vector<float> etaBinMuon     = {0.,1.2,2.4};
-  vector<float> etaBinElectron = {0.,1.5,2.5};
 
   setTDRStyle();
   

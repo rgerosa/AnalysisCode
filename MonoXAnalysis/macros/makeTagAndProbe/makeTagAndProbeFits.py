@@ -15,10 +15,10 @@ from subprocess import Popen
 #            Job steering                  #                                                                                                                                 
 ############################################                                                                                                                                   
 
-muonPtBinning  = [10.0,20.0,30.0,40.0,50.0,700.,200.0];
+muonPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,200.0];
 muonEtaBinning = [0.0,1.2,2.4]
 
-electronPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,200.0];
+electronPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,200.0];
 electronEtaBinning = [0.0,1.5,2.5];
 
 parser = OptionParser()
@@ -94,4 +94,4 @@ if __name__ == '__main__':
     else:
         sys.exit('Problem with lepton type --> muon or electron are the recognized options --> exit');
 
-        os.system("rm file_temp_"+options.leptonType+"_"+options.typeID);
+    os.system("rm file_temp_"+options.leptonType+"_"+options.typeID);

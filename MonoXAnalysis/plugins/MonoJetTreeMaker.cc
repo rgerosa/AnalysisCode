@@ -233,6 +233,7 @@ private:
   const double dRCleaningAK8;
   const std::string jetidwp;
   const std::string pileupjetidwp;
+  const bool   applypileupjetid;
   const double btaggingCSVWP;
   const double btaggingMVAWP;
   const double minJetPtCountAK4;
@@ -357,7 +358,7 @@ private:
   // AK4CHS central jet
   std::vector<double> centraljetpt,centraljeteta,centraljetphi,centraljetm,centraljetbtag,centraljetbtagMVA;
   std::vector<double> centraljetCHfrac,centraljetNHfrac,centraljetEMfrac,centraljetCEMfrac,centraljetmetdphi;
-  std::vector<double> centraljetHFlav,centraljetPFlav,centraljetQGL,centraljetPUID;
+  std::vector<double> centraljetHFlav,centraljetPFlav,centraljetQGL,centraljetPUID, centraljetPassPUID; 
   std::vector<double> centraljetGenpt,centraljetGeneta,centraljetGenphi,centraljetGenm;
   std::vector<double> centraljetBtagSF,centraljetBtagSFUp,centraljetBtagSFDown;
   std::vector<double> centraljetBtagMVASF,centraljetBtagMVASFUp,centraljetBtagMVASFDown;
@@ -365,7 +366,7 @@ private:
   // AK4CHS forward jet
   std::vector<double> forwardjetpt,forwardjeteta,forwardjetphi,forwardjetm;
   std::vector<double> forwardjetCHfrac,forwardjetNHfrac,forwardjetEMfrac,forwardjetCEMfrac,forwardjetmetdphi;
-  std::vector<double> forwardjetHFlav,forwardjetPFlav,forwardjetQGL,forwardjetPUID;
+  std::vector<double> forwardjetHFlav,forwardjetPFlav,forwardjetQGL,forwardjetPUID, forwardjetPassPUID;
   std::vector<double> forwardjetGenpt,forwardjetGeneta,forwardjetGenphi,forwardjetGenm;
 
   double jetmetdphimin,incjetmetdphimin,jetmumetdphimin,incjetmumetdphimin,jetelmetdphimin,incjetelmetdphimin,jetphmetdphimin,incjetphmetdphimin,jetjetdphi;
@@ -576,17 +577,18 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   applyHLTFilter(iConfig.existsAs<bool>("applyHLTFilter") ? iConfig.getParameter<bool>("applyHLTFilter") : false),
   setHLTFilterFlag(iConfig.existsAs<bool>("setHLTFilterFlag") ? iConfig.getParameter<bool>("setHLTFilterFlag") : false),
   // booleans
-  cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : false),
-  cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : false),
-  cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : false),
+  cleanMuonJet(iConfig.existsAs<bool>("cleanMuonJet") ? iConfig.getParameter<bool>("cleanMuonJet") : true),
+  cleanElectronJet(iConfig.existsAs<bool>("cleanElectronJet") ? iConfig.getParameter<bool>("cleanElectronJet") : true),
+  cleanPhotonJet(iConfig.existsAs<bool>("cleanPhotonJet") ? iConfig.getParameter<bool>("cleanPhotonJet") : true),
   dRCleaningAK4(iConfig.existsAs<double>("dRCleaningAK4") ? iConfig.getParameter<double>("dRCleaningAK4") : 0.4),
   dRCleaningAK8(iConfig.existsAs<double>("dRCleaningAK8") ? iConfig.getParameter<double>("dRCleaningAK8") : 0.8),
   jetidwp(iConfig.existsAs<std::string>("jetidwp") ? iConfig.getParameter<std::string>("jetidwp") : "loose"),
   pileupjetidwp(iConfig.existsAs<std::string>("pileupjetidwp") ? iConfig.getParameter<std::string>("pileupjetidwp") : "medium"),
+  applypileupjetid(iConfig.existsAs<bool>("applypileupjetid") ? iConfig.getParameter<bool>("applypileupjetid") : false),
   btaggingCSVWP(iConfig.getParameter<double>("btaggingCSVWP")),
   btaggingMVAWP(iConfig.getParameter<double>("btaggingMVAWP")),
   minJetPtCountAK4(iConfig.existsAs<double>("minJetPtCountAK4") ? iConfig.getParameter<double>("minJetPtCountAK4") : 30),
-  minJetPtBveto(iConfig.existsAs<double>("minJetPtBveto") ? iConfig.getParameter<double>("minJetPtBveto") : 30),
+  minJetPtBveto(iConfig.existsAs<double>("minJetPtBveto") ? iConfig.getParameter<double>("minJetPtBveto") : 15),
   minJetPtAK4CentralStore(iConfig.existsAs<double>("minJetPtAK4CentralStore") ? iConfig.getParameter<double>("minJetPtAK4CentralStore") : 20),
   minJetPtAK4ForwardStore(iConfig.existsAs<double>("minJetPtAK4ForwardStore") ? iConfig.getParameter<double>("minJetPtAK4ForwardStore") : 25), 
   // substructure
@@ -1381,19 +1383,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	bool skipjet = false;
 	if(muonsH.isValid()){
 	  for (std::size_t j = 0; j < muons.size(); j++) {
-	    if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	    if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 	      skipjet = true;
 	  }
 	}
 	if(electronsH.isValid()){
 	  for (std::size_t j = 0; j < electrons.size(); j++) {
-	    if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	    if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 	      skipjet = true;
 	  }
 	}
 	if(photonsH.isValid()){
 	  for (std::size_t j = 0; j < photons.size(); j++) {
-	    if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < 0.4) 
+	    if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK4) 
 	      skipjet = true;
 	  }
 	}
@@ -1408,12 +1410,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	bool passjetid = applyJetID(*jets_iter,jetidwp);            
 	if (!passjetid) 
 	  continue;
-	
 	// apply pileup jet id
 	bool passpuid = applyPileupJetID(*jets_iter,pileupjetidwp,false);
-	if (!passpuid) 
-	  continue;
-      
+	if (applypileupjetid and !passpuid) continue; 
+     
 	if (jets_iter->pt() > leadingjetpt) {
 	  leadingjetpt  = jets_iter->pt() ;
 	  leadingjeteta = jets_iter->eta();
@@ -1455,6 +1455,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       centraljetm         .clear(); centraljetbtagMVA   .clear();
       centraljetBtagSF .clear(); centraljetBtagSFUp .clear(); centraljetBtagSFDown .clear();
       centraljetBtagMVASF .clear(); centraljetBtagMVASFUp .clear(); centraljetBtagMVASFDown .clear();
+      centraljetPassPUID.clear();
 
       for(size_t i = 0; i < incjets.size(); i++){
 	if(incjets[i]->pt() > minJetPtCountAK4) njetsinc++;
@@ -1472,7 +1473,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
 	// fill collections
 	if (jets[i]->pt() > minJetPtAK4CentralStore){
-	  
+
 	  centraljetpt.push_back(jets[i]->pt());
 	  centraljeteta.push_back(jets[i]->eta());
 	  centraljetphi.push_back(jets[i]->phi());
@@ -1492,6 +1493,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  else
 	    centraljetPUID  .push_back(jets[i]->userFloat("pileupJetId:fullDiscriminant"));
 
+	  centraljetPassPUID.push_back(applyPileupJetID(*jets[i],pileupjetidwp,false));	  
 	  // fill jet met dphi
 	  centraljetmetdphi.push_back(deltaPhi(jets[i]->phi(), t1pfmetphi));
 	  
@@ -1519,6 +1521,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       forwardjetHFlav     .clear(); forwardjetPFlav     .clear(); forwardjetQGL       .clear(); forwardjetPUID      .clear();
       forwardjetGenpt     .clear(); forwardjetGeneta    .clear(); forwardjetGenphi    .clear(); forwardjetGenm      .clear(); 
       forwardjetm         .clear(); 
+      forwardjetPassPUID  .clear();
     
       // forward jets
       for (size_t i = 0; i < forwardjets.size(); i++) {
@@ -1542,6 +1545,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    forwardjetPUID  .push_back(forwardjets[i]->userFloat("puid:fullDiscriminant"));	
 	  else
 	  forwardjetPUID  .push_back(forwardjets[i]->userFloat("pileupJetId:fullDiscriminant"));
+	  forwardjetPassPUID.push_back(applyPileupJetID(*forwardjets[i],pileupjetidwp,false));
 	  // MC based info
 	  if(isMC){
 	    forwardjetHFlav.push_back(forwardjets[i]->hadronFlavour()); 
@@ -1581,7 +1585,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<double> alljetphmetdphimin4vector;
 
       for (size_t i = 0; i < alljets.size(); i++) {
-	if (alljets[i]->pt() > minJetPtCountAK4) {
+	if (alljets[i]->pt() > minJetPtCountAK4) {	  
 	  double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
 	  alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
 	  alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
@@ -3720,6 +3724,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("centraljetPFlav",   "std::vector<double>", &centraljetPFlav);
   tree->Branch("centraljetQGL",     "std::vector<double>", &centraljetQGL);
   tree->Branch("centraljetPUID",    "std::vector<double>", &centraljetPUID);
+  tree->Branch("centraljetPassPUID",    "std::vector<double>", &centraljetPassPUID);
   tree->Branch("centraljetGenpt",   "std::vector<double>", &centraljetGenpt);
   tree->Branch("centraljetGeneta",  "std::vector<double>", &centraljetGeneta);
   tree->Branch("centraljetGenphi",  "std::vector<double>", &centraljetGenphi);
@@ -3744,6 +3749,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("forwardjetPFlav",   "std::vector<double>", &forwardjetPFlav);
   tree->Branch("forwardjetQGL",     "std::vector<double>", &forwardjetQGL);
   tree->Branch("forwardjetPUID",    "std::vector<double>", &forwardjetPUID);
+  tree->Branch("forwardjetPassPUID",    "std::vector<double>", &forwardjetPassPUID);
   tree->Branch("forwardjetGenpt",   "std::vector<double>", &forwardjetGenpt);
   tree->Branch("forwardjetGeneta",  "std::vector<double>", &forwardjetGeneta);
   tree->Branch("forwardjetGenphi",  "std::vector<double>", &forwardjetGenphi);
@@ -4741,84 +4747,83 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
   else 
     return true;
 
-  
   // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon
   if(level == "loose"){
 
     if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.96) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.96) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.93) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.92) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.62) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.62) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.62) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.52) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.64) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.64) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.64) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.56) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.56) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.56) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.56) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.44) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.31) passpuid = true;
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.54) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.54) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.54) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
 
   }
   else if(level == "medium"){ 
 
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.58) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.58) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.58) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.20) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.49) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.006) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.42) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.40) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.40) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.40) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.24) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.44) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.44) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.44) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.30) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.36) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.36) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.36) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.19) passpuid = true;
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.23) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
 
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.09) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.09) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.09) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.52) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.26) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.26) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.26) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.62) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.19) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.34) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.34) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.34) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.21) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
     if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.24) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.24) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.24) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.06) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.07) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.21) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.21) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.21) passpuid = true;
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.26) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.26) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.26) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.03) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
   }

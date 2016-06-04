@@ -45,7 +45,7 @@ options.register (
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
-	'addPileupJetID',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPileupJetID',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	're-compute pileup-jet id for AK4 jets');
 
 options.register (
@@ -218,7 +218,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 ## Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 ## Define the input source
 if options.inputFiles == []:
@@ -233,10 +233,21 @@ if options.inputFiles == []:
 			)
 	else:
 		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C06A61EE-EF25-E611-870A-02163E011A12.root')
+		process.source.fileNames.append(
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C25A5FEA-EF25-E611-A65E-02163E011826.root')
+		process.source.fileNames.append(
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/D09C4AEB-EF25-E611-AB07-02163E0142E2.root')
+		process.source.fileNames.append(
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/CA36E6F2-EF25-E611-80AA-02163E01430A.root')
+		process.source.fileNames.append(
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/1AF1FDE9-EF25-E611-82DA-02163E011D1C.root')
+		process.source.fileNames.append(
+			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/92AAB9ED-EF25-E611-A912-02163E013450.root')
+#			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'
 #			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
 #			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
-			)
+			
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -504,13 +515,14 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      dRCleaningAK4    = cms.double(0.4),
                               dRCleaningAK8    = cms.double(0.8),
 			      jetidwp          = cms.string("loose"),
+			      applypileupjetid = cms.bool(False),
 			      pileupjetidwp    = cms.string("medium"),
 			      btaggingCSVWP    = cms.double(0.80),
 			      btaggingMVAWP    = cms.double(0.185),
 			      minJetPtCountAK4     = cms.double(30),
 			      minJetPtBveto        = cms.double(15),
-			      minJetPtAK4CentralStore = cms.double(20),
-			      minJetPtAK4ForwardStore = cms.double(25),			      
+			      minJetPtAK4CentralStore = cms.double(15),
+			      minJetPtAK4ForwardStore = cms.double(20),			      
 			      ## CHS jet substructure
 			      addSubstructureCHS   = cms.bool(options.addSubstructureCHS),
 			      boostedJetsCHS       = cms.InputTag(boostedJetCollection),
