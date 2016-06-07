@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=0',
+               'metCut=150',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
@@ -21,7 +21,7 @@ pyCfgParams = ['isMC=True',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=True',
                'addSubstructureCHS=True',
-               'addSubstructurePuppi=False',
+               'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
                'outputFileName=tree.root',
@@ -45,7 +45,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-30-05-2016-80X-MC/'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-06-06-2016-80X-MC/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

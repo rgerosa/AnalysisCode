@@ -8,10 +8,11 @@ config = Configuration()
 
 pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
-               'filterHighMETEvents=False',
+               'filterHighMETEvents=True',
+               'metCut=150',
                'applyL2L3Residuals=True',
                'addQGLikelihood=True',
-               'addPileupJetID=True',
+               'addPileupJetID=False',
                'addPuppiJets=True',
                'addPuppiMET=True',
                'addEGMSmear=False',
@@ -19,7 +20,7 @@ pyCfgParams = ['isMC=False',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=True',
                'addSubstructureCHS=True',
-               'addSubstructurePuppi=False',
+               'addSubstructurePuppi=True',
                'miniAODProcess=RECO',
                'globalTag=80X_dataRun2_Prompt_v8',
                'outputFileName=tree.root',
@@ -43,8 +44,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-28-05-2016_80X_Data583pb-1/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-273730_13TeV_PromptReco_Collisions16_JSON.txt'  
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-06-06-2016_80X_Data864pb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'  
 #config.Data.runRange
 config.Data.publication   = False
 

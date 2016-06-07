@@ -47,10 +47,19 @@ void checkEventsForSync(string inputFile, string outputDir){
   TTreeReaderValue<vector<double> > jetpt   (myReader,"centraljetpt");
   TTreeReaderValue<vector<double> > jeteta  (myReader,"centraljeteta");
   TTreeReaderValue<vector<double> > jetphi  (myReader,"centraljetphi");
+  TTreeReaderValue<vector<double> > jetm    (myReader,"centraljetm");
   TTreeReaderValue<vector<double> > jetbtag (myReader,"centraljetbtag");
   TTreeReaderValue<vector<double> > chfrac  (myReader,"centraljetCHfrac");
   TTreeReaderValue<vector<double> > nhfrac  (myReader,"centraljetNHfrac");
   TTreeReaderValue<vector<double> > emfrac  (myReader,"centraljetEMfrac");
+
+  TTreeReaderValue<vector<double> > jetpt_f   (myReader,"forwardjetpt");
+  TTreeReaderValue<vector<double> > jeteta_f  (myReader,"forwardjeteta");
+  TTreeReaderValue<vector<double> > jetphi_f  (myReader,"forwardjetphi");
+  TTreeReaderValue<vector<double> > jetm_f    (myReader,"forwardjetm");
+  TTreeReaderValue<vector<double> > chfrac_f  (myReader,"forwardjetCHfrac");
+  TTreeReaderValue<vector<double> > nhfrac_f  (myReader,"forwardjetNHfrac");
+  TTreeReaderValue<vector<double> > emfrac_f  (myReader,"forwardjetEMfrac");
   // Boosted jets
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
   TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
@@ -121,6 +130,7 @@ void checkEventsForSync(string inputFile, string outputDir){
   ofstream metSelections((outputDir+"/metSelections_SR.txt").c_str());
   ofstream btagVetoSelections((outputDir+"/btagVeto_SR.txt").c_str());
   ofstream VtaggingSelections((outputDir+"/Vtagging_SR.txt").c_str());
+  ofstream VBFSelections((outputDir+"/VBF_SR.txt").c_str());
 
   long int n_total        = 0;
   long int n_muonVeto     = 0;
@@ -136,6 +146,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   long int n_ak8tau2tau1  = 0;
   long int n_ak8mpruned   = 0;
   long int n_metHard      = 0;
+  long int n_jetVBF       = 0;
+  long int n_emVBF      = 0;
+  long int n_detaVBF      = 0;
+  long int n_mjjVBF       = 0;
   
   /// event loop
   while(myReader.Next()){
@@ -160,7 +174,7 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(*nbjetslowpt > 0) continue;
     n_bjetVeto++;
     btagVetoSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
-
+    
     if(jetpt->size() <= 0) continue;
     if(jetpt->at(0) < 100) continue;
     n_jetpt++;
@@ -178,6 +192,55 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_metcut++;
     metSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
 
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500){
+	      n_mjjVBF++;
+	      VBFSelections << *run << "  "<<*lumi<<" "<<*event<<"\n";
+	    }
+	  }
+	}
+      }
+    }
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
     if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
@@ -202,6 +265,7 @@ void checkEventsForSync(string inputFile, string outputDir){
   metSelections.close();
   btagVetoSelections.close();
   VtaggingSelections.close();
+  VBFSelections.close();
 
   cout<<"############################"<<endl;
   cout<<"## Event report in the SR ##"<<endl;
@@ -220,6 +284,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
   // Double muon CR
   long int n_muons = 0;
@@ -236,6 +304,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8tau2tau1  = 0;
   n_ak8mpruned   = 0;
   n_metHard      = 0;
+  n_jetVBF       = 0;
+  n_detaVBF      = 0;
+  n_mjjVBF       = 0;
+  n_emVBF        = 0;
 
   ofstream leptonTag_ZM((outputDir+"/leptonTag_ZM.txt").c_str());
   ofstream leptonVeto_ZM((outputDir+"/leptonVeto_ZM.txt").c_str());
@@ -265,6 +337,10 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(*nbjetslowpt > 0) continue;
     n_bjetVeto++;
     bjetVeto_ZM << *run << " " <<*lumi<<" "<<*event<<"\n";
+
+
+
+
     if(jetpt->size() <= 0) continue;
     if(jetpt->at(0) < 100) continue;
     n_jetpt++;
@@ -277,6 +353,55 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_jetdphi++;
     if(*mmet < 200) continue;
     n_metcut++;
+
+
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500)
+	      n_mjjVBF++;
+	  }
+	}
+      }
+    }
 
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
@@ -316,6 +441,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
   // Single muon CR                                                                                                                                                             
   n_muons        = 0;
@@ -332,6 +461,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8tau2tau1  = 0;
   n_ak8mpruned   = 0;
   n_metHard      = 0;
+  n_jetVBF       = 0;
+  n_detaVBF      = 0;
+  n_mjjVBF       = 0;
+  n_emVBF        = 0;
 
   myReader.SetEntry(0);
   while(myReader.Next()){
@@ -363,6 +496,55 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_jetdphi++;
     if(*mmet < 200) continue;
     n_metcut++;
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500)
+	      n_mjjVBF++;
+	  }
+	}
+      }
+    }
+
+
 
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
@@ -396,6 +578,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
 
   ////////////////////////////////////
@@ -415,6 +601,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8tau2tau1  = 0;
   n_ak8mpruned   = 0;
   n_metHard      = 0;
+  n_jetVBF       = 0;
+  n_detaVBF      = 0;
+  n_mjjVBF       = 0;
+  n_emVBF        = 0;
 
   myReader.SetEntry(0);
   while(myReader.Next()){
@@ -446,6 +636,55 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_jetdphi++;
     if(*emet < 200) continue;
     n_metcut++;
+
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500)
+	      n_mjjVBF++;
+	  }
+	}
+      }
+    }
+
 
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
@@ -479,6 +718,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
   // Single electron CR                                                                                                                                                        
   n_electron     = 0;
@@ -495,6 +738,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8tau2tau1  = 0;
   n_ak8mpruned   = 0;
   n_metHard      = 0;
+  n_jetVBF       = 0;
+  n_detaVBF      = 0;
+  n_mjjVBF       = 0;
+  n_emVBF        = 0;
 
   myReader.SetEntry(0);
   while(myReader.Next()){
@@ -526,6 +773,55 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_jetdphi++;
     if(*emet < 200) continue;
     n_metcut++;
+
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500)
+	      n_mjjVBF++;
+	  }
+	}
+      }
+    }
+
 
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
@@ -559,6 +855,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
   // single photon
   n_electronVeto = 0;
@@ -574,7 +874,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   n_ak8tau2tau1  = 0;
   n_ak8mpruned   = 0;
   n_metHard      = 0;
-
+  n_jetVBF       = 0;
+  n_detaVBF      = 0;
+  n_mjjVBF       = 0;
+  n_emVBF        = 0;
   
   ofstream photonTagSelections((outputDir+"/PhotonTag_GJ.txt").c_str());
   ofstream photonBvetoSelections((outputDir+"/PhotonBveto_GJ.txt").c_str());
@@ -613,6 +916,56 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(*pmet < 200) continue;
     n_metcut++;
 
+    /// VBF block
+    if(jetpt->size() + jetpt_f->size() >= 2){
+      TLorentzVector leadingJet;
+      leadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isLeadingCentral;
+      TLorentzVector subleadingJet;
+      subleadingJet.SetPtEtaPhiM(0,0,0,0);
+      bool isSubLeadingCentral;
+      
+      for(int ijet = 0; ijet<jetpt->size(); ijet++){
+	if(jetpt->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));	  
+	  isLeadingCentral = true;
+	}
+	else if(jetpt->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  isSubLeadingCentral = true;
+	}
+      }
+      
+      for(int ijet = 0; ijet<jetpt_f->size(); ijet++){
+	if(jetpt_f->at(ijet) > leadingJet.Pt()){
+	  subleadingJet = leadingJet; 
+	  leadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));	  
+	  isLeadingCentral = false;
+	}
+	else if(jetpt_f->at(ijet) > subleadingJet.Pt()){
+	  subleadingJet.SetPtEtaPhiM(jetpt_f->at(ijet),jeteta_f->at(ijet),jetphi_f->at(ijet),jetm_f->at(ijet));
+	  isSubLeadingCentral = false;
+	}
+      }
+      
+      if(leadingJet.Pt() > 100 && fabs(leadingJet.Eta()) < 4.7 && fabs(subleadingJet.Eta()) < 4.7 && subleadingJet.Pt() > 40){
+	n_jetVBF++;
+	if(leadingJet.Eta()*subleadingJet.Eta() < 0){
+	  n_emVBF++;
+	  if(fabs(leadingJet.Eta()-subleadingJet.Eta()) > 3.5 and leadingJet.Eta()*subleadingJet.Eta() < 0){
+	    n_detaVBF++;
+	    TLorentzVector sum;
+	    sum = leadingJet+subleadingJet;
+	    if(sum.M() > 500)
+	      n_mjjVBF++;
+	  }
+	}
+      }
+    }
+
+	
+
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
     if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
@@ -647,6 +1000,10 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
   cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
   cout<<"met hard cut = "<<n_metHard<<endl;
+  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
 
 
 }

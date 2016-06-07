@@ -5,6 +5,8 @@ samples['WWTo4Q_powheg']    = ['/WWTo4Q_13TeV-powheg/RunIISpring16MiniAODv2-PUSp
                                ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=49.997']]
 samples['WWToLNu2Q_powheg'] = ['/WWToLNuQQ_13TeV-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',
                                ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=51.723']]
+samples['WWToLNu2Q_powheg_ext'] = ['/WWToLNuQQ_13TeV-powheg/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/MINIAODSIM',
+                               ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=False','addGenParticles=True','crossSection=51.723']]
 samples['WZ_pythia']        = ['/WZ_TuneCUETP8M1_13TeV-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',
                                ['useLHEWeights=False','addQCDPDFWeights=False','isSignalSample=False','addGenParticles=True','crossSection=47.2']]
 samples['ZZ_pythia8']       = ['/ZZ_TuneCUETP8M1_13TeV-pythia8/RunIISpring16MiniAODv2-PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',

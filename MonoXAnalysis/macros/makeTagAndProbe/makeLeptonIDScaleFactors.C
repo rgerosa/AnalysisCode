@@ -52,6 +52,7 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const bool & i
 	}
 	cout<<"Opening: "<<directory+"/"+name<<endl;
 	inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
+	if(inputFile->TestBit(TFile::kRecovered)) continue;
 	TH1F* eff = (TH1F*) inputFile->Get("efficiency");
 	efficiency->SetBinContent(ipt+1,ieta+1,eff->GetBinContent(1));
 	efficiency->SetBinError(ipt+1,ieta+1,eff->GetBinError(1));
@@ -104,6 +105,7 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const bool &
 	}
 	cout<<"Opening: "<<directory+"/"+name<<endl;
 	inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
+	if(inputFile->TestBit(TFile::kRecovered)) continue;
 	if(postfix == "RooCMSShape")
 	  tagAndProbeFits_RooCMSShape["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
 	else if(postfix == "Exp")
@@ -238,7 +240,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     RooDataSet* dataFail = (RooDataSet*) data->reduce((typeID+" <= 0").c_str());
     RooRealVar* mass = (RooRealVar*) workspace->obj("mass");
     // for better plotting
-    mass->setBins(int(mass->getBins()/2));
+    mass->setBins(40);
     RooDataHist histPass (Form("histPass_%d",iFile),"",RooArgSet(*mass),*dataPass);
     RooDataHist histFail (Form("histFail_%d",iFile),"",RooArgSet(*mass),*dataFail);
     // total pdf pass and fail

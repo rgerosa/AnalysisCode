@@ -63,7 +63,7 @@ options.register (
 
 #### Add scale and smear corrections for electrons and photons
 options.register (
-	'addEGMSmear',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addEGMSmear',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add e-gamma scale and resolution corrections for electrons and photons');
 
 options.register (
@@ -263,6 +263,8 @@ else:
 		wantSummary = cms.untracked.bool(True),
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
+
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:1057:533689')
 
 ## How many events to process
 process.maxEvents = cms.untracked.PSet( 
