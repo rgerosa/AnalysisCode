@@ -77,6 +77,7 @@ selectedObjects = cms.EDProducer("PFCleaner",
                                  photons   = cms.InputTag("slimmedPhotons"),
                                  calibratedPhotons = cms.InputTag("calibratedPhotons"),
                                  useCalibratedPhotons = cms.bool(False),
+                                 addPhotonPurity = cms.bool(False),
                                  photonSelection = cms.VPSet(
         cms.PSet(
             photonCollectionName = cms.string("photons"),

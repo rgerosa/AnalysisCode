@@ -88,6 +88,12 @@ options.register (
 	'addMETBreakDown',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'produce the pf met breakdown in different components: pfMet, pfMetChargedHadrons, pfMetNeutralHadrons, pfMetPhotons ... etc');
 
+## photon purity studies
+options.register (
+        'addPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'photon purity studies --> add some more branches');
+
+
 ## do substructure for CHS or Puppi jets
 options.register (
 	'addSubstructureCHS',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -187,6 +193,7 @@ print "Running with addEGMSmear         = ",options.addEGMSmear
 print "Running with useMiniAODMet       = ",options.useMiniAODMet
 print "Running with addMETSystematics   = ",options.addMETSystematics
 print "Running with addMETBreakDown     = ",options.addMETBreakDown	
+print "Running with addPhotonPurity     = ",options.addPhotonPurity	
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
 print "Running with outputFileName      = ",options.outputFileName	
@@ -218,7 +225,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 ## Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 1
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 ## Define the input source
 if options.inputFiles == []:
@@ -310,7 +317,7 @@ process.load('AnalysisCode.MonoXAnalysis.selectionObjects_cfi')
 process.selectedObjects.jets = cms.InputTag(jetCollName)
 process.selectedObjects.useCalibratedElectrons = cms.bool(options.addEGMSmear)
 process.selectedObjects.useCalibratedPhotons = cms.bool(options.addEGMSmear)
-
+process.selectedObjects.addPhotonPurity = cms.bool(options.addPhotonPurity)
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
@@ -468,11 +475,24 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
 			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
 			      ## photons --> can be matched by reference 
+			      rho             = cms.InputTag("fixedGridRhoFastjetAll"),
 			      photons         = cms.InputTag("selectedObjects", "photons"),
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
 			      tightphotons    = cms.InputTag("selectedObjects", "tightphotons"),			     
 			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
 			      photonLooseId   = cms.InputTag("selectedObjects", "photonLooseId"),			     
+			      ## photon purity
+			      addPhotonPurity = cms.bool(options.addPhotonPurity),
+			      photonsPurity   = cms.InputTag("selectedObjects", "photonsPurity"),
+			      tightphotonsPurity   = cms.InputTag("selectedObjects", "tightphotonsPurity"),
+			      rndgammaiso04   = cms.InputTag("selectedObjects", "rndgammaiso04"),
+			      rndgammaiso08   = cms.InputTag("selectedObjects", "rndgammaiso08"),
+			      gammaiso        = cms.InputTag("selectedObjects", "gammaiso"),
+			      rndchhadiso     = cms.InputTag("selectedObjects", "rndchhadiso"),
+			      photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
+			      photonPHiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
+			      photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation"),
+			      photonNHiso = cms.InputTag("photonIDValueMapProducer", "phoNeutralHadronIsolation"),
 			      ## taus
 			      taus            = cms.InputTag("selectedObjects","taus"),
 			      ## jets AK4
