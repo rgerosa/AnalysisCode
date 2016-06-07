@@ -97,12 +97,15 @@ process.probeelectrons = cms.EDFilter("PATElectronSelector",
 				      filter = cms.bool(True)  
 				      )
 
-# Electron and Photon ValueMaps for identification
+
+
+# Electron ValueMaps for identification
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
 ElectronTools(process,False,options.isMC)
-### change the input for the electron ID into the probe electorns
 process.egmGsfElectronIDs.physicsObjectSrc = "probeelectrons"
-
+# Photon ValueMaps for identification
+from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
+PhotonTools(process,False,options.isMC)
 
 ##### set of single muons triggers --> no eta restricted path are neeeded 
 tagmuontriggernames = cms.vstring([
@@ -126,31 +129,40 @@ tagelectrontriggernames = cms.vstring([
 
 # Make the ValueMap for muon tight ID -- cannot pass it through a string selection due to the vertex argument
 process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
-    muons     = cms.InputTag("probemuons"),     ## input muons
-    electrons = cms.InputTag("probeelectrons"), ## input electrons
-    geninfo   = cms.InputTag("generator"),
-    vertices  = cms.InputTag("goodVertices"), 
-    triggerobjects = cms.InputTag("selectedPatTrigger"),
-    triggerResults = cms.InputTag("TriggerResults", "", "HLT"),				   
-    #### Muon information for identification --> pt cut and matching with trigger info				   
-    loosemuisocut  = cms.double(0.25),
-    tightmuisocut  = cms.double(0.15),
-    tagmuonptcut   = cms.double(22),
-    tagmuonetacut  = cms.double(2.4),
-    tagmuontrigmatchdR = cms.double(0.3),
-    requiremuonhlt = cms.bool(True),
-    tagmuontriggers = tagmuontriggernames,
-    #### Electron information for identification --> pt cut and matching with trigger info
-    tagelectronptcut   = cms.double(35),
-    tagelectronetacut  = cms.double(2.5),
-    tagelectrontrigmatchdR = cms.double(0.3),
-    requireelectronhlt = cms.bool(True),
-    tagelectrontriggers = tagelectrontriggernames,
-    electronvetoid   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
-    electronlooseid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-    electronmediumid = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-    electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
-)
+				   ## probes
+				   muons     = cms.InputTag("probemuons"),     
+				   electrons = cms.InputTag("probeelectrons"), 
+				   photons   = cms.InputTag("slimmedPhotons"), 
+				   ## additional event info
+				   geninfo   = cms.InputTag("generator"),
+				   vertices  = cms.InputTag("goodVertices"), 
+				   ## trigger collections
+				   triggerobjects = cms.InputTag("selectedPatTrigger"),
+				   triggerResults = cms.InputTag("TriggerResults", "", "HLT"),				   
+				   #### Muon information for identification --> pt cut and matching with trigger info				   
+				   loosemuisocut  = cms.double(0.25),
+				   tightmuisocut  = cms.double(0.15),
+				   tagmuonptcut   = cms.double(22),
+				   tagmuonetacut  = cms.double(2.4),
+				   tagmuontrigmatchdR = cms.double(0.3),
+				   requiremuonhlt = cms.bool(True),
+				   tagmuontriggers = tagmuontriggernames,
+				   #### Electron information for identification --> pt cut and matching with trigger info
+				   tagelectronptcut   = cms.double(35),
+				   tagelectronetacut  = cms.double(2.5),
+				   tagelectrontrigmatchdR = cms.double(0.3),
+				   requireelectronhlt = cms.bool(True),
+				   tagelectrontriggers = tagelectrontriggernames,
+				   ### electorn ID
+				   electronvetoid   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
+				   electronlooseid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
+				   electronmediumid = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
+				   electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
+				   ### photon id
+				   photonlooseid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
+				   photonmediumid = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
+				   photontightid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight")    				   
+				   )
 
 if options.isMC:
 	process.probeinfo.requiremuonhlt = cms.bool(False)
@@ -172,72 +184,111 @@ process.tagelectrons = cms.EDFilter("PATElectronSelector",
 
 # Tag and Probe pairs --> invariant mass and charge selection for electorns and muons
 process.muontnp = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("tagmuons@+ probemuons@-"),
-    cut   = cms.string("60 < mass < 120 & charge=0"),
-)
+				 decay = cms.string("tagmuons@+ probemuons@-"),
+				 cut   = cms.string("60 < mass < 120 & charge=0"),
+				 checkCharge = cms.bool(True)
+				 )
 
 process.electrontnp = cms.EDProducer("CandViewShallowCloneCombiner",
-    decay = cms.string("tagelectrons@+ probeelectrons@-"),
-    cut   = cms.string("60 < mass < 120 & charge=0"),
-)
+				     decay = cms.string("tagelectrons@+ probeelectrons@-"),
+				     cut   = cms.string("60 < mass < 120 & charge=0"),
+				     checkCharge = cms.bool(True)
+				     )
+
+process.photontnp = cms.EDProducer("CandViewShallowCloneCombiner",
+				   decay = cms.string("tagelectrons@+ slimmedPhotons@-"),
+				   cut   = cms.string("60 < mass < 120"),
+				   checkCharge = cms.bool(False)
+				   )
 
 # Make the TnP tree --> official tag and probe analyzer
 process.muontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    tagProbePairs = cms.InputTag("muontnp"), ## pairs for Z->ll candidate
-    arbitration   = cms.string("BestMass"),
-    massForArbitration = cms.double(91.186),
-    variables = cms.PSet(
-        pt   = cms.string("pt()"),
-        eta  = cms.string("eta()"),
-        abseta = cms.string("abs(eta())"),
-        phi  = cms.string("phi()"),
-        nvtx = cms.InputTag("probeinfo", "munvtxmap"), ## store nvtx
-        wgt  = cms.InputTag("probeinfo", "muwgtmap")   ## store gen weight
-    ),
-    flags = cms.PSet(
-        pfid      = cms.string("isPFMuon"), ## if is a PF muon
-        hltmu20   = cms.InputTag("probeinfo", "hltmu20muonrefs"),   ## if it belongs to hltmu20
-        hlttkmu20 = cms.InputTag("probeinfo", "hlttkmu20muonrefs"), ## if it belongs to isotk20
-        hltmu22   = cms.InputTag("probeinfo", "hltmu22muonrefs"),   ## if it belongs to hltmu22
-        hlttkmu22 = cms.InputTag("probeinfo", "hlttkmu22muonrefs"), ## if it belongs to isotk22
-        hltmu24   = cms.InputTag("probeinfo", "hltmu24muonrefs"),   ## if it belongs to hltmu22
-        hlttkmu24 = cms.InputTag("probeinfo", "hlttkmu24muonrefs"), ## if it belongs to isotk22
-        hltmu     = cms.InputTag("probeinfo", "hltmumuonrefs"),   ## if it belongs to hltmu22
-        hlttkmu   = cms.InputTag("probeinfo", "hlttkmumuonrefs"), ## if it belongs to isotk22
-        looseid   = cms.InputTag("probeinfo", "loosemuonrefs"),     ## if pass the loose
-        tightid   = cms.InputTag("probeinfo", "tightmuonrefs"),     ## if pass the tight
-    ),
-    isMC = cms.bool(options.isMC)
-)
+				     tagProbePairs = cms.InputTag("muontnp"), ## pairs for Z->ll candidate
+				     arbitration   = cms.string("BestMass"),
+				     massForArbitration = cms.double(91.186),
+				     variables = cms.PSet(
+		pt   = cms.string("pt()"),
+		eta  = cms.string("eta()"),
+		abseta = cms.string("abs(eta())"),
+		phi  = cms.string("phi()"),
+		nvtx = cms.InputTag("probeinfo", "munvtxmap"), ## store nvtx
+		wgt  = cms.InputTag("probeinfo", "muwgtmap")   ## store gen weight
+		),
+				     flags = cms.PSet(
+		pfid      = cms.string("isPFMuon"), ## if is a PF muon
+		hltmu20   = cms.InputTag("probeinfo", "hltmu20muonrefs"),   ## if it belongs to hltmu20
+		hlttkmu20 = cms.InputTag("probeinfo", "hlttkmu20muonrefs"), ## if it belongs to isotk20
+		hltmu22   = cms.InputTag("probeinfo", "hltmu22muonrefs"),   ## if it belongs to hltmu22
+		hlttkmu22 = cms.InputTag("probeinfo", "hlttkmu22muonrefs"), ## if it belongs to isotk22
+		hltmu24   = cms.InputTag("probeinfo", "hltmu24muonrefs"),   ## if it belongs to hltmu22
+		hlttkmu24 = cms.InputTag("probeinfo", "hlttkmu24muonrefs"), ## if it belongs to isotk22
+		hltmu     = cms.InputTag("probeinfo", "hltmumuonrefs"),   ## if it belongs to hltmu22
+		hlttkmu   = cms.InputTag("probeinfo", "hlttkmumuonrefs"), ## if it belongs to isotk22
+		looseid   = cms.InputTag("probeinfo", "loosemuonrefs"),     ## if pass the loose
+		tightid   = cms.InputTag("probeinfo", "tightmuonrefs"),     ## if pass the tight
+		),
+				     isMC = cms.bool(options.isMC)
+				     )
 
 process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
-    tagProbePairs = cms.InputTag("electrontnp"),
-    arbitration   = cms.string("BestMass"),
-    massForArbitration = cms.double(91.186),
-    variables = cms.PSet(
-        pt  = cms.string("pt()"),
-        eta = cms.string("superCluster().eta()"),
-        abseta = cms.string("abs(superCluster().eta())"),
-        phi = cms.string("phi()"),
-        nvtx = cms.InputTag("probeinfo", "elnvtxmap"),
-        wgt  = cms.InputTag("probeinfo", "elwgtmap")
-    ),
-    flags = cms.PSet(
-	hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       
-	hltele25eta2p1wpt = cms.InputTag("probeinfo", "hltele25eta2p1wptightelectronrefs"),       
-	hltele27eta2p1wpl = cms.InputTag("probeinfo", "hltele27eta2p1wplooseelectronrefs"),       
-	hltele27eta2p1wpt = cms.InputTag("probeinfo", "hltele27eta2p1wptightelectronrefs"),       
-	hltele27wpt       = cms.InputTag("probeinfo", "hltele27wptightelectronrefs"),       
-	hltele105 = cms.InputTag("probeinfo", "hltele105electronrefs"),       
-	hltele115 = cms.InputTag("probeinfo", "hltele115electronrefs"),       
-	hltele    = cms.InputTag("probeinfo", "hltelelectronrefs"),       
-        vetoid    = cms.InputTag("probeinfo", "vetoelectronrefs"),
-        looseid   = cms.InputTag("probeinfo", "looseelectronrefs"),
-        mediumid  = cms.InputTag("probeinfo", "mediumelectronrefs"),
-        tightid   = cms.InputTag("probeinfo", "tightelectronrefs"),
-    ),
-    isMC = cms.bool(options.isMC)
-)
+					 tagProbePairs = cms.InputTag("electrontnp"),
+					 arbitration   = cms.string("BestMass"),
+					 massForArbitration = cms.double(91.186),
+					 variables = cms.PSet(
+		pt  = cms.string("pt()"),
+		eta = cms.string("superCluster().eta()"),
+		abseta = cms.string("abs(superCluster().eta())"),
+		phi = cms.string("phi()"),
+		nvtx = cms.InputTag("probeinfo", "elnvtxmap"),
+		wgt  = cms.InputTag("probeinfo", "elwgtmap")
+		),
+					 flags = cms.PSet(
+		hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       
+		hltele25eta2p1wpt = cms.InputTag("probeinfo", "hltele25eta2p1wptightelectronrefs"),       
+		hltele27eta2p1wpl = cms.InputTag("probeinfo", "hltele27eta2p1wplooseelectronrefs"),       
+		hltele27eta2p1wpt = cms.InputTag("probeinfo", "hltele27eta2p1wptightelectronrefs"),       
+		hltele27wpt       = cms.InputTag("probeinfo", "hltele27wptightelectronrefs"),       
+		hltele105 = cms.InputTag("probeinfo", "hltele105electronrefs"),       
+		hltele115 = cms.InputTag("probeinfo", "hltele115electronrefs"),       
+		hltele    = cms.InputTag("probeinfo", "hltelelectronrefs"),       
+		vetoid    = cms.InputTag("probeinfo", "vetoelectronrefs"),
+		looseid   = cms.InputTag("probeinfo", "looseelectronrefs"),
+		mediumid  = cms.InputTag("probeinfo", "mediumelectronrefs"),
+		tightid   = cms.InputTag("probeinfo", "tightelectronrefs"),
+		),
+					 isMC = cms.bool(options.isMC)
+					 )
+
+
+process.photontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
+				       tagProbePairs = cms.InputTag("photontnp"),
+				       arbitration   = cms.string("BestMass"),
+				       massForArbitration = cms.double(91.186),
+				       variables = cms.PSet(
+		pt  = cms.string("pt()"),
+		eta = cms.string("superCluster().eta()"),
+		abseta = cms.string("abs(superCluster().eta())"),
+		phi = cms.string("phi()"),
+		nvtx = cms.InputTag("probeinfo", "phnvtxmap"),
+		wgt  = cms.InputTag("probeinfo", "phwgtmap")
+		),
+				       flags = cms.PSet(
+		hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       
+		hltele25eta2p1wpt = cms.InputTag("probeinfo", "hltele25eta2p1wptightelectronrefs"),       
+		hltele27eta2p1wpl = cms.InputTag("probeinfo", "hltele27eta2p1wplooseelectronrefs"),       
+		hltele27eta2p1wpt = cms.InputTag("probeinfo", "hltele27eta2p1wptightelectronrefs"),       
+		hltele27wpt       = cms.InputTag("probeinfo", "hltele27wptightelectronrefs"),       
+		hltele105 = cms.InputTag("probeinfo", "hltele105electronrefs"),       
+		hltele115 = cms.InputTag("probeinfo", "hltele115electronrefs"),       
+		hltele    = cms.InputTag("probeinfo", "hltelelectronrefs"),       
+		looseid   = cms.InputTag("probeinfo", "loosephotonrefs"),
+		mediumid  = cms.InputTag("probeinfo", "mediumphotonrefs"),
+		tightid   = cms.InputTag("probeinfo", "tightphotonrefs"),
+		),
+				       isMC = cms.bool(options.isMC)
+				       )
+
+
 
 # MC Truth Matching
 if options.isMC : 
@@ -273,6 +324,14 @@ if options.isMC :
         checkCharge = cms.bool(True)
     )
 
+    process.mcphprobematch = cms.EDProducer("MCTruthDeltaRMatcherNew",
+        matchPDGId  = cms.vint32(11),
+        src         = cms.InputTag("slimmedPhotons"),
+        distMin     = cms.double(0.1),
+        matched     = cms.InputTag("prunedGenParticles"),
+        checkCharge = cms.bool(False)
+    )
+
     #### muon gen info
     process.muontnptree.tagMatches   = cms.InputTag("mcmutagmatch")
     process.muontnptree.probeMatches = cms.InputTag("mcmuprobematch")
@@ -288,5 +347,16 @@ if options.isMC :
     process.electrontnptree.checkMotherInUnbiasEff = cms.bool(True)
     process.electrontnptree.allProbes = cms.InputTag("probeelectrons")
 
+    process.photontnptree.tagMatches = cms.InputTag("mceltagmatch")
+    process.photontnptree.probeMatches = cms.InputTag("mcphprobematch")
+    process.photontnptree.motherPdgId = cms.int32(23)
+    process.photontnptree.makeMCUnbiasTree = cms.bool(True)
+    process.photontnptree.checkMotherInUnbiasEff = cms.bool(True)
+    process.photontnptree.allProbes = cms.InputTag("slimmedPhotons")
+
 process.muonPath = cms.Path(process.muontnp*process.muontnptree)
 process.electronPath = cms.Path(process.electrontnp*process.electrontnptree)
+process.photonPath = cms.Path(process.photontnp*process.photontnptree)
+
+processDumpFile = open('processDump.py', 'w')
+print >> processDumpFile, process.dumpPython()

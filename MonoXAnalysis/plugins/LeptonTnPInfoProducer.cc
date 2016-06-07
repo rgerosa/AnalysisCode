@@ -13,6 +13,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -38,14 +39,21 @@ private:
 
   const edm::EDGetTokenT<GenEventInfoProduct>         geninfoToken;
   const edm::EDGetTokenT<std::vector<reco::Vertex> >  verticesToken;
-  const edm::EDGetTokenT<std::vector<pat::Muon> >     muonsToken;
-  const edm::EDGetTokenT<std::vector<pat::Electron> > electronsToken;
+  const edm::EDGetTokenT<pat::MuonCollection>     muonsToken;
+  const edm::EDGetTokenT<pat::ElectronCollection> electronsToken;
+  const edm::EDGetTokenT<pat::PhotonCollection>   photonsToken;
+
   const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
   const edm::EDGetTokenT<edm::TriggerResults>  triggerResultsToken;
+
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
+
+  const edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > photonTightIdMapToken;
 
   const double loosemuisocut;
   const double tightmuisocut;
@@ -64,14 +72,18 @@ private:
 LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig): 
     geninfoToken(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("geninfo"))),
     verticesToken(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
-    muonsToken(consumes<std::vector<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muons"))),
-    electronsToken(consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electrons"))),
+    muonsToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    electronsToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    photonsToken(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     triggerObjectsToken(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerobjects"))),
     triggerResultsToken(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
     electronVetoIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronvetoid"))),
     electronLooseIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronlooseid"))),
     electronMediumIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmediumid"))),
     electronTightIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electrontightid"))),
+    photonLooseIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonlooseid"))),
+    photonMediumIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmediumid"))),
+    photonTightIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photontightid"))),
     loosemuisocut(iConfig.getParameter<double>("loosemuisocut")),
     tightmuisocut(iConfig.getParameter<double>("tightmuisocut")),
     tagmuonptcut(iConfig.getParameter<double>("tagmuonptcut")),
@@ -108,6 +120,8 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   /// same logic also for electrons
   produces<edm::ValueMap<float> >("elnvtxmap");
   produces<edm::ValueMap<float> >("elwgtmap");
+  produces<edm::ValueMap<float> >("phnvtxmap");
+  produces<edm::ValueMap<float> >("phwgtmap");
 
   // Map for electron trigger
   produces<pat::ElectronRefVector>("hltele24eta2p1wplooseelectronrefs");
@@ -125,6 +139,11 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::ElectronRefVector>("mediumelectronrefs");
   produces<pat::ElectronRefVector>("tightelectronrefs");
   produces<pat::ElectronCollection>("tightelectrons");
+
+  produces<pat::PhotonRefVector>("loosephotonrefs");
+  produces<pat::PhotonRefVector>("mediumphotonrefs");
+  produces<pat::PhotonRefVector>("tightphotonrefs");
+
 }
 
 
@@ -143,12 +162,15 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   Handle<std::vector<reco::Vertex> > verticesH;
   iEvent.getByToken(verticesToken, verticesH);
   
-  Handle<std::vector<pat::Muon> > muonsH;
+  Handle<pat::MuonCollection> muonsH;
   iEvent.getByToken(muonsToken, muonsH);
   
-  Handle<std::vector<pat::Electron> > electronsH;
+  Handle<pat::ElectronCollection> electronsH;
   iEvent.getByToken(electronsToken, electronsH);
-  
+
+  Handle<pat::PhotonCollection> photonsH;
+  iEvent.getByToken(photonsToken, photonsH);
+
   Handle<pat::TriggerObjectStandAloneCollection> triggerObjectsH;
   iEvent.getByToken(triggerObjectsToken, triggerObjectsH);
   
@@ -166,6 +188,15 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   Handle<edm::ValueMap<bool> > electronTightIdH;
   iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
+
+  Handle<edm::ValueMap<bool> > photonLooseIdH;
+  iEvent.getByToken(photonLooseIdMapToken, photonLooseIdH);
+  
+  Handle<edm::ValueMap<bool> > photonMediumIdH;
+  iEvent.getByToken(photonMediumIdMapToken, photonMediumIdH);
+  
+  Handle<edm::ValueMap<bool> > photonTightIdH;
+  iEvent.getByToken(photonTightIdMapToken, photonTightIdH);
 
   // output collection
   std::auto_ptr<edm::ValueMap<float> > outputmunvtxmap(new ValueMap<float>());
@@ -186,6 +217,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   std::auto_ptr<edm::ValueMap<float> > outputelnvtxmap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputelwgtmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputphnvtxmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputphwgtmap(new ValueMap<float>());
   // single ele trigger info
   std::auto_ptr<pat::ElectronRefVector> outputhltele24eta2p1wplooseelectronrefs (new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputhltele25eta2p1wptightelectronrefs (new pat::ElectronRefVector);
@@ -201,6 +234,11 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<pat::ElectronRefVector> outputmediumelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputtightelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronCollection> outputtightelectrons(new pat::ElectronCollection);
+  //photon id
+  std::auto_ptr<pat::PhotonRefVector> outputloosephotonrefs(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonRefVector> outputmediumphotonrefs(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonRefVector> outputtightphotonrefs(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonCollection> outputtightphotons(new pat::PhotonCollection);
   
   // event weight
   float wgt = 1.0;
@@ -277,7 +315,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       outputhltmu22muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu22
     if (verticesH->size() != 0 && hltisotkmu22matched) 
-    outputhlttkmu22muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+      outputhlttkmu22muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to mu24
     if (verticesH->size() != 0 && hltisomu24matched) 
       outputhltmu24muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
@@ -290,7 +328,6 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // matched to IsoMu20 || IsoMu22 || IsoMu24
     if (verticesH->size() != 0 && hltisotkmumatched) 
       outputhlttkmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-    
 
     // Loose muons
     if (verticesH->size() != 0 && muon::isLooseMuon(*muons_iter) && isoval <= loosemuisocut) 
@@ -307,10 +344,11 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     munvtxvector.push_back(float(verticesH->size()));
     muwgtvector.push_back(wgt);
   }
-
+  
   // electron part  
   vector<float> elnvtxvector;
   vector<float> elwgtvector;
+
   for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
     const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
 
@@ -393,7 +431,26 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     elnvtxvector.push_back(float(verticesH->size()));
     elwgtvector.push_back(wgt);
   }
-  
+
+  // photon part  
+  vector<float> phnvtxvector;
+  vector<float> phwgtvector;
+  for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
+    const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
+
+    phnvtxvector.push_back(float(verticesH->size()));
+    phwgtvector.push_back(wgt);
+
+    // loose photons
+    if (verticesH->size() != 0 && (*photonLooseIdH) [photonPtr]) 
+      outputloosephotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+    // medium photons
+    if (verticesH->size() != 0 && (*photonMediumIdH)[photonPtr]) 
+      outputmediumphotonrefs->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+    // tight photons
+    if (verticesH->size() != 0 && (*photonTightIdH) [photonPtr]) 
+      outputtightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+  }
   edm::ValueMap<float>::Filler munvtxfiller(*outputmunvtxmap);
   munvtxfiller.insert(muonsH, munvtxvector.begin(), munvtxvector.end());
   munvtxfiller.fill();
@@ -409,6 +466,14 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::ValueMap<float>::Filler elwgtfiller(*outputelwgtmap);
   elwgtfiller.insert(electronsH, elwgtvector.begin(), elwgtvector.end());
   elwgtfiller.fill();
+
+  edm::ValueMap<float>::Filler phnvtxfiller(*outputphnvtxmap);
+  phnvtxfiller.insert(photonsH, phnvtxvector.begin(), phnvtxvector.end());
+  phnvtxfiller.fill();
+  
+  edm::ValueMap<float>::Filler phwgtfiller(*outputphwgtmap);
+  phwgtfiller.insert(photonsH, phwgtvector.begin(), phwgtvector.end());
+  phwgtfiller.fill();
   
   iEvent.put(outputmunvtxmap,"munvtxmap");
   iEvent.put(outputmuwgtmap, "muwgtmap");
@@ -428,6 +493,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   iEvent.put(outputelnvtxmap, "elnvtxmap");
   iEvent.put(outputelwgtmap,  "elwgtmap");
+  iEvent.put(outputphnvtxmap, "phnvtxmap");
+  iEvent.put(outputphwgtmap,  "phwgtmap");
 
   // single ele trigger info                                                                                                                                                   
   iEvent.put(outputhltele24eta2p1wplooseelectronrefs,"hltele24eta2p1wplooseelectronrefs");
@@ -444,6 +511,11 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(outputmediumelectronrefs,"mediumelectronrefs");
   iEvent.put(outputtightelectronrefs, "tightelectronrefs");
   iEvent.put(outputtightelectrons,    "tightelectrons");
+
+  //photon id                                                                                                                                                                
+  iEvent.put(outputloosephotonrefs, "loosephotonrefs");
+  iEvent.put(outputmediumphotonrefs,"mediumphotonrefs");
+  iEvent.put(outputtightphotonrefs, "tightphotonrefs");
 }
 
 void LeptonTnPInfoProducer::beginJob() {
