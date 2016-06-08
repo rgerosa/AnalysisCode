@@ -27,7 +27,7 @@ options.register(
 
 options.register(
     'leptonPID',11,VarParsing.multiplicity.singleton,VarParsing.varType.int,
-    '11 means electrons, 13 means muons');
+    '11 means electrons, 13 means muons, 22 photon');
 
 #### binning definition
 options.register(
@@ -72,6 +72,8 @@ if options.leptonPID == 13:
     dirName = "muontnptree";
 elif options.leptonPID == 11:
     dirName = "electrontnptree";
+elif options.leptonPID == 22:
+    dirName = "photontnptree";    
 else:
     sys.exit('Lepton type not recognized --> return');
 
@@ -115,7 +117,10 @@ if options.leptonPID == 11:
         sys.exit('For electrons only vetoid or tightid are accepted --> you are parsing a wrong a id type --> return');
 elif options.leptonPID ==13:
     if options.typeID != "looseid" and options.typeID != "tightid":
-        sys.exit('For muons only vetoid or tightid are accepted --> you are parsing a wrong a id type --> return');
+        sys.exit('For muons only looseid or tightid are accepted --> you are parsing a wrong a id type --> return');
+elif options.leptonPID ==22:
+    if options.typeID != "looseid" and options.typeID != "tightid" and options.typeID != "mediumid":
+        sys.exit('For photons only looseid or mediumid or tightid are accepted --> you are parsing a wrong a id type --> return');
  
 if not os.path.isfile(options.templateFile):
     sys.exit('Template file not found --> please check --> return');
@@ -124,8 +129,11 @@ if not os.path.isfile(options.templateFile):
 postfix = "";
 if options.leptonPID == 11:
     postfix = "electron";
-else:
+elif options.leptonPID == 13:
     postfix = "muon";
+elif options.leptonPID == 22:
+    postfix = "photon";
+
 postfix += "_"+options.typeID+"_pt_"+str(options.ptMin)+"_"+str(options.ptMax)+"_eta_"+str(options.etaMin)+"_"+str(options.etaMax);
 
 if options.isMC : 
@@ -215,6 +223,8 @@ elif options.typeID == "vetoid":
     process.leptonIdTnP.Categories.vetoid = cms.vstring("Veto ID", "dummy[pass=1,fail=0]");
 elif options.typeID == "tightid":
     process.leptonIdTnP.Categories.tightid = cms.vstring("Tight ID", "dummy[pass=1,fail=0]");
+elif options.typeID == "mediumid":
+    process.leptonIdTnP.Categories.mediumid = cms.vstring("Medium ID", "dummy[pass=1,fail=0]");
 
 if options.backgroundType == "RooCMSShape":
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("RooCMSShape::backgroundPass(mass, alphaPass[80.,60.,100.], betaPass[0.105, 0.,1.0], gammaPass[0.033, -0.1, 0.1], peakPass[91.2, 90, 92])");

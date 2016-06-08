@@ -377,7 +377,7 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
 
   TGaxis::SetMaxDigits(3);
 
-  if(typeID != "looseid" and typeID != "tightid" and typeID != "vetoid"){
+  if(typeID != "looseid" and typeID != "tightid" and typeID != "vetoid" and typeID != "mediumid"){
     cerr<<"typeID is not valid --> please check --> return"<<endl;
     return;
   }

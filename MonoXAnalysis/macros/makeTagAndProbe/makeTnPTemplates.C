@@ -177,9 +177,9 @@ void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR) {
   else if (leptonType == "photon"){
     for(size_t ipt = 0; ipt < ptBinPhoton.size()-1; ipt++){
       for(size_t ieta = 0; ieta < etaBinPhoton.size()-1; ieta++){
-	string idName = "vetoid";
+	string idName = "looseid";
 	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));    	
-	idName = "tightid";
+	idName = "mediumid";
 	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));
       }
     }     
