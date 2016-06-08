@@ -2,13 +2,15 @@
 
 vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,200};
 vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,70.,100,200};
-vector<float> etaBinMuon     = {0.,1.2,2.4};
-vector<float> etaBinElectron = {0.,1.5,2.5};
+vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,70.,100,125,200};
+vector<float> etaBinMuon     = {-2.4,-1.2,1.2,2.4};
+vector<float> etaBinElectron = {-2.5,-1.5,1.5,2.5};
+vector<float> etaBinPhoton   = {-2.5,-1.5,1.5,2.5};
 
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
-		  const bool   & isMuon, 
+		  const string & leptonType, 
 		  const string & outputDIR, 
 		  const string & idName,
 		  const float  & ptMin,
@@ -21,10 +23,12 @@ void maketemplate(const string & inputDIR,
 		  float xmax  = 115) {
 
   TChain* inputMC = NULL;
-  if(isMuon)
+  if(leptonType == "muon")
     inputMC = new TChain("muontnptree/fitter_tree");
-  else
+  else if(leptonType == "electron")
     inputMC = new TChain("electrontnptree/fitter_tree");
+  else if(leptonType == "photon")
+    inputMC = new TChain("photontnptree/fitter_tree");
 
   inputMC->Add((inputDIR+"/*root").c_str());
   
@@ -39,9 +43,9 @@ void maketemplate(const string & inputDIR,
   TTreeReaderValue<float> pt   (reader, "pt");
   TTreeReaderValue<float> nvtx (reader, "nvtx");
   TTreeReaderValue<float> wgt  (reader, "wgt");
-  TTreeReaderValue<int> id   (reader, idName.c_str());
-  TTreeReaderValue<int> mcTrue  (reader, "mcTrue");
-  TTreeReaderValue<float>    mcMass  (reader, "mcMass");
+  TTreeReaderValue<int>   id   (reader, idName.c_str());
+  TTreeReaderValue<int>   mcTrue (reader, "mcTrue");
+  TTreeReaderValue<float> mcMass (reader, "mcMass");
 
   TH1F hpass("hpass", "", nbins, xmin, xmax);
   TH1F hfail("hfail", "", nbins, xmin, xmax);
@@ -69,8 +73,7 @@ void maketemplate(const string & inputDIR,
 
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;
-    if(not isMuon and fabs(*eta) > 1.442 and fabs(*eta) < 1.566) continue;
+    if(*eta < etaMin or *eta > etaMax) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds
     if(not *mcTrue) continue;
     if (*id == 0) hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);
@@ -95,12 +98,7 @@ void maketemplate(const string & inputDIR,
   }
   
   // Build the RooHistPdf  
-  string fileName = "";
-  if(isMuon)
-    fileName = "template_TaP_muon_"+idName+"_pt_"+string(Form("%.1f",ptMin))+"_"+string(Form("%.1f",ptMax))+"_eta_"+string(Form("%.1f",etaMin))+"_"+string(Form("%.1f",etaMax));
-  else
-    fileName = "template_TaP_electron_"+idName+"_pt_"+string(Form("%.1f",ptMin))+"_"+string(Form("%.1f",ptMax))+"_eta_"+string(Form("%.1f",etaMin))+"_"+string(Form("%.1f",etaMax));
-
+  string fileName = "template_TaP_"+leptonType+"_"+idName+"_pt_"+string(Form("%.1f",ptMin))+"_"+string(Form("%.1f",ptMax))+"_eta_"+string(Form("%.1f",etaMin))+"_"+string(Form("%.1f",etaMax));
   TFile outfile((outputDIR+"/"+fileName+".root").c_str(), "RECREATE");
   hr.Write("efficiency");
 
@@ -143,32 +141,47 @@ void maketemplate(const string & inputDIR,
   c1->SaveAs((outputDIR+"/"+fileName+".pdf").c_str(),"pdf");
 }
 
-void makeTnPTemplates(string inputDIR, bool isMuon, string outputDIR) {
+void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR) {
 
   gROOT->SetBatch(kTRUE);
   system(("mkdir -p "+outputDIR).c_str());
-
   setTDRStyle();
+
+  if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
+    cerr<<"Problem with the lepton type : muon or electron or photons --> return "<<endl;
+    return;
+  }
+    
   
-  if(isMuon){
+  if(leptonType == "muon"){
     for(size_t ipt = 0; ipt < ptBinMuon.size()-1; ipt++){
       for(size_t ieta = 0; ieta < etaBinMuon.size()-1; ieta++){
 	string idName = "looseid";
-	maketemplate(inputDIR, isMuon, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);    
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);    
 	idName = "tightid";
-	maketemplate(inputDIR, isMuon, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);
 
       }
     }
   }
-  else{
+  else if(leptonType == "electron"){
     for(size_t ipt = 0; ipt < ptBinElectron.size()-1; ipt++){
       for(size_t ieta = 0; ieta < etaBinElectron.size()-1; ieta++){
 	string idName = "vetoid";
-	maketemplate(inputDIR, isMuon, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));    	
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));    	
 	idName = "tightid";
-	maketemplate(inputDIR, isMuon, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));
       }
-    }
+    } 
+  }
+  else if (leptonType == "photon"){
+    for(size_t ipt = 0; ipt < ptBinPhoton.size()-1; ipt++){
+      for(size_t ieta = 0; ieta < etaBinPhoton.size()-1; ieta++){
+	string idName = "vetoid";
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));    	
+	idName = "tightid";
+	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));
+      }
+    }     
   }
 }
