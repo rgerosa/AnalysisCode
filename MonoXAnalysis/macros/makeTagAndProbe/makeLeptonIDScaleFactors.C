@@ -9,31 +9,32 @@ vector<TH1*> projectionSF_Exp;
 map<string,TFile*> tagAndProbeFits_RooCMSShape;
 map<string,TFile*> tagAndProbeFits_Exp;
 
-void fillEfficiencyMC(TH2F* efficiency, const string & directory, const bool & isMuon, const string & typeID){
+void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID){
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
   TFile* inputFile = NULL;
-  string leptonName = "";
   vector<float> ptBin;
   vector<float> etaBin;
   
-  if(isMuon){
-    leptonName = "muon";
+  if(leptonType == "muon"){
     ptBin  = ptBinMuon;
     etaBin = etaBinMuon;
   }
-  else{
-    leptonName = "electron";
+  else if(leptonType == "electron"){
     ptBin = ptBinElectron;
     etaBin = etaBinElectron;
+  }
+  else if(leptonType == "photon"){
+    ptBin = ptBinPhoton;
+    etaBin = etaBinPhoton;
   }
    
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
-        system(("ls "+directory+" | grep root | grep "+leptonName+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" > file"+leptonName).c_str());
+        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" > file"+leptonType).c_str());
         ifstream file;
-        file.open(("file"+leptonName).c_str());
+        file.open(("file"+leptonType).c_str());
 	int nFiles = 0;
 	string name;
 	if(file.is_open()){
@@ -46,7 +47,7 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const bool & i
 	  }
 	}
 	file.close();
-	system(("rm file"+leptonName).c_str());
+	system(("rm file"+leptonType).c_str());
 	if(nFiles != 1){
           cerr<<" find not found -->check please"<<endl;
 	}
@@ -62,31 +63,32 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const bool & i
 }
 
 // Fill efficiency from Data
-void fillEfficiencyData(TH2F* efficiency, const string & directory, const bool & isMuon, const string & typeID, const string & postfix = "RooCMSShape"){
+void fillEfficiencyData(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID, const string & postfix = "RooCMSShape"){
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
   TFile* inputFile = NULL;
-  string leptonName = "";
   vector<float> ptBin;
   vector<float> etaBin;
   
-  if(isMuon){
-    leptonName = "muon";
+  if(leptonType == "muon"){
     ptBin  = ptBinMuon;
     etaBin = etaBinMuon;
   }
-  else{
-    leptonName = "electron";
-    ptBin  = ptBinElectron;
+  else if(leptonType == "electron"){
+    ptBin = ptBinElectron;
     etaBin = etaBinElectron;
+  }
+  else if(leptonType == "photon"){
+    ptBin = ptBinPhoton;
+    etaBin = etaBinPhoton;
   }
    
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
-        system(("ls "+directory+" | grep root | grep "+leptonName+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" | grep "+postfix+" > file"+leptonName).c_str());
+        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" | grep "+postfix+" > file"+leptonType).c_str());
         ifstream file;
-        file.open(("file"+leptonName).c_str());
+        file.open(("file"+leptonType).c_str());
 	int nFiles = 0;
 	string name;
 	if(file.is_open()){
@@ -99,7 +101,7 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const bool &
 	  }
 	}
 	file.close();
-	system(("rm file"+leptonName).c_str());
+	system(("rm file"+leptonType).c_str());
 	if(nFiles != 1){
           cerr<<" find not found -->check please"<<endl;
 	}
@@ -121,25 +123,33 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const bool &
 }
 
 // plot efficiency
-void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & outputDIR, const bool & isMuon, const float & lumi, const bool & isMC, const bool & isScaleFactor){
+void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & outputDIR, const string & leptonType, const float & lumi, const bool & isMC, const bool & isScaleFactor){
 
   canvas->SetRightMargin(0.20);
   canvas->SetLeftMargin(0.12);
   
-  if(isMuon){
+  if(leptonType == "muon"){
     histoEfficiency->GetXaxis()->SetTitle("Muon p_{T} (GeV)");
     histoEfficiency->GetXaxis()->SetTitleOffset(1.1);
     histoEfficiency->GetYaxis()->SetTitle("Muon |#eta|");
     histoEfficiency->GetYaxis()->SetTitleOffset(1.1);
   }
-  else{
+  else if(leptonType == "electron"){
     histoEfficiency->GetXaxis()->SetTitle("Electron p_{T} (GeV)");
     histoEfficiency->GetXaxis()->SetTitleOffset(1.1);
     histoEfficiency->GetYaxis()->SetTitle("Electron |#eta|");
     histoEfficiency->GetYaxis()->SetTitleOffset(1.1);
   }
-  if(not isScaleFactor)
+  else if(leptonType == "photon"){
+    histoEfficiency->GetXaxis()->SetTitle("Photon p_{T} (GeV)");
+    histoEfficiency->GetXaxis()->SetTitleOffset(1.1);
+    histoEfficiency->GetYaxis()->SetTitle("Photon |#eta|");
+    histoEfficiency->GetYaxis()->SetTitleOffset(1.1);
+  }
+  if(not isScaleFactor and leptonType != "photon")
     histoEfficiency->GetZaxis()->SetTitle("Efficiency Lepton ID");
+  else if(not isScaleFactor and leptonType == "photon")
+    histoEfficiency->GetZaxis()->SetTitle("Efficiency Photon ID");
   else
     histoEfficiency->GetZaxis()->SetTitle("ScaleFactor");
 
@@ -161,7 +171,7 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
   for(int iBinY = 0; iBinY < histoEfficiency->GetNbinsY(); iBinY++){
     TH1F* projection_pt = new TH1F((string(histoEfficiency->GetName())+"pt_projection_eta_"+to_string(iBinY)).c_str(),"",histoEfficiency->GetXaxis()->GetXbins()->GetSize()-1,histoEfficiency->GetXaxis()->GetXbins()->GetArray());
     TF1*  fitfunc = new TF1(("fitfunc_"+to_string(iBinY)).c_str(), ErfCB, 0, 200, 5);
-    if(not isMuon)
+    if(leptonType == "electron" or leptonType == "photon")
       fitfunc->SetParameters(22., 5., 10., 2., 1.);
     else
       fitfunc->SetParameters(16., 5., 10., 2., 1.);
@@ -172,13 +182,17 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
       projection_pt->SetBinError(iBinX+1,histoEfficiency->GetBinError(iBinX+1,iBinY+1));
     }
     
-    if(not isMuon)
+    if(leptonType == "electron")
       projection_pt->GetXaxis()->SetTitle("Electron p_{T} [GeV]");
-    else
+    else if(leptonType == "muon")
       projection_pt->GetXaxis()->SetTitle("Muon p_{T} [GeV]");
-    
-    if(not isScaleFactor)
+    else if(leptonType == "photon")
+      projection_pt->GetXaxis()->SetTitle("Photon p_{T} [GeV]");
+
+    if(not isScaleFactor and leptonType != "photon")
       projection_pt->GetYaxis()->SetTitle("Efficiency Lepton ID");
+    else if(not isScaleFactor and leptonType == "photon")
+      projection_pt->GetYaxis()->SetTitle("Efficiency Photon ID");
     else
       projection_pt->GetYaxis()->SetTitle("Scale Factor");
 
@@ -322,6 +336,21 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     CMS_lumi(pad2,string(Form("%.2f",lumi)),true);    
     canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
+    
+    delete dataPass;
+    delete dataFail;
+    delete framePass;
+    delete frameFail;
+    delete nBkgFail;
+    delete nSignalFail;
+    delete nBkgPass;
+    delete nSignalPass;
+    delete backgroundFail;
+    delete backgroundPass;
+    delete pdfPass;
+    delete pdfFail;
+    delete mass;
+    delete data;
   }    
 }
 
@@ -329,12 +358,16 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
 /// mkae scale factor for lepton ID
 void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with root files with tag and probe results
 			      string inputTagAndProbeTemplateDIR, // input directory with templates and efficiencies extracted from the MC
-			      bool   isMuon, // muons or electrons
+			      string leptonType, // muons or electrons
 			      string typeID, // id type: looseid, tightid, vetoid ..
 			      string outputDIR, // where plots and root files with 2D scale factors are stored,
-			      float  lumi = 0.59
+			      float  lumi = 0.86
 			      ){
 
+  if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
+    cerr<<"Wrong lepton type --> electron, muon or photon --> return "<<endl;
+    return;
+  }
 
   // start wit the MC
   system(("mkdir -p "+outputDIR).c_str());
@@ -352,18 +385,20 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   /// fill the vector for tag and probe templates
   cout<<"Run MC efficiency "<<endl;
   TH2F* histoEfficiencyMC = NULL;  
-  if(isMuon)
+  if(leptonType == "muon")
     histoEfficiencyMC = new TH2F(("efficiencyMC_muon_"+typeID).c_str(),"",ptBinMuon.size()-1,&ptBinMuon[0],etaBinMuon.size()-1,&etaBinMuon[0]); 
-  else
+  else if(leptonType == "electron")
     histoEfficiencyMC = new TH2F(("efficiencyMC_electron_"+typeID).c_str(),"",ptBinElectron.size()-1,&ptBinElectron[0],etaBinElectron.size()-1,&etaBinElectron[0]); 
+  else if(leptonType == "photon")
+    histoEfficiencyMC = new TH2F(("efficiencyMC_photon_"+typeID).c_str(),"",ptBinPhoton.size()-1,&ptBinPhoton[0],etaBinPhoton.size()-1,&etaBinPhoton[0]); 
   // fill histo
   histoEfficiencyMC->Sumw2();
-  fillEfficiencyMC(histoEfficiencyMC,inputTagAndProbeTemplateDIR,isMuon,typeID);
+  fillEfficiencyMC(histoEfficiencyMC,inputTagAndProbeTemplateDIR,leptonType,typeID);
 
   TCanvas* canvas = new TCanvas("canvas","",625,600);
   canvas->cd();
 
-  plotEfficiency(canvas,histoEfficiencyMC,outputDIR,isMuon,lumi,true,false);
+  plotEfficiency(canvas,histoEfficiencyMC,outputDIR,leptonType,lumi,true,false);
 
   cout<<"End MC efficiency "<<endl;
 
@@ -372,22 +407,27 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   TH2F* histoEfficiencyDATA_RooCMShape = NULL;
   TH2F* histoEfficiencyDATA_Exp        = NULL;
 
-  if(isMuon){
+  if(leptonType == "muon"){
     histoEfficiencyDATA_RooCMShape = new TH2F(("efficiencyDATA_muon_"+typeID+"_RooCMSShape").c_str(),"",ptBinMuon.size()-1,&ptBinMuon[0],etaBinMuon.size()-1,&etaBinMuon[0]);
     histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_muon_"+typeID+"_Exp").c_str(),"",ptBinMuon.size()-1,&ptBinMuon[0],etaBinMuon.size()-1,&etaBinMuon[0]);
   }
-  else{
+  else if(leptonType == "electron"){
     histoEfficiencyDATA_RooCMShape = new TH2F(("efficiencyDATA_electron_"+typeID+"_RooCMSShape").c_str(),"",ptBinElectron.size()-1,&ptBinElectron[0],etaBinElectron.size()-1,&etaBinElectron[0]);
     histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_electron_"+typeID+"_Exp").c_str(),"",ptBinElectron.size()-1,&ptBinElectron[0],etaBinElectron.size()-1,&etaBinElectron[0]);
   }
+  else if(leptonType == "photon"){
+    histoEfficiencyDATA_RooCMShape = new TH2F(("efficiencyDATA_photon_"+typeID+"_RooCMSShape").c_str(),"",ptBinPhoton.size()-1,&ptBinPhoton[0],etaBinPhoton.size()-1,&etaBinPhoton[0]);
+    histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_photon_"+typeID+"_Exp").c_str(),"",ptBinPhoton.size()-1,&ptBinPhoton[0],etaBinPhoton.size()-1,&etaBinPhoton[0]);
+  }
+
   histoEfficiencyDATA_RooCMShape->Sumw2();
   histoEfficiencyDATA_Exp->Sumw2();
   // fill histos
-  fillEfficiencyData(histoEfficiencyDATA_RooCMShape,inputTagAndProbeFitDIR,isMuon,typeID,"RooCMSShape");
-  fillEfficiencyData(histoEfficiencyDATA_Exp,inputTagAndProbeFitDIR,isMuon,typeID,"Exp");
+  fillEfficiencyData(histoEfficiencyDATA_RooCMShape,inputTagAndProbeFitDIR,leptonType,typeID,"RooCMSShape");
+  fillEfficiencyData(histoEfficiencyDATA_Exp,inputTagAndProbeFitDIR,leptonType,typeID,"Exp");
   //plot histos
-  plotEfficiency(canvas,histoEfficiencyDATA_RooCMShape,outputDIR,isMuon,lumi,false,false);
-  plotEfficiency(canvas,histoEfficiencyDATA_Exp,outputDIR,isMuon,lumi,false,false);
+  plotEfficiency(canvas,histoEfficiencyDATA_RooCMShape,outputDIR,leptonType,lumi,false,false);
+  plotEfficiency(canvas,histoEfficiencyDATA_Exp,outputDIR,leptonType,lumi,false,false);
   
   cout<<"End Data efficiency "<<endl;
 
@@ -400,8 +440,8 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   histoEfficiencySF_Exp->SetName("histoEfficiencySF_Exp");
   histoEfficiencySF_Exp->Divide(histoEfficiencyMC);
 
-  plotEfficiency(canvas,histoEfficiencySF_RooCMShape,outputDIR,isMuon,lumi,false,true);
-  plotEfficiency(canvas,histoEfficiencySF_Exp,outputDIR,isMuon,lumi,false,true);
+  plotEfficiency(canvas,histoEfficiencySF_RooCMShape,outputDIR,leptonType,lumi,false,true);
+  plotEfficiency(canvas,histoEfficiencySF_Exp,outputDIR,leptonType,lumi,false,true);
 
   TCanvas* can = new TCanvas("can","",600,650);
   can->cd();
@@ -511,12 +551,6 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
       histoEfficiencySF_Exp->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Exp->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Exp->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinY)->GetBinError(iBinX+1)*sysUnc.at(iBinY)->GetBinError(iBinX+1)));      
     }
   }
-
-  string leptonType;
-  if(isMuon)
-    leptonType = "muon";
-  else
-    leptonType = "electron";
 
   TFile* outputScaleFactor = new TFile((outputDIR+"/scaleFactor_"+leptonType+"_"+typeID+".root").c_str(),"RECREATE");
   outputScaleFactor->cd();
