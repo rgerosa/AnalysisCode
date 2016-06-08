@@ -259,7 +259,6 @@ private:
   const double minJetPtCountAK4;
   const double minJetPtBveto;
   const double minJetPtAK4CentralStore;
-  const double minJetPtAK4ForwardStore;
  
   // Jet AK8
   const bool addSubstructureCHS;
@@ -377,44 +376,26 @@ private:
   double puppit1pfmetJetEnUpPhi,puppit1pfmetJetEnDownPhi,puppit1pfmetJetResUpPhi,puppit1pfmetJetResDownPhi;
   double puppit1pfmetUncEnUpPhi,puppit1pfmetUncEnDownPhi,puppit1pfmetJetSmearPhi,puppit1pfmetXYPhi;
 
-  // AK4 CHS jets
-  double leadingjetpt,leadingjeteta,leadingjetphi,leadingjetm; 
+  // AK4CHS combine jet
+  std::vector<double> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA;
+  std::vector<double> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetmetdphi;
+  std::vector<double> combinejetHFlav,combinejetPFlav,combinejetQGL,combinejetPUID, combinejetPassPUID; 
+  std::vector<double> combinejetGenpt,combinejetGeneta,combinejetGenphi,combinejetGenm;
+  std::vector<double> combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown;
+  std::vector<double> combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown;
 
-  // AK4CHS central jet
-  std::vector<double> centraljetpt,centraljeteta,centraljetphi,centraljetm,centraljetbtag,centraljetbtagMVA;
-  std::vector<double> centraljetCHfrac,centraljetNHfrac,centraljetEMfrac,centraljetCEMfrac,centraljetmetdphi;
-  std::vector<double> centraljetHFlav,centraljetPFlav,centraljetQGL,centraljetPUID, centraljetPassPUID; 
-  std::vector<double> centraljetGenpt,centraljetGeneta,centraljetGenphi,centraljetGenm;
-  std::vector<double> centraljetBtagSF,centraljetBtagSFUp,centraljetBtagSFDown;
-  std::vector<double> centraljetBtagMVASF,centraljetBtagMVASFUp,centraljetBtagMVASFDown;
-
-  // AK4CHS forward jet
-  std::vector<double> forwardjetpt,forwardjeteta,forwardjetphi,forwardjetm;
-  std::vector<double> forwardjetCHfrac,forwardjetNHfrac,forwardjetEMfrac,forwardjetCEMfrac,forwardjetmetdphi;
-  std::vector<double> forwardjetHFlav,forwardjetPFlav,forwardjetQGL,forwardjetPUID, forwardjetPassPUID;
-  std::vector<double> forwardjetGenpt,forwardjetGeneta,forwardjetGenphi,forwardjetGenm;
-
-  double jetmetdphimin,incjetmetdphimin,jetmumetdphimin,incjetmumetdphimin,jetelmetdphimin,incjetelmetdphimin,jetphmetdphimin,incjetphmetdphimin,jetjetdphi;
-  double jetmetdphimin4,incjetmetdphimin4,jetmumetdphimin4,incjetmumetdphimin4,jetelmetdphimin4,incjetelmetdphimin4,jetphmetdphimin4,incjetphmetdphimin4,ht; 
+  double incjetmetdphimin,incjetmumetdphimin,incjetelmetdphimin,incjetphmetdphimin,jetjetdphi,ht,htinc,ht30;
+  double incjetmetdphimin4,incjetmumetdphimin4,incjetelmetdphimin4,incjetphmetdphimin4; 
   double alljetmetdphimin,alljetmetdphimin4,alljetmumetdphimin,alljetmumetdphimin4,alljetelmetdphimin,alljetelmetdphimin4,alljetphmetdphimin,alljetphmetdphimin4;
 
-  // Puppijet ak4 puppi
-  double leadingPuppijetpt,leadingPuppijeteta,leadingPuppijetphi,leadingPuppijetm; 
+  // AK4Puppi combine jet
+  std::vector<double> combinePuppijetpt,combinePuppijeteta,combinePuppijetphi,combinePuppijetm,combinePuppijetbtag,combinePuppijetbtagMVA;
+  std::vector<double> combinePuppijetCHfrac,combinePuppijetNHfrac,combinePuppijetEMfrac,combinePuppijetCEMfrac,combinePuppijetmetdphi;
+  std::vector<double> combinePuppijetHFlav,combinePuppijetPFlav,combinePuppijetQGL;
+  std::vector<double> combinePuppijetGenpt,combinePuppijetGeneta,combinePuppijetGenphi,combinePuppijetGenm;
+  std::vector<double> combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown;
+  std::vector<double> combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown;
 
-  // AK4Puppi central jet
-  std::vector<double> centralPuppijetpt,centralPuppijeteta,centralPuppijetphi,centralPuppijetm,centralPuppijetbtag,centralPuppijetbtagMVA;
-  std::vector<double> centralPuppijetCHfrac,centralPuppijetNHfrac,centralPuppijetEMfrac,centralPuppijetCEMfrac,centralPuppijetmetdphi;
-  std::vector<double> centralPuppijetHFlav,centralPuppijetPFlav,centralPuppijetQGL;
-  std::vector<double> centralPuppijetGenpt,centralPuppijetGeneta,centralPuppijetGenphi,centralPuppijetGenm;
-  std::vector<double> centralPuppijetBtagSF,centralPuppijetBtagSFUp,centralPuppijetBtagSFDown;
-  std::vector<double> centralPuppijetBtagMVASF,centralPuppijetBtagMVASFUp,centralPuppijetBtagMVASFDown;
-
-  // AK4Puppi forward Puppijet
-  std::vector<double> forwardPuppijetpt,forwardPuppijeteta,forwardPuppijetphi,forwardPuppijetm,forwardPuppijetbtag;
-  std::vector<double> forwardPuppijetCHfrac,forwardPuppijetNHfrac,forwardPuppijetEMfrac,forwardPuppijetCEMfrac,forwardPuppijetmetdphi;
-  std::vector<double> forwardPuppijetHFlav,forwardPuppijetPFlav,forwardPuppijetQGL;
-  std::vector<double> forwardPuppijetGenpt,forwardPuppijetGeneta,forwardPuppijetGenphi,forwardPuppijetGenm;
-  //
   double Puppijetmetdphimin,incPuppijetmetdphimin,Puppijetmumetdphimin,incPuppijetmumetdphimin,Puppijetelmetdphimin;
   double incPuppijetelmetdphimin,Puppijetphmetdphimin,incPuppijetphmetdphimin,PuppijetPuppijetdphi;
   double Puppijetmetdphimin4,incPuppijetmetdphimin4,Puppijetmumetdphimin4,incPuppijetmumetdphimin4;
@@ -620,7 +601,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   minJetPtCountAK4(iConfig.existsAs<double>("minJetPtCountAK4") ? iConfig.getParameter<double>("minJetPtCountAK4") : 30),
   minJetPtBveto(iConfig.existsAs<double>("minJetPtBveto") ? iConfig.getParameter<double>("minJetPtBveto") : 15),
   minJetPtAK4CentralStore(iConfig.existsAs<double>("minJetPtAK4CentralStore") ? iConfig.getParameter<double>("minJetPtAK4CentralStore") : 20),
-  minJetPtAK4ForwardStore(iConfig.existsAs<double>("minJetPtAK4ForwardStore") ? iConfig.getParameter<double>("minJetPtAK4ForwardStore") : 25), 
   // substructure
   addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
@@ -1445,15 +1425,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
     // AK4 Jet information
-    // find leading jets not overlapping with leptons
-    leadingjetpt  = 0.0;
-    leadingjeteta = 0.0;
-    leadingjetphi = 0.0;
-    leadingjetm   = 0.0;
-
     vector<pat::JetRef> alljets;
     vector<pat::JetRef> incjets;
-    vector<pat::JetRef> forwardjets;
     vector<pat::JetRef> jets;
     if(jetsH.isValid()){      
       for (auto jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
@@ -1492,17 +1465,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	bool passpuid = applyPileupJetID(*jets_iter,pileupjetidwp,false);
 	if (applypileupjetid and !passpuid) continue; 
      
-	if (jets_iter->pt() > leadingjetpt) {
-	  leadingjetpt  = jets_iter->pt() ;
-	  leadingjeteta = jets_iter->eta();
-	  leadingjetphi = jets_iter->phi();
-	  leadingjetm   = jets_iter->mass();
-	}
-	
 	if(jetref.isAvailable() and jetref.isNonnull())
 	  incjets.push_back(jetref);
       }
-    
+   } 
     
       if(incjets.size() > 0) sort(incjets.begin(), incjets.end(), jetSorter);
     
@@ -1510,13 +1476,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (size_t i = 0; i < incjets.size(); i++) {
 	if (fabs(incjets[i]->eta()) <= 2.5) 
 	  jets.push_back(incjets[i]);
-	else
-	  forwardjets.push_back(incjets[i]);
       }        
       
       // sort them in pt
       if(jets.size() > 0)  sort(jets.begin(), jets.end(), jetSorter);
-      if(forwardjets.size() > 0) sort(forwardjets.begin(), forwardjets.end(), jetSorter);
       
       // count central jets    
       njets       = 0;
@@ -1526,14 +1489,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       nbjetsMVA   = 0;
       nbjetsMVAlowpt = 0;
       
-      centraljetpt        .clear(); centraljeteta       .clear(); centraljetphi       .clear(); centraljetbtag      .clear(); centraljetCHfrac    .clear();
-      centraljetNHfrac    .clear(); centraljetEMfrac    .clear(); centraljetCEMfrac   .clear(); centraljetmetdphi   .clear();
-      centraljetHFlav     .clear(); centraljetPFlav     .clear(); centraljetQGL       .clear(); centraljetPUID      .clear();
-      centraljetGenpt     .clear(); centraljetGeneta    .clear(); centraljetGenphi    .clear(); centraljetGenm      .clear(); 
-      centraljetm         .clear(); centraljetbtagMVA   .clear();
-      centraljetBtagSF .clear(); centraljetBtagSFUp .clear(); centraljetBtagSFDown .clear();
-      centraljetBtagMVASF .clear(); centraljetBtagMVASFUp .clear(); centraljetBtagMVASFDown .clear();
-      centraljetPassPUID.clear();
+      combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); combinejetCHfrac    .clear();
+      combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi   .clear();
+      combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
+      combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
+      combinejetm         .clear(); combinejetbtagMVA   .clear();
+      combinejetBtagSF .clear(); combinejetBtagSFUp .clear(); combinejetBtagSFDown .clear();
+      combinejetBtagMVASF .clear(); combinejetBtagMVASFUp .clear(); combinejetBtagMVASFDown .clear();
+      combinejetPassPUID.clear();
 
       for(size_t i = 0; i < incjets.size(); i++){
 	if(incjets[i]->pt() > minJetPtCountAK4) njetsinc++;
@@ -1548,110 +1511,68 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	
 	if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
 	if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
+      }
  
 	// fill collections
-	if (jets[i]->pt() > minJetPtAK4CentralStore){
+      for(size_t i = 0; i < incjets.size(); i++){
+	if (incjets[i]->pt() > minJetPtAK4CentralStore){
 
-	  centraljetpt.push_back(jets[i]->pt());
-	  centraljeteta.push_back(jets[i]->eta());
-	  centraljetphi.push_back(jets[i]->phi());
-	  centraljetm.push_back(jets[i]->mass());
-	  centraljetbtag.push_back(jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-	  centraljetbtagMVA.push_back(jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
-	  centraljetCHfrac  .push_back(jets[i]->chargedHadronEnergyFraction());
-	  centraljetNHfrac  .push_back(jets[i]->neutralHadronEnergyFraction());
-	  centraljetEMfrac  .push_back(jets[i]->neutralEmEnergyFraction());
-	  centraljetCEMfrac .push_back(jets[i]->chargedEmEnergyFraction());
+	  combinejetpt.push_back(incjets[i]->pt());
+	  combinejeteta.push_back(incjets[i]->eta());
+	  combinejetphi.push_back(incjets[i]->phi());
+	  combinejetm.push_back(incjets[i]->mass());
+	  combinejetbtag.push_back(incjets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	  combinejetbtagMVA.push_back(incjets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
+	  combinejetCHfrac  .push_back(incjets[i]->chargedHadronEnergyFraction());
+	  combinejetNHfrac  .push_back(incjets[i]->neutralHadronEnergyFraction());
+	  combinejetEMfrac  .push_back(incjets[i]->neutralEmEnergyFraction());
+	  combinejetCEMfrac .push_back(incjets[i]->chargedEmEnergyFraction());
 	  
-	  if(jets[i]->hasUserFloat("QGTagger:qgLikelihood"))
-	    centraljetQGL   .push_back(jets[i]->userFloat("QGTagger:qgLikelihood")); 
+	  if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
+	    combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
 	  // pileup jet id
-	  if(jets[i]->hasUserFloat("puid:fullDiscriminant"))
-	    centraljetPUID  .push_back(jets[i]->userFloat("puid:fullDiscriminant"));	
+	  if(incjets[i]->hasUserFloat("puid:fullDiscriminant"))
+	    combinejetPUID  .push_back(incjets[i]->userFloat("puid:fullDiscriminant"));	
 	  else
-	    centraljetPUID  .push_back(jets[i]->userFloat("pileupJetId:fullDiscriminant"));
+	    combinejetPUID  .push_back(incjets[i]->userFloat("pileupJetId:fullDiscriminant"));
 
-	  centraljetPassPUID.push_back(applyPileupJetID(*jets[i],pileupjetidwp,false));	  
+	  combinejetPassPUID.push_back(applyPileupJetID(*incjets[i],pileupjetidwp,false));	  
 	  // fill jet met dphi
-	  centraljetmetdphi.push_back(deltaPhi(jets[i]->phi(), t1pfmetphi));
+	  combinejetmetdphi.push_back(deltaPhi(incjets[i]->phi(), t1pfmetphi));
 	  
 	  // MC based info
 	  if(isMC){
-	    centraljetHFlav.push_back(jets[i]->hadronFlavour()); 
-	    centraljetPFlav.push_back(jets[i]->partonFlavour()); 
-	    if(jets[i]->genJet()){
-	      centraljetGenpt.push_back(jets[i]->genJet()->pt()); 
-	      centraljetGeneta.push_back(jets[i]->genJet()->eta()); 
-	      centraljetGenphi.push_back(jets[i]->genJet()->phi()); 
-	      centraljetGenm.push_back(jets[i]->genJet()->mass()); 
+	    combinejetHFlav.push_back(incjets[i]->hadronFlavour()); 
+	    combinejetPFlav.push_back(incjets[i]->partonFlavour()); 
+	    if(incjets[i]->genJet()){
+	      combinejetGenpt.push_back(incjets[i]->genJet()->pt()); 
+	      combinejetGeneta.push_back(incjets[i]->genJet()->eta()); 
+	      combinejetGenphi.push_back(incjets[i]->genJet()->phi()); 
+	      combinejetGenm.push_back(incjets[i]->genJet()->mass()); 
 	    }
 	    // b-tag SF for jets
 	    if(addBTagScaleFactor){
-	      calculateBtagSF(*jets[i],"CSV",centraljetBtagSF,centraljetBtagSFUp,centraljetBtagSFDown);
-	      calculateBtagSF(*jets[i],"MVA",centraljetBtagMVASF,centraljetBtagMVASFUp,centraljetBtagMVASFDown);
+	      calculateBtagSF(*incjets[i],"CSV",combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown);
+	      calculateBtagSF(*incjets[i],"MVA",combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown);
 	    }
 	  }  
 	}         	
       }    
-        
-      forwardjetpt        .clear(); forwardjeteta       .clear(); forwardjetphi       .clear(); forwardjetCHfrac    .clear();
-      forwardjetNHfrac    .clear(); forwardjetEMfrac    .clear(); forwardjetCEMfrac   .clear(); forwardjetmetdphi   .clear();
-      forwardjetHFlav     .clear(); forwardjetPFlav     .clear(); forwardjetQGL       .clear(); forwardjetPUID      .clear();
-      forwardjetGenpt     .clear(); forwardjetGeneta    .clear(); forwardjetGenphi    .clear(); forwardjetGenm      .clear(); 
-      forwardjetm         .clear(); 
-      forwardjetPassPUID  .clear();
-    
-      // forward jets
-      for (size_t i = 0; i < forwardjets.size(); i++) {
-
-	// fill collections
-	if (forwardjets[i]->pt() > minJetPtAK4ForwardStore){
-
-	  forwardjetpt.push_back(forwardjets[i]->pt());
-	  forwardjeteta.push_back(forwardjets[i]->eta());
-	  forwardjetphi.push_back(forwardjets[i]->phi());
-	  forwardjetm.push_back(forwardjets[i]->mass());
-	  forwardjetCHfrac  .push_back(forwardjets[i]->chargedHadronEnergyFraction());
-	  forwardjetNHfrac  .push_back(forwardjets[i]->neutralHadronEnergyFraction());
-	  forwardjetEMfrac  .push_back(forwardjets[i]->neutralEmEnergyFraction());
-	  forwardjetCEMfrac .push_back(forwardjets[i]->chargedEmEnergyFraction());
-	
-	  if(forwardjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
-	    forwardjetQGL   .push_back(forwardjets[i]->userFloat("QGTagger:qgLikelihood")); 
-	  // pileup jet id
-	  if(forwardjets[i]->hasUserFloat("puid:fullDiscriminant"))
-	    forwardjetPUID  .push_back(forwardjets[i]->userFloat("puid:fullDiscriminant"));	
-	  else
-	  forwardjetPUID  .push_back(forwardjets[i]->userFloat("pileupJetId:fullDiscriminant"));
-	  forwardjetPassPUID.push_back(applyPileupJetID(*forwardjets[i],pileupjetidwp,false));
-	  // MC based info
-	  if(isMC){
-	    forwardjetHFlav.push_back(forwardjets[i]->hadronFlavour()); 
-	    forwardjetPFlav.push_back(forwardjets[i]->partonFlavour()); 
-	    if(forwardjets[i]->genJet()){
-	      forwardjetGenpt.push_back(forwardjets[i]->genJet()->pt()); 
-	      forwardjetGeneta.push_back(forwardjets[i]->genJet()->eta()); 
-	      forwardjetGenphi.push_back(forwardjets[i]->genJet()->phi()); 
-	      forwardjetGenm.push_back(forwardjets[i]->genJet()->mass()); 
-	    }	  	    
-	  }
-	}
-      }
       
       // Jet met Dphi      
-      jetjetdphi         = 0.0;   
-      jetmetdphimin      = 0.0;   incjetmetdphimin    = 0.0; alljetmetdphimin    = 0.0;
-      jetmumetdphimin    = 0.0;   incjetmumetdphimin  = 0.0; alljetmumetdphimin  = 0.0;
-      jetelmetdphimin    = 0.0;   incjetelmetdphimin  = 0.0; alljetelmetdphimin  = 0.0;
-      jetphmetdphimin    = 0.0;   incjetphmetdphimin  = 0.0; alljetphmetdphimin  = 0.0;
-      jetmetdphimin4     = 0.0;   incjetmetdphimin4   = 0.0; alljetmetdphimin4   = 0.0;
-      jetmumetdphimin4   = 0.0;   incjetmumetdphimin4 = 0.0; alljetmumetdphimin4 = 0.0;
-      jetelmetdphimin4   = 0.0;   incjetelmetdphimin4 = 0.0; alljetelmetdphimin4 = 0.0;
-      jetphmetdphimin4   = 0.0;   incjetphmetdphimin4 = 0.0; alljetphmetdphimin4 = 0.0;
+      jetjetdphi          = 0.0;   
+      incjetmetdphimin    = 0.0; alljetmetdphimin    = 0.0;
+      incjetmumetdphimin  = 0.0; alljetmumetdphimin  = 0.0;
+      incjetelmetdphimin  = 0.0; alljetelmetdphimin  = 0.0;
+      incjetphmetdphimin  = 0.0; alljetphmetdphimin  = 0.0;
+      incjetmetdphimin4   = 0.0; alljetmetdphimin4   = 0.0;
+      incjetmumetdphimin4 = 0.0; alljetmumetdphimin4 = 0.0;
+      incjetelmetdphimin4 = 0.0; alljetelmetdphimin4 = 0.0;
+      incjetphmetdphimin4 = 0.0; alljetphmetdphimin4 = 0.0;
 
       // delta phi between jets
-      if (centraljetphi.size() > 1)
-	jetjetdphi = deltaPhi(centraljetphi[0], centraljetphi[1]);
+      if (combinejetphi.size() > 1)
+	jetjetdphi = deltaPhi(combinejetphi[0], combinejetphi[1]);
     
       std::vector<double> alljetmetdphiminvector;
       std::vector<double> alljetmetdphimin4vector;
@@ -1685,131 +1606,57 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (alljetphmetdphimin4vector.size() > 0) alljetphmetdphimin4 = *min_element(alljetphmetdphimin4vector.begin(), alljetphmetdphimin4vector.end());
       
       // delta phi jet-met      
-      std::vector<double> jetmetdphiminvector;
-      std::vector<double> jetmetdphimin4vector;
-      // only central jets
-      for (size_t i = 0; i < jets.size(); i++) {
-        if (jets[i]->pt() > minJetPtCountAK4) {
-	  double jetphi = jets[i]->phi();
-	  jetmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1pfmetphi)));
-	  if (i < 4) jetmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1pfmetphi)));
-        }
-      }
-    
-      if (jetmetdphiminvector .size() > 0) jetmetdphimin  = *min_element(jetmetdphiminvector .begin(), jetmetdphiminvector .end());
-      if (jetmetdphimin4vector.size() > 0) jetmetdphimin4 = *min_element(jetmetdphimin4vector.begin(), jetmetdphimin4vector.end());
-      
       std::vector<double> incjetmetdphiminvector;
       std::vector<double> incjetmetdphimin4vector;
-      // central and forward jet
+      std::vector<double> incjetmumetdphiminvector;
+      std::vector<double> incjetmumetdphimin4vector;
+      std::vector<double> incjetelmetdphiminvector;
+      std::vector<double> incjetelmetdphimin4vector;
+      std::vector<double> incjetphmetdphiminvector;
+      std::vector<double> incjetphmetdphimin4vector;
+
       for (size_t i = 0; i < incjets.size(); i++) {
 	if (incjets[i]->pt() > minJetPtCountAK4) {
 	  double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
 	  incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
+      incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
+      incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
+	  incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
 	  if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
+      if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
+      if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
+	  if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
         }
       }
       if (incjetmetdphiminvector .size() > 0) incjetmetdphimin  = *min_element(incjetmetdphiminvector .begin(), incjetmetdphiminvector .end());
       if (incjetmetdphimin4vector.size() > 0) incjetmetdphimin4 = *min_element(incjetmetdphimin4vector.begin(), incjetmetdphimin4vector.end());
-      
-      // MU met
-      std::vector<double> jetmumetdphiminvector;
-      std::vector<double> jetmumetdphimin4vector;
-      for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() >minJetPtCountAK4) {
-	  double jetphi = jets[i]->phi();
-	  jetmumetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
-	  if (i < 4) jetmumetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1mumetphi)));
-        }
-      }
-      if (jetmumetdphiminvector .size() > 0) jetmumetdphimin  = *min_element(jetmumetdphiminvector .begin(), jetmumetdphiminvector .end());
-      if (jetmumetdphimin4vector.size() > 0) jetmumetdphimin4 = *min_element(jetmumetdphimin4vector.begin(), jetmumetdphimin4vector.end());
-      
-      std::vector<double> incjetmumetdphiminvector;
-      std::vector<double> incjetmumetdphimin4vector;
-      
-      for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCountAK4) {
-	  double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
-            incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
-            if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
-        }
-      }
       if (incjetmumetdphiminvector .size() > 0) incjetmumetdphimin  = *min_element(incjetmumetdphiminvector .begin(), incjetmumetdphiminvector .end());
       if (incjetmumetdphimin4vector.size() > 0) incjetmumetdphimin4 = *min_element(incjetmumetdphimin4vector.begin(), incjetmumetdphimin4vector.end());
-      
-    // ELE met
-      std::vector<double> jetelmetdphiminvector;
-      std::vector<double> jetelmetdphimin4vector;
-      for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCountAK4) {
-            double jetphi = jets[i]->phi();
-            jetelmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
-            if (i < 4) jetelmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1elmetphi)));
-        }
-      }
-      if (jetelmetdphiminvector .size() > 0) jetelmetdphimin  = *min_element(jetelmetdphiminvector .begin(), jetelmetdphiminvector .end());
-      if (jetelmetdphimin4vector.size() > 0) jetelmetdphimin4 = *min_element(jetelmetdphimin4vector.begin(), jetelmetdphimin4vector.end());
-      
-      std::vector<double> incjetelmetdphiminvector;
-      std::vector<double> incjetelmetdphimin4vector;
-      for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCountAK4) {
-            double incjetphi = incjets[i]->phi();
-            incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
-            if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
-        }
-      }
       if (incjetelmetdphiminvector .size() > 0) incjetelmetdphimin  = *min_element(incjetelmetdphiminvector .begin(), incjetelmetdphiminvector .end());
       if (incjetelmetdphimin4vector.size() > 0) incjetelmetdphimin4 = *min_element(incjetelmetdphimin4vector.begin(), incjetelmetdphimin4vector.end());
-      
-      // PH met
-      std::vector<double> jetphmetdphiminvector;
-      std::vector<double> jetphmetdphimin4vector;
-      for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCountAK4) {
-	  double jetphi = jets[i]->phi();
-	  jetphmetdphiminvector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
-	  if (i < 4) jetphmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, t1phmetphi)));
-        }
-      }
-      if (jetphmetdphiminvector.size()  > 0) jetphmetdphimin  = *min_element(jetphmetdphiminvector .begin(), jetphmetdphiminvector .end());
-      if (jetphmetdphimin4vector.size() > 0) jetphmetdphimin4 = *min_element(jetphmetdphimin4vector.begin(), jetphmetdphimin4vector.end());
-      
-      std::vector<double> incjetphmetdphiminvector;
-      std::vector<double> incjetphmetdphimin4vector;
-      for (size_t i = 0; i < incjets.size(); i++) {
-        if (incjets[i]->pt() > minJetPtCountAK4) {
-	  double incjetphi = incjets[i]->phi();
-	  incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
-	  if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
-        }
-      }
       if (incjetphmetdphiminvector .size() > 0) incjetphmetdphimin  = *min_element(incjetphmetdphiminvector .begin(), incjetphmetdphiminvector .end());
       if (incjetphmetdphimin4vector.size() > 0) incjetphmetdphimin4 = *min_element(incjetphmetdphimin4vector.begin(), incjetphmetdphimin4vector.end());
-
+      
       // QCD suppression handles
       ht     = 0.;
-      std::vector<double> jetEts;
+      htinc  = 0.;
+      ht30   = 0.;
+      for (size_t i = 0; i < incjets.size(); i++) {
+	if (incjets[i]->pt() > minJetPtCountAK4) {
+	  htinc += incjets[i]->pt(); if (fabs(incjets[i]->eta()) < 3.0) {ht30 += incjets[i]->pt();}
+	}
+      }  
       for (size_t i = 0; i < jets.size(); i++) {
 	if (jets[i]->pt() > minJetPtCountAK4) {
 	  ht += jets[i]->pt();
-	  jetEts.push_back(jets[i]->pt());
 	}
       }
-    }
 
     // PUPPI AK4 jets
     if(addPuppiJets){
 
-      leadingPuppijetpt  = 0.0;
-      leadingPuppijeteta = 0.0;
-      leadingPuppijetphi = 0.0;
-      leadingPuppijetm   = 0.0;
-
       vector<pat::JetRef> incPuppijets;
       vector<pat::JetRef> Puppijets;
-      vector<pat::JetRef> forwardPuppijets;
 
       if(jetsPuppiH.isValid()){	
 	for (auto jets_iter = jetsPuppiH->begin(); jets_iter != jetsPuppiH->end(); ++jets_iter) {
@@ -1842,31 +1689,22 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  if (!passjetid) 
 	    continue;
 	  
-	  if (jets_iter->pt() > leadingPuppijetpt) {
-	    leadingPuppijetpt  = jets_iter->pt() ;
-	    leadingPuppijeteta = jets_iter->eta();
-	    leadingPuppijetphi = jets_iter->phi();
-	    leadingPuppijetm   = jets_iter->mass();
-	  }
-	  	  
 	  pat::JetRef jetref(jetsPuppiH, jets_iter - jetsPuppiH->begin());
 	  if(jetref.isAvailable() and jetref.isNonnull())
 	    incPuppijets.push_back(jetref);
 	}
+      }
 	
-	// only central jets
 	if(incPuppijets.size() > 0) sort(incPuppijets.begin(), incPuppijets.end(), jetSorter);
 
+	// only central jets
 	for (size_t i = 0; i < incPuppijets.size(); i++) {
 	  if (fabs(incPuppijets[i]->eta()) <= 2.5) 
 	    Puppijets.push_back(incPuppijets[i]);
-	  else 
-	    forwardPuppijets.push_back(incPuppijets[i]);
 	}        
 	
 	// sort them in pt
 	if(Puppijets.size() > 0)  sort(Puppijets.begin(), Puppijets.end(), jetSorter);
-	if(forwardPuppijets.size() > 0)  sort(forwardPuppijets.begin(), forwardPuppijets.end(), jetSorter);
 	
 	// count central jets    
 	npuppijets       = 0;
@@ -1877,17 +1715,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	npuppibjetsMVAlowpt = 0;
 	
 	float minPuppiJetPtCentral  = 20.;
-	float minPuppiJetPtForward  = 30.;
 	float minPuppiJetPtCount = 30.;
 	
-	centralPuppijetpt        .clear(); centralPuppijeteta       .clear(); centralPuppijetphi       .clear(); centralPuppijetbtag      .clear(); 
-	centralPuppijetCHfrac    .clear(); centralPuppijetbtagMVA   .clear();
-	centralPuppijetNHfrac    .clear(); centralPuppijetEMfrac    .clear(); centralPuppijetCEMfrac   .clear(); centralPuppijetmetdphi   .clear();
-	centralPuppijetHFlav     .clear(); centralPuppijetPFlav     .clear(); centralPuppijetQGL       .clear(); 
-	centralPuppijetGenpt     .clear(); centralPuppijetGeneta    .clear(); centralPuppijetGenphi    .clear(); centralPuppijetGenm      .clear();
-	centralPuppijetm         .clear(); 
-	centralPuppijetBtagSF    .clear(); centralPuppijetBtagSFUp .clear(); centralPuppijetBtagSFDown .clear();
-	centralPuppijetBtagMVASF    .clear(); centralPuppijetBtagMVASFUp .clear(); centralPuppijetBtagMVASFDown .clear();
+	combinePuppijetpt        .clear(); combinePuppijeteta       .clear(); combinePuppijetphi       .clear(); combinePuppijetbtag      .clear(); 
+	combinePuppijetCHfrac    .clear(); combinePuppijetbtagMVA   .clear();
+	combinePuppijetNHfrac    .clear(); combinePuppijetEMfrac    .clear(); combinePuppijetCEMfrac   .clear(); combinePuppijetmetdphi   .clear();
+	combinePuppijetHFlav     .clear(); combinePuppijetPFlav     .clear(); combinePuppijetQGL       .clear(); 
+	combinePuppijetGenpt     .clear(); combinePuppijetGeneta    .clear(); combinePuppijetGenphi    .clear(); combinePuppijetGenm      .clear();
+	combinePuppijetm         .clear(); 
+	combinePuppijetBtagSF    .clear(); combinePuppijetBtagSFUp .clear(); combinePuppijetBtagSFDown .clear();
+	combinePuppijetBtagMVASF    .clear(); combinePuppijetBtagMVASFUp .clear(); combinePuppijetBtagMVASFDown .clear();
 	
 	for(size_t i = 0; i < incPuppijets.size(); i++){
 	  if(incPuppijets[i]->pt() > 30) npuppijetsinc++;
@@ -1901,209 +1738,100 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	  if (Puppijets[i]->pt() > minPuppiJetPtCount && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVA++;
 	  if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVAlowpt++;
+	}
 	  
 	  // fill collections
-	  if (Puppijets[i]->pt() > minPuppiJetPtCentral){
+	for(size_t i = 0; i < incPuppijets.size(); i++){
+	  if (incPuppijets[i]->pt() > minPuppiJetPtCentral){
 	    
-	    centralPuppijetpt.push_back(Puppijets[i]->pt());
-	    centralPuppijeteta.push_back(Puppijets[i]->eta());
-	    centralPuppijetphi.push_back(Puppijets[i]->phi());
-	    centralPuppijetm.push_back(Puppijets[i]->mass());
-	    centralPuppijetbtag.push_back(Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-	    centralPuppijetbtagMVA.push_back(Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
-	    centralPuppijetCHfrac  .push_back(Puppijets[i]->chargedHadronEnergyFraction());
-	    centralPuppijetNHfrac  .push_back(Puppijets[i]->neutralHadronEnergyFraction());
-	    centralPuppijetEMfrac  .push_back(Puppijets[i]->neutralEmEnergyFraction());
-	    centralPuppijetCEMfrac .push_back(Puppijets[i]->chargedEmEnergyFraction());
-	    centralPuppijetmetdphi.push_back(deltaPhi(Puppijets[i]->phi(), puppit1pfmetphi));
+	    combinePuppijetpt.push_back(incPuppijets[i]->pt());
+	    combinePuppijeteta.push_back(incPuppijets[i]->eta());
+	    combinePuppijetphi.push_back(incPuppijets[i]->phi());
+	    combinePuppijetm.push_back(incPuppijets[i]->mass());
+	    combinePuppijetbtag.push_back(incPuppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	    combinePuppijetbtagMVA.push_back(incPuppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
+	    combinePuppijetCHfrac  .push_back(incPuppijets[i]->chargedHadronEnergyFraction());
+	    combinePuppijetNHfrac  .push_back(incPuppijets[i]->neutralHadronEnergyFraction());
+	    combinePuppijetEMfrac  .push_back(incPuppijets[i]->neutralEmEnergyFraction());
+	    combinePuppijetCEMfrac .push_back(incPuppijets[i]->chargedEmEnergyFraction());
+	    combinePuppijetmetdphi.push_back(deltaPhi(incPuppijets[i]->phi(), puppit1pfmetphi));
 	    
-	    if(Puppijets[i]->hasUserFloat("QGTaggerPuppi:qgLikelihood"))
-	      centralPuppijetQGL   .push_back(Puppijets[i]->userFloat("QGTaggerPuppi:qgLikelihood")); 
+	    if(incPuppijets[i]->hasUserFloat("QGTaggerPuppi:qgLikelihood"))
+	      combinePuppijetQGL   .push_back(incPuppijets[i]->userFloat("QGTaggerPuppi:qgLikelihood")); 
 
 	    // MC based info
 	    if(isMC){
-	      centralPuppijetHFlav.push_back(Puppijets[i]->hadronFlavour()); 
-	      centralPuppijetPFlav.push_back(Puppijets[i]->partonFlavour()); 
-	      if(Puppijets[i]->genJet()){
-		centralPuppijetGenpt.push_back(Puppijets[i]->genJet()->pt()); 
-		centralPuppijetGeneta.push_back(Puppijets[i]->genJet()->eta()); 
-		centralPuppijetGenphi.push_back(Puppijets[i]->genJet()->phi()); 
-		centralPuppijetGenm.push_back(Puppijets[i]->genJet()->mass()); 
+	      combinePuppijetHFlav.push_back(incPuppijets[i]->hadronFlavour()); 
+	      combinePuppijetPFlav.push_back(incPuppijets[i]->partonFlavour()); 
+	      if(incPuppijets[i]->genJet()){
+		combinePuppijetGenpt.push_back(incPuppijets[i]->genJet()->pt()); 
+		combinePuppijetGeneta.push_back(incPuppijets[i]->genJet()->eta()); 
+		combinePuppijetGenphi.push_back(incPuppijets[i]->genJet()->phi()); 
+		combinePuppijetGenm.push_back(incPuppijets[i]->genJet()->mass()); 
 	      }	  
 	    
 	      // b-tag SF for Puppijets
 	      if(addBTagScaleFactor){
-		calculateBtagSF(*Puppijets[i],"CSV",centralPuppijetBtagSF,centralPuppijetBtagSFUp,centralPuppijetBtagSFDown);
-		calculateBtagSF(*Puppijets[i],"MVA",centralPuppijetBtagMVASF,centralPuppijetBtagMVASFUp,centralPuppijetBtagMVASFDown);
+		calculateBtagSF(*incPuppijets[i],"CSV",combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown);
+		calculateBtagSF(*incPuppijets[i],"MVA",combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown);
 	      }    	
 	    }
 	  }
 	}
 	
-	forwardPuppijetpt        .clear(); forwardPuppijeteta       .clear(); forwardPuppijetphi       .clear(); forwardPuppijetCHfrac    .clear();
-	forwardPuppijetNHfrac    .clear(); forwardPuppijetEMfrac    .clear(); forwardPuppijetCEMfrac   .clear(); forwardPuppijetmetdphi   .clear();
-	forwardPuppijetHFlav     .clear(); forwardPuppijetPFlav     .clear(); forwardPuppijetQGL       .clear(); 
-	forwardPuppijetGenpt     .clear(); forwardPuppijetGeneta    .clear(); forwardPuppijetGenphi    .clear(); forwardPuppijetGenm      .clear(); 
-	forwardPuppijetm         .clear(); 
-
-	// forward Puppijets
-	for (size_t i = 0; i < forwardPuppijets.size(); i++) {
-	  
-	  // fill collections
-	  if (forwardPuppijets[i]->pt() > minPuppiJetPtForward){
-	    
-	    forwardPuppijetpt.push_back(forwardPuppijets[i]->pt());
-	    forwardPuppijeteta.push_back(forwardPuppijets[i]->eta());
-	    forwardPuppijetphi.push_back(forwardPuppijets[i]->phi());
-	    forwardPuppijetm.push_back(forwardPuppijets[i]->mass());
-	    forwardPuppijetCHfrac  .push_back(forwardPuppijets[i]->chargedHadronEnergyFraction());
-	    forwardPuppijetNHfrac  .push_back(forwardPuppijets[i]->neutralHadronEnergyFraction());
-	    forwardPuppijetEMfrac  .push_back(forwardPuppijets[i]->neutralEmEnergyFraction());
-	    forwardPuppijetCEMfrac .push_back(forwardPuppijets[i]->chargedEmEnergyFraction());
-	    
-	    if(forwardPuppijets[i]->hasUserFloat("QGTaggerPuppi:qgLikelihood"))
-	      forwardPuppijetQGL   .push_back(forwardPuppijets[i]->userFloat("QGTaggerPuppi:qgLikelihood")); 
-	    // MC based info
-	    if(isMC){
-	      forwardPuppijetHFlav.push_back(forwardPuppijets[i]->hadronFlavour()); 
-	      forwardPuppijetPFlav.push_back(forwardPuppijets[i]->partonFlavour()); 
-	      if(forwardPuppijets[i]->genJet()){
-		forwardPuppijetGenpt.push_back(forwardPuppijets[i]->genJet()->pt()); 
-		forwardPuppijetGeneta.push_back(forwardPuppijets[i]->genJet()->eta()); 
-		forwardPuppijetGenphi.push_back(forwardPuppijets[i]->genJet()->phi()); 
-		forwardPuppijetGenm.push_back(forwardPuppijets[i]->genJet()->mass()); 
-	      }	  	      
-	    }
-	  }	  
-	}      
-	
 	PuppijetPuppijetdphi    = 0.0;
-	Puppijetmetdphimin      = 0.0; incPuppijetmetdphimin   = 0.0;
-	Puppijetmumetdphimin    = 0.0; incPuppijetmumetdphimin = 0.0;
-	Puppijetelmetdphimin    = 0.0; incPuppijetelmetdphimin = 0.0;
-	Puppijetphmetdphimin    = 0.0; incPuppijetphmetdphimin = 0.0;
+	incPuppijetmetdphimin   = 0.0;
+	incPuppijetmumetdphimin = 0.0;
+	incPuppijetelmetdphimin = 0.0;
+	incPuppijetphmetdphimin = 0.0;
 	
-	Puppijetmetdphimin4     = 0.0; incPuppijetmetdphimin4  = 0.0;
-	Puppijetmumetdphimin4   = 0.0; incPuppijetmumetdphimin4= 0.0;
-	Puppijetelmetdphimin4   = 0.0; incPuppijetelmetdphimin4= 0.0;
-	Puppijetphmetdphimin4   = 0.0; incPuppijetphmetdphimin4= 0.0;
+	incPuppijetmetdphimin4  = 0.0;
+	incPuppijetmumetdphimin4= 0.0;
+	incPuppijetelmetdphimin4= 0.0;
+	incPuppijetphmetdphimin4= 0.0;
 	
 	// delta phi between Puppijets
-	if (centralPuppijetphi.size()>1) 
-	  PuppijetPuppijetdphi = deltaPhi(centralPuppijetphi[0], centralPuppijetphi[1]);
-	
-	std::vector<double> puppijetmetdphiminvector;
-	std::vector<double> puppijetmetdphimin4vector;
-	// only central Puppijets
-	for (size_t i = 0; i < Puppijets.size(); i++) {
-	  if (Puppijets[i]->pt() > minPuppiJetPtCount) {
-	    double jetphi = Puppijets[i]->phi();
-	    puppijetmetdphiminvector.push_back(fabs(deltaPhi(jetphi, puppit1pfmetphi)));
-	    if (i < 4) puppijetmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, puppit1pfmetphi)));
-	  }
-	}
-	if (puppijetmetdphiminvector .size() > 0) Puppijetmetdphimin  = *min_element(puppijetmetdphiminvector .begin(), puppijetmetdphiminvector .end());
-	if (puppijetmetdphimin4vector.size() > 0) Puppijetmetdphimin4 = *min_element(puppijetmetdphimin4vector.begin(), puppijetmetdphimin4vector.end());
+	if (combinePuppijetphi.size()>1) 
+	  PuppijetPuppijetdphi = deltaPhi(combinePuppijetphi[0], combinePuppijetphi[1]);
 	
 	std::vector<double> incpuppijetmetdphiminvector;
 	std::vector<double> incpuppijetmetdphimin4vector;
-	// central and forward jet
+	std::vector<double> incpuppijetmumetdphiminvector;
+	std::vector<double> incpuppijetmumetdphimin4vector;
+	std::vector<double> incpuppijetelmetdphiminvector;
+	std::vector<double> incpuppijetelmetdphimin4vector;
+	std::vector<double> incpuppijetphmetdphiminvector;
+	std::vector<double> incpuppijetphmetdphimin4vector;
+	
 	for (size_t i = 0; i < incPuppijets.size(); i++) {
 	  if (incPuppijets[i]->pt() > minPuppiJetPtCount) {
 	    double incjetphi = atan2(sin(incPuppijets[i]->phi()), cos(incPuppijets[i]->phi()));
 	    incpuppijetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
+	    incpuppijetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
+	    incpuppijetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
+	    incpuppijetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
 	    if (i < 4) incpuppijetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
+	    if (i < 4) incpuppijetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
+	    if (i < 4) incpuppijetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
+	    if (i < 4) incpuppijetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
 	  }
 	}
 	if (incpuppijetmetdphiminvector .size() > 0) incPuppijetmetdphimin  = *min_element(incpuppijetmetdphiminvector .begin(), incpuppijetmetdphiminvector .end());
 	if (incpuppijetmetdphimin4vector.size() > 0) incPuppijetmetdphimin4 = *min_element(incpuppijetmetdphimin4vector.begin(), incpuppijetmetdphimin4vector.end());
-	
-	// MU met
-	std::vector<double> puppijetmumetdphiminvector;
-	std::vector<double> puppijetmumetdphimin4vector;
-	for (size_t i = 0; i < jets.size(); i++) {
-	  if (jets[i]->pt() > minPuppiJetPtCount) {
-	    double jetphi = jets[i]->phi();
-	    puppijetmumetdphiminvector.push_back(fabs(deltaPhi(jetphi, puppit1mumetphi)));
-	    if (i < 4) puppijetmumetdphimin4vector.push_back(fabs(deltaPhi(jetphi, puppit1mumetphi)));
-	  }
-	}
-	if (puppijetmumetdphiminvector .size() > 0) Puppijetmumetdphimin  = *min_element(puppijetmumetdphiminvector .begin(), puppijetmumetdphiminvector .end());
-	if (puppijetmumetdphimin4vector.size() > 0) Puppijetmumetdphimin4 = *min_element(puppijetmumetdphimin4vector.begin(), puppijetmumetdphimin4vector.end());
-	
-	std::vector<double> incpuppijetmumetdphiminvector;
-	std::vector<double> incpuppijetmumetdphimin4vector;
-	
-	for (size_t i = 0; i < incjets.size(); i++) {
-	  if (incjets[i]->pt() > minPuppiJetPtCount) {
-	    double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
-	    incpuppijetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
-	    if (i < 4) incpuppijetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
-        }
-	}
 	if (incpuppijetmumetdphiminvector .size() > 0) incPuppijetmumetdphimin  = *min_element(incpuppijetmumetdphiminvector .begin(), incpuppijetmumetdphiminvector .end());
 	if (incpuppijetmumetdphimin4vector.size() > 0) incPuppijetmumetdphimin4 = *min_element(incpuppijetmumetdphimin4vector.begin(), incpuppijetmumetdphimin4vector.end());
-	
-	// ELE met
-	std::vector<double> puppijetelmetdphiminvector;
-	std::vector<double> puppijetelmetdphimin4vector;
-	for (size_t i = 0; i < jets.size(); i++) {
-	  if (jets[i]->pt() > minPuppiJetPtCount) {
-	    double jetphi = jets[i]->phi();
-	    puppijetelmetdphiminvector.push_back(fabs(deltaPhi(jetphi, puppit1elmetphi)));
-	    if (i < 4) puppijetelmetdphimin4vector.push_back(fabs(deltaPhi(jetphi, puppit1elmetphi)));
-	  }
-	}
-	if (puppijetelmetdphiminvector .size() > 0) Puppijetelmetdphimin  = *min_element(puppijetelmetdphiminvector .begin(), puppijetelmetdphiminvector .end());
-	if (puppijetelmetdphimin4vector.size() > 0) Puppijetelmetdphimin4 = *min_element(puppijetelmetdphimin4vector.begin(), puppijetelmetdphimin4vector.end());
-	
-	std::vector<double> incpuppijetelmetdphiminvector;
-	std::vector<double> incpuppijetelmetdphimin4vector;
-	for (size_t i = 0; i < incjets.size(); i++) {
-	  if (incjets[i]->pt() > minPuppiJetPtCount) {
-	    double incjetphi = incjets[i]->phi();
-	    incpuppijetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
-	    if (i < 4) incpuppijetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
-	  }
-	}
 	if (incpuppijetelmetdphiminvector .size() > 0) incPuppijetelmetdphimin  = *min_element(incpuppijetelmetdphiminvector .begin(), incpuppijetelmetdphiminvector .end());
 	if (incpuppijetelmetdphimin4vector.size() > 0) incPuppijetelmetdphimin4 = *min_element(incpuppijetelmetdphimin4vector.begin(), incpuppijetelmetdphimin4vector.end());
-	
-	// PH met
-	std::vector<double> puppijetphmetdphiminvector;
-	std::vector<double> puppijetphmetdphimin4vector;
-	for (size_t i = 0; i < jets.size(); i++) {
-	  if (jets[i]->pt() > minPuppiJetPtCount) {
-	    double puppijetphi = jets[i]->phi();
-	    puppijetphmetdphiminvector.push_back(fabs(deltaPhi(puppijetphi, puppit1phmetphi)));
-	    if (i < 4) puppijetphmetdphimin4vector.push_back(fabs(deltaPhi(puppijetphi, puppit1phmetphi)));
-	  }
-	}
-	if (puppijetphmetdphiminvector.size()  > 0) Puppijetphmetdphimin  = *min_element(puppijetphmetdphiminvector .begin(), puppijetphmetdphiminvector .end());
-	if (puppijetphmetdphimin4vector.size() > 0) Puppijetphmetdphimin4 = *min_element(puppijetphmetdphimin4vector.begin(), puppijetphmetdphimin4vector.end());
-	
-	std::vector<double> incpuppijetphmetdphiminvector;
-	std::vector<double> incpuppijetphmetdphimin4vector;
-	for (size_t i = 0; i < incjets.size(); i++) {
-	  if (incjets[i]->pt() > minPuppiJetPtCount) {
-	    double incpuppijetphi = incjets[i]->phi();
-	    incpuppijetphmetdphiminvector.push_back(fabs(deltaPhi(incpuppijetphi, puppit1phmetphi)));
-	    if (i < 4) incpuppijetphmetdphimin4vector.push_back(fabs(deltaPhi(incpuppijetphi, puppit1phmetphi)));
-	  }
-	}
 	if (incpuppijetphmetdphiminvector .size() > 0) incPuppijetphmetdphimin  = *min_element(incpuppijetphmetdphiminvector .begin(), incpuppijetphmetdphiminvector .end());
 	if (incpuppijetphmetdphimin4vector.size() > 0) incPuppijetphmetdphimin4 = *min_element(incpuppijetphmetdphimin4vector.begin(), incpuppijetphmetdphimin4vector.end());
 	
 	// QCD suppression handles
 	Puppiht     = 0.;
-	std::vector<double> PuppijetEts;
 	for (size_t i = 0; i < Puppijets.size(); i++) {
 	  if (Puppijets[i]->pt() > minPuppiJetPtCount) {
 	    Puppiht += Puppijets[i]->pt();
-	    PuppijetEts.push_back(Puppijets[i]->pt());
 	  }
 	}        
-      }
     }
 
     // Lepton part
@@ -3602,7 +3330,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  }
 	}
       }
-    }
+	}
     tree->Fill();    
 }    
 
@@ -3856,63 +3584,34 @@ void MonoJetTreeMaker::beginJob() {
   }
   
   // Jet info
-  tree->Branch("leadingjetpt"         , &leadingjetpt         , "leadingjetpt/D");
-  tree->Branch("leadingjeteta"        , &leadingjeteta        , "leadingjeteta/D");
-  tree->Branch("leadingjetphi"        , &leadingjetphi        , "leadingjetphi/D");
-  tree->Branch("leadingjetm"          , &leadingjetm          , "leadingjetm/D");
-
-  tree->Branch("centraljetpt",      "std::vector<double>", &centraljetpt);
-  tree->Branch("centraljeteta",     "std::vector<double>", &centraljeteta);
-  tree->Branch("centraljetphi",     "std::vector<double>", &centraljetphi);
-  tree->Branch("centraljetm",       "std::vector<double>", &centraljetm);
-  tree->Branch("centraljetbtag",    "std::vector<double>", &centraljetbtag);
-  tree->Branch("centraljetbtagMVA", "std::vector<double>", &centraljetbtagMVA);
-  tree->Branch("centraljetCHfrac",  "std::vector<double>", &centraljetCHfrac);
-  tree->Branch("centraljetNHfrac",  "std::vector<double>", &centraljetNHfrac);
-  tree->Branch("centraljetEMfrac",  "std::vector<double>", &centraljetEMfrac);
-  tree->Branch("centraljetCEMfrac", "std::vector<double>", &centraljetCEMfrac);
-  tree->Branch("centraljetmetdphi", "std::vector<double>", &centraljetmetdphi);
-  tree->Branch("centraljetHFlav",   "std::vector<double>", &centraljetHFlav);
-  tree->Branch("centraljetPFlav",   "std::vector<double>", &centraljetPFlav);
-  tree->Branch("centraljetQGL",     "std::vector<double>", &centraljetQGL);
-  tree->Branch("centraljetPUID",    "std::vector<double>", &centraljetPUID);
-  tree->Branch("centraljetPassPUID",    "std::vector<double>", &centraljetPassPUID);
-  tree->Branch("centraljetGenpt",   "std::vector<double>", &centraljetGenpt);
-  tree->Branch("centraljetGeneta",  "std::vector<double>", &centraljetGeneta);
-  tree->Branch("centraljetGenphi",  "std::vector<double>", &centraljetGenphi);
-  tree->Branch("centraljetGenm",    "std::vector<double>", &centraljetGenm);
-  tree->Branch("centraljetBtagSF",  "std::vector<double>", &centraljetBtagSF);
-  tree->Branch("centraljetBtagSFUp", "std::vector<double>", &centraljetBtagSFUp);
-  tree->Branch("centraljetBtagSFDown",    "std::vector<double>", &centraljetBtagSFDown);
-  tree->Branch("centraljetBtagMVASF",     "std::vector<double>", &centraljetBtagMVASF);
-  tree->Branch("centraljetBtagMVASFUp",   "std::vector<double>", &centraljetBtagMVASFUp);
-  tree->Branch("centraljetBtagMVASFDown", "std::vector<double>", &centraljetBtagMVASFDown);
-
-  tree->Branch("forwardjetpt",  "std::vector<double>", &forwardjetpt);
-  tree->Branch("forwardjeteta", "std::vector<double>", &forwardjeteta);
-  tree->Branch("forwardjetphi", "std::vector<double>", &forwardjetphi);
-  tree->Branch("forwardjetm",   "std::vector<double>", &forwardjetm);
-  tree->Branch("forwardjetCHfrac",  "std::vector<double>", &forwardjetCHfrac);
-  tree->Branch("forwardjetNHfrac",  "std::vector<double>", &forwardjetNHfrac);
-  tree->Branch("forwardjetEMfrac",  "std::vector<double>", &forwardjetEMfrac);
-  tree->Branch("forwardjetCEMfrac", "std::vector<double>", &forwardjetCEMfrac);
-  tree->Branch("forwardjetmetdphi", "std::vector<double>", &forwardjetmetdphi);
-  tree->Branch("forwardjetHFlav",   "std::vector<double>", &forwardjetHFlav);
-  tree->Branch("forwardjetPFlav",   "std::vector<double>", &forwardjetPFlav);
-  tree->Branch("forwardjetQGL",     "std::vector<double>", &forwardjetQGL);
-  tree->Branch("forwardjetPUID",    "std::vector<double>", &forwardjetPUID);
-  tree->Branch("forwardjetPassPUID",    "std::vector<double>", &forwardjetPassPUID);
-  tree->Branch("forwardjetGenpt",   "std::vector<double>", &forwardjetGenpt);
-  tree->Branch("forwardjetGeneta",  "std::vector<double>", &forwardjetGeneta);
-  tree->Branch("forwardjetGenphi",  "std::vector<double>", &forwardjetGenphi);
-  tree->Branch("forwardjetGenm",    "std::vector<double>", &forwardjetGenm);
+  tree->Branch("combinejetpt",      "std::vector<double>", &combinejetpt);
+  tree->Branch("combinejeteta",     "std::vector<double>", &combinejeteta);
+  tree->Branch("combinejetphi",     "std::vector<double>", &combinejetphi);
+  tree->Branch("combinejetm",       "std::vector<double>", &combinejetm);
+  tree->Branch("combinejetbtag",    "std::vector<double>", &combinejetbtag);
+  tree->Branch("combinejetbtagMVA", "std::vector<double>", &combinejetbtagMVA);
+  tree->Branch("combinejetCHfrac",  "std::vector<double>", &combinejetCHfrac);
+  tree->Branch("combinejetNHfrac",  "std::vector<double>", &combinejetNHfrac);
+  tree->Branch("combinejetEMfrac",  "std::vector<double>", &combinejetEMfrac);
+  tree->Branch("combinejetCEMfrac", "std::vector<double>", &combinejetCEMfrac);
+  tree->Branch("combinejetmetdphi", "std::vector<double>", &combinejetmetdphi);
+  tree->Branch("combinejetHFlav",   "std::vector<double>", &combinejetHFlav);
+  tree->Branch("combinejetPFlav",   "std::vector<double>", &combinejetPFlav);
+  tree->Branch("combinejetQGL",     "std::vector<double>", &combinejetQGL);
+  tree->Branch("combinejetPUID",    "std::vector<double>", &combinejetPUID);
+  tree->Branch("combinejetPassPUID",    "std::vector<double>", &combinejetPassPUID);
+  tree->Branch("combinejetGenpt",   "std::vector<double>", &combinejetGenpt);
+  tree->Branch("combinejetGeneta",  "std::vector<double>", &combinejetGeneta);
+  tree->Branch("combinejetGenphi",  "std::vector<double>", &combinejetGenphi);
+  tree->Branch("combinejetGenm",    "std::vector<double>", &combinejetGenm);
+  tree->Branch("combinejetBtagSF",  "std::vector<double>", &combinejetBtagSF);
+  tree->Branch("combinejetBtagSFUp", "std::vector<double>", &combinejetBtagSFUp);
+  tree->Branch("combinejetBtagSFDown",    "std::vector<double>", &combinejetBtagSFDown);
+  tree->Branch("combinejetBtagMVASF",     "std::vector<double>", &combinejetBtagMVASF);
+  tree->Branch("combinejetBtagMVASFUp",   "std::vector<double>", &combinejetBtagMVASFUp);
+  tree->Branch("combinejetBtagMVASFDown", "std::vector<double>", &combinejetBtagMVASFDown);
 
   tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
-
-  tree->Branch("jetmetdphimin"        , &jetmetdphimin        , "jetmetdphimin/D");
-  tree->Branch("jetmumetdphimin"      , &jetmumetdphimin      , "jetmumetdphimin/D");
-  tree->Branch("jetelmetdphimin"      , &jetelmetdphimin      , "jetelmetdphimin/D");
-  tree->Branch("jetphmetdphimin"      , &jetphmetdphimin      , "jetphmetdphimin/D");
 
   tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
   tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/D");
@@ -3923,11 +3622,6 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/D");
   tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/D");
   tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/D");
-
-  tree->Branch("jetmetdphimin4"       , &jetmetdphimin4       , "jetmetdphimin4/D");
-  tree->Branch("jetmumetdphimin4"     , &jetmumetdphimin4     , "jetmumetdphimin4/D");
-  tree->Branch("jetelmetdphimin4"     , &jetelmetdphimin4     , "jetelmetdphimin4/D");
-  tree->Branch("jetphmetdphimin4"     , &jetphmetdphimin4     , "jetphmetdphimin4/D");
 
   tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/D");
   tree->Branch("incjetmumetdphimin4"  , &incjetmumetdphimin4  , "incjetmumetdphimin4/D");
@@ -3940,52 +3634,36 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/D");
 
   tree->Branch("ht"                   , &ht                   , "ht/D");
+  tree->Branch("htinc"                , &htinc                , "htinc/D");
+  tree->Branch("ht30"                 , &ht30                 , "ht30/D");
 
   if(addPuppiJets){
 
-    tree->Branch("centralPuppijetpt",  "std::vector<double>", &centralPuppijetpt);
-    tree->Branch("centralPuppijeteta", "std::vector<double>", &centralPuppijeteta);
-    tree->Branch("centralPuppijetphi", "std::vector<double>", &centralPuppijetphi);
-    tree->Branch("centralPuppijetm",   "std::vector<double>", &centralPuppijetm);
-    tree->Branch("centralPuppijetbtag", "std::vector<double>", &centralPuppijetbtag);
-    tree->Branch("centralPuppijetbtagMVA", "std::vector<double>", &centralPuppijetbtagMVA);
-    tree->Branch("centralPuppijetCHfrac", "std::vector<double>", &centralPuppijetCHfrac);
-    tree->Branch("centralPuppijetNHfrac", "std::vector<double>", &centralPuppijetNHfrac);
-    tree->Branch("centralPuppijetEMfrac", "std::vector<double>", &centralPuppijetEMfrac);
-    tree->Branch("centralPuppijetCEMfrac", "std::vector<double>", &centralPuppijetCEMfrac);
-    tree->Branch("centralPuppijetmetdphi", "std::vector<double>", &centralPuppijetmetdphi);
-    tree->Branch("centralPuppijetHFlav", "std::vector<double>", &centralPuppijetHFlav);
-    tree->Branch("centralPuppijetPFlav", "std::vector<double>", &centralPuppijetPFlav);
-    tree->Branch("centralPuppijetQGL",   "std::vector<double>", &centralPuppijetQGL);
-    tree->Branch("centralPuppijetGenpt", "std::vector<double>", &centralPuppijetGenpt);
-    tree->Branch("centralPuppijetGeneta", "std::vector<double>", &centralPuppijetGeneta);
-    tree->Branch("centralPuppijetGenphi", "std::vector<double>", &centralPuppijetGenphi);
-    tree->Branch("centralPuppijetGenm",   "std::vector<double>", &centralPuppijetGenm);
-    tree->Branch("centralPuppijetBtagSF", "std::vector<double>", &centralPuppijetBtagSF);
-    tree->Branch("centralPuppijetBtagSFUp", "std::vector<double>", &centralPuppijetBtagSFUp);
-    tree->Branch("centralPuppijetBtagSFDown", "std::vector<double>", &centralPuppijetBtagSFDown);
-    tree->Branch("centralPuppijetBtagMVASF", "std::vector<double>", &centralPuppijetBtagMVASF);
-    tree->Branch("centralPuppijetBtagMVASFUp", "std::vector<double>", &centralPuppijetBtagMVASFUp);
-    tree->Branch("centralPuppijetBtagMVASFDown", "std::vector<double>", &centralPuppijetBtagMVASFDown);
+    tree->Branch("combinePuppijetpt",  "std::vector<double>", &combinePuppijetpt);
+    tree->Branch("combinePuppijeteta", "std::vector<double>", &combinePuppijeteta);
+    tree->Branch("combinePuppijetphi", "std::vector<double>", &combinePuppijetphi);
+    tree->Branch("combinePuppijetm",   "std::vector<double>", &combinePuppijetm);
+    tree->Branch("combinePuppijetbtag", "std::vector<double>", &combinePuppijetbtag);
+    tree->Branch("combinePuppijetbtagMVA", "std::vector<double>", &combinePuppijetbtagMVA);
+    tree->Branch("combinePuppijetCHfrac", "std::vector<double>", &combinePuppijetCHfrac);
+    tree->Branch("combinePuppijetNHfrac", "std::vector<double>", &combinePuppijetNHfrac);
+    tree->Branch("combinePuppijetEMfrac", "std::vector<double>", &combinePuppijetEMfrac);
+    tree->Branch("combinePuppijetCEMfrac", "std::vector<double>", &combinePuppijetCEMfrac);
+    tree->Branch("combinePuppijetmetdphi", "std::vector<double>", &combinePuppijetmetdphi);
+    tree->Branch("combinePuppijetHFlav", "std::vector<double>", &combinePuppijetHFlav);
+    tree->Branch("combinePuppijetPFlav", "std::vector<double>", &combinePuppijetPFlav);
+    tree->Branch("combinePuppijetQGL",   "std::vector<double>", &combinePuppijetQGL);
+    tree->Branch("combinePuppijetGenpt", "std::vector<double>", &combinePuppijetGenpt);
+    tree->Branch("combinePuppijetGeneta", "std::vector<double>", &combinePuppijetGeneta);
+    tree->Branch("combinePuppijetGenphi", "std::vector<double>", &combinePuppijetGenphi);
+    tree->Branch("combinePuppijetGenm",   "std::vector<double>", &combinePuppijetGenm);
+    tree->Branch("combinePuppijetBtagSF", "std::vector<double>", &combinePuppijetBtagSF);
+    tree->Branch("combinePuppijetBtagSFUp", "std::vector<double>", &combinePuppijetBtagSFUp);
+    tree->Branch("combinePuppijetBtagSFDown", "std::vector<double>", &combinePuppijetBtagSFDown);
+    tree->Branch("combinePuppijetBtagMVASF", "std::vector<double>", &combinePuppijetBtagMVASF);
+    tree->Branch("combinePuppijetBtagMVASFUp", "std::vector<double>", &combinePuppijetBtagMVASFUp);
+    tree->Branch("combinePuppijetBtagMVASFDown", "std::vector<double>", &combinePuppijetBtagMVASFDown);
 
-    tree->Branch("forwardPuppijetpt", "std::vector<double>", &forwardPuppijetpt);
-    tree->Branch("forwardPuppijeteta", "std::vector<double>", &forwardPuppijeteta);
-    tree->Branch("forwardPuppijetphi", "std::vector<double>", &forwardPuppijetphi);
-    tree->Branch("forwardPuppijetm", "std::vector<double>", &forwardPuppijetm);
-    tree->Branch("forwardPuppijetbtag", "std::vector<double>", &forwardPuppijetbtag);
-    tree->Branch("forwardPuppijetCHfrac", "std::vector<double>", &forwardPuppijetCHfrac);
-    tree->Branch("forwardPuppijetNHfrac", "std::vector<double>", &forwardPuppijetNHfrac);
-    tree->Branch("forwardPuppijetEMfrac", "std::vector<double>", &forwardPuppijetEMfrac);
-    tree->Branch("forwardPuppijetCEMfrac", "std::vector<double>", &forwardPuppijetCEMfrac);
-    tree->Branch("forwardPuppijetmetdphi", "std::vector<double>", &forwardPuppijetmetdphi);
-    tree->Branch("forwardPuppijetHFlav", "std::vector<double>", &forwardPuppijetHFlav);
-    tree->Branch("forwardPuppijetPFlav", "std::vector<double>", &forwardPuppijetPFlav);
-    tree->Branch("forwardPuppijetQGL", "std::vector<double>", &forwardPuppijetQGL);
-    tree->Branch("forwardPuppijetGenpt", "std::vector<double>", &forwardPuppijetGenpt);
-    tree->Branch("forwardPuppijetGeneta", "std::vector<double>", &forwardPuppijetGeneta);
-    tree->Branch("forwardPuppijetGenphi", "std::vector<double>", &forwardPuppijetGenphi);
-    tree->Branch("forwardPuppijetGenm", "std::vector<double>", &forwardPuppijetGenm);
-    
     tree->Branch("PuppijetPuppijetdphi"      , &PuppijetPuppijetdphi      , "PuppijetPuppijetdphi/D");
 
     tree->Branch("Puppijetmetdphimin"        , &Puppijetmetdphimin        , "Puppijetmetdphimin/D");
