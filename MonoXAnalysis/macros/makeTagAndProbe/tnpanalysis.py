@@ -14,6 +14,10 @@ options.register (
     'Directory where the tag and probes root files are located');
 
 options.register (
+    'isEOSDIR',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'True if the input directory is located on eos');
+
+options.register (
     'outputDIR',"",VarParsing.multiplicity.singleton,VarParsing.varType.string,
     'where output files are created');
 
@@ -36,11 +40,11 @@ options.register(
 
 options.register(
     'etaMin',0,VarParsing.multiplicity.singleton,VarParsing.varType.float,
-    'min |eta| for leptons');
+    'min eta for leptons');
 
 options.register(
     'etaMax',0,VarParsing.multiplicity.singleton,VarParsing.varType.float,
-    'max |eta| for leptons');
+    'max eta for leptons');
 
 options.register(
     'templateFile',
@@ -74,14 +78,28 @@ else:
 
 #### build the input file list
 if options.inputDIR != "":
-    os.system("ls "+options.inputDIR+" > file_list_"+str(options.leptonPID)+"_"+options.typeID);
-    file = open("file_list_"+str(options.leptonPID)+"_"+options.typeID,"r");
-    inputFileList = [];
-    for line in file:
-        if line == "" or line == "\n": continue;
-        if ".root" in line:
-            inputFileList.append(options.inputDIR+"/"+line.replace("\n",""));
-    os.system("rm file_list_"+str(options.leptonPID)+"_"+options.typeID);
+    if not options.isEOSDIR:
+        os.system("ls "+options.inputDIR+" > file_list_"+str(options.leptonPID)+"_"+options.typeID);
+        file = open("file_list_"+str(options.leptonPID)+"_"+options.typeID,"r");
+        inputFileList = [];
+        for line in file:
+            if line == "" or line == "\n": continue;
+            if ".root" in line:
+                inputFileList.append(options.inputDIR+"/"+line.replace("\n",""));
+        os.system("rm file_list_"+str(options.leptonPID)+"_"+options.typeID);
+    else:
+        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" > file_list_"+str(options.leptonPID)+"_"+options.typeID);
+        file = open("file_list_"+str(options.leptonPID)+"_"+options.typeID,"r");
+        inputFileList = [];
+        for line in file:
+            if line == "" or line == "\n": continue;
+            if ".root" in line:
+                inputFileList.append("root://eoscms.cern.ch//eos/cms/"+options.inputDIR+"/"+line.replace("\n",""));
+        os.system("rm file_list_"+str(options.leptonPID)+"_"+options.typeID);        
+        ifile = 0;
+        for file in inputFileList:
+            os.system("xrdcp -f "+file+" ./");
+            inputFileList[ifile] = file.replace("root://eoscms.cern.ch//eos/cms/"+options.inputDIR+"/","");
 else:
     sys.exit('No input dir found --> return');
 
@@ -129,7 +147,7 @@ PDFName = "pdfSignalPlusBackground"
 ### Binnning in eta and pt for the efficiency fit
 EfficiencyBins = cms.PSet(
     pt     = cms.vdouble(options.ptMin,options.ptMax),
-    abseta = cms.vdouble(options.etaMin,options.etaMax)
+    eta    = cms.vdouble(options.etaMin,options.etaMax)
     )
 ### Defining the observable as well as the PDF names for each bin (total PDF for fitting pass and fail samples)-> One per pt
 EfficiencyBinningSpecification = cms.PSet(
@@ -168,7 +186,7 @@ process.leptonIdTnP = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                                      Variables = cms.PSet(
         mass   = cms.vstring("Tag-Probe Mass", "65.0", "115.0", "GeV/c^{2}"),
         pt     = cms.vstring("Probe p_{T}", str(options.ptMin),  str(options.ptMax), "GeV/c"),
-        abseta = cms.vstring("Probe #eta",  str(options.etaMin), str(options.etaMax),""),                
+        eta    = cms.vstring("Probe #eta",  str(options.etaMin), str(options.etaMax),""),                
         ),
                                      Efficiencies = cms.PSet(IDModule),
                                      Categories = cms.PSet(
