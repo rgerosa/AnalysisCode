@@ -78,16 +78,14 @@ void makeTrigger(TTree* tree, // tree
 
     // check the probe lepton information --> if it falls inside the bins                                                                                                       
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;
-    if(not isSingleMuon and fabs(*eta) > 1.442 and fabs(*eta) < 1.566) continue;
+    if(*eta < etaMin or *eta > etaMax) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds                                                                                            
     if(isMC and not *mcTrue) continue;
     if(*id <= 0) continue;
-
     if(*hlt == 0 and isMC)      
       hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);
     else if(*hlt == 0 and not isMC)
-      hfail.Fill(*mass);
+      hfail.Fill(*mass);    
     else if(*hlt == 1 and isMC){ 
       hpass.Fill(*mass, puwgt*(*wgt)/wgtsum);
       hp.Fill(*mass, puwgt*(*wgt)/wgtsum);
@@ -96,6 +94,7 @@ void makeTrigger(TTree* tree, // tree
       hpass.Fill(*mass);
       hp.Fill(*mass);
     }
+
     if(isMC){
       ha.Fill(*mass, puwgt*(*wgt)/wgtsum);
       hall.Fill(*mass, puwgt*(*wgt)/wgtsum);
@@ -224,12 +223,12 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   if(isSingleMuon){
     binningPt  = {6,8,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30,32.5,35,37.5,40,45,50,60,70,85,100,125,150,175,200,250};
     binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
-    binningEta = {0,1.2,2.4};
+    binningEta = {-2.4,-1.2,1.2,2.4};
   }
   else{
     binningPt      = {10,15.,16.,17.,18.,19.,20.,21,22,23,24,26,27,28,29,31,32.5,35,37.5,40,42.5,45,50,60,70,85,100,125,150,175,200,250};
     binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
-    binningEta = {0,1.5,2.5};
+    binningEta = {-2.5,-1.5,1.5,2.5};
   }
     
   //prepare the histograms for muons
@@ -261,12 +260,12 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
 	makeTrigger(tree,trigeff_muIsoTk,isMC,isSingleMuon,outputDIR,"hlttkmu",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
       }
       else{
-	//	makeTrigger(tree,trigeff_ele242p1wploose,isMC,isSingleMuon,outputDIR,"hltele24eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,trigeff_ele252p1wptight,isMC,isSingleMuon,outputDIR,"hltele25eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,trigeff_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,trigeff_ele272p1wploose,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele242p1wploose,isMC,isSingleMuon,outputDIR,"hltele24eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele252p1wptight,isMC,isSingleMuon,outputDIR,"hltele25eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele272p1wploose,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,trigeff_ele27wptight,isMC,isSingleMuon,outputDIR,"hltele27wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,trigeff_ele,isMC,isSingleMuon,outputDIR,"hltele",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele,isMC,isSingleMuon,outputDIR,"hltele",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
       }
     }
   }
@@ -302,13 +301,13 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
     plotTriggerEfficiency(canvas,trigeff_muIsoTk,isSingleMuon,outputDIR,false,lumi);
   }
   else{ 
-    //    plotTriggerEfficiency(canvas,trigeff_ele242p1wploose,isSingleMuon,outputDIR,false,lumi);
-    //    plotTriggerEfficiency(canvas,trigeff_ele252p1wptight,isSingleMuon,outputDIR,false,lumi);
-    //    plotTriggerEfficiency(canvas,trigeff_ele272p1wploose,isSingleMuon,outputDIR,false,lumi);
-    //    plotTriggerEfficiency(canvas,trigeff_ele272p1wptight,isSingleMuon,outputDIR,false,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele242p1wploose,isSingleMuon,outputDIR,false,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele252p1wptight,isSingleMuon,outputDIR,false,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele272p1wploose,isSingleMuon,outputDIR,false,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele272p1wptight,isSingleMuon,outputDIR,false,lumi);
     plotTriggerEfficiency(canvas,trigeff_ele27wptight,isSingleMuon,outputDIR,false,lumi);
-    //    plotTriggerEfficiency(canvas,trigeff_ele105,isSingleMuon,outputDIR,true,lumi);
-    //    plotTriggerEfficiency(canvas,trigeff_ele,isSingleMuon,outputDIR,false,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele105,isSingleMuon,outputDIR,true,lumi);
+    plotTriggerEfficiency(canvas,trigeff_ele,isSingleMuon,outputDIR,false,lumi);
   }
 
   

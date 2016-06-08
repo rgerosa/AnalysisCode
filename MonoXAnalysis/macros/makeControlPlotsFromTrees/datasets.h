@@ -51,7 +51,7 @@ void fillDataSetNames(vector<string>& files, string sample) {
     if (sample == "dib") {
         files.push_back("DiBoson");
         files.push_back("WWTo2L2Nu_13TeV-powheg");
-        files.push_back("WWTo4Q_13TeV-powheg");
+	//        files.push_back("WWTo4Q_13TeV-powheg");
         files.push_back("WWToLNuQQ_13TeV-powheg");
         files.push_back("WZ_TuneCUETP8M1_13TeV-pythia8");
         files.push_back("ZZ_TuneCUETP8M1_13TeV-pythia8");
@@ -71,6 +71,7 @@ void fillDataSetNames(vector<string>& files, string sample) {
 
     if (sample == "gam") {
         files.push_back("PhotonJets");
+        files.push_back("GJets_HT-40To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
         files.push_back("GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
         files.push_back("GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
         files.push_back("GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
