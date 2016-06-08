@@ -456,6 +456,8 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
 
   for(size_t iproj = 0; iproj < projectionMC.size(); iproj++){
 
+    cout<<"################### "<<projectionMC.at(iproj)->GetName()<<endl;
+
     projectionMC.at(iproj)->SetLineColor(kRed);
     projectionMC.at(iproj)->SetMarkerColor(kRed);
     projectionMC.at(iproj)->SetMarkerSize(0.5);
