@@ -4,7 +4,7 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.59) {
+void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.59, bool singleMuon = true) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -17,7 +17,13 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.5
   
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 50, 1000, 5);
   fitfunc->SetParameters(117., 25., 30., 4., 1.);
-  vector<float> bins = {50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100., 105., 110., 115., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 500., 600., 1000.};
+
+  vector<float> bins;
+  if(singleMuon)
+    bins = {50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100., 105., 110., 115., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000.};
+  else
+    bins = {50.,70.,90.,100,110.,120.,140.,160., 180., 200., 250., 350.,450,550,650,1000.};
+    
   
   TChain* tree = new TChain("tree/tree");
   // should use the wmnu events triggered by single muon
@@ -29,9 +35,15 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.5
   hden->Sumw2();
 
   // define numerator as event with tight muon + trigger requirement
-  tree->Draw("t1mumet>>hnum","(hltmet90==1 || hltmetwithmu170==1) && hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
   // define denominator as an event with a tight muon passing single muon trigger
-  tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
+  if(singleMuon){
+    tree->Draw("t1mumet>>hnum","(hltmet100==1 || hltmetwithmu170==1) && hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
+    tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
+  }
+  else{
+    tree->Draw("t1pfmet>>hnum","(hltmet100==1 || hltmetwithmu170==1) && hltsingleel==1 && el1pt>40 && el1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
+    tree->Draw("t1pfmet>>hden","hltsingleel==1 && el1pt>40 && el1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1");    
+  }
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);
   eff->Fit(fitfunc);
@@ -43,7 +55,11 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.5
   fitfunc->SetLineWidth(2);
   
   TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.1, "");
-  frame->GetXaxis()->SetTitle("E_{T#mu}^{miss} [GeV]    ");
+  if(singleMuon)
+    frame->GetXaxis()->SetTitle("E_{T#mu}^{miss} [GeV]");
+  else
+    frame->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+
   frame->GetYaxis()->SetTitle("Trigger Efficiency");
   frame->GetYaxis()->SetLabelSize(0.8*frame->GetYaxis()->GetLabelSize());
   frame->GetXaxis()->SetLabelSize(0.8*frame->GetXaxis()->GetLabelSize());
@@ -61,11 +77,22 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.5
   canvas->RedrawAxis();
   CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
 
-  canvas->SaveAs((ouputDIR+"/metTriggerEff.png").c_str(),"png");
-  canvas->SaveAs((ouputDIR+"/metTriggerEff.pdf").c_str(),"pdf");
-  TFile* outputFile = new TFile((ouputDIR+"/metTriggerEfficiency.root").c_str(),"RECREATE");
-  outputFile->cd();
-  eff->Write("efficiency");
-  fitfunc->Write("efficiency_func");
+  if(singleMuon){
+    canvas->SaveAs((ouputDIR+"/metTriggerEff.png").c_str(),"png");
+    canvas->SaveAs((ouputDIR+"/metTriggerEff.pdf").c_str(),"pdf");
+    TFile* outputFile = new TFile((ouputDIR+"/metTriggerEfficiency.root").c_str(),"RECREATE");
+    outputFile->cd();
+    eff->Write("efficiency");
+    fitfunc->Write("efficiency_func");
+  }
+  else{
+    canvas->SaveAs((ouputDIR+"/metTriggerEff_el.png").c_str(),"png");
+    canvas->SaveAs((ouputDIR+"/metTriggerEff_el.pdf").c_str(),"pdf");
+    TFile* outputFile = new TFile((ouputDIR+"/metTriggerEfficiency_el.root").c_str(),"RECREATE");
+    outputFile->cd();
+    eff->Write("efficiency");
+    fitfunc->Write("efficiency_func");
+
+  }
 }
 

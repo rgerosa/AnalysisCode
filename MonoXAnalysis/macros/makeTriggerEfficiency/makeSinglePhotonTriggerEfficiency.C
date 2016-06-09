@@ -17,7 +17,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 150, 300, 5);
   fitfunc->SetParameters(160., 5., 5., 4., 1.);
-  vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,190,200};
+  vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
   
   TChain* tree = new TChain("tree/tree");
   // should use the wmnu events triggered by single muon
@@ -29,11 +29,11 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   hden->Sumw2();
 
   // define numerator as event with a medium photon + trigger requirement
-  tree->Draw("phpt>>hnum","(hltphoton165 || hltphoton175) && phidm == 1 && abs(pheta) < 1.4442");    
+  tree->Draw("phpt>>hnum","(hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && (hltphoton175 || hltphoton165) && phidm == 1 && abs(pheta) < 1.4442");    
   // define denominator as an event with a tight muon passing single muon trigger
-  tree->Draw("phpt>>hden","phidm == 1 && abs(pheta) < 1.4442");    
-  
-  TEfficiency* eff = new TEfficiency(*hnum,*hden);
+  tree->Draw("phpt>>hden","phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120)");    
+
+  TEfficiency* eff = new TEfficiency(*hnum,*hden);  
   eff->Fit(fitfunc);
   eff->SetMarkerColor(kBlack);
   eff->SetLineColor(kBlack);
