@@ -150,16 +150,18 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   
   // random cone information
   if(addPhotonPurity){
-    produces<edm::ValueMap<float> >("rndchhadiso");
+    produces<edm::ValueMap<float> >("rndchhadiso04");
+    produces<edm::ValueMap<float> >("rndchhadiso08");
     produces<edm::ValueMap<float> >("rndgammaiso04");
     produces<edm::ValueMap<float> >("rndgammaiso08");
     produces<pat::PhotonRefVector> ("photonsPurity");
     produces<pat::PhotonRefVector> ("tightphotonsPurity");
   }
   // value map for highptId
-  produces<edm::ValueMap<bool> >("photonHighPtId");
-  produces<edm::ValueMap<bool> >("photonLooseId");
+  produces<edm::ValueMap<bool> > ("photonHighPtId");
+  produces<edm::ValueMap<bool> > ("photonLooseId");
   produces<edm::ValueMap<float> >("gammaiso");
+  produces<edm::ValueMap<float> >("chhadiso");
 
   // useful for taus
   looseMuonPosition     = -1;
@@ -263,10 +265,14 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
+
   std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso04map(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso08map(new ValueMap<float>());
-  std::auto_ptr<pat::PhotonRefVector> outputphotonsPurity(new pat::PhotonRefVector);
-  std::auto_ptr<pat::PhotonRefVector> outputtightphotonsPurity(new pat::PhotonRefVector);
+  std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso04map(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso08map(new ValueMap<float>());
+
+  std::auto_ptr<pat::PhotonRefVector>  outputphotonsPurity(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonRefVector>  outputtightphotonsPurity(new pat::PhotonRefVector);
   
   //muon info https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
@@ -368,8 +374,9 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<float> rndgammaiso04;
   std::vector<float> rndgammaiso08;
   std::vector<float> gammaiso;
-  std::vector<float> rndchhadiso;
-
+  std::vector<float> chhadiso;
+  std::vector<float> rndchhadiso04;
+  std::vector<float> rndchhadiso08;
   std::vector<bool>  photonidhighpt;
   std::vector<bool>  photonloose;
   
@@ -378,13 +385,19 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     float gaisoval      = computePhotonIso(pfcandsH,photons_iter->eta(),  photons_iter->phi(),0.3);     
     gammaiso.push_back(gaisoval);
-
+    float chisoval = 0;
+    for(size_t i = 0; i < pfcandsH->size(); i++) {
+      const auto& pfcand = pfcandsH->ptrAt(i);
+      if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),photons_iter->phi(), pfcand->eta(), pfcand->phi()) <= 0.3)
+	chisoval += pfcand->pt();
+    }
+    chhadiso.push_back(chisoval);
+    
     if(addPhotonPurity){
       double rndphi04 = photons_iter->phi() + M_PI/2.0;
       double rndphi08 = photons_iter->phi() + M_PI/2.0;
-      float  chisoval = 0.;
-      // random cone info
-      double rndphi = photons_iter->phi() + M_PI/2.0;
+      float  chisoval04 = 0.;
+      float  chisoval08 = 0.;
       if (userandomphi) {
 	rndphi04 = rand.Uniform(-M_PI, M_PI);
 	while (randomConeOverlaps(rndphi04, photons_iter->eta(), photons_iter->phi(), *jetsH, 0.4)) {
@@ -400,16 +413,21 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       for(size_t i = 0; i < pfcandsH->size(); i++) {
 	const auto& pfcand = pfcandsH->ptrAt(i);
-	if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(), rndphi, pfcand->eta(), pfcand->phi()) <= 0.3) 
-	  chisoval += pfcand->pt();
+	if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi04, pfcand->eta(), pfcand->phi()) <= 0.3) 
+	  chisoval04 += pfcand->pt();
       }
-
       
+      for(size_t i = 0; i < pfcandsH->size(); i++) {
+	const auto& pfcand = pfcandsH->ptrAt(i);
+	if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi08, pfcand->eta(), pfcand->phi()) <= 0.3) 
+	  chisoval08 += pfcand->pt();
+      }      
       float rndgaisoval04 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
       float rndgaisoval08 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
       rndgammaiso04.push_back(rndgaisoval04);
       rndgammaiso08.push_back(rndgaisoval08);
-      rndchhadiso.push_back(chisoval);
+      rndchhadiso04.push_back(chisoval04);
+      rndchhadiso08.push_back(chisoval08);
     }
 
     //livia
@@ -481,14 +499,22 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     rnd08gafiller.insert(photonsH, rndgammaiso08.begin(), rndgammaiso08.end());
     rnd08gafiller.fill();
     
-    edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
-    chfiller.insert(photonsH, rndchhadiso.begin(), rndchhadiso.end());
-    chfiller.fill();
+    edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
+    rnd04chfiller.insert(photonsH, rndchhadiso04.begin(), rndchhadiso04.end());
+    rnd04chfiller.fill();
+
+    edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
+    rnd08chfiller.insert(photonsH, rndchhadiso08.begin(), rndchhadiso08.end());
+    rnd08chfiller.fill();
   }
   
   edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
   gafiller.insert(photonsH, gammaiso.begin(), gammaiso.end());
   gafiller.fill();
+
+  edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
+  chfiller.insert(photonsH, chhadiso.begin(), chhadiso.end());
+  chfiller.fill();
 
 
   //livia    
@@ -509,14 +535,16 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   iEvent.put(outputphotonhighptidmap,"photonHighPtId");
   iEvent.put(outputloosephotonmap,   "photonLooseId");
-  iEvent.put(outputgammaisomap, "gammaiso");  
+  iEvent.put(outputgammaisomap,      "gammaiso");  
+  iEvent.put(outputchhadisomap,      "chhadiso");  
   
   if(addPhotonPurity){
-    iEvent.put(outputchhadisomap,      "rndchhadiso");
     iEvent.put(outputphotonsPurity,    "photonsPurity");
     iEvent.put(outputtightphotonsPurity,"tightphotonsPurity");
     iEvent.put(outputrndgammaiso04map, "rndgammaiso04");
     iEvent.put(outputrndgammaiso08map, "rndgammaiso08");
+    iEvent.put(outputrndchhadiso04map, "rndchhadiso04");
+    iEvent.put(outputrndchhadiso08map, "rndchhadiso08");
   }
 
   for(size_t imuon = 0; imuon < outputmuons.size(); imuon++)
@@ -560,8 +588,8 @@ void PFCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 // Photon purity studies
 bool PFCleaner::randomConeOverlaps(double randomphi, double photoneta, double photonphi, std::vector<pat::Jet> jets, double vetoCone) {
   if (reco::deltaR(photoneta, randomphi, photoneta, photonphi) < vetoCone) return true;
-  for (std::size_t i = 0; i < jets.size(); i++) {
-    if (reco::deltaR(photoneta,photonphi,jets[i].eta(),jets[i].phi()) < vetoCone) continue;
+  for (std::size_t i = 0; i < jets.size(); i++) {    
+    if (reco::deltaR(photoneta,photonphi,jets[i].eta(),jets[i].phi()) < 0.4) continue;
     if (jets[i].pt() > 30. && reco::deltaR(photoneta, randomphi, jets[i].eta(), jets[i].phi()) < vetoCone){
       return true;
     }
