@@ -36,7 +36,7 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
   const edm::InputTag    metTag;
-  const std::vector<edm::InputTag> candTags;
+  std::vector<edm::InputTag> candTags;
   const edm::InputTag    pfCandidatesTag;
   const bool isPuppiTag;
   const bool useuncorrmet;
@@ -68,6 +68,8 @@ CandCorrectedMETProducerT<T>::CandCorrectedMETProducerT(const edm::ParameterSet&
 
 template< class T>
 CandCorrectedMETProducerT<T>::~CandCorrectedMETProducerT() {
+  candTags.clear();
+  candTokens.clear();
 }
 
 template< class T>
@@ -122,7 +124,6 @@ template< class T>
 reco::Candidate::LorentzVector CandCorrectedMETProducerT<T>::findParticle(const T & particle, const edm::View<reco::Candidate> & pfCandCollection){
 
   reco::Candidate::LorentzVector total4V;
-  
   std::vector<reco::CandidatePtr> particles;
   for(size_t ipart = 0 ; ipart < particle.numberOfSourceCandidatePtrs(); ipart++){
     if(particle.sourceCandidatePtr(ipart).isNonnull() and particle.sourceCandidatePtr(ipart).isAvailable()){
@@ -148,6 +149,7 @@ reco::Candidate::LorentzVector CandCorrectedMETProducerT<T>::findParticle(const 
     }
   }
 
+  particles.clear();
   return total4V;
 }
 

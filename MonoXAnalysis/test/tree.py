@@ -236,6 +236,7 @@ if options.inputFiles == []:
 	if not options.isMC :
 		process.source.fileNames.append(
 			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/00DD3222-261A-E611-9FD2-02163E011E34.root'
+#			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/3EF170D2-1C1A-E611-9962-02163E011F00.root'
 #			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root'
 			)
 	else:
@@ -272,6 +273,11 @@ else:
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 #process.source.eventsToProcess = cms.untracked.VEventRange('1:1057:533689')
+
+#process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+#					ignoreTotal = cms.untracked.int32(1),
+#					moduleMemorySummary = cms.untracked.bool(True)
+#					)
 
 ## How many events to process
 process.maxEvents = cms.untracked.PSet( 
@@ -488,7 +494,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      rndgammaiso04   = cms.InputTag("selectedObjects", "rndgammaiso04"),
 			      rndgammaiso08   = cms.InputTag("selectedObjects", "rndgammaiso08"),
 			      gammaiso        = cms.InputTag("selectedObjects", "gammaiso"),
-			      rndchhadiso     = cms.InputTag("selectedObjects", "rndchhadiso"),
+			      rndchhadiso04   = cms.InputTag("selectedObjects", "rndchhadiso04"),
+			      rndchhadiso08   = cms.InputTag("selectedObjects", "rndchhadiso08"),
 			      photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
 			      photonPHiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
 			      photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation"),

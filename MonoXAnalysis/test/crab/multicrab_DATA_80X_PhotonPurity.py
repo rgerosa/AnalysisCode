@@ -46,7 +46,7 @@ config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 40000
 config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-07-06-2016_80X_Data864pb-1_PhotonPurity/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'  
+config.Data.lumiMask      = 'lumisToProcess.json'  
 #config.Data.runRange
 config.Data.publication   = False
 
