@@ -31,38 +31,50 @@ double getValueFromVar(std::false_type, TTreeReaderValue<T>& var, size_t) {
 template<typename T>
 void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sample chan, double lumi, vector<TH1*> khists, size_t index, bool isInclusive) {
 
-    TTreeReader reader(tree);
+  TTreeReader reader(tree);
 
-    TFile pufile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
-    TH1*  puhist = (TH1*)pufile.Get("puhist");
+  // pileup re-weight after 864 pb-1
+  TFile pufile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+  TH1*  puhist = (TH1*)pufile.Get("puhist");
+  
+  // electron and muon ID scale factor files
+  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid.root");
+  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid.root");
+  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid.root");
+  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid.root");
+  
+  TH2*  msfloose = (TH2*)sffile_muLoose.Get("scaleFactor_muon_looseid_RooCMSShape");
+  TH2*  msftight = (TH2*)sffile_muTight.Get("scaleFactor_muon_tightid_RooCMSShape");
+  TH2*  esfveto  = (TH2*)sffile_eleVeto.Get("scaleFactor_electron_vetoid_RooCMSShape");
+  TH2*  esftight = (TH2*)sffile_eleTight.Get("scaleFactor_electron_tightid_RooCMSShape");
+  
+  // Photon ID scale factor
+  TFile sffile_phoLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_looseid.root");
+  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid.root");
+  TH2*  psfloose  = (TH2*)sffile_phoLoose.Get("scaleFactor_photon_looseid_RooCMSShape");
+  TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
 
-    TFile sffile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");
-    TH2*  msflhist = (TH2*)sffile.Get("muon_loose_SF");
-    TH2*  msfthist = (TH2*)sffile.Get("muon_tight_SF");
-    TH2*  esflhist = (TH2*)sffile.Get("electron_veto_SF");
-    TH2*  esfthist = (TH2*)sffile.Get("electron_tight_SF");
+  // Photon Purity
+  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_0202.root");
+  TH2*  purhist = (TH2*) purityfile_photon.Get("PhotonPurity");
 
-    TFile psffile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_2211.root");
-    TH2*  psfhist = (TH2*)psffile.Get("PhotonSF");
-    TH2*  purhist = (TH2*)psffile.Get("PhotonPurity");
+  // trigger files used for 2016
+  TFile triggerfile_SinglEle("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron.root");
+  TFile triggerfile_SingleMu("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleMuon.root");
+  TFile triggerfile_MET("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
+  TFile triggerfile_SinglePhoton("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/photonTriggerEfficiency.root");
+  
+  TH2*  triggerelhist = (TH2*) triggerfile_SinglEle.Get("trigeff_ele27wptight"); 
+  TH2*  triggermuhist = (TH2*) triggerfile_SingleMu.Get("trigeff_muIso"); 
+  
+  TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
+  TF1*  triggerphoton = (TF1*)triggerfile_SinglePhoton.Get("efficiency_func");
 
-    // trigger files used for 2016
-    TFile triggerfile_SinglEle("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron.root");
-    TH2*  triggerelehist = (TH2*) triggerfile_SinglEle.Get("trigeff_ele27wptight"); 
-
-    TFile triggerfile_SingleMu("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleMuon.root");
-    TH2*  triggermuhist = (TH2*) triggerfile_SingleMu.Get("trigeff_muIso"); 
-
-    TFile triggerfile_MET("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
-    TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
-
-    TFile triggerfile_SinglePhoton("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/photonTriggerEfficiency.root");
-    TF1*  triggerphoton = (TF1*)triggerfile_SinglePhoton.Get("efficiency_func");
-
-    const char* wgtsumvar;
-    const char* wgtpuvar;
-    const char* wgtbtagvar;
-
+  // Branches 
+  const char* wgtsumvar;
+  const char* wgtpuvar;
+  const char* wgtbtagvar;
+  
     if (isMC)   {
         wgtsumvar  = "wgtsum";
         wgtpuvar   = "wgtpileup";
@@ -109,6 +121,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     TTreeReaderValue<double>          xsec   (reader, "xsec");
     TTreeReaderValue<double>          wzpt   (reader, "wzpt");
 
+    TTreeReaderValue<double>          t1pfmet(reader, "t1pfmet");
     TTreeReaderValue<double>          t1mumet(reader, "t1mumet");
     TTreeReaderValue<double>          t1elmet(reader, "t1elmet");
     TTreeReaderValue<double>          t1phmet(reader, "t1phmet");
@@ -136,13 +149,21 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     TTreeReaderValue<double>          el2eta (reader, "el2eta");
 
     TTreeReaderValue<int>             phidm  (reader, "phidm");
+    TTreeReaderValue<int>             phidt  (reader, "phidt");
     TTreeReaderValue<double>          phpt   (reader, "phpt");
     TTreeReaderValue<double>          pheta  (reader, "pheta");
+
+    TTreeReaderValue<double>          wmt (reader, "wmt");
+    TTreeReaderValue<double>          wemt(reader, "wemt");
+
+
 
     Double_t max = hist->GetBinLowEdge(hist->GetNbinsX()) + hist->GetBinWidth(hist->GetNbinsX());
     Double_t mid = hist->GetBinLowEdge(hist->GetNbinsX()) + hist->GetBinWidth(hist->GetNbinsX())/ 2.0;
 
+    // event loop
     while (reader.Next()) {
+
         double weight = 1.0;
         double kfact  = 1.0;
         double puwgt  = 1.0;
@@ -174,21 +195,24 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
         if (chan == Sample::qcd) {
             unsigned char hlt = (*hph165) + (*hph175);
             if (not isMC and hlt == 0) continue;
-            if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
-	    trgsf *= triggerphoton->Eval(*phpt);
+	    if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
+	    trgsf *= triggerphoton->Eval(min(*phpt,triggerphoton->GetXaxis()->GetXmax()));
+	    weight *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(*phpt,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(*pheta))));
         }
 	
         if (chan == Sample::sig) {
             unsigned char hlt = (*hmnm90) + (*hmnm120) + (*hmwm90) + (*hmwm120) + (*hmwm170) + (*hmwm300);      
             if (not isMC and hlt == 0) continue; 
-	    if (not isInclusive) trgsf *= triggermet->Eval(*t1mumet);
+	    if (not isInclusive) 
+	      trgsf *= triggermet->Eval(min(*t1mumet,triggermet->GetXaxis()->GetXmax()));
         }
 	
         if (chan == Sample::gam) {
 	  unsigned char hlt = (*hph165) + (*hph175);      
 	  if (not isMC and hlt == 0) continue; 
-	  if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
-	  trgsf *= triggerphoton->Eval(*phpt);
+	  if (*phpt < 175. || fabs(*pheta) > 1.4442 || *phidm !=1) continue;
+	  trgsf *= triggerphoton->Eval(min(*phpt,triggerphoton->GetXaxis()->GetXmax()));
+	  effsf *= psfmedium->GetBinContent(psfmedium->FindBin(min(*phpt,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),*pheta));
         }
 
         if (chan == Sample::wmn) {
@@ -196,11 +220,13 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  if(isInclusive)
 	    hlt += (*hsmu);
 	  if (not isMC and hlt == 0) continue; 	  
-	  effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
+	  if (*mu1pt < 20 or *mu1id != 1) continue;
+	  effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu1pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu1eta));
 	  if(not isInclusive)
 	    trgsf *= triggermet->Eval(*t1mumet);
 	  else
-	    trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(*mu1pt,*mu1eta));
+	    trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu1pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu1eta));
+	  if(isInclusive and *wmt < 60) continue;
         }        
 
         if (chan == Sample::zmm) {
@@ -210,24 +236,30 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  bool istight = false;
 	  if (*mu1id == 1 && *mu1pt > 20.) istight = true;
 	  if (*mu2id == 1 && *mu2pt > 20.) istight = true;
-	  if (!istight) continue;
-	  if (*mu1id == 1) effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
-	  else             effsf *= msflhist->GetBinContent(msflhist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
-	  if (*mu2id == 1) effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
-	  else             effsf *= msflhist->GetBinContent(msflhist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
+	  if (!istight) continue;	 
+	  if (*mu1id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu1pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu1eta));
+	  else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu1pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu1eta));
+	  if (*mu2id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu2pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu2eta));
+	  else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu2pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu2eta));
 
 	  if(not isInclusive) trgsf *= triggermet->Eval(*t1mumet);
 	  else{
-	    if (*mu1id == 1) trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(*mu1pt,*mu1eta));
-	    else             trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(*mu2pt,*mu2eta));
+	    if (*mu1id == 1 and *mu2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1
+	      trgsf *= 1;
+	    else if(*mu1id == 1 and *mu2id != 1) 
+	      trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu1pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu1eta));
+	    else if(*mu1id != 1 and *mu2id == 1) 
+	      trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu2pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu2eta));
 	  }
         }
 	
         if (chan == Sample::wen) {
 	  unsigned char hlt = *hsele;
 	  if (not isMC and hlt == 0) continue;
-	  effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-	  trgsf *= triggerelehist ->GetBinContent(triggerelehist->FindBin(*el1pt,*el1eta));
+	  if (*el1pt < 40 or *el1id != 1) continue;
+	  if (isInclusive and *wemt < 60) continue;
+	  effsf *= esftight->GetBinContent(esftight->FindBin(min(*el1pt,esftight->GetXaxis()->GetBinLowEdge(esftight->GetNbinsX()+1)-1),*el1eta));
+	  trgsf *= triggerelhist ->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
         }
 	
         if (chan == Sample::zee) {	  
@@ -237,34 +269,41 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  if (*el1id == 1 && *el1pt > 40.) istight = true;
 	  if (*el2id == 1 && *el2pt > 40.) istight = true;
 	  if (!istight) continue;
-	  if (*el1id == 1) effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-	  else             effsf *= esflhist->GetBinContent(esflhist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-	  if (*el2id == 1) effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el2pt), fabs(*el2eta)));
-	  else             effsf *= esflhist->GetBinContent(esflhist->FindBin(min(999., *el2pt), fabs(*el2eta)));
-
-	  if (*el1id == 1) trgsf *= triggerelehist ->GetBinContent(triggerelehist->FindBin(*el1pt,*el1eta));
-	  else             trgsf *= triggerelehist ->GetBinContent(triggerelehist->FindBin(*el2pt,*el2eta));
+	  
+	  if (*el1id == 1 ) effsf *= esftight->GetBinContent(esftight->FindBin(min(*el1pt,esftight->GetXaxis()->GetBinLowEdge(esftight->GetNbinsX()+1)-1),*el1eta));
+          else              effsf *= esfveto->GetBinContent(esfveto->FindBin(min(*el1pt,esfveto->GetXaxis()->GetBinLowEdge(esfveto->GetNbinsX()+1)-1),*el1eta));
+          if (*el2id == 1 ) effsf *= esftight->GetBinContent(esftight->FindBin(min(*el2pt,esftight->GetXaxis()->GetBinLowEdge(esftight->GetNbinsX()+1)-1),*el2eta));
+          else              effsf *= esfveto->GetBinContent(esfveto->FindBin(min(*el2pt,esfveto->GetXaxis()->GetBinLowEdge(esfveto->GetNbinsX()+1)-1),*el2eta));
+	  
+	  if (*el1id == 1 and *el2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1
+	    trgsf *= 1;
+	  else if(*el1id == 1 and *el2id != 1) 
+	    trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
+	  else if(*el1id != 1 and *el2id == 1) 
+	    trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el2pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el2eta)); 
         }
-
+	
 	if (chan == Sample::topmu){
 	  unsigned char hlt = (*hmnm90) + (*hmnm120) + (*hmwm90) +(*hmwm120) + (*hmwm170) +(*hmwm300);
-          if(isInclusive)
-            hlt += (*hsmu);
+          if(isInclusive) hlt += (*hsmu);
           if (not isMC and hlt == 0) continue;
-          effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
+	  if (*mu1pt < 20 or *mu1id != 1) continue;
+	  if(*nbjets < 1) continue;	  
+
+	  effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu1pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu1eta));	  
           if(not isInclusive)
 	    trgsf *= triggermet->Eval(*t1mumet);
 	  else
-	    trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(*mu1pt,*mu1eta));
-	  if(*nbjets < 1) continue;	  
+	    trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu1pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu1eta));
 	}
 
 	if (chan == Sample::topel){
 	  unsigned char hlt = *hsele;
 	  if (not isMC and hlt == 0) continue;	  
-	  effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-	  trgsf *= triggerelehist ->GetBinContent(triggerelehist->FindBin(*el1pt,*el1eta));
+	  if (*el1pt < 40 or *el1id != 1) continue;
 	  if(*nbjets < 1) continue;	  
+	  effsf *= esftight->GetBinContent(esftight->FindBin(min(*el1pt,esftight->GetXaxis()->GetBinLowEdge(esftight->GetNbinsX()+1)-1),*el1eta));	  
+	  trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
 	}
 
 	if ((*nvtx) <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
@@ -279,9 +318,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
             }
         }
 
-	//        if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)/(*wgtsum);	
-	if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(*wgtbtag)*(effsf)/(*wgtsum);	
-        if (chan == Sample::qcd) weight *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(999., *phpt), fabs(*pheta))));
+	if (isMC) weight *= (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(*wgtbtag)*(effsf)/(*wgtsum);	
         is_vector<T> isv;
         Double_t fillval = getValueFromVar(isv, var, index); 
         if (fillval >= max) fillval = mid;
@@ -289,8 +326,13 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     }
 
     pufile .Close();
-    sffile .Close();
-    psffile.Close();
+    sffile_eleTight.Close();
+    sffile_eleVeto.Close();
+    sffile_muTight.Close();
+    sffile_muLoose.Close();
+    sffile_phoLoose.Close();
+    sffile_phoMedium.Close();
+    purityfile_photon.Close();
     triggerfile_SinglEle.Close();
     triggerfile_SingleMu.Close();
     triggerfile_MET.Close();
@@ -312,6 +354,10 @@ void makeGenericHist(string sfilename, TH1* hist, const char* varname, const cha
 
     const char* filename = sfilename.c_str();
     TFile* file = new TFile(filename);
+    if(file == 0 or file == NULL or file->IsZombie()){
+      cerr<<"File not found --> name :"<<file->GetName()<<" --> return "<<endl;
+      return;
+    }
     TTree* tree = (TTree*)file->Get("tree/tree");
     TTree* cuttree = NULL;
     if (string(cut) == "") cuttree = tree;

@@ -32,7 +32,7 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   
-  const std::vector<edm::ParameterSet> metCollectionInfo_;
+  std::vector<edm::ParameterSet> metCollectionInfo_;
   std::vector<edm::InputTag> metCollectionTag_;
   const bool filterEvents_;
   const bool graterThan_;
@@ -63,6 +63,7 @@ METFilter<T>::~METFilter() {
   metCollectionTag_.clear();
   metCollectionToken_.clear();
   metTreshold_.clear();
+  metCollectionInfo_.clear();
 }
 
 template<class T>

@@ -30,13 +30,24 @@ void plot(Sample chan, // channel
     double xmin = xbins[0];
     double xmax = xbins[nbins];
 
-    znnhist->SetFillColor(kAzure-9);
-    wlnhist->SetFillColor(kYellow-9);
-    zllhist->SetFillColor(kOrange-9);
-    tophist->SetFillColor(kOrange+2);
-    dibhist->SetFillColor(kViolet-9);
-    qcdhist->SetFillColor(kGray);
-    gamhist->SetFillColor(kCyan-10);
+    if(chan == Sample::sig){
+      znnhist->SetFillColor(TColor::GetColor("#258039"));
+      wlnhist->SetFillColor(TColor::GetColor("#FAAF08"));
+      zllhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+      tophist->SetFillColor(TColor::GetColor("#CF3721"));
+      dibhist->SetFillColor(TColor::GetColor("#4897D8"));
+      qcdhist->SetFillColor(TColor::GetColor("#F1F1F2"));
+      gamhist->SetFillColor(kOrange);
+    }
+    else{
+      znnhist->SetFillColor(kGreen+1);
+      wlnhist->SetFillColor(kRed);
+      zllhist->SetFillColor(kCyan);
+      tophist->SetFillColor(kBlue);
+      dibhist->SetFillColor(kViolet);
+      qcdhist->SetFillColor(kGray);
+      gamhist->SetFillColor(kOrange);
+    }
 
     vector<TH1*> hists;
     hists.push_back(dathist);
@@ -148,19 +159,19 @@ void plot(Sample chan, // channel
       for (size_t i = 1; i < dibfiles.size(); i++) 
 	makeGenericHist(mcpath+"/"+dibfiles[0]+"/"+filter+"filter/"+filter+"_"+dibfiles[i]+".root" , dibhist, varstr, cut,  true, chan, lumi, efac, isInclusive);
     }
-    /*
+    
     if  (chan != Sample::gam) {
-    for (size_t i = 1; i < qcdfiles.size(); i++) 
-      makeGenericHist(mcpath+"/"+qcdfiles[0]+"/"+filter+"filter/"+filter+"_"+qcdfiles[i]+".root" , qcdhist, varstr, cut,  true, chan, lumi, efac, isInclusive);
+      for (size_t i = 1; i < qcdfiles.size(); i++) 
+	makeGenericHist(mcpath+"/"+qcdfiles[0]+"/"+filter+"filter/"+filter+"_"+qcdfiles[i]+".root" , qcdhist, varstr, cut,  true, chan, lumi, efac, isInclusive);
     }
+    
     if  (chan == Sample::sig || chan == Sample::gam) {
-    for (size_t i = 1; i < gamfiles.size(); i++) 
-      makeGenericHist(mcpath+"/"+gamfiles[0]+"/"+filter+"filter/"+filter+"_"+gamfiles[i]+".root" , gamhist, varstr, cut,  true, chan, lumi, gfac, isInclusive);
+      for (size_t i = 1; i < gamfiles.size(); i++) 
+	makeGenericHist(mcpath+"/"+gamfiles[0]+"/"+filter+"filter/"+filter+"_"+gamfiles[i]+".root" , gamhist, varstr, cut,  true, chan, lumi, gfac, isInclusive);
     }
-    */
     if  (chan == Sample::gam) {
-    for (size_t i = 1; i < datfiles.size(); i++) 
-      makeGenericHist(dtpath+"/"+datfiles[0]+"/"+filter+"filter/"+filter+"_"+datfiles[i]+".root" , qcdhist, varstr, cut, false, Sample::qcd, lumi, efac, isInclusive);
+      for (size_t i = 1; i < datfiles.size(); i++) 
+	makeGenericHist(dtpath+"/"+datfiles[0]+"/"+filter+"filter/"+filter+"_"+datfiles[i]+".root" , qcdhist, varstr, cut, false, Sample::qcd, lumi, efac, isInclusive);
     }
     
     kfactfile.Close();    

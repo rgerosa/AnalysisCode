@@ -90,7 +90,7 @@ void setTDRStyle (){
 
 }
 
-void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
+void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, float offset = 0){
 
   TLatex* latex2 = new TLatex();
   latex2->SetNDC();
@@ -106,7 +106,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
     latex2->SetTextSize(0.65*pad->GetTopMargin());
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
-    latex2->DrawLatex(0.15, 0.95, "CMS");
+    latex2->DrawLatex(0.15+offset, 0.95, "CMS");
   }
   else{
     latex2->SetTextSize(0.6*pad->GetTopMargin());
@@ -117,14 +117,14 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
 
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
-    latex2->DrawLatex(0.19, 0.85, "CMS");
+    latex2->DrawLatex(0.19+offset, 0.85, "CMS");
   }
 
   if(up){
     latex2->SetTextSize(0.65*pad->GetTopMargin());
     latex2->SetTextFont(52);
     latex2->SetTextAlign(11);
-    latex2->DrawLatex(0.24, 0.95, "Preliminary");
+    latex2->DrawLatex(0.25+offset, 0.95, "Preliminary");
   }
   else{
     latex2->SetTextSize(0.5*pad->GetTopMargin());
@@ -135,11 +135,11 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false){
     latex2->SetTextFont(52);
     latex2->SetTextAlign(11);    
     if(reduceSize == 1)
-      latex2->DrawLatex(0.225, 0.85, "Preliminary");
+      latex2->DrawLatex(0.225+offset, 0.85, "Preliminary");
     else if(reduceSize == 2)
-      latex2->DrawLatex(0.24, 0.85, "Preliminary");
+      latex2->DrawLatex(0.24+offset, 0.85, "Preliminary");
     else
-      latex2->DrawLatex(0.28, 0.85, "Preliminary");
+      latex2->DrawLatex(0.28+offset, 0.85, "Preliminary");
   }
 }
 
