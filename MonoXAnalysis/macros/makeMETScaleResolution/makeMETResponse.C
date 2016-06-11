@@ -2,7 +2,7 @@
 
 // met binning used in this study
 vector<double> ZPT_bins      = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 155.,190.,250.};
-vector<double> GammaPT_bins  = {175.,200,250,300,500};
+vector<double> GammaPT_bins  = {150,175.,200,250,300,400,500,600};
 vector<double> Nvtx_bins     = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
 vector<double> ZEta_bins     = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
 vector<double> GammaEta_bins = {0.0, 0.5, 1.0,  1.5};
@@ -199,6 +199,9 @@ double drawplot(TTree* tree,
   TTreeReaderValue<unsigned char>   hmwm120(reader, "hltmetwithmu120");
   TTreeReaderValue<unsigned char>   hmwm170(reader, "hltmetwithmu170");
   TTreeReaderValue<unsigned char>   hmwm300(reader, "hltmetwithmu300");
+  TTreeReaderValue<unsigned char>   hph50 (reader, "hltphoton50");
+  TTreeReaderValue<unsigned char>   hph90 (reader, "hltphoton90");
+  TTreeReaderValue<unsigned char>   hph120 (reader, "hltphoton120");
   TTreeReaderValue<unsigned char>   hph165 (reader, "hltphoton165");
   TTreeReaderValue<unsigned char>   hph175 (reader, "hltphoton175");
   TTreeReaderValue<unsigned char>   hsmu   (reader, "hltsinglemu");
@@ -305,9 +308,9 @@ double drawplot(TTree* tree,
     if(*nbjets > 1) continue;
 
     if (binning.category_ == "gam") {
-      unsigned char hlt = (*hph165) + (*hph175);
+      unsigned char hlt = (*hph165) + (*hph175) +(*hph50) +(*hph90)+(*hph120);
       if (not isMC and hlt == 0) continue;
-      if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
+      if (fabs(*pheta) > 1.4442 || not *phidm) continue;
       trgsf *= triggerphoton->Eval(min(*phpt,triggerphoton->GetXaxis()->GetXmax()));
       effsf *= psfmedium->GetBinContent(psfmedium->FindBin(min(*phpt,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),*pheta));
       if(obs < binning.bins_.at(binning.iBin_)) continue;

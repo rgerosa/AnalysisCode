@@ -1,9 +1,11 @@
 #include "../CMS_lumi.h"
 
 // analysis binning
-vector<double> ZPT_bins  = {0.0, 10., 20.,  30., 40., 60., 80., 100., 150., 400.};
+vector<double> ZPT_bins  = {0.0, 10., 20.,  30., 40., 60., 80., 100., 150.,200.250,300,400};
+vector<double> GammaPT_bins  = {150,175.,200,250,300,400,500,600};
 vector<double> Nvtx_bins = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
 vector<double> ZEta_bins = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
+vector<double> GammaEta_bins = {0.0, 0.5, 1.0,  1.5};
 
 TH1F* bosonPtWeight = NULL;
 bool  metNoHF_        ;
@@ -22,10 +24,11 @@ public:
     
     if(met_ != "pfmet" and met_ != "t1pfmet" and met_ != "puppit1pfmet" and met_ != "puppipfmet")
       cout<<"Un-recognized met option --> please check"<<endl;
-    if(observable_ != "zpt" and observable_ != "nvtx" and observable_ != "zeta")
+    if(observable_ != "zpt" and observable_ != "nvtx" and observable_ != "zeta" and observable != "phpt" and observable != "pheta")
       cout<<"Un-recognized observable option --> please check"<<endl;
-    if(category_ != "zmm" and category_ !=  "zee")
+    if(category_ != "zmm" and category_ !=  "zee" and category_ != "gam")
       cout<<"Un-recognized category option --> please check"<<endl;
+
       
     if(bins_.empty()){
       if(observable_ == "zpt")
@@ -86,7 +89,8 @@ void getBosonPt(TTree* tree, TH1* hist, const bool & isMC, const float & lumi, c
   TTreeReaderValue<double>          wgt    (reader, "wgt");
   TTreeReaderValue<double>          xsec   (reader, "xsec");
   TTreeReaderValue<double>          zpt   (reader, "zpt");
-  TTreeReaderValue<double>          zeept;
+  TTreeReaderValue<double>          zeept (reader, "zeept");
+  TTreeReaderValue<double>          phpt  (reader, "phpt");
   TTreeReaderValue<unsigned int>    nvtx   (reader, "nvtx");
 
   // loop on events                                                                                                                                                             
@@ -112,6 +116,8 @@ void getBosonPt(TTree* tree, TH1* hist, const bool & isMC, const float & lumi, c
       fillvar = *zpt;
     else if(category == "zee")
       fillvar = *zeept;
+    else if(category == "gam")
+      fillvar = *phpt;
     double evtwgt = 1.0;
     if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)/(*wgtsum);
     hist->Fill(fillvar, weight);
@@ -194,6 +200,9 @@ double drawplot(TTree* tree,
   TTreeReaderValue<unsigned char>   hmwm120(reader, "hltmetwithmu120");
   TTreeReaderValue<unsigned char>   hmwm170(reader, "hltmetwithmu170");
   TTreeReaderValue<unsigned char>   hmwm300(reader, "hltmetwithmu300");
+  TTreeReaderValue<unsigned char>   hph50 (reader, "hltphoton50");
+  TTreeReaderValue<unsigned char>   hph90 (reader, "hltphoton90");
+  TTreeReaderValue<unsigned char>   hph120 (reader, "hltphoton120");
   TTreeReaderValue<unsigned char>   hph165 (reader, "hltphoton165");
   TTreeReaderValue<unsigned char>   hph175 (reader, "hltphoton175");
   TTreeReaderValue<unsigned char>   hsmu   (reader, "hltsinglemu");
@@ -212,6 +221,8 @@ double drawplot(TTree* tree,
     metVar.ReplaceAll("pf","mu");
   else if(binning.category_ == "zee")
     metVar.ReplaceAll("pf","el");
+  else if(binning.category_ == "gam")
+    metVar.ReplaceAll("pf","ph");
 
   TTreeReaderValue<double>          met    (reader, metVar);
   TTreeReaderValue<double>          metphi (reader, metVar+"phi");
@@ -225,6 +236,12 @@ double drawplot(TTree* tree,
   TTreeReaderValue<double>          pfmetmuonsphi(reader,"pfmetmuonsphi");
   TTreeReaderValue<double>          pfmetphotons(reader,"pfmetphotons");
   TTreeReaderValue<double>          pfmetphotonsphi(reader,"pfmetphotonsphi");
+
+  TTreeReaderValue<int>             phidm  (reader, "phidm");
+  TTreeReaderValue<int>             phidt  (reader, "phidt");
+  TTreeReaderValue<double>          phpt   (reader, "phpt");
+  TTreeReaderValue<double>          pheta  (reader, "pheta");
+  TTreeReaderValue<double>          phphi  (reader, "phphi");
 
   TTreeReaderValue<int>             mu1pid (reader, "mu1pid");
   TTreeReaderValue<int>             mu2pid (reader, "mu2pid");
@@ -284,23 +301,21 @@ double drawplot(TTree* tree,
       obs = fabs(*zeta);
     else if(binning.observable_ == "zeta" and binning.category_ == "zee")
       obs = fabs(*zeeeta);
+    else if(binning.observable_ == "phpt" and binning.category_ == "gam")
+      obs = *phpt;
+    else if(binning.observable_ == "pheta" and binning.category_ == "gam")
+      obs = fabs(*pheta);
 
     if(*nbjets > 1) continue;
 
-    if (chan == Sample::qcd) {
-      unsigned char hlt = (*hph165) + (*hph175);
+    if (binning.category_ == "gam") {
+      unsigned char hlt = (*hph165) + (*hph175) +(*hph50) +(*hph90)+(*hph120);
       if (not isMC and hlt == 0) continue;
-      if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
-      trgsf  *= triggerphoton->Eval(*phpt);
-      weight *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(*phpt,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(*pheta))));
-    }
-
-    if (chan == Sample::gam) {
-      unsigned char hlt = (*hph165) + (*hph175);
-      if (not isMC and hlt == 0) continue;
-      if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
-      trgsf *= triggerphoton->Eval(*phpt);
+      if (fabs(*pheta) > 1.4442 || not *phidm) continue;
+      trgsf *= triggerphoton->Eval(min(*phpt,triggerphoton->GetXaxis()->GetXmax()));
       effsf *= psfmedium->GetBinContent(psfmedium->FindBin(min(*phpt,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),*pheta));
+      if(obs < binning.bins_.at(binning.iBin_)) continue;
+      if(obs >= binning.bins_.at(binning.iBin_+1)) continue;
     }
 
 
@@ -355,6 +370,8 @@ double drawplot(TTree* tree,
       uphi = atan2(-sin(*zphi)  , -cos(*zphi));
     else if(binning.category_ == "zee")
       uphi = atan2(-sin(*zeephi)  , -cos(*zeephi));
+    else if(binning.category_ == "gam")
+      uphi = atan2(-sin(*phphi)  , -cos(*phphi));
 
     if(not metNoHF_){
       mphi = atan2(-sin(*metphi), -cos(*metphi));
@@ -376,6 +393,13 @@ double drawplot(TTree* tree,
 	u1 = -sqrt(metx*metx+mety*mety)*cos(dphi(uphi,atan2(mety,metx)));
 	u2 = -sqrt(metx*metx+mety*mety)*sin(dphi(uphi,atan2(mety,metx)));
       }
+      else if(binning.category_ == "gam"){
+        metx = *pfmetchargedhadron*cos(*pfmetchargedhadronphi)+*pfmetneutralhadron*cos(*pfmetneutralhadronphi)+*pfmetmuons*cos(*pfmetmuonsphi)+*pfmetelectrons*cos(*pfmetelectronsphi);
+        mety = *pfmetchargedhadron*sin(*pfmetchargedhadronphi)+*pfmetneutralhadron*sin(*pfmetneutralhadronphi)+*pfmetmuons*sin(*pfmetmuonsphi)+*pfmetelectrons*sin(*pfmetelectronsphi);
+
+        u1 = -sqrt(metx*metx+mety*mety)*cos(dphi(uphi,atan2(mety,metx)));
+        u2 = -sqrt(metx*metx+mety*mety)*sin(dphi(uphi,atan2(mety,metx)));
+      }
     }
     
     double fillvar = 0;
@@ -388,6 +412,8 @@ double drawplot(TTree* tree,
     double zptwgt = 1.0;
     if(binning.category_      == "zmm" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zpt));
     else if(binning.category_ == "zee" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zeept));
+    else if(binning.category_ == "gam" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*phpt));
+
     double evtwgt = 1.0;
     if (isMC) weight *= (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)*zptwgt/(*wgtsum);
     hist->Fill(fillvar, weight);
@@ -397,7 +423,9 @@ double drawplot(TTree* tree,
       zptsum += *zpt*evtwgt;
     else if(binning.category_ == "zee")
       zptsum += *zeept*evtwgt;
-  }
+    else if(binning.category_ == "gam")
+      zptsum += *phpt*evtwgt;
+   }
   
   cout << hist->GetName() << " integral : " << hist->Integral() << ", <Obs> = " << zptsum/yield << " hist GetRMS "<<hist->GetRMS()<<endl;
   return zptsum/yield;
@@ -415,15 +443,30 @@ TH1F* getresolution(TTree* tree,
     int nbins   = 150;
     double xmin = -ZPT_bins.back()*1.25; // integrated over z-pt in case  the analysis is done vs NPV or Zeta
     double xmax = ZPT_bins.back()*1.25;
+    if(binning.category_ == "gam"){
+      xmin = -GammaPT_bins.back()*1.25;
+      xmax =  GammaPT_bins.back()*1.25;
+    }
 
-    if(binning.observable_ == "zpt" and not parallelRecoil){
+    if((binning.observable_ == "zpt" or binning.observable_ == "phpt") and not parallelRecoil){
 	xmin = -100;
 	xmax = 100;
     }
-    if(binning.observable_ == "zpt" and parallelRecoil){
+
+    if(binning.observable_ == "zpt"  and parallelRecoil){
       if(binning.bins_.at(binning.iBin_) >= 100){
 	xmin = ZPT_bins.at(binning.iBin_)*0.3;
 	xmax = ZPT_bins.at(binning.iBin_+1)*2;
+      }
+      else{
+	xmin = -50;
+	xmax = 150;
+      }
+    }
+    else if(binning.observable_ == "phpt"  and parallelRecoil){
+      if(binning.bins_.at(binning.iBin_) >= 100){
+	xmin = GammaPT_bins.at(binning.iBin_)*0.3;
+	xmax = GammaPT_bins.at(binning.iBin_+1)*2;
       }
       else{
 	xmin = -50;
@@ -495,16 +538,21 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     return;
   }
 
-  if(observable != "zpt" and observable != "zeta" and observable != "nvtx"){
+  if(observable != "zpt" and observable != "zeta" and observable != "nvtx" and observable != "phpt" and observable != "pheta"){
     cerr<<"Not a good observable --> return"<<endl;
     return;
   }
+
   // select the binning
   vector<double> bins;
   if(observable == "zpt")
     bins = ZPT_bins;
+  else if(observable == "phpt")
+    bins = GammaPT_bins;
   else if(observable == "zeta")
     bins = ZEta_bins;
+  else if(observable == "pheta")
+    bins = GammaEta_bins;
   else if(observable == "nvtx")
     bins = Nvtx_bins;
   analysisBin binning (met,observable,category,bins);
@@ -512,28 +560,38 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
   TChain* zlltree = new TChain("tree/tree");
   TChain* dattree = new TChain("tree/tree");
 
-  if(category != "zmm" and category != "zee"){
-    cerr<<"Problem with category --> atm only zmm and zee can be used --> exit"<<endl;
+  if(category != "zmm" and category != "zee" and category != "gam"){
+    cerr<<"Problem with category --> atm only zmm and zee and gam can be used --> exit"<<endl;
     return;
   }
 
-  zlltree->Add((baseDIR+"/DYJets/"+category+"filter/*root").c_str());
+  if(category != "gam")
+    zlltree->Add((baseDIR+"/DYJets/"+category+"filter/*root").c_str());
+  else
+    zlltree->Add((baseDIR+"/PhotonJets/"+category+"filter/*root").c_str());
+
   if(category == "zmm")
     dattree->Add((baseDIR+"/SingleMuon/"+category+"filter/*root").c_str());
   else if(category == "zee")
     dattree->Add((baseDIR+"/SingleElectron/"+category+"filter/*root").c_str());
-
-  // add minor backgrounds
-  zlltree->Add((baseDIR+"/Top/"+category+"filter/*root").c_str());
-  zlltree->Add((baseDIR+"/WJets/"+category+"filter/*root").c_str());
-  zlltree->Add((baseDIR+"/DiBoson/"+category+"filter/*root").c_str());
+  else if(category == "gam")
+    dattree->Add((baseDIR+"/SinglePhoton/"+category+"filter/*root").c_str());
  
 
-  // boson pt re-weight                                                                                                                                                         
-  TH1F* bosonPt_data = new TH1F("bosonPt_data","",70,0,ZPT_bins.back());
-  TH1F* bosonPt_MC   = new TH1F("bosonPt_MC",""  ,70,0,ZPT_bins.back());
+  // boson pt re-weight                                                                                                                                                   
+  TH1F* bosonPt_data = NULL;
+  TH1F* bosonPt_MC = NULL;
+  if(category != "gam"){
+    bosonPt_data = new TH1F("bosonPt_data","",70,0,ZPT_bins.back());
+    bosonPt_MC   = new TH1F("bosonPt_MC",""  ,70,0,ZPT_bins.back());
+  }
+  else{
+    bosonPt_data = new TH1F("bosonPt_data","",50,GammaPT_bins.front(),GammaPT_bins.back());
+    bosonPt_MC   = new TH1F("bosonPt_MC",""  ,50,GammaPT_bins.front(),GammaPT_bins.back());
+  }
   bosonPt_data->Sumw2();
   bosonPt_MC->Sumw2();
+
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   if(doBosonPtRewight){
@@ -653,6 +711,10 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     frame->GetXaxis()->SetTitle("Z |#eta|");
   else if(observable == "nvtx")
     frame->GetXaxis()->SetTitle("N_{PV}");
+  else if(observable == "pheta")
+    frame->GetXaxis()->SetTitle("#gamma |#eta|");
+  else if(observable == "nvtx")
+    frame->GetXaxis()->SetTitle("N_{PV}");
 
   if(not parallelRecoil)
     frame->GetYaxis()->SetTitle("Resolution u_{#perp}");
@@ -684,6 +746,8 @@ void makeMETResolution(string baseDIR,   // directory with ntuples
     leg->AddEntry(zllres, "Z(#mu#mu) MC","L");
   else if(category == "zee")
     leg->AddEntry(zllres, "Z(ee) MC","L");
+  else
+    leg->AddEntry(zllhist,"#gamma+jets MC","F");
 
   leg->Draw("SAME");
   pad1->RedrawAxis();
