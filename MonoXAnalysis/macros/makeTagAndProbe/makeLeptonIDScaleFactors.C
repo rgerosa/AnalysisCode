@@ -8,6 +8,7 @@ vector<TH1*> projectionSF_RooCMSShape;
 vector<TH1*> projectionSF_Exp;
 map<string,TFile*> tagAndProbeFits_RooCMSShape;
 map<string,TFile*> tagAndProbeFits_Exp;
+bool addTurnOnFits_;
 
 void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID){
 
@@ -170,18 +171,13 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
 
   for(int iBinY = 0; iBinY < histoEfficiency->GetNbinsY(); iBinY++){
     TH1F* projection_pt = new TH1F((string(histoEfficiency->GetName())+"pt_projection_eta_"+to_string(iBinY)).c_str(),"",histoEfficiency->GetXaxis()->GetXbins()->GetSize()-1,histoEfficiency->GetXaxis()->GetXbins()->GetArray());
-    TF1*  fitfunc = new TF1(("fitfunc_"+to_string(iBinY)).c_str(), ErfCB, 0, 200, 5);
-    if(leptonType == "electron" or leptonType == "photon")
-      fitfunc->SetParameters(22., 5., 10., 2., 1.);
-    else
-      fitfunc->SetParameters(16., 5., 10., 2., 1.);
-        
-    for(int iBinX = 0; iBinX < histoEfficiency->GetNbinsX(); iBinX++){
 
+    for(int iBinX = 0; iBinX < histoEfficiency->GetNbinsX(); iBinX++){
       projection_pt->SetBinContent(iBinX+1,histoEfficiency->GetBinContent(iBinX+1,iBinY+1));
       projection_pt->SetBinError(iBinX+1,histoEfficiency->GetBinError(iBinX+1,iBinY+1));
     }
-    
+
+    // style options
     if(leptonType == "electron")
       projection_pt->GetXaxis()->SetTitle("Electron p_{T} [GeV]");
     else if(leptonType == "muon")
@@ -197,6 +193,7 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
       projection_pt->GetYaxis()->SetTitle("Scale Factor");
 
     projection_pt->GetYaxis()->SetTitleOffset(1.25);
+
     projection_pt->SetMarkerSize(1);
     projection_pt->SetMarkerStyle(20);
     projection_pt->SetMarkerColor(kBlack);
@@ -207,11 +204,22 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
       projection_pt->GetYaxis()->SetRangeUser(projection_pt->GetMinimum()*0.95,1.03);
 
     projection_pt->Draw("E1P");
+
     if(not isScaleFactor){
-      fitfunc->SetLineColor(kBlue);
-      fitfunc->SetLineWidth(2);
-      projection_pt->Fit(fitfunc);
-    }
+      // add fits
+      if(addTurnOnFits_){
+	TF1*  fitfunc = new TF1(("fitfunc_"+to_string(iBinY)).c_str(), ErfCB, 0, 200, 5);
+	if(leptonType == "electron" or leptonType == "photon")
+	  fitfunc->SetParameters(22., 5., 10., 2., 1.);
+	else
+	  fitfunc->SetParameters(16., 5., 10., 2., 1.);        
+
+	fitfunc->SetLineColor(kBlue);
+	fitfunc->SetLineWidth(2);
+	projection_pt->Fit(fitfunc);
+      }
+    }    
+    // store canvas
     CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
     canvas->SaveAs((outputDIR+"/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetYaxis()->GetBinLowEdge(iBinY+1)))+"_"+string(Form("%.1f",histoEfficiency->GetYaxis()->GetBinLowEdge(iBinY+2)))+".png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetYaxis()->GetBinLowEdge(iBinY+1)))+"_"+string(Form("%.1f",histoEfficiency->GetYaxis()->GetBinLowEdge(iBinY+2)))+".pdf").c_str(),"pdf");
@@ -300,7 +308,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     }
     leg->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg->Draw("same");
-    CMS_lumi(pad1,string(Form("%.2f",lumi)),true);
+    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false,0.05);
 
     canvas->cd();
     pad2->cd();
@@ -333,7 +341,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     }
     leg2->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg2->Draw("same");
-    CMS_lumi(pad2,string(Form("%.2f",lumi)),true);    
+    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false,0.05);    
     canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
     
@@ -361,8 +369,11 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
 			      string leptonType, // muons or electrons
 			      string typeID, // id type: looseid, tightid, vetoid ..
 			      string outputDIR, // where plots and root files with 2D scale factors are stored,
-			      float  lumi = 0.86
+			      float  lumi = 0.86,
+			      bool   addTurnOnFits = false
 			      ){
+
+  addTurnOnFits_ = addTurnOnFits;
 
   if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
     cerr<<"Wrong lepton type --> electron, muon or photon --> return "<<endl;
@@ -460,23 +471,30 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
 
     projectionMC.at(iproj)->SetLineColor(kRed);
     projectionMC.at(iproj)->SetMarkerColor(kRed);
-    projectionMC.at(iproj)->SetMarkerSize(0.5);
-    TF1* funz = (TF1*) projectionMC.at(iproj)->GetListOfFunctions()->At(0);
-    funz->SetLineColor(kRed);
+    projectionMC.at(iproj)->SetMarkerSize(0.75);
+    TF1* funz = NULL;
+    if(addTurnOnFits_){
+      funz = (TF1*) projectionMC.at(iproj)->GetListOfFunctions()->At(0);
+      funz->SetLineColor(kRed);
+    }
     pad1->cd();
     projectionMC.at(iproj)->Draw("E1P");
     projectionDATA_RooCMSShape.at(iproj)->SetLineColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerColor(kBlue);
-    projectionDATA_RooCMSShape.at(iproj)->SetMarkerSize(0.5);
-    funz = (TF1*) projectionDATA_RooCMSShape.at(iproj)->GetListOfFunctions()->At(0);
-    funz->SetLineColor(kBlue);
+    projectionDATA_RooCMSShape.at(iproj)->SetMarkerSize(0.75);
+    if(addTurnOnFits_){
+      funz = (TF1*) projectionDATA_RooCMSShape.at(iproj)->GetListOfFunctions()->At(0);
+      funz->SetLineColor(kBlue);
+    }
     projectionDATA_RooCMSShape.at(iproj)->Draw("E1Psame");
 
     projectionDATA_Exp.at(iproj)->SetLineColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerColor(kBlack);
-    projectionDATA_Exp.at(iproj)->SetMarkerSize(0.5);
-    funz = (TF1*) projectionDATA_Exp.at(iproj)->GetListOfFunctions()->At(0);
-    funz->SetLineColor(kBlack);
+    projectionDATA_Exp.at(iproj)->SetMarkerSize(0.75);
+    if(addTurnOnFits_){
+      funz = (TF1*) projectionDATA_Exp.at(iproj)->GetListOfFunctions()->At(0);
+      funz->SetLineColor(kBlack);
+    }
     projectionDATA_Exp.at(iproj)->Draw("E1Psame");
     
     CMS_lumi(pad1,string(Form("%.2f",lumi)),true);
@@ -494,49 +512,56 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
     pad2->SetGridy();
     projectionSF_RooCMSShape.at(iproj)->SetLineColor(kBlue);
     projectionSF_RooCMSShape.at(iproj)->SetMarkerColor(kBlue);
-    projectionSF_RooCMSShape.at(iproj)->SetMarkerSize(0.5);
+    projectionSF_RooCMSShape.at(iproj)->SetMarkerSize(0.75);
     projectionSF_Exp.at(iproj)->SetLineColor(kBlack);
     projectionSF_Exp.at(iproj)->SetMarkerColor(kBlack);
-    projectionSF_Exp.at(iproj)->SetMarkerSize(0.5);
+    projectionSF_Exp.at(iproj)->SetMarkerSize(0.75);
     projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetTitle("SF");
     projectionSF_RooCMSShape.at(iproj)->GetXaxis()->SetTitle("");
     projectionSF_RooCMSShape.at(iproj)->GetYaxis()->CenterTitle();
     projectionSF_RooCMSShape.at(iproj)->SetNdivisions(510);
-    projectionSF_RooCMSShape.at(iproj)->GetXaxis()->SetLabelSize(0.07);
-    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetLabelSize(0.07);
-    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetTitleSize(0.1);
-    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetTitleOffset(0.5);
+    projectionSF_RooCMSShape.at(iproj)->GetXaxis()->SetLabelSize(0);
+    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetLabelSize(0.15);
+    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetTitleSize(0.20);
+    projectionSF_RooCMSShape.at(iproj)->GetYaxis()->SetTitleOffset(0.25);
     projectionSF_RooCMSShape.at(iproj)->Draw("E1P");
     projectionSF_Exp.at(iproj)->Draw("E1Psame");
     
     pad3->cd();
     pad3->SetGridy();
-    TH1F* sysError = (TH1F*) projectionSF_RooCMSShape.at(iproj)->Clone("sysError");
+    TH1F* sysError = (TH1F*) projectionSF_RooCMSShape.at(iproj)->Clone("Uncertainty");
+    TH1F* uncPlot  = (TH1F*) projectionSF_RooCMSShape.at(iproj)->Clone("UncPlot");
     sysError->Divide(projectionSF_Exp.at(iproj));
+    uncPlot->Divide(projectionSF_Exp.at(iproj));
+    float max = 0;
     for(int iBin = 0; iBin < projectionSF_RooCMSShape.at(iproj)->GetNbinsX(); iBin++){
+      // stotal error fit + shape sys
       sysError->SetBinError(iBin+1,fabs(1-sysError->GetBinContent(iBin+1)));
-      if(sysError->GetBinError(iBin+1) < 0.001)
-	sysError->SetBinError(iBin+1,0.001);
-      sysError->SetBinContent(iBin+1,1);
+      uncPlot->SetBinError(iBin+1,sqrt(fabs(1-sysError->GetBinContent(iBin+1))*fabs(1-sysError->GetBinContent(iBin+1))+projectionSF_RooCMSShape.at(iproj)->GetBinError(iBin+1)*projectionSF_RooCMSShape.at(iproj)->GetBinError(iBin+1)));
+      if(uncPlot->GetBinError(iBin+1) > max)
+	max = uncPlot->GetBinError(iBin+1);
+      if(uncPlot->GetBinError(iBin+1) < 0.001)
+	uncPlot->SetBinError(iBin+1,0.001);
+      uncPlot->SetBinContent(iBin+1,1);
     }
-    sysError->GetYaxis()->SetTitle("Sys Unc");
-    sysError->GetYaxis()->CenterTitle();
-    sysError->GetXaxis()->SetTitle("");
+    uncPlot->GetYaxis()->SetTitle("Uncertainty");
+    uncPlot->GetYaxis()->CenterTitle();
+    uncPlot->GetXaxis()->SetTitle("");
 
-    sysError->SetFillColor(kGray);
-    sysError->GetYaxis()->SetRangeUser(0.97,1.03);
-    TLine* line = new TLine(sysError->GetBinLowEdge(1),1,sysError->GetBinLowEdge(sysError->GetNbinsX()+1),1);
+    uncPlot->SetFillColor(kGray);
+    uncPlot->GetYaxis()->SetRangeUser(1-fabs(max)-0.005,1+fabs(max)+0.005);
+    TLine* line = new TLine(uncPlot->GetBinLowEdge(1),1,uncPlot->GetBinLowEdge(sysError->GetNbinsX()+1),1);
     line->SetLineColor(kBlack);
     line->SetLineStyle(7);
-    sysError->SetMarkerSize(0);
-    sysError->Draw("E2");
+    line->SetLineWidth(2);
+    uncPlot->SetMarkerSize(0);
+    uncPlot->Draw("E2");
     line->Draw("Lsame");
     pad3->RedrawAxis("sameaxis");
     sysUnc.push_back(sysError); // store histogram with systematic uncertainty
 
     can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_etaBin_"+string(Form("%d",int(iproj)))+".png").c_str(),"png");
     can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_etaBin_"+string(Form("%d",int(iproj)))+".pdf").c_str(),"pdf");
-    
   }      
 
 
@@ -564,5 +589,5 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   system(("mkdir -p "+outputDIR+"/RooCMSShape").c_str());
   makeTagAndProbeFits(tagAndProbeFits_RooCMSShape,outputDIR+"/RooCMSShape",typeID,lumi);
   system(("mkdir -p "+outputDIR+"/Exp").c_str());
-  makeTagAndProbeFits(tagAndProbeFits_RooCMSShape,outputDIR+"/Exp",typeID,lumi);
+  makeTagAndProbeFits(tagAndProbeFits_Exp,outputDIR+"/Exp",typeID,lumi);
 }

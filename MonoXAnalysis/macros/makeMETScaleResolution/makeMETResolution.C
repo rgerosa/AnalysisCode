@@ -133,14 +133,37 @@ double drawplot(TTree* tree,
   TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
   TH1*   puhist = (TH1*)pufile->Get("puhist");
 
-  TFile sffile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF/leptonIDsfs.root");
-  TH2*  msflhist = (TH2*)sffile.Get("muon_loose_SF");
-  TH2*  msfthist = (TH2*)sffile.Get("muon_tight_SF");
-  TH2*  esflhist = (TH2*)sffile.Get("electron_veto_SF");
-  TH2*  esfthist = (TH2*)sffile.Get("electron_tight_SF");
+  // electron and muon ID scale factor files                                                                                                                                    
+  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid.root");
+  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid.root");
+  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid.root");
+  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid.root");
 
-  TFile trefile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF/leptonTrigsfs.root");
-  TH2*  trehist = (TH2*)trefile.Get("hltel27_SF");
+  TH2*  msfloose = (TH2*)sffile_muLoose.Get("scaleFactor_muon_looseid_RooCMSShape");
+  TH2*  msftight = (TH2*)sffile_muTight.Get("scaleFactor_muon_tightid_RooCMSShape");
+  TH2*  esfveto  = (TH2*)sffile_eleVeto.Get("scaleFactor_electron_vetoid_RooCMSShape");
+  TH2*  esftight = (TH2*)sffile_eleTight.Get("scaleFactor_electron_tightid_RooCMSShape");
+
+  // Photon ID scale factor                                                                                                                                                     
+  TFile sffile_phoLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_looseid.root");
+  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid.root");
+  TH2*  psfloose  = (TH2*)sffile_phoLoose.Get("scaleFactor_photon_looseid_RooCMSShape");
+  TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
+
+  // Photon Purity                                                                                                                                                              
+  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_0202.root");
+  TH2*  purhist = (TH2*) purityfile_photon.Get("PhotonPurity");
+
+  // trigger files used for 2016                                                                                                                                                
+  TFile triggerfile_SinglEle("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron.root");
+  TFile triggerfile_SingleMu("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleMuon.root");
+  TFile triggerfile_MET("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
+  TFile triggerfile_SinglePhoton("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/photonTriggerEfficiency.root");
+
+  TH2*  triggerelhist = (TH2*) triggerfile_SinglEle.Get("trigeff_ele27wptight");
+  TH2*  triggermuhist = (TH2*) triggerfile_SingleMu.Get("trigeff_muIso");
+  TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
+  TF1*  triggerphoton = (TF1*)triggerfile_SinglePhoton.Get("efficiency_func");
 
   TTreeReader reader(tree);
   const char* wgtsumvar;
@@ -224,7 +247,7 @@ double drawplot(TTree* tree,
   TTreeReaderValue<double>          zeta  (reader, "zeta");
   TTreeReaderValue<double>          zphi  (reader, "zphi");
   TTreeReaderValue<double>          zmass (reader, "zmass");
-  TTreeReaderValue<double>          zeept;
+  TTreeReaderValue<double>          zeept (reader, "zeept");;
   TTreeReaderValue<double>          zeeeta  (reader, "zeeeta");
   TTreeReaderValue<double>          zeephi  (reader, "zeephi");
   TTreeReaderValue<double>          zeemass (reader, "zeemass");
@@ -264,6 +287,23 @@ double drawplot(TTree* tree,
 
     if(*nbjets > 1) continue;
 
+    if (chan == Sample::qcd) {
+      unsigned char hlt = (*hph165) + (*hph175);
+      if (not isMC and hlt == 0) continue;
+      if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
+      trgsf  *= triggerphoton->Eval(*phpt);
+      weight *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(*phpt,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(*pheta))));
+    }
+
+    if (chan == Sample::gam) {
+      unsigned char hlt = (*hph165) + (*hph175);
+      if (not isMC and hlt == 0) continue;
+      if (*phpt < 175. || fabs(*pheta) > 1.4442) continue;
+      trgsf *= triggerphoton->Eval(*phpt);
+      effsf *= psfmedium->GetBinContent(psfmedium->FindBin(min(*phpt,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),*pheta));
+    }
+
+
     if(binning.category_ == "zmm"){
       unsigned char hlt = (*hmnm90) + (*hmnm120) + (*hmwm90) + (*hmwm120) + (*hmwm170) + (*hmwm300) +(*hsmu);
       if(not isMC and hlt == 0) continue;
@@ -273,10 +313,17 @@ double drawplot(TTree* tree,
       if (*mu1id == 1 && *mu1pt > 20.) istight = true;
       if (*mu2id == 1 && *mu2pt > 20.) istight = true;
       if (!istight) continue;
-      if (*mu1id == 1) effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
-      else             effsf *= msflhist->GetBinContent(msflhist->FindBin(min(999., *mu1pt), fabs(*mu1eta)));
-      if (*mu2id == 1) effsf *= msfthist->GetBinContent(msfthist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
-      else             effsf *= msflhist->GetBinContent(msflhist->FindBin(min(999., *mu2pt), fabs(*mu2eta)));
+      if (*mu1id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu1pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu1eta));
+      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu1pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu1eta));
+      if (*mu2id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu2pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu2eta));
+      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu2pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu2eta));
+
+      if (*mu1id == 1 and *mu2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                              
+	trgsf *= 1;
+      else if(*mu1id == 1 and *mu2id != 1)
+	trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu1pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu1eta));
+      else if(*mu1id != 1 and *mu2id == 1)
+	trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu2pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu2eta));
     }
 
     if(binning.category_ == "zee"){
@@ -288,10 +335,12 @@ double drawplot(TTree* tree,
       if (*el1id == 1 && *el1pt > 40.) istight = true;
       if (*el2id == 1 && *el2pt > 40.) istight = true;
       if (!istight) continue;
-      if (*el1id == 1) effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-      else             effsf *= esflhist->GetBinContent(esflhist->FindBin(min(999., *el1pt), fabs(*el1eta)));
-      if (*el2id == 1) effsf *= esfthist->GetBinContent(esfthist->FindBin(min(999., *el2pt), fabs(*el2eta)));
-      else             effsf *= esflhist->GetBinContent(esflhist->FindBin(min(999., *el2pt), fabs(*el2eta)));
+      if (*el1id == 1 and *el2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                                
+	trgsf *= 1;
+      else if(*el1id == 1 and *el2id != 1)
+	trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
+      else if(*el1id != 1 and *el2id == 1)
+	trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el2pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el2eta));
     }
 
     // make x and y projections                                                                                                                                              
@@ -340,7 +389,7 @@ double drawplot(TTree* tree,
     if(binning.category_      == "zmm" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zpt));
     else if(binning.category_ == "zee" and isMC and bosonPtWeight != NULL) zptwgt = bosonPtWeight->GetBinContent(bosonPtWeight->FindBin(*zeept));
     double evtwgt = 1.0;
-    if (isMC) weight = (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)*zptwgt/(*wgtsum);
+    if (isMC) weight *= (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)*zptwgt/(*wgtsum);
     hist->Fill(fillvar, weight);
     // count the number of events accouring to the weight and the total zpt sum in the bin                                                                                  
     yield  += evtwgt;

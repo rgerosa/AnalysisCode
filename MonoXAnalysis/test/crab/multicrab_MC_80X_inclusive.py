@@ -25,7 +25,7 @@ pyCfgParams = ['isMC=True',
                'miniAODProcess=PAT',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
                'outputFileName=tree.root',
-               'nThreads=4',
+               'nThreads=3',
                'isCrab=True']
 
 config.section_('General')
@@ -38,7 +38,7 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 4
+config.JobType.numCores         = 3
 
 
 config.section_('Data')    

@@ -23,7 +23,7 @@ pyCfgParams = ['isMC=False',
                'miniAODProcess=RECO',
                'globalTag=80X_dataRun2_Prompt_v8',
                'outputFileName=tree.root',
-               'nThreads=4',
+               'nThreads=3',
                'isCrab=True']
 
 config.section_('General')
@@ -35,7 +35,7 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 1
+config.JobType.numCores         = 3
 config.JobType.maxMemoryMB      = 2500
 
 
@@ -44,8 +44,7 @@ config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
 config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-06-06-2016_80X_Data864pb-1_Inclusive/'
-#config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274240_13TeV_PromptReco_Collisions16_JSON.txt'  
-config.Data.lumiMask = 'notFinishedLumis.json'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274421_13TeV_PromptReco_Collisions16_JSON.txt'  
 config.Data.publication   = False
 
 

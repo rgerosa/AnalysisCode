@@ -39,7 +39,7 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 4
+config.JobType.numCores         = 3
 
 
 config.section_('Data')    

@@ -213,11 +213,11 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
 
   string cut;
   if (category == 2)
-    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 && fabs(boostedJeteta[0]) < 2.4 &&  boostedJetpt[0] > 250 && prunedJetm[0] > 65 && prunedJetm[0] < 105 && boostedJettau2[0]/boostedJettau1[0] < 0.6 && t1pfmet > 250";
+    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && combinejetpt[0] > 100 && abs(combinejeteta[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 && fabs(boostedJeteta[0]) < 2.4 &&  boostedJetpt[0] > 250 && prunedJetm[0] > 65 && prunedJetm[0] < 105 && boostedJettau2[0]/boostedJettau1[0] < 0.6 && t1pfmet > 250";
   else if(category == 1)
-    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 && (fabs(boostedJeteta[0]) > 2.4 || boostedJetpt[0] < 250 || prunedJetm[0] < 65 || prunedJetm[0] > 105 || boostedJettau2[0]/boostedJettau1[0] > 0.6 || t1pfmet < 250)";
+    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && combinejetpt[0] > 100 && abs(combinejeteta[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 && (fabs(boostedJeteta[0]) > 2.4 || boostedJetpt[0] < 250 || prunedJetm[0] < 65 || prunedJetm[0] > 105 || boostedJettau2[0]/boostedJettau1[0] > 0.6 || t1pfmet < 250)";
   else if(category == 0)
-    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 ";
+    cut = "(hltmet90 || hltmet120 || hltmetwithmu120 || hltmetwithmu170 || hltmetwithmu300 || hltmetwithmu90) && njets >= 1 && combinejetpt[0] > 100 && abs(combinejeteta[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200 && nmuons == 0 && nphotons == 0 && ntaus == 0 && nelectrons == 0 ";
   
   /// now look at substructure in the signal region only
   vector<TH1F*> boostedJetPt_monoV;
@@ -365,10 +365,10 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
     TTreeReaderValue<vector<double> > boostedJettau1_MV  (myReader_monoV,"boostedJettau1");
     TTreeReaderValue<vector<double> > boostedJetm_pr_MV  (myReader_monoV,"prunedJetm");
 
-    TTreeReaderValue<vector<double> > jetpt_MV    (myReader_monoV,"centraljetpt");
-    TTreeReaderValue<vector<double> > jeteta_MV   (myReader_monoV,"centraljeteta");
-    TTreeReaderValue<vector<double> > jetphi_MV   (myReader_monoV,"centraljetphi");
-    TTreeReaderValue<vector<double> > jetQGL_MV   (myReader_monoV,"centraljetQGL");
+    TTreeReaderValue<vector<double> > jetpt_MV    (myReader_monoV,"combinejetpt");
+    TTreeReaderValue<vector<double> > jeteta_MV   (myReader_monoV,"combinejeteta");
+    TTreeReaderValue<vector<double> > jetphi_MV   (myReader_monoV,"combinejetphi");
+    TTreeReaderValue<vector<double> > jetQGL_MV   (myReader_monoV,"combinejetQGL");
 
     TTreeReaderValue<unsigned int> njets_MV  (myReader_monoV,"njets");
     TTreeReaderValue<vector<double> > fwdjetpt_MV  (myReader_monoV,"forwardjetpt");
@@ -597,10 +597,10 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
       TTreeReaderValue<vector<double> > boostedJettau2_MJ  (myReader_monoJet,"boostedJettau2");
       TTreeReaderValue<vector<double> > boostedJettau1_MJ  (myReader_monoJet,"boostedJettau1");
       TTreeReaderValue<vector<double> > boostedJetm_pr_MJ  (myReader_monoJet,"prunedJetm");
-      TTreeReaderValue<vector<double> > jetpt_MJ    (myReader_monoJet,"centraljetpt");
-      TTreeReaderValue<vector<double> > jeteta_MJ   (myReader_monoJet,"centraljeteta");
-      TTreeReaderValue<vector<double> > jetphi_MJ   (myReader_monoJet,"centraljetphi");
-      TTreeReaderValue<vector<double> > jetQGL_MJ   (myReader_monoJet,"centraljetQGL");
+      TTreeReaderValue<vector<double> > jetpt_MJ    (myReader_monoJet,"combinejetpt");
+      TTreeReaderValue<vector<double> > jeteta_MJ   (myReader_monoJet,"combinejeteta");
+      TTreeReaderValue<vector<double> > jetphi_MJ   (myReader_monoJet,"combinejetphi");
+      TTreeReaderValue<vector<double> > jetQGL_MJ   (myReader_monoJet,"combinejetQGL");
       TTreeReaderValue<unsigned int> njets_MJ  (myReader_monoJet,"njets");
       TTreeReaderValue<vector<double> > fwdjetpt_MJ  (myReader_monoJet,"forwardjetpt");
       TTreeReaderValue<double> ht_MJ  (myReader_monoJet,"ht");
@@ -784,10 +784,10 @@ void makeSignalBackgroundComparison(string baseInputPath,    // base path with a
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
   TTreeReaderValue<vector<double> > boostedJetm_pr  (myReader,"prunedJetm");
   
-  TTreeReaderValue<vector<double> > jetpt    (myReader,"centraljetpt");
-  TTreeReaderValue<vector<double> > jeteta   (myReader,"centraljeteta");
-  TTreeReaderValue<vector<double> > jetphi   (myReader,"centraljetphi");
-  TTreeReaderValue<vector<double> > jetQGL   (myReader,"centraljetQGL");
+  TTreeReaderValue<vector<double> > jetpt    (myReader,"combinejetpt");
+  TTreeReaderValue<vector<double> > jeteta   (myReader,"combinejeteta");
+  TTreeReaderValue<vector<double> > jetphi   (myReader,"combinejetphi");
+  TTreeReaderValue<vector<double> > jetQGL   (myReader,"combinejetQGL");
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
   TTreeReaderValue<unsigned int> nbjets  (myReader,"nbjetslowpt");
   TTreeReaderValue<vector<double> > fwdjetpt  (myReader,"forwardjetpt");
