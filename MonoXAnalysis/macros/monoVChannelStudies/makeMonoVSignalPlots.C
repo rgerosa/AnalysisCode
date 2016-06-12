@@ -242,60 +242,60 @@ void makeMonoVSignalEfficiency(string baseInputPath,  // base path with all the 
   // define signal region cuts for efficiency                                                                                                                                
   selectionsSig.push_back(make_pair("trigger","hltmet90"));
   selectionsSig.push_back(make_pair("njets","hltmet90 && njets >= 1"));
-  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
-  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
+  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
+  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
 
   // define signal region cuts for efficiency
   selectionsSig.push_back(make_pair("trigger","hltmet90"));
   selectionsSig.push_back(make_pair("njets","hltmet90 && njets >= 1"));
-  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
-  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
+  selectionsSig.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsSig.push_back(make_pair("bveto","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsSig.push_back(make_pair("jetid","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsSig.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsSig.push_back(make_pair("met","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 200"));
+  selectionsSig.push_back(make_pair("ak8pt","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250"));
   
   // define Wmn cuts
   selectionsWmn.push_back(make_pair("trigger", "hltmet90"));
   selectionsWmn.push_back(make_pair("njets", "hltmet90 && njets >= 1"));
-  selectionsWmn.push_back(make_pair("jetpt", "hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsWmn.push_back(make_pair("bveto", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsWmn.push_back(make_pair("jetid", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsWmn.push_back(make_pair("dphijemet", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsWmn.push_back(make_pair("met", "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
+  selectionsWmn.push_back(make_pair("jetpt", "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsWmn.push_back(make_pair("bveto", "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsWmn.push_back(make_pair("jetid", "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsWmn.push_back(make_pair("dphijemet", "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsWmn.push_back(make_pair("met", "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
   
   // define Wen cuts
   selectionsWen.push_back(make_pair("trigger","hltsingleel"));
   selectionsWen.push_back(make_pair("njets","hltsingleel && njets >= 1"));
-  selectionsWen.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsWen.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsWen.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsWen.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsWen.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
+  selectionsWen.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsWen.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsWen.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsWen.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsWen.push_back(make_pair("met","hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
   
   // define Zmm cuts
   selectionsZmm.push_back(make_pair("trigger","hltmet90"));
   selectionsZmm.push_back(make_pair("njets","hltmet90 && njets >= 1"));
-  selectionsZmm.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsZmm.push_back(make_pair("bveto","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsZmm.push_back(make_pair("jetid","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsZmm.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsZmm.push_back(make_pair("met","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
-  selectionsZmm.push_back(make_pair("lepcharge","hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200 && mu1pid != mu2pid"));
+  selectionsZmm.push_back(make_pair("jetpt","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsZmm.push_back(make_pair("bveto","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsZmm.push_back(make_pair("jetid","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsZmm.push_back(make_pair("dphijemet","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsZmm.push_back(make_pair("met","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200"));
+  selectionsZmm.push_back(make_pair("lepcharge","hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1mumet > 200 && mu1pid != mu2pid"));
   
   // define Zee cuts
   selectionsZee.push_back(make_pair("trigger","hltsingleel"));
   selectionsZee.push_back(make_pair("njets", "hltsingleel && njets >= 1"));
-  selectionsZee.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && centraljetpt[0] > 100"));
-  selectionsZee.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0"));
-  selectionsZee.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8"));
-  selectionsZee.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
-  selectionsZee.push_back(make_pair("met","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
-  selectionsZee.push_back(make_pair("lepcharge","hltsingleel && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1elmet > 200 && el1pid != el2pid"));
+  selectionsZee.push_back(make_pair("jetpt", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5"));
+  selectionsZee.push_back(make_pair("bveto", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0"));
+  selectionsZee.push_back(make_pair("jetid", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8"));
+  selectionsZee.push_back(make_pair("dphijemet", "hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5"));
+  selectionsZee.push_back(make_pair("met","hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetelmetdphimin4 > 0.5 && t1elmet > 200"));
+  selectionsZee.push_back(make_pair("lepcharge","hltsingleel && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1elmet > 200 && el1pid != el2pid"));
 
   // calculate efficiency of basic control region selection
   unordered_map<string,TH1F*> eff_sig;
@@ -523,7 +523,7 @@ void makeMonoVSignalShape(string baseInputPath,  // base path with all the direc
   TFile* file1 = TFile::Open((baseInputPath+"/ZJets/sigfilter/sig_tree_ZJetsToNuNu.root").c_str());
   backgroundZnunu->Add(file1->GetName());
 
-  string cut = "hltmet90 && njets >= 1 && centraljetpt[0] > 100 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250";
+  string cut = "hltmet90 && njets >= 1 && combinejetpt[0] > 100 && abs(combinejetpt[0]) < 2.5 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && t1pfmet > 250 && boostedJetpt[0] > 250";
 
   /// now look at substructure in the signal region only
   vector<TH1F*> leadingJetPt;
@@ -763,9 +763,10 @@ void makeMonoVSignalShape(string baseInputPath,  // base path with all the direc
     TTreeReaderValue<unsigned int> njets (myReader,"njets");
     TTreeReaderValue<double> t1pfmet (myReader,"t1pfmet");
     TTreeReaderValue<double> jmdphi (myReader,"incjetmumetdphimin4");    
-    TTreeReaderValue<vector<double> > cjetCH    (myReader,"centraljetCHfrac");
-    TTreeReaderValue<vector<double> > cjetNH    (myReader,"centraljetNHfrac");
-    TTreeReaderValue<vector<double> > cjetpt    (myReader,"centraljetpt");
+    TTreeReaderValue<vector<double> > cjetCH    (myReader,"combinejetCHfrac");
+    TTreeReaderValue<vector<double> > cjetNH    (myReader,"combinejetNHfrac");
+    TTreeReaderValue<vector<double> > cjetpt    (myReader,"combinejetpt");
+    TTreeReaderValue<vector<double> > cjeteta    (myReader,"combinejeteta");
     
     TTreeReaderValue<vector<double> > jetpt    (myReader,"boostedJetpt");
     TTreeReaderValue<vector<double> > jeteta   (myReader,"boostedJeteta");
@@ -809,6 +810,7 @@ void makeMonoVSignalShape(string baseInputPath,  // base path with all the direc
       if(cjetCH->at(0) < 0.1) continue;
       if(cjetNH->at(0) > 0.8) continue;
       if(cjetpt->at(0) < 100) continue;
+      if(fabs(cjeteta->at(0)) > 2.5) continue;
       
       // AK8 jets with pT > 250 GeV
       for(size_t ijet = 0; ijet < jetpt->size(); ijet++){

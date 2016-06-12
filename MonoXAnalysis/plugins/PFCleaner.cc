@@ -398,32 +398,60 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       double rndphi08 = photons_iter->phi() + M_PI/2.0;
       float  chisoval04 = 0.;
       float  chisoval08 = 0.;
+      unsigned int counterR04 = 0;
+      unsigned int counterR08 = 0;
       if (userandomphi) {
 	rndphi04 = rand.Uniform(-M_PI, M_PI);
 	while (randomConeOverlaps(rndphi04, photons_iter->eta(), photons_iter->phi(), *jetsH, 0.4)) {
 	  rndphi04 = rand.Uniform(-M_PI, M_PI);
+	  counterR04++;
+	  if(counterR04 > 5000){
+	    rndphi04 = -99;
+	    continue;
+	  }
 	}
       }
       if (userandomphi){
 	rndphi08 = rand.Uniform(-M_PI, M_PI);
 	while (randomConeOverlaps(rndphi08, photons_iter->eta(), photons_iter->phi(), *jetsH, 0.8)){
 	  rndphi08 = rand.Uniform(-M_PI, M_PI);
+	  counterR08++;
+	  if(counterR08 > 5000){
+	    rndphi08 = -99;
+	    continue;
+	  }
 	}
       }
       
-      for(size_t i = 0; i < pfcandsH->size(); i++) {
-	const auto& pfcand = pfcandsH->ptrAt(i);
-	if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi04, pfcand->eta(), pfcand->phi()) <= 0.3) 
-	  chisoval04 += pfcand->pt();
+      if(rndphi04 != -99){
+	for(size_t i = 0; i < pfcandsH->size(); i++) {
+	  const auto& pfcand = pfcandsH->ptrAt(i);
+	  if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi04, pfcand->eta(), pfcand->phi()) <= 0.3) 
+	    chisoval04 += pfcand->pt();
+	}
       }
+      else
+	chisoval04 = -99;
       
-      for(size_t i = 0; i < pfcandsH->size(); i++) {
-	const auto& pfcand = pfcandsH->ptrAt(i);
-	if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi08, pfcand->eta(), pfcand->phi()) <= 0.3) 
-	  chisoval08 += pfcand->pt();
-      }      
-      float rndgaisoval04 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
-      float rndgaisoval08 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
+      if(rndphi08 != -99){
+	for(size_t i = 0; i < pfcandsH->size(); i++) {
+	  const auto& pfcand = pfcandsH->ptrAt(i);
+	  if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi08, pfcand->eta(), pfcand->phi()) <= 0.3) 
+	    chisoval08 += pfcand->pt();
+	}      
+      }
+      else chisoval08 = -99;
+
+      float rndgaisoval04 = 0;
+      float rndgaisoval08 = 0;
+      if(rndphi04 != -99)
+	computePhotonIso(pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
+      else 
+	rndgaisoval04 = -99;
+      if(rndphi08 != -99)
+	computePhotonIso(pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
+      else
+	rndgaisoval08 = -99;
       rndgammaiso04.push_back(rndgaisoval04);
       rndgammaiso08.push_back(rndgaisoval08);
       rndchhadiso04.push_back(chisoval04);

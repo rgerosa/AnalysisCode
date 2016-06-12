@@ -109,9 +109,9 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     TTreeReaderValue<unsigned int>    njetsin(reader, "njetsinc");
     TTreeReaderValue<unsigned int>    nbjets (reader, "nbjetslowpt");
 
-    TTreeReaderValue<vector<double> > jetpt  (reader, "centraljetpt");
-    TTreeReaderValue<vector<double> > chfrac (reader, "centraljetCHfrac");
-    TTreeReaderValue<vector<double> > nhfrac (reader, "centraljetNHfrac");
+    TTreeReaderValue<vector<double> > jetpt  (reader, "combinejetpt");
+    TTreeReaderValue<vector<double> > chfrac (reader, "combinejetCHfrac");
+    TTreeReaderValue<vector<double> > nhfrac (reader, "combinejetNHfrac");
 
     TTreeReaderValue<T>               var    (reader, varstr);
     TTreeReaderValue<double>          wgtsum (reader, wgtsumvar);
@@ -182,6 +182,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	if (not isInclusive and (*chfrac)[0] < 0.1 ) continue;
 	if (not isInclusive and (*nhfrac)[0] > 0.8 ) continue;	
 	if (not isInclusive and (*jetpt )[0] < 100.) continue;
+	if (not isInclusive and fabs((*jeteta )[0]) > 2.5) continue;
         double jetmetdphi = *jetmetm;
         if (chan == Sample::qcd || chan == Sample::gam) jetmetdphi = *jetmetp; 
         if (chan == Sample::wen || chan == Sample::zee || chan == Sample::topel) jetmetdphi = *jetmete; 

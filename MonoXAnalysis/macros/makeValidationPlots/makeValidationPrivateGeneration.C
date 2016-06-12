@@ -116,8 +116,8 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   string cutString_2 = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && (hltmet90 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0) && njets >= 1 && t1pfmet > 200 && boostedJetpt[0] > 200";
 
-  tree_1->Draw("centraljetpt[0] >> jetPt_1",cutString.c_str(),"goff");
-  tree_2->Draw("centraljetpt[0] >> jetPt_2",cutString.c_str(),"goff");
+  tree_1->Draw("combinejetpt[0] >> jetPt_1",cutString.c_str(),"goff");
+  tree_2->Draw("combinejetpt[0] >> jetPt_2",cutString.c_str(),"goff");
 
   tree_1->Draw("t1pfmet >> met_1",cutString.c_str(),"goff");
   tree_2->Draw("t1pfmet >> met_2",cutString.c_str(),"goff");

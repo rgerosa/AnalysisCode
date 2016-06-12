@@ -51,7 +51,7 @@ void boostedCategory(string signalHypothesis, string outputDir){
   if(inputSignal_5)
     chain->AddFile(inputSignal_5->GetName());
 
-  chain->Draw("wzpt_h >> bosonPt_D","wzpt_h > 200 && abs(wzeta_h) < 2.4 && hltmet90 && njets >= 1 && nbjetslowpt == 0 && centraljetCHfrac[0] > 0.1 && centraljetNHfrac[0] < 0.8&& incjetmumetdphimin4 > 0.5 && centraljetpt[0] > 100 && t1pfmet > 200 ","goff");
+  chain->Draw("wzpt_h >> bosonPt_D","wzpt_h > 200 && abs(wzeta_h) < 2.4 && hltmet90 && njets >= 1 && nbjetslowpt == 0 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8&& incjetmumetdphimin4 > 0.5 && combinejetpt[0] > 100 && t1pfmet > 200 && abs(combinejeteta[0]) < 2.5","goff");
   bosonPt_D->Scale(1./bosonPt_D->Integral());
 
   TH1F* bosonPt_W = new TH1F("bosonPt_W","",120,200,1200);
@@ -69,16 +69,16 @@ void boostedCategory(string signalHypothesis, string outputDir){
   TTreeReaderValue<double>       jmmdphi   (myReader,"incjetmumetdphimin4");
   TTreeReaderValue<double>       met       (myReader,"t1pfmet");
 
-  TTreeReaderValue<vector<double> > jetpt  (myReader,"centraljetpt");
-  TTreeReaderValue<vector<double> > jeteta (myReader,"centraljeteta");
-  TTreeReaderValue<vector<double> > jetphi (myReader,"centraljetphi");
-  TTreeReaderValue<vector<double> > jetm (myReader,"centraljetm");
-  TTreeReaderValue<vector<double> > chfrac (myReader,"centraljetCHfrac");
-  TTreeReaderValue<vector<double> > nhfrac (myReader,"centraljetNHfrac");
-  TTreeReaderValue<vector<double> > genjetpt  (myReader,"centraljetGenpt");
-  TTreeReaderValue<vector<double> > genjeteta (myReader,"centraljetGeneta");
-  TTreeReaderValue<vector<double> > genjetphi (myReader,"centraljetGenphi");
-  TTreeReaderValue<vector<double> > genjetm (myReader,"centraljetGenm");
+  TTreeReaderValue<vector<double> > jetpt  (myReader,"combinejetpt");
+  TTreeReaderValue<vector<double> > jeteta (myReader,"combinejeteta");
+  TTreeReaderValue<vector<double> > jetphi (myReader,"combinejetphi");
+  TTreeReaderValue<vector<double> > jetm (myReader,"combinejetm");
+  TTreeReaderValue<vector<double> > chfrac (myReader,"combinejetCHfrac");
+  TTreeReaderValue<vector<double> > nhfrac (myReader,"combinejetNHfrac");
+  TTreeReaderValue<vector<double> > genjetpt  (myReader,"combinejetGenpt");
+  TTreeReaderValue<vector<double> > genjeteta (myReader,"combinejetGeneta");
+  TTreeReaderValue<vector<double> > genjetphi (myReader,"combinejetGenphi");
+  TTreeReaderValue<vector<double> > genjetm (myReader,"combinejetGenm");
   
 
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
@@ -126,6 +126,7 @@ void boostedCategory(string signalHypothesis, string outputDir){
     if(nhfrac->at(0) > 0.8) continue;
     if(chfrac->at(0) < 0.1) continue;
     if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
 
     // ensuring one hadronic W in the eta acceptance, with a GenPt > 200 GeV
     if(*wzpt_h <= 200. or fabs(*wzeta_h) > 2.4 or fabs(*q1eta_h) > 2.4 or fabs(*q2eta_h) > 2.4 or fabs(*q2pt_h) < 30 or fabs(*q1pt_h) < 30) continue;

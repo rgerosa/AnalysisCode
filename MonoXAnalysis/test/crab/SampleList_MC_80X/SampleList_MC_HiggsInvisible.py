@@ -10,7 +10,7 @@ samples['VBF_HToInvisible_M300']    = ['/VBF_HToInvisible_M300_13TeV_powheg_pyth
 
 samples['VBF_HToInvisible_M400']    = ['/VBF_HToInvisible_M400_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=0.758']]
 
-samples['VBF_HToInvisible_M500']    = ['/VBF_HToInvisible_M400_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=0.487']]
+samples['VBF_HToInvisible_M500']    = ['/VBF_HToInvisible_M500_13TeV_powheg_pythia8/RunIISpring16MiniAODv1-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_v3-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=0.487']]
 
 samples['VBF_HToInvisible_M600']    = ['/VBF_HToInvisible_M600_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=0.327']]
 
