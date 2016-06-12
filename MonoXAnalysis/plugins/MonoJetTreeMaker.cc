@@ -2207,14 +2207,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	phCHiso       = tightphotonsPurity[hardestPhotonPurityIndex]->chargedHadronIso()-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
 	phNHiso       = tightphotonsPurity[hardestPhotonPurityIndex]->neutralHadronIso()-rho*getNeutralHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
 
-	phPurityPHiso = (*photonPHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
+	phPurityPHiso      = (*photonPHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
+	phPurityCHiso      = (*photonCHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 
+	phPurityNHiso     = (*photonNHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getNeutralHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 	
+
+	phPurityRND04CHiso = (*rndchhadiso04H)[tightphotonsPurity[hardestPhotonPurityIndex]];
 	phPurityRND04PHiso = (*rndgammaiso04H)[tightphotonsPurity[hardestPhotonPurityIndex]];
 	phPurityRND08PHiso = (*rndgammaiso08H)[tightphotonsPurity[hardestPhotonPurityIndex]];
-	phPurityCHiso      = (*photonCHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 
-	phPurityRND04CHiso = (*rndchhadiso04H)[tightphotonsPurity[hardestPhotonPurityIndex]];
 	phPurityRND08CHiso = (*rndchhadiso08H)[tightphotonsPurity[hardestPhotonPurityIndex]];
-	phPurityNHiso = (*photonNHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getNeutralHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 	
-	phPuritysieie = (*photonsieieH)[tightphotonsPurity[hardestPhotonPurityIndex]];
+
+	phPuritysieie     = (*photonsieieH)[tightphotonsPurity[hardestPhotonPurityIndex]];
 	phPurityElectronVeto   = tightphotonsPurity[hardestPhotonPurityIndex]->passElectronVeto();
 	phPurityhoe       = tightphotonsPurity[hardestPhotonPurityIndex]->hadTowOverEm();
 	phPurityEAEGamma  = getGammaEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
