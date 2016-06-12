@@ -289,6 +289,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 		int  xsType = 0, 		
 		bool storeGenTree = false, // store gentree in the output
 		bool dropPuppiBranches = true,
+		bool dropPuppiBoostedJets = true,
 		bool dropSubJetsBranches = true,
 		bool dropHLTFilter = false,
 		string metCut = "175"
@@ -353,7 +354,14 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -361,6 +369,8 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"sigfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -511,6 +521,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                      
 	       bool dropPuppiBranches = true,
+	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
 	       bool dropHLTFilter = false,
 	       string metCut = "175"
@@ -570,11 +581,18 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   treedir->cd();
   std::cout<<"zmmfilter --> apply signal region preselection"<<std::endl;
 
-  if(isMC and xsType > 0)
+  if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -582,6 +600,9 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
+
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"zmmfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -732,6 +753,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false, // to use also single photon trigger when running on data: singleEle trigger on singleEle dataset, photon trigger on photon dataset
 	       bool dropPuppiBranches = true,
+	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
 	       bool dropHLTFilter = false,
 	       string metCut = "175"
@@ -805,7 +827,14 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -813,6 +842,8 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"zeefilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -959,6 +990,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool dropPuppiBranches = true,
+	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
 	       bool dropHLTFilter = false,
 	       string metCut = "175"
@@ -1026,13 +1058,19 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bxsec = NULL;
   double wgtpileup = 1;
   double xsec;
-  if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
-  else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+
+  if(xsType > 0 and isMC)
+    frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -1040,6 +1078,8 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   if(isMC){
 
@@ -1172,6 +1212,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false,
 	       bool dropPuppiBranches = true,
+	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
 	       bool dropHLTFilter = false,
 	       string metCut = "175") {
@@ -1242,11 +1283,19 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   treedir->cd();
   std::cout<<"wenfilter --> apply signal region preselection"<<std::endl;
 
+
   if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -1254,6 +1303,8 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"wenfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1397,6 +1448,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                   
 	       bool dropPuppiBranches = true,
+	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
 	       bool dropHLTFilter = false,
 	       string metCut = "175"
@@ -1453,11 +1505,19 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"gamfilter --> apply signal region preselection"<<std::endl;
+
   if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -1465,6 +1525,8 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"gamfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1612,6 +1674,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
 		 int  xsType = 0,
 		 bool storeGenTree = false, // store gentree in the output                                                                                                     
 		 bool dropPuppiBranches = true,
+		 bool dropPuppiBoostedJets = true,
 		 bool dropSubJetsBranches = true,
 		 bool dropHLTFilter = false,
 		 string metCut = "175"
@@ -1669,12 +1732,19 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"topfilter --> apply signal region preselection"<<std::endl;
+
   if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
-
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -1682,6 +1752,8 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"topfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1828,6 +1900,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
 		 int  xsType = 0,
 		 bool storeGenTree = false, // store gentree in the output                                                                                                     
 		 bool dropPuppiBranches = true,
+		 bool dropPuppiBoostedJets = true,
 		 bool dropSubJetsBranches = true,
 		 bool dropHLTFilter = false,
 		 string metCut = "175"
@@ -1886,11 +1959,19 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
   treedir->cd();
   std::cout<<"topfilter --> apply signal region preselection"<<std::endl;
+
   if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
   if(dropPuppiBranches){
     frtree->SetBranchStatus("*puppi*",0);
-    frtree->SetBranchStatus("*Puppi*",0);
+    frtree->SetBranchStatus("combinePuppi*",0);
+    frtree->SetBranchStatus("Puppi*",0);
+    frtree->SetBranchStatus("incPuppi*",0);
+  }
+  if(dropPuppiBoostedJets){
+    frtree->SetBranchStatus("boostedPuppi*",0);
+    frtree->SetBranchStatus("prunedPuppi*",0);
+    frtree->SetBranchStatus("softDropPuppi*",0);
   }
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
@@ -1898,6 +1979,8 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
+  frtree->SetBranchStatus("hltPFHT*",0);
+  frtree->SetBranchStatus("pswgt_ht*",0);
 
 
   TTree* outtree = frtree->CopyTree(cut.c_str());

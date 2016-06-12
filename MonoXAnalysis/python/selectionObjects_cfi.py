@@ -72,7 +72,7 @@ selectedObjects = cms.EDProducer("PFCleaner",
             ptMin  = cms.double(18),
             absEta = cms.double(2.3),
             decayModeFinding = cms.double(0.5),
-            isolation = cms.double(5))),
+            isolation = cms.double(0.5))),
                                  #### photons
                                  photons   = cms.InputTag("slimmedPhotons"),
                                  calibratedPhotons = cms.InputTag("calibratedPhotons"),

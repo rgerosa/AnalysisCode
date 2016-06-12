@@ -33,6 +33,7 @@ parser.add_option('--storeGenTree', action="store_true",           dest="storeGe
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
 parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
 parser.add_option('--dropPuppiBranches',   action="store_true",    dest="dropPuppiBranches",          help="drop all puppi branches")
+parser.add_option('--dropPuppiBoostedJets', action="store_true",   dest="dropPuppiBoostedJets",       help="drop all puppi branches for boosted jets")
 parser.add_option('--dropSubJetsBranches', action="store_true",    dest="dropSubJetsBranches",        help="drop all subjet branches")
 parser.add_option('--dropHLTFilter',       action="store_true",    dest="dropHLTFilter",              help="drop HLT filter requirement")
 parser.add_option('--metCut',              action="store", type="string", dest="metCut",        help="apply MET/Recoil threshold")
@@ -84,6 +85,8 @@ if __name__ == '__main__':
           command += "--dropPuppiBranches ";
         if options.dropSubJetsBranches:
           command += "--dropSubJetsBranches ";
+        if options.dropPuppiBoostedJets:
+          command += "--dropPuppiBoostedJets ";
         if options.dropHLTFilter:
           command += "--dropHLTFilter";        
 

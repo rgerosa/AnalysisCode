@@ -20,7 +20,7 @@ options.register (
 	'flag to indicate if apply or not MET filters');
 
 options.register (
-	'metCut',125.,VarParsing.multiplicity.singleton,VarParsing.varType.float,
+	'metCut',150.,VarParsing.multiplicity.singleton,VarParsing.varType.float,
 	'met/recoil cut to be applied if filterHighMETEvents is set to true');
 
 options.register (
@@ -225,14 +225,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 ## Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 200
 
 ## Define the input source
 if options.inputFiles == []:
 
 	process.source = cms.Source("PoolSource", 
    		 fileNames = cms.untracked.vstring())
-
 	if not options.isMC :
 		process.source.fileNames.append(
 			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/00DD3222-261A-E611-9FD2-02163E011E34.root'
@@ -252,13 +251,15 @@ if options.inputFiles == []:
 			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/1AF1FDE9-EF25-E611-82DA-02163E011D1C.root')
 		process.source.fileNames.append(
 			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/92AAB9ED-EF25-E611-A912-02163E013450.root')
-#			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root'
-#			'/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root',
-#			'root://xrootd.unl.edu//store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_HT-600toInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/00761843-D4BD-E511-853E-000F53273498.root'		       
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root')
+#		process.source.fileNames.append( 
+#			'/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/40B73BDD-4F21-E611-9C0A-003048CF5F68.root')
 			
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
+
 
 ## Set the process options -- Display summary at the end, enable unscheduled execution
 if options.nThreads == 1 or options.nThreads == 0:
@@ -272,7 +273,7 @@ else:
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('1:1057:533689')
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:7052:7384006')
 
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #					ignoreTotal = cms.untracked.int32(1),
@@ -407,18 +408,18 @@ if options.addSubstructureCHS:
 	boostedJetCollection = JetSubstructure(process,
 					       options.isMC,
 					       coneSize = 0.8, algo = "AK",
-					       pileupMethod = "chs", selection = "pt > 150 && abs(eta) < 2.5",
+					       pileupMethod = "chs", selection = "pt > 190 && abs(eta) < 2.5",
 					       addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-					       addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+					       addNsubjettiness = True, addEnergyCorrelation = False, addQJets = False,
 					       addQGLikelihood = True);
 
 if options.addSubstructurePuppi:
 	boostedPuppiJetCollection = JetSubstructure(process,
 						    options.isMC,
 						    coneSize = 0.8, algo = "AK",
-						    pileupMethod = "Puppi", selection = "pt > 150 && abs(eta) < 2.5",
+						    pileupMethod = "Puppi", selection = "pt > 190 && abs(eta) < 2.5",
 						    addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-						    addNsubjettiness = True, addEnergyCorrelation = True, addQJets = False,
+						    addNsubjettiness = True, addEnergyCorrelation = False, addQJets = False,
 						    addQGLikelihood = True);
 
 # MET filter --> making the or of different met
@@ -550,8 +551,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      btaggingMVAWP    = cms.double(0.185),
 			      minJetPtCountAK4     = cms.double(30),
 			      minJetPtBveto        = cms.double(15),
-			      minJetPtAK4CentralStore = cms.double(15),
-			      minJetPtAK4ForwardStore = cms.double(20),			      
+			      minJetPtAK4Store     = cms.double(25),
 			      ## CHS jet substructure
 			      addSubstructureCHS   = cms.bool(options.addSubstructureCHS),
 			      boostedJetsCHS       = cms.InputTag(boostedJetCollection),
