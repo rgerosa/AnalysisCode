@@ -4,14 +4,14 @@
 using namespace std;
 
 void signalHiggshist(TFile* outfile,
-		     int    category,
-		     vector<string> observables,
-		     vector<string> observables_2D,
-		     double lumi                = 2.30,
-		     bool   doShapeSystematics  = false,
-		     string mH                  = "125",
-		     vector<double> xs          = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
-		     int typeOfHiggsSignal = 0){
+		     const Category &category,
+		     vector<string>  observables,
+		     vector<string>  observables_2D,
+		     const double & lumi        = 2.30,
+		     const bool   & doShapeSystematics  = false,
+		     const string & mH                  = "125",
+		     vector<double> xs                  = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
+		     const int & typeOfHiggsSignal      = 0){
 
   if(xs.size() != 4)
     cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
@@ -339,7 +339,7 @@ void signalHiggshist(TFile* outfile,
   // start running on signal samples                                                                                                                                 
   vector<TH1*> ehists;
   bool isWJet = false;
-  if(category == 2 or category == 3)
+  if(category == Category::monoV)
     isWJet = true;
 
   //Take histograms for Higgs
@@ -361,70 +361,70 @@ void signalHiggshist(TFile* outfile,
 
   // higgs re-weight
   if(typeOfHiggsSignal <=1){
-    makehist4(ggHTree,ggHhist,ggHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(0));
-    makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(1));
+    makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0));
+    makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(1));
   }
   if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
-    makehist4(wHTree,wHhist,wHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(2));
-    makehist4(zHTree,zHhist,zHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(3));
+    makehist4(wHTree,wHhist,wHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(2));
+    makehist4(zHTree,zHhist,zHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(3));
     if(xs.size() > 4) // apply ZH re-weight to estimated ggZH                                                                                                               
-      makehist4(zHTree,ggZHhist,ggZHhist_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+      makehist4(zHTree,ggZHhist,ggZHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
 
   }
 
   if(doShapeSystematics){
  
     if(typeOfHiggsSignal <= 1){
-      makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renUp);
-      makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renDw);
-      makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp);
-      makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw);
+      makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renUp);
+      makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renDw);
+      makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp);
+      makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw);
     
-      makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(1));
+      makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(0));
+      makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(1));
     }
     if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >= 2){
 
-      makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(3));      
-      makehist4(wHTree,wHhist_bDw,wHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(3));   
-      makehist4(wHTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(3));    
-      makehist4(wHTree,wHhist_metJetDw,wHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(3));    
-      makehist4(wHTree,wHhist_metResUp,wHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(3));
-      makehist4(wHTree,wHhist_metResDw,wHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(3));
-      makehist4(wHTree,wHhist_metUncUp,wHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(3));
-      makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(3));
+      makehist4(wHTree,wHhist_bUp,wHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(3));      
+      makehist4(wHTree,wHhist_bDw,wHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(3));   
+      makehist4(wHTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metJetUp,zHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(3));    
+      makehist4(wHTree,wHhist_metJetDw,wHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metJetDw,zHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(3));    
+      makehist4(wHTree,wHhist_metResUp,wHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metResUp,zHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(3));
+      makehist4(wHTree,wHhist_metResDw,wHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metResDw,zHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(3));
+      makehist4(wHTree,wHhist_metUncUp,wHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metUncUp,zHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(3));
+      makehist4(wHTree,wHhist_metUncDw,wHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(2));
+      makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(3));
 
       if(xs.size() >4){ // re-weight qqZH to get ggZH contribution                                                                                                           
-        makehist4(zHTree,ggZHhist_bUp,ggZHhist_bUp_2D,true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_bDw,ggZHhist_bDw_2D,true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metJetUp,ggZHhist_metJetUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metJetDw,ggZHhist_metJetDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metResUp,ggZHhist_metResUp_2D,true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metResDw,ggZHhist_metResDw_2D,true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metUncUp,ggZHhist_metUncUp_2D,true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metUncDw,ggZHhist_metUncDw_2D,true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_bUp,ggZHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_bDw,ggZHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metJetUp,ggZHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metJetDw,ggZHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metResUp,ggZHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metResDw,ggZHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metUncUp,ggZHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metUncDw,ggZHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
 
       }
     }
@@ -866,13 +866,13 @@ void signalHiggshist(TFile* outfile,
 
 // Build templates for the signal region                                                                                                                                       
 void signalmchist(TFile* outfile,
-		  int category,
+		  const Category & category,
 		  vector<string> observables,
 		  vector<string> observables_2D,
 		  vector<signalSample> massPoint,
-		  string interaction       = "Vector",
-		  double lumi              = 2.24,
-		  bool doShapeSystematics  = false){
+		  const string & interaction       = "Vector",
+		  const double & lumi              = 2.24,
+		  const bool & doShapeSystematics  = false){
 
   
   vector<TFile*> monoJfile;
@@ -1230,7 +1230,7 @@ void signalmchist(TFile* outfile,
   // start running on signal samples
   vector<TH1*> ehists;
   bool isWJet = false;
-  if(category == 2 or category == 3)
+  if(category == Category::monoV)
     isWJet = true;
 
   int itree = 0;
@@ -1238,17 +1238,17 @@ void signalmchist(TFile* outfile,
     // signals                                                                                                                                                                 
     if(tree){
       cout<<"signal region analysis --> Signal monoJet "<<endl;
-      makehist4(tree,monoJhist.at(itree),monoJhist_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"",false,reweightNVTX);
+      makehist4(tree,monoJhist.at(itree),monoJhist_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoJ sys "<<endl;
-	makehist4(tree,monoJhist_bUp.at(itree),monoJhist_bUp_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoJhist_bDw.at(itree),monoJhist_bDw_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX);
-	makehist4(tree,monoJhist_metJetUp.at(itree),monoJhist_metJetUp_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX);
-	makehist4(tree,monoJhist_metJetDw.at(itree),monoJhist_metJetDw_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX);
-	makehist4(tree,monoJhist_metResUp.at(itree),monoJhist_metResUp_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX);
-	makehist4(tree,monoJhist_metResDw.at(itree),monoJhist_metResDw_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX);
-	makehist4(tree,monoJhist_metUncUp.at(itree),monoJhist_metUncUp_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX);
-	makehist4(tree,monoJhist_metUncDw.at(itree),monoJhist_metUncDw_2D.at(itree),true,0,category,false,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX);
+	makehist4(tree,monoJhist_bUp.at(itree),monoJhist_bUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
+	makehist4(tree,monoJhist_bDw.at(itree),monoJhist_bDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
+	makehist4(tree,monoJhist_metJetUp.at(itree),monoJhist_metJetUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
+	makehist4(tree,monoJhist_metJetDw.at(itree),monoJhist_metJetDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
+	makehist4(tree,monoJhist_metResUp.at(itree),monoJhist_metResUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
+	makehist4(tree,monoJhist_metResDw.at(itree),monoJhist_metResDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX);
+	makehist4(tree,monoJhist_metUncUp.at(itree),monoJhist_metUncUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX);
+	makehist4(tree,monoJhist_metUncDw.at(itree),monoJhist_metUncDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX);
       }
     }
     itree++;
@@ -1258,17 +1258,17 @@ void signalmchist(TFile* outfile,
   for(auto tree : monoWtree){
     if(tree){
       cout<<"signal region analysis --> Signal monoW "<<endl;
-      makehist4(tree,monoWhist.at(itree),monoWhist_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"",false,reweightNVTX);
+      makehist4(tree,monoWhist.at(itree),monoWhist_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoW sys "<<endl;
-	makehist4(tree,monoWhist_bUp.at(itree),monoWhist_bUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoWhist_bDw.at(itree),monoWhist_bDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX);
-	makehist4(tree,monoWhist_metJetUp.at(itree),monoWhist_metJetUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX);
-	makehist4(tree,monoWhist_metJetDw.at(itree),monoWhist_metJetDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX);
-	makehist4(tree,monoWhist_metResUp.at(itree),monoWhist_metResUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX);
-	makehist4(tree,monoWhist_metResDw.at(itree),monoWhist_metResDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX);
-	makehist4(tree,monoWhist_metUncUp.at(itree),monoWhist_metUncUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX);
-	makehist4(tree,monoWhist_metUncDw.at(itree),monoWhist_metUncDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX);
+	makehist4(tree,monoWhist_bUp.at(itree),monoWhist_bUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
+	makehist4(tree,monoWhist_bDw.at(itree),monoWhist_bDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
+	makehist4(tree,monoWhist_metJetUp.at(itree),monoWhist_metJetUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
+	makehist4(tree,monoWhist_metJetDw.at(itree),monoWhist_metJetDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
+	makehist4(tree,monoWhist_metResUp.at(itree),monoWhist_metResUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
+	makehist4(tree,monoWhist_metResDw.at(itree),monoWhist_metResDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerDw",false,reweightNVTX);
+	makehist4(tree,monoWhist_metUncUp.at(itree),monoWhist_metUncUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"uncUp",false,reweightNVTX);
+	makehist4(tree,monoWhist_metUncDw.at(itree),monoWhist_metUncDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"uncDw",false,reweightNVTX);
       }
     }
     itree++;
@@ -1278,17 +1278,17 @@ void signalmchist(TFile* outfile,
   for(auto tree : monoZtree){
     if(tree){
       cout<<"signal region analysis --> Signal monoZ "<<endl;
-      makehist4(tree,monoZhist.at(itree),monoZhist_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"",false,reweightNVTX);
+      makehist4(tree,monoZhist.at(itree),monoZhist_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoZ sys "<<endl;
-	makehist4(tree,monoZhist_bUp.at(itree),monoZhist_bUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoZhist_bDw.at(itree),monoZhist_bDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"btagDown",false,reweightNVTX);
-	makehist4(tree,monoZhist_metJetUp.at(itree),monoZhist_metJetUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jesUp",false,reweightNVTX);
-	makehist4(tree,monoZhist_metJetDw.at(itree),monoZhist_metJetDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jesDw",false,reweightNVTX);
-	makehist4(tree,monoZhist_metResUp.at(itree),monoZhist_metResUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jerUp",false,reweightNVTX);
-	makehist4(tree,monoZhist_metResDw.at(itree),monoZhist_metResDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"jerDw",false,reweightNVTX);
-	makehist4(tree,monoZhist_metUncUp.at(itree),monoZhist_metUncUp_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"uncUp",false,reweightNVTX);
-	makehist4(tree,monoZhist_metUncDw.at(itree),monoZhist_metUncDw_2D.at(itree),true,0,category,isWJet,1.00,lumi,0,ehists,"uncDw",false,reweightNVTX);
+	makehist4(tree,monoZhist_bUp.at(itree),monoZhist_bUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
+	makehist4(tree,monoZhist_bDw.at(itree),monoZhist_bDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
+	makehist4(tree,monoZhist_metJetUp.at(itree),monoZhist_metJetUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
+	makehist4(tree,monoZhist_metJetDw.at(itree),monoZhist_metJetDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
+	makehist4(tree,monoZhist_metResUp.at(itree),monoZhist_metResUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
+	makehist4(tree,monoZhist_metResDw.at(itree),monoZhist_metResDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerDw",false,reweightNVTX);
+	makehist4(tree,monoZhist_metUncUp.at(itree),monoZhist_metUncUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"uncUp",false,reweightNVTX);
+	makehist4(tree,monoZhist_metUncDw.at(itree),monoZhist_metUncDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"uncDw",false,reweightNVTX);
       }
     }
     itree++;

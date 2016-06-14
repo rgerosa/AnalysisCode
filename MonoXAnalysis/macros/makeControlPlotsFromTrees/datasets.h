@@ -42,7 +42,7 @@ void fillDataSetNames(vector<string>& files, const string & sample) {
     files.push_back("ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1");
     files.push_back("ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1");
     files.push_back("ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1");
-    files.push_back("ST_tW_top_5f_NoFullyHadronicDecays_13TeV-powheg_TuneCUETP8M1");
+    files.push_back("ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1");
   }
   
   if (sample == "dib") {
@@ -68,7 +68,7 @@ void fillDataSetNames(vector<string>& files, const string & sample) {
 
   if (sample == "gam") {
     files.push_back("PhotonJets");
-    files.push_back("GJets_HT-40To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
+    files.push_back("GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
     files.push_back("GJets_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
     files.push_back("GJets_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");
     files.push_back("GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8");

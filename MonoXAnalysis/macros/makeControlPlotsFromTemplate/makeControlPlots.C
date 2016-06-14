@@ -4,7 +4,7 @@
 float minTau2Tau1 = 0.1;
 
 void makeControlPlots(string templateFileName, 
-		      int category, 
+		      Category category, 
 		      string observable, 
 		      string observableLatex, 
 		      string controlRegion, 
@@ -23,6 +23,8 @@ void makeControlPlots(string templateFileName,
   gROOT->ForceStyle(kTRUE);
   setTDRStyle();
   gStyle->SetOptStat(0);
+
+  initializeBinning();
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx(1);
@@ -44,6 +46,8 @@ void makeControlPlots(string templateFileName,
   TH1* datahist = NULL;
   TH1* qcdhist  = NULL;
   TH1* vllhist  = NULL;
+  TH1* ewkwhist  = NULL;
+  TH1* ewkzhist  = NULL;
   TH1* vnnhist  = NULL;
   TH1* vlhist   = NULL;
   TH1* dbhist   = NULL;
@@ -93,6 +97,8 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistwmn_"+observable).c_str());
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistwmn_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistwmn_"+observable).c_str());
+    ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str());
+    ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str());
   }
   else if(controlRegion == "wen"){
     datahist = (TH1*)inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
@@ -102,6 +108,8 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistwen_"+observable).c_str());
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistwen_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistwen_"+observable).c_str());
+    ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkwbkghistwen_"+observable).c_str());
+    ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkzbkghistwen_"+observable).c_str());
   }
   else if(controlRegion == "topmu" and plotResonant){
     datahist = (TH1*)inputFile->FindObjectAny(("datahisttopmu_"+observable).c_str());
@@ -148,12 +156,12 @@ void makeControlPlots(string templateFileName,
 
     datahist = (TH1*)inputFile->FindObjectAny(("datahist_"+observable).c_str());
 
-    if(category == 1 and observable == "met")
-      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
-    else if(category == 2 and observable == "met")
-      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
-    else
-      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
+    //    if(category == Category::monojet and observable == "met")
+    //      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
+    //    else if(category == Category::monoV and observable == "met")
+    //      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
+    //    else
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
     
     tophist  = (TH1*)inputFile->FindObjectAny(("tbkghist_"+observable).c_str());
     vlhist   = (TH1*)inputFile->FindObjectAny(("wjethist_"+observable).c_str());
@@ -161,6 +169,8 @@ void makeControlPlots(string templateFileName,
     vnnhist  = (TH1*)inputFile->FindObjectAny(("zinvhist_"+observable).c_str());
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghist_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghist_"+observable).c_str());
+    ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgwhist_"+observable).c_str());
+    ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgzhist_"+observable).c_str());
     
     if(not isHiggsInvisible){
       monoJhist = (TH1*)inputFile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
@@ -201,7 +211,11 @@ void makeControlPlots(string templateFileName,
       dbhist->Scale(1.0,"width");
     if(gamhist)
       gamhist->Scale(1.0,"width");
-    
+    if(ewkwhist)
+      ewkwhist->Scale(1.0,"width");
+    if(ewkzhist)
+      ewkzhist->Scale(1.0,"width");
+
     if(monoJhist){
       monoJhist->Scale(1.0,"width");
       monoJhist->Scale(signalScale);
@@ -251,7 +265,7 @@ void makeControlPlots(string templateFileName,
     if(monoZhist)
       monoZhist->Scale(signalScale);
   }
-  
+
   // BLIND OPTION
   if(blind and controlRegion == "SR"){
 
@@ -270,7 +284,6 @@ void makeControlPlots(string templateFileName,
     }
   }
 
-
   // set colors
   if(datahist){
     datahist->SetLineColor(kBlack);
@@ -280,44 +293,20 @@ void makeControlPlots(string templateFileName,
   }
 
   if(vnnhist) {
-    if(controlRegion == "SR"){
       vnnhist->SetFillColor(TColor::GetColor("#258039"));
       vnnhist->SetLineColor(kBlack);
-    }
-    else{
-      vnnhist->SetFillColor(kGreen+1);
-      vnnhist->SetLineColor(kBlack);
-    }
   }
   if(vllhist){
-    if(controlRegion == "SR"){
       vllhist->SetFillColor(TColor::GetColor("#9A9EAB"));
       vllhist->SetLineColor(kBlack);
-    }
-    else{
-      vllhist->SetFillColor(kCyan);
-      vllhist->SetLineColor(kBlack);
-    }
   }
   if(vlhist){
-    if(controlRegion == "SR"){
       vlhist->SetFillColor(TColor::GetColor("#FAAF08"));
       vlhist->SetLineColor(kBlack);
-    }
-    else{
-      vlhist->SetFillColor(kRed);
-      vlhist->SetLineColor(kBlack);
-    }
   }
   if(tophist){
-    if(controlRegion == "SR"){
       tophist->SetFillColor(TColor::GetColor("#CF3721"));
       tophist->SetLineColor(kBlack);
-    }
-    else{
-      tophist->SetFillColor(kBlue);
-      tophist->SetLineColor(kBlack);
-    }
   }
   if(tophist_matched){
     tophist_matched->SetFillColor(kGreen+1);
@@ -328,31 +317,28 @@ void makeControlPlots(string templateFileName,
     tophist_unmatched->SetLineColor(kBlack);
   }
   if(dbhist){
-    if(controlRegion == "SR"){      
-      dbhist->SetFillColor(TColor::GetColor("#4897D8"));
-      dbhist->SetLineColor(kBlack);
-    }
-    else{
-      dbhist->SetFillColor(kViolet);
-      dbhist->SetLineColor(kBlack);
-    }
+    dbhist->SetFillColor(TColor::GetColor("#4897D8"));
   }
   if(qcdhist) {
-    if(controlRegion == "SR")
-      qcdhist->SetFillColor(TColor::GetColor("#F1F1F2"));
-    else
-      qcdhist->SetFillColor(kGray);
+    qcdhist->SetFillColor(TColor::GetColor("#F1F1F2"));
     qcdhist->SetLineColor(kBlack);
   }
   if(gamhist){
-    if(controlRegion == "SR"){
-      gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+    gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+    if(controlRegion == "SR")
       gamhist->SetLineColor(TColor::GetColor("#9A9EAB"));
-    }
-    else{
-      gamhist->SetFillColor(kOrange);
+    else
       gamhist->SetLineColor(kBlack);
-    }
+  }
+
+  if(ewkwhist){
+    ewkwhist->SetFillColor(kBlack);
+    ewkwhist->SetLineColor(kBlack);
+  }
+
+  if(ewkzhist){
+    ewkzhist->SetLineColor(kBlack);
+    ewkzhist->SetFillColor(kBlack);
   }
 
   if(monoJhist){
@@ -409,7 +395,6 @@ void makeControlPlots(string templateFileName,
   if(wHhist and zHhist) // add them together in vH
     wHhist->Add(zHhist);
 
-
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
     stack->Add(qcdhist);
@@ -428,6 +413,8 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
+    ewkwhist->Add(ewkzhist);
+    stack->Add(ewkwhist);
     stack->Add(dbhist);
     stack->Add(vlhist);
   }
@@ -449,11 +436,12 @@ void makeControlPlots(string templateFileName,
     stack->Add(tophist_matched);    
   }
   else if(controlRegion == "SR"){
-    stack->Add(qcdhist);
     vllhist->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
+    ewkwhist->Add(ewkzhist);
+    stack->Add(ewkwhist);
     stack->Add(vlhist);
     stack->Add(vnnhist);
   }
@@ -556,11 +544,10 @@ void makeControlPlots(string templateFileName,
 
     outputfile.close();
   }
-  
-  TH1* frame = (TH1*) datahist->Clone("frame");
-  frame->Reset();
-  vector<double> bins = selectBinning(observable,category);
 
+  TH1* frame = (TH1*) datahist->Clone("frame");
+  frame->Reset();  
+  vector<double> bins = selectBinning(observable,category);
   float xMin = bins.front();
   if(observable == "tau2tau1")
     xMin = minTau2Tau1;
@@ -569,11 +556,13 @@ void makeControlPlots(string templateFileName,
   float xMax = bins.back();
 
   // set Y-axis range
-  if(category <= 1 and isLog)
+  if(category == Category::monojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
-  else if(category <= 1 and not isLog)
+  else if(category == Category::monojet and not isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
-  else if(category > 1 and isLog)
+  else if(category == Category::monoV and isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  else if(category == Category::VBF and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
@@ -591,27 +580,34 @@ void makeControlPlots(string templateFileName,
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category <= 1)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"2.3");
+  CMS_lumi(canvas,"0.81");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
 
   if(controlRegion == "SR" and not isHiggsInvisible){
-    monoJhist->Draw("hist same");
-    monoWhist->Draw("hist same");
+    if(monoJhist)
+      monoJhist->Draw("hist same");
+    if(monoWhist)
+      monoWhist->Draw("hist same");
+    if(monoZhist)
     monoZhist->Draw("hist same");
   }
   else if(controlRegion == "SR" and isHiggsInvisible){
-    ggHhist->Draw("hist same");
-    vbfHhist->Draw("hist same");
-    wHhist->Draw("hist same");
-    zHhist->Draw("hist same");
+    if(ggHhist)
+      ggHhist->Draw("hist same");
+    if(vbfHhist)
+      vbfHhist->Draw("hist same");
+    if(wHhist)
+      wHhist->Draw("hist same");
+    if(zHhist)
+      zHhist->Draw("hist same");
   }
 
   TLegend* leg = NULL;
@@ -658,6 +654,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
+    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,  "Top","F");
     leg->AddEntry(dbhist,   "Di-Boson","F");
     leg->AddEntry(gamhist,  "#gamma+jets","F");
@@ -668,6 +665,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow ee","F");
+    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
@@ -720,15 +718,19 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
     leg->AddEntry(vlhist,  "W(l#nu)", "F");
+    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist,  "Dibosons", "F");
     leg->AddEntry(tophist, "Top", "F");
     leg->AddEntry(vllhist, "Others: Z(ll), #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
     if( not isHiggsInvisible){
       TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
-      leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
-      leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
-      leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+      if(monoJhist)
+	leg->AddEntry(monoJhist, ("Mono-J M_{Med} = "+string(mass)).c_str(), "L");
+      if(monoWhist)
+	leg->AddEntry(monoWhist, ("Mono-W M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
+      if(monoZhist)
+	leg->AddEntry(monoZhist, ("Mono-Z M_{Med} = "+string(mass)+" #times "+to_string(signalScale)).c_str(), "L");
     }
     else{
       leg->AddEntry(ggHhist,"ggH(m_{H}=125 GeV)", "L");
@@ -750,12 +752,14 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
-  if(category <= 1)
+  if(category == Category::monojet)
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+  else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
-  else if(category > 1)
+  else if(category == Category::VBF)
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   
-  if(category <= 1)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
@@ -780,7 +784,7 @@ void makeControlPlots(string templateFileName,
   nhist->SetStats(kFALSE);
   nhist->SetLineColor(kBlack);
   nhist->SetMarkerColor(kBlack);
-  nhist->SetMarkerSize(1.2);
+  nhist->SetMarkerSize(0.8);
 
   // set to zero for plotting reasons of error bar and error band
   for (int i = 1; i <= dhist->GetNbinsX(); i++) dhist->SetBinError(i, 0);
@@ -964,6 +968,5 @@ void makeControlPlots(string templateFileName,
     canvas->SaveAs((observable+"_"+controlRegion+"_Shape.pdf").c_str());
 
   }
-
 }
 

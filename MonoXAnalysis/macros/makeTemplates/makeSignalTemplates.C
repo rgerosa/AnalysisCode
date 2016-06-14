@@ -13,17 +13,17 @@ using namespace std;
 
 // Run the final analysis on signal samples
 void makeSignalTemplates(
-			 int category                  = 0,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
-			 double lumi                   = 2.30, // 
-			 string outDir                 = "", // output dir for template file
-			 string templateSuffix         = "",  // suffix for the output file
+			 const Category & category     = Category::monojet,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
+			 const double & lumi                   = 2.30, // 
+			 const string & outDir                 = "", // output dir for template file
+			 const string & templateSuffix         = "",  // suffix for the output file
 			 vector<string> observables    = {"met"}, // 1D histo
 			 vector<string> observables_2D = {},  // 2D histo
-			 string interactionType        = "",  // can be Vector, Axial, Scalar, Pseudoscalar or All
-			 bool doShapeSystematics       = false, // run all the met, b-tag shape variations
-			 int  typeOfDMSignal           = 0,     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
-			 bool runHiggsInvisible        = false, // run Higgs invisible analysis
-			 string ext ="") {
+			 const string & interactionType        = "",  // can be Vector, Axial, Scalar, Pseudoscalar or All
+			 const bool & doShapeSystematics       = false, // run all the met, b-tag shape variations
+			 const int  & typeOfDMSignal           = 0,     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
+			 const bool & runHiggsInvisible        = false // run Higgs invisible analysis
+			 ) {
 
   system(("mkdir -p "+outDir).c_str());
 

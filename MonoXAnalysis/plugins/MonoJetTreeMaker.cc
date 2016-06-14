@@ -195,6 +195,8 @@ private:
   // Taus
   const edm::InputTag tausTag;
   edm::EDGetTokenT<pat::TauRefVector>  tausToken;
+  const edm::InputTag tausRawTag;
+  edm::EDGetTokenT<pat::TauRefVector>  tausRawToken;
 
   //Jets AK4
   const edm::InputTag jetsTag;
@@ -315,7 +317,7 @@ private:
   uint32_t nvtx;
   uint32_t nmuons,ntightmuons,nhighptmuons;
   uint32_t nelectrons,nlooseelectrons,ntightelectrons,nheepelectrons;
-  uint32_t ntaus,nphotons;
+  uint32_t ntaus,ntausraw,nphotons;
   uint32_t njets,nbjets,nbjetslowpt,nbjetsMVA,nbjetsMVAlowpt;  
   uint32_t npuppijets,npuppibjets,npuppibjetsMVA,npuppibjetslowpt,npuppibjetsMVAlowpt;
   uint32_t njetsinc,npuppijetsinc;
@@ -350,6 +352,7 @@ private:
   double rho;
   double t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
   double pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
+  double calomet, calometphi;
 
   // MET break down
   double pfmethadronHF,pfmethadronHFphi,pfmetegammaHF,pfmetegammaHFphi,pfmetchargedhadron,pfmetchargedhadronphi;
@@ -568,6 +571,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   addPhotonPurity(iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false),
   // taus
   tausTag(iConfig.getParameter<edm::InputTag>("taus")),
+  tausRawTag(iConfig.getParameter<edm::InputTag>("tausRaw")),
   // jets AK4
   jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
   addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
@@ -651,6 +655,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   // taus
   tausToken = consumes<pat::TauRefVector> (tausTag);
+  tausRawToken = consumes<pat::TauRefVector> (tausRawTag);
   // jets AK4
   jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
 
@@ -891,6 +896,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<pat::TauRefVector > tausH;
     iEvent.getByToken(tausToken, tausH);
     pat::TauRefVector taus = *tausH;
+
+    Handle<pat::TauRefVector > tausRawH;
+    iEvent.getByToken(tausRawToken, tausRawH);
+    pat::TauRefVector tausRaw = *tausRawH;
 
     // AK4 Jets
     Handle<vector<pat::Jet> > jetsH;
@@ -1218,7 +1227,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       t1pfmetphi = t1metH->front().corPhi();
       pfmet      = t1metH->front().uncorPt();
       pfmetphi   = t1metH->front().uncorPhi();
+      calomet    = t1metH->front().caloMETPt();
+      calometphi = t1metH->front().caloMETPhi(); 
     }
+    else { 
+      t1pfmet    = -99. ;
+      t1pfmetphi = -99. ;
+      pfmet      = -99. ;
+      pfmetphi   = -99. ;
+      calomet    = -99. ;
+      calometphi = -99. ;
+    }
+
 
     if(addMVAMet && mvaMetH.isValid()){
       mvamet    = mvaMetH->front().pt();
@@ -1235,12 +1255,24 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       mumet      = t1mumetH->front().uncorPt();
       mumetphi   = t1mumetH->front().uncorPhi();
     }
+    else{
+      t1mumet    = -99;
+      t1mumetphi = -99;
+      mumet      = -99;
+      mumetphi   = -99;
+    }
 
     if(t1elmetH.isValid()){
       t1elmet    = t1elmetH->front().corPt();
       t1elmetphi = t1elmetH->front().corPhi();
       elmet      = t1elmetH->front().uncorPt();
       elmetphi   = t1elmetH->front().uncorPhi();
+    }
+    else{
+      t1elmet    = -99;
+      t1elmetphi = -99;
+      elmet      = -99;
+      elmetphi   = -99;
     }
 
     if(t1phmetH.isValid()){
@@ -1249,12 +1281,24 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phmet      = t1phmetH->front().uncorPt();
       phmetphi   = t1phmetH->front().uncorPhi();
     }
+    else{
+      t1phmet    = -99;
+      t1phmetphi = -99;
+      phmet      = -99;
+      phmetphi   = -99;
+    }
 
     if(t1taumetH.isValid()){
       t1taumet    = t1taumetH->front().corPt();
       t1taumetphi = t1taumetH->front().corPhi();
       taumet      = t1taumetH->front().uncorPt();
       taumetphi   = t1taumetH->front().uncorPhi();
+    }
+    else{
+      t1taumet    = -99;
+      t1taumetphi = -99;
+      taumet      = -99;
+      taumetphi   = -99;
     }
 
     if(addMETSystematics){          
@@ -1879,7 +1923,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	ntaus++;
       }
     }
-
+    // old isolation
+    ntausraw = 0;
+    if(tausRawH.isValid()){
+      for(std::size_t itau =0 ; itau < tausRaw.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRaw[itau]->eta(), tausRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRaw[itau]->eta(), tausRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausraw++;
+      }
+    }
     // W, Z control sample information
     zmass       = 0.0; zpt         = 0.0; zeta        = 0.0; zphi        = 0.0;
     zeemass     = 0.0; zeept       = 0.0; zeeeta      = 0.0; zeephi      = 0.0;
@@ -3402,6 +3460,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
   tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/i");
   tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
+  tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/i");
   tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
   tree->Branch("njets"                , &njets                , "njets/i");
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
@@ -3424,6 +3483,8 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/D");
   tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/D");
   tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/D");
+  tree->Branch("calomet"              , &calomet              , "calomet/D");   //ND
+  tree->Branch("calometphi"           , &calometphi           , "calometphi/D");//ND
   tree->Branch("mumet"                , &mumet                , "mumet/D");
   tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
   tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/D");

@@ -239,22 +239,23 @@ if options.inputFiles == []:
 #			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root'
 			)
 	else:
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C06A61EE-EF25-E611-870A-02163E011A12.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C25A5FEA-EF25-E611-A65E-02163E011826.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/D09C4AEB-EF25-E611-AB07-02163E0142E2.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/CA36E6F2-EF25-E611-80AA-02163E01430A.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/1AF1FDE9-EF25-E611-82DA-02163E011D1C.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/92AAB9ED-EF25-E611-A912-02163E013450.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C06A61EE-EF25-E611-870A-02163E011A12.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C25A5FEA-EF25-E611-A65E-02163E011826.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/D09C4AEB-EF25-E611-AB07-02163E0142E2.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/CA36E6F2-EF25-E611-80AA-02163E01430A.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/1AF1FDE9-EF25-E611-82DA-02163E011D1C.root')
+#		process.source.fileNames.append(
+#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/92AAB9ED-EF25-E611-A912-02163E013450.root')
 #		process.source.fileNames.append(
 #			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root')
 #		process.source.fileNames.append( 
 #			'/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/40B73BDD-4F21-E611-9C0A-003048CF5F68.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/127DD5B1-DC1A-E611-93AE-0025905AC824.root')
 			
 else:
    process.source = cms.Source("PoolSource",
@@ -503,6 +504,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonNHiso = cms.InputTag("photonIDValueMapProducer", "phoNeutralHadronIsolation"),
 			      ## taus
 			      taus            = cms.InputTag("selectedObjects","taus"),
+			      tausRaw         = cms.InputTag("selectedObjects","tausRaw"),
 			      ## jets AK4
 			      jets            = cms.InputTag(jetCollName),
 			      addPuppiJets    = cms.bool(options.addPuppiJets),			      

@@ -10,6 +10,7 @@
 #include "TH2F.h"
 #include "TLorentzVector.h"
 #include "TString.h"
+#include "histoUtils.h"
 
 using namespace std;
 
@@ -17,15 +18,22 @@ using namespace std;
 // define binnings for the different observables // 
 ///////////////////////////////////////////////////                               
 
-vector<double> bins_monoJ_met_2D      = {200.,250.,300.,350,400.,500.,600.,750.,950.,1300.};
-vector<double> bins_monoJ_mpruned_2D  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
-vector<double> bins_monoJ_tau2tau1_2D = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
-vector<double> bins_monoJ_njet_2D     = {1,2,3,10};
-vector<double> bins_monoJ_njet_2D_v2  = {1,2,3,4,10};
-vector<double> bins_monoJ_ht_2D       = {50.,300.,650.,950.,2000.};
-vector<double> bins_monoJ_mT_2D       = {200.,300,400.,500,600.,800,1100,1400,2000.};
-vector<double> bins_monoJ_dphiJJ_2D   = {-0.2,0.0,0.6,1.5,3.14};
-vector<double> bins_monoJ_QGL_2D      = {0.,0.15,0.50,0.85,1.};
+map<string,vector<double> > bins_monoV_2D;
+map<string,vector<double> > bins_monoJ_2D;
+
+void initializeBinning2D(){
+
+  bins_monoJ_2D["met"] = {200.,250.,300.,350,400.,500.,600.,750.,950.,1300.};
+  bins_monoJ_2D["mpruned"]  = {0.,5.,10.,15.,20.,25.,30.,35.,45.,55.,65.,75.,85.,95.,105.};
+  bins_monoJ_2D["tau2tau1"] = {0.,0.15,0.3,0.4,0.5,0.7,0.8,0.9,1.};
+  bins_monoJ_2D["njet"] = {1,2,3,10};
+  bins_monoJ_2D["njet_v2"] = {1,2,3,4,10};
+  bins_monoJ_2D["HT"] = {50.,300.,650.,950.,2000.};
+  bins_monoJ_2D["mT"] = {200.,300,400.,500,600.,800,1100,1400,2000.};
+  bins_monoJ_2D["dphiJJ"] = {-0.2,0.0,0.6,1.5,3.14};
+  bins_monoJ_2D["QGL"] = {0.,0.15,0.50,0.85,1.};
+ 
+}
 
 //// 2D binning
 struct bin2D {
@@ -35,69 +43,19 @@ struct bin2D {
 
 };
 
-bin2D selectBinning2D (string observable, int category){
+bin2D selectBinning2D (const string & observable, const Category & category){
 
   bin2D bins;
+  std::string varX = observable.substr(std::distance(observable.begin(),observable.begin()),observable.find("_"));
+  std::string varY = observable.substr(observable.find("_"),std::distance(observable.end(),observable.begin())); 
 
-  if(observable == "met_mpruned" and category <= 1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_mpruned_2D;
+  if(category == Category::monojet or category == Category::inclusive){
+    bins.binX = bins_monoJ_2D[varX];
+    bins.binY = bins_monoJ_2D[varY];
     return bins;
   }
-  else if(observable == "met_tau2tau1" and category <= 1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_tau2tau1_2D;
+  else
     return bins;
-  }
-  else if(observable == "mpruned_tau2tau1" and category <=1){
-    bins.binX = bins_monoJ_mpruned_2D;
-    bins.binY = bins_monoJ_tau2tau1_2D;
-    return bins;
-  }
-  else if(observable == "met_njet" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_njet_2D;
-    return bins;
-  }
-  else if(observable == "met_njet_v2" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_njet_2D_v2;
-    return bins;
-  }
-  else if(observable == "met_ht" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_ht_2D;
-    return bins;
-  }
-  else if(observable == "met_mT" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_mT_2D;
-    return bins;
-  }
-  else if(observable == "mT_njet" and category <=1){
-    bins.binX = bins_monoJ_mT_2D;
-    bins.binY = bins_monoJ_njet_2D;
-    return bins;
-  }
-  else if(observable == "mT_njet_v2" and category <=1){
-    bins.binX = bins_monoJ_mT_2D;
-    bins.binY = bins_monoJ_njet_2D_v2;
-    return bins;
-  }
-
-  else if(observable == "met_QGL" and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_QGL_2D;
-    return bins;    
-  }
-
-  else if((observable == "met_dphiJJ" or observable == "met_minDphiJJ" or observable == "met_minDphiJ1J") and category <=1){
-    bins.binX = bins_monoJ_met_2D;
-    bins.binY = bins_monoJ_dphiJJ_2D;
-    return bins;    
-  }
-  
-  return bins;
 }
 
 // to smooth empty bins in TH2
@@ -173,7 +131,7 @@ TH1* unroll2DHistograms(TH2* nominalHisto, bool alongX = true){
 }
 
 // re-construct the 2D histo from the 1D unrolled ones
-TH2* roll2DHistograms(TH1* nominalHisto, const string & observable_2D, const int & category, bool alongX = true){
+TH2* roll2DHistograms(TH1* nominalHisto, const string & observable_2D, const Category & category, bool alongX = true){
 
   bin2D bins = selectBinning2D(observable_2D,category);
   TH2F* outputHisto = new TH2F(Form("%s_2D",nominalHisto->GetName()),"",bins.binX.size()-1,&bins.binX[0],bins.binY.size()-1,&bins.binY[0]);
@@ -221,7 +179,7 @@ TH2* roll2DHistograms(TH1* nominalHisto, const string & observable_2D, const int
 
 // from un-rolled hist, obtain a vector of 1D histograms recovering the real physical binning
 // when alongX is false means plot in bin of X, otherwise in bin of Y
-vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & observable_2D, const int & category, const bool & alongX = false, const string & suffix = ""){
+vector<TH1F*> transformUnrolledHistogram(TH1* unrolledHisto, const string & observable_2D, const Category & category, const bool & alongX = false, const string & suffix = ""){
 
   vector<TH1F*> outputHistograms;  
   bin2D bins = selectBinning2D(observable_2D,category);
@@ -305,7 +263,5 @@ TH2* cloneHistoIncludingOverUnderFlow (TH2* histo){
   }
   return dynamic_cast<TH2*>(temp);
 }
-
-
 
 #endif

@@ -69,10 +69,22 @@ selectedObjects = cms.EDProducer("PFCleaner",
         cms.PSet(
             tauCollectionName = cms.string("taus"),
             dRCleaning = cms.double(0.4),
+            tauIDName  = cms.string("byLooseCombinedIsolationDeltaBetaCorr3Hits"),
             ptMin  = cms.double(18),
             absEta = cms.double(2.3),
             decayModeFinding = cms.double(0.5),
-            isolation = cms.double(0.5))),
+            isolation = cms.double(0.5),
+            graterThan = cms.bool(True)),
+        cms.PSet(
+            tauCollectionName = cms.string("tausRaw"),
+            tauIDName  = cms.string("byCombinedIsolationDeltaBetaCorrRaw3Hits"),
+            dRCleaning = cms.double(0.4),
+            ptMin  = cms.double(18),
+            absEta = cms.double(2.3),
+            decayModeFinding = cms.double(0.5),
+            isolation = cms.double(5),
+            graterThan = cms.bool(False))
+        ),
                                  #### photons
                                  photons   = cms.InputTag("slimmedPhotons"),
                                  calibratedPhotons = cms.InputTag("calibratedPhotons"),

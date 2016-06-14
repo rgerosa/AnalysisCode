@@ -98,12 +98,12 @@ void plot(Sample chan, // channel
       gfac.clear();
     }
 
-    string dtpath     = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/NoMetCut/";
-    string mcpath     = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/NoMetCut/";
+    string dtpath     = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/";
+    string mcpath     = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/";
     string dataset    = "";
     string filter     = "";
 
-    if (chan == Sample::sig || chan == Sample::wmn || chan == Sample::zmm || chan == Sample::topmu) dataset = "SingleMuon";
+    if (chan == Sample::sig || chan == Sample::wmn || chan == Sample::zmm || chan == Sample::topmu) dataset = "MET";
     if (chan == Sample::gam)                                                                        dataset = "SinglePhoton";
     if (chan == Sample::wen || chan == Sample::zee || chan == Sample::topel)                        dataset = "SingleElectron";
 
@@ -168,12 +168,12 @@ void plot(Sample chan, // channel
     if  (chan == Sample::sig || chan == Sample::gam) {
       for (size_t i = 1; i < gamfiles.size(); i++) 
 	makeGenericHist(mcpath+"/"+gamfiles[0]+"/"+filter+"filter/"+filter+"_"+gamfiles[i]+".root" , gamhist, varstr, cut,  true, chan, lumi, gfac, isInclusive);
-    }
+   }
     if  (chan == Sample::gam) {
       for (size_t i = 1; i < datfiles.size(); i++) 
 	makeGenericHist(dtpath+"/"+datfiles[0]+"/"+filter+"filter/"+filter+"_"+datfiles[i]+".root" , qcdhist, varstr, cut, false, Sample::qcd, lumi, efac, isInclusive);
     }
-    
+
     kfactfile.Close();    
     drawPlot(hists, xmin, ymin, xmax, ymax, dirname, plotname, xlabel, ylabel, lumi, true,isLog);
 }

@@ -86,7 +86,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
         wgtbtagvar = "wgt";
     }
 
-    TTreeReaderValue<unsigned char>   fcsc   (reader, "flagcsctight");
+    TTreeReaderValue<unsigned char>   fcsc   (reader, "flagglobaltighthalo");
     TTreeReaderValue<unsigned char>   fhbhe  (reader, "flaghbhenoise");
     TTreeReaderValue<unsigned char>   fhbhei (reader, "flaghbheiso");
     TTreeReaderValue<unsigned char>   feesc  (reader, "flageebadsc");
@@ -108,8 +108,10 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     TTreeReaderValue<unsigned int>    nvtx   (reader, "nvtx");
     TTreeReaderValue<unsigned int>    njetsin(reader, "njetsinc");
     TTreeReaderValue<unsigned int>    nbjets (reader, "nbjetslowpt");
+    TTreeReaderValue<unsigned int>    run    (reader, "run");
 
     TTreeReaderValue<vector<double> > jetpt  (reader, "combinejetpt");
+    TTreeReaderValue<vector<double> > jeteta (reader, "combinejeteta");
     TTreeReaderValue<vector<double> > chfrac (reader, "combinejetCHfrac");
     TTreeReaderValue<vector<double> > nhfrac (reader, "combinejetNHfrac");
 
@@ -164,18 +166,19 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
     // event loop
     while (reader.Next()) {
 
+      if(!isMC and *run > 274240) continue;
         double weight = 1.0;
         double kfact  = 1.0;
         double puwgt  = 1.0;
         double effsf  = 1.0;
         double trgsf  = 1.0;
 
-        if (!isMC && *fcsc    == 0) continue;
-        if (!isMC && *fhbhe   == 0) continue;
-        if (!isMC && *fhbhei  == 0) continue;
-        if (!isMC && *feesc   == 0) continue;
-        if (!isMC && *fecal   == 0) continue;
-        if (!isMC && *fnvtx   == 0) continue;
+        if (*fcsc    == 0) continue;
+        if (*fhbhe   == 0) continue;
+        if (*fhbhei  == 0) continue;
+        if (*feesc   == 0) continue;
+        if (*fecal   == 0) continue;
+        if (*fnvtx   == 0) continue;
 
 	if (not isInclusive and *njets < 1) continue;
         if ((chan != Sample::topmu and chan != Sample::topel) and *nbjets > 0) continue;	
@@ -259,6 +262,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 	  if (not isMC and hlt == 0) continue;
 	  if (*el1pt < 40 or *el1id != 1) continue;
 	  if (isInclusive and *wemt < 60) continue;
+	  if (*t1pfmet < 50 and not isInclusive) continue;
 	  effsf *= esftight->GetBinContent(esftight->FindBin(min(*el1pt,esftight->GetXaxis()->GetBinLowEdge(esftight->GetNbinsX()+1)-1),*el1eta));
 	  trgsf *= triggerelhist ->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
         }
@@ -309,7 +313,6 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
 
 	if ((*nvtx) <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else puwgt = 1.0;
-
         double genpt = *wzpt;
         if (*wzpt < 100. ) genpt = 100.;
         if (*wzpt > 1000.) genpt = 999.;
@@ -319,7 +322,7 @@ void templatedMakeHist(TTree* tree, TH1* hist, const char* varstr, bool isMC, Sa
             }
         }
 
-	if (isMC) weight *= (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(*wgtbtag)*(effsf)/(*wgtsum);	
+	if (isMC) weight *= (*xsec)*(lumi)*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)/(*wgtsum);	
         is_vector<T> isv;
         Double_t fillval = getValueFromVar(isv, var, index); 
         if (fillval >= max) fillval = mid;
