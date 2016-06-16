@@ -61,7 +61,7 @@ if options.inputFiles == []:
                 )
         else:
             process.source.fileNames.append(
-#                '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
+#		    '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
 		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
                 )
             
@@ -69,6 +69,8 @@ else:
     process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(options.inputFiles))
 
+
+#process.source.eventsToProcess = cms.untracked.VEventRange('273728:2:967809')
 
 # Setup the service to make a ROOT TTree
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tnptree.root"))
@@ -120,9 +122,9 @@ tagmuontriggernames = cms.vstring([
 tagelectrontriggernames = cms.vstring([
 		"HLT_Ele24_eta2p1_WPLoose_Gsf_v*",
 		"HLT_Ele25_eta2p1_WPTight_Gsf_v*",
-		"HLT_Ele27_WPTight_Gsf_v*",
 		"HLT_Ele27_eta2p1_WPLoose_Gsf_v*",
 		"HLT_Ele27_eta2p1_WPTight_Gsf_v*"
+		"HLT_Ele27_WPTight_Gsf_v*",
 		"HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
 		"HLT_Ele115_CaloIdVT_GsfTrkIdT_v*",
     ])    

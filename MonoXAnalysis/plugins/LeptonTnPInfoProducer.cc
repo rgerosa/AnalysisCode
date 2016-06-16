@@ -59,7 +59,7 @@ private:
   const double tightmuisocut;
   const double tagmuonptcut;
   const double tagmuonetacut;
-  const double tagmuontrigmatchdR;
+  const double tagmuontrigmatchdR;  
   const bool   requiremuonhlt;
   const std::vector<std::string> tagmuontriggers;
   const double tagelectronptcut;
@@ -102,6 +102,7 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   // produce a map with the generator weight
   produces<edm::ValueMap<float> >("muwgtmap");
 
+
   // produce a ref vector with tag muon trigger info
   produces<pat::MuonRefVector>("hltmu20muonrefs");
   produces<pat::MuonRefVector>("hlttkmu20muonrefs");
@@ -122,6 +123,7 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<edm::ValueMap<float> >("elwgtmap");
   produces<edm::ValueMap<float> >("phnvtxmap");
   produces<edm::ValueMap<float> >("phwgtmap");
+
 
   // Map for electron trigger
   produces<pat::ElectronRefVector>("hltele24eta2p1wplooseelectronrefs");
@@ -173,7 +175,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   Handle<pat::TriggerObjectStandAloneCollection> triggerObjectsH;
   iEvent.getByToken(triggerObjectsToken, triggerObjectsH);
-  
+  const pat::TriggerObjectStandAloneCollection triggerObjects = *triggerObjectsH;
+
   Handle<edm::TriggerResults> triggerResultsH;
   iEvent.getByToken(triggerResultsToken, triggerResultsH);
   
@@ -250,6 +253,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   vector<float> muwgtvector;
   // loop on the probe muon collection
   for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
+
     // calculate isolation
     float isoval = muons_iter->pfIsolationR04().sumNeutralHadronEt;
     isoval += muons_iter->pfIsolationR04().sumPhotonEt;
@@ -267,43 +271,35 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     bool hltisotkmu24matched = false;
     bool hltisomumatched = false;
     bool hltisotkmumatched = false;
-    // loop on the trigger result objects and upack single objects
+    
+    // loop on the whole trigger object collection
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
-      trgobj.unpackPathNames(trigNames);
-      if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)) continue;
+      trgobj.unpackPathNames(trigNames); // un-pack names
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)) continue; //check dR matching
+      if(muons_iter->pt()/trgobj.pt() < 0.5 or muons_iter->pt()/trgobj.pt() > 1.5) continue; // check some pt matching
+
       for (std::string trigpath : tagmuontriggers) { 
 	// loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
-	if (trgobj.hasPathName(trigpath, false, true)) triggermatched = true; 
+	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true) ) triggermatched = true; 
       }
-    
-      // match specifically only IsoMu20
-      if (trgobj.hasPathName("HLT_IsoMu20_v*"  , false, true) and not hltisomu20matched)
-	hltisomu20matched   = true;
       
-      // match specifically on IsoTk20
-      if (trgobj.hasPathName("HLT_IsoTkMu20_v*", false, true) and not hltisotkmu20matched)
-	hltisotkmu20matched = true;
+      // loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
+      if (trgobj.hasPathName("HLT_IsoMu20_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu20_v*", true, true)) hltisomu20matched = true; 
+      if (trgobj.hasPathName("HLT_IsoMu22_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu22_v*", true, true)) hltisomu22matched = true; 
+      if (trgobj.hasPathName("HLT_IsoMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu22_v*", true, true)) hltisomu24matched = true; 
       
-      // match specifically only IsoMu22
-      if (trgobj.hasPathName("HLT_IsoMu22_v*"  , false, true) and not hltisomu22matched)
-	hltisomu22matched   = true;
-      
-      // match specifically on IsoTk22
-      if (trgobj.hasPathName("HLT_IsoTkMu22_v*", false, true) and not hltisotkmu22matched)
-	hltisotkmu22matched = true;
-      // match specifically only IsoMu24
-      if (trgobj.hasPathName("HLT_IsoMu24_v*"  , false, true) and not hltisomu24matched)	
-	hltisomu24matched   = true;
-      
-      // match specifically on IsoTk24
-      if (trgobj.hasPathName("HLT_IsoTkMu24_v*", false, true) and not hltisotkmu24matched) 
-	hltisotkmu24matched = true;
-      
-      if(hltisomu20matched || hltisomu22matched || hltisomu24matched) hltisomumatched = true;
-      if(hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched) hltisotkmumatched = true;      
+      if (trgobj.hasPathName("HLT_IsoTkMu20_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu20_v*", true, true)) hltisotkmu20matched = true; 
+      if (trgobj.hasPathName("HLT_IsoTkMu22_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true)) hltisotkmu22matched = true; 
+      if (trgobj.hasPathName("HLT_IsoTkMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true)) hltisotkmu24matched = true; 
     }
-    
+
+    if(hltisomu20matched || hltisomu22matched || hltisomu24matched) hltisomumatched = true;
+    if(hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched) hltisotkmumatched = true;            
     if (!requiremuonhlt) triggermatched = true;    
+
+    if(not triggermatched and (hltisomu20matched || hltisomu22matched || hltisomu24matched || hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched))
+      std::cout<<"Problem with the trigger matching --> triggermathc should be always >= than the big or "<<std::endl;
+    
     // matched to mu20
     if (verticesH->size() != 0 && hltisomu20matched) 
       outputhltmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
@@ -322,13 +318,13 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // matched to IsoMu24
     if (verticesH->size() != 0 && hltisotkmu24matched) 
       outputhlttkmu24muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-  // matched to mu20 || mu22 || mu24
+    // matched to mu20 || mu22 || mu24
     if (verticesH->size() != 0 && hltisomumatched) 
       outputhltmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu20 || IsoMu22 || IsoMu24
     if (verticesH->size() != 0 && hltisotkmumatched) 
       outputhlttkmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-
+    
     // Loose muons
     if (verticesH->size() != 0 && muon::isLooseMuon(*muons_iter) && isoval <= loosemuisocut) 
       outputloosemuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
@@ -340,11 +336,10 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (triggermatched && muons_iter->pt() > tagmuonptcut && fabs(muons_iter->eta()) < tagmuonetacut) 
 	outputtightmuons->push_back(*muons_iter);
     }
-  
     munvtxvector.push_back(float(verticesH->size()));
     muwgtvector.push_back(wgt);
   }
-  
+
   // electron part  
   vector<float> elnvtxvector;
   vector<float> elwgtvector;
@@ -362,38 +357,48 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     bool hltele115matched = false;
     bool hltelematched = false;
 
+    // loop on the trigger result objects and upack single objects
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
-      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)) continue;
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagmuontrigmatchdR)) continue; //check dR matching
+      if(electrons_iter->pt()/trgobj.pt() < 0.5 or electrons_iter->pt()/trgobj.pt() > 1.5) continue; // check some pt matching
+      
       for (std::string trigpath : tagelectrontriggers) {
-	if (trgobj.hasPathName(trigpath, false, true)) triggermatched = true;
+	if (trgobj.hasPathName(trigpath, true, false)) triggermatched = true;
       }
 
-      if (trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", false, true) and not hltele24eta2p1wploosematched)
-        hltele24eta2p1wploosematched = true;
+      if (trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, true))
+	hltele24eta2p1wploosematched = true;
 
-      if (trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*"  , false, true) and not hltele25eta2p1wptightmatched)
-        hltele25eta2p1wptightmatched = true;
+      if (trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, true))
+	hltele25eta2p1wptightmatched = true;
 
-      if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPLoose_Gsf_v*"  , false, true) and not hltele27eta2p1wploosematched)
-        hltele27eta2p1wploosematched = true;
+      if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_eta2p1_WPLoose_Gsf_v*", true, true))
+	hltele27eta2p1wploosematched = true;
 
-      if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPTight_Gsf_v*"  , false, true) and not hltele27eta2p1wptightmatched)
-        hltele27eta2p1wptightmatched = true;
+      if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_eta2p1_WPTight_Gsf_v*", true, true))
+	hltele27eta2p1wptightmatched = true;
 
-      if (trgobj.hasPathName("HLT_Ele27_WPTight_Gsf_v*"  , false, true) and not hltele27wptightmatched)
-        hltele27wptightmatched = true;
+      if (trgobj.hasPathName("HLT_Ele27_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_WPTight_Gsf_v*", true, true))
+	hltele27wptightmatched = true;
+
+      if (trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", true, true))
+	hltele105matched = true;
       
-      if (trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*"  , false, true) and not hltele105matched)
-        hltele105matched = true;
-
-      if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"  , false, true) and not hltele115matched)
-        hltele115matched = true;
-      
-      if(hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched) hltelematched = true;
+      if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, true))
+	hltele115matched = true;
     }
 
-     if (!requireelectronhlt) triggermatched = true;    
+    if(hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched) hltelematched = true;
+
+    if (!requireelectronhlt) triggermatched = true;    
+
+    if(not triggermatched and (hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27wptightmatched || hltele105matched || hltele115matched))
+      std::cout<<"Problem with the trigger matching --> triggermathc should be always >= than the big or "<<std::endl;
+
+    if(fabs(electrons_iter->eta()) < 1 && hltele27wptightmatched and not hltele27eta2p1wploosematched)
+      std::cout<<"Problem with electorns "<<endl;
+    
     if (verticesH->size() != 0 && hltele24eta2p1wploosematched) 
       outputhltele24eta2p1wplooseelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     if (verticesH->size() != 0 && hltele25eta2p1wptightmatched) 
@@ -410,7 +415,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       outputhltele115electronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     if (verticesH->size() != 0 && hltelematched) 
       outputhlthltelelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin())); 
-
+    
     // veto electrons
     if (verticesH->size() != 0 && (*electronVetoIdH)  [electronPtr]) 
       outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
@@ -428,6 +433,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (triggermatched && electrons_iter->pt() > tagelectronptcut && fabs(electrons_iter->eta()) < tagelectronetacut) 
 	outputtightelectrons->push_back(*electrons_iter);
     }
+
     elnvtxvector.push_back(float(verticesH->size()));
     elwgtvector.push_back(wgt);
   }
@@ -437,10 +443,10 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   vector<float> phwgtvector;
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
     const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
-
+    
     phnvtxvector.push_back(float(verticesH->size()));
     phwgtvector.push_back(wgt);
-
+    
     // loose photons
     if (verticesH->size() != 0 && (*photonLooseIdH) [photonPtr]) 
       outputloosephotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
@@ -451,6 +457,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (verticesH->size() != 0 && (*photonTightIdH) [photonPtr]) 
       outputtightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
   }
+
   edm::ValueMap<float>::Filler munvtxfiller(*outputmunvtxmap);
   munvtxfiller.insert(muonsH, munvtxvector.begin(), munvtxvector.end());
   munvtxfiller.fill();
@@ -467,6 +474,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   elwgtfiller.insert(electronsH, elwgtvector.begin(), elwgtvector.end());
   elwgtfiller.fill();
 
+  
   edm::ValueMap<float>::Filler phnvtxfiller(*outputphnvtxmap);
   phnvtxfiller.insert(photonsH, phnvtxvector.begin(), phnvtxvector.end());
   phnvtxfiller.fill();
