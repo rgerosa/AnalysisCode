@@ -45,7 +45,10 @@ void sigdatamchist(TFile* outfile,
   }
   else{
     zntree->Add((baseInputTreePath+"ZJets/sigfilter/*root").c_str());
-    wltree->Add((baseInputTreePath+"WJets/sigfilter/*root").c_str());
+    wltree_nlo1->Add((baseInputTreePath+"WJetsNLO/sigfilter/*Pt-100To250*root").c_str());
+    wltree_nlo2->Add((baseInputTreePath+"WJetsNLO/sigfilter/*Pt-250To400*root").c_str());
+    wltree_nlo3->Add((baseInputTreePath+"WJetsNLO/sigfilter/*Pt-400To600*root").c_str());
+    wltree_nlo4->Add((baseInputTreePath+"WJetsNLO/sigfilter/*Pt-600ToInf*root").c_str());
   }
   zltree->Add((baseInputTreePath+"DYJets/sigfilter/*root").c_str());
   tttree->Add((baseInputTreePath+"Top/sigfilter/*root").c_str());
@@ -480,13 +483,14 @@ void sigdatamchist(TFile* outfile,
   whists.push_back(wewkhist);    
   ahists.push_back(anlohist);
   ahists.push_back(aewkhist);
+  // temp fix since we always use the W+jets NLO
+  whists.clear();
+  whists.push_back(wewkhist);
 
   float scale = 1;
   if(useNLOSamples) {
     zhists.clear();
     zhists.push_back(zewkhist);
-    whists.clear();
-    whists.push_back(wewkhist);
     scale = 3.;
   }
     
@@ -495,10 +499,19 @@ void sigdatamchist(TFile* outfile,
     isWJet = true;
 
   cout<<"signal region: Z->nunu sample "<<endl;
-  makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  cout<<"signal region: W+jets sample "<<endl;
   if(not useNLOSamples)
-    makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
+  else
+    makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+
+  cout<<"signal region: W+jets sample "<<endl;
+  if(not useNLOSamples){ // temp use 76X sample
+    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.10,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.11,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.15,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.13,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  }
+    //  makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else{
     makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.10,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
     makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.11,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -1072,9 +1085,6 @@ void gamdatamchist(TFile* outfile,
   cout<<"gamma+jets control region: QCD"<<endl;
   makehist4(dttree,qcdhist,qcdhist_2D,false,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
-  cout<<" dathist "<<dthist.at(0)->Integral()<<" gam "<<gmhist.at(0)->Integral()<<" qcd "<<qcdhist.at(0)->Integral()<<endl;
-  cout<<" dathist "<<dthist.at(1)->Integral()<<" gam "<<gmhist.at(1)->Integral()<<" qcd "<<qcdhist.at(1)->Integral()<<endl;
-
   outfile->cd();
   if(not outfile->GetDirectory("GJ"))
     outfile->mkdir("GJ");
@@ -1148,8 +1158,8 @@ void lepdatamchist(TFile* outfile,
     gmtree->Add((baseInputTreePath+"PhotonJets/zmmfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/zmmfilter/*root").c_str());
     dttree->Add((baseInputTreePath+"MET/zmmfilter/*root").c_str());
-    ewkwtree->Add((baseInputTreePath+"WJetsEWK/zmmfiler/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zmmfiler/*root").c_str());
+    ewkwtree->Add((baseInputTreePath+"WJetsEWK/zmmfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zmmfilter/*root").c_str());
   }
   else if(sample == Sample::wmn){
 
@@ -1630,9 +1640,7 @@ void lepdatamchist(TFile* outfile,
   
   if(useNLOSamples){ // no k-factors
     vlhists.clear();
-    vllhists.clear();
     vlhists.push_back(wewkhist);
-    vllhists.push_back(zewkhist);
   }
   
 
@@ -2095,6 +2103,7 @@ void topdatamchist(TFile* outfile,
 		   const bool & makeResonantSelection = false,
 		   const bool & doShapeSystematics = false,
 		   const bool & isHInv = false,
+		   const bool & doAlternativeTop = false,
 		   const bool & applyPFWeight = false) {
 
   if (sample != Sample::topmu && sample != Sample::topel) return;
@@ -2122,7 +2131,6 @@ void topdatamchist(TFile* outfile,
   gmtree->Add((baseInputTreePath+"PhotonJets/"+suffix+"filter/*root").c_str());
   tttree->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
   tttree_alt->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
-
   if(sample == Sample::topmu)
     dttree->Add((baseInputTreePath+"MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
@@ -2496,15 +2504,18 @@ void topdatamchist(TFile* outfile,
     cout<<"top+jets control region --> Top"<<endl;
     makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
     cout<<"top+jets control region --> Top alternative"<<endl;
-    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
+    if(doAlternativeTop)
+      makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
   }
   else{
     cout<<"top+jets control region --> Top"<<endl;
     makehist4(tttree,tthist_matched,tthist_matched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,1);
     makehist4(tttree,tthist_unmatched,tthist_unmatched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,2);
     cout<<"top+jets control region --> Top alternative"<<endl;
-    makehist4(tttree_alt,tthist_matched_alt,tthist_matched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,1);
-    makehist4(tttree_alt,tthist_unmatched_alt,tthist_unmatched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,2);
+    if(doAlternativeTop)
+      makehist4(tttree_alt,tthist_matched_alt,tthist_matched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,1);
+    if(doAlternativeTop)
+      makehist4(tttree_alt,tthist_unmatched_alt,tthist_unmatched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,2);
   }
 
   cout<<"top+jets control region --> W+jets"<<endl;

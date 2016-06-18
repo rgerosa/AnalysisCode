@@ -298,7 +298,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (!requiremuonhlt) triggermatched = true;    
 
     if(not triggermatched and (hltisomu20matched || hltisomu22matched || hltisomu24matched || hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched))
-      std::cout<<"Problem with the trigger matching --> triggermathc should be always >= than the big or "<<std::endl;
+      std::cout<<"Problem with the trigger matching for muons --> triggermathc should be always >= than the big or "<<std::endl;
     
     // matched to mu20
     if (verticesH->size() != 0 && hltisomu20matched) 
@@ -360,16 +360,16 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // loop on the trigger result objects and upack single objects
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
-      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagmuontrigmatchdR)) continue; //check dR matching
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)) continue; //check dR matching
       if(electrons_iter->pt()/trgobj.pt() < 0.5 or electrons_iter->pt()/trgobj.pt() > 1.5) continue; // check some pt matching
       
       for (std::string trigpath : tagelectrontriggers) {
-	if (trgobj.hasPathName(trigpath, true, false)) triggermatched = true;
+	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true)) triggermatched = true;
       }
-
+      
       if (trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, true))
 	hltele24eta2p1wploosematched = true;
-
+      
       if (trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, true))
 	hltele25eta2p1wptightmatched = true;
 
@@ -388,13 +388,13 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, true))
 	hltele115matched = true;
     }
-
+    
     if(hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched) hltelematched = true;
-
+    
     if (!requireelectronhlt) triggermatched = true;    
-
-    if(not triggermatched and (hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27wptightmatched || hltele105matched || hltele115matched))
-      std::cout<<"Problem with the trigger matching --> triggermathc should be always >= than the big or "<<std::endl;
+    
+    if(not triggermatched and (hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched))
+      std::cout<<"Problem with the trigger matching for electrons --> triggermathcing should be always >= than the big or "<<std::endl;
 
     if(fabs(electrons_iter->eta()) < 1 && hltele27wptightmatched and not hltele27eta2p1wploosematched)
       std::cout<<"Problem with electorns "<<endl;

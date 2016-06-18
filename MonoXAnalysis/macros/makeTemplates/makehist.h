@@ -33,7 +33,7 @@ const bool  reweightNVTX    = true;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/";
 
 VectorSorter jetSorter;
 
@@ -93,7 +93,8 @@ void makehist4(TTree* tree, /*input tree*/
 	       const bool   & applyPostFitWeight = false,
 	       const float  & XSEC = -1.,// fix the cross section from extern
 	       TH1* hhist = NULL,
-	       TH2* ggZHhist = NULL
+	       TH2* ggZHhist = NULL,
+	       const bool   & is76Xsample = false
 	       ) {
 
   if(not tree){
@@ -101,12 +102,20 @@ void makehist4(TTree* tree, /*input tree*/
     return;
   }
 
-  //  ofstream dump("dump_sample_"+to_string(sample)+".txt");  
-  // in case you want to weight the NVTX distribution
-  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
-  TH1*   puhist = (TH1*) pufile->Get("puhist");
-    
+  cout<<"make resonant selection "<<resonantSelection<<endl;
 
+  // in case you want to weight the NVTX distribution
+  TFile* pufile = NULL;
+  TH1* puhist = NULL;
+  if(not is76Xsample){
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+    puhist = (TH1*) pufile->Get("puhist");
+  }
+  else{
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_76X.root");
+    puhist = (TH1*) pufile->Get("puhist");
+  }    
+    
   // electron and muon ID scale factor files                                                                                                                                    
   TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid.root");
   TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid.root");
@@ -175,11 +184,15 @@ void makehist4(TTree* tree, /*input tree*/
     postFitWeight = (TH1*) postFitFile->FindObjectAny("postfit_over_prefit");
 
   // histogram to be filled
-  for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++)
-    hist1D.at(ihist)->Sumw2();
-  for(size_t ihist  = 0 ; ihist < hist2D.size(); ihist++)
-    hist2D.at(ihist)->Sumw2();
-  
+  for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++){
+    if(not hist1D.at(ihist)->GetSumw2N())
+      hist1D.at(ihist)->Sumw2();
+  }
+  for(size_t ihist  = 0 ; ihist < hist2D.size(); ihist++){
+    if(not hist1D.at(ihist)->GetSumw2N())
+      hist2D.at(ihist)->Sumw2();
+  }
+
   // define branches
   TTreeReader myReader(tree);
 
@@ -242,14 +255,17 @@ void makehist4(TTree* tree, /*input tree*/
 
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
+
+  string cscfilter = "flagglobaltighthalo";
+  if(isMC) cscfilter = "flagcsctight";
+  TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
 
   TTreeReaderValue<unsigned int> njets    (myReader,"njets");
   TTreeReaderValue<unsigned int> ntaus    (myReader,"ntaus");
-  //  TTreeReaderValue<unsigned int> ntausraw    (myReader,"ntausraw");
+  TTreeReaderValue<unsigned int> ntausraw    (myReader,"ntausraw");
   TTreeReaderValue<unsigned int> nincjets (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets   (myReader,"nbjetslowpt");
   TTreeReaderValue<double> ht   (myReader,"ht");
@@ -396,7 +412,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (hlt  == 0) continue; // trigger
 
     // MET Filters --> apply on both data and monte-carlo
-    if(*fhbhe == 0 || *fhbiso == 0 || *fcsc == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0) continue;
+    if(*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0) continue;
 
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
@@ -472,7 +488,7 @@ void makehist4(TTree* tree, /*input tree*/
       bosonPt = (lep4V+met4V).Pt();
     }
 
-    // if (*ntausraw != 0) continue;
+    if (*ntausraw != 0) continue;
     // B-veto, not for top control sample
     if (*nbjets > 0 and sample != Sample::topmu and sample != Sample::topel) continue; 
 
@@ -503,7 +519,7 @@ void makehist4(TTree* tree, /*input tree*/
 
     // Wenu kill QCD
     if (sample == Sample::wen && *met < 50.) continue;
-
+    
     // n-bjets cut for unboosted categories
     if ((sample == Sample::topmu || sample == Sample::topel) && (category != Category::monoV and category != Category::boosted and category != Category::prunedMass and category != Category::tau2tau1)  && *nbjets < nBjets) continue;
     if ( sample == Sample::topmu || sample == Sample::topel){ // select only events with one lepton
@@ -549,8 +565,7 @@ void makehist4(TTree* tree, /*input tree*/
       	  leadingCentralJetPos = ijet;
       }
     }
-
-    
+   
     if(category != Category::VBF and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and leadingCentralJetPos != 0) continue;
 
@@ -592,7 +607,8 @@ void makehist4(TTree* tree, /*input tree*/
     // photon id scale factor
     if (isMC && psfmedium && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(min(pt1,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),eta1));
+	//	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(min(pt1,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),eta1));
+	sfwgt *= 1;
       }
     }
 
@@ -619,18 +635,18 @@ void makehist4(TTree* tree, /*input tree*/
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
       sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
-
+    
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
     double genpt = *wzpt;
-    if (*wzpt < 100. ) genpt = 100.;
+    if (*wzpt < 150. ) genpt = 150.;
     if (*wzpt > 1000.) genpt = 999.;
     for (size_t i = 0; i < khists.size(); i++) {
       if (khists[i]) {
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
       }
     }
-
+    
     // Higgs pT uncertainty
     Double_t hwgt = 1.0;
     if(isHiggsInvisible and hhist and isMC){
@@ -654,8 +670,8 @@ void makehist4(TTree* tree, /*input tree*/
 
     // Top quark pt re-weight
     Double_t topptwgt = 1.0;
-    if(reWeightTopPt)
-      topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
+    //    if(reWeightTopPt)
+      //      topptwgt = reweightTopQuarkPt(*toppt,*atoppt);
 
     // ggZH re-weight in case of a non null pointer                                                                                                                             
     Double_t ggZHwgt = 1.0;
@@ -678,7 +694,6 @@ void makehist4(TTree* tree, /*input tree*/
         
 
     /// Start specific analysis selections
-
     // inclusive mono-jet analysis 
     if(category == Category::inclusive){ 
       if (centralJets.size() == 0) continue;
@@ -769,6 +784,7 @@ void makehist4(TTree* tree, /*input tree*/
 	// split among resonant and non resonant wrt gen level
 	if(resonantSelection != 0 and isMC){
 	  TLorentzVector Wboson4V;
+	  cout<<"hadBosonpt "<<*hadBosonpt<<" hadBosoneta "<<*hadBosoneta<<" mass "<<*hadBosonm<<endl;
 	  Wboson4V.SetPtEtaPhiM(*hadBosonpt,*hadBosoneta,*hadBosonphi,*hadBosonm);
 	  if(jetak8.DeltaR(Wboson4V) > 0.4 and resonantSelection == 1)
 	    continue;
@@ -800,11 +816,10 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jmdphi < 0.5) continue; // deltaPhi cut                                                                                                                             
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-	if(fabs(jeteta->at(0)) > 2.5 and fabs(jeteta->at(0)) < 3.0 and nhfrac->at(0) > 0.9) continue;
 	if(fabs(jeteta->at(0)) > 3.0) continue;
 	if(jetpt->at(1) < 40) continue;
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < 3.5) continue;
+	if(fabs(jeteta->at(0)-jeteta->at(1)) < 3) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -837,10 +852,16 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = emfrac->at(0);
 	else
 	  fillvar = emfrac->at(leadingCentralJetPos);
-      }
+      } 
       else if(name.Contains("boostedjetpt")){
 	if(boostedJetpt->size() > 0)
 	  fillvar = boostedJetpt->at(0);
+	else
+	  fillvar = 0.;
+      }
+      else if(name.Contains("boostedjeteta")){
+	if(boostedJeteta->size() > 0)
+	  fillvar = boostedJeteta->at(0);
 	else
 	  fillvar = 0.;
       }
@@ -1022,8 +1043,6 @@ void makehist4(TTree* tree, /*input tree*/
       // total event weight
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
-      if(sample != Sample::qcd)
-      	sfwgt = 1;
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
@@ -1034,13 +1053,12 @@ void makehist4(TTree* tree, /*input tree*/
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 40) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	puwgt = 1;
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
       }
-
+      
       if (!isMC && sample == Sample::qcd) 
 	evtwgt = sfwgt*pfwgt;
       else if (!isMC)
@@ -1217,7 +1235,6 @@ void makehist4(TTree* tree, /*input tree*/
 	hist->Fill(fillvarX,fillvarY,evtwgt);            
      }
   }
-
 
   sffile_eleTight.Close();
   sffile_eleVeto.Close();

@@ -123,11 +123,11 @@ tagelectrontriggernames = cms.vstring([
 		"HLT_Ele24_eta2p1_WPLoose_Gsf_v*",
 		"HLT_Ele25_eta2p1_WPTight_Gsf_v*",
 		"HLT_Ele27_eta2p1_WPLoose_Gsf_v*",
-		"HLT_Ele27_eta2p1_WPTight_Gsf_v*"
+		"HLT_Ele27_eta2p1_WPTight_Gsf_v*",
 		"HLT_Ele27_WPTight_Gsf_v*",
 		"HLT_Ele105_CaloIdVT_GsfTrkIdT_v*",
-		"HLT_Ele115_CaloIdVT_GsfTrkIdT_v*",
-    ])    
+		"HLT_Ele115_CaloIdVT_GsfTrkIdT_v*"
+		])    
 
 # Make the ValueMap for muon tight ID -- cannot pass it through a string selection due to the vertex argument
 process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",

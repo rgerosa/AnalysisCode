@@ -1,11 +1,10 @@
 #include <cmath>
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
-#include "../makeTemplates/histoUtils2D.h"
 
 using namespace std;
 
-void rzmm(string fileName, int category, string observable) {
+void rzmm(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("czmm", "czmm", 600, 600);
     canvas->SetTickx();
@@ -17,10 +16,8 @@ void rzmm(string fileName, int category, string observable) {
     TFile* file = new TFile(fileName.c_str());
 
     vector<double> bins = selectBinning(observable,category);
-
     TH1F*  hist = (TH1F*)file->FindObjectAny(("zmmcorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
-
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
     frame->GetXaxis()->SetTitleSize(0.045);
@@ -52,7 +49,7 @@ void rzmm(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -71,7 +68,7 @@ void rzmm(string fileName, int category, string observable) {
 }
 
 
-void rzee(string fileName, int category, string observable) {
+void rzee(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("czee", "czee", 600, 600);
     canvas->SetRightMargin(0.075);
@@ -118,7 +115,7 @@ void rzee(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -136,7 +133,7 @@ void rzee(string fileName, int category, string observable) {
     canvas->SaveAs("rzee.png");
 }
 
-void rwmn(string fileName, int category, string observable) {
+void rwmn(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("cwmn", "cwmn", 600, 600);
     canvas->SetTickx();
@@ -182,7 +179,7 @@ void rwmn(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -200,7 +197,7 @@ void rwmn(string fileName, int category, string observable) {
     canvas->SaveAs("rwmn.png");
 }
 
-void rwen(string fileName, int category, string observable) {
+void rwen(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("cwen", "cwen", 600, 600);
     canvas->SetTickx();
@@ -248,7 +245,7 @@ void rwen(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -266,7 +263,7 @@ void rwen(string fileName, int category, string observable) {
     canvas->SaveAs("rwen.png");
 }
 
-void rgam(string fileName, int category, string observable) {
+void rgam(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("cgam", "cgam", 600, 600);
     canvas->SetTickx();
@@ -329,7 +326,7 @@ void rgam(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -349,7 +346,7 @@ void rgam(string fileName, int category, string observable) {
     canvas->SaveAs("rgam.png");
 }
 
-void rzwj(string fileName, int category, string observable) {
+void rzwj(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("czwj", "czwj", 600, 600);
     canvas->SetTickx();
@@ -410,7 +407,7 @@ void rzwj(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -431,7 +428,7 @@ void rzwj(string fileName, int category, string observable) {
 
 
 
-void rtopmu(string fileName, int category, string observable) {
+void rtopmu(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("ctopmu", "ctopmu", 600, 600);
     canvas->SetTickx();
@@ -479,7 +476,7 @@ void rtopmu(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -498,7 +495,7 @@ void rtopmu(string fileName, int category, string observable) {
 }
 
 
-void rtopel(string fileName, int category, string observable) {
+void rtopel(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("ctopel", "ctopel", 600, 600);
     canvas->SetTickx();
@@ -545,7 +542,7 @@ void rtopel(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -562,7 +559,7 @@ void rtopel(string fileName, int category, string observable) {
     canvas->SaveAs("rtopel.png");
 }
 
-void rsidebandZ(string fileName, int category, string observable) {
+void rsidebandZ(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("csidebandZ", "csidebandZ", 600, 600);
     canvas->SetTickx();
@@ -607,7 +604,7 @@ void rsidebandZ(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -625,7 +622,7 @@ void rsidebandZ(string fileName, int category, string observable) {
 }
 
 
-void rsidebandW(string fileName, int category, string observable) {
+void rsidebandW(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("csidebandW", "csidebandW", 600, 600);
     canvas->SetTickx();
@@ -670,7 +667,7 @@ void rsidebandW(string fileName, int category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"2.30",true);
+    CMS_lumi(canvas,"0.81",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -690,9 +687,11 @@ void rsidebandW(string fileName, int category, string observable) {
 
 
 
-void makeTransferFactorPlot(string fileName, int category, string observable, bool addtop = false, bool addsideband = false) {
+void makeTransferFactorPlot(string fileName, Category category, string observable, bool addtop = false, bool addsideband = false) {
 
   gROOT->SetBatch(kTRUE);
+
+  initializeBinning();
 
   rzmm(fileName,category,observable);
   rzee(fileName,category,observable);
@@ -710,7 +709,6 @@ void makeTransferFactorPlot(string fileName, int category, string observable, bo
     rsidebandZ(fileName,category,observable);
     rsidebandW(fileName,category,observable);
   }
-  
 }
 
 

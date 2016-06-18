@@ -327,12 +327,14 @@ private:
   uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
   uint8_t hltjetmet90,hltjetmet100,hltjetmet110,hltjetmet120;
   uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton50,hltphoton75,hltphoton90;
-  uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltelnoiso;
+  uint8_t hltdoublemu,hltsinglemu,hltsinglemu22,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
   uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350, hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
+  uint8_t hltCaloJet500, hltEcalHT800, hltPFJet450, hltPFJet500;
+
   //pre-scales
   double pswgt_ph120,pswgt_ph50,pswgt_ph75,pswgt_ph90;
   double pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350,pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
-
+  
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo;
   
   // muon, ele, dilepton info
@@ -989,11 +991,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltphoton165    = 0; hltphoton175    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
+    hltsinglemu22   = 0;
     hltdoubleel     = 0;
     hltsingleel     = 0;
+    hltsingleel27   = 0;
     hltelnoiso      = 0;
     hltPFHT125 = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0; hltPFHT400 = 0;
     hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
+    hltCaloJet500 = 0; hltEcalHT800 = 0; hltPFJet450 = 0; hltPFJet500 =0;
 
     // Which triggers fired
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
@@ -1051,6 +1056,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu22   = 1; // Single muon trigger
         if (i == 39 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 40 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
@@ -1062,6 +1068,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 45 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 46 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel27   = 1; // Single electron trigger
         if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
 
@@ -1079,7 +1086,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
         if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
         if (i == 62 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
-
+	if (i == 63 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltCaloJet500   = 1;
+	if (i == 64 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
+	if (i == 65 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet450     = 1;
+	if (i == 66 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet500     = 1;
       }
     }
     else if(setHLTFilterFlag == true){
@@ -1091,11 +1101,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltphoton165    = 1; hltphoton175    = 1;
       hltdoublemu     = 1;
       hltsinglemu     = 1;
+      hltsinglemu22   = 1;
       hltdoubleel     = 1;
       hltsingleel     = 1;
+      hltsingleel27   = 1;
       hltelnoiso      = 1;
       hltPFHT125 = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; hltPFHT400 = 1;
       hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
+      hltCaloJet500 = 1; hltEcalHT800 = 1; hltPFJet450 = 1; hltPFJet500 =1;
+
     }
 
     bool triggered = false;
@@ -1135,6 +1149,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltPFHT650      == 1) triggered = true;
     if (hltPFHT800      == 1) triggered = true;
     if (hltPFHT900      == 1) triggered = true;
+    if (hltCaloJet500   == 1) triggered = true;
+    if (hltEcalHT800    == 1) triggered = true;
+    if (hltPFJet450     == 1) triggered = true;
+    if (hltPFJet500     == 1) triggered = true;
     if (applyHLTFilter && !triggered) return;
 
     pswgt_ph120 = 1.0;
@@ -4289,7 +4307,10 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_PFHT650_v");//60
   triggerPathsVector.push_back("HLT_PFHT800_v");//61
   triggerPathsVector.push_back("HLT_PFHT900_v");//62
-
+  triggerPathsVector.push_back("HLT_CaloJet500_NoJetID_v");//63
+  triggerPathsVector.push_back("HLT_ECALHT800_v");//64
+  triggerPathsVector.push_back("HLT_PFJet500_v");//65
+  triggerPathsVector.push_back("HLT_PFJet450_v");//66
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;

@@ -226,9 +226,10 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
     binningEta = {-2.4,-1.2,1.2,2.4};
   }
   else{
-    binningPt      = {10,15.,16.,17.,18.,19.,20.,21,22,23,24,26,27,28,29,31,32.5,35,37.5,40,42.5,45,50,60,70,85,100,125,150,175,200,250};
+    //    binningPt      = {10,15.,16.,17.,18.,19.,20.,21,22,23,24,26,27,28,29,31,32.5,35,37.5,40,42.5,45,50,60,70,85,100,125,150,175,200,250};
+    binningPt      = {10,15.,20.,25,30,40,45,50,60,70,85,100,125,150,200,250};
     binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
-    binningEta = {-2.5,-1.5,1.5,2.5};
+    binningEta = {-2.5,-2.1,-1.55,-1.444,0,1.444,1.55,2.1,2.5};
   }
     
   //prepare the histograms for muons
@@ -262,14 +263,14 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
       else{
 	makeTrigger(tree,trigeff_ele242p1wploose,isMC,isSingleMuon,outputDIR,"hltele24eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,trigeff_ele252p1wptight,isMC,isSingleMuon,outputDIR,"hltele25eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	makeTrigger(tree,trigeff_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,trigeff_ele272p1wploose,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	makeTrigger(tree,trigeff_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,trigeff_ele27wptight,isMC,isSingleMuon,outputDIR,"hltele27wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,trigeff_ele,isMC,isSingleMuon,outputDIR,"hltele",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
       }
     }
   }
-
+  
   if(not isSingleMuon){
     for(size_t ipt = 0; ipt < binningHighPt.size()-1; ipt++){
       for(size_t ieta = 0; ieta < binningEta.size()-1; ieta++){ 
@@ -277,6 +278,7 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
       }
     }
   }
+  
   // set the output name
   string name = "triggerEfficiency";
   if(isMC)

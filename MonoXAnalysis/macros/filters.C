@@ -168,13 +168,13 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   
   // decleare reader
   TTreeReader myReader(tree);
-  TTreeReaderValue<std::vector<double> > centraljetpt         (myReader,"centraljetpt");
-  TTreeReaderValue<std::vector<double> > centraljeteta        (myReader,"centraljeteta");
-  TTreeReaderValue<std::vector<double> > centraljetHFlav      (myReader,"centraljetHFlav");
-  TTreeReaderValue<std::vector<double> > centraljetbtag       (myReader,"centraljetbtag");
-  TTreeReaderValue<std::vector<double> > centraljetBtagSF     (myReader,"centraljetBtagSF");
-  TTreeReaderValue<std::vector<double> > centraljetBtagSFUp   (myReader,"centraljetBtagSFUp");
-  TTreeReaderValue<std::vector<double> > centraljetBtagSFDown (myReader,"centraljetBtagSFDown");
+  TTreeReaderValue<std::vector<double> > combinejetpt         (myReader,"combinejetpt");
+  TTreeReaderValue<std::vector<double> > combinejeteta        (myReader,"combinejeteta");
+  TTreeReaderValue<std::vector<double> > combinejetHFlav      (myReader,"combinejetHFlav");
+  TTreeReaderValue<std::vector<double> > combinejetbtag       (myReader,"combinejetbtag");
+  TTreeReaderValue<std::vector<double> > combinejetBtagSF     (myReader,"combinejetBtagSF");
+  TTreeReaderValue<std::vector<double> > combinejetBtagSFUp   (myReader,"combinejetBtagSFUp");
+  TTreeReaderValue<std::vector<double> > combinejetBtagSFDown (myReader,"combinejetBtagSFDown");
 
 
   // add a b-tag weight branch for medium wp
@@ -199,32 +199,32 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     }      
 
     // take only events in the acceptance region for b-tagging   
-    for(size_t iJet = 0; iJet < centraljetpt->size(); iJet++){            
-      if(centraljetpt->at(iJet) > jetPtMin and fabs(centraljeteta->at(iJet)) < jetEtaMax){
+    for(size_t iJet = 0; iJet < combinejetpt->size(); iJet++){            
+      if(combinejetpt->at(iJet) > jetPtMin and fabs(combinejeteta->at(iJet)) < jetEtaMax){
 	// get efficiency
-	if(centraljetHFlav->at(iJet) == 5)
-	  efficiency     = graph_b->Interpolate(centraljetpt->at(iJet) ,fabs(centraljeteta->at(iJet)));
-	else if(centraljetHFlav->at(iJet) == 4)
-	  efficiency     = graph_c->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	if(combinejetHFlav->at(iJet) == 5)
+	  efficiency     = graph_b->Interpolate(combinejetpt->at(iJet) ,fabs(combinejeteta->at(iJet)));
+	else if(combinejetHFlav->at(iJet) == 4)
+	  efficiency     = graph_c->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
 	else
-	  efficiency     = graph_ucsdg->Interpolate(centraljetpt->at(iJet),fabs(centraljeteta->at(iJet)));
+	  efficiency     = graph_ucsdg->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
 
 	//checks
 	if(efficiency > 1) efficiency = 1;
 	if(efficiency < 0) efficiency = 0;
 	
 	// check b-tag value
-	if(centraljetbtag->at(iJet) > btagWP){
+	if(combinejetbtag->at(iJet) > btagWP){
 	  PMC.push_back(efficiency);
-	  PDATA.push_back(efficiency*(centraljetBtagSF->at(iJet)));		  
-	  PDATAErrUp.push_back(efficiency*(centraljetBtagSFUp->at(iJet)));
-	  PDATAErrDw.push_back(efficiency*(centraljetBtagSFDown->at(iJet)));
+	  PDATA.push_back(efficiency*(combinejetBtagSF->at(iJet)));		  
+	  PDATAErrUp.push_back(efficiency*(combinejetBtagSFUp->at(iJet)));
+	  PDATAErrDw.push_back(efficiency*(combinejetBtagSFDown->at(iJet)));
 	}
 	else{
 	  PMC.push_back((1-efficiency));
-	  PDATA.push_back((1-efficiency*(centraljetBtagSF->at(iJet))));
-	  PDATAErrUp.push_back(1-efficiency*(centraljetBtagSFUp->at(iJet)));
-	  PDATAErrDw.push_back(1-efficiency*(centraljetBtagSFDown->at(iJet)));
+	  PDATA.push_back((1-efficiency*(combinejetBtagSF->at(iJet))));
+	  PDATAErrUp.push_back(1-efficiency*(combinejetBtagSFUp->at(iJet)));
+	  PDATAErrDw.push_back(1-efficiency*(combinejetBtagSFDown->at(iJet)));
 	}	
       }
     }

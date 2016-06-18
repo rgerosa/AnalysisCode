@@ -79,6 +79,8 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistzmm_"+observable).c_str());
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistzmm_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistzmm_"+observable).c_str());
+    ewkwhist = (TH1*)inputFile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str());
+    ewkzhist = (TH1*)inputFile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str());
   }
   else if(controlRegion == "zee"){
     datahist = (TH1*)inputFile->FindObjectAny(("datahistzee_"+observable).c_str());
@@ -88,6 +90,8 @@ void makeControlPlots(string templateFileName,
     vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistzee_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistzee_"+observable).c_str());
+    ewkwhist = (TH1*)inputFile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str());
+    ewkzhist = (TH1*)inputFile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str());
   }
   else if(controlRegion == "wmn"){
     datahist = (TH1*)inputFile->FindObjectAny(("datahistwmn_"+observable).c_str());
@@ -156,12 +160,12 @@ void makeControlPlots(string templateFileName,
 
     datahist = (TH1*)inputFile->FindObjectAny(("datahist_"+observable).c_str());
 
-    //    if(category == Category::monojet and observable == "met")
-    //      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
-    //    else if(category == Category::monoV and observable == "met")
-    //      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
-    //    else
-    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
+    if(category == Category::monojet and observable == "met")
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
+    else if(category == Category::monoV and observable == "met")
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
+    if(qcdhist == 0 or qcdhist == NULL)
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
     
     tophist  = (TH1*)inputFile->FindObjectAny(("tbkghist_"+observable).c_str());
     vlhist   = (TH1*)inputFile->FindObjectAny(("wjethist_"+observable).c_str());
@@ -296,9 +300,9 @@ void makeControlPlots(string templateFileName,
       vnnhist->SetFillColor(TColor::GetColor("#258039"));
       vnnhist->SetLineColor(kBlack);
   }
-  if(vllhist){
+  if(vllhist){    
       vllhist->SetFillColor(TColor::GetColor("#9A9EAB"));
-      vllhist->SetLineColor(kBlack);
+      vllhist->SetLineColor(kBlack);      
   }
   if(vlhist){
       vlhist->SetFillColor(TColor::GetColor("#FAAF08"));
@@ -324,11 +328,14 @@ void makeControlPlots(string templateFileName,
     qcdhist->SetLineColor(kBlack);
   }
   if(gamhist){
-    gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
-    if(controlRegion == "SR")
+    if(controlRegion == "SR"){
+      gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
       gamhist->SetLineColor(TColor::GetColor("#9A9EAB"));
-    else
+    }
+    else{
+      gamhist->SetFillColor(kCyan);
       gamhist->SetLineColor(kBlack);
+    } 
   }
 
   if(ewkwhist){
@@ -406,6 +413,8 @@ void makeControlPlots(string templateFileName,
     stack->Add(vlhist);
     stack->Add(tophist);
     stack->Add(dbhist);
+    ewkwhist->Add(ewkzhist);
+    stack->Add(ewkwhist);
     stack->Add(vllhist);
   }
   else if(controlRegion == "wmn" or controlRegion == "wen"){
@@ -413,15 +422,17 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
+    stack->Add(dbhist);
     ewkwhist->Add(ewkzhist);
     stack->Add(ewkwhist);
-    stack->Add(dbhist);
     stack->Add(vlhist);
   }
   else if((controlRegion == "topmu" or controlRegion == "topel") and not plotResonant){
     stack->Add(qcdhist);
     stack->Add(gamhist);
     stack->Add(vllhist);
+    //    ewkwhist->Add(ewkzhist);
+    //    stack->Add(ewkwhist);
     stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist);    
@@ -431,6 +442,8 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
+    //    ewkwhist->Add(ewkzhist);
+    //    stack->Add(ewkwhist);
     stack->Add(vlhist);
     stack->Add(tophist_unmatched);    
     stack->Add(tophist_matched);    
@@ -757,6 +770,8 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   else if(category == Category::VBF)
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+  else if(category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1)
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   
   if(category == Category::monojet)

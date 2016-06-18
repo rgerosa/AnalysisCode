@@ -5,22 +5,35 @@
 using namespace std;
 
 // make histograms for Z->mumu to signal region correction                                                                                                                   
-void makezmmcorhist( const string &  signalRegionFile,  
-		     const string &  zmumuFile,  
+void makezmmcorhist( const string &   signalRegionFile, 
+		     const string &   signalRegionEWKFile,
+		     const string &   zmumuFile,  
+		     const string &   zmumuEWKFile,  
 		     const Category & category, 
-		     vector<string> observables, 
-		     vector<string> observables_2D, 
-		     const double &  lumi, 
-		     const string &  outDir = "", 
-		     const string &  sysName = "", 
-		     const bool &    isHiggsInvisible = false,
-		     const string &  ext = "") {
+		     vector<string>   observables, 
+		     vector<string>   observables_2D, 
+		     const double &   lumi, 
+		     const string &   outDir = "", 
+		     const string &   sysName = "", 
+		     const bool &     isHiggsInvisible = false,
+		     const bool &     useNLOSamples = false,
+		     const string &   ext = "") {
 
   // open files                                                                                                                                                                
   TChain* ntree = new TChain("tree/tree");
   TChain* dtree = new TChain("tree/tree");
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
   ntree->Add((signalRegionFile+"/*root").c_str());
   dtree->Add((zmumuFile+"/*root").c_str());
+  if(signalRegionEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((signalRegionEWKFile+"/*root").c_str());
+  }
+  if(zmumuEWKFile != ""){
+    dtreeEWK = new TChain("tree/tree");
+    dtreeEWK->Add((zmumuEWKFile+"/*root").c_str());
+  }
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -35,8 +48,7 @@ void makezmmcorhist( const string &  signalRegionFile,
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
-      
+      cout<<"No binning for this observable --> please define it"<<endl;      
     if(ext == ""){
       TH1F* nhist_temp = new TH1F(("nhist_zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       TH1F* dhist_temp = new TH1F(("dhist_zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
@@ -84,12 +96,25 @@ void makezmmcorhist( const string &  signalRegionFile,
   
   vector<TH1*> ehists;
   vector<TH1*> zhists;
+  vector<TH1*> zhistsnlo;
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
+  zhistsnlo.push_back(zewkhist);
 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  if(useNLOSamples){
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+  else{
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible,false,-1, NULL, NULL, true);
+  }
   makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
 
+  if(ntreeEWK != NULL and ntreeEWK != 0){
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+  if(dtreeEWK != NULL and dtreeEWK != 0){
+    makehist4(dtreeEWK, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
   string name = string("zmmcor")+ext;
 
   // divide the two                                                                                                                                                          
@@ -158,7 +183,9 @@ void makezmmcorhist( const string &  signalRegionFile,
 
 // make histograms for Z->ee to signal region correction                                                                                                                   
 void makezeecorhist( const string &  signalRegionFile,  
+		     const string &  signalRegionEWKFile,  
 		     const string &  zeeFile,   
+		     const string &  zeeEWKFile,   
 		     const Category & category, 
 		     vector<string> observables, 
 		     vector<string> observables_2D, 
@@ -166,6 +193,7 @@ void makezeecorhist( const string &  signalRegionFile,
 		     const string & outDir = "", 
 		     const string & sysName = "", 
 		     const bool &   isHiggsInvisible = false,
+		     const bool &   useNLOSamples = false,
 		     string  ext = "") {
 
   // open files                                                                                                                                                                
@@ -173,6 +201,17 @@ void makezeecorhist( const string &  signalRegionFile,
   TChain* dtree = new TChain("tree/tree");
   ntree->Add((signalRegionFile+"/*root").c_str());
   dtree->Add((zeeFile+"/*root").c_str());
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
+  if(signalRegionEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((signalRegionEWKFile+"/*root").c_str());
+  }
+  if(zeeEWKFile != ""){
+    dtreeEWK = new TChain("tree/tree");
+    dtreeEWK->Add((zeeEWKFile+"/*root").c_str());
+  }
+
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -238,12 +277,24 @@ void makezeecorhist( const string &  signalRegionFile,
 
   vector<TH1*> ehists;
   vector<TH1*> zhists;
+  vector<TH1*> zhistsnlo;
   zhists.push_back(znlohist);
   zhists.push_back(zewkhist);
-
+  zhistsnlo.push_back(zewkhist);
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+  if(useNLOSamples){
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhistsnlo, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+  }
+  else{
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible,false,-1, NULL, NULL, true);
+  }
   makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+
+  if(ntreeEWK != NULL and ntreeEWK != 0)
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+  if(dtreeEWK != NULL and dtreeEWK != 0)  
+    makehist4(dtreeEWK, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+
   string name = string("zeecor")+ext;
 
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -310,7 +361,9 @@ void makezeecorhist( const string &  signalRegionFile,
 
 // make histograms for W->mnu to signal region correction                                                                                                                   
 void makewmncorhist( const string &  signalRegionFile,  
+		     const string &  signalRegionEWKFile,  
 		     const string &  wmnFile,   
+		     const string &  wmnEWKFile,   
 		     const Category & category, 
 		     vector<string> observables, 
 		     vector<string> observables_2D, 
@@ -318,13 +371,44 @@ void makewmncorhist( const string &  signalRegionFile,
 		     const string &  outDir = "", 
 		     const string &  sysName = "", 
 		     const bool &    isHiggsInvisible = false,
+		     const bool &    useNLOSamples = false,
 		     const string &  ext = "") {
 
-  // open files                                                                                                                                                                
   TChain* ntree = new TChain("tree/tree");
   TChain* dtree = new TChain("tree/tree");
   ntree->Add((signalRegionFile+"/*root").c_str());
   dtree->Add((wmnFile+"/*root").c_str());
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
+  if(signalRegionEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((signalRegionEWKFile+"/*root").c_str());
+  }
+  if(wmnEWKFile != ""){
+    dtreeEWK = new TChain("tree/tree");
+    dtreeEWK->Add((wmnEWKFile+"/*root").c_str());
+  }
+
+  // open files --> temp fix for W+jets xs                                                                                                                                      
+  TChain* ntree_nlo1 = new TChain("tree/tree");
+  TChain* ntree_nlo2 = new TChain("tree/tree");
+  TChain* ntree_nlo3 = new TChain("tree/tree");
+  TChain* ntree_nlo4 = new TChain("tree/tree");
+  TChain* dtree_nlo1 = new TChain("tree/tree");
+  TChain* dtree_nlo2 = new TChain("tree/tree");
+  TChain* dtree_nlo3 = new TChain("tree/tree");
+  TChain* dtree_nlo4 = new TChain("tree/tree");
+                          
+  ntree_nlo1->Add((signalRegionFile+"/*Pt-100To250*root").c_str());
+  ntree_nlo2->Add((signalRegionFile+"/*Pt-250To400*root").c_str());
+  ntree_nlo3->Add((signalRegionFile+"/*Pt-400To600*root").c_str());
+  ntree_nlo4->Add((signalRegionFile+"/*Pt-600ToInf*root").c_str());
+
+  dtree_nlo1->Add((wmnFile+"/*Pt-100To250*root").c_str());
+  dtree_nlo2->Add((wmnFile+"/*Pt-250To400*root").c_str());
+  dtree_nlo3->Add((wmnFile+"/*Pt-400To600*root").c_str());
+  dtree_nlo4->Add((wmnFile+"/*Pt-600ToInf*root").c_str());
+
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -388,13 +472,32 @@ void makewmncorhist( const string &  signalRegionFile,
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
+  vector<TH1*> whistsnlo;
 
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
-
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  whistsnlo.push_back(wewkhist);
   
+  if(useNLOSamples){
+    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+  else{
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+
+  if(ntreeEWK != NULL and ntreeEWK != 0)
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+  if(dtreeEWK != NULL and dtreeEWK != 0)
+    makehist4(dtreeEWK, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+
   string name = string("wmncor")+ext;
 
   for(size_t ihist = 0; ihist < nhist.size(); ihist++){
@@ -460,7 +563,9 @@ void makewmncorhist( const string &  signalRegionFile,
 
 // make histograms for W->enu to signal region correction                                                                                                                   
 void makewencorhist( const string & signalRegionFile,  
+		     const string & signalRegionEWKFile,  
 		     const string & wenFile,   
+		     const string & wenEWKFile,   
 		     const Category & category, 
 		     vector<string> observables, 
 		     vector<string> observables_2D, 
@@ -468,13 +573,44 @@ void makewencorhist( const string & signalRegionFile,
 		     const string & outDir = "", 
 		     const string & sysName = "", 
 		     const bool &   isHiggsInvisible = false,
+		     const bool &   useNLOSamples = false,
 		     string ext = "") {
 
-  // open files                                                                                                                                                                
   TChain* ntree = new TChain("tree/tree");
   TChain* dtree = new TChain("tree/tree");
   ntree->Add((signalRegionFile+"/*root").c_str());
   dtree->Add((wenFile+"/*root").c_str());
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
+  if(signalRegionEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((signalRegionEWKFile+"/*root").c_str());
+  }
+  if(wenEWKFile != ""){
+    dtreeEWK = new TChain("tree/tree");
+    dtreeEWK->Add((wenEWKFile+"/*root").c_str());
+  }
+
+  // open files --> temp fix for NLO xs                                                                                                                                 
+  TChain* ntree_nlo1 = new TChain("tree/tree");
+  TChain* ntree_nlo2 = new TChain("tree/tree");
+  TChain* ntree_nlo3 = new TChain("tree/tree");
+  TChain* ntree_nlo4 = new TChain("tree/tree");
+  TChain* dtree_nlo1 = new TChain("tree/tree");
+  TChain* dtree_nlo2 = new TChain("tree/tree");
+  TChain* dtree_nlo3 = new TChain("tree/tree");
+  TChain* dtree_nlo4 = new TChain("tree/tree");
+
+  ntree_nlo1->Add((signalRegionFile+"/*Pt-100To250*root").c_str());
+  ntree_nlo2->Add((signalRegionFile+"/*Pt-250To400*root").c_str());
+  ntree_nlo3->Add((signalRegionFile+"/*Pt-400To600*root").c_str());
+  ntree_nlo4->Add((signalRegionFile+"/*Pt-600ToInf*root").c_str());
+
+  dtree_nlo1->Add((wenFile+"/*Pt-100To250*root").c_str());
+  dtree_nlo2->Add((wenFile+"/*Pt-250To400*root").c_str());
+  dtree_nlo3->Add((wenFile+"/*Pt-400To600*root").c_str());
+  dtree_nlo4->Add((wenFile+"/*Pt-600ToInf*root").c_str());
+  
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -539,13 +675,33 @@ void makewencorhist( const string & signalRegionFile,
 
   vector<TH1*> ehists;
   vector<TH1*> whists;
+  vector<TH1*> whistsnlo;
 
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
+  whistsnlo.push_back(wewkhist);
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree, dhist, dhist_2D,  true, Sample::wen, category, false, 1, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  if(useNLOSamples){
+    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wen, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wen, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wen, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wen, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+  else{
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::wen, category, false, 1, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+
+  if(ntreeEWK != NULL and ntreeEWK != 0)
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+  if(dtreeEWK != NULL and dtreeEWK != 0)
+    makehist4(dtreeEWK, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+
 
   string name = string("wencor")+ext;
 
@@ -613,7 +769,9 @@ void makewencorhist( const string & signalRegionFile,
 
 // make Z/W ratio
 void  makezwjcorhist(const string & znunuFile,  
+		     const string & znunuEWKFile,  
 		     const string & wlnuFile,   
+		     const string & wlnuEWKFile,   
 		     const Category & category, 
 		     vector<string> observables, 
 		     vector<string> observables_2D, 
@@ -621,6 +779,7 @@ void  makezwjcorhist(const string & znunuFile,
 		     const string & outDir = "", 
 		     const string & sysName = "", 
 		     const bool &   isHiggsInvisible = false,
+		     const bool &   useNLOSamples = false,
 		     const string & ext = "",
 		     int    kfact = 0) {
 
@@ -629,6 +788,27 @@ void  makezwjcorhist(const string & znunuFile,
   TChain* dtree = new TChain("tree/tree");
   ntree->Add((znunuFile+"/*root").c_str());
   dtree->Add((wlnuFile+"/*root").c_str());
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
+  if(znunuEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((znunuEWKFile+"/*root").c_str());
+  }
+  if(wlnuEWKFile != ""){
+    dtreeEWK = new TChain("tree/tree");
+    dtreeEWK->Add((wlnuEWKFile+"/*root").c_str());
+  }
+
+  // open files --> temp fix for NLO xs                                                                                                                                         
+  TChain* dtree_nlo1 = new TChain("tree/tree");
+  TChain* dtree_nlo2 = new TChain("tree/tree");
+  TChain* dtree_nlo3 = new TChain("tree/tree");
+  TChain* dtree_nlo4 = new TChain("tree/tree");
+
+  dtree_nlo1->Add((wlnuFile+"/*Pt-100To250*root").c_str());
+  dtree_nlo2->Add((wlnuFile+"/*Pt-250To400*root").c_str());
+  dtree_nlo3->Add((wlnuFile+"/*Pt-400To600*root").c_str());
+  dtree_nlo4->Add((wlnuFile+"/*Pt-600ToInf*root").c_str());
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -698,7 +878,6 @@ void  makezwjcorhist(const string & znunuFile,
   if(wnlohist)
     wnlohist->Divide(wlohist);
 
-
   // in order to make uncertainties use the old file
   TFile kffileUnc (kfactorFileUnc.c_str());
   TH1* zpdfhist = (TH1*) kffileUnc.Get("znlo012/znlo012_pdfUp");
@@ -726,34 +905,59 @@ void  makezwjcorhist(const string & znunuFile,
 
   vector<TH1*> zhists;
   vector<TH1*> whists;
+  vector<TH1*> ehists;
 
   //kfact == 1 --> Znunu corrected for by NLO QCD, Wlnu by NLO QCD                                                                                                              
-  if (kfact == 1) zhists.push_back(znlohist);
-  if (kfact == 1) whists.push_back(wnlohist);
+  if (kfact == 1  and not useNLOSamples) zhists.push_back(znlohist);
+  if (kfact == 1  and not useNLOSamples) whists.push_back(wnlohist);
     
   //kfact == 2 --> Znunu corrected for by NLO QCD+EWK, Wlnu by NLO QCD+EWK                                                                                                      
-  if (kfact == 2) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
-  if (kfact == 2) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
+  if (kfact == 2 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
+  else if (kfact == 2 and useNLOSamples) {zhists.push_back(zewkhist);}
+  if (kfact == 2 and not useNLOSamples) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
+  else if (kfact == 2 and useNLOSamples) {whists.push_back(wewkhist);}
   //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
-  if (kfact == 3) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
-  if (kfact == 3)  whists.push_back(wnlohist);
+  if (kfact == 3 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
+  else if (kfact == 3 and useNLOSamples) {zhists.push_back(re1hist) ;}
+  if (kfact == 3 and not useNLOSamples)  whists.push_back(wnlohist);
   //kfact == 4 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up QCD                                                                                                        
-  if (kfact == 4) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
-  if (kfact == 4)  whists.push_back(wnlohist);
+  if (kfact == 4 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
+  else if (kfact == 4 and useNLOSamples) {zhists.push_back(fa1hist) ;}
+  if (kfact == 4 and not useNLOSamples)  whists.push_back(wnlohist);
   //kfact == 5 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up EWK                                                                                                        
-  if (kfact == 5) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
-  if (kfact == 5)  whists.push_back(wnlohist);
+  if (kfact == 5 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
+  else if (kfact == 5 and useNLOSamples) {zhists.push_back(re2hist) ;}
+  if (kfact == 5 and not useNLOSamples)  whists.push_back(wnlohist);
   //kfact == 6 --> Znunu and Wlnu by NLO QCD, ratio for fac scale up EWK                                                                                                        
-  if (kfact == 6) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
-  if (kfact == 6)  whists.push_back(wnlohist);
+  if (kfact == 6 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
+  else if (kfact == 6 and useNLOSamples) {zhists.push_back(fa2hist) ;}
+  if (kfact == 6 and not useNLOSamples)  whists.push_back(wnlohist);
   //kfact == 7 --> Znunu corrected for by NLO NLO PDF, Wlnu by NLO                                                                                                              
-  if (kfact == 7) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
-  if (kfact == 7) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
+  if (kfact == 7 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
+  else if (kfact == 7 and useNLOSamples) {zhists.push_back(zpdfhist);}
+  if (kfact == 7 and not useNLOSamples) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
+  else if (kfact == 7 and useNLOSamples) {whists.push_back(wpdfhist);}
   
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-  makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  if(not useNLOSamples)
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false,-1, NULL, NULL, true);
+  else
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
 
+  if(not useNLOSamples)
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  else{
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  }
+
+  if(ntreeEWK != NULL and ntreeEWK != 0)
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  if(dtreeEWK != NULL and dtreeEWK != 0)
+    makehist4(dtreeEWK, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+  
   string name = string("zwjcor")+ext;
 
   // divide the two                                                                                                                                                          
@@ -822,6 +1026,7 @@ void  makezwjcorhist(const string & znunuFile,
 
 // make Z/gamma ratio
 void makegamcorhist( const string & znunuFile,  
+		     const string & znunuEWKFile,  
 		     const string & photonFile,  
 		     const string & fPfile,  
 		     const Category & category, 
@@ -831,6 +1036,7 @@ void makegamcorhist( const string & znunuFile,
 		     const string & outDir = "", 
 		     const string & sysName = "", 
 		     const bool &  isHiggsInvisible = false,
+		     const bool &  useNLOSamples = false,
 		     const string & ext = "",
 		     int    kfact = 0) {
 
@@ -839,6 +1045,12 @@ void makegamcorhist( const string & znunuFile,
   TChain* dtree = new TChain("tree/tree");
   ntree->Add((znunuFile+"/*root").c_str());
   dtree->Add((photonFile+"/*root").c_str());
+  TChain* ntreeEWK = NULL;
+  TChain* dtreeEWK = NULL;
+  if(znunuEWKFile != ""){
+    ntreeEWK = new TChain("tree/tree"); 
+    ntreeEWK->Add((znunuEWKFile+"/*root").c_str());
+  }
 
   // create histograms                                                                                                                                                         
   vector<TH1*> nhist;
@@ -940,40 +1152,48 @@ void makegamcorhist( const string & znunuFile,
   vector<TH1*> ahists;
   vector<TH1*> ehists;
   // ZNLO QCD and Gamma NLO QCD                                                                                                                                                
-  if (kfact == 1) zhists.push_back(znlohist);
+  if (kfact == 1 and not useNLOSamples) zhists.push_back(znlohist);
   if (kfact == 1) ahists.push_back(anlohist);
 
   //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
-  if (kfact == 2) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
+  if (kfact == 2 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
+  else if (kfact == 2 and useNLOSamples) {zhists.push_back(zewkhist);}
   if (kfact == 2) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
 
   // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
-  if (kfact == 3) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
+  if (kfact == 3 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
+  else if (kfact == 3 and useNLOSamples) {zhists.push_back(re1hist) ;}
   if (kfact == 3) ahists.push_back(anlohist);
 
   // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
-  if (kfact == 4) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
+  if (kfact == 4 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
+  else if (kfact == 4 and useNLOSamples) {zhists.push_back(fa1hist) ;}
   if (kfact == 4) ahists.push_back(anlohist);
 
   // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
-  if (kfact == 5) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
+  if (kfact == 5 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
+  else if (kfact == 5 and useNLOSamples) {zhists.push_back(re2hist) ;}
   if (kfact == 5) ahists.push_back(anlohist);
 
   // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
-  if (kfact == 6) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
+  if (kfact == 6 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
+  else if (kfact == 6 and useNLOSamples) {zhists.push_back(fa2hist) ;}
   if (kfact == 6) ahists.push_back(anlohist);
 
   // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
-  if (kfact == 7) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
+  if (kfact == 7 and not useNLOSamples) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
+  else if (kfact == 7 and useNLOSamples) {zhists.push_back(zpdfhist);}
   if (kfact == 7) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
 
   // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
-  if (kfact == 8) zhists.push_back(znlohist);
+  if (kfact == 8 and not useNLOSamples) zhists.push_back(znlohist);
   if (kfact == 8) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
+  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible, false,-1, NULL, NULL, true);
+  if(ntreeEWK != NULL and ntreeEWK != 0)
+    makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   makehist4(dtree, dhist, dhist_2D,  true, Sample::gam, category, false, 1.00, lumi, ahists, "", false, reweightNVTX, 0, isHiggsInvisible);
 
   string name = string("gamcor")+ext;

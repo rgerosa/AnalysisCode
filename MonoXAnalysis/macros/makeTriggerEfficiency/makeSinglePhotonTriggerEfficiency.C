@@ -4,7 +4,7 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.59) {
+void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.86, bool useJetHT = false) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -16,22 +16,33 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   canvas->cd();
   
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 150, 300, 5);
-  fitfunc->SetParameters(160., 5., 5., 4., 1.);
+  fitfunc->SetParameters(165., 5., 5., 4., 1.);
   vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
-  
+  if(useJetHT){
+    bins = {130,140,150,160,170,180,190,200,225,275,350,500,700,900};
+    fitfunc->SetRange(140,900);
+  fitfunc->SetParameters(155., 5., 5., 4., 1.);
+  }
+
   TChain* tree = new TChain("tree/tree");
   // should use the wmnu events triggered by single muon
   tree->Add((inputDIR+"/*root").c_str());
-  
+
   TH1F* hnum = new TH1F("hnum", "", bins.size()-1, &bins[0]);
   TH1F* hden = new TH1F("hden", "", bins.size()-1, &bins[0]);
   hnum->Sumw2();
   hden->Sumw2();
 
-  // define numerator as event with a medium photon + trigger requirement
-  tree->Draw("phpt>>hnum","(hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && (hltphoton175 || hltphoton165) && phidm == 1 && abs(pheta) < 1.4442");    
-  // define denominator as an event with a tight muon passing single muon trigger
-  tree->Draw("phpt>>hden","phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120)");    
+  if(not useJetHT){
+    // define numerator as event with a medium photon + trigger requirement
+    tree->Draw("phpt>>hnum","(hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && (hltphoton175 || hltphoton165) && phidm == 1 && abs(pheta) < 1.4442");    
+    // define denominator as an event with a tight muon passing single muon trigger
+    tree->Draw("phpt>>hden","phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120)");    
+  }
+  else{
+    tree->Draw("phpt>>hnum","phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT125 || hltPFHT200|| hltPFHT250 || hltPFHT300 || hltPFHT350 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650 || hltPFHT800 || hltPFHT900) && (hltphoton175 || hltphoton165)");
+    tree->Draw("phpt>>hden","phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT125 || hltPFHT200 || hltPFHT250 || hltPFHT300 || hltPFHT350 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650 || hltPFHT800 || hltPFHT900)");
+  }
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);  
   eff->Fit(fitfunc);

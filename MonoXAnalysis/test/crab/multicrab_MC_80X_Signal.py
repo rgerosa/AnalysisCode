@@ -6,30 +6,47 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-pyCfgParams = ['isMC=False',
-               'globalTag=80X_dataRun2_Prompt_v8']
+pyCfgParams = ['isMC=True',
+               'filterOnHLT=False',
+               'setHLTFilterFlag=True',
+               'filterHighMETEvents=False',
+               'metCut=0',
+               'applyL2L3Residuals=False',
+               'addQGLikelihood=True',
+               'addPileupJetID=False',
+               'addPuppiJets=True',
+               'addPuppiMET=True',
+               'addEGMSmear=False',
+               'addMETSystematics=True',
+               'useOfficialMETSystematics=True',
+               'addMETBreakDown=False',
+               'addSubstructureCHS=True',
+               'addSubstructurePuppi=True',
+               'miniAODProcess=PAT',
+               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
+               'outputFileName=tree.root',
+               'nThreads=3',
+               'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_TnP_80X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_MC_80X_Signal'  # Make sure you set this parameter
 
 config.section_('JobType')
-config.JobType.psetName         = '../tnptree.py'
+config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
-config.JobType.outputFiles      = ['tnptree.root']
+config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.numCores         = 1
-config.JobType.maxMemoryMB      = 2000
+config.JobType.maxMemoryMB      = 2450
+config.JobType.numCores         = 3
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 90000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-18-05-2016_80X_TnP_2p6fb-1/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt'
-config.Data.publication   = False
-
+config.Data.unitsPerJob   = 20000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-12-06-2016-80X-MC-Signal_v2/'
+config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
@@ -37,11 +54,11 @@ config.Site.storageSite = 'T2_CH_CERN'
 ## multicrab section
 if __name__ == '__main__':
 
-    from CRABAPI.RawCommand import crabCommand
-
     print "################################"
     print "#### Begin multicrab script ####"
     print "################################"
+
+    from CRABAPI.RawCommand import crabCommand
     
     ## to submit jobs
     def submit(config):
@@ -72,18 +89,22 @@ if __name__ == '__main__':
         handle = open(SamplesFile,'r')
         exec(handle)
         handle.close()
-     
+
         # samples to be analysed                   
         for key, value in samples.iteritems():
            print key, ' -> ', value
-        
+
+           ## set name
            config.General.requestName = key
-           config.Data.inputDataset = value[0]
+           ## set dataset
+           config.Data.inputDataset   = value[0]
+           ## set list of python cfg pset parameters extending it
            config.JobType.pyCfgParams = list(pyCfgParams)
            config.JobType.pyCfgParams.extend(value[1])
-        
+           ## declare submitter
+           p = Process(target=submit, args=(config,))           
+           ## start application
            # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#Multiple_submission_fails_with_a
-           p = Process(target=submit, args=(config,))
            p.start()
            p.join()
 
@@ -100,4 +121,3 @@ if __name__ == '__main__':
                 os.system("ls " + SamplesFile + " | awk '{print \" crab kill " + SamplesFile + "/\"$1" + "\" " + additionalConfiguration + "\"}' | /bin/sh") 
             else :
                 os.system("ls " + SamplesFile + " | awk '{print \" crab status " + SamplesFile + "/\"$1}' | /bin/sh")
-

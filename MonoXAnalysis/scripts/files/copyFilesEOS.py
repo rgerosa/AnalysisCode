@@ -26,6 +26,7 @@ parser.add_option('--inputDIR',     action="store", type="string", dest="inputDI
 parser.add_option('--nStreams',     action="store", type=int,      dest="nStreams",      default=3,    help="number of parallel streams")
 parser.add_option('--outputDIR',    action="store", type="string", dest="outputDIR",     default="",   help="director to be copied")
 parser.add_option('--toEOS',        action="store_true", dest = "toEOS", help="copy to eos system")
+parser.add_option('--fromXRD',      action="store_true", dest = "fromXRD", help="copy to eos system")
 (options, args) = parser.parse_args()
 
 if __name__ == '__main__':
@@ -46,5 +47,7 @@ if __name__ == '__main__':
     if options.toEOS:
         os.system('xrdcp -r -f -S '+str(options.nStreams)+' '+options.inputDIR+' root://eoscms.cern.ch//eos/cms'+options.outputDIR);
         
-    else:
+    elif not options.fromXRD:
         os.system('xrdcp -r -f -S '+str(options.nStreams)+' root://eoscms.cern.ch//eos/cms'+options.inputDIR+' '+options.outputDIR);
+    else:
+        os.system('xrdcp -r -f -S '+str(options.nStreams)+' root://cms-xrd-global.cern.ch//'+options.inputDIR+' '+options.outputDIR);
