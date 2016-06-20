@@ -1,11 +1,11 @@
 #include "../CMS_lumi.h"
 
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,200};
-vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,70.,100,200};
-vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,70.,100,125,200};
-vector<float> etaBinMuon     = {-2.4,-1.2,1.2,2.4};
-vector<float> etaBinElectron = {-2.5,-1.5,1.5,2.5};
-vector<float> etaBinPhoton   = {-2.5,-1.5,1.5,2.5};
+vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,75.,100,300};
+vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,75.,100,300};
+vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,75.,100,300};
+vector<float> etaBinMuon     = {0,0.75,1.5,2.4};
+vector<float> etaBinElectron = {0,0.5,1.0,1.5,2.1,2.5};
+vector<float> etaBinPhoton   = {0,0.5,1.0,1.5,2.1,2.5};
 
 
 /// make the templates
@@ -33,7 +33,7 @@ void maketemplate(const string & inputDIR,
   inputMC->Add((inputDIR+"/*root").c_str());
   
   // pileup-re-weight from external file
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makePUReweight/pileup_2p1fb/purwtzee.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
 
   TTreeReader reader(inputMC);
@@ -73,7 +73,7 @@ void maketemplate(const string & inputDIR,
 
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(*eta < etaMin or *eta > etaMax) continue;
+    if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds
     if(not *mcTrue) continue;
     if (*id == 0) hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);

@@ -124,7 +124,7 @@ options.register (
 
 ## JEC    
 options.register (
-	'JECEra','Fall15_25nsV2',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Spring16_25nsV3',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
 
 ## Dump Gen Level info
@@ -167,7 +167,7 @@ options.parseArguments()
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
 	options.globalTag = '80X_mcRun2_asymptotic_2016_miniAODv2';
-	options.JECEra  = 'Spring16_25nsV1';
+	options.JECEra  = 'Spring16_25nsV3';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 	

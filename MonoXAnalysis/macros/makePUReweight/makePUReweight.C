@@ -139,7 +139,9 @@ void makeHisto(TH1F* hist, TChain* chain, bool isData,string controlregion, floa
       else             effsf *= esflhist->GetBinContent(esflhist->FindBin(min(999., *el2pt), fabs(*el2eta)));
     }
 
-    if (not isData) weight = (*xsec)*lumi*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)*(*wgtbtag)/(*wgtsum);
+    
+
+    if (not isData) weight = (*xsec)*lumi*(*wgt)*(kfact)*(puwgt)*(trgsf)*(effsf)/(*wgtsum);
     hist->Fill(*nvtx, weight);   
   }
 

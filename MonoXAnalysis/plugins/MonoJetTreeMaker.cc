@@ -330,6 +330,7 @@ private:
   uint8_t hltdoublemu,hltsinglemu,hltsinglemu22,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
   uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350, hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
   uint8_t hltCaloJet500, hltEcalHT800, hltPFJet450, hltPFJet500;
+  uint8_t hltphoton90PFHT500, hltphoton90PFHT600;
 
   //pre-scales
   double pswgt_ph120,pswgt_ph50,pswgt_ph75,pswgt_ph90;
@@ -999,6 +1000,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltPFHT125 = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0; hltPFHT400 = 0;
     hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
     hltCaloJet500 = 0; hltEcalHT800 = 0; hltPFJet450 = 0; hltPFJet500 =0;
+    hltphoton90PFHT500 = 0; hltphoton90PFHT600 = 0;
 
     // Which triggers fired
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
@@ -1090,6 +1092,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (i == 64 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
 	if (i == 65 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet450     = 1;
 	if (i == 66 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet500     = 1;
+	if (i == 67 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT500 = 1;
+	if (i == 68 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT600 = 1;
+
       }
     }
     else if(setHLTFilterFlag == true){
@@ -1109,7 +1114,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltPFHT125 = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; hltPFHT400 = 1;
       hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
       hltCaloJet500 = 1; hltEcalHT800 = 1; hltPFJet450 = 1; hltPFJet500 =1;
-
+      hltphoton90PFHT500 = 1; hltphoton90PFHT600 = 1;
     }
 
     bool triggered = false;
@@ -1153,6 +1158,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltEcalHT800    == 1) triggered = true;
     if (hltPFJet450     == 1) triggered = true;
     if (hltPFJet500     == 1) triggered = true;
+    if (hltphoton90PFHT500 == 1) triggered = true;
+    if (hltphoton90PFHT600 == 1) triggered = true;
+
     if (applyHLTFilter && !triggered) return;
 
     pswgt_ph120 = 1.0;
@@ -3357,7 +3365,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    if (gens_iter->pdgId() == 22 && // photons
 		gens_iter->status() == 1 && // final state
 		gens_iter->isPromptFinalState() &&
-		gens_iter->pt() > wzpt) {
+		gens_iter->pt() >= wzpt) {
 	      
 	      findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
 	      findMother(&(*gens_iter), parid, parpt, pareta, parphi);
@@ -3429,6 +3437,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
   tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
   tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
+  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
   tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
 
   tree->Branch("hltPFHT125"           , &hltPFHT125           , "hltPFHT125/b");
@@ -3442,6 +3451,12 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
   tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
   tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
+  tree->Branch("hltCaloJet500"        , &hltCaloJet500        , "hltCaloJet500/b");
+  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
+  tree->Branch("hltPFJet450"          , &hltPFJet450          , "hltPFJet450/b");
+  tree->Branch("hltPFJet500"          , &hltPFJet500          , "hltPFJet500/b");
+  tree->Branch("hltphoton90PFHT500"   , &hltphoton90PFHT500   , "hltphoton90PFHT500/b");
+  tree->Branch("hltphoton90PFHT600"   , &hltphoton90PFHT600   , "hltphoton90PFHT600/b");
 
   tree->Branch("pswgt_ph50"           , &pswgt_ph50           , "pswgt_ph50/D");
   tree->Branch("pswgt_ph75"           , &pswgt_ph75           , "pswgt_ph75/D");
@@ -4311,6 +4326,8 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_ECALHT800_v");//64
   triggerPathsVector.push_back("HLT_PFJet500_v");//65
   triggerPathsVector.push_back("HLT_PFJet450_v");//66
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//67
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//68
   
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
