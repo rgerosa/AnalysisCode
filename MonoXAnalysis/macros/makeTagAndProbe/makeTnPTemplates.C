@@ -1,12 +1,11 @@
 #include "../CMS_lumi.h"
 
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,75.,100,300};
-vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,75.,100,300};
-vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,75.,100,300};
+vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,300};
+vector<float> ptBinElectron  = {10.,22.,32.,40.,50.,70.,100,300};
+vector<float> ptBinPhoton    = {10.,22.,32.,40.,50.,70.,100,300};
 vector<float> etaBinMuon     = {0,0.75,1.5,2.4};
-vector<float> etaBinElectron = {0,0.5,1.0,1.5,2.1,2.5};
-vector<float> etaBinPhoton   = {0,0.5,1.0,1.5,2.1,2.5};
-
+vector<float> etaBinElectron = {0,0.75,1.55,2.0,2.5};
+vector<float> etaBinPhoton   = {0,0.75,1.55,2.0,2.5};
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -19,8 +18,8 @@ void maketemplate(const string & inputDIR,
 		  const float  & etaMax,
 		  bool  smooth = true,
 		  int   nbins = 60, 
-		  float xmin  = 65, 
-		  float xmax  = 115) {
+		  float xmin  = 60, 
+		  float xmax  = 120) {
 
   TChain* inputMC = NULL;
   if(leptonType == "muon")

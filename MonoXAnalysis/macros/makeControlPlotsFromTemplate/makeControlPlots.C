@@ -449,6 +449,7 @@ void makeControlPlots(string templateFileName,
     stack->Add(tophist_matched);    
   }
   else if(controlRegion == "SR"){
+    stack->Add(qcdhist);
     vllhist->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);

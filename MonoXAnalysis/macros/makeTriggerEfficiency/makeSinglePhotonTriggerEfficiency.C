@@ -4,7 +4,7 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.86, bool useJetHT = false, int runCut = 999999999) {
+void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.86, bool useJetHT = false, bool drawFitFunctions =  false, int runCut = 999999999) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -19,7 +19,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   fitfunc->SetParameters(165., 5., 5., 4., 1.);
   vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
   if(useJetHT)
-    bins = {150,160,165,170,175,180,190,200,250,300,400,500,600,700,800,1000,1200,1400};  
+    bins = {150,160,165,170,175,180,190,200,250,300,350,400,450,500,600,700,800,1000,1200,1400};  
   fitfunc->SetRange(bins.front(),bins.back());
   
   TChain* tree = new TChain("tree/tree");
@@ -37,20 +37,19 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 
   if(not useJetHT){
     // define numerator as event with a medium photon + trigger requirement
-    tree->Draw("phpt>>hnum",Form("(hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && (hltphoton175 || hltphoton165) && phidm == 1 && abs(pheta) < 1.4442 && run <= %d",runCut));    
+    tree->Draw("phpt>>hnum",Form("nphotons == 1 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && (hltphoton175 || hltphoton165) && phidm == 1 && abs(pheta) < 1.4442 && run <= %d",runCut));    
     // define denominator as an event with a tight muon passing single muon trigger
-    tree->Draw("phpt>>hden",Form("phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && run <= %d",runCut));    
+    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && run <= %d",runCut));    
   }
   else{
-    tree->Draw("phpt>>hnum",Form("phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT800) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
-    tree->Draw("phpt>>hden",Form("phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT800) && run <= %d",runCut));
+    tree->Draw("phpt>>hnum",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT800) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
+    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT800) && run <= %d",runCut));
 
-    tree->Draw("phpt>>hnum_2",Form("phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT400 || hltPFHT125 || hltPFHT200 || hltPFHT250 || hltPFHT300 || hltPFHT350 || hltPFHT475 || hltPFHT600 || hltPFHT650) && (hltphoton175 || hltphoton165 || hltPFHT800) && run <= %d",runCut));
-    tree->Draw("phpt>>hden_2",Form("phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT400 || hltPFHT125 || hltPFHT200 || hltPFHT250 || hltPFHT300 || hltPFHT350 || hltPFHT475 || hltPFHT600 || hltPFHT650) && run <= %d",runCut));
+    tree->Draw("phpt>>hnum_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT800) && (hltphoton175 || hltphoton165 || hltEcalHT800) && run <= %d",runCut));
+    tree->Draw("phpt>>hden_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT800) && run <= %d",runCut));
   }
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);  
-  eff->Fit(fitfunc);
   eff->SetMarkerColor(kBlack);
   eff->SetLineColor(kBlack);
   eff->SetMarkerStyle(20);
@@ -73,7 +72,10 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   canvas->cd();
   frame->Draw();
   eff->Draw("E1PSAME");
-  fitfunc->Draw("SAME");
+  if(drawFitFunctions){
+    eff->Fit(fitfunc);
+    fitfunc->Draw("SAME");
+  }
   canvas->RedrawAxis();
   CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
 
@@ -85,7 +87,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 
     eff_2 = new TEfficiency(*hnum_2,*hden_2);  
     fitfunc_2 = (TF1*) fitfunc->Clone("fitfunc_2");
-    eff_2->Fit(fitfunc_2);
+    fitfunc_2->SetParameters(165., 5., 5., 4., 1.);
     eff->SetMarkerColor(kBlue);
     eff_2->SetMarkerColor(kRed);
     eff->SetLineColor(kBlue);
@@ -96,10 +98,13 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     fitfunc_2->SetLineWidth(2);
     
     eff_2->Draw("E1PSAME");
-    fitfunc_2->Draw("SAME");
+    if(drawFitFunctions){
+      eff_2->Fit(fitfunc_2);
+      fitfunc_2->Draw("SAME");
+    }
     canvas->RedrawAxis();
     
-    TLegend* leg = new TLegend(0.65,0.3,0.9,0.55);
+    TLegend* leg = new TLegend(0.35,0.25,0.9,0.65);
     leg->SetFillColor(0);
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);

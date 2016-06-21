@@ -932,10 +932,10 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   if(not runOnlySignal){
 
     cout<<"start signal region data"<<endl;
-    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,true,false,runHiggsInvisible,false,applyPostFitWeights);
+    //sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,true,false,runHiggsInvisible,false,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    //    gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible);
+    gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
     //    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights); 

@@ -64,6 +64,10 @@ options.register(
     'backgroundType','RooCMSShape',VarParsing.multiplicity.singleton,VarParsing.varType.string,
     'Available options at the moment: RooCMSShape, Exponential');
 
+options.register(
+    'signalType','',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+    'too add an additional string to the output root file .. useful for alternative signal templates');
+
 ## parsing command line arguments                                                                                                                                            
 options.parseArguments()
 
@@ -182,6 +186,9 @@ if options.backgroundType == "RooCMSShape":
 elif options.backgroundType == "Exponential":
     OutputFilePrefix+="_Exponential";
 
+if options.signalType != "":
+    OutputFilePrefix += "_Alternative";
+
 process.leptonIdTnP = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                                      InputFileNames = cms.vstring(inputFileList),
                                      InputDirectoryName = cms.string(dirName),
@@ -208,8 +215,8 @@ process.leptonIdTnP = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
         pdfSignalPlusBackgroundb0 = cms.vstring(
             "#import "+options.templateFile+":w:signalPassMC", ## need a file with a workspace with signalPass RooDataHist
             "#import "+options.templateFile+":w:signalFailMC", ## need a file with a workspace with signalFail RooDataHist
-            "Gaussian::signalPassSmear(mass, mP[0., -1, 1.], sP[0.5, 0.0, 1.0])", ## Gaussian Convolution
-            "Gaussian::signalFailSmear(mass, mF[0., -1, 1.], sF[0.5, 0.0, 1.0])",
+            "Gaussian::signalPassSmear(mass, mP[0., -1,  1.], sP[0.5, 0., 2.0])", ## Gaussian Convolution
+            "Gaussian::signalFailSmear(mass, mF[0., -2,  2.], sF[0.5, 0., 2.0])",
             "FCONV::signalPass(mass, signalPassMC, signalPassSmear)",
             "FCONV::signalFail(mass, signalFailMC, signalFailSmear)",
             ),        
@@ -228,11 +235,11 @@ elif options.typeID == "mediumid":
 
 if options.backgroundType == "RooCMSShape":
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("RooCMSShape::backgroundPass(mass, alphaPass[80.,60.,100.], betaPass[0.105, 0.,1.0], gammaPass[0.033, -0.1, 0.1], peakPass[91.2, 90, 92])");
-    process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("RooCMSShape::backgroundFail(mass, alphaFail[80.,60.,100.], betaFail[0.105, 0.,1.0], gammaFail[0.033, -0.1, 0.1], peakFail[91.2, 90, 92])");
+    process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("RooCMSShape::backgroundFail(mass, alphaFail[80.,60.,100.], betaFail[0.105, 0.,1.0], gammaFail[0.033, -0.1, 0.5], peakFail[91.2, 90, 92])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("efficiency[0.8,0,1]");
 
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCMSShape::backgroundPass(mass, alphaPass[105.,80.,150.], betaPass[0.01,-1,1], gammaPass[0.05, -0.1, 0.1], peakPass[91.2,90, 92])");
-    process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCMSShape::backgroundFail(mass, alphaFail[125.,80.,150.], betaFail[0.01,-1,1], gammaFail[0.05, -0.1, 0.1], peakFail[91.2,90, 92])");
+    process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCMSShape::backgroundFail(mass, alphaFail[125.,80.,150.], betaFail[0.01,-1,1], gammaFail[0.05, -0.1, 0.5], peakFail[91.2,90, 92])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("efficiency[0.8,0,1]");
 
 elif options.backgroundType == "Exponential":

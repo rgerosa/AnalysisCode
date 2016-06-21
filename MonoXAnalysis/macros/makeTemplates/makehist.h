@@ -146,7 +146,9 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  triggerelhist = (TH2*) triggerfile_SinglEle.Get("trigeff_ele27wptight");
   TH2*  triggermuhist = (TH2*) triggerfile_SingleMu.Get("trigeff_muIso");
   TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
-  TF1*  triggerphoton = (TF1*)triggerfile_SinglePhoton.Get("efficiency_func");
+  TEfficiency*  triggerphoton = (TEfficiency*)triggerfile_SinglePhoton.Get("efficiency");
+  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
+
 
   // Post-fit weights
   TFile* postFitFile = NULL;
@@ -623,9 +625,9 @@ void makehist4(TTree* tree, /*input tree*/
     }
         
     // photon trigger scale factor
-    if(isMC && triggerphoton && (sample == Sample::qcd || sample == Sample::gam))
-      sfwgt *= triggerphoton->Eval(min(pt1,triggerphoton->GetXaxis()->GetXmax()));
-
+    if(isMC && triggerphoton_graph && (sample == Sample::qcd || sample == Sample::gam)) // linear interpolation between graph points
+      sfwgt *= triggerphoton_graph->Eval(min(pt1,triggerphoton_graph->GetXaxis()->GetXmax()));
+    
     
     // b-tag weight
     double btagw = *wgtbtag;

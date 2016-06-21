@@ -15,14 +15,14 @@ from subprocess import Popen
 #            Job steering                  #                                                                                                                                 
 ############################################                                                                                                                                   
 
-muonPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,200.0];
-muonEtaBinning = [-2.4,-1.2,1.2,2.4]
+muonPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,300.0];
+muonEtaBinning = [0.0,0.8,1.5,2.4]
 
-electronPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,200.0];
-electronEtaBinning = [-2.5,-1.5,1.5,2.5];
+electronPtBinning  = [10.0,22.0,32.0,40.0,50.0,70.0,100.0,300.0];
+electronEtaBinning = [0.0,0.8,1.5,2.0,2.5];
 
-photonPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,125.0,200.0];
-photonEtaBinning = [-2.5,-1.5,1.5,2.5];
+photonPtBinning  = [10.0,22.0,32.0,40.0,50.0,70.0,100.0,300.0];
+photonEtaBinning = [0.0,0.8,1.5,2.0,2.5];
 
 parser = OptionParser()
 parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
@@ -33,6 +33,8 @@ parser.add_option('--outputDIR',    action="store", type="string", dest="outputD
 parser.add_option('--isMC',         action="store_true",           dest="isMC",                       help="isMC")
 parser.add_option('--typeID',       action="store", type="string", dest="typeID",       default="",   help="lepton id type: looseid or tightid for muons, vetoid or tightid for electrons")
 parser.add_option('--leptonType',   action="store", type="string", dest="leptonType",   default="",   help="lepton type: muon or electron or photon")
+parser.add_option('--doAlternativeBkg',  action="store_true",      dest="doAlternativeBkg",           help="run the fits with a exponential background shape")
+parser.add_option('--doAlternativeSig',  action="store_true",      dest="doAlternativeSig",           help="run the fits with alternative signal template")
 
 ##  for submitting jobs in lxbatch
 parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
@@ -58,7 +60,7 @@ if __name__ == '__main__':
                 if not options.batchMode:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1]);
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -69,11 +71,19 @@ if __name__ == '__main__':
                         sys.exit('Problem more than one template file for a single configuration --> return');
                     command += " templateFile="+templatePath+"/"+listOffile[0];
                     os.system(command+" backgroundType=RooCMSShape");
-                    os.system(command+" backgroundType=Exponential");
+                    ## do alternative background
+                    if options.doAlternativeBkg:
+                        os.system(command+" backgroundType=Exponential");
+                    ## do alternative signal template
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
+
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1]);
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -98,19 +108,35 @@ if __name__ == '__main__':
                     if options.submit:
                         os.system('bsub -q %s -o %s/%s_RooCMSShape.log -e %s/%s_RooCMSShape.err %s/%s_RooCMSShape.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
 
-                    jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
-                    jobscript.write('cd %s \n'%currentDIR)
-                    jobscript.write('eval ` scramv1 runtime -sh ` \n')
-                    jobscript.write('cd - \n')
-                    jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')                    
-                    jobscript.write(command+' backgroundType=Exponential\n');
-                    jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
-                    os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
+                    if options.doAlternativeBkg:
 
-                    if options.submit:
-                        os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
-                    
+                        jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')                    
+                        jobscript.write(command+' backgroundType=Exponential\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
+                        os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
 
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        jobscript = open('%s/%s_Alternative.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
+                        jobscript.write(command+' backgroundType=RooCMSShape signalType=Alternative\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')
+                        os.system('chmod a+x %s/%s_Alternative.sh'%(options.jobDIR,jobName))
+
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Alternative.log -e %s/%s_Alternative.err %s/%s_Alternative.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+                        
 
     elif options.leptonType == "electron":
         for pt in range(len(electronPtBinning)-1):
@@ -119,7 +145,7 @@ if __name__ == '__main__':
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])
 
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(electronPtBinning[pt])+"_"+str(electronPtBinning[pt+1])+"_eta_"+str(electronEtaBinning[eta])+"_"+str(electronEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -131,11 +157,20 @@ if __name__ == '__main__':
                     command += " templateFile="+templatePath+"/"+listOffile[0];
                     ## run first fit with RooCMSShape
                     os.system(command+" backgroundType=RooCMSShape");
-                    os.system(command+" backgroundType=Exponential");
+
+                    if options.doAlternativeBkg:
+                        os.system(command+" backgroundType=Exponential");
+
+                    ## do alternative signal template
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
+
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./"+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(electronPtBinning[pt])+"_"+str(electronPtBinning[pt+1])+"_eta_"+str(electronEtaBinning[eta])+"_"+str(electronEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -160,17 +195,33 @@ if __name__ == '__main__':
                     if options.submit:
                         os.system('bsub -q %s -o %s/%s_RooCMSShape.log -e %s/%s_RooCMSShape.err %s/%s_RooCMSShape.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
 
-                    jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
-                    jobscript.write('cd %s \n'%currentDIR)
-                    jobscript.write('eval ` scramv1 runtime -sh ` \n')
-                    jobscript.write('cd - \n')
-                    jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./\n')                    
-                    jobscript.write(command+' backgroundType=Exponential\n');
-                    jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
-                    os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
+                    if options.doAlternativeBkg:
+                        jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./\n')                    
+                        jobscript.write(command+' backgroundType=Exponential\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
+                        os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
 
-                    if options.submit:
-                        os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        jobscript = open('%s/%s_Alternative.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
+                        jobscript.write(command+' backgroundType=RooCMSShape signalType=Alternative\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')
+                        os.system('chmod a+x %s/%s_Alternative.sh'%(options.jobDIR,jobName))
+
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Alternative.log -e %s/%s_Alternative.err %s/%s_Alternative.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
 
 
     elif options.leptonType == "photon":
@@ -180,7 +231,7 @@ if __name__ == '__main__':
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])
 
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(photonPtBinning[pt])+"_"+str(photonPtBinning[pt+1])+"_eta_"+str(photonEtaBinning[eta])+"_"+str(photonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -192,12 +243,20 @@ if __name__ == '__main__':
                     command += " templateFile="+templatePath+"/"+listOffile[0];
                     ## run first fit with RooCMSShape
                     os.system(command+" backgroundType=RooCMSShape");
-                    os.system(command+" backgroundType=Exponential");
+
+                    if options.doAlternativeBkg:
+                        os.system(command+" backgroundType=Exponential");
+
+                    ## do alternative signal template
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
 
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(photonPtBinning[pt])+"_"+str(photonPtBinning[pt+1])+"_eta_"+str(photonEtaBinning[eta])+"_"+str(photonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -222,17 +281,34 @@ if __name__ == '__main__':
                     if options.submit:
                         os.system('bsub -q %s -o %s/%s_RooCMSShape.log -e %s/%s_RooCMSShape.err %s/%s_RooCMSShape.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
 
-                    jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
-                    jobscript.write('cd %s \n'%currentDIR)
-                    jobscript.write('eval ` scramv1 runtime -sh ` \n')
-                    jobscript.write('cd - \n')
-                    jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./\n')                    
-                    jobscript.write(command+' backgroundType=Exponential\n');
-                    jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
-                    os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
+                    if options.doAlternativeBkg:
+                        jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./\n')                    
+                        jobscript.write(command+' backgroundType=Exponential\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
+                        os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
 
-                    if options.submit:
-                        os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+
+                    if options.doAlternativeSig:
+                        templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateAlternative/')
+                        command = command.replace(templatePath,templatePathAlt);
+                        jobscript = open('%s/%s_Alternative.sh'%(options.jobDIR,jobName),'w');
+                        jobscript.write('cd %s \n'%currentDIR)
+                        jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                        jobscript.write('cd - \n')
+                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
+                        jobscript.write(command+' backgroundType=RooCMSShape signalType=Alternative\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')
+                        os.system('chmod a+x %s/%s_Alternative.sh'%(options.jobDIR,jobName))
+
+                        if options.submit:
+                            os.system('bsub -q %s -o %s/%s_Alternative.log -e %s/%s_Alternative.err %s/%s_Alternative.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+
 
     else:
         sys.exit('Problem with lepton type --> muon or electron or photon are the recognized options --> exit');
