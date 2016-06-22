@@ -4,7 +4,7 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.59, bool singleMuon = true) {
+void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.81, bool singleMuon = true) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -37,12 +37,12 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.5
   // define numerator as event with tight muon + trigger requirement
   // define denominator as an event with a tight muon passing single muon trigger
   if(singleMuon){
-    tree->Draw("t1mumet>>hnum","(hltmet100==1 || hltmetwithmu170==1) && hltsinglemu==1 && mu1pt>20 && mu1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
-    tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 &&  abs(combinejeteta[0]) < 2.5");    
+    tree->Draw("t1mumet>>hnum","(hltmet90 == 1 || hltmet100 == 1 || hltmet110 == 1 || hltmetwithmu170 == 1) && hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1 && abs(centraljeteta[0]) < 2.5");    
+    tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1 &&  abs(centraljeteta[0]) < 2.5");    
   }
   else{
-    tree->Draw("t1pfmet>>hnum","(hltmet100==1 || hltmetwithmu170==1) && hltsingleel==1 && el1pt>40 && el1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
-    tree->Draw("t1pfmet>>hden","hltsingleel==1 && el1pt>40 && el1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
+    tree->Draw("t1pfmet>>hnum","(hltmet90 == 1 || hltmet100 == 1 || hltmet110 == 1 || hltmetwithmu170 == 1) && hltsingleel==1 && el1pt>40 && el1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1 && abs(centraljeteta[0]) < 2.5");    
+    tree->Draw("t1pfmet>>hden","hltsingleel==1 && el1pt>40 && el1id==1 && centraljetpt[0]>100. && centraljetCHfrac[0]>0.1 && abs(centraljeteta[0]) < 2.5");    
   }
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);
