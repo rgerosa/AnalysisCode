@@ -804,17 +804,17 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   if(not isMC and not isSinglePhoton){
     cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
-      cut += " && hltsingleel > 0";
+      cut += " && (hltsingleel > 0 || hltelnoiso)";
   }
   else if(not isMC and isSinglePhoton){
     cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
-      cut += " && ( hltphoton165 > 0 || hltphoton175 > 0) && hltsingleel == 0";    
+      cut += " && ( hltphoton165 > 0 || hltphoton175 > 0) && (hltsingleel == 0 && hltelnoiso)";    
   }
   else if(isMC){    
     cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
     if(not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0)";
+      cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0 || hltelnoiso)";
   }
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
@@ -1264,17 +1264,17 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   if(not isMC and not isSinglePhoton){
     cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
     if(not dropHLTFilter)
-      cut += " && hltsingleel >0";
+      cut += " && (hltsingleel >0 || hltelnoiso)";
   }
   else if(not isMC and isSinglePhoton){
     cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
     if(not dropHLTFilter)
-      cut += " && hltsingleel == 0 && (hltphoton165 > 0 || hltphoton175 > 0)";
+      cut += " && (hltsingleel == 0 && hltelnoiso) && (hltphoton165 > 0 || hltphoton175 > 0)";
   }
   else if(isMC){    
     cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
     if (not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltphoton165 > 0 || hltphoton175 > 0)";
+      cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0)";
   }
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");

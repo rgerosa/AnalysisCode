@@ -49,7 +49,7 @@ void rzmm(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -115,7 +115,7 @@ void rzee(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -179,7 +179,7 @@ void rwmn(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -245,7 +245,7 @@ void rwen(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -326,7 +326,7 @@ void rgam(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -407,7 +407,7 @@ void rzwj(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -476,7 +476,7 @@ void rtopmu(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -542,7 +542,7 @@ void rtopel(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -604,7 +604,7 @@ void rsidebandZ(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -667,7 +667,7 @@ void rsidebandW(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"0.81",true);
+    CMS_lumi(canvas,"2.6",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");

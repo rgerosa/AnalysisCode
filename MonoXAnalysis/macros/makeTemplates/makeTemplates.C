@@ -604,9 +604,9 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 
   if(doCorrectionHistograms){
 
-    cout<<"make correction histogram for Zmm to Znn"<<endl;
     // make central values
     if(category == Category::VBF){
+      cout<<"make correction histogram for Zmm to Znn"<<endl;
       makezmmcorhist(baseInputTreePath+"/ZJets/sigfilter/",baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/",		   
 		     baseInputTreePath+"/DYJets/zmmfilter/",baseInputTreePath+"/ZJetsToLLEWK/zmmfilter/",
 		     category,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false); 
@@ -932,19 +932,19 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   if(not runOnlySignal){
 
     cout<<"start signal region data"<<endl;
-    //sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,true,false,runHiggsInvisible,false,applyPostFitWeights);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,true,false,runHiggsInvisible,false,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
     gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights); 
+    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights); 
     cout<<"start wmunu region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights); 
+    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights); 
     cout<<"start zee region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights); 
+    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights); 
     cout<<"start wenu region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);     
+    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);     
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;

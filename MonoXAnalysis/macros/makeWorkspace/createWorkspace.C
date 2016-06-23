@@ -12,7 +12,7 @@ using namespace std;
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName,  // input template file
-		     int    category,  // analysis category
+		     Category category,  // analysis category
 		     string outputName    = "workspace.root", // output workspace name
 		     string observable    = "met",    // observable 1D or 2D
 		     bool   isHiggsInvisible = false, // Higgs invisible or DM analsysis
@@ -35,10 +35,13 @@ void createWorkspace(string inputName,  // input template file
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
+  initializeBinning();
+
   // for templates and sys naming
   string suffix;
-  if(category <=1) suffix = "MJ";
-  else suffix = "MV";
+  if(category == Category::monojet) suffix = "MJ";
+  else if(category == Category::monoV) suffix = "MV";
+  else if(category == Category::VBF) suffix = "VBF";
     
   // create the output workspace
   cout<<"Create output file ..."<<endl;

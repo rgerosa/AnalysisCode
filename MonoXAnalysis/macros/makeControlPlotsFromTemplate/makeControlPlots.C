@@ -280,11 +280,13 @@ void makeControlPlots(string templateFileName,
       yield += gamhist->GetBinContent(i);
       yield += tophist->GetBinContent(i);
       yield += dbhist->GetBinContent(i);
+      yield += ewkzhist->GetBinContent(i);
+      yield += ewkwhist->GetBinContent(i);
       yield += vllhist->GetBinContent(i);
       yield += vlhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);
-      datahist->SetBinContent(i, yield);
-      datahist->SetBinError(i, 0.);
+      datahist->SetBinContent(i,yield);
+      datahist->SetBinError(i,0.);
     }
   }
 
@@ -333,7 +335,7 @@ void makeControlPlots(string templateFileName,
       gamhist->SetLineColor(TColor::GetColor("#9A9EAB"));
     }
     else{
-      gamhist->SetFillColor(kCyan);
+      gamhist->SetFillColor(TColor::GetColor("#db4dff"));
       gamhist->SetLineColor(kBlack);
     } 
   }
@@ -572,14 +574,20 @@ void makeControlPlots(string templateFileName,
   // set Y-axis range
   if(category == Category::monojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  else if(category == Category::inclusive and isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::monojet and not isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+  else if(category == Category::inclusive and not isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
   else if(category == Category::monoV and isLog)
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  else if(category == Category::boosted and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::VBF and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   if(TString(observableLatex).Contains("GeV"))
@@ -600,7 +608,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"0.81");
+  CMS_lumi(canvas,"2.6");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -627,6 +635,8 @@ void makeControlPlots(string templateFileName,
   TLegend* leg = NULL;
   if(controlRegion == "gam")
     leg = new TLegend(0.62, 0.70, 0.85, 0.90);
+  else if (observable == "chfrac" or observable == "nhfrac" or observable == "emfrac")
+    leg = new TLegend(0.52, 0.35, 0.88, 0.65);  
   else if(controlRegion == "SR" and isLog)
     leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
   else if(controlRegion == "SR" and not isLog)
@@ -766,7 +776,7 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
-  if(category == Category::monojet)
+  if(category == Category::monojet or category == Category::inclusive)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);

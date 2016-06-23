@@ -1201,8 +1201,8 @@ void lepdatamchist(TFile* outfile,
     gmtree->Add((baseInputTreePath+"PhotonJets/zeefilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/zeefilter/*root").c_str());
     dttree->Add((baseInputTreePath+"SingleElectron/zeefilter/*root").c_str());
-    dttree_2 = new TChain("tree/tree");
-    dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
+    //dttree_2 = new TChain("tree/tree");
+    //dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zeefilter/*root").c_str());
   }
@@ -1223,8 +1223,8 @@ void lepdatamchist(TFile* outfile,
     gmtree->Add((baseInputTreePath+"PhotonJets/wenfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/wenfilter/*root").c_str());
     dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
-    dttree_2 = new TChain("tree/tree");
-    dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
+    //dttree_2 = new TChain("tree/tree");
+    //dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wenfilter/*root").c_str());
   }
@@ -2130,7 +2130,7 @@ void topdatamchist(TFile* outfile,
   dbtree->Add((baseInputTreePath+"DiBoson/"+suffix+"filter/*root").c_str());
   gmtree->Add((baseInputTreePath+"PhotonJets/"+suffix+"filter/*root").c_str());
   tttree->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
-  tttree_alt->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
+  //  tttree_alt->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
     dttree->Add((baseInputTreePath+"MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
