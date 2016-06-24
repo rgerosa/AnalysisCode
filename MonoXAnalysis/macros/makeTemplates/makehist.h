@@ -300,10 +300,20 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
   TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedJetphi");
   TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedJetm");
-  //  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm_v2");
-  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm");
+  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm_v2");
+  TTreeReaderValue<vector<double> > prunedJetpt     (myReader,"prunedJetpt_v2");
   TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
+  //  TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedPuppiJetpt");
+  //  TTreeReaderValue<vector<double> > boostedJetQGL   (myReader,"boostedPuppiJetQGL");
+  //  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedPuppiJeteta");
+  //  TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedPuppiJetphi");
+  //  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedPuppiJetm");
+  //  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm_v2");
+  //  TTreeReaderValue<vector<double> > prunedJetm   (myReader,"softDropPuppiJetm");
+  //  TTreeReaderValue<vector<double> > prunedJetpt   (myReader,"softDropPuppiJetpt");
+  //  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedPuppiJettau2");
+  //  TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedPuppiJettau1");
   TTreeReaderValue<double > hadBosoneta  (myReader,"wzeta_h");
   TTreeReaderValue<double > hadBosonphi  (myReader,"wzphi_h");
   TTreeReaderValue<double > hadBosonpt   (myReader,"wzpt_h");
@@ -751,6 +761,7 @@ void makehist4(TTree* tree, /*input tree*/
 	    if(prunedJetm->at(0) < prunedMassMin  or prunedJetm->at(0) > prunedMassMax)
 	      goodMonoJet= true;
 	    // tau2tau1 selection
+	    //    if((boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(prunedJetm->at(0)/prunedJetpt->at(0))) > tau2tau1)
 	    if(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
 	      goodMonoJet= true;
 	  }

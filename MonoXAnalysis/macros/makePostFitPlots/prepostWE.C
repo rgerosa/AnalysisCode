@@ -1,6 +1,7 @@
 #include "../CMS_lumi.h"
+#include "../makeTemplates/histoUtils.h"
 
-void prepostWE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
+void prepostWE(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE);   
   setTDRStyle();
@@ -26,6 +27,9 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   TH1* wlhist = NULL;
   TH1* tthist = NULL;
   TH1* dihist = NULL;
+  TH1* ewkwhist = NULL;
+  TH1* ewkzhist = NULL;
+  TH1* qcdhist = NULL;
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
@@ -35,6 +39,9 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch6/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch6/Dibosons");
+    qcdhist = (TH1*)pfile->Get("shapes_fit_b/ch6/QCD_WE");
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKW");
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKZ");
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch6/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch6/total_background");
 
@@ -44,6 +51,9 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
     dthist = (TH1*)dfile->FindObjectAny(("datahistwen_"+observable).c_str());
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch6/Top");
+    qcdhist = (TH1*)pfile->Get("shapes_fit_s/ch6/QCD_WE");
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKW");
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKZ");
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch6/Dibosons");
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch6/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch6/total_background");
@@ -57,6 +67,10 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   TopRate << "Process: Top";
   stringstream VVRate;
   VVRate << "Process: DiBoson";
+  stringstream EWKWRate;
+  EWKWRate << "Process: EWKW";
+  stringstream EWKZRate;
+  EWKZRate << "Process: EWKZ";
   stringstream WJetRate;
   WJetRate << "Process: WJet";
   stringstream PreRate;
@@ -74,6 +88,16 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
     VVRate << "   ";
     VVRate << dihist->GetBinContent(iBin);
+  }
+
+  for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+    EWKWRate << "   ";
+    EWKWRate << ewkwhist->GetBinContent(iBin);
+  }
+
+  for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+    EWKZRate << "   ";
+    EWKZRate << ewkzhist->GetBinContent(iBin);
   }
 
   for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
@@ -101,6 +125,10 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   outputfile<<"######################"<<endl;
   outputfile<<VVRate.str()<<endl;
   outputfile<<"######################"<<endl;
+  outputfile<<EWKWRate.str()<<endl;
+  outputfile<<"######################"<<endl;
+  outputfile<<EWKZRate.str()<<endl;
+  outputfile<<"######################"<<endl;
   outputfile<<WJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<PreRate.str()<<endl;
@@ -123,10 +151,13 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
+  wlhist->Add(ewkwhist);
+  wlhist->Add(ewkzhist);
+  wlhist->Add(qcdhist);
 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
-  if(category <=1)
+  if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*50);
   else
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
@@ -137,14 +168,14 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category <= 1)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
 
   frame->Draw();
   
-  CMS_lumi(canvas,"2.3");
+  CMS_lumi(canvas,"2.61");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -173,12 +204,12 @@ void prepostWE(string fitFilename, string templateFileName, string observable, i
   TH1* frame2 =  (TH1*) dthist->Clone("frame");
   frame2->Reset("ICES");
 
-  if(category <=1)
+  if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
 
-  if(category <= 1)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);

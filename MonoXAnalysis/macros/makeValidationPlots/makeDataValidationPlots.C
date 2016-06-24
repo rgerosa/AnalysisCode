@@ -46,17 +46,23 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   CMS_lumi(pad1,"2.61",true);
 
   float maxdata  = -1;
+  float mindata  = 1000000;
   for(int iBin = 0; iBin < histoData->GetNbinsX(); iBin++){
     if(histoData->GetBinContent(iBin+1)+histoData->GetBinError(iBin+1) >= maxdata)
       maxdata = histoData->GetBinContent(iBin+1)+histoData->GetBinError(iBin+1);
+    if(histoData->GetBinContent(iBin+1)-histoData->GetBinError(iBin+1) <= mindata)
+      mindata = histoData->GetBinContent(iBin+1)-histoData->GetBinError(iBin+1);
   }
   float maxmc  = -1;
+  float minmc  = 1000000;
   for(int iBin = 0; iBin < histoMC->GetNbinsX(); iBin++){
     if(histoMC->GetBinContent(iBin+1)+histoMC->GetBinError(iBin+1) >= maxmc)
       maxmc = histoMC->GetBinContent(iBin+1)+histoMC->GetBinError(iBin+1);
+    if(histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1) <= maxmc)
+      minmc = histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1);
   }
       
-  frame->GetYaxis()->SetRangeUser(0.,max(maxdata,maxmc)*1.2);
+  frame->GetYaxis()->SetRangeUser(min(mindata,minmc)*0.5,max(maxdata,maxmc)*1.5);
 
   // histo style
   histoData->SetLineColor(kBlack);
@@ -77,40 +83,41 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
 
   TLegend* leg = new TLegend(0.18, 0.66, 0.45, 0.92);
   if(TString(postfix).Contains("ZG_mm")){
-    leg->AddEntry(histoMCband,"Z(#mu#mu)/#gamma MC","FL");
     leg->AddEntry(histoData,"Z(#mu#mu)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"Z(#mu#mu)/#gamma MC","FL");
   }
   if(TString(postfix).Contains("ZG_ee")){
-    leg->AddEntry(histoMCband,"Z(ee)/#gamma MC","FL");
     leg->AddEntry(histoData,"Z(ee)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"Z(ee)/#gamma MC","FL");
   }
   if(TString(postfix).Contains("ZG_ll")){
-    leg->AddEntry(histoMCband,"Z(ll)/#gamma MC","FL");
     leg->AddEntry(histoData,"Z(ll)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"Z(ll)/#gamma MC","FL");
   }
   if(TString(postfix).Contains("ZW_mm")){
-    leg->AddEntry(histoMCband,"Z(#mu#mu)/W(#mu#nu) MC","FL");
     leg->AddEntry(histoData,"Z(#mu#mu)/W(#mu#nu) Data","PL");    
+    leg->AddEntry(histoMCband,"Z(#mu#mu)/W(#mu#nu) MC","FL");
   }
   if(TString(postfix).Contains("ZW_ee")){
     leg->AddEntry(histoMCband,"Z(ee)/W(e#nu) MC","FL");
     leg->AddEntry(histoData,"Z(ee)/W(e#nu) Data","PL");    
+    leg->AddEntry(histoMCband,"Z(ee)/W(e#nu) MC","FL");
   }
   if(TString(postfix).Contains("ZW_ll")){
-    leg->AddEntry(histoMCband,"Z(ll)/W(l#nu) MC","FL");
     leg->AddEntry(histoData,"Z(ll)/W(l#nu) Data","PL");    
+    leg->AddEntry(histoMCband,"Z(ll)/W(l#nu) MC","FL");
   }
   if(TString(postfix).Contains("WG_m")){
-    leg->AddEntry(histoMCband,"W(#mu#nu)/#gamma MC","FL");
     leg->AddEntry(histoData,"W(#mu#nu)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"W(#mu#nu)/#gamma MC","FL");
   }
   if(TString(postfix).Contains("WG_e")){
-    leg->AddEntry(histoMCband,"W(e#nu)/#gamma MC","FL");
     leg->AddEntry(histoData,"W(e#nu)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"W(e#nu)/#gamma MC","FL");
   }
   if(TString(postfix).Contains("WG_l")){
-    leg->AddEntry(histoMCband,"W(l#nu)/#gamma MC","FL");
     leg->AddEntry(histoData,"W(l#nu)/#gamma Data","PL");    
+    leg->AddEntry(histoMCband,"W(l#nu)/#gamma MC","FL");
   }
 
 
@@ -128,6 +135,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
     frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
   else if(category == Category::monoV)
     frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+  
 
   frame2->GetXaxis()->SetLabelSize(0.10);
   frame2->GetXaxis()->SetLabelOffset(0.03);
@@ -163,7 +171,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
 }
 
 
-void makeDataValidationPlots(string inputFileName, Category category, string observable, string observableLatex){
+void makeDataValidationPlots(string inputFileName, Category category, string observable, string observableLatex, bool addWgamma = false){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -184,18 +192,31 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* vlbkg_zmm = (TH1*) inputFile->FindObjectAny(("vlbkghistzmm_"+observable).c_str());
   TH1* dbbkg_zmm = (TH1*) inputFile->FindObjectAny(("dbkghistzmm_"+observable).c_str());
   TH1* ttbkg_zmm = (TH1*) inputFile->FindObjectAny(("tbkghistzmm_"+observable).c_str());
+  TH1* ewkwbkg_zmm = (TH1*) inputFile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str());
+  TH1* ewkzbkg_zmm = (TH1*) inputFile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str());
+  TH1* gambkg_zmm = (TH1*) inputFile->FindObjectAny(("gbkghistzmm_"+observable).c_str());
   vllbkg_zmm->Add(vlbkg_zmm);
   vllbkg_zmm->Add(dbbkg_zmm);
   vllbkg_zmm->Add(ttbkg_zmm);
+  vllbkg_zmm->Add(ewkwbkg_zmm);
+  vllbkg_zmm->Add(ewkzbkg_zmm);
+  vllbkg_zmm->Add(gambkg_zmm);
+  
 
   // ZEE  control region
   TH1* vllbkg_zee = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
   TH1* vlbkg_zee = (TH1*) inputFile->FindObjectAny(("vlbkghistzee_"+observable).c_str());
   TH1* dbbkg_zee = (TH1*) inputFile->FindObjectAny(("dbkghistzee_"+observable).c_str());
   TH1* ttbkg_zee = (TH1*) inputFile->FindObjectAny(("tbkghistzee_"+observable).c_str());
+  TH1* ewkwbkg_zee = (TH1*) inputFile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str());
+  TH1* ewkzbkg_zee = (TH1*) inputFile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str());
+  TH1* gambkg_zee = (TH1*) inputFile->FindObjectAny(("gbkghistzee_"+observable).c_str());
   vllbkg_zee->Add(vlbkg_zee);
   vllbkg_zee->Add(dbbkg_zee);
   vllbkg_zee->Add(ttbkg_zee);
+  vllbkg_zee->Add(ewkwbkg_zee);
+  vllbkg_zee->Add(ewkzbkg_zee);
+  vllbkg_zee->Add(gambkg_zee);
 
   // WEN  control region
   TH1* vlbkg_wen   = (TH1*) inputFile->FindObjectAny(("vlbkghistwen_"+observable).c_str());
@@ -203,10 +224,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* dbbkg_wen   = (TH1*) inputFile->FindObjectAny(("dbkghistwen_"+observable).c_str());
   TH1* ttbkg_wen   = (TH1*) inputFile->FindObjectAny(("tbkghistwen_"+observable).c_str());
   TH1* qbkg_wen    = (TH1*) inputFile->FindObjectAny(("qbkghistwen_"+observable).c_str());
+  TH1* gambkg_wen  = (TH1*) inputFile->FindObjectAny(("gbkghistwen_"+observable).c_str());
+  TH1* ewkwbkg_wen = (TH1*) inputFile->FindObjectAny(("ewkwbkghistwen_"+observable).c_str());
+  TH1* ewkzbkg_wen = (TH1*) inputFile->FindObjectAny(("ewkzbkghistwen_"+observable).c_str());
   vlbkg_wen->Add(vllbkg_wen);
   vlbkg_wen->Add(dbbkg_wen);
   vlbkg_wen->Add(ttbkg_wen);
   vlbkg_wen->Add(qbkg_wen);
+  vlbkg_wen->Add(gambkg_wen);
+  vlbkg_wen->Add(ewkwbkg_wen);
+  vlbkg_wen->Add(ewkzbkg_wen);
 
   // WMN  control region
   TH1* vlbkg_wmn   = (TH1*) inputFile->FindObjectAny(("vlbkghistwmn_"+observable).c_str());
@@ -214,10 +241,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* dbbkg_wmn   = (TH1*) inputFile->FindObjectAny(("dbkghistwmn_"+observable).c_str());
   TH1* ttbkg_wmn   = (TH1*) inputFile->FindObjectAny(("tbkghistwmn_"+observable).c_str());
   TH1* qbkg_wmn    = (TH1*) inputFile->FindObjectAny(("qbkghistwmn_"+observable).c_str());
+  TH1* gambkg_wmn  = (TH1*) inputFile->FindObjectAny(("gbkghistwmn_"+observable).c_str());
+  TH1* ewkwbkg_wmn = (TH1*) inputFile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str());
+  TH1* ewkzbkg_wmn = (TH1*) inputFile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str());
   vlbkg_wmn->Add(vllbkg_wmn);
   vlbkg_wmn->Add(dbbkg_wmn);
   vlbkg_wmn->Add(ttbkg_wmn);
   vlbkg_wmn->Add(qbkg_wmn);
+  vlbkg_wmn->Add(gambkg_wmn);
+  vlbkg_wmn->Add(ewkwbkg_wmn);
+  vlbkg_wmn->Add(ewkzbkg_wmn);
 
   // GAM  control region
   TH1* gbkg_gam   = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
@@ -239,6 +272,14 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  ZW_fa1 = (TH1*)inputFile->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
   TH1*  ZW_fa2 = (TH1*)inputFile->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
   TH1*  ZW_pdf = (TH1*)inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
+
+  TH1*  WG_ewk = (TH1*)inputFile->FindObjectAny(("WG_EWK_"+observable).c_str());
+  TH1*  WG_re1 = (TH1*)inputFile->FindObjectAny(("WG_RenScale1_"+observable).c_str());
+  TH1*  WG_re2 = (TH1*)inputFile->FindObjectAny(("WG_RenScale2_"+observable).c_str());
+  TH1*  WG_fa1 = (TH1*)inputFile->FindObjectAny(("WG_FactScale1_"+observable).c_str());
+  TH1*  WG_fa2 = (TH1*)inputFile->FindObjectAny(("WG_FactScale2_"+observable).c_str());
+  TH1*  WG_pdf = (TH1*)inputFile->FindObjectAny(("WG_PDF_"+observable).c_str());
+  TH1*  WG_fp  = (TH1*)inputFile->FindObjectAny(("WG_Footprint_"+observable).c_str());
 
   //Ratios Data
   TH1* ZGData_mm = (TH1*) data_zmm->Clone("ZGData_mm");
@@ -369,12 +410,62 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     ZWMC_ll->SetBinError(iBin+1,sqrt(err));
   }
-  // make plots
 
+  if(addWgamma){
+
+    for(int iBin = 0; iBin < WGMC_m->GetNbinsX(); iBin++){
+      double err = 0.;
+      err += WGMC_m->GetBinError(iBin+1)*WGMC_m->GetBinError(iBin+1);
+      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+      WGMC_m->SetBinError(iBin+1,0,sqrt(err));
+    }
+  
+    for(int iBin = 0; iBin < WGMC_e->GetNbinsX(); iBin++){
+      double err = 0.;
+      err += WGMC_e->GetBinError(iBin+1)*WGMC_e->GetBinError(iBin+1);
+      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+      WGMC_e->SetBinError(iBin+1,sqrt(err));
+    }
+
+    for(int iBin = 0; iBin < WGMC_l->GetNbinsX(); iBin++){
+      double err = 0.;
+      err += WGMC_l->GetBinError(iBin+1)*WGMC_l->GetBinError(iBin+1);
+      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+      WGMC_l->SetBinError(iBin+1,sqrt(err));
+    }
+  }
+
+  // make plots
+  
   makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm");  
   makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee");
   makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll");
   makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm");
   makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee");
   makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");  
+
+  if(addWgamma){
+    makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m");
+    makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e");
+    makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l");    
+  }
+
 }
