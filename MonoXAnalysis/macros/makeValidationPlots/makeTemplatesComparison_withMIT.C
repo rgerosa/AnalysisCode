@@ -43,6 +43,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   leg->SetFillStyle(0);
   leg->AddEntry(histo_1,label1.c_str(),"L");
   leg->AddEntry(histo_2,label2.c_str(),"PE");
+  leg->AddEntry((TObject*)0,Form("Ratio norm = %f",histo_1->Integral()/histo_2->Integral()));
   leg->Draw("same");
   
   return ;
@@ -70,15 +71,18 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.9,1.1);
+  frame->GetYaxis()->SetRangeUser(0.75,1.25);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
   TH1* histo_2_temp    = (TH1*) histo_2->Clone("histo_2_temp");
-  TH1* histo_2_temp_v2 = (TH1*) histo_2->Clone("histo_2_temp");
-  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++) histo_2_temp->SetBinError(iBin+1,0.);
+  TH1* histo_2_temp_v2 = (TH1*) histo_2->Clone("histo_2_temp_v2");
+  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++){    
+    histo_2_temp->SetBinError(iBin+1,0.);
+  }
   ratio->Divide(histo_2_temp);
-  
+
+
   
   histo_2_temp_v2->Divide(histo_2_temp);
   histo_2_temp_v2->SetLineWidth(3);
@@ -89,6 +93,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   histo_2_temp->Divide(histo_2);
   histo_2_temp->SetLineWidth(2);
   histo_2_temp->SetLineColor(kRed);
+  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++) histo_2_temp->SetBinContent(iBin+1,1.);
   histo_2_temp->Draw("hist same");
 
   ratio->SetLineColor(kBlack);
@@ -103,14 +108,13 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   return ;
 }
 
-void makeTemplateComparison( string templateFile_1, // template file 1
-			     string templateFile_2, // template file 2
-			     string controlRegion, // control region name
-			     Category category,  // category
-			     string observable, 
-			     bool   isHiggsInvisible,
-			     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle,
-			     float lumiWeight = 1){
+void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
+				     string templateFile_2, // template file 2
+				     string controlRegion, // control region name
+				     Category  category,  // category
+				     string observable, 
+				     bool   isHiggsInvisible,
+				     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -123,161 +127,123 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   TH1* data_1 = NULL;
   TH1* data_2 = NULL;
 
+  string dir;
+  if(category == Category::monojet)
+    dir = "category_monojet";
+  else if(category == Category::monoV)
+    dir = "category_monov";
+
+  string cat;
+  if(controlRegion == "zmm")
+    cat = "Zmm";
+  else if(controlRegion == "zee")
+    cat = "Zee";
+  else if(controlRegion == "wen")
+    cat = "Wen";
+  else if(controlRegion == "wmn")
+    cat = "Wmn";
+  else if(controlRegion == "gam")
+    cat = "gjets";
+  else if(controlRegion == "SR")
+    cat = "signal";
+
   if(controlRegion == "SR"){
     data_1 = (TH1*) template1->FindObjectAny(("datahist_"+observable).c_str());
-    data_2 = (TH1*) template2->FindObjectAny(("datahist_"+observable).c_str());
-    if(data_2)
-      data_2->Scale(lumiWeight);
+    data_2 = (TH1*) template2->Get((dir+"/"+cat+"_data").c_str());
   }
   else{
     data_1 = (TH1*) template1->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
-    data_2 = (TH1*) template2->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
-    if(data_2)
-      data_2->Scale(lumiWeight);
+    data_2 = (TH1*) template2->Get((dir+"/"+cat+"_data").c_str());
   }
 
   TH1* zinv_1 = NULL; 
   TH1* zinv_2 = NULL;
   if(controlRegion == "SR"){
     zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist_"+observable).c_str());
-    zinv_2 = (TH1*) template2->FindObjectAny(("zinvhist_"+observable).c_str());
-    if(zinv_2)
-      zinv_2->Scale(lumiWeight);
-  }
-  else{
-    zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist"+controlRegion+"_"+observable).c_str());
-    zinv_2 = (TH1*) template2->FindObjectAny(("zinvhist"+controlRegion+"_"+observable).c_str());
-    if(zinv_2)
-      zinv_2->Scale(lumiWeight);
+    zinv_2 = (TH1*) template2->Get((dir+"/"+cat+"_zjets").c_str());
   }
 
   TH1* wjet_1 = NULL;
   TH1* wjet_2 = NULL;
   if(controlRegion == "SR"){
     wjet_1 = (TH1*) template1->FindObjectAny(("wjethist_"+observable).c_str());
-    wjet_2 = (TH1*) template2->FindObjectAny(("wjethist_"+observable).c_str());
-    if(wjet_2)
-      wjet_2->Scale(lumiWeight);
+    wjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_wjets").c_str());
   }
   else{
     wjet_1 = (TH1*) template1->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
-    wjet_2 = (TH1*) template2->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
-    if(wjet_2)
-      wjet_2->Scale(lumiWeight);
+    wjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_wjets").c_str());
   }
 
   TH1* zjet_1 = NULL;
   TH1* zjet_2 = NULL;
   if(controlRegion == "SR"){
     zjet_1 = (TH1*) template1->FindObjectAny(("zjethist_"+observable).c_str());
-    zjet_2 = (TH1*) template2->FindObjectAny(("zjethist_"+observable).c_str());
-    if(zjet_2)
-      zjet_2->Scale(lumiWeight);
+    zjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_zll").c_str());
   }
   else{
     zjet_1 = (TH1*) template1->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
-    zjet_2 = (TH1*) template2->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
-    if(zjet_2)
-      zjet_2->Scale(lumiWeight);
+    zjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_zll").c_str());
   }
 
   TH1* diboson_1 = NULL;
   TH1* diboson_2 = NULL;
   if(controlRegion == "SR"){
     diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist_"+observable).c_str());
-    diboson_2 = (TH1*) template2->FindObjectAny(("dbkghist_"+observable).c_str());
-    if(diboson_2)
-      diboson_2->Scale(lumiWeight);
+    diboson_2 = (TH1*) template2->Get((dir+"/"+cat+"_diboson").c_str());
   }
   else{
     diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
-    diboson_2 = (TH1*) template2->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
-    if(diboson_2)
-      diboson_2->Scale(lumiWeight);
+    diboson_2 = (TH1*) template2->Get((dir+"/"+cat+"_diboson").c_str());
   }
 
   TH1* qcd_1 = NULL;
   TH1* qcd_2 = NULL;
   if(controlRegion == "SR"){
     qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist_"+observable).c_str());
-    qcd_2 = (TH1*) template2->FindObjectAny(("qbkghist_"+observable).c_str());
-    if(qcd_2)
-      qcd_2->Scale(lumiWeight);
+    qcd_2 = (TH1*) template2->Get((dir+"/"+cat+"_qcd").c_str());
   }
   else{
     qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist"+controlRegion+"_"+observable).c_str());
-    qcd_2 = (TH1*) template2->FindObjectAny(("qbkghist"+controlRegion+"_"+observable).c_str());
-    if(qcd_2)
-      qcd_2->Scale(lumiWeight);
+    qcd_2 = (TH1*) template2->Get((dir+"/"+cat+"_qcd").c_str());
   }
 
   TH1* gamma_1 = NULL;
   TH1* gamma_2 = NULL;
   if(controlRegion == "SR"){
     gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist_"+observable).c_str());
-    gamma_2 = (TH1*) template2->FindObjectAny(("gbkghist_"+observable).c_str());
-    if(gamma_2)
-      gamma_2->Scale(lumiWeight);
+    gamma_2 = (TH1*) template2->Get((dir+"/"+cat+"_gjets").c_str());
   }
   else{
     gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist"+controlRegion+"_"+observable).c_str());
-    gamma_2 = (TH1*) template2->FindObjectAny(("gbkghist"+controlRegion+"_"+observable).c_str());
-    if(gamma_2)
-      gamma_2->Scale(lumiWeight);
+    gamma_2 = (TH1*) template2->Get((dir+"/"+cat+"_gjets").c_str());
   }
 
   TH1* top_1 = NULL;
   TH1* top_2 = NULL;
   if(controlRegion == "SR"){
     top_1 = (TH1*) template1->FindObjectAny(("tbkghist_"+observable).c_str());
-    top_2 = (TH1*) template2->FindObjectAny(("tbkghist_"+observable).c_str());
-    if(top_2)
-      top_2->Scale(lumiWeight);
+    top_2 = (TH1*) template2->Get((dir+"/"+cat+"_top").c_str());
   }
   else{
     top_1 = (TH1*) template1->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
-    top_2 = (TH1*) template2->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
-    if(top_2)
-      top_2->Scale(lumiWeight);
+    top_2 = (TH1*) template2->Get((dir+"/"+cat+"_top").c_str());
   }
 
-  TH1* ggH_1 = NULL;
-  TH1* ggH_2 = NULL;
-  if(controlRegion == "SR" and isHiggsInvisible){
-    ggH_1 = (TH1*) template1->FindObjectAny(("ggHhist_125_"+observable).c_str());
-    ggH_2 = (TH1*) template2->FindObjectAny(("ggHhist_125_"+observable).c_str());
+  TH1* ewk_1 = NULL;
+  TH1* ewk_2 = NULL;
+  if(controlRegion == "SR"){
+    ewk_1 = (TH1*) template1->FindObjectAny(("ewkbkgzhist_"+observable).c_str());
+    TH1* temp =  (TH1*) template1->FindObjectAny(("ewkbkgwhist_"+observable).c_str());
+    if(temp)
+      ewk_1->Add(temp);
+    ewk_2 = (TH1*) template2->Get((dir+"/"+cat+"_ewk").c_str());
   }
-  else if(controlRegion == "SR" and not isHiggsInvisible){
-    ggH_1 = (TH1*) template1->FindObjectAny(("monoJhist_Vector_1000_100_"+observable).c_str());
-    ggH_2 = (TH1*) template2->FindObjectAny(("monoJhist_Vector_1000_100_"+observable).c_str());
-  }
-
-  TH1* qqH_1 = NULL;
-  TH1* qqH_2 = NULL;
-  if(controlRegion == "SR" and isHiggsInvisible){
-    qqH_1 = (TH1*) template1->FindObjectAny(("vbfhist_125_"+observable).c_str());
-    qqH_2 = (TH1*) template2->FindObjectAny(("vbfhist_125_"+observable).c_str());
-  }
-
-  TH1* wH_1 = NULL;
-  TH1* wH_2 = NULL;
-  if(controlRegion == "SR" and isHiggsInvisible){
-    wH_1 = (TH1*) template1->FindObjectAny(("wHhist_125_"+observable).c_str());
-    wH_2 = (TH1*) template2->FindObjectAny(("wHhist_125_"+observable).c_str());
-  }
-  else if(controlRegion == "SR" and not isHiggsInvisible){
-    wH_1 = (TH1*) template1->FindObjectAny(("monoWhist_Vector_1000_100_"+observable).c_str());
-    wH_2 = (TH1*) template2->FindObjectAny(("monoWhist_Vector_1000_100_"+observable).c_str());
-  }
-  TH1* zH_1 = NULL;
-  TH1* zH_2 = NULL;
-  if(controlRegion == "SR" and isHiggsInvisible){
-    zH_1 = (TH1*) template1->FindObjectAny(("zHhist_125_"+observable).c_str());
-    zH_2 = (TH1*) template2->FindObjectAny(("zHhist_125_"+observable).c_str());
-  }
-  else if(controlRegion == "SR" and not isHiggsInvisible){
-    zH_1 = (TH1*) template1->FindObjectAny(("monoZhist_Vector_1000_100_"+observable).c_str());
-    zH_2 = (TH1*) template2->FindObjectAny(("monoZhist_Vector_1000_100_"+observable).c_str());
+  else{
+    ewk_1 = (TH1*) template1->FindObjectAny(("ewkzbkghist"+controlRegion+"_"+observable).c_str());
+    TH1* temp = (TH1*) template1->FindObjectAny(("ewkwbkghist"+controlRegion+"_"+observable).c_str());
+    if(temp)
+      ewk_1->Add(temp);
+    ewk_2 = (TH1*) template2->Get((dir+"/"+cat+"_ewk").c_str());
   }
 
   // start comparison
@@ -289,7 +255,7 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   canvas->SetRightMargin(0.06);
   canvas->SetLogy();
 
-  if(data_1 != NULL and data_2 != NULL){
+  if(data_1 != NULL and data_2 != NULL and data_1 != 0 and data_2 != 0){
     drawUpperPlot(canvas,data_1,data_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label);
     drawDownPlot(data_1,data_2,xAxisTitle);
     canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
@@ -346,31 +312,10 @@ void makeTemplateComparison( string templateFile_1, // template file 1
     canvas->SaveAs(("Top_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
-  if(ggH_1 != NULL and ggH_2 != NULL){
-    drawUpperPlot(canvas,ggH_1,ggH_2,"ggH "+ templateFile_1_Label,"ggH "+ templateFile_2_Label);
-    drawDownPlot(ggH_1,ggH_2,xAxisTitle);
-    canvas->SaveAs(("ggH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("ggH_"+controlRegion+"_"+observable+".png").c_str(),"png");
-  }
-
-  if(qqH_1 != NULL and qqH_2 != NULL){
-    drawUpperPlot(canvas,qqH_1,qqH_2,"qqH "+ templateFile_1_Label,"qqH "+ templateFile_2_Label);
-    drawDownPlot(qqH_1,qqH_2,xAxisTitle);
-    canvas->SaveAs(("qqH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("qqH_"+controlRegion+"_"+observable+".png").c_str(),"png");
-  }
-
-  if(wH_1 != NULL and wH_2 != NULL){
-    drawUpperPlot(canvas,wH_1,wH_2,"wH "+ templateFile_1_Label,"wH "+ templateFile_2_Label);
-    drawDownPlot(wH_1,wH_2,xAxisTitle);
-    canvas->SaveAs(("wH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("wH_"+controlRegion+"_"+observable+".png").c_str(),"png");
-  }
-
-  if(zH_1 != NULL and zH_2 != NULL){
-    drawUpperPlot(canvas,zH_1,zH_2,"zH "+ templateFile_1_Label,"zH "+ templateFile_2_Label);
-    drawDownPlot(zH_1,zH_2,xAxisTitle);
-    canvas->SaveAs(("zH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("zH_"+controlRegion+"_"+observable+".png").c_str(),"png");
+  if(ewk_1 != NULL and ewk_2 != NULL){
+    drawUpperPlot(canvas,ewk_1,ewk_2,"W/Z ewk "+ templateFile_1_Label,"W/Z ewk "+ templateFile_2_Label);
+    drawDownPlot(ewk_1,ewk_2,xAxisTitle);
+    canvas->SaveAs(("EWK_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("EWK_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 }

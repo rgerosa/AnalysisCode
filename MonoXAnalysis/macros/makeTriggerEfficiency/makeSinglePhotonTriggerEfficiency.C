@@ -42,8 +42,8 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && run <= %d",runCut));    
   }
   else{
-    tree->Draw("phpt>>hnum",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
-    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400) && run <= %d",runCut));
+    tree->Draw("phpt>>hnum",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
+    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && run <= %d",runCut));
 
     tree->Draw("phpt>>hnum_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && (hltphoton175 || hltphoton165 || hltEcalHT800) && run <= %d",runCut));
     tree->Draw("phpt>>hden_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && run <= %d",runCut));

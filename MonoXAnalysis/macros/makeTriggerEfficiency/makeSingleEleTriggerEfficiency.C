@@ -19,7 +19,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 20, 1200, 5);
   fitfunc->SetParameters(30., 5., 5., 4., 1.);
 
-  vector<float> binsPt  = {20,30,40,50,75,100,125,150,200,250,300,400,500,600,1000};
+  vector<float> binsPt  = {20,30,40,50,75,100,125,150,200,250,300,400,500,600,700,800,900,1000};
   vector<float> binsEta = {0,1.5,2.5};  
   fitfunc->SetRange(binsPt.front(),binsPt.back());
   
@@ -34,7 +34,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
 
   // define numerator as event with a medium photon + trigger requirement
   //  tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel) && t1pfmet > 50"));
-  tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel || hltelnoiso || hltEcalHT800) && t1pfmet > 50"));
+  tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel || hltelnoiso) && t1pfmet > 50"));
   tree->Draw("el1pt:abs(el1eta) >> hden",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && t1pfmet > 50"));
   
   TEfficiency* efficiency = new TEfficiency(*hnum,*hden);

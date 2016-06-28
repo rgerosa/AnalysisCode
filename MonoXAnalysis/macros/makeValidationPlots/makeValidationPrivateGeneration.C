@@ -1,8 +1,12 @@
 #include "../CMS_lumi.h"
 
-void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2){
+void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, bool scaletolumi = false){
  
-  TH1* frame = pad1->DrawFrame(histo_1->GetXaxis()->GetBinLowEdge(1),0.0001,histo_1->GetXaxis()->GetBinLowEdge(histo_1->GetNbinsX()+1),1.,"");
+  TH1* frame = NULL;
+  if(scaletolumi)    
+    frame = pad1->DrawFrame(histo_1->GetXaxis()->GetBinLowEdge(1),0.1,histo_1->GetXaxis()->GetBinLowEdge(histo_1->GetNbinsX()+1),max(histo_1->GetMaximum(),histo_2->GetMaximum())*100,"");
+  else
+    frame = pad1->DrawFrame(histo_1->GetXaxis()->GetBinLowEdge(1),0.0001,histo_1->GetXaxis()->GetBinLowEdge(histo_1->GetNbinsX()+1),1.,"");
 
   frame->GetYaxis()->CenterTitle();
   frame->GetXaxis()->SetLabelSize(0.);
@@ -11,7 +15,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2){
   frame->GetYaxis()->SetTitleSize(0.050);
   frame->GetYaxis()->SetTitle("arbitrary unit");
   frame ->Draw();
-  CMS_lumi(pad1,"2.30",true);
+  CMS_lumi(pad1,"2.60",true);
   
   histo_1->SetLineColor(kBlack);
   histo_1->SetLineWidth(2);
@@ -28,8 +32,11 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2){
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
-  leg->AddEntry(histo_1,"Private  Production m_{DM} = 100 GeV","L");
-  leg->AddEntry(histo_2,"Official Production m_{DM} = 100 GeV","L");
+  //  leg->AddEntry(histo_1,"Private  Production m_{DM} = 100 GeV","L");
+  //  leg->AddEntry(histo_2,"Official Production m_{DM} = 100 GeV","L");
+  leg->AddEntry(histo_1,"76X ZJets MC","L");
+  leg->AddEntry(histo_2,"80X ZJets MC","P");
+  leg->AddEntry((TObject*)0,Form("Ratio norm = %f",histo_1->Integral()/histo_2->Integral()));
   leg->Draw("same");
 
   return ;
@@ -68,7 +75,7 @@ void drawDownPlot(TPad* pad2, TH1* histo_1, TH1* histo_2,string xAxisTitle){
 
 }
 
-void makeValidationPrivateGeneration(string outputDirectory){
+void makeValidationPrivateGeneration(string outputDirectory, bool scaletolumi = false, float lumi = 1){
 
 
   gROOT->SetBatch(kTRUE);
@@ -76,8 +83,8 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   system(("mkdir "+outputDirectory).c_str());
 
-  TFile* inputFile_1 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoW_Scalar/tree_DM_ScalarWH_Mphi-100_Mchi-50_gSM-1p0_gDM-1p0_13TeV-JHUGen.root");
-  TFile* inputFile_2 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS/Production-19-2-2016/MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-100_Mchi-50_gSM-1p0_gDM-1p0_13TeV-JHUGen.root");
+  TFile* inputFile_1 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/ZJets/sigfilter/sig_ZJetsToNuNu_HT-600To800_13TeV-madgraph.root");
+  TFile* inputFile_2 = TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/ZJets_80X/sigfilter/sig_ZJetsToNuNu_HT-600To800_13TeV-madgraph.root");
 
   TTree* tree_1 = (TTree*) inputFile_1->Get("tree/tree");
   TTree* tree_2 = (TTree*) inputFile_2->Get("tree/tree");
@@ -112,48 +119,55 @@ void makeValidationPrivateGeneration(string outputDirectory){
   tau2tau1_1->Sumw2();
   tau2tau1_2->Sumw2();
 
-  string cutString = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && (hltmet90 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0) && njets >= 1 && nbjetslowpt < 1 && t1pfmet > 200";
+  string cutString = "nmuons == 0 && nelectrons == 0 && ntausraw == 0 && nphotons == 0 && njets >= 1 && nbjetslowpt < 1 && t1pfmet > 200 && combinejetpt[0] > 100 && abs(combinejeteta[0]) < 2.5 && combinejetCHfrac[0] > 0.1 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5";
 
-  string cutString_2 = "nmuons == 0 && nelectrons == 0 && ntaus == 0 && nphotons == 0 && (hltmet90 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0) && njets >= 1 && t1pfmet > 200 && boostedJetpt[0] > 200";
+  string cutString_2 = "nmuons == 0 && nelectrons == 0 && ntausraw == 0 && nphotons == 0 && nbjetslowpt < 1 && njets >= 1 && t1pfmet > 200 && boostedJetpt[0] > 200 && combinejetNHfrac[0] < 0.8 && incjetmumetdphimin4 > 0.5 && abs(combinejeteta[0]) < 2.5 combinejetpt[0] > 100 && combinejetCHfrac[0] > 0.1 && abs(boostedJeteta[0]) < 2.4";
 
-  tree_1->Draw("combinejetpt[0] >> jetPt_1",cutString.c_str(),"goff");
-  tree_2->Draw("combinejetpt[0] >> jetPt_2",cutString.c_str(),"goff");
+  string lumiString   = "";
+  if(scaletolumi)
+    lumiString = Form("xsec*%f*wgt/wgtsum",lumi);
+  else
+    lumiString = "1";
 
-  tree_1->Draw("t1pfmet >> met_1",cutString.c_str(),"goff");
-  tree_2->Draw("t1pfmet >> met_2",cutString.c_str(),"goff");
+  tree_1->Draw("combinejetpt[0] >> jetPt_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("combinejetpt[0] >> jetPt_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
 
-  tree_1->Draw("nvtx >> nvtx_1",cutString.c_str(),"goff");
-  tree_2->Draw("nvtx >> nvtx_2",cutString.c_str(),"goff");
+  tree_1->Draw("t1pfmet >> met_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("t1pfmet >> met_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
 
-  tree_1->Draw("njets >> njets_1",cutString.c_str(),"goff");
-  tree_2->Draw("njets >> njets_2",cutString.c_str(),"goff");
+  tree_1->Draw("nvtx >> nvtx_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("nvtx >> nvtx_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
 
-  tree_1->Draw("prunedJetm[0] >> mpruned_1",cutString_2.c_str(),"goff");
-  tree_2->Draw("prunedJetm[0] >> mpruned_2",cutString_2.c_str(),"goff");
+  tree_1->Draw("njets >> njets_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("njets >> njets_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
 
-  tree_1->Draw("boostedJettau2[0]/boostedJettau1[0] >> tau2tau1_1",cutString_2.c_str(),"goff");
-  tree_2->Draw("boostedJettau2[0]/boostedJettau1[0] >> tau2tau1_2",cutString_2.c_str(),"goff");
+  tree_1->Draw("prunedJetm[0] >> mpruned_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("prunedJetm[0] >> mpruned_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+
+  tree_1->Draw("boostedJettau2[0]/boostedJettau1[0] >> tau2tau1_1",("("+lumiString+")*("+cutString+")").c_str(),"goff");
+  tree_2->Draw("boostedJettau2[0]/boostedJettau1[0] >> tau2tau1_2",("("+lumiString+")*("+cutString+")").c_str(),"goff");
 
 
   // normalize histo to compare shapes
-  jetPt_1->Scale(1./jetPt_1->Integral());
-  jetPt_2->Scale(1./jetPt_2->Integral());
+  if(not scaletolumi){
+    jetPt_1->Scale(1./jetPt_1->Integral());
+    jetPt_2->Scale(1./jetPt_2->Integral());
+    
+    met_1->Scale(1./met_1->Integral());
+    met_2->Scale(1./met_2->Integral());
+    
+    nvtx_1->Scale(1./nvtx_1->Integral());
+    nvtx_2->Scale(1./nvtx_2->Integral());
+    
+    njets_1->Scale(1./njets_1->Integral());
+    njets_2->Scale(1./njets_2->Integral());
+    
+    mpruned_1->Scale(1./mpruned_1->Integral());
+    mpruned_2->Scale(1./mpruned_2->Integral());
 
-  met_1->Scale(1./met_1->Integral());
-  met_2->Scale(1./met_2->Integral());
-  
-  nvtx_1->Scale(1./nvtx_1->Integral());
-  nvtx_2->Scale(1./nvtx_2->Integral());
-
-  njets_1->Scale(1./njets_1->Integral());
-  njets_2->Scale(1./njets_2->Integral());
-
-  mpruned_1->Scale(1./mpruned_1->Integral());
-  mpruned_2->Scale(1./mpruned_2->Integral());
-
-  tau2tau1_1->Scale(1./tau2tau1_1->Integral());  
-  tau2tau1_2->Scale(1./tau2tau1_2->Integral());  
-
+    tau2tau1_1->Scale(1./tau2tau1_1->Integral());  
+    tau2tau1_2->Scale(1./tau2tau1_2->Integral());  
+  }
   
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx();
@@ -174,7 +188,7 @@ void makeValidationPrivateGeneration(string outputDirectory){
   pad1->SetBottomMargin(0.0);
   pad1->Draw();
   pad1->cd();
-  drawUpperPlot(pad1,jetPt_1,jetPt_2);
+  drawUpperPlot(pad1,jetPt_1,jetPt_2,scaletolumi);
   pad1->SetLogy();
   canvas->cd();
   pad2->SetTopMargin(0.04);
@@ -190,7 +204,7 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   canvas->cd();
   pad1->cd();
-  drawUpperPlot(pad1,met_1,met_2);
+  drawUpperPlot(pad1,met_1,met_2,scaletolumi);
   canvas->cd();
   pad2->cd();
   drawDownPlot(pad2,met_1,met_2,"E_{T}^{miss} (GeV)");
@@ -200,8 +214,7 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   canvas->cd();
   pad1->cd();
-  drawUpperPlot(pad1,nvtx_1,nvtx_2);
-  pad1->SetLogy(0);
+  drawUpperPlot(pad1,nvtx_1,nvtx_2,scaletolumi);
   canvas->cd();
   pad2->cd();
   drawDownPlot(pad2,nvtx_1,nvtx_2,"N_{PV}");
@@ -211,8 +224,7 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   canvas->cd();
   pad1->cd();
-  drawUpperPlot(pad1,njets_1,njets_2);
-  pad1->SetLogy(0);
+  drawUpperPlot(pad1,njets_1,njets_2,scaletolumi);
   canvas->cd();
   pad2->cd();
   drawDownPlot(pad2,njets_1,njets_2,"N_{jets}");
@@ -223,7 +235,7 @@ void makeValidationPrivateGeneration(string outputDirectory){
   canvas->cd();
   pad1->cd();
   pad1->SetLogy();
-  drawUpperPlot(pad1,mpruned_1,mpruned_2);
+  drawUpperPlot(pad1,mpruned_1,mpruned_2,scaletolumi);
   canvas->cd();
   pad2->cd();
   drawDownPlot(pad2,mpruned_1,mpruned_2,"m_{pruned} [GeV]");
@@ -233,10 +245,10 @@ void makeValidationPrivateGeneration(string outputDirectory){
 
   canvas->cd();
   pad1->cd();
-  drawUpperPlot(pad1,tau2tau1_1,tau2tau1_2);
+  drawUpperPlot(pad1,tau2tau1_1,tau2tau1_2,scaletolumi);
   canvas->cd();
   pad2->cd();
-  drawDownPlot(pad2,mpruned_1,mpruned_2,"#tau_{2}/#tau_{1}");
+  drawDownPlot(pad2,tau2tau1_1,tau2tau1_2,"#tau_{2}/#tau_{1}");
 
   canvas->SaveAs((outputDirectory+"/tau2tau1.pdf").c_str(),"pdf");
   canvas->SaveAs((outputDirectory+"/tau2tau1.png").c_str(),"png");
