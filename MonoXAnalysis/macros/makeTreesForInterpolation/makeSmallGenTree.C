@@ -10,52 +10,67 @@
 #include "TH1F.h"
 #include "TLorentzVector.h"
 
-void makeSmallGenTree(string interaction, string signalType, string outputDirectory){
+void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory){
 
   system(("mkdir -p "+outputDirectory).c_str());
 
   TChain* chain = new TChain("tree/tree");
-  
+
+  string baseDir = "";
   if(interaction == "Vector" and signalType == "MonoJ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/DMV_Vector/*root");
+    baseDir = inputDirectory+"DMV_Vector/";
   else if(interaction == "Axial" and signalType == "MonoJ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/DMV_Axial/*root");
+    baseDir = inputDirectory+"DMV_Axial/";
   else if(interaction == "Scalar" and signalType == "MonoJ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/DMS_Scalar/*root");
+    baseDir = inputDirectory+"DMS_Scalar/";
   else if(interaction == "Pseudoscalar" and signalType == "MonoJ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/DMS_Pseudoscalar/*root");
-
-  if(interaction == "Vector" and signalType == "MonoW")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoW_Vector/*root");
+    baseDir = inputDirectory+"DMS_Pseudoscalar/";
+  else if(interaction == "Vector" and signalType == "MonoW")
+    baseDir = inputDirectory+"MonoW_Vector/";
   else if(interaction == "Axial" and signalType == "MonoW")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoW_Axial/*root");
+    baseDir = inputDirectory+"MonoW_Axial/";
   else if(interaction == "Scalar" and signalType == "MonoW")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoW_Scalar/*root");
+    baseDir = inputDirectory+"MonoW_Scalar/";
   else if(interaction == "Pseudoscalar" and signalType == "MonoW")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoW_Pseudoscalar/*root");
-
-  if(interaction == "Vector" and signalType == "MonoZ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoZ_Vector/*root");
+    baseDir = inputDirectory+"MonoW_Pseudoscalar/";
+  else if(interaction == "Vector" and signalType == "MonoW")
+    baseDir = inputDirectory+"MonoZ_Vector/";
   else if(interaction == "Axial" and signalType == "MonoZ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoZ_Axial/*root");
+    baseDir = inputDirectory+"MonoZ_Axial/";
   else if(interaction == "Scalar" and signalType == "MonoZ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoZ_Scalar/*root");
+    baseDir = inputDirectory+"MonoZ_Scalar/";
   else if(interaction == "Pseudoscalar" and signalType == "MonoZ")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/MonoZ_Pseudoscalar/*root");
-
-  if(interaction == "HiggsInv" and signalType == "ggH")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/ggH_HiggsInvisible/*root");
+    baseDir = inputDirectory+"MonoZ_Pseudoscalar/";  
+  else if(interaction == "HiggsInv" and signalType == "ggH")
+    baseDir = inputDirectory+"ggH/";  
   else if(interaction == "HiggsInv" and signalType == "VBF")
-    chain->Add("/home/rgerosa/MONOJET_ANALYSIS/InterpolationFiles/VBF_HiggsInvisible/*root");
+    baseDir = inputDirectory+"qqH/";  
+
+  cout<<"Read all the files from baseDir "<<baseDir<<endl;
+
+  // find all the files inside the base dir
+  system(("find "+baseDir+" -name \"*root\" > file.temp").c_str());
+  ifstream infile;
+  string line;
+  infile.open("file.temp");
+  if(infile.is_open()){
+    while(!infile.eof()){
+      getline(infile,line);
+      if(line == "" or not TString(line).Contains(".root")) continue;
+      chain->Add(line.c_str());
+      cout<<"Add following file into the chain "<<line<<endl;
+    }
+  }
+  infile.close();
+  system("rm file.temp");
 
   // load all the re-weight files
-  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
 
   // trigger efficiency for met trigger                                                                                                                                       
-  TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF/mettrigSF.root");
-  TH1*   trmhist = (TH1*) trmfile->Get("mettrigSF");
-
+  TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
+  TF1*  triggermet    = (TF1*) trmfile->Get("efficiency_func");
 
   TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -146,17 +161,16 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
   TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
   TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
-  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbheloose");
+  TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
   TTreeReaderValue<unsigned int> nphotons  (myReader,"nphotons");
   TTreeReaderValue<unsigned int> nelectrons  (myReader,"nelectrons");
-  TTreeReaderValue<unsigned int> ntaus  (myReader,"ntaus");
+  TTreeReaderValue<unsigned int> ntaus  (myReader,"ntausraw");
   TTreeReaderValue<unsigned int> nmuons  (myReader,"nmuons");
   TTreeReaderValue<unsigned int> nbjets (myReader,"nbjetslowpt");
-  TTreeReaderValue<double> j1pt         (myReader,"leadingjetpt");
   TTreeReaderValue<vector<double> > jetpt   (myReader,"combinejetpt");
   TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
   TTreeReaderValue<vector<double> > jetphi  (myReader,"combinejetphi");
@@ -215,28 +229,49 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
   string dmMass;
   string medMass;
   vector<string> seglist;
-
+  
   while(myReader.Next()){
-
+    
     TString name_tmp(myReader.GetTree()->GetCurrentFile()->GetName());
-    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-    name_tmp.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
-
+    name_tmp.ReplaceAll(baseDir.c_str(),"");
     if(fileName != name_tmp){
       seglist.clear();
       fileName = name_tmp;
       stringstream name(fileName.Data());
       string segment;
     
-      while(getline(name, segment, '-')){
+      while(getline(name, segment, '/')){
 	seglist.push_back(segment);
       }
-
-      dmMass = seglist.back();
-      TString tmp (seglist.at(seglist.size()-2).c_str());
-      tmp.ReplaceAll("_Mchi","");
-      medMass = tmp;
+      
+      TString name_tmp_2 (seglist.at(0).c_str());
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen","");
+      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-madgraph","");
+      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-JHUGen","");
+      name_tmp_2.ReplaceAll("_13TeV_powheg_pythia8","");
+      vector<string> seglist_2;
+      string segment_2;
+      stringstream name_2(name_tmp_2.Data());
+      if(interaction != "HiggsInv"){
+	while(getline(name_2, segment_2, '-')){
+	  seglist_2.push_back(segment_2);
+	}
+	dmMass = seglist_2.back();
+	TString tmp (seglist_2.at(seglist_2.size()-2).c_str());
+	tmp.ReplaceAll("_Mchi","");
+	medMass = tmp;
+      }
+      else{
+	while(getline(name_2, segment_2, '_')){
+          seglist_2.push_back(string(TString(segment_2).ReplaceAll("M","").Data()));
+        }
+        medMass = seglist_2.back();
+        dmMass  = "1";
+      }
     }
     
     // Set Branches
@@ -292,20 +327,19 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     weight = 1.;
     genWeight = 1.;
 
+    // basic monojet
     if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
-    if (*fhbhe  == 0 or *fhbiso == 0) id = 0;
-    if (*fcsc   == 0 or not *feeb) id = 0;
+    if (*fhbhe  == 0 or *fhbiso == 0 or *feeb == 0 or *fcsc  == 0) id = 0;
     if (*njets  < 1) id = 0;
-    if (*nbjets > 0) id = 0;
-    if (chfrac->size() == 0 or nhfrac->size() == 0 or jetpt->size() == 0) id = 0;                                                                
+    if (*nbjets > 0) id = 0;    
+    if (chfrac->size() == 0 or nhfrac->size() == 0 or jetpt->size() == 0 or jeteta->size() == 0) id = 0;                                                                
     if (chfrac->size() > 0 and chfrac->at(0) < 0.1)   id = 0;
     if (nhfrac->size() > 0 and nhfrac->at(0) > 0.8)   id = 0;
-    if (jetpt->size()  > 0 and fabs(jeteta->at(0)) > 2.5) id = 0;
+    if (jeteta->size() > 0 and fabs(jeteta->at(0)) > 2.5) id = 0;
     if (jetpt->size()  > 0 and jetpt->at(0)  < 100.)  id = 0;
-    if (jetpt->size()  > 0 and jetpt->at(0)  < *j1pt) id = 0;
-    if (*jmmdphi < 0.5) id = 0;
-    if (*mmet < 200)    id = 0;    
-    if (*nmuons > 0)    id = 0;
+    if (*jmmdphi < 0.5)  id = 0;
+    if (*mmet < 200)     id = 0;    
+    if (*nmuons > 0)     id = 0;
     if (*nelectrons > 0) id = 0;
     if (*ntaus > 0)      id = 0;
     if (*nphotons > 0)   id = 0;
@@ -383,29 +417,24 @@ void makeSmallGenTree(string interaction, string signalType, string outputDirect
     genMediatorRealMass = *mediatorMass;
     genMediatorMass = stod(medMass);
     
-    if(*nvtx<= 35)
-      weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet))*puhist->GetBinContent(*nvtx);
-    else
-      weight *= trmhist->GetBinContent(trmhist->FindBin(*mmet));
+    if(*nvtx<= 40)
+      weight *= triggermet->Eval(min(*mmet,triggermet->GetXmax()))*puhist->GetBinContent(puhist->FindBin(min(double(*nvtx),puhist->GetBinLowEdge(puhist->GetNbinsX()+1)-1)));
 
-
-    pfMetPt = *mmet;
-    pfMetPhi = *mmetphi;
-
+    pfMetPt   = *mmet;
+    pfMetPhi  = *mmetphi;
     genMetPt  = *genmet;
     genMetPhi = *genmetphi;
 
     if(boostedJetpt->size() > 0){
-      recoAK8JetPt = boostedJetpt->at(0);
+      recoAK8JetPt         = boostedJetpt->at(0);
       recoAK8JetPrunedMass = prunedJetm->at(0);
-      recoAK8JetTau2Tau1 = boostedJettau2->at(0)/boostedJettau1->at(0);
+      recoAK8JetTau2Tau1   = boostedJettau2->at(0)/boostedJettau1->at(0);
     }
 
     genWeight = *wgt;
-
-    outputTree->Fill();
+    outputTree->Fill();       
   }
-
+  
   outputFile->cd();
   outputTree->Write();
   outputFile->Close();

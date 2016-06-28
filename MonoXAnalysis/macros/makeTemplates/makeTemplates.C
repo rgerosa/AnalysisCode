@@ -447,49 +447,49 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
     TH1* wgamuncewkhist = (TH1*) wgamcorewkhist.back()->Clone(("wgamuncewk"+ext+"hist_"+obs).c_str());    
     wgamuncewkhist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncewkhist->GetNbinsX(); i++) 
-      wgamuncewkhist->SetBinContent(i, fabs(wgamuncewkhist->GetBinContent(i)-1.0));
+      wgamuncewkhist->SetBinContent(i, 0.5*fabs(wgamuncewkhist->GetBinContent(i)-1.0));
     wgamuncewkhist->SetName(("WG_EWK_"+obs).c_str());
 
     ///
     TH1* wgamuncre1hist = (TH1*) wgamcorre1hist.back()->Clone(("wgamuncre1"+ext+"hist_"+obs).c_str());    
     wgamuncre1hist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncre1hist->GetNbinsX(); i++) 
-      wgamuncre1hist->SetBinContent(i, fabs(wgamuncre1hist->GetBinContent(i)-1.0));
+      wgamuncre1hist->SetBinContent(i, 0.5*fabs(wgamuncre1hist->GetBinContent(i)-1.0));
     wgamuncre1hist->SetName(("WG_RenScale1_"+obs).c_str());
 
     ////
     TH1* wgamuncfa1hist = (TH1*) wgamcorfa1hist.back()->Clone(("wgamuncfa1"+ext+"hist_"+obs).c_str());    
     wgamuncfa1hist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncfa1hist->GetNbinsX(); i++) 
-      wgamuncfa1hist->SetBinContent(i, fabs(wgamuncfa1hist->GetBinContent(i)-1.0));
+      wgamuncfa1hist->SetBinContent(i, 0.5*fabs(wgamuncfa1hist->GetBinContent(i)-1.0));
     wgamuncfa1hist->SetName(("WG_FactScale1_"+obs).c_str());
     
     ////
     TH1* wgamuncre2hist = (TH1*) wgamcorre2hist.back()->Clone(("wgamuncre2"+ext+"hist_"+obs).c_str());    
     wgamuncre2hist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncre2hist->GetNbinsX(); i++) 
-      wgamuncre2hist->SetBinContent(i, fabs(wgamuncre2hist->GetBinContent(i)-1.0));
+      wgamuncre2hist->SetBinContent(i, 0.5*fabs(wgamuncre2hist->GetBinContent(i)-1.0));
     wgamuncre2hist->SetName(("WG_RenScale2_"+obs).c_str());
 
     ///
     TH1* wgamuncfa2hist = (TH1*) wgamcorfa2hist.back()->Clone(("wgamuncfa2"+ext+"hist_"+obs).c_str());    
     wgamuncfa2hist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncfa2hist->GetNbinsX(); i++) 
-      wgamuncfa2hist->SetBinContent(i, fabs(wgamuncfa2hist->GetBinContent(i)-1.0));
+      wgamuncfa2hist->SetBinContent(i, 0.5*fabs(wgamuncfa2hist->GetBinContent(i)-1.0));
     wgamuncfa2hist->SetName(("WG_FactScale2_"+obs).c_str());
 
     ///
     TH1* wgamuncpdfhist = (TH1*) wgamcorpdfhist.back()->Clone(("wgamuncpdf"+ext+"hist_"+obs).c_str());    
     wgamuncpdfhist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncpdfhist->GetNbinsX(); i++) 
-      wgamuncpdfhist->SetBinContent(i, fabs(wgamuncpdfhist->GetBinContent(i)-1.0));
+      wgamuncpdfhist->SetBinContent(i, 0.5*fabs(wgamuncpdfhist->GetBinContent(i)-1.0));
     wgamuncpdfhist->SetName(("WG_PDF_"+obs).c_str());
 
     ///    
     TH1* wgamuncfpchist = (TH1*) wgamcorfpchist.back()->Clone(("wgamuncfpc"+ext+"hist_"+obs).c_str());    
     wgamuncfpchist->Divide(wgamcorqcdhist.back());
     for (int i = 1; i <= wgamuncfpchist->GetNbinsX(); i++) 
-      wgamuncfpchist->SetBinContent(i, fabs(wgamuncfpchist->GetBinContent(i)-1.0));
+      wgamuncfpchist->SetBinContent(i, 0.5*fabs(wgamuncfpchist->GetBinContent(i)-1.0));
     wgamuncfpchist->SetName(("WG_Footprint_"+obs).c_str());
     
     // make b-tagging top
@@ -1216,7 +1216,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   if(not runOnlySignal){
 
     cout<<"start signal region data"<<endl;
-    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,true,false,runHiggsInvisible,true,applyPostFitWeights);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,false,false,runHiggsInvisible,false,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
     gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible);

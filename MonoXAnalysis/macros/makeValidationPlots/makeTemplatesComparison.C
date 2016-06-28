@@ -1,4 +1,5 @@
 #include "../CMS_lumi.h"
+#include "../makeTemplates/histoUtils.h"
 
 void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string label2){
 
@@ -69,7 +70,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.5,1.5);
+  frame->GetYaxis()->SetRangeUser(0.9,1.1);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
@@ -105,10 +106,11 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
 void makeTemplateComparison( string templateFile_1, // template file 1
 			     string templateFile_2, // template file 2
 			     string controlRegion, // control region name
-			     int category,  // category
+			     Category category,  // category
 			     string observable, 
-			     bool isHiggsInvisible,
-			     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle){
+			     bool   isHiggsInvisible,
+			     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle,
+			     float lumiWeight = 1){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -124,10 +126,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     data_1 = (TH1*) template1->FindObjectAny(("datahist_"+observable).c_str());
     data_2 = (TH1*) template2->FindObjectAny(("datahist_"+observable).c_str());
+    if(data_2)
+      data_2->Scale(lumiWeight);
   }
   else{
     data_1 = (TH1*) template1->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
     data_2 = (TH1*) template2->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
+    if(data_2)
+      data_2->Scale(lumiWeight);
   }
 
   TH1* zinv_1 = NULL; 
@@ -135,10 +141,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist_"+observable).c_str());
     zinv_2 = (TH1*) template2->FindObjectAny(("zinvhist_"+observable).c_str());
+    if(zinv_2)
+      zinv_2->Scale(lumiWeight);
   }
   else{
     zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist"+controlRegion+"_"+observable).c_str());
     zinv_2 = (TH1*) template2->FindObjectAny(("zinvhist"+controlRegion+"_"+observable).c_str());
+    if(zinv_2)
+      zinv_2->Scale(lumiWeight);
   }
 
   TH1* wjet_1 = NULL;
@@ -146,10 +156,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     wjet_1 = (TH1*) template1->FindObjectAny(("wjethist_"+observable).c_str());
     wjet_2 = (TH1*) template2->FindObjectAny(("wjethist_"+observable).c_str());
+    if(wjet_2)
+      wjet_2->Scale(lumiWeight);
   }
   else{
     wjet_1 = (TH1*) template1->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
     wjet_2 = (TH1*) template2->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
+    if(wjet_2)
+      wjet_2->Scale(lumiWeight);
   }
 
   TH1* zjet_1 = NULL;
@@ -157,10 +171,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     zjet_1 = (TH1*) template1->FindObjectAny(("zjethist_"+observable).c_str());
     zjet_2 = (TH1*) template2->FindObjectAny(("zjethist_"+observable).c_str());
+    if(zjet_2)
+      zjet_2->Scale(lumiWeight);
   }
   else{
     zjet_1 = (TH1*) template1->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
     zjet_2 = (TH1*) template2->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
+    if(zjet_2)
+      zjet_2->Scale(lumiWeight);
   }
 
   TH1* diboson_1 = NULL;
@@ -168,10 +186,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist_"+observable).c_str());
     diboson_2 = (TH1*) template2->FindObjectAny(("dbkghist_"+observable).c_str());
+    if(diboson_2)
+      diboson_2->Scale(lumiWeight);
   }
   else{
     diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
     diboson_2 = (TH1*) template2->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
+    if(diboson_2)
+      diboson_2->Scale(lumiWeight);
   }
 
   TH1* qcd_1 = NULL;
@@ -179,10 +201,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist_"+observable).c_str());
     qcd_2 = (TH1*) template2->FindObjectAny(("qbkghist_"+observable).c_str());
+    if(qcd_2)
+      qcd_2->Scale(lumiWeight);
   }
   else{
     qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist"+controlRegion+"_"+observable).c_str());
     qcd_2 = (TH1*) template2->FindObjectAny(("qbkghist"+controlRegion+"_"+observable).c_str());
+    if(qcd_2)
+      qcd_2->Scale(lumiWeight);
   }
 
   TH1* gamma_1 = NULL;
@@ -190,10 +216,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist_"+observable).c_str());
     gamma_2 = (TH1*) template2->FindObjectAny(("gbkghist_"+observable).c_str());
+    if(gamma_2)
+      gamma_2->Scale(lumiWeight);
   }
   else{
     gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist"+controlRegion+"_"+observable).c_str());
     gamma_2 = (TH1*) template2->FindObjectAny(("gbkghist"+controlRegion+"_"+observable).c_str());
+    if(gamma_2)
+      gamma_2->Scale(lumiWeight);
   }
 
   TH1* top_1 = NULL;
@@ -201,10 +231,14 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   if(controlRegion == "SR"){
     top_1 = (TH1*) template1->FindObjectAny(("tbkghist_"+observable).c_str());
     top_2 = (TH1*) template2->FindObjectAny(("tbkghist_"+observable).c_str());
+    if(top_2)
+      top_2->Scale(lumiWeight);
   }
   else{
     top_1 = (TH1*) template1->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
     top_2 = (TH1*) template2->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
+    if(top_2)
+      top_2->Scale(lumiWeight);
   }
 
   TH1* ggH_1 = NULL;

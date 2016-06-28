@@ -93,6 +93,14 @@ options.register (
         'addPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon purity studies --> add some more branches');
 
+options.register (
+        'addPhotonIDVariables',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'photon id variables study --> dump id variables');
+
+options.register (
+        'addElectronIDVariables',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'electorn id variables study --> dump id variables');
+
 
 ## do substructure for CHS or Puppi jets
 options.register (
@@ -194,6 +202,8 @@ print "Running with useMiniAODMet       = ",options.useMiniAODMet
 print "Running with addMETSystematics   = ",options.addMETSystematics
 print "Running with addMETBreakDown     = ",options.addMETBreakDown	
 print "Running with addPhotonPurity     = ",options.addPhotonPurity	
+print "Running with addPhotonIDVariables = ",options.addPhotonIDVariables
+print "Running with addElectronIDVariables = ",options.addElectronIDVariables
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
 print "Running with outputFileName      = ",options.outputFileName	
@@ -563,7 +573,12 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      addBTagScaleFactor         = cms.bool(True),
 			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
 			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_76X.csv'), 			      
-			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv') 	  
+			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv'),
+			      ## photon id
+			      addPhotonIDVariables = cms.bool(options.addPhotonIDVariables),
+			      photonIDCollection   = cms.InputTag("slimmedPhotons"),
+			      addElectronIDVariables = cms.bool(options.addElectronIDVariables),
+			      electronIDCollection   = cms.InputTag("slimmedElectrons")
 			      )
 
 if options.useMiniAODMet:

@@ -76,8 +76,10 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
   TH1* histo_2_temp    = (TH1*) histo_2->Clone("histo_2_temp");
-  TH1* histo_2_temp_v2 = (TH1*) histo_2->Clone("histo_2_temp");
-  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++) histo_2_temp->SetBinError(iBin+1,0.);
+  TH1* histo_2_temp_v2 = (TH1*) histo_2->Clone("histo_2_temp_v2");
+  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++){    
+    histo_2_temp->SetBinError(iBin+1,0.);
+  }
   ratio->Divide(histo_2_temp);
 
 
@@ -91,6 +93,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   histo_2_temp->Divide(histo_2);
   histo_2_temp->SetLineWidth(2);
   histo_2_temp->SetLineColor(kRed);
+  for(int iBin = 0; iBin < histo_2_temp->GetNbinsX(); iBin++) histo_2_temp->SetBinContent(iBin+1,1.);
   histo_2_temp->Draw("hist same");
 
   ratio->SetLineColor(kBlack);
@@ -127,7 +130,7 @@ void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
   string dir;
   if(category == Category::monojet)
     dir = "category_monojet";
-  else if(category == Category::monojet)
+  else if(category == Category::monoV)
     dir = "category_monov";
 
   string cat;

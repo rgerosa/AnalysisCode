@@ -299,6 +299,12 @@ private:
   std::vector<BTagCalibrationReader> bMediumSubCSVUp;
   std::vector<BTagCalibrationReader> bMediumSubCSVDown;
 
+  // 
+  const bool addPhotonIDVariables;
+  edm::EDGetTokenT<std::vector<pat::Photon> > photonIDCollectionToken;
+  const bool addElectronIDVariables;
+  edm::EDGetTokenT<std::vector<pat::Electron> > electronIDCollectionToken;
+
   // tree
   TTree* tree;
 
@@ -495,6 +501,13 @@ private:
   std::vector<double> softDropPuppiSubJetptraw_2,softDropPuppiSubJetmraw_2;
   std::vector<double> softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2;
 
+  // special branches for photon efficiency variables dump
+  std::vector<double> photonPt, photonEta, photonPhi, photonE, photonSCEta, photonSCPhi, photonSCEnergy, photonSCRawEnergy;
+  std::vector<double> photonHOverE, photonSigmaIetaIeta, photonChargedIso,photonNeutralIso,photonEMIso, photonElectronVeto;
+  std::vector<double> electronPt, electronEta, electronPhi, electronE, electronSCEta, electronSCPhi, electronSCEnergy;
+  std::vector<double> electronSCRawEnergy, electronHOverE, electronSigmaIetaIeta, electronChargedIso, electronNeutralIso, electronEMIso, electronGsfPt;
+  std::vector<double> electronEOP, electronDphi, electronDeta, electronMissHit, electronConversion, electronDxy, electronDz;
+
   // gen info leptoni W/Z boson (1 per event)
   double wzmass,wzmt,wzpt,wzeta,wzphi,wzmothid,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
   // photon info
@@ -613,7 +626,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
   addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
   // btagging
-  addBTagScaleFactor(iConfig.existsAs<bool>("addBTagScaleFactor") ? iConfig.getParameter<bool>("addBTagScaleFactor") : false){
+  addBTagScaleFactor(iConfig.existsAs<bool>("addBTagScaleFactor") ? iConfig.getParameter<bool>("addBTagScaleFactor") : false),
+  addPhotonIDVariables(iConfig.existsAs<bool>("addPhotonIDVariables") ? iConfig.getParameter<bool>("addPhotonIDVariables") : false),
+  addElectronIDVariables(iConfig.existsAs<bool>("addElectronIDVariables") ? iConfig.getParameter<bool>("addElectronIDVariables") : false){
   
   usesResource();
   usesResource("TFileService");
@@ -766,6 +781,19 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
       bMediumSubCSVDown.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"incl","down"));
       bMediumSubCSVDown.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"lt","down"));            
     }    
+  }
+
+  if(addPhotonIDVariables){
+    photonIDCollectionToken =  consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("photonIDCollection"));
+    if(not addPhotonPurity){
+      photonsieieToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"));
+      photonPHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonPHiso"));
+      photonCHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonCHiso"));
+      photonNHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonNHiso"));
+    }
+  }
+  if(addElectronIDVariables){
+    electronIDCollectionToken =  consumes<std::vector<pat::Electron> >(iConfig.getParameter<edm::InputTag>("electronIDCollection"));    
   }
 
   readDMFromGenParticle = false;
@@ -977,6 +1005,22 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<vector<pat::Jet> > boostedPuppiJetsH;
     if(addSubstructurePuppi)
       iEvent.getByToken(boostedPuppiJetsToken,boostedPuppiJetsH);
+
+    // Photon and electron ID
+    Handle<vector<pat::Photon> > photonIDH;
+    if(addPhotonIDVariables){
+      iEvent.getByToken(photonIDCollectionToken,photonIDH);
+      if(not addPhotonPurity){
+	iEvent.getByToken(photonsieieToken, photonsieieH);
+	iEvent.getByToken(photonPHisoToken, photonPHisoH);      
+	iEvent.getByToken(photonCHisoToken, photonCHisoH);
+	iEvent.getByToken(photonNHisoToken, photonNHisoH);
+      }
+    }
+    Handle<vector<pat::Electron> > electronIDH;
+    if(addElectronIDVariables)
+      iEvent.getByToken(electronIDCollectionToken,electronIDH);
+    
 
     // Event, lumi, run info
     event = iEvent.id().event();
@@ -3138,6 +3182,103 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
     }
 
+    // phtoon and electron ID info
+    if(photonIDH.isValid() and addPhotonIDVariables){
+
+      photonPt.clear();
+      photonEta.clear();
+      photonPhi.clear();
+      photonE.clear(); 
+      photonSCEta.clear(); 
+      photonSCPhi.clear();
+      photonSCEnergy.clear();
+      photonSCRawEnergy.clear();
+      photonHOverE.clear();
+      photonSigmaIetaIeta.clear();
+      photonChargedIso.clear();					      
+      photonNeutralIso.clear();
+      photonEMIso.clear(); 
+      photonElectronVeto.clear();
+
+      for(auto photon_iter = photonIDH->begin(); photon_iter != photonIDH->end(); ++photon_iter){
+	if(photon_iter->pt() < 35 or fabs(photon_iter->superCluster()->eta()) > 2.5) continue;
+	photonPt.push_back(photon_iter->pt());
+	photonEta.push_back(photon_iter->eta());	
+	photonPhi.push_back(photon_iter->phi());
+	photonE.push_back(photon_iter->energy());
+	photonElectronVeto.push_back(photon_iter->passElectronVeto());
+	photonSCEta.push_back(photon_iter->superCluster()->eta());
+	photonSCPhi.push_back(photon_iter->superCluster()->phi());
+	photonSCEnergy.push_back(photon_iter->superCluster()->energy());
+	photonSCRawEnergy.push_back(photon_iter->superCluster()->rawEnergy());
+	photonHOverE.push_back(photon_iter->hadTowOverEm());
+
+	pat::PhotonRef phoref(photonIDH, photon_iter - photonIDH->begin());
+	if(phoref.isAvailable() and phoref.isNonnull()){
+	  if(photonsieieH.isValid())
+	    photonSigmaIetaIeta.push_back((*photonsieieH)[phoref]);
+	  if(photonCHisoH.isValid()){
+	    photonChargedIso.push_back((*photonCHisoH)[phoref]);
+	  }
+	  if(photonPHisoH.isValid()){
+	    photonEMIso.push_back((*photonPHisoH)[phoref]);
+	  }
+	  if(photonNHisoH.isValid()){
+	    photonNeutralIso.push_back((*photonNHisoH)[phoref]);
+	  }
+	}	
+      }      
+    }
+    if(electronIDH.isValid() and addElectronIDVariables){
+
+      electronPt.clear();
+      electronEta.clear();
+      electronPhi.clear();
+      electronE.clear();
+      electronSCEta.clear();
+      electronSCPhi.clear();
+      electronSCEnergy.clear();
+      electronSCRawEnergy.clear();
+      electronHOverE.clear();
+      electronSigmaIetaIeta.clear();				    
+      electronChargedIso.clear(); 
+      electronNeutralIso.clear(); 
+      electronEMIso.clear(); 
+      electronGsfPt.clear(); 
+      electronEOP.clear(); 
+      electronDxy.clear();
+      electronDz.clear();
+      electronDphi.clear(); 
+      electronDeta.clear(); 
+      electronMissHit.clear(); 
+      electronConversion.clear();
+
+      for(auto electron_iter = electronIDH->begin(); electron_iter != electronIDH->end(); ++electron_iter){
+	if(electron_iter->pt() < 35 or fabs(electron_iter->superCluster()->eta()) > 2.5) continue;
+	electronPt.push_back(electron_iter->pt());
+	electronEta.push_back(electron_iter->eta());	
+	electronPhi.push_back(electron_iter->phi());
+	electronE.push_back(electron_iter->energy());
+	electronSCEta.push_back(electron_iter->superCluster()->eta());
+	electronSCPhi.push_back(electron_iter->superCluster()->phi());
+	electronSCEnergy.push_back(electron_iter->superCluster()->energy());
+	electronSCRawEnergy.push_back(electron_iter->superCluster()->rawEnergy());
+	electronHOverE.push_back(electron_iter->hadronicOverEm());
+	electronSigmaIetaIeta.push_back(electron_iter->full5x5_sigmaIetaIeta());
+	electronChargedIso.push_back(electron_iter->pfIsolationVariables().sumChargedHadronPt);
+	electronNeutralIso.push_back(electron_iter->pfIsolationVariables().sumNeutralHadronEt);
+	electronEMIso.push_back(electron_iter->pfIsolationVariables().sumPhotonEt);
+	electronGsfPt.push_back(electron_iter->gsfTrack()->pt());
+	electronDxy.push_back(electron_iter->gsfTrack()->dxy(verticesH->begin()->position()));
+	electronDz.push_back(electron_iter->gsfTrack()->dz(verticesH->begin()->position()));
+	electronEOP.push_back(fabs(1-electron_iter->eSuperClusterOverP())*1./electron_iter->ecalEnergy()); 
+	electronDphi.push_back(electron_iter->deltaPhiSuperClusterTrackAtVtx());
+	electronDeta.push_back(electron_iter->deltaEtaSuperClusterTrackAtVtx());
+	electronMissHit.push_back(electron_iter->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+	electronConversion.push_back(electron_iter->passConversionVeto());
+      }      
+    }
+
     // Generator-level information
     wzid          = 0; wzmass        = 0.0; wzpt          = 0.0; wzeta         = 0.0; wzphi         = 0.0;
     l1id          = 0; l1pt          = 0.0; l1eta         = 0.0; l1phi         = 0.0;
@@ -4251,6 +4392,46 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropPuppiSubJetBtagSFUp_2", "std::vector<double>", &softDropPuppiSubJetBtagSFUp_2);
     tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<double>", &softDropPuppiSubJetBtagSFDown_2);
 
+  }
+
+  if(addPhotonIDVariables){
+    tree->Branch("photonPt", "std::vector<double>", &photonPt);
+    tree->Branch("photonEta", "std::vector<double>", &photonEta);
+    tree->Branch("photonPhi", "std::vector<double>", &photonPhi);
+    tree->Branch("photonE", "std::vector<double>", &photonE);
+    tree->Branch("photonSCEta", "std::vector<double>", &photonSCEta);
+    tree->Branch("photonSCPhi", "std::vector<double>", &photonSCPhi);
+    tree->Branch("photonSCEnergy", "std::vector<double>", &photonSCEnergy);
+    tree->Branch("photonSCRawEnergy", "std::vector<double>", &photonSCRawEnergy);
+    tree->Branch("photonHOverE", "std::vector<double>", &photonHOverE);
+    tree->Branch("photonSigmaIetaIeta", "std::vector<double>", &photonSigmaIetaIeta);
+    tree->Branch("photonChargedIso", "std::vector<double>", &photonChargedIso);
+    tree->Branch("photonNeutralIso", "std::vector<double>", &photonNeutralIso);
+    tree->Branch("photonEMIso", "std::vector<double>", &photonEMIso);
+    tree->Branch("photonElectronVeto", "std::vector<double>", &photonElectronVeto);
+  }
+  if(addElectronIDVariables){
+    tree->Branch("electronPt", "std::vector<double>", &electronPt);
+    tree->Branch("electronEta", "std::vector<double>", &electronEta);
+    tree->Branch("electronPhi", "std::vector<double>", &electronPhi);
+    tree->Branch("electronE", "std::vector<double>", &electronE);
+    tree->Branch("electronSCEta", "std::vector<double>", &electronSCEta);
+    tree->Branch("electronSCPhi", "std::vector<double>", &electronSCPhi);
+    tree->Branch("electronSCEnergy", "std::vector<double>", &electronSCEnergy);
+    tree->Branch("electronSCRawEnergy", "std::vector<double>", &electronSCRawEnergy);
+    tree->Branch("electronHOverE", "std::vector<double>", &electronHOverE);
+    tree->Branch("electronSigmaIetaIeta", "std::vector<double>", &electronSigmaIetaIeta);
+    tree->Branch("electronChargedIso", "std::vector<double>", &electronChargedIso);
+    tree->Branch("electronNeutralIso", "std::vector<double>", &electronNeutralIso);
+    tree->Branch("electronEMIso", "std::vector<double>", &electronEMIso);
+    tree->Branch("electronGsfPt", "std::vector<double>", &electronGsfPt);
+    tree->Branch("electronDphi", "std::vector<double>", &electronDphi);
+    tree->Branch("electronDeta", "std::vector<double>", &electronDeta);
+    tree->Branch("electronEOP", "std::vector<double>", &electronEOP);
+    tree->Branch("electronMissHit", "std::vector<double>", &electronMissHit);
+    tree->Branch("electronConversion", "std::vector<double>", &electronConversion);
+    tree->Branch("electronDz", "std::vector<double>", &electronDz);
+    tree->Branch("electronDxy", "std::vector<double>", &electronDxy);
   }
 }
 

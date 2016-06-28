@@ -92,8 +92,8 @@ void makehist4(TTree* tree, /*input tree*/
 	       const bool   & isHiggsInvisible   = false, // reject VBF events
 	       const bool   & applyPostFitWeight = false,
 	       const float  & XSEC = -1.,// fix the cross section from extern
-	       TH1* hhist = NULL,
-	       TH2* ggZHhist = NULL,
+	       TH1*  hhist = NULL,
+	       TH2*  ggZHhist = NULL,
 	       const bool   & is76Xsample = false
 	       ) {
 
@@ -106,7 +106,10 @@ void makehist4(TTree* tree, /*input tree*/
   TFile* pufile = NULL;
   TH1* puhist = NULL;
   if(not is76Xsample){
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
+    if(reweightNVTX)
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
+    else
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puwgt_official_2p6fb-1.root");
     puhist = (TH1*) pufile->Get("puhist");
   }
   else{
@@ -132,8 +135,8 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
 
   // Photon Purity                                                                                                                                                              
-  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p1fb_0202.root");
-  TH2*  purhist = (TH2*) purityfile_photon.Get("PhotonPurity");
+  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/PhotonSFandEffandPurity_Lumi2p6fb_21062016.root");
+  TH2*  purhist = (TH2*) purityfile_photon.Get("purity");
 
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
@@ -213,6 +216,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> run    (myReader,"run");
   TTreeReaderValue<unsigned int> event  (myReader,"event");
   TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
+  TTreeReaderValue<int>          putrue (myReader,"putrue");
   TTreeReaderValue<double> xsec         (myReader,"xsec");
   TTreeReaderValue<double> wgt          (myReader,"wgt");
 
@@ -273,6 +277,7 @@ void makehist4(TTree* tree, /*input tree*/
   string cscfilter = "flagglobaltighthalo";
   if(isMC) cscfilter = "flagcsctight";
   TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
+  TTreeReaderValue<UChar_t> fcsct  (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
@@ -393,6 +398,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> pheta (myReader,"pheta");
   TTreeReaderValue<double> phphi (myReader,"phphi");
   
+  TTreeReaderValue<double> wmt   (myReader,"wmt");
+  TTreeReaderValue<double> wemt   (myReader,"wemt");
   TTreeReaderValue<double> wzpt   (myReader,"wzpt");
   TTreeReaderValue<double> wzpt_h (myReader,"wzpt_h");
   TTreeReaderValue<double> wzeta  (myReader,"wzeta");
@@ -429,13 +436,19 @@ void makehist4(TTree* tree, /*input tree*/
       hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
-    else if (sample == Sample::qcd || sample == Sample::gam) // single photon
-      hlt = *hltp165+*hltp175;	        
+    else if (sample == Sample::qcd || sample == Sample::gam){ // single photon
+      hlt = *hltp165+*hltp175;
+      /*
+      if(not hlt and *hltp120){
+	hlt += *hltp120;
+	hltw = *pswgt;
+	}*/
+    }
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
-
+    
     // MET Filters --> apply on both data and monte-carlo
-    if(not isMC and (*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0)) continue;
+    if(not isMC and (*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fcsct == 0)) continue;
 
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
@@ -452,7 +465,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == Sample::qcd || sample == Sample::gam)  { pfmet = *pmet; pfmetphi = *pmetphi;}
 
     // noise cleaner
-    if(not is76Xsample and fabs(*metpf-*metcalo)/pfmet > 0.5) continue;
+    if(not is76Xsample and fabs(*met-*metcalo)/pfmet > 0.5) continue;
 
     // propagate met systeamtics on the recoil
     if(metSuffix != "") pfmet += (*met-*metOriginal);
@@ -538,10 +551,12 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
-    
+    if (sample == Sample::wen and *wemt > 160) continue;
+    if (sample == Sample::wmn and *wmt > 160) continue;
+
     // photon control sample
     if ((sample == Sample::qcd || sample == Sample::gam) && *phpt < 175.) continue;
-    if ((sample == Sample::qcd || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;
+    if ((sample == Sample::qcd || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
 
     // Wenu kill QCD
     if (sample == Sample::wen && *met < 50.) continue;
@@ -846,6 +861,8 @@ void makehist4(TTree* tree, /*input tree*/
       }
     }
 
+    //    if(pfmet > 600) cout<<"event "<<*event<<"pfmet "<<pfmet<<" wzpt "<<*wzpt<<" kfactor "<<kwgt<<endl;
+
     // fill 1D histogram
     double fillvar = 0;
     // fill the histograms --> with the right observable
@@ -865,11 +882,20 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = nhfrac->at(leadingCentralJetPos);
       }
+      else if(name.Contains("t1pfmet")){
+	fillvar = *met;
+      }
       else if(name.Contains("el1pt")){
 	fillvar = pt1;
       }
       else if(name.Contains("mu1pt")){
 	fillvar = pt1;
+      }
+      else if(name.Contains("wmt")){
+	fillvar = *wmt;
+      }
+      else if(name.Contains("wemt")){
+	fillvar = *wemt;
       }
       else if(name.Contains("emfrac")){
 	if(category == Category::VBF)
@@ -891,6 +917,10 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if(name.Contains("jetmetdphi"))
 	fillvar = jmdphi;
+      else if(name.Contains("phometdphi")){
+	fillvar = fabs(*phphi-*metphi);
+	if(fillvar > TMath::Pi()) fillvar = 2*TMath::Pi()-fillvar;
+      }
       else if(name.Contains("met"))
 	fillvar = pfmet;            
       else if(name.Contains("jetpt2") and jetpt->size() >= 2)
@@ -1070,18 +1100,22 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
+	if (*putrue <= 70) 
+	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
+	if(is76Xsample)
+	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
-	else{
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
-	}
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  //	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	else
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  //	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 40) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(is76Xsample)
 	  puwgt = 1;
-	
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
