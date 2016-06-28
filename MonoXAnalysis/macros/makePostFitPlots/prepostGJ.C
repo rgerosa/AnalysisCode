@@ -1,6 +1,7 @@
 #include "../CMS_lumi.h"
+#include "../makeTemplates/histoUtils.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false,  bool dumpHisto = false) {
+void prepostGJ(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -26,6 +27,8 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
 
   TH1* dthist = NULL;
   TH1* qchist = NULL;
+  TH1* vghist = NULL;
+  TH1* vlhist = NULL;
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
@@ -33,6 +36,8 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
     
     dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
     qchist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");
+    vghist = (TH1*)pfile->Get("shapes_fit_b/ch4/VGamma_GJ");
+    vlhist = (TH1*)pfile->Get("shapes_fit_b/ch4/WJets_GJ");
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch4/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
 
@@ -41,6 +46,8 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
 
     dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
     qchist = (TH1*)pfile->Get("shapes_fit_s/ch4/QCD_GJ");
+    vghist = (TH1*)pfile->Get("shapes_fit_s/ch4/VGamma_GJ");
+    vlhist = (TH1*)pfile->Get("shapes_fit_s/ch4/WJets_GJ");
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch4/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
 
@@ -98,12 +105,16 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   prhist->SetMarkerColor(kRed);
   pohist->SetMarkerColor(kBlue);
   
+  qchist->Add(vghist);
+  qchist->Add(vlhist);
   qchist->SetFillColor(kOrange+1);
+  vghist->SetFillColor(kOrange+1);
+  vlhist->SetFillColor(kOrange+1);
   qchist->SetLineColor(kBlack);
-
+  
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
-  if(category <=1)
+  if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*100);
   else
     frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*100);
@@ -114,7 +125,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category <= 1)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
@@ -122,7 +133,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"2.3");
+  CMS_lumi(canvas,"2.61");
   
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
@@ -153,12 +164,12 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, i
   TH1* frame2 =  (TH1*) dthist->Clone("frame");
   frame2->Reset("ICES");
 
-  if(category <=1)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+  if(category ==  Category::monojet)
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   else
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
 
-  if(category <= 1)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);

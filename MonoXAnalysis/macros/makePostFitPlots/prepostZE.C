@@ -1,6 +1,7 @@
 #include "../CMS_lumi.h"
+#include "../makeTemplates/histoUtils.h"
 
-void prepostZE(string fitFilename, string templateFileName, string observable, int category,bool plotSBFit = false, bool dumpHisto = false) {
+void prepostZE(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -27,6 +28,8 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   TH1* wlhist  = NULL;
   TH1* tthist  = NULL;
   TH1* dihist  = NULL;
+  TH1* ewkwhist  = NULL;
+  TH1* ewkzhist  = NULL;
   TH1* pohist  = NULL;
   TH1* prhist  = NULL;
 
@@ -37,6 +40,8 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch5/WJets_ZE");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch5/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch5/Dibosons");
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKW");
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKZ");
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch5/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
 
@@ -47,6 +52,8 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
     zllhist = (TH1*)pfile->Get("shapes_fit_s/ch5/Znunu");
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch5/WJets_ZE");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch5/Top");
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKW");
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKZ");
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch5/Dibosons");
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch5/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
@@ -60,6 +67,10 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   TopRate << "Process: Top";
   stringstream VVRate;
   VVRate << "Process: DiBoson";
+  stringstream EWKWRate;
+  EWKWRate << "Process: EWKW";
+  stringstream EWKZRate;
+  EWKZRate << "Process: EWKZ";
   stringstream WJetRate;
   WJetRate << "Process: WJet";
   stringstream ZJetRate;
@@ -79,6 +90,16 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   for(int iBin = 1; iBin <= dihist->GetNbinsX(); iBin++){
     VVRate <<"   ";
     VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
+  }
+
+  for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
+    EWKWRate <<"   ";
+    EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
+  }
+
+  for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
+    EWKZRate <<"   ";
+    EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
   }
 
   for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
@@ -111,6 +132,10 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   outputfile<<"######################"<<endl;
   outputfile<<VVRate.str()<<endl;
   outputfile<<"######################"<<endl;
+  outputfile<<EWKWRate.str()<<endl;
+  outputfile<<"######################"<<endl;
+  outputfile<<EWKZRate.str()<<endl;
+  outputfile<<"######################"<<endl;
   outputfile<<WJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<ZJetRate.str()<<endl;
@@ -135,10 +160,12 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
+  wlhist->Add(ewkwhist);
+  wlhist->Add(ewkzhist);
 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
-  if(category <=1)
+  if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.001,wlhist->GetMaximum()*100);
   else
     frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*100);
@@ -149,7 +176,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);  
-  if(category <= 1)
+  if(category  == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
@@ -157,7 +184,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
 
   frame ->Draw();
   
-  CMS_lumi(canvas,"2.3");
+  CMS_lumi(canvas,"2.61");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -186,12 +213,12 @@ void prepostZE(string fitFilename, string templateFileName, string observable, i
   TH1* frame2 =  (TH1*) dthist->Clone("frame");
   frame2->Reset("ICES");
 
-  if(category <=1)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+  if(category == Category::monojet)
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   else
     frame2->GetYaxis()->SetRangeUser(0.25,1.75);
 
-  if(category <= 1)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);

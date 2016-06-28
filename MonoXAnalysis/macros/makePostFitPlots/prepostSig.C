@@ -1,13 +1,14 @@
 #include "../CMS_lumi.h"
+#include "../makeTemplates/histoUtils.h"
 
 void prepostSig(string fitFilename, 
 		string templateFileName, 
 		string observable, 
-		int category, 
-		bool isHiggsInvisible, 
-		int scaleSig = 1, 
-		bool blind = true, 
-		bool plotSBFit = false, 
+		Category category, 
+		bool   isHiggsInvisible, 
+		int    scaleSig = 1, 
+		bool   blind = true, 
+		bool   plotSBFit = false, 
 		string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
   
 
@@ -42,30 +43,34 @@ void prepostSig(string fitFilename,
   TH1* vbfhist = NULL;
   TH1* wHhist = NULL;
   TH1* zHhist = NULL;
-  TH1* zhhist = NULL;
-  
+  TH1* zhhist = NULL;  
 
-  if(! isHiggsInvisible){
-    mjhist = (TH1*) dfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    mwhist = (TH1*) dfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
-    mzhist = (TH1*) dfile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
-    mjhist->Scale(1.0, "width");
-    mwhist->Scale(1.0, "width");
-    mzhist->Scale(1.0, "width");
-  }
-  else{
-    ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str());
-    vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
-    wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());
-    zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());
-    if(ggHhist)
-      ggHhist->Scale(1.0, "width");
-    if(vbfhist)
-      vbfhist->Scale(1.0, "width");
-    if(wHhist)
-      wHhist->Scale(1.0, "width");
-    if(zHhist)
-      zHhist->Scale(1.0, "width");
+  if(not blind){
+    if(!isHiggsInvisible){
+      mjhist = (TH1*) dfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      mwhist = (TH1*) dfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      mzhist = (TH1*) dfile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());  
+      if(mjhist)
+	mjhist->Scale(1.0, "width");
+      if(mwhist)
+	mwhist->Scale(1.0, "width");
+      if(mzhist)
+	mzhist->Scale(1.0, "width");
+    }
+    else{
+      ggHhist = (TH1*) dfile->FindObjectAny(("ggHhist_"+mediatorMass+"_"+observable).c_str());
+      vbfhist = (TH1*) dfile->FindObjectAny(("vbfHhist_"+mediatorMass+"_"+observable).c_str());
+      wHhist  = (TH1*) dfile->FindObjectAny(("wHhist_"+mediatorMass+"_"+observable).c_str());
+      zHhist  = (TH1*) dfile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());
+      if(ggHhist)
+	ggHhist->Scale(1.0, "width");
+      if(vbfhist)
+	vbfhist->Scale(1.0, "width");
+      if(wHhist)
+	wHhist->Scale(1.0, "width");
+      if(zHhist)
+	zHhist->Scale(1.0, "width");
+    }
   }
 
   TH1* znhist = NULL;
@@ -75,6 +80,8 @@ void prepostSig(string fitFilename,
   TH1* dihist = NULL;
   TH1* qchist = NULL;
   TH1* gmhist = NULL;
+  TH1* ewkwhist = NULL;
+  TH1* ewkzhist = NULL;
   TH1* tohist = NULL;
   TH1* tphist = NULL;
   TH1* sighist = NULL;
@@ -86,8 +93,9 @@ void prepostSig(string fitFilename,
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/WJets");    
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch1/EWKW");    
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch1/EWKZ");    
     qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
-    if(category  ==  2) qchist->Scale(50);
     gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
     tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
     tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
@@ -98,8 +106,9 @@ void prepostSig(string fitFilename,
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/WJets");    
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch1/Top");    
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch1/Dibosons");    
+    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch1/EWKW");    
+    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch1/EWKZ");    
     qchist = (TH1*)pfile->Get("shapes_fit_s/ch1/QCD");    
-    if(category  ==  2) qchist->Scale(50);
     gmhist = (TH1*)pfile->Get("shapes_fit_s/ch1/GJets");    
     tohist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_background");    
     tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");      
@@ -112,18 +121,9 @@ void prepostSig(string fitFilename,
     dthist->Scale(1.0,"width");
   }
   else{
-    dthist = (TH1*)dfile->FindObjectAny(("datahist_"+observable).c_str());
+    dthist = (TH1*) tohist->Clone(("datahist_"+observable).c_str());
     for (int i = 0; i <= dthist->GetNbinsX(); i++) {
-      double yield = 0.0;
-      yield += zlhist->GetBinContent(i);
-      yield += gmhist->GetBinContent(i);
-      yield += wlhist->GetBinContent(i);
-      yield += tthist->GetBinContent(i);
-      yield += dihist->GetBinContent(i);
-      yield += qchist->GetBinContent(i);
-      yield += znhist->GetBinContent(i);
-      dthist->SetBinContent(i, yield);
-      dthist->SetBinError(i, 0.);
+      dthist->SetBinError(i, 0.);      
     }
   }
 
@@ -138,6 +138,10 @@ void prepostSig(string fitFilename,
   DiBosonRate << "Process: DiBoson";
   stringstream TopRate;
   TopRate << "Process: TopRate";
+  stringstream EWKWRate;
+  EWKWRate << "Process: EWKWRate";
+  stringstream EWKZRate;
+  EWKZRate << "Process: EWKZRate";
   stringstream ZJetsRate;
   ZJetsRate << "Process: ZJetsRate";
   stringstream WJetsRate;
@@ -171,6 +175,16 @@ void prepostSig(string fitFilename,
   for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
     TopRate << "   ";
     TopRate << tthist->GetBinContent(iBin+1);
+  }
+
+  for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+    EWKWRate << "   ";
+    EWKWRate << ewkwhist->GetBinContent(iBin+1);
+  }
+
+  for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+    EWKZRate << "   ";
+    EWKZRate << ewkzhist->GetBinContent(iBin+1);
   }
 
   for(int iBin = 0; iBin < zlhist->GetNbinsX(); iBin++){
@@ -214,6 +228,10 @@ void prepostSig(string fitFilename,
   outputfile<<"######################"<<endl;
   outputfile<<TopRate.str()<<endl;
   outputfile<<"######################"<<endl;
+  outputfile<<EWKWRate.str()<<endl;
+  outputfile<<"######################"<<endl;
+  outputfile<<EWKZRate.str()<<endl;
+  outputfile<<"######################"<<endl;
   outputfile<<ZJetsRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<WJetsRate.str()<<endl;
@@ -241,7 +259,7 @@ void prepostSig(string fitFilename,
     mjhist->Scale(scaleSig);
     mjhist->SetMarkerSize(0);
   }
-
+  
   if(ggHhist){
     ggHhist->SetFillColor(0);
     ggHhist->SetFillStyle(0);
@@ -251,7 +269,7 @@ void prepostSig(string fitFilename,
     ggHhist->Scale(scaleSig);
     ggHhist->SetMarkerSize(0);
   }
-
+    
   if(mwhist){
     mwhist->SetFillColor(0);
     mwhist->SetFillStyle(0);
@@ -260,7 +278,7 @@ void prepostSig(string fitFilename,
     mwhist->Scale(scaleSig);
     mwhist->SetMarkerSize(0);
   }
-
+  
   if(vbfhist){
     vbfhist->SetFillColor(0);
     vbfhist->SetFillStyle(0);
@@ -322,6 +340,10 @@ void prepostSig(string fitFilename,
   tthist->SetFillColor(TColor::GetColor("#CF3721"));
   tthist->SetLineColor(kBlack);
 
+  ewkwhist->SetFillColor(kBlack);
+  ewkwhist->SetLineColor(kBlack);
+  ewkzhist->SetFillColor(kBlack);
+  ewkzhist->SetLineColor(kBlack);
 
   if(sighist){
     sighist->SetFillColor(kBlack);
@@ -335,6 +357,8 @@ void prepostSig(string fitFilename,
   stack->Add(zlhist); 
   stack->Add(tthist);
   stack->Add(dihist);
+  //  ewkzhist->Add(ewkwhist);
+  //  stack->Add(ewkzhist);
   stack->Add(wlhist);
   stack->Add(znhist);
   if(plotSBFit && sighist)
@@ -343,7 +367,7 @@ void prepostSig(string fitFilename,
 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
-  if(category <=1)
+  if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
   else
     frame->GetYaxis()->SetRangeUser(0.0005,wlhist->GetMaximum()*200);
@@ -354,13 +378,13 @@ void prepostSig(string fitFilename,
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category <= 1)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"2.3");
+  CMS_lumi(canvas,"2.61");
 
   stack ->Draw("HIST SAME");
   if(mwhist && !plotSBFit)
@@ -400,12 +424,12 @@ void prepostSig(string fitFilename,
 
   TH1* frame2 = (TH1*) dthist->Clone("frame2");
   frame2->Reset();
-  if(category <=1)
+  if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
     frame2->GetYaxis()->SetRangeUser(-0.5,2);
 
-  if(category <= 1)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
@@ -516,6 +540,8 @@ void prepostSig(string fitFilename,
   leg->AddEntry(znhist, "Z #rightarrow #nu#nu", "F");
   leg->AddEntry(wlhist, "W #rightarrow l#nu", "F");
   leg->AddEntry(dihist, "WW/WZ/ZZ", "F");
+  //  leg->AddEntry(ewkzhist, "EWK W/Z+2jets", "F");
+  leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(zlhist, "Z/#gamma #rightarrow ll, #gamma+jets", "F");
   leg->AddEntry(qchist, "QCD", "F");
