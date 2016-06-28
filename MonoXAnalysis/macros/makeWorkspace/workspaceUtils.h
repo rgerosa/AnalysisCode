@@ -15,7 +15,7 @@
 #include "RooWorkspace.h"
 #include "RooDataHist.h"
 #include "RooAddition.h"
-#include "../../../HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
+#include "../../../../HiggsAnalysis/CombinedLimit/interface/RooParametricHist.h"
 #include "../makeTemplates/histoUtils.h"
 #include "../makeTemplates/histoUtils2D.h"
 
@@ -46,6 +46,13 @@ class systematicCutAndCount {
 
 };
 
+void checkNegativeBin(TH1* histo){
+  for(int iBin = 0; iBin < histo->GetNbinsX()+1; iBin++){
+    if(histo->GetBinContent(iBin+1) < 0)
+      histo->SetBinContent(iBin+1,0);
+  }
+}
+
 // function to create a RooDataHist from TH1F and import it in a workspace                                                                                                   
 void addTemplate(string procname, 
 		 const RooArgList& varlist, 
@@ -59,6 +66,8 @@ void addTemplate(string procname,
   }
   if(hist->Integral() == 0)
     addDummyBinContent(hist); // avoind empty histograms in the workspace                                                                                                     
+
+  checkNegativeBin(hist);
 
   if(not isCoutAndCount){
     RooDataHist rhist((procname).c_str(), "", varlist, hist);
