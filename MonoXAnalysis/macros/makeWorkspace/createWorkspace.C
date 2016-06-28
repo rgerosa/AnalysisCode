@@ -12,13 +12,14 @@ using namespace std;
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string inputName,  // input template file
-		     int    category,  // analysis category
+		     Category category,  // analysis category
 		     string outputName    = "workspace.root", // output workspace name
 		     string observable    = "met",    // observable 1D or 2D
 		     bool   isHiggsInvisible = false, // Higgs invisible or DM analsysis
 		     float  scaleQCD      = 1,    // scale for QCD MC in SR
 		     bool   connectWZ     = true, // connect W and Z in SR 
 		     bool   connectTop    = false, // connect top CR --> fit also top eneriched samples
+		     bool   correlateEWK  = false,
 		     bool   addShapeSystematics = false, // add shapeN2
 		     bool   mergeLeptons  = false, // merge mm and ee final sates
 		     bool   isCombination = false,    // convention for HIG-16 invisible combo
@@ -35,10 +36,13 @@ void createWorkspace(string inputName,  // input template file
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
+  initializeBinning();
+
   // for templates and sys naming
   string suffix;
-  if(category <=1) suffix = "MJ";
-  else suffix = "MV";
+  if(category == Category::monojet) suffix = "MJ";
+  else if(category == Category::monoV) suffix = "MV";
+  else if(category == Category::VBF) suffix = "VBF";
     
   // create the output workspace
   cout<<"Create output file ..."<<endl;
@@ -312,6 +316,7 @@ void createWorkspace(string inputName,  // input template file
     RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_RenScale2",""  ,0.,-5.,5.);
     RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2","" ,0.,-5.,5.);
     RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF",""        ,0.,-5.,5.);
+    RooRealVar* wln_SR_ewk = new RooRealVar(("WJets_SR_"+suffix+"_EWK").c_str(),""        ,0.,-5.,5.);
     
     if(not isCutAndCount){
       
@@ -319,7 +324,10 @@ void createWorkspace(string inputName,  // input template file
       vector<pair<RooRealVar*,TH1*> > wln_SR_syst;
 
       // NULL means bin-by-bin
-      wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(NULL      ,(TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str())));
+      if(not correlateEWK)
+	wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(NULL,(TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str())));
+      else
+	wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_ewk,(TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str())));
       wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re1,(TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str())));
       wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa1,(TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str())));
       wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re2,(TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str())));
@@ -394,6 +402,8 @@ void createWorkspace(string inputName,  // input template file
   addTemplate("ZJets_SR_"+suffix     ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zjethist_"+observable).c_str()),isCutAndCount);
   addTemplate("Dibosons_SR_"+suffix  ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("dbkghist_"+observable).c_str()),isCutAndCount);
   addTemplate("GJets_SR_"+suffix     ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("gbkghist_"+observable).c_str()),isCutAndCount);
+  addTemplate("EWKZ_SR_"+suffix      ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgzhist_"+observable).c_str()),isCutAndCount);
+  addTemplate("EWKW_SR_"+suffix      ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgwhist_"+observable).c_str()),isCutAndCount);
 
 
   if(addShapeSystematics){
@@ -405,6 +415,12 @@ void createWorkspace(string inputName,  // input template file
 
     addShapeVariations("gbkghist","GJets_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
     generateStatTemplate("GJets_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("gbkghist_"+observable).c_str()),1,isCutAndCount);
+
+    addShapeVariations("ewkbkgzhist","EWKZ_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
+    generateStatTemplate("EWKZ_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgzhist_"+observable).c_str()),1,isCutAndCount);
+
+    addShapeVariations("ewkbkgwhist","EWKW_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
+    generateStatTemplate("EWKW_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgwhist_"+observable).c_str()),1,isCutAndCount);
   }
 
   // look for DD qcd background,otherwise MC scaled by a factor 2
@@ -443,11 +459,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_ZM_"+suffix ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("tbkghistzmm_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_ZM_"+suffix ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("qbkghistzmm_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("dbkghistzmm_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_ZM_"+suffix  ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_ZM_"+suffix  ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str()),isCutAndCount);
 
     if(addShapeSystematics){      
       addShapeVariations("vlbkghistzmm","WJets_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistzmm","Top_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistzmm","Dibosons_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkzbkghistzmm","EWKZ_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistzmm","EWKW_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
     }
     
     if(not isCutAndCount){
@@ -479,11 +499,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("tbkghistzee_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("qbkghistzee_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("dbkghistzee_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str()),isCutAndCount);
 
     if( addShapeSystematics){      
       addShapeVariations("vlbkghistzee","WJets_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistzee","Top_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistzee","Dibosons_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkzbkghistzee","EWKZ_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistzee","EWKW_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
     }
 
     if(not isCutAndCount){
@@ -514,11 +538,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_ZL_"+suffix ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("tbkghistzll_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_ZL_"+suffix ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("qbkghistzll_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("dbkghistzll_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_ZL_"+suffix  ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzll_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_ZL_"+suffix  ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzll_"+observable).c_str()),isCutAndCount);
 
     if(addShapeSystematics){
       addShapeVariations("vlbkghistzll","WJets_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistzll","Top_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistzll","Dibosons_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkzbkghistzll","EWKZ_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistzll","EWKW_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
     }            
 
     if(not isCutAndCount){
@@ -550,11 +578,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_WM_"+suffix  ,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("tbkghistwmn_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_WM_"+suffix  ,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("qbkghistwmn_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),isCutAndCount);
     
     if(addShapeSystematics){      
       addShapeVariations("vllbkghistwmn","ZJets_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistwmn","Top_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistwmn","Dibosons_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkzbkghistwmn","EWKZ_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistwmn","EWKW_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
     }
 
     if(not isCutAndCount){
@@ -585,11 +617,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("tbkghistwen_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("qbkghistwen_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("dbkghistwen_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwen_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwen_"+observable).c_str()),isCutAndCount);
 
     if(addShapeSystematics){
       addShapeVariations("vllbkghistwen","ZJets_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistwen","Top_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistwen","Dibosons_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);      
+      addShapeVariations("ewkzbkghistwen","EWKZ_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistwen","EWKW_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
     }
 
     if(not isCutAndCount){
@@ -622,11 +658,15 @@ void createWorkspace(string inputName,  // input template file
     addTemplate("Top_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("tbkghistwln_"+observable).c_str()),isCutAndCount);
     addTemplate("QCD_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("qbkghistwln_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("dbkghistwln_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKZ_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwln_"+observable).c_str()),isCutAndCount);
+    addTemplate("EWKW_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwln_"+observable).c_str()),isCutAndCount);
     
     if(addShapeSystematics){
       addShapeVariations("vllbkghistwln","ZJets_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("tbkghistwln","Top_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghistwln","Dibosons_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);      
+      addShapeVariations("ewkzbkghistwln","EWKZ_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
+      addShapeVariations("ewkwbkghistwln","EWKW_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
     }
 
     if(not isCutAndCount){
@@ -661,6 +701,7 @@ void createWorkspace(string inputName,  // input template file
   RooRealVar* znn_GJ_fa2 = 0;
   RooRealVar* znn_GJ_pdf = 0;
   RooRealVar* znn_GJ_fpc = 0;
+  RooRealVar* znn_GJ_ewk = 0;
   if(not isCombination){
     znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  ,"",0.,-5.,5.);
     znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1" ,"",0.,-5.,5.);
@@ -668,30 +709,36 @@ void createWorkspace(string inputName,  // input template file
     znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2" ,"",0.,-5.,5.);
     znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"        ,"",0.,-5.,5.);
     znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint"  ,"",0.,-5.,5.);
+    znn_GJ_ewk = new RooRealVar(("Znunu_GJ_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
   }
   else{
     znn_GJ_re1 = new RooRealVar("mr"  ,"",0.,-5.,5.);
-    znn_GJ_re2 = new RooRealVar("mr2"  ,"",0.,-5.,5.);
+    znn_GJ_re2 = new RooRealVar("mr2" ,"",0.,-5.,5.);
     znn_GJ_fa1 = new RooRealVar("mf"  ,"",0.,-5.,5.);
-    znn_GJ_fa2 = new RooRealVar("mf2"  ,"",0.,-5.,5.);
-    znn_GJ_pdf = new RooRealVar("pdf"  ,"",0.,-5.,5.);
+    znn_GJ_fa2 = new RooRealVar("mf2" ,"",0.,-5.,5.);
+    znn_GJ_pdf = new RooRealVar("pdf" ,"",0.,-5.,5.);
     znn_GJ_fpc = new RooRealVar("fp"  ,"",0.,-5.,5.);
+    znn_GJ_ewk = new RooRealVar("ewk" ,"",0.,-5.,5.);
   }
 
   if(not isCutAndCount){
 
-  vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;
-
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(NULL      ,(TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re1,(TH1F*)templatesfile->FindObjectAny(("ZG_RenScale1_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa1,(TH1F*)templatesfile->FindObjectAny(("ZG_FactScale1_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re2,(TH1F*)templatesfile->FindObjectAny(("ZG_RenScale2_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,(TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,(TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str())));
-  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,(TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str())));
-
-  makeConnectedBinList("Znunu_GJ_"+suffix,met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
-
+    vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;
+    
+    if(not correlateEWK)
+      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(NULL,(TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str())));
+    else
+      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_ewk,(TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str())));
+    
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re1,(TH1F*)templatesfile->FindObjectAny(("ZG_RenScale1_"+observable).c_str())));
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa1,(TH1F*)templatesfile->FindObjectAny(("ZG_FactScale1_"+observable).c_str())));
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re2,(TH1F*)templatesfile->FindObjectAny(("ZG_RenScale2_"+observable).c_str())));
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,(TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str())));
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,(TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str())));
+    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,(TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str())));
+    
+    makeConnectedBinList("Znunu_GJ_"+suffix,met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
+    
   }
   else{
 
@@ -756,7 +803,9 @@ void createWorkspace(string inputName,  // input template file
   
   // Other MC backgrounds photon+jets control region
   addTemplate("QCD_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("qbkghistgam_"+observable).c_str()),isCutAndCount);
-
+  addTemplate("VGamma_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("vgbkghistgam_"+observable).c_str()),isCutAndCount);
+  addTemplate("WJets_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("vlbkghistgam_"+observable).c_str()),isCutAndCount);
+  
   RooWorkspace* wspace_TM = NULL;
   RooWorkspace* wspace_TE = NULL;
 
@@ -880,3 +929,5 @@ void createWorkspace(string inputName,  // input template file
   outfile->Close();
   return;  
 }
+
+//  LocalWords:  isCutAndCount
