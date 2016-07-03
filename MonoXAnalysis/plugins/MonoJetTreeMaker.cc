@@ -1745,8 +1745,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
 	  incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
 	  if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
-      if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
-      if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
+	  if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
+	  if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
 	  if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
         }
       }
@@ -4395,6 +4395,8 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   if(addPhotonIDVariables){
+    if(not addPhotonPurity)
+      tree->Branch("rho"             , &rho             , "rho/D");
     tree->Branch("photonPt", "std::vector<double>", &photonPt);
     tree->Branch("photonEta", "std::vector<double>", &photonEta);
     tree->Branch("photonPhi", "std::vector<double>", &photonPhi);
@@ -4411,6 +4413,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("photonElectronVeto", "std::vector<double>", &photonElectronVeto);
   }
   if(addElectronIDVariables){
+    if(not addPhotonPurity)
+      tree->Branch("rho"             , &rho             , "rho/D");
     tree->Branch("electronPt", "std::vector<double>", &electronPt);
     tree->Branch("electronEta", "std::vector<double>", &electronEta);
     tree->Branch("electronPhi", "std::vector<double>", &electronPhi);

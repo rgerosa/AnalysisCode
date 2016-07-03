@@ -18,20 +18,19 @@ process                             WJets       ZJets_WM    Dibosons        Top 
 process                             2           9           4               5             10
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+lumi_13TeV                lnN       -           1.050       1.050           1.050         1.050
 CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
 CMS_eff_lepVeto_13TeV     lnN       1.030       -           -               -             -             
 ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
 Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
 Top_Norm13TeV             lnN       -           -           -               1.100         -
 Top_Reweight13TeV         lnN       -           -           -               1.100         -
+CMS_met_trig              lnN       1.010       -           -               -             -    
 QCD_WM_Norm13TeV          lnN       -           -           -               -             1.500
-CMS_btag_13TeV            shapeN2   -           1           1               1             -
-CMS_scale_j_13TeV         shapeN2   -           1           1               1             -
-CMS_res_j_13TeV           shapeN2   -           1           1               1             -
-CMS_scale_met_13TeV       shapeN2   -           1           1               1             -
-CMS_eff_Vtag_stat         lnN        -          -         0.99/1.01       0.99/1.01       -
-CMS_eff_Vtag_PS           lnN        -          -         0.99/1.01       0.99/1.01       -
+CMS_met_13TeV             lnN       -           1.040       1.040           1.040         1.040
+CMS_btag_13TeV            lnN       -           1.020       1.020           1.060         1.020       
+CMS_eff_Vtag_stat         lnN       -            -         0.99/1.01     0.99/1.01        -        
+CMS_eff_Vtag_PS           lnN       -            -         0.99/1.01     0.99/1.01        -         
 WJets_WM_MJ_bin1_Runc     param     0     1
 WJets_WM_MJ_bin2_Runc     param     0     1
 WJets_WM_MJ_bin3_Runc     param     0     1

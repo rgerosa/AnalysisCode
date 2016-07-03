@@ -65,11 +65,11 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
   }
   else if(tau2tau1 == 0.6){
     if(sysName == "VtagUp")
-      sfwgt *= (1.031+0.129);
+      sfwgt *= (0.92+0.129);
     else if(sysName == "VtagDown")
-      sfwgt *= (1.031-0.129);
+      sfwgt *= (0.92-0.129);
     else
-      sfwgt *= 1.031;
+      sfwgt *= 0.92;
   }
   
   return sfwgt;
@@ -166,20 +166,20 @@ void makehist4(TTree* tree, /*input tree*/
 
   // Post-fit weights
   TFile* postFitFile = NULL;
-  if(sample == Sample::sig and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_Sig.root");
-  if(sample == Sample::zmm and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZM.root");
-  else if(sample == Sample::wmn and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WM.root");
-  else if(sample == Sample::zee and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_ZE.root");
-  else if(sample == Sample::wen and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_WE.root");
-  else if(sample == Sample::qcd and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
-  else if(sample == Sample::gam and applyPostFitWeight and category == Category::monojet)
-    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ/postfit_weights_GJ.root");
+  if(sample == Sample::sig and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_Sig.root");
+  if(sample == Sample::zmm and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_ZM.root");
+  else if(sample == Sample::wmn and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_WM.root");
+  else if(sample == Sample::zee and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_ZE.root");
+  else if(sample == Sample::wen and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_WE.root");
+  else if(sample == Sample::qcd and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
+  else if(sample == Sample::gam and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+    postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
   else if(sample == Sample::sig and applyPostFitWeight and category == Category::monoV)
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_Sig.root");
   else if(sample == Sample::zmm and applyPostFitWeight and category == Category::monoV)
@@ -196,8 +196,10 @@ void makehist4(TTree* tree, /*input tree*/
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
 
   TH1* postFitWeight = NULL;
-  if(postFitFile != NULL)
-    postFitWeight = (TH1*) postFitFile->FindObjectAny("postfit_over_prefit");
+  if(postFitFile != NULL){
+    postFitWeight = (TH1*) postFitFile->FindObjectAny("post_fit_post_fit");
+    postFitWeight->Divide((TH1*) postFitFile->FindObjectAny("pre_fit_post_fit"));
+  }
 
   // histogram to be filled
   for(size_t ihist  = 0 ; ihist < hist1D.size(); ihist++){
@@ -298,6 +300,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > chfrac  (myReader,"combinejetCHfrac");
   TTreeReaderValue<vector<double> > nhfrac  (myReader,"combinejetNHfrac");
   TTreeReaderValue<vector<double> > emfrac  (myReader,"combinejetEMfrac");
+  TTreeReaderValue<vector<double> > pFlav   (myReader,"combinejetPFlav");
 
   // AK8 jet
   TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
@@ -314,7 +317,6 @@ void makehist4(TTree* tree, /*input tree*/
   //  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedPuppiJeteta");
   //  TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedPuppiJetphi");
   //  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedPuppiJetm");
-  //  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm_v2");
   //  TTreeReaderValue<vector<double> > prunedJetm   (myReader,"softDropPuppiJetm");
   //  TTreeReaderValue<vector<double> > prunedJetpt   (myReader,"softDropPuppiJetpt");
   //  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedPuppiJettau2");
@@ -438,11 +440,6 @@ void makehist4(TTree* tree, /*input tree*/
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcd || sample == Sample::gam){ // single photon
       hlt = *hltp165+*hltp175;
-      /*
-      if(not hlt and *hltp120){
-	hlt += *hltp120;
-	hltw = *pswgt;
-	}*/
     }
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
@@ -776,7 +773,7 @@ void makehist4(TTree* tree, /*input tree*/
 	    if(prunedJetm->at(0) < prunedMassMin  or prunedJetm->at(0) > prunedMassMax)
 	      goodMonoJet= true;
 	    // tau2tau1 selection
-	    //    if((boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(prunedJetm->at(0)/prunedJetpt->at(0))) > tau2tau1)
+	    //	    if((boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0))) > tau2tau1)
 	    if(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
 	      goodMonoJet= true;
 	  }
@@ -827,6 +824,7 @@ void makehist4(TTree* tree, /*input tree*/
 
 	// category 2 means HP mono-V
 	if(category == Category::monoV and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	//	if(category == Category::monoV and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and (boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0))) < tau2tau1)
 	  goodMonoV   = true;
 	// category 3 means LP mono-V
 	else if(category == Category::prunedMass and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and 
@@ -979,10 +977,16 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = *nbjets;
       else if(name.Contains("bosonpt"))
 	fillvar = bosonPt;    	
-      else if(name.Contains("QGL")){
+      else if(name.Contains("jetQGL")){
 	fillvar = jetQGL->at(0);
       }
-      else if(name.Contains("QGL_AK8")){
+      else if(name.Contains("jet2QGL") and jetQGL->size() > 1){
+	fillvar = jetQGL->at(1);
+      }      
+      else if(name.Contains("jetPFlav") and pFlav->size() > 0){
+	fillvar = fabs(pFlav->at(0));
+      }
+      else if(name.Contains("jetQGL_AK8")){
 	if(boostedJetpt->size() > 0)
 	  fillvar = boostedJetQGL->at(0);
 	else
@@ -993,13 +997,14 @@ void makehist4(TTree* tree, /*input tree*/
       else if(name.Contains("mpruned")){
 	if( prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
 	  fillvar = prunedJetm->at(0);	
-	else fillvar = 0.;
+	else fillvar = -1.;
       }
       else if(name.Contains("HT"))
 	fillvar = *ht;      
       else if(name.Contains("tau2tau1")){
 	if( boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
-	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);	
+	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);
+	//	fillvar = boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0));
 	else fillvar = 0.;
       }
 

@@ -1216,10 +1216,10 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   if(not runOnlySignal){
 
     cout<<"start signal region data"<<endl;
-    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,false,false,runHiggsInvisible,false,applyPostFitWeights);
+    //    sigdatamchist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,false,false,runHiggsInvisible,false,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible);
+    gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible,applyPostFitWeights);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
     lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights); 
@@ -1238,7 +1238,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
 
     //add qcd data templates
-    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates.root");
+    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
       cout<<"Take templates QCD from data"<<endl;
       vector<double> met_bins = selectBinning("met",category);
@@ -1256,17 +1256,17 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category == Category::monojet)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_FitUp");
       else if(category ==  Category::monoV)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_FitUp");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category == Category::monojet)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_FitDown");
       else if(category ==  Category::monoV)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_FitDown");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));

@@ -369,7 +369,6 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -600,7 +599,6 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
 
@@ -752,6 +750,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false, // to use also single photon trigger when running on data: singleEle trigger on singleEle dataset, photon trigger on photon dataset
+	       bool isJetHT  = false, // to use also single photon trigger when running on data: singleEle trigger on singleEle dataset, photon trigger on photon dataset
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -800,22 +799,18 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
     puRatio = pileupwgt(intree);
   }
 
-  string cut = "";
-  if(not isMC and not isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
-    if(not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltelnoiso)";
-  }
-  else if(not isMC and isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
-    if(not dropHLTFilter)
-      cut += " && ( hltphoton165 > 0 || hltphoton175 > 0) && (hltsingleel == 0 && hltelnoiso == 0)";    
-  }
-  else if(isMC){    
-    cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && el1pt > 40 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
-    if(not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0 || hltelnoiso)";
-  }
+  string cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
+  
+  // trigger 
+  if(not isMC and not isSinglePhoton and not isJetHT and not dropHLTFilter)
+    cut += " && (hltsingleel || hltelnoiso)";
+  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter)
+    cut += " && ( hltphoton165 || hltphoton175 ) && (hltsingleel == 0 && hltelnoiso == 0)";      
+  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter)
+    cut += " && (hltPFHT800 || hltEcalHT800) && (hltsingleel == 0 && hltelnoiso == 0)";    
+  else if(isMC and not dropHLTFilter)
+    cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0 || hltelnoiso > 0 || hltPFHT800 > 0 || hltEcalHT800 > 0)";
+  
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -842,7 +837,6 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -1078,7 +1072,6 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   if(isMC){
@@ -1211,6 +1204,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false,
+	       bool isJetHT = false,
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -1260,22 +1254,17 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   }
 
 
-  string cut = "";
-  if(not isMC and not isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
-    if(not dropHLTFilter)
-      cut += " && (hltsingleel >0 || hltelnoiso)";
-  }
-  else if(not isMC and isSinglePhoton){
-    cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
-    if(not dropHLTFilter)
-      cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 > 0 || hltphoton175 > 0)";
-  }
-  else if(isMC){    
-    cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
-    if (not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0)";
-  }
+  string cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
+
+  if(not isMC and not isSinglePhoton and not isJetHT and not dropHLTFilter)
+      cut += " && (hltsingleel >0 || hltelnoiso)";  
+  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter){
+    cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 > 0 || hltphoton175 > 0)";
+  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter){
+    cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltEcalHT800 > 0 || hltPFHT800 > 0)";
+    else if(isMC and not dropHLTFilter)
+      cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
+
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -1303,7 +1292,6 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -1444,9 +1432,10 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
 	       bool isMC, // is data or MC                                                                                                                                      
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
-	       bool isEOS, // if the directory is on eos or not                                                                                                                 
+	       bool isEOS, // if the directory is on eos or not                                                                                                                
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                   
+	       bool isJetHT = false,
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -1499,6 +1488,12 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
 
   // medium id + pt + veto
   string cut = "nmuons == 0 && nelectrons == 0  && nphotons == 1 && phpt > 120 && phidm == 1 && t1phmet > "+metCut;
+  if(not isMC and not dropHLTFilter and not isJetHT)
+    cut += " && (hltphoton165 || hltphoton175)";
+  else if(not isMC and not dropHLTFilter and isJetHT)
+    cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalPFHT800 || hltPFHT800 > 0)";
+  else if(isMC and not dropHLTFilter)
+    cut += " && (hltphoton165 == 0 || hltphoton175 || hltEcalPFHT800 || hltPFHT800 > 0)";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -1525,7 +1520,6 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -1752,7 +1746,6 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -1899,6 +1892,8 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
 		 bool isEOS, // if the directory is on eos or not                                                                                                             
 		 int  xsType = 0,
 		 bool storeGenTree = false, // store gentree in the output                                                                                                     
+		 bool isSinglePhoton = false, 
+		 bool isJetHT  = false, 
 		 bool dropPuppiBranches = true,
 		 bool dropPuppiBoostedJets = true,
 		 bool dropSubJetsBranches = true,
@@ -1951,9 +1946,16 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
 
   // one tight muon + b-jet --> semi-leptonic ttbar events
   string cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && nbjets > 0 && el1id >=1 && el1pt > 40 && t1elmet > "+metCut;
-  if(not dropHLTFilter)
-    cut +=  " && hltsingleel > 0";
-
+  // trigger requirements
+  if(not isMC and not dropHLTFilter and not isSinglePhoton and not isJetHT)
+    cut +=  " && (hltsingleel || hltelnoiso)";
+  else if(not isMC and not dropHLTFilter and isSinglePhoton and not isJetHT)
+    cut +=  " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 || hltphoton175)";
+  else if(not isMC and not dropHLTFilter and not isSinglePhoton and isJetHT)
+    cut +=  " && (hltsingleel == 0 && hltelnoiso == 0) && (hltPFHT800 || hltEcalHT800)";    
+  else if(isMC and not dropHLTFilter)
+    cut +=  " && (hltsingleel || hltelnoiso || hltphoton165 || hltphoton175 || hltPFHT800 || hltEcalHT800)";
+  
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree");
@@ -1979,7 +1981,6 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("hltPFHT*",0);
   frtree->SetBranchStatus("pswgt_ht*",0);
 
 

@@ -2220,9 +2220,9 @@ void topdatamchist(TFile* outfile,
   qctree->Add((baseInputTreePath+"QCD/"+suffix+"filter/*root").c_str());
   dbtree->Add((baseInputTreePath+"DiBoson/"+suffix+"filter/*root").c_str());
   gmtree->Add((baseInputTreePath+"PhotonJets/"+suffix+"filter/*root").c_str());
-  tttree->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
+  tttree_alt->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
   stoptree->Add((baseInputTreePath+"STop/"+suffix+"filter/*root").c_str());
-  tttree_alt->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
+  tttree->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
     dttree->Add((baseInputTreePath+"MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)

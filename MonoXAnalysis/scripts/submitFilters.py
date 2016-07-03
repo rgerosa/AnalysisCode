@@ -31,6 +31,7 @@ parser.add_option('--isMC',         action="store_true",           dest="isMC", 
 parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBTagSF",                help="applyBTagSF")
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
+parser.add_option('--isJetHT', action="store_true",         dest="isJetHT",             help="isJetHT")
 parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
 parser.add_option('--dropPuppiBranches',   action="store_true",    dest="dropPuppiBranches",          help="drop all puppi branches")
 parser.add_option('--dropPuppiBoostedJets', action="store_true",   dest="dropPuppiBoostedJets",       help="drop all puppi branches for boosted jets")
@@ -79,6 +80,8 @@ if __name__ == '__main__':
           command += "--storeGenTree ";
         if options.isSinglePhoton:
           command += "--isSinglePhoton ";
+        if options.isJetHT:
+          command += "--isJetHT ";
         if options.isCrabDirectory:
           command += "--isCrabDirectory ";
         if options.dropPuppiBranches:

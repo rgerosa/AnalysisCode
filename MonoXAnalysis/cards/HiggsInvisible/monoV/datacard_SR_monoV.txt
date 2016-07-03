@@ -10,11 +10,11 @@ shapes Dibosons    signal_MV   workspace_MV.root SR_MV:Dibosons_SR_MV SR_MV:Dibo
 shapes Top         signal_MV   workspace_MV.root SR_MV:Top_SR_MV      SR_MV:Top_SR_MV_$SYSTEMATIC
 shapes QCD         signal_MV   workspace_MV.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
 shapes GJets       signal_MV   workspace_MV.root SR_MV:GJets_SR_MV    SR_MV:GJets_SR_MV_$SYSTEMATIC       
-shapes ggH         signal_MV   workspace_MV.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
-shapes qqH         signal_MV   workspace_MV.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
-shapes WH          signal_MV   workspace_MV.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
-shapes ZH          signal_MV   workspace_MV.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
-shapes ggZH        signal_MV   workspace_MV.root SR_MV:ggZH_SR_MV     SR_MV:ggZH_SR_MV_$SYSTEMATIC
+shapes ggH         signal_MV   workspace_MV_signal.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
+shapes qqH         signal_MV   workspace_MV_signal.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
+shapes WH          signal_MV   workspace_MV_signal.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
+shapes ZH          signal_MV   workspace_MV_signal.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
+shapes ggZH        signal_MV   workspace_MV_signal.root SR_MV:ggZH_SR_MV     SR_MV:ggZH_SR_MV_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 bin         signal_MV
 observation -1
@@ -24,19 +24,18 @@ process                         ggH        qqH       WH         ZH        ggZH  
 process                         0          -1        -2         -3        -4        1         2         3          4          5          6           7
 rate                            -1         -1        -1         -1        -1        1         1        -1         -1         -1         -1          -1
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN        1.027    1.027   1.027  1.027        1.027     -         -        1.027     1.027      1.027        -          1.027
+lumi_13TeV                lnN        1.050    1.050   1.050  1.050        1.050     -         -        1.050     1.050      1.050        -          1.050
 ZJets_Norm13TeV           lnN        -        -         -    -            -         -         -        1.200       -          -          -          -
 Dibosons_Norm13TeV        lnN        -        -         -    -            -         -         -        -         1.200        -          -          -
 Top_Norm13TeV             lnN        -        -         -    -            -         -         -        -           -        1.100        -          -
 Top_Reweight13TeV         lnN        -        -         -    -            -         -         -        -           -        1.100        -          -
 GJets_Norm13TeV           lnN        -        -         -    -            -         -         -        -           -          -          -          1.200
-CMS_btag_13TeV            shapeN2    1        1         1    1            1         -         -        1           1          1	         -          1
-CMS_scale_j_13TeV         shapeN2    1        1         1    1            1         -         -        1           1          1          -          1 
-CMS_res_j_13TeV           shapeN2    1        1         1    1            1         -         -        1           1          1          -          1  
-CMS_scale_met_13TeV       shapeN2    1        1         1    1            1         -         -        1           1          1          -          1
-CMS_QCD_SR                shapeN2    -        -         -    -            -         -         -        -           -          -          1          -
-CMS_eff_Vtag_stat         lnN        -        -  1.065/0.935 1.065/0.935  1.065/0.935 -         -        -        1.065/0.935  1.065/0.935 -        -
-CMS_eff_Vtag_PS           lnN        -        -  1.065/0.935 1.065/0.935  1.065/0.935 -         -        -        1.065/0.935  1.065/0.935 -        -
+CMS_met_trig              lnN        1.01    1.01     1.01   1.01         1.010     -         -       1.010       1.01      1.010        -          1.010
+CMS_met_13TeV             lnN        1.040   1.040    1.040  1.040        1.040     -         -       1.040       1.04      1.040        -          1.040
+CMS_btag_13TeV            lnN        1.020   1.020    1.020  1.020        1.020     -         -       1.060       1.06      1.020        -          1.020	
+CMS_QCD_SR                lnN        -        -         -    -            -         -         -        -           -          -          2          -
+CMS_eff_Vtag_stat         lnN        -        -  1.065/0.935 1.065/0.935  1.065/0.935 -       -        -        1.065/0.935  1.065/0.935 -          -
+CMS_eff_Vtag_PS           lnN        -        -  1.065/0.935 1.065/0.935  1.065/0.935 -       -        -        1.065/0.935  1.065/0.935 -          -
 hpt                       shapeN2    1        -         -    -            -         -         -        -           -          -          -          -
 QCDScale_qqbar_accept     lnN        -       1.02     1.02  1.02          -         -         -        -           -          -          -          -
 QCDScale_ggZH_accept      lnN        -        -         -    -          1.02        -        -           -          -          -          -         -
