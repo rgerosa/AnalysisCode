@@ -18,9 +18,9 @@ observation -1
 bin                                  signal_MJ   signal_MJ       signal_MJ    signal_MJ       signal_MJ     signal_MJ   signal_MJ   signal_MJ
 process                              MonoJ    Znunu        WJets       ZJets        Dibosons        Top           QCD      GJets
 process                              0        1            2            3             4             5             6        7
-rate                                 -1       1            1           -1            -1            -1            -1        -1
+rate                                 -1       1            1           -1            -1            -1            -1       -1
 ----------------------------------------------------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN        1.027    -            -          1.027          1.027         1.027         -         1.027
+lumi_13TeV                lnN        1.050    -            -          1.050          1.050         1.050         -         1.050
 ZJets_Norm13TeV           lnN        -        -            -          1.200          -              -            -         -
 Dibosons_Norm13TeV        lnN        -        -            -            -            1.200          -            -         -
 Top_Norm13TeV             lnN        -        -            -            -            -             1.100         -         -
@@ -31,6 +31,7 @@ CMS_btag_13TeV            lnN        1.020    -            -          1.020     
 CMS_QCD_SR                shapeN2    -        -            -            -            -              -            1         -
 CMS_eff_Vtag_stat         lnN        -        -            -            -         0.99/1.01     0.99/1.01        -         -
 CMS_eff_Vtag_PS           lnN        -        -            -            -         0.99/1.01     0.99/1.01        -         -
+CMS_met_trig  		  lnN       1.01      -		   -          1.01     	   1.01	            1.01        -       1.01
 WJets_SR_MJ_bin1_Runc        param     0     1
 WJets_SR_MJ_bin2_Runc        param     0     1
 WJets_SR_MJ_bin3_Runc        param     0     1

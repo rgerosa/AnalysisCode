@@ -17,7 +17,7 @@ process                             Znunu       WJets_ZM    Dibosons        Top
 process                             1           8           4               5     
 rate                                1          -1           -1              -1    
 ----------------------------------------------------------------------------------
-lumi_13TeV                lnN       -           1.027       1.027           1.027
+lumi_13TeV                lnN       -           1.050       1.050           1.050
 CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
 WJets_ZM_Norm13TeV        lnN       -           1.200       -               -     
 Dibosons_Norm13TeV        lnN       -           -           1.200           -     

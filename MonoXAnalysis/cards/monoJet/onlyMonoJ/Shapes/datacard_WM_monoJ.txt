@@ -18,7 +18,7 @@ process                             WJets       ZJets_WM    Dibosons        Top 
 process                             2           9           4               5             10
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN       -           1.027       1.027           1.027         1.027
+lumi_13TeV                lnN       -           1.050       1.050           1.050         1.050
 CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
 CMS_eff_lepVeto           lnN       1.030       -           -               -             -             
 ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
