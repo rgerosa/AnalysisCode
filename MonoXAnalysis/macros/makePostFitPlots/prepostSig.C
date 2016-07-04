@@ -384,7 +384,7 @@ void prepostSig(string fitFilename,
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"2.61");
+  CMS_lumi(canvas,"2.6");
 
   stack ->Draw("HIST SAME");
   if(mwhist && !plotSBFit)

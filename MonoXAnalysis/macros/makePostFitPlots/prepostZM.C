@@ -180,7 +180,7 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
 
   frame ->Draw();
   
-  CMS_lumi(canvas,"2.61");
+  CMS_lumi(canvas,"2.6");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");

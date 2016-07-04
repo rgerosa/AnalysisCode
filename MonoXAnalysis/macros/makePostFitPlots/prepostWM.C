@@ -175,7 +175,7 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
 
   frame->Draw();
   
-  CMS_lumi(canvas,"2.61");
+  CMS_lumi(canvas,"2.6");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -302,9 +302,9 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/ZJets_WM");
-    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Top");
-    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch2/Dibosons");
+    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch3/ZJets_WM");
+    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch3/Top");
+    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch3/Dibosons");
 
     wlhist_prefit->Write("zjets_pre_fit");
     tthist_prefit->Write("top_pre_fit");
