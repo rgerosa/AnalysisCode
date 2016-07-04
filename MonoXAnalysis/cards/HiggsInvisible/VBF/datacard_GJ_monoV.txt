@@ -1,0 +1,46 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+---------------------------------------------------------
+shapes data_obs      gamma_MV   workspace_MV.root GJ_MV:data_obs_GJ_MV
+shapes Znunu         gamma_MV   workspace_MV.root GJ_MV:Znunu_GJ_MV
+shapes QCD_GJ        gamma_MV   workspace_MV.root GJ_MV:QCD_GJ_MV
+shapes VGamma_GJ     gamma_MV   workspace_MV.root GJ_MV:VGamma_GJ_MV
+shapes WJets_GJ      gamma_MV   workspace_MV.root GJ_MV:WJets_GJ_MV
+---------------------------------------------------------
+bin         gamma_MV
+observation -1
+---------------------------------------------------------
+bin                                 gamma_MV    gamma_MV   gamma_MV   gamma_MV
+process                             Znunu       QCD_GJ     VGamma_GJ  WJets_GJ
+process                             1           11         12         13
+rate                                1          -1          -1         -1
+---------------------------------------------------------
+QCD_GJ_Norm13TeV          lnN       -           1.400       -         -
+CMS_eff_ph                lnN       1.020       -           1.020     1.020
+CMS_met_trig              lnN       1.010       -           -         -
+CMS_trig_ph               lnN       1.020       -           1.020     1.020
+VGamma_Norm13TeV          lnN       -           -           1.200     -
+WJets_GJ_Norm13TeV        lnN       -           -           -         1.500
+Znunu_GJ_RenScale1        param     0     1
+Znunu_GJ_FactScale1       param     0     1
+Znunu_GJ_RenScale2        param     0     1
+Znunu_GJ_FactScale2       param     0     1
+Znunu_GJ_PDF              param     0     1
+Znunu_GJ_MV_bin1_Runc      param    0           1
+Znunu_GJ_MV_bin2_Runc      param    0           1
+Znunu_GJ_MV_bin3_Runc      param    0           1
+Znunu_GJ_MV_bin4_Runc      param    0           1
+Znunu_GJ_MV_bin5_Runc      param    0           1
+Znunu_GJ_MV_bin6_Runc      param    0           1
+Znunu_GJ_MV_bin7_Runc      param    0           1
+Znunu_GJ_MV_bin1_ZG_EWK    param    0           1 
+Znunu_GJ_MV_bin2_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin3_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin4_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin5_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin6_ZG_EWK    param    0           1  
+Znunu_GJ_MV_bin7_ZG_EWK    param    0           1  
+---------------------------------------------------------
+
