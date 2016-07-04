@@ -32,6 +32,7 @@ const int   nBjets          = 1;
 const bool  reweightNVTX    = true;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
+string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/";
 
@@ -105,14 +106,11 @@ void makehist4(TTree* tree, /*input tree*/
   // in case you want to weight the NVTX distribution
   TFile* pufile = NULL;
   TH1* puhist = NULL;
-  if(not is76Xsample){
-    if(reweightNVTX)
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
-    else
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puwgt_official_2p6fb-1.root");
+  if(not is76Xsample and reweightNVTX){
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");    
     puhist = (TH1*) pufile->Get("puhist");
   }
-  else{
+  else if(reweightNVTX and is76Xsample){
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_76X_2p6fb.root");
     puhist = (TH1*) pufile->Get("puhist");
   }    
@@ -682,10 +680,10 @@ void makehist4(TTree* tree, /*input tree*/
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
     double genpt = *wzpt;
-    if (*wzpt < 150. ) genpt = 150.;
-    if (*wzpt > 1000.) genpt = 999.;
     for (size_t i = 0; i < khists.size(); i++) {
       if (khists[i]) {
+	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
       }
     }
@@ -850,12 +848,12 @@ void makehist4(TTree* tree, /*input tree*/
 	if(fabs(jeteta->at(0)) > 3.0) continue;
 	if(jetpt->at(1) < 40) continue;
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < 3) continue;
+	if(fabs(jeteta->at(0)-jeteta->at(1)) < 3.5) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() < 500) continue;
+	if((jet1+jet2).M() < 800) continue;
       }
     }
 
@@ -1110,11 +1108,9 @@ void makehist4(TTree* tree, /*input tree*/
 	if(is76Xsample)
 	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
-	  //	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
-	  //	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 40) 

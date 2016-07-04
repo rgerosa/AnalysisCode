@@ -1105,7 +1105,10 @@ void makegamcorhist( const string & znunuFile,
   if(anlohist)
     anlohist->Divide(alohist);
 
-
+  // take open loop hitogram
+  //  TFile kffileGJ (kfactorFileGJ.c_str());
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
+  
   TFile kffileUnc (kfactorFileUnc.c_str());
   TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1");
   TH1* zpdfhist = (TH1*) kffileUnc.Get("znlo012/znlo012_pdfUp");
@@ -1357,6 +1360,9 @@ void makewgamcorhist( const string & wlnuFile,
   if(anlohist)
     anlohist->Divide(alohist);
 
+  // take open loop hitogram                                                                                                                                                    
+  //  TFile kffileGJ (kfactorFileGJ.c_str());                                                                                                                                   
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G"); 
 
   TFile kffileUnc (kfactorFileUnc.c_str());
   TH1* nomhist    = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1");

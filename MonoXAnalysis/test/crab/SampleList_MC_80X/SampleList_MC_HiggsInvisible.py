@@ -33,13 +33,3 @@ samples['GluGlu_HToInvisible_M500']    = ['/GluGlu_HToInvisible_M500_13TeV_powhe
 samples['GluGlu_HToInvisible_M600']    = ['/GluGlu_HToInvisible_M600_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=2.005']]
 
 samples['GluGlu_HToInvisible_M800']    = ['/GluGlu_HToInvisible_M800_13TeV_powheg_pythia8/RunIISpring16MiniAODv2-PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=4.491E-01']]
-
-
-#samples['ggZH_HToInv_ZToLL_M125']    = ['/ggZH_HToInv_ZToLL_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM', 
-#                                          ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=-1']]
-
-#samples['qqZH_HToInv_ZToLL_M125']    = ['/ZH_ZToMM_HToInvisible_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM', 
-#                                          ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=-1']]
-
-#samples['qqZH_HToInv_ZToEE_M125']     = ['/ZH_ZToEE_HToInvisible_M125_13TeV_powheg_pythia8/RunIIFall15MiniAODv2-PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/MINIAODSIM', 
-#                                        ['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=-1']]

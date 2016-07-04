@@ -13,7 +13,7 @@ void signalHiggshist(TFile* outfile,
 		     vector<double> xs                  = {4.198E+04,3.925E+03,1.475E+03,9.095E+02},
 		     const int & typeOfHiggsSignal      = 0){
 
-  if(xs.size() != 4)
+  if(xs.size() != 4 or xs.size() != 5)
     cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
 
   cout<<"Start HiggsInvisible: signalHiggshist --> "<<mH<<endl;

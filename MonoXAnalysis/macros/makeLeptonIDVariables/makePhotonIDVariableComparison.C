@@ -1,10 +1,10 @@
 // pt binning to study ID observables
 #include "../CMS_lumi.h"
 
-//static vector<float> ptBin = {175.,225,275,325,400,500,600,700,1000};
 static vector<float> ptBin = {175.,1000};
 const float luminosity = 2.61;
-
+const int nvtxMin = 0;
+const int nvtxMax = 50;
 
 vector<TH1F*> photonPt_data_HoE;
 vector<TH1F*> photonPt_data_SIetaIeta;
@@ -228,7 +228,9 @@ void fillHistograms(TTree* tree, const float & ptMin, const float & ptMax, const
     if(phoPt->size() != 1) continue;
     // Select the right pt bin
     if(phoPt->at(0) < ptMin or phoPt->at(0) > ptMax) continue;
-
+    // pileup selection
+    if(*nvtx <= nvtxMin or *nvtx > nvtxMax) continue;
+    
 
     if(addRecoil){
       // recoil using the leading reco photon

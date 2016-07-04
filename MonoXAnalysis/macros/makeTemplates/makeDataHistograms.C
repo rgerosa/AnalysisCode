@@ -474,6 +474,10 @@ void sigdatamchist(TFile* outfile,
   if(anlohist)
     anlohist->Divide(alohist);
 
+  // take open loop hitogram                                                                                                                                                 
+  //  TFile kffileGJ (kfactorFileGJ.c_str());
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
+
   vector<TH1*> ehists;
   vector<TH1*> zhists;
   vector<TH1*> whists;
@@ -1034,16 +1038,21 @@ void gamdatamchist(TFile* outfile,
                    vector<string> observables_2D,
                    const double & lumi   = 2.24,
 		   const bool & isHInv   = false,
+		   const bool & useJetHT = false,
 		   const bool & applyPFWeight = false
                    ) {
 
 
-  TChain* dttree = new TChain("tree/tree");
+  TChain* dttree   = new TChain("tree/tree");
   TChain* gmtree = new TChain("tree/tree");
   TChain* wgtree = new TChain("tree/tree");
   TChain* zgtree = new TChain("tree/tree");
   TChain* vltree = new TChain("tree/tree");
+
   dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
+  if(useJetHT)
+    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
+
   gmtree->Add((baseInputTreePath+"/PhotonJets/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
   wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
@@ -1107,9 +1116,17 @@ void gamdatamchist(TFile* outfile,
   // get k-factors NLO                                                                                                                                                        
 
   TFile kffile (kfactorFile.c_str());
-  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
-  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
-  aewkhist->Divide(alohist);
+  TH1*  alohist   = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1*  anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1*  aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
+  if(aewkhist)
+    aewkhist->Divide(anlohist);
+  if(anlohist)
+    anlohist->Divide(alohist);
+
+  // take open loop hitogram                                                                                                                                                    
+  //  TFile kffileGJ (kfactorFileGJ.c_str());
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
 
   TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
   TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
@@ -1124,6 +1141,7 @@ void gamdatamchist(TFile* outfile,
   vector<TH1*> whists;
   vector<TH1*> ehists;
   ahists.push_back(aewkhist);
+  ahists.push_back(anlohist);
   whists.push_back(wnlohist);
   whists.push_back(wewkhist);
 
@@ -1193,9 +1211,16 @@ void lepdatamchist(TFile* outfile,
 		   const bool & doShapeSystematics = false,
 		   const bool & isHInv = false,
 		   const bool & useNLOSamples = false,
+		   const bool & useSinglePhoton = false,
+		   const bool & useJetHT = false,
 		   const bool & applyPFWeight = false) {
 
   if (sample != Sample::zmm && sample != Sample::zee && sample != Sample::wmn && sample != Sample::wen) return;
+
+  if(useJetHT and useSinglePhoton){
+    cerr<<"Error: useJetHT and useSinglePhoton can't be both true -- return "<<endl;
+    return;
+  }
 
   TChain* tttree  = new TChain("tree/tree");
   TChain* stoptree  = new TChain("tree/tree");
@@ -1226,15 +1251,18 @@ void lepdatamchist(TFile* outfile,
     }
     else
       vltree->Add((baseInputTreePath+"WJets/zmmfilter/*root").c_str());
+
     qctree->Add((baseInputTreePath+"QCD/zmmfilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"DiBoson/zmmfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"PhotonJets/zmmfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/zmmfilter/*root").c_str());
     stoptree->Add((baseInputTreePath+"STop/zmmfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"MET/zmmfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/zmmfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zmmfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zmmfilter/*root").c_str());
+
+    dttree->Add((baseInputTreePath+"MET/zmmfilter/*root").c_str());
+
   }
   else if(sample == Sample::wmn){
 
@@ -1254,11 +1282,11 @@ void lepdatamchist(TFile* outfile,
     gmtree->Add((baseInputTreePath+"/PhotonJets/wmnfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"/Top/wmnfilter/*root").c_str());
     stoptree->Add((baseInputTreePath+"STop/wmnfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"/MET/wmnfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/wmnfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wmnfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wmnfilter/*root").c_str());
 
+    dttree->Add((baseInputTreePath+"/MET/wmnfilter/*root").c_str());
   }
   else if(sample == Sample::zee){
 
@@ -1278,12 +1306,16 @@ void lepdatamchist(TFile* outfile,
     gmtree->Add((baseInputTreePath+"PhotonJets/zeefilter/*root").c_str());
     stoptree->Add((baseInputTreePath+"STop/zeefilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/zeefilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"SingleElectron/zeefilter/*root").c_str());
-    //dttree_2 = new TChain("tree/tree");
-    //dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zeefilter/*root").c_str());
+
+    dttree->Add((baseInputTreePath+"SingleElectron/zeefilter/*root").c_str());
+    dttree_2 = new TChain("tree/tree");
+    if(useSinglePhoton)
+      dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
+    else if(useJetHT)
+      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1297,19 +1329,23 @@ void lepdatamchist(TFile* outfile,
     }
     else
       vltree->Add((baseInputTreePath+"WJets/wenfilter/*root").c_str());
+
     qctree->Add((baseInputTreePath+"QCD/wenfilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"DiBoson/wenfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"PhotonJets/wenfilter/*root").c_str());
     stoptree->Add((baseInputTreePath+"STop/wenfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"Top/wenfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
-    //dttree_2 = new TChain("tree/tree");
-    //dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wenfilter/*root").c_str());
-  }
 
+    dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
+    dttree_2 = new TChain("tree/tree");
+    if(useJetHT)
+      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
+    else if(useSinglePhoton)
+      dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
+  }
 
   vector<TH1*> dthist;
   vector<TH1*> tthist;
@@ -1705,6 +1741,10 @@ void lepdatamchist(TFile* outfile,
     aewkhist->Divide(anlohist);
   if(anlohist)
     anlohist->Divide(alohist);
+
+  // take open loop hitogram                                                                                                                                                    
+  //  TFile kffileGJ (kfactorFileGJ.c_str());
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
 
   vector<TH1*> ehists;
   vector<TH1*> vlhists;
@@ -2574,6 +2614,10 @@ void topdatamchist(TFile* outfile,
     aewkhist->Divide(anlohist);
   if(anlohist)
     anlohist->Divide(alohist);
+
+  // take open loop hitogram                                                                                                                                                    
+  //  TFile kffileGJ (kfactorFileGJ.c_str());
+  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
 
   vector<TH1*> ehists;
   vector<TH1*> vlhists;

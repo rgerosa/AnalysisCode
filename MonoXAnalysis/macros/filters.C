@@ -120,7 +120,7 @@ TH1D* pileupwgt(TChain* tree, std::string scenario = ""){
     histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
   else{
-    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.root");
+    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.root");
     histoPUData   = (TH1D*) fileInputData->Get("pileup");
   }
 
@@ -1258,12 +1258,12 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 
   if(not isMC and not isSinglePhoton and not isJetHT and not dropHLTFilter)
       cut += " && (hltsingleel >0 || hltelnoiso)";  
-  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter){
+  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 > 0 || hltphoton175 > 0)";
-  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter){
+  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltEcalHT800 > 0 || hltPFHT800 > 0)";
-    else if(isMC and not dropHLTFilter)
-      cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
+  else if(isMC and not dropHLTFilter)
+    cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
 
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
@@ -1491,9 +1491,9 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   if(not isMC and not dropHLTFilter and not isJetHT)
     cut += " && (hltphoton165 || hltphoton175)";
   else if(not isMC and not dropHLTFilter and isJetHT)
-    cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalPFHT800 || hltPFHT800 > 0)";
+    cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
-    cut += " && (hltphoton165 == 0 || hltphoton175 || hltEcalPFHT800 || hltPFHT800 > 0)";
+    cut += " && (hltphoton165 == 0 || hltphoton175 || hltEcalHT800 || hltPFHT800 > 0)";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();

@@ -426,8 +426,10 @@ void makeControlPlots(string templateFileName,
     stack->Add(vlhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    //    ewkwhist->Add(ewkzhist);
-    //    stack->Add(ewkwhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
     stack->Add(vllhist);
   }
   else if(controlRegion == "wmn" or controlRegion == "wen"){
@@ -436,16 +438,20 @@ void makeControlPlots(string templateFileName,
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    //    ewkwhist->Add(ewkzhist);
-    //    stack->Add(ewkwhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
     stack->Add(vlhist);
   }
   else if((controlRegion == "topmu" or controlRegion == "topel") and not plotResonant){
     stack->Add(qcdhist);
     stack->Add(gamhist);
     stack->Add(vllhist);
-    //    ewkwhist->Add(ewkzhist);
-    //    stack->Add(ewkwhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
     stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist);    
@@ -455,8 +461,10 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
-    //    ewkwhist->Add(ewkzhist);
-    //    stack->Add(ewkwhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
     stack->Add(vlhist);
     stack->Add(tophist_unmatched);    
     stack->Add(tophist_matched);    
@@ -467,8 +475,10 @@ void makeControlPlots(string templateFileName,
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    //    ewkwhist->Add(ewkzhist);
-    //    stack->Add(ewkwhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
     stack->Add(vlhist);
     stack->Add(vnnhist);
   }
@@ -619,7 +629,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"2.6");
+  CMS_lumi(canvas,"3.99");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -671,6 +681,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
     leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
@@ -681,6 +693,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
     leg->AddEntry(vlhist,  "W #rightarrow e #nu","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
@@ -691,7 +705,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
-    //    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,  "Top","F");
     leg->AddEntry(dbhist,   "Di-Boson","F");
     leg->AddEntry(gamhist,  "#gamma+jets","F");
@@ -702,7 +717,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow ee","F");
-    //    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
@@ -755,7 +771,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
     leg->AddEntry(vlhist,  "W(l#nu)", "F");
-    //    leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist,  "Dibosons", "F");
     leg->AddEntry(tophist, "Top", "F");
     leg->AddEntry(vllhist, "Others: Z(ll), #gamma+jets","F");
