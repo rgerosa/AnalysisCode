@@ -1,8 +1,8 @@
 #include "../CMS_lumi.h"
 
 // met binning used in this study
-vector<double> ZPT_bins      = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 155.,190.,250.};
-vector<double> GammaPT_bins  = {150,175.,200,250,300,400,500,600};
+vector<double> ZPT_bins      = {0.0, 5., 10., 15., 20., 30., 40., 60., 80., 100., 125, 150.,185.,220.};
+vector<double> GammaPT_bins  = {175.,200,225,250,300,400};
 vector<double> Nvtx_bins     = {0.0, 5.5, 10.5, 15.5, 20.5, 25.5, 30.5, 50.};
 vector<double> ZEta_bins     = {0.0, 0.5, 1.0,  1.5, 2.0, 2.5};
 vector<double> GammaEta_bins = {0.0, 0.5, 1.0,  1.5};
@@ -160,16 +160,33 @@ double drawplot(TTree* tree,
   TH2*  purhist = (TH2*) purityfile_photon.Get("PhotonPurity");
 
   // trigger files used for 2016                                                                                                                                                
-  TFile triggerfile_SinglEle("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron.root");
   TFile triggerfile_SingleMu("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleMuon.root");
-  TFile triggerfile_MET("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
-  TFile triggerfile_SinglePhoton("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/photonTriggerEfficiency.root");
-
-  TH2*  triggerelhist = (TH2*) triggerfile_SinglEle.Get("trigeff_ele27wptight");
   TH2*  triggermuhist = (TH2*) triggerfile_SingleMu.Get("trigeff_muIso");
-  TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
-  TF1*  triggerphoton = (TF1*)triggerfile_SinglePhoton.Get("efficiency_func");
 
+  TFile triggerfile_MET("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
+  TF1*  triggermet = (TF1*) triggerfile_MET.Get("efficiency_func");
+
+  TFile triggerfile_SinglePhoton("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/photonTriggerEfficiency_jetHT.root");
+  TEfficiency*  triggerphoton            = (TEfficiency*)triggerfile_SinglePhoton.Get("efficiency_photon_pfht");
+  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
+
+  TFile triggerfile_SinglEle("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron.root");
+  TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle.Get("trgeff_ele");
+  TH2* triggerelhist    = triggerel_eff->CreateHistogram();
+  triggerelhist->SetName("triggerelhist");
+
+  TFile kffile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root");
+  TH1*  alohist   = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1*  anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1*  aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
+  if(aewkhist)
+    aewkhist->Divide(anlohist);
+  if(anlohist)
+    anlohist->Divide(alohist);
+
+  vector<TH1*> khists;
+  khists.push_back(aewkhist);
+  khists.push_back(anlohist);
 
   TTreeReader reader(tree);
   const char* wgtsumvar;
@@ -248,6 +265,7 @@ double drawplot(TTree* tree,
   TTreeReaderValue<double>          pheta  (reader, "pheta");
   TTreeReaderValue<double>          phphi  (reader, "phphi");
 
+  TTreeReaderValue<double>          wzpt   (reader, "wzpt");
   TTreeReaderValue<double>          zpt   (reader, "zpt");
   TTreeReaderValue<double>          zeta  (reader, "zeta");
   TTreeReaderValue<double>          zphi  (reader, "zphi");
@@ -308,11 +326,11 @@ double drawplot(TTree* tree,
     if(*nbjets > 1) continue;
 
     if (binning.category_ == "gam") {
-      unsigned char hlt = (*hph165) + (*hph175) +(*hph50) +(*hph90)+(*hph120);
+      unsigned char hlt = (*hph165) + (*hph175);
       if (not isMC and hlt == 0) continue;
       if (fabs(*pheta) > 1.4442 || not *phidm) continue;
-      trgsf *= triggerphoton->Eval(min(*phpt,triggerphoton->GetXaxis()->GetXmax()));
-      effsf *= psfmedium->GetBinContent(psfmedium->FindBin(min(*phpt,psfmedium->GetXaxis()->GetBinLowEdge(psfmedium->GetNbinsX()+1)-1),*pheta));
+      trgsf *= triggerphoton_graph->Eval(min(*phpt,triggerphoton_graph->GetXaxis()->GetXmax()));
+      //      effsf *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(*pheta),min(*phpt,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
       if(obs < binning.bins_.at(binning.iBin_)) continue;
       if(obs >= binning.bins_.at(binning.iBin_+1)) continue;
     }
@@ -327,12 +345,12 @@ double drawplot(TTree* tree,
       if (*mu1id == 1 && *mu1pt > 20.) istight = true;
       if (*mu2id == 1 && *mu2pt > 20.) istight = true;
       if (!istight) continue;
-      if (*mu1id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu1pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu1eta));
-      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu1pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu1eta));
-      if (*mu2id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(min(*mu2pt,msftight->GetXaxis()->GetBinLowEdge(msftight->GetNbinsX()+1)-1),*mu2eta));
-      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(min(*mu2pt,msfloose->GetXaxis()->GetBinLowEdge(msfloose->GetNbinsX()+1)-1),*mu2eta));
+      if (*mu1id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(fabs(*mu1eta),min(*mu1pt,msftight->GetYaxis()->GetBinLowEdge(msftight->GetNbinsY()+1)-1)));
+      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(fabs(*mu1eta),min(*mu1pt,msfloose->GetYaxis()->GetBinLowEdge(msfloose->GetNbinsY()+1)-1)));
+      if (*mu2id == 1 ) effsf *= msftight->GetBinContent(msftight->FindBin(fabs(*mu2eta),min(*mu2pt,msftight->GetYaxis()->GetBinLowEdge(msftight->GetNbinsY()+1)-1)));
+      else              effsf *= msfloose->GetBinContent(msfloose->FindBin(fabs(*mu2eta),min(*mu2pt,msfloose->GetYaxis()->GetBinLowEdge(msfloose->GetNbinsY()+1)-1)));
 
-      if (*mu1id == 1 and *mu2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                                    
+      if (*mu1id == 1 and *mu2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                                  
         trgsf *= 1;
       else if(*mu1id == 1 and *mu2id != 1)
         trgsf *= triggermuhist->GetBinContent(triggermuhist->FindBin(min(*mu1pt,triggermuhist->GetXaxis()->GetBinLowEdge(triggermuhist->GetNbinsX()+1)-1),*mu1eta));
@@ -349,12 +367,30 @@ double drawplot(TTree* tree,
       if (*el1id == 1 && *el1pt > 40.) istight = true;
       if (*el2id == 1 && *el2pt > 40.) istight = true;
       if (!istight) continue;
-      if (*el1id == 1 and *el2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                                    
+
+      if (*el1id == 1 ) effsf *= esftight->GetBinContent(esftight->FindBin(fabs(*el1eta),min(*el1pt,esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1)));
+      else              effsf *= esfveto->GetBinContent(esfveto->FindBin(fabs(*el1eta),min(*el1pt,esfveto->GetYaxis()->GetBinLowEdge(esfveto->GetNbinsY()+1)-1)));
+      if (*el2id == 1 ) effsf *= esftight->GetBinContent(esftight->FindBin(fabs(*el2eta),min(*el2pt,esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1)));
+      else              effsf *= esfveto->GetBinContent(esfveto->FindBin(fabs(*el2eta),min(*el2pt,esfveto->GetYaxis()->GetBinLowEdge(esfveto->GetNbinsY()+1)-1)));
+
+
+      if (*el1id == 1 and *el2id == 1)  // both tight efficiency is eff1+eff2-eff1*eff2 that at plateau is ~1                                                                 
         trgsf *= 1;
       else if(*el1id == 1 and *el2id != 1)
-        trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el1pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el1eta));
+        trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(*el1eta),min(*el1pt,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
       else if(*el1id != 1 and *el2id == 1)
-        trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(min(*el2pt,triggerelhist->GetXaxis()->GetBinLowEdge(triggerelhist->GetNbinsX()+1)-1),*el2eta));
+        trgsf *= triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(*el1eta),min(*el2pt,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+    }
+
+    if(binning.category_ == "gam"){
+      double genpt = *wzpt;
+      for (size_t i = 0; i < khists.size(); i++) {
+	if (khists[i]) {
+	  if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	  kfact *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	}
+      }
     }
 
     // make x and y projections                                                                                                                                               
@@ -604,9 +640,6 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
   }
 
 
-  TPad *pad1      = new TPad("pad1","pad1",0,0.3,1,1.0);
-  TPad *pad2      = new TPad("pad2","pad2",0,0.1,1,0.3);
-    
   double val = 0.0;
   double err = 0.0;
 
@@ -687,8 +720,15 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
   datres->SetLineColor(kBlack);
   datres->SetMarkerStyle(20);
 
+  TPad *pad1      = new TPad("pad1","pad1",0,0.25,1,1.0);
+  TPad *pad2      = new TPad("pad2","pad2",0,0.0,1,0.25);
   canvas->cd();
-  TH1* frame = canvas->DrawFrame(bins.front(), 0.4, bins.back(), 1.1, "");
+  pad1->Draw();
+  canvas->cd();
+  pad2->Draw();
+
+  pad1->cd();
+  TH1* frame = pad1->DrawFrame(bins.front(), 0.4, bins.back(), 1.1, "");
   if(observable == "zpt")
     frame->GetXaxis()->SetTitle("Z p_{T} [GeV]");
   else if(observable == "phpt")
@@ -705,13 +745,14 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
   frame->GetYaxis()->SetLabelSize(0.9*frame->GetYaxis()->GetLabelSize());
   frame->GetXaxis()->SetTitleSize(0.8*frame->GetXaxis()->GetTitleSize());
 
-  pad1->SetTopMargin(0.06);
-  pad1->SetRightMargin(0.075);
-  pad1->SetBottomMargin(0.035);
-  pad1->Draw();
   pad1->cd();
   frame ->Draw();
   zllres->SetLineWidth(2);
+  zllres->Draw("hist SAME");
+  TH1* zllres_band = (TH1*) zllres->Clone("zllres_band");
+  zllres_band->SetMarkerSize(0);
+  zllres_band->SetFillColor(kGray);
+  zllres_band->Draw("E2 same");
   zllres->Draw("hist SAME");
   datres->Draw("PE SAME");
 
@@ -723,40 +764,39 @@ void makeMETResponse(string baseDIR,   // directory with ntuples
   else if(category == "zee")
     leg->AddEntry(zllres, "Z(ee) MC","L");
   else if(category == "gam")
-    leg->AddEntry(zllres, "#gamma MC","L");
+    leg->AddEntry(zllres, "#gamma+jets MC","L");
 
   leg->Draw("SAME");
 
-  pad1->RedrawAxis();  
+  pad1->RedrawAxis("sameaxis");  
   TString lumi_ = Form("%.2f",lumi);
   CMS_lumi(pad1,string(lumi_),true);
 
-  canvas->cd();
-  pad2->SetTopMargin(0.08);
-  pad2->SetRightMargin(0.075);
+  pad1->cd();
   pad2->SetGridy();
-  pad2->Draw();
   pad2->cd();
 
   TH1* dahist = (TH1*)datres->Clone("dahist");
   TH1* mchist = (TH1*)zllres->Clone("mchist");
   dahist->Divide(mchist);
 
-  dahist->GetXaxis()->SetLabelSize(3.0*dahist->GetXaxis()->GetLabelSize());
-  dahist->GetYaxis()->SetLabelSize(3.0*dahist->GetYaxis()->GetLabelSize());
-  dahist->GetYaxis()->SetRangeUser(0.9, 1.1);
+  dahist->GetXaxis()->SetLabelSize(0.09);
+  dahist->GetYaxis()->SetLabelSize(0.12);
+  dahist->GetYaxis()->SetRangeUser(0.85, 1.15);
   dahist->GetYaxis()->SetNdivisions(504);
   dahist->SetMarkerSize(0);
   dahist->SetMarkerStyle(20);
   dahist->SetMarkerSize(1.0);
-  dahist->GetYaxis()->SetTitle("Data/MC");  
-  dahist->GetYaxis()->SetTitleSize(dahist->GetYaxis()->GetTitleSize()*2);
+  dahist->GetYaxis()->SetTitle("Data/MC");
+  dahist->GetYaxis()->SetTitleSize(0.1);
+  dahist->GetYaxis()->SetTitleOffset(0.5);
   dahist->Draw("PE");
 
   pad1->cd();
-  pad1->RedrawAxis();
+  pad1->RedrawAxis("sameaxis");
 
   canvas->SaveAs((outputDIR+"/metResponse_"+category+"_"+observable+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/metResponse_"+category+"_"+observable+".png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/metResponse_"+category+"_"+observable+".root").c_str(),"root");
   
 }

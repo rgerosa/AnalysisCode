@@ -120,6 +120,10 @@ options.register (
 	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
+options.register (
+	'triggerName','HLT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'process name used for miniAOD production (target is miniAODv2)');
+
 ## outputFile Name
 options.register (
 	'outputFileName','tree.root',VarParsing.multiplicity.singleton,VarParsing.varType.string,
@@ -478,7 +482,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      gens                   = cms.InputTag("prunedGenParticles"),
 			      xsec                   = cms.double(options.crossSection),   
 			      ## trigger info
-			      triggerResults = cms.InputTag("TriggerResults", "", "HLT"),
+			      triggerResults = cms.InputTag("TriggerResults", "",options.triggerName),
 			      prescales      = cms.InputTag("patTrigger"),    
 			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
 			      ## vertexes			    

@@ -29,12 +29,13 @@ const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1;
-const bool  reweightNVTX    = true;
+const bool  reweightNVTX    = false;
+const bool  reweightPhton   = true;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_04_07_2016/";
 
 VectorSorter jetSorter;
 
@@ -114,7 +115,14 @@ void makehist4(TTree* tree, /*input tree*/
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_76X_2p6fb.root");
     puhist = (TH1*) pufile->Get("puhist");
   }    
-    
+  else if(not reweightNVTX and not is76Xsample){
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_3p9.root");
+    puhist = (TH1*) pufile->Get("puhist");
+  }
+
+  TFile gamRecoilFile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/extraNuisance/photon_nuisance.root");
+  TH1* gamRecoilWeight = (TH1*) gamRecoilFile.Get("gamma_jets_ratio");
+     
   // electron and muon ID scale factor files                                                                                                                                    
   TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid.root");
   TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid.root");
@@ -429,6 +437,8 @@ void makehist4(TTree* tree, /*input tree*/
   // loop on events
   while(myReader.Next()){
 
+    //    if(not isMC and *run > 274443) continue;
+
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
@@ -648,8 +658,10 @@ void makehist4(TTree* tree, /*input tree*/
     // photon id scale factor
     if (isMC && psfmedium && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	//	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
-	sfwgt *= 1;
+	if(category == Category::monoV)
+	  sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+	else
+	  sfwgt *= 1;
       }
     }
 
@@ -707,6 +719,15 @@ void makehist4(TTree* tree, /*input tree*/
       else if(met > postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1))
 	met = postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1)-1;
       pfwgt =  postFitWeight->GetBinContent(postFitWeight->FindBin(met));
+    }
+
+    // data based re-weight for gamma+jets
+    Double_t gamwgt = 1.0;
+    if(sample == Sample::gam and isMC and category == Category::monojet and reweightPhton){
+      if(pfmet >= 400)
+	gamwgt = gamRecoilWeight->GetBinContent(gamRecoilWeight->GetXaxis()->FindBin(pfmet));
+      else 
+	gamwgt = 1;
     }
 
     // Top quark pt re-weight
@@ -848,12 +869,12 @@ void makehist4(TTree* tree, /*input tree*/
 	if(fabs(jeteta->at(0)) > 3.0) continue;
 	if(jetpt->at(1) < 40) continue;
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < 3.5) continue;
+	if(fabs(jeteta->at(0)-jeteta->at(1)) < 4) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() < 800) continue;
+	if((jet1+jet2).M() < 1000) continue;
       }
     }
 
@@ -1103,24 +1124,27 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
-	if (*putrue <= 70) 
-	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
 	if(is76Xsample)
 	  puwgt = 1;
+	if (*putrue <= 50)
+          puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
+ 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+	  //	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*gamwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+	  //	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*gamwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 40) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	if(is76Xsample)
-	  puwgt = 1;
+	//	if(is76Xsample)
+	//	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
       }
       
       if (!isMC && sample == Sample::qcd) 
@@ -1278,17 +1302,17 @@ void makehist4(TTree* tree, /*input tree*/
 
       if (isMC and not reweightNVTX){
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)      
       }
       else if (isMC and reweightNVTX){
-	if (*nvtx <= 35) 
+	if (*nvtx <= 40) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum);
       }
       if (!isMC && sample == Sample::qcd) 
 	evtwgt = sfwgt;
@@ -1311,7 +1335,7 @@ void makehist4(TTree* tree, /*input tree*/
   triggerfile_SingleMu.Close();
   triggerfile_MET.Close();
   triggerfile_SinglePhoton.Close();
-  
+  gamRecoilFile.Close();
 }
 
 #endif

@@ -26,6 +26,7 @@ pyCfgParams = ['isMC=True',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
                'outputFileName=tree.root',
                'nThreads=3',
+               'triggerName=HLT2',
                'isCrab=True']
 
 config.section_('General')

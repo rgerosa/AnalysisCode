@@ -16,31 +16,30 @@ void makeHiggsInvisiblePlot(){
   canvas->SetRightMargin(0.05);
 
   TH1F* limitValueExpected = new TH1F("limitValueExpected","",3,0,3);
-  limitValueExpected->SetBinContent(1,1.11);
-  limitValueExpected->SetBinContent(2,1.43);
-  limitValueExpected->SetBinContent(3,0.84);
+  limitValueExpected->SetBinContent(1,1.146);
+  limitValueExpected->SetBinContent(2,1.221);
+  limitValueExpected->SetBinContent(3,0.819);
 
-  TH1F* limitValueObserved = new TH1F("limitValueObserved","",3,0,3);
-  limitValueObserved->SetBinContent(1,1.46);
-  limitValueObserved->SetBinContent(2,1.04);
-  limitValueObserved->SetBinContent(3,0.85);
-
+  //  TH1F* limitValueObserved = new TH1F("limitValueObserved","",3,0,3);
+  //  limitValueObserved->SetBinContent(1,1.46);
+  //  limitValueObserved->SetBinContent(2,1.04);
+  //  limitValueObserved->SetBinContent(3,0.85);
 				    
   TGraphAsymmErrors* limitErr_1s = new TGraphAsymmErrors();
-  limitErr_1s->SetPoint(1,0.5,1.11);
-  limitErr_1s->SetPoint(2,1.5,1.43);
-  limitErr_1s->SetPoint(3,2.5,0.84);
-  limitErr_1s->SetPointError(1,0.5,0.5,fabs(1.11-0.76),fabs(1.64-1.11));
-  limitErr_1s->SetPointError(2,0.5,0.5,fabs(1.43-1.02),fabs(1.43-2.10));
-  limitErr_1s->SetPointError(3,0.5,0.5,fabs(0.59-0.84),fabs(0.84-1.22));
+  limitErr_1s->SetPoint(1,0.5,1.146);
+  limitErr_1s->SetPoint(2,1.5,1.221);
+  limitErr_1s->SetPoint(3,2.5,0.819);
+  limitErr_1s->SetPointError(1,0.5,0.5,fabs(1.146-0.80),fabs(1.676-1.146));
+  limitErr_1s->SetPointError(2,0.5,0.5,fabs(1.221-0.85),fabs(1.700-1.221));
+  limitErr_1s->SetPointError(3,0.5,0.5,fabs(0.819-0.58),fabs(0.819-1.173));
 
   TGraphAsymmErrors* limitErr_2s = new TGraphAsymmErrors();
-  limitErr_2s->SetPoint(1,0.5,1.13);
-  limitErr_2s->SetPoint(2,1.5,1.42);
-  limitErr_2s->SetPoint(3,2.5,0.86);
-  limitErr_2s->SetPointError(1,0.5,0.5,fabs(1.11-0.56),fabs(2.38-1.11));
-  limitErr_2s->SetPointError(2,0.5,0.5,fabs(1.43-0.75),fabs(1.43-2.87));
-  limitErr_2s->SetPointError(3,0.5,0.5,fabs(0.44-0.84),fabs(0.84-1.72));
+  limitErr_2s->SetPoint(1,0.5,1.146);
+  limitErr_2s->SetPoint(2,1.5,1.221);
+  limitErr_2s->SetPoint(3,2.5,0.819);
+  limitErr_2s->SetPointError(1,0.5,0.5,fabs(1.146-0.59),fabs(2.354-1.146));
+  limitErr_2s->SetPointError(2,0.5,0.5,fabs(1.221-0.64),fabs(2.390-1.221));
+  limitErr_2s->SetPointError(3,0.5,0.5,fabs(0.819-0.428),fabs(0.84-1.63));
   
   limitValueExpected->GetXaxis()->SetBinLabel(1,"monojet");
   limitValueExpected->GetXaxis()->SetBinLabel(2,"mono-V");
@@ -58,7 +57,6 @@ void makeHiggsInvisiblePlot(){
 
   limitValueExpected->Draw("hist");
   limitErr_1s->SetFillColor(kGreen);
-  limitErr_1s->SetLineWidth(0);
   limitErr_2s->SetFillColor(kYellow);
   limitErr_2s->Draw("2same");
   limitErr_1s->Draw("2same");
@@ -68,24 +66,24 @@ void makeHiggsInvisiblePlot(){
   limitValueExpected->SetMarkerColor(kBlack);
   limitValueExpected->Draw("P same");
 
-  limitValueObserved->SetLineColor(kBlack);
-  limitValueObserved->SetMarkerColor(kBlack);
-  limitValueObserved->SetMarkerSize(1.2);
-  limitValueObserved->SetMarkerStyle(20);
-  limitValueObserved->SetLineWidth(2);
-  limitValueObserved->Draw("hist same");
-  limitValueObserved->Draw("P same");
+  //  limitValueObserved->SetLineColor(kBlack);
+  //  limitValueObserved->SetMarkerColor(kBlack);
+  //  limitValueObserved->SetMarkerSize(1.2);
+  //  limitValueObserved->SetMarkerStyle(20);
+  //  limitValueObserved->SetLineWidth(2);
+  //  limitValueObserved->Draw("hist same");
+  //  limitValueObserved->Draw("P same");
 
   TLegend* leg = new TLegend(0.5,0.66,0.9,0.9);
   leg->SetBorderSize(0.);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
-  leg->AddEntry(limitValueObserved,"Oberved CL_{s}","PL");
+  //  leg->AddEntry(limitValueObserved,"Oberved CL_{s}","PL");
   leg->AddEntry(limitValueExpected,"Median Expected CL_{s}","PL");
   leg->AddEntry(limitErr_1s,"Expected CL_{s} #pm 1#sigma","F");
   leg->AddEntry(limitErr_2s,"Expected CL_{s} #pm 2#sigma","F");
   leg->Draw("same");
-  CMS_lumi(canvas,"2.30",false,2);
+  CMS_lumi(canvas,"2.60",false);
 
   canvas->RedrawAxis("sameaxis");
 

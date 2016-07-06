@@ -115,14 +115,8 @@ TH1D* pileupwgt(TChain* tree, std::string scenario = ""){
   TH1D*  histoPUData;
   TFile* fileInputData;
   
-  if(scenario == "silver"){
-    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_Silver_v2.root");
-    histoPUData   = (TH1D*) fileInputData->Get("pileup");
-  }
-  else{
-    fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.root");
-    histoPUData   = (TH1D*) fileInputData->Get("pileup");
-  }
+  fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.root");
+  histoPUData   = (TH1D*) fileInputData->Get("pileup");
 
   histoPUData->SetName("histoPUData");
   // scale to unit
@@ -1493,7 +1487,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   else if(not isMC and not dropHLTFilter and isJetHT)
     cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
-    cut += " && (hltphoton165 == 0 || hltphoton175 || hltEcalHT800 || hltPFHT800 > 0)";
+    cut += " && (hltphoton165 || hltphoton175 || hltEcalHT800 || hltPFHT800 > 0)";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -1778,7 +1772,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
       if(nEvents %100000 == 0) 
 	std::cout<<"\r"<<"Event: "<<100*float(nEvents)/outtree->GetEntries()<<" %";
 	bwgtsum->Fill();
-	wgtpileup = puRatio->GetBinContent(*putrue);
+	wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
 	bwgtpileup->Fill();    
 	if(xsType > 0 and isMC)
 	  bxsec->Fill();
@@ -2014,7 +2008,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
       if(nEvents %100000 == 0) 
 	std::cout<<"\r"<<"Event: "<<100*float(nEvents)/outtree->GetEntries()<<" %";
 	bwgtsum->Fill();
-	wgtpileup = puRatio->GetBinContent(*putrue);
+	wgtpileup = puRatio->GetBinContent(puRatio->FindBin(*putrue));
 	bwgtpileup->Fill();    
 	if(xsType > 0 and isMC)
 	  bxsec->Fill();
