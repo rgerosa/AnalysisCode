@@ -94,7 +94,7 @@ options.register (
         'photon purity studies --> add some more branches');
 
 options.register (
-        'addPhotonIDVariables',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'addPhotonIDVariables',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon id variables study --> dump id variables');
 
 options.register (

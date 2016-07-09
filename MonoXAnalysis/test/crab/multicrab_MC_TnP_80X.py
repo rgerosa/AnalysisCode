@@ -7,7 +7,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=True',
-               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
+               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                ]
 
 config.section_('General')
@@ -27,7 +27,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 150000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-27-05-2016_80X_TnP/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/Production-09-07-2016_80X_TnP_MC/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

@@ -1049,10 +1049,12 @@ void gamdatamchist(TFile* outfile,
   TChain* zgtree = new TChain("tree/tree");
   TChain* vltree = new TChain("tree/tree");
 
+
   dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
   if(useJetHT)
-    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
-
+    //    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"DoubleEG/gamfilter/*root").c_str());
+  
   gmtree->Add((baseInputTreePath+"/PhotonJets/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
   wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
@@ -1315,7 +1317,8 @@ void lepdatamchist(TFile* outfile,
     if(useSinglePhoton)
       dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
     else if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
+      //      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"DoubleEG/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1342,7 +1345,8 @@ void lepdatamchist(TFile* outfile,
     dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
+      //      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"DoubleEG/wenfilter/*root").c_str());
     else if(useSinglePhoton)
       dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
   }

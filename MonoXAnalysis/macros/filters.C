@@ -314,7 +314,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
       frtree->Add(name.c_str());    
     }
   }
-  
+
   TChain* intree  = new TChain("gentree/gentree");
   TH1D*   puRatio = NULL;
   double  wgtsum;
@@ -375,10 +375,11 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 
   double wgtpileup = 1;
   double xsec;
+
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
   
   if(isMC){
 
@@ -501,7 +502,6 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   outtree->Write();
   outfile->Close();
   std::cout<<"###################################"<<std::endl;
-  
 }
 
 // function to apply Zmumu selections
@@ -606,9 +606,9 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
 
@@ -745,6 +745,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false, // to use also single photon trigger when running on data: singleEle trigger on singleEle dataset, photon trigger on photon dataset
 	       bool isJetHT  = false, // to use also single photon trigger when running on data: singleEle trigger on singleEle dataset, photon trigger on photon dataset
+	       bool isDoubleEG = false,
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -796,11 +797,13 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   string cut = "nmuons == 0 && nelectrons == 2  && nphotons == 0 && zeemass > 60 && zeemass < 120 && ((el1pt > 40 && el1id >= 1) || (el2pt > 40 && el2id >= 1)) && t1elmet > "+metCut+" && (el1pid != el2pid)";
   
   // trigger 
-  if(not isMC and not isSinglePhoton and not isJetHT and not dropHLTFilter)
+  if(not isMC and not isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
     cut += " && (hltsingleel || hltelnoiso)";
-  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter)
+  else if(not isMC and isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
     cut += " && ( hltphoton165 || hltphoton175 ) && (hltsingleel == 0 && hltelnoiso == 0)";      
-  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter)
+  else if(not isMC and isJetHT and not isDoubleEG and not isSinglePhoton and not dropHLTFilter)
+    cut += " && (hltPFHT800 || hltEcalHT800) && (hltsingleel == 0 && hltelnoiso == 0)";    
+  else if(not isMC and not isJetHT and isDoubleEG and not isSinglePhoton and not dropHLTFilter)
     cut += " && (hltPFHT800 || hltEcalHT800) && (hltsingleel == 0 && hltelnoiso == 0)";    
   else if(isMC and not dropHLTFilter)
     cut += " && (hltsingleel > 0 || hltphoton175 > 0 || hltphoton165 > 0 || hltelnoiso > 0 || hltPFHT800 > 0 || hltEcalHT800 > 0)";
@@ -843,9 +846,9 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
@@ -1046,6 +1049,10 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bxsec = NULL;
   double wgtpileup = 1;
   double xsec;
+  if(xsType == 1 and isMC)
+    xsec = (wgtsum/intree->GetEntries())*1000;
+  else if(xsType == 2 and isMC)
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(xsType > 0 and isMC)
     frtree->SetBranchStatus("xsec",0);
@@ -1199,6 +1206,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 	       bool storeGenTree = false, // store gentree in the output                                                                                                        
 	       bool isSinglePhoton = false,
 	       bool isJetHT = false,
+	       bool isDoubleEG = false,
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -1250,11 +1258,13 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 
   string cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
 
-  if(not isMC and not isSinglePhoton and not isJetHT and not dropHLTFilter)
+  if(not isMC and not isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
       cut += " && (hltsingleel >0 || hltelnoiso)";  
-  else if(not isMC and isSinglePhoton and not isJetHT and not dropHLTFilter)
+  else if(not isMC and isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 > 0 || hltphoton175 > 0)";
-  else if(not isMC and isJetHT and not isSinglePhoton and not dropHLTFilter)
+  else if(not isMC and isJetHT and not isSinglePhoton and not isDoubleEG and not dropHLTFilter)
+    cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltEcalHT800 > 0 || hltPFHT800 > 0)";
+  else if(not isMC and not isJetHT and not isSinglePhoton and isDoubleEG and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltEcalHT800 > 0 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
     cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
@@ -1297,9 +1307,9 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
@@ -1430,6 +1440,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
 	       int  xsType = 0,
 	       bool storeGenTree = false, // store gentree in the output                                                                                                   
 	       bool isJetHT = false,
+	       bool isDoubleEG = false,
 	       bool dropPuppiBranches = true,
 	       bool dropPuppiBoostedJets = true,
 	       bool dropSubJetsBranches = true,
@@ -1482,9 +1493,11 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
 
   // medium id + pt + veto
   string cut = "nmuons == 0 && nelectrons == 0  && nphotons == 1 && phpt > 120 && phidm == 1 && t1phmet > "+metCut;
-  if(not isMC and not dropHLTFilter and not isJetHT)
+  if(not isMC and not dropHLTFilter and not isJetHT and not isDoubleEG)
     cut += " && (hltphoton165 || hltphoton175)";
-  else if(not isMC and not dropHLTFilter and isJetHT)
+  else if(not isMC and not dropHLTFilter and isJetHT and not isDoubleEG)
+    cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
+  else if(not isMC and not dropHLTFilter and not isJetHT and isDoubleEG)
     cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
     cut += " && (hltphoton165 || hltphoton175 || hltEcalHT800 || hltPFHT800 > 0)";
@@ -1525,9 +1538,9 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
 
@@ -1751,9 +1764,9 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
 
@@ -1888,6 +1901,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
 		 bool storeGenTree = false, // store gentree in the output                                                                                                     
 		 bool isSinglePhoton = false, 
 		 bool isJetHT  = false, 
+		 bool isDoubleEG  = false, 
 		 bool dropPuppiBranches = true,
 		 bool dropPuppiBoostedJets = true,
 		 bool dropSubJetsBranches = true,
@@ -1941,11 +1955,13 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   // one tight muon + b-jet --> semi-leptonic ttbar events
   string cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && nbjets > 0 && el1id >=1 && el1pt > 40 && t1elmet > "+metCut;
   // trigger requirements
-  if(not isMC and not dropHLTFilter and not isSinglePhoton and not isJetHT)
+  if(not isMC and not dropHLTFilter and not isSinglePhoton and not isJetHT and not isDoubleEG)
     cut +=  " && (hltsingleel || hltelnoiso)";
-  else if(not isMC and not dropHLTFilter and isSinglePhoton and not isJetHT)
+  else if(not isMC and not dropHLTFilter and isSinglePhoton and not isJetHT and not isDoubleEG)
     cut +=  " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 || hltphoton175)";
-  else if(not isMC and not dropHLTFilter and not isSinglePhoton and isJetHT)
+  else if(not isMC and not dropHLTFilter and not isSinglePhoton and isJetHT and not isDoubleEG)
+    cut +=  " && (hltsingleel == 0 && hltelnoiso == 0) && (hltPFHT800 || hltEcalHT800)";    
+  else if(not isMC and not dropHLTFilter and not isSinglePhoton and not isJetHT and isDoubleEG)
     cut +=  " && (hltsingleel == 0 && hltelnoiso == 0) && (hltPFHT800 || hltEcalHT800)";    
   else if(isMC and not dropHLTFilter)
     cut +=  " && (hltsingleel || hltelnoiso || hltphoton165 || hltphoton175 || hltPFHT800 || hltEcalHT800)";
@@ -1987,9 +2003,9 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   double wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
-    xsec = (wgtsum/outtree->GetEntries())*1000;
+    xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
-    xsec = (sumxsec(intree)/outtree->GetEntries())*1000;
+    xsec = (sumxsec(intree)/intree->GetEntries())*1000;
 
   if(isMC){
 

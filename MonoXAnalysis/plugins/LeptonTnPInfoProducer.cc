@@ -101,6 +101,12 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<edm::ValueMap<float> >("munvtxmap");
   // produce a map with the generator weight
   produces<edm::ValueMap<float> >("muwgtmap");
+  produces<edm::ValueMap<float> >("mudxymap");
+  produces<edm::ValueMap<float> >("mudzmap");
+  produces<edm::ValueMap<float> >("muchi2map");
+  produces<edm::ValueMap<float> >("munvalidhitmap");
+  produces<edm::ValueMap<float> >("munpixelhitmap");
+  produces<edm::ValueMap<float> >("muntrackerlayermap");
 
 
   // produce a ref vector with tag muon trigger info
@@ -121,6 +127,8 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   /// same logic also for electrons
   produces<edm::ValueMap<float> >("elnvtxmap");
   produces<edm::ValueMap<float> >("elwgtmap");
+  produces<edm::ValueMap<float> >("eldxymap");
+  produces<edm::ValueMap<float> >("eldzmap");
   produces<edm::ValueMap<float> >("phnvtxmap");
   produces<edm::ValueMap<float> >("phwgtmap");
 
@@ -204,6 +212,12 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   // output collection
   std::auto_ptr<edm::ValueMap<float> > outputmunvtxmap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputmuwgtmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmudxymap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmudzmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmuchi2map(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmunvalidhitmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmunpixelhitmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputmuntrackerlayermap(new ValueMap<float>());
   // trigger muons
   std::auto_ptr<pat::MuonRefVector> outputhltmu20muonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputhlttkmu20muonrefs(new pat::MuonRefVector);
@@ -220,6 +234,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   std::auto_ptr<edm::ValueMap<float> > outputelnvtxmap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputelwgtmap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputeldxymap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputeldzmap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputphnvtxmap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputphwgtmap(new ValueMap<float>());
   // single ele trigger info
@@ -251,6 +267,13 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   vector<float> munvtxvector;
   vector<float> muwgtvector;
+  vector<float> mudxyvector;
+  vector<float> mudzvector;
+  vector<float> muchi2vector;
+  vector<float> munvalidhitvector;
+  vector<float> munpixelhitvector;
+  vector<float> muntrackerlayervector;
+
   // loop on the probe muon collection
   for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
 
@@ -334,15 +357,51 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // real tught matched with trigger and passing eta and pt cuts
     if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) {
       if (triggermatched && muons_iter->pt() > tagmuonptcut && fabs(muons_iter->eta()) < tagmuonetacut) 
-	outputtightmuons->push_back(*muons_iter);
+	outputtightmuons->push_back(*muons_iter);            
     }
     munvtxvector.push_back(float(verticesH->size()));
     muwgtvector.push_back(wgt);
+
+    if(muons_iter->isPFMuon() || muons_iter->isGlobalMuon()){
+      if(muons_iter->isGlobalMuon() and muons_iter->globalTrack().isNonnull()){		
+	muchi2vector.push_back(muons_iter->globalTrack()->normalizedChi2());
+	munvalidhitvector.push_back(muons_iter->globalTrack()->hitPattern().numberOfValidMuonHits());
+      }else{
+	muchi2vector.push_back(-99.);
+	munvalidhitvector.push_back(-99.);
+      }
+      if(muons_iter->innerTrack().isNonnull()){
+	munpixelhitvector.push_back(muons_iter->innerTrack()->hitPattern().numberOfValidPixelHits());
+	muntrackerlayervector.push_back(muons_iter->innerTrack()->hitPattern().trackerLayersWithMeasurement());
+      }
+      else{
+	munpixelhitvector.push_back(-99.);
+	muntrackerlayervector.push_back(-99.);
+      }
+      if(muons_iter->muonBestTrack().isNonnull()){
+	mudxyvector.push_back(muons_iter->muonBestTrack()->dxy(verticesH->begin()->position()));
+	mudzvector.push_back(muons_iter->muonBestTrack()->dz(verticesH->begin()->position()));
+      }
+      else{
+	mudxyvector.push_back(-99.);
+	mudzvector.push_back(-99.);
+      }
+    }
+    else{
+      muchi2vector.push_back(-99.);
+      munvalidhitvector.push_back(-99.);
+      munpixelhitvector.push_back(-99.);
+      muntrackerlayervector.push_back(-99.);
+      mudxyvector.push_back(-99.);
+      mudzvector.push_back(-99.);
+    }
   }
 
   // electron part  
   vector<float> elnvtxvector;
   vector<float> elwgtvector;
+  vector<float> eldxyvector;
+  vector<float> eldzvector;
 
   for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
     const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
@@ -436,6 +495,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     elnvtxvector.push_back(float(verticesH->size()));
     elwgtvector.push_back(wgt);
+    eldxyvector.push_back(electrons_iter->gsfTrack()->dxy(verticesH->begin()->position()));
+    eldzvector.push_back(electrons_iter->gsfTrack()->dz(verticesH->begin()->position()));
   }
 
   // photon part  
@@ -465,7 +526,31 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::ValueMap<float>::Filler muwgtfiller(*outputmuwgtmap);
   muwgtfiller.insert(muonsH, muwgtvector.begin(), muwgtvector.end());
   muwgtfiller.fill();
-  
+
+  edm::ValueMap<float>::Filler mudxyfiller(*outputmudxymap);
+  mudxyfiller.insert(muonsH, mudxyvector.begin(), mudxyvector.end());
+  mudxyfiller.fill();
+
+  edm::ValueMap<float>::Filler mudzfiller(*outputmudzmap);
+  mudzfiller.insert(muonsH, mudzvector.begin(), mudzvector.end());
+  mudzfiller.fill();
+
+  edm::ValueMap<float>::Filler muchi2filler(*outputmuchi2map);
+  muchi2filler.insert(muonsH, muchi2vector.begin(), muchi2vector.end());
+  muchi2filler.fill();
+
+  edm::ValueMap<float>::Filler munvalidhitfiller(*outputmunvalidhitmap);
+  munvalidhitfiller.insert(muonsH, munvalidhitvector.begin(), munvalidhitvector.end());
+  munvalidhitfiller.fill();
+
+  edm::ValueMap<float>::Filler munpixelhitfiller(*outputmunpixelhitmap);
+  munpixelhitfiller.insert(muonsH, munpixelhitvector.begin(), munpixelhitvector.end());
+  munpixelhitfiller.fill();
+
+  edm::ValueMap<float>::Filler muntrackerlayerfiller(*outputmuntrackerlayermap);
+  muntrackerlayerfiller.insert(muonsH, muntrackerlayervector.begin(), muntrackerlayervector.end());
+  muntrackerlayerfiller.fill();
+
   edm::ValueMap<float>::Filler elnvtxfiller(*outputelnvtxmap);
   elnvtxfiller.insert(electronsH, elnvtxvector.begin(), elnvtxvector.end());
   elnvtxfiller.fill();
@@ -474,7 +559,14 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   elwgtfiller.insert(electronsH, elwgtvector.begin(), elwgtvector.end());
   elwgtfiller.fill();
 
-  
+  edm::ValueMap<float>::Filler eldxyfiller(*outputeldxymap);
+  eldxyfiller.insert(electronsH, eldxyvector.begin(), eldxyvector.end());
+  eldxyfiller.fill();
+
+  edm::ValueMap<float>::Filler eldzfiller(*outputeldzmap);
+  eldzfiller.insert(electronsH, eldzvector.begin(), eldzvector.end());
+  eldzfiller.fill();
+
   edm::ValueMap<float>::Filler phnvtxfiller(*outputphnvtxmap);
   phnvtxfiller.insert(photonsH, phnvtxvector.begin(), phnvtxvector.end());
   phnvtxfiller.fill();
@@ -485,6 +577,12 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   iEvent.put(outputmunvtxmap,"munvtxmap");
   iEvent.put(outputmuwgtmap, "muwgtmap");
+  iEvent.put(outputmudxymap, "mudxymap");
+  iEvent.put(outputmudzmap,  "mudzmap");
+  iEvent.put(outputmuchi2map,  "muchi2map");
+  iEvent.put(outputmunvalidhitmap,  "munvalidhitmap");
+  iEvent.put(outputmunpixelhitmap,  "munpixelhitmap");
+  iEvent.put(outputmuntrackerlayermap,  "muntrackerlayermap");
 
   iEvent.put(outputhltmu20muonrefs,  "hltmu20muonrefs");
   iEvent.put(outputhlttkmu20muonrefs,"hlttkmu20muonrefs");
@@ -501,6 +599,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   iEvent.put(outputelnvtxmap, "elnvtxmap");
   iEvent.put(outputelwgtmap,  "elwgtmap");
+  iEvent.put(outputeldxymap,  "eldxymap");
+  iEvent.put(outputeldzmap,   "eldzmap");
   iEvent.put(outputphnvtxmap, "phnvtxmap");
   iEvent.put(outputphwgtmap,  "phwgtmap");
 

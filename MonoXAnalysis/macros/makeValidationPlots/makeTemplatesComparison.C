@@ -21,7 +21,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
 
   frame ->Draw();  
 
-  CMS_lumi(pad1,"2.3");
+  CMS_lumi(pad1,"2.61");
   
   histo_1->SetLineColor(kBlack);
   histo_1->SetLineWidth(2);  
@@ -70,7 +70,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.5,1.5);
+  frame->GetYaxis()->SetRangeUser(0.55,1.1);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
@@ -290,7 +290,7 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   canvas->SetLogy();
 
   if(data_1 != NULL and data_2 != NULL){
-    drawUpperPlot(canvas,data_1,data_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,data_1,data_2,"Data "+ templateFile_1_Label,"Data "+ templateFile_2_Label);
     drawDownPlot(data_1,data_2,xAxisTitle);
     canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".png").c_str(),"png");

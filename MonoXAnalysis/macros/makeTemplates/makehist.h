@@ -30,12 +30,14 @@ const float pfMetMonoVUpper = 8000.;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1;
 const bool  reweightNVTX    = false;
-const bool  reweightPhton   = true;
+const bool  reweightPhton   = false;
+const bool  applyPhotonScale = true;
+const float photonScaleUnc  = 0.025;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_04_07_2016/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/";
 
 VectorSorter jetSorter;
 
@@ -67,11 +69,11 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
   }
   else if(tau2tau1 == 0.6){
     if(sysName == "VtagUp")
-      sfwgt *= (0.92+0.129);
+      sfwgt *= (0.97+0.129);
     else if(sysName == "VtagDown")
-      sfwgt *= (0.92-0.129);
+      sfwgt *= (0.97-0.129);
     else
-      sfwgt *= 0.92;
+      sfwgt *= 0.97;
   }
   
   return sfwgt;
@@ -119,7 +121,11 @@ void makehist4(TTree* tree, /*input tree*/
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_3p9.root");
     puhist = (TH1*) pufile->Get("puhist");
   }
-
+  else if(not reweightNVTX and is76Xsample){
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_76X_3p9.root");
+    puhist = (TH1*) pufile->Get("puhist");
+  }
+  
   TFile gamRecoilFile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/extraNuisance/photon_nuisance.root");
   TH1* gamRecoilWeight = (TH1*) gamRecoilFile.Get("gamma_jets_ratio");
      
@@ -276,6 +282,19 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> hltp120    (myReader, hltphotonname.c_str());
   TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
+  
+  string pfhtname ;
+  string ecalhtname ;
+  if(not isMC){
+    pfhtname = "hltPFHT800";
+    ecalhtname = "hltEcalHT800";
+  }
+  else{
+    pfhtname = "hltphoton175";
+    ecalhtname = "hltphoton175";
+  }
+  TTreeReaderValue<UChar_t> hltpPFHT800    (myReader,pfhtname.c_str());
+  TTreeReaderValue<UChar_t> hltpEcalHT800  (myReader,ecalhtname.c_str());
   // prescale
   TTreeReaderValue<double> pswgt(myReader,prescalename.c_str());
 
@@ -437,7 +456,7 @@ void makehist4(TTree* tree, /*input tree*/
   // loop on events
   while(myReader.Next()){
 
-    //    if(not isMC and *run > 274443) continue;
+    if(not isMC and *run > 274443) continue;
 
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
@@ -447,7 +466,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcd || sample == Sample::gam){ // single photon
-      hlt = *hltp165+*hltp175;
+      hlt = *hltp165+*hltp175+*hltpPFHT800+*hltpEcalHT800;
     }
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
@@ -515,6 +534,8 @@ void makehist4(TTree* tree, /*input tree*/
       id1  = *phidm;
       id2  = 1.0;
       pt1  = *phpt;
+      if(applyPhotonScale and isMC)	
+	pt1 += pt1*photonScaleUnc;	
       eta1 = *pheta;
     }
     
@@ -523,7 +544,12 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t bosonPt = 0.0;
     if (sample == Sample::zmm)      bosonPt = *zmmpt; // di-muon CR
     else if (sample == Sample::zee) bosonPt = *zeept; // di-electron CR
-    else if (sample == Sample::qcd or sample == Sample::gam) bosonPt = *phpt; // gamma+jets
+    else if (sample == Sample::qcd or sample == Sample::gam){
+      if(applyPhotonScale)
+	bosonPt = *phpt*(1+photonScaleUnc); // gamma+jets
+      else
+	bosonPt = *phpt;
+    }
     else if (sample == Sample::sig) bosonPt = pfmet; // missing energy in case of signal region for Z->nunu
     else if (sample == Sample::wen or sample == Sample::zee){ // single muon or single ele
       TLorentzVector lep4V, met4V;
@@ -560,7 +586,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == Sample::wmn and *wmt > 160) continue;
 
     // photon control sample
-    if ((sample == Sample::qcd || sample == Sample::gam) && *phpt < 175.) continue;
+    if ((sample == Sample::qcd || sample == Sample::gam) && pt1 < 175.) continue;
     if ((sample == Sample::qcd || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
 
     // Wenu kill QCD
@@ -639,7 +665,21 @@ void makehist4(TTree* tree, /*input tree*/
 	else sfwgt *= sflhist->GetBinContent(sflhist->FindBin(fabs(eta2),min(pt2,sflhist->GetYaxis()->GetBinLowEdge(sflhist->GetNbinsY()+1)-1))); 
       }
     }
+
+    // reco-muon scale factor
     
+    if(isMC && (sample == Sample::zmm or sample == Sample::wmn)){
+      if(pt1 > 0. and fabs(eta1) < 1.2)
+	sfwgt *= 0.99;
+      else if(pt1 > 0. and fabs(eta1) > 1.2)
+	sfwgt *= 0.99;
+      if(pt2 > 0. and fabs(eta2) < 1.2)
+	sfwgt *= 0.99;
+      else if(pt2 > 0. and fabs(eta2) > 1.2)
+	sfwgt *= 0.99;
+    }
+    
+
     // trigger scale factor for electrons
     if (isMC && triggerelhist && triggerelhist_ht && ( sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
       if (pt1 > 40. && id1 == 1 and id2 == 1)
@@ -658,10 +698,8 @@ void makehist4(TTree* tree, /*input tree*/
     // photon id scale factor
     if (isMC && psfmedium && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	if(category == Category::monoV)
-	  sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
-	else
-	  sfwgt *= 1;
+	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+	//	sfwgt *= 1;
       }
     }
 
@@ -676,11 +714,14 @@ void makehist4(TTree* tree, /*input tree*/
     }
         
     // photon trigger scale factor
-    if(isMC && triggerphoton_graph && (sample == Sample::qcd || sample == Sample::gam)) // linear interpolation between graph points
+    if(isMC && triggerphoton_graph && (sample == Sample::qcd || sample == Sample::gam)){ // linear interpolation between graph points
+      //if(pt1 < 400.)
       sfwgt *= triggerphoton_graph->Eval(min(pt1,triggerphoton_graph->GetXaxis()->GetXmax()));
+      //else
+      //sfwgt *= (1.013 - pt1*1.168*0.0001);      
+    }
     
-    
-    // b-tag weight
+    // B10-4 -tag weight
     double btagw = *wgtbtag;
     if( btagw > 2 || btagw <= 0)
       btagw = 1;
@@ -887,6 +928,28 @@ void makehist4(TTree* tree, /*input tree*/
       TString name(hist->GetName());      
       if(name.Contains("nvtx"))
 	fillvar = *nvtx;
+      else if(name.Contains("t1pfmet"))
+	fillvar = *met;      
+      else if(name.Contains("el1pt"))
+	fillvar = pt1;      
+      else if(name.Contains("mu1pt"))
+	fillvar = pt1;
+      else if(name.Contains("mu2pt"))
+	fillvar = pt2;
+      else if(name.Contains("el2pt"))
+	fillvar = pt2;
+      else if(name.Contains("mu1eta"))
+	fillvar = eta1;
+      else if(name.Contains("mu2eta"))
+	fillvar = eta2;
+      else if(name.Contains("el1eta"))
+	fillvar = eta1;
+      else if(name.Contains("el2eta"))
+	fillvar = eta2;
+      else if(name.Contains("wmt"))
+	fillvar = *wmt;
+      else if(name.Contains("wemt"))
+	fillvar = *wemt;
       else if(name.Contains("chfrac")){
 	if(category == Category::VBF)
 	  fillvar = chfrac->at(0);
@@ -899,52 +962,30 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = nhfrac->at(leadingCentralJetPos);
       }
-      else if(name.Contains("t1pfmet")){
-	fillvar = *met;
-      }
-      else if(name.Contains("el1pt")){
-	fillvar = pt1;
-      }
-      else if(name.Contains("mu1pt")){
-	fillvar = pt1;
-      }
-      else if(name.Contains("wmt")){
-	fillvar = *wmt;
-      }
-      else if(name.Contains("wemt")){
-	fillvar = *wemt;
-      }
       else if(name.Contains("emfrac")){
 	if(category == Category::VBF)
 	  fillvar = emfrac->at(0);
 	else
 	  fillvar = emfrac->at(leadingCentralJetPos);
       } 
-      else if(name.Contains("boostedjetpt")){
-	if(boostedJetpt->size() > 0)
+      else if(name.Contains("boostedjetpt") and boostedJetpt->size() > 0)
 	  fillvar = boostedJetpt->at(0);
-	else
-	  fillvar = 0.;
-      }
-      else if(name.Contains("boostedjeteta")){
-	if(boostedJeteta->size() > 0)
+      else if(name.Contains("boostedjeteta") and boostedJeteta->size() > 0)
 	  fillvar = boostedJeteta->at(0);
-	else
-	  fillvar = 0.;
-      }
       else if(name.Contains("jetmetdphi"))
 	fillvar = jmdphi;
       else if(name.Contains("phometdphi")){
 	fillvar = fabs(*phphi-*metphi);
 	if(fillvar > TMath::Pi()) fillvar = 2*TMath::Pi()-fillvar;
       }
+      else if(name.Contains("calomet"))
+	fillvar = fabs(*metcalo-*met)/pfmet;
       else if(name.Contains("met"))
-	fillvar = pfmet;            
+	fillvar = pfmet;             
       else if(name.Contains("jetpt2") and jetpt->size() >= 2)
 	fillvar = jetpt->at(1);
-      else if(name.Contains("jeteta2") and jetpt->size() >= 2){
+      else if(name.Contains("jeteta2") and jetpt->size() >= 2)
 	fillvar = jeteta->at(1);
-      }
       else if(name.Contains("jetpt")){
 	if(category == Category::VBF)
 	  fillvar = jetpt->at(0);
@@ -996,15 +1037,12 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = *nbjets;
       else if(name.Contains("bosonpt"))
 	fillvar = bosonPt;    	
-      else if(name.Contains("jetQGL")){
+      else if(name.Contains("jetQGL"))
 	fillvar = jetQGL->at(0);
-      }
-      else if(name.Contains("jet2QGL") and jetQGL->size() > 1){
+      else if(name.Contains("jet2QGL") and jetQGL->size() > 1)
 	fillvar = jetQGL->at(1);
-      }      
-      else if(name.Contains("jetPFlav") and pFlav->size() > 0){
+      else if(name.Contains("jetPFlav") and pFlav->size() > 0)
 	fillvar = fabs(pFlav->at(0));
-      }
       else if(name.Contains("jetQGL_AK8")){
 	if(boostedJetpt->size() > 0)
 	  fillvar = boostedJetQGL->at(0);
@@ -1020,13 +1058,10 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if(name.Contains("HT"))
 	fillvar = *ht;      
-      else if(name.Contains("tau2tau1")){
-	if( boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
-	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);
+      else if(name.Contains("tau2tau1") and boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8)
+	fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);
 	//	fillvar = boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0));
-	else fillvar = 0.;
-      }
-
+	
       // b-tagging
       else if(name.Contains("btagCSV_max")){
 	float btagMax = -10.;
@@ -1124,11 +1159,11 @@ void makehist4(TTree* tree, /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
-	if(is76Xsample)
-	  puwgt = 1;
 	if (*putrue <= 50)
           puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
- 
+	if(is76Xsample)
+	  puwgt = 1;
+	
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
 	  //	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpileup)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*gamwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
@@ -1139,8 +1174,8 @@ void makehist4(TTree* tree, /*input tree*/
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 40) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	//	if(is76Xsample)
-	//	  puwgt = 1;
+	if(is76Xsample)
+	  puwgt = 1;
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
 	else

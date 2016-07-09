@@ -24,7 +24,7 @@ pyCfgParams = ['isMC=True',
                'addSubstructurePuppi=False',
                'addPhotonPurity=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2',
+               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
                'nThreads=3',
                'isCrab=True']

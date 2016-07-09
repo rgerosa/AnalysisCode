@@ -36,9 +36,9 @@ void makeSignalTemplates(
       findAllPossibleMassPoints(signalMassPoint,interactionType,typeOfDMSignal);  
     else{
       findAllPossibleMassPoints(signalMassPoint,"Vector",typeOfDMSignal);  
-      findAllPossibleMassPoints(signalMassPoint,"Axial",typeOfDMSignal);  
+      findAllPossibleMassPoints(signalMassPoint,"Axial", typeOfDMSignal);  
       findAllPossibleMassPoints(signalMassPoint,"Scalar",typeOfDMSignal);  
-      findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",typeOfDMSignal);  
+      findAllPossibleMassPoints(signalMassPoint,"PseudoScalar",typeOfDMSignal);  
     }
   }
 
@@ -65,7 +65,7 @@ void makeSignalTemplates(
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{9.516E+04,7.580E+02,2.163E+01,1.273E+01},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{4.538E+03,4.872E+02,8.621E+00,5.256E+00},1);
   }
-
+  
   outfile.Close();
   
 }

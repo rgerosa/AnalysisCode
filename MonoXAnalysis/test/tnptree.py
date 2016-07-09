@@ -173,16 +173,16 @@ if options.isMC:
 # Tag muons --> filter on the collection content --> at least one
 process.tagmuons = cms.EDFilter("PATMuonSelector", 
     src = cms.InputTag("probeinfo", "tightmuons"),
-    cut = cms.string(""),
+    cut = cms.string("abs(eta) < 2.1"),
     filter = cms.bool(True) 
 )
 
 # Tag electrons --> filter on the collection content --> at least one
 process.tagelectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("probeinfo", "tightelectrons"),
-    cut = cms.string(""),
+    cut = cms.string("abs(eta) < 2.1"),
     filter = cms.bool(True)
-)
+) 
 
 # Tag and Probe pairs --> invariant mass and charge selection for electorns and muons
 process.muontnp = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -214,23 +214,36 @@ process.muontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		abseta = cms.string("abs(eta())"),
 		phi  = cms.string("phi()"),
 		nvtx = cms.InputTag("probeinfo", "munvtxmap"), ## store nvtx
-		wgt  = cms.InputTag("probeinfo", "muwgtmap")   ## store gen weight
+		wgt  = cms.InputTag("probeinfo", "muwgtmap"),   ## store gen weight		
+		nstation  = cms.string("numberOfMatchedStations()"),#		
+		chi2 = cms.InputTag("probeinfo","muchi2map"),
+		nvalidhit = cms.InputTag("probeinfo","munvalidhitmap"),
+		npixelhit = cms.InputTag("probeinfo","munpixelhitmap"),
+		ntrackerlayerhit = cms.InputTag("probeinfo","muntrackerlayermap"),
+		dxy  = cms.InputTag("probeinfo","mudxymap"),
+		dz   = cms.InputTag("probeinfo","mudzmap"),
+		nhiso = cms.string("pfIsolationR04().sumNeutralHadronEt"),
+		emiso = cms.string("pfIsolationR04().sumPhotonEt"),
+		puiso = cms.string("pfIsolationR04().sumPUPt"),
+		chiso = cms.string("pfIsolationR04().sumChargedHadronPt"),
 		),
 				     flags = cms.PSet(
 		pfid      = cms.string("isPFMuon"), ## if is a PF muon
+		globalid  = cms.string("isGlobalMuon"),
 		hltmu20   = cms.InputTag("probeinfo", "hltmu20muonrefs"),   ## if it belongs to hltmu20
 		hlttkmu20 = cms.InputTag("probeinfo", "hlttkmu20muonrefs"), ## if it belongs to isotk20
 		hltmu22   = cms.InputTag("probeinfo", "hltmu22muonrefs"),   ## if it belongs to hltmu22
 		hlttkmu22 = cms.InputTag("probeinfo", "hlttkmu22muonrefs"), ## if it belongs to isotk22
 		hltmu24   = cms.InputTag("probeinfo", "hltmu24muonrefs"),   ## if it belongs to hltmu22
 		hlttkmu24 = cms.InputTag("probeinfo", "hlttkmu24muonrefs"), ## if it belongs to isotk22
-		hltmu     = cms.InputTag("probeinfo", "hltmumuonrefs"),   ## if it belongs to hltmu22
-		hlttkmu   = cms.InputTag("probeinfo", "hlttkmumuonrefs"), ## if it belongs to isotk22
+		hltmu     = cms.InputTag("probeinfo", "hltmumuonrefs"),     ## if it belongs to hltmu22
+		hlttkmu   = cms.InputTag("probeinfo", "hlttkmumuonrefs"),   ## if it belongs to isotk22
 		looseid   = cms.InputTag("probeinfo", "loosemuonrefs"),     ## if pass the loose
 		tightid   = cms.InputTag("probeinfo", "tightmuonrefs"),     ## if pass the tight
 		),
 				     isMC = cms.bool(options.isMC)
 				     )
+
 
 process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 					 tagProbePairs = cms.InputTag("electrontnp"),
@@ -239,10 +252,25 @@ process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 					 variables = cms.PSet(
 		pt  = cms.string("pt()"),
 		eta = cms.string("superCluster().eta()"),
-		abseta = cms.string("abs(superCluster().eta())"),
-		phi = cms.string("phi()"),
-		nvtx = cms.InputTag("probeinfo", "elnvtxmap"),
-		wgt  = cms.InputTag("probeinfo", "elwgtmap")
+		abseta    = cms.string("abs(superCluster().eta())"),
+		phi       = cms.string("phi()"),
+		nvtx      = cms.InputTag("probeinfo", "elnvtxmap"),
+		wgt       = cms.InputTag("probeinfo", "elwgtmap"),
+		energy    = cms.string("energy()"),
+		rawenergy = cms.string("superCluster().rawEnergy()"),
+		hovere    = cms.string("hadronicOverEm()"),
+		sigietaieta = cms.string("full5x5_sigmaIetaIeta()"),
+		chiso     = cms.string("pfIsolationVariables().sumChargedHadronPt"),
+		nhiso     = cms.string("pfIsolationVariables().sumNeutralHadronEt"),
+		emiso     = cms.string("pfIsolationVariables().sumPhotonEt"),
+		trackpt   = cms.string("gsfTrack().pt()"),
+		eop       = cms.string("abs(1-eSuperClusterOverP())/ecalEnergy()"),
+		dphiIn    = cms.string("deltaPhiSuperClusterTrackAtVtx()"),
+		detaIn    = cms.string("deltaEtaSuperClusterTrackAtVtx()"),
+		missHit   = cms.string("gsfTrack().hitPattern().numberOfHits(\'MISSING_INNER_HITS\')"),
+		conversion = cms.string("passConversionVeto()"),
+		dxy  = cms.InputTag("probeinfo","eldxymap"),
+		dz   = cms.InputTag("probeinfo","eldzmap"),
 		),
 					 flags = cms.PSet(
 		hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       
@@ -270,9 +298,17 @@ process.photontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		pt  = cms.string("pt()"),
 		eta = cms.string("superCluster().eta()"),
 		abseta = cms.string("abs(superCluster().eta())"),
-		phi = cms.string("phi()"),
-		nvtx = cms.InputTag("probeinfo", "phnvtxmap"),
-		wgt  = cms.InputTag("probeinfo", "phwgtmap")
+		phi       = cms.string("phi()"),
+		nvtx      = cms.InputTag("probeinfo", "phnvtxmap"),
+		wgt       = cms.InputTag("probeinfo", "phwgtmap"),
+		energy    = cms.string("energy()"),
+		rawenergy = cms.string("superCluster().rawEnergy()"),
+		hovere    = cms.string("hadTowOverEm()"),
+		eleveto   = cms.string("passElectronVeto()"),
+		sigietaieta = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
+		chiso     = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
+		nhiso     = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation"),
+		emiso     = cms.InputTag("photonIDValueMapProducer", "phoNeutralHadronIsolation"),
 		),
 				       flags = cms.PSet(
 		hltele24eta2p1wpl = cms.InputTag("probeinfo", "hltele24eta2p1wplooseelectronrefs"),       

@@ -7,7 +7,7 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=False',
-               'globalTag=80X_dataRun2_Prompt_v8']
+               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0']
 
 config.section_('General')
 config.General.transferLogs = False
@@ -26,8 +26,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 90000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-18-05-2016_80X_TnP_2p6fb-1/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274443_13TeV_PromptReco_Collisions16_JSON.txt'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/Production-09-07-2016_80X_TnP_3p99fb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'
 config.Data.publication   = False
 
 

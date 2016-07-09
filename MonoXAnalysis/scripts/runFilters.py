@@ -29,6 +29,7 @@ parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBT
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
 parser.add_option('--isJetHT',        action="store_true",         dest="isJetHT",                    help="isJetHT")
+parser.add_option('--isDoubleEG',     action="store_true",         dest="isDoubleEG",                 help="isDoubleEG")
 parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
 parser.add_option('--isOnEOS',      action="store_true",           dest="isOnEOS",                    help="isOnEOS when the input directory is located in EOS")
 parser.add_option('--dropPuppiBranches',    action="store_true",   dest="dropPuppiBranches",          help="drop all puppi branches for ak4 and met")
@@ -101,6 +102,10 @@ if __name__ == '__main__':
     isJetHT = 0;
     if options.isJetHT:
         isJetHT = 1;
+
+    isDoubleEG = 0;
+    if options.isDoubleEG:
+        isDoubleEG = 1;
 
     isCrabDirectory = 0;
     if options.isCrabDirectory:
@@ -247,7 +252,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -265,7 +270,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zee_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -335,7 +340,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -353,7 +358,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wen_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -379,7 +384,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -397,7 +402,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_gam_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -469,7 +474,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -487,7 +492,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_topel_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 

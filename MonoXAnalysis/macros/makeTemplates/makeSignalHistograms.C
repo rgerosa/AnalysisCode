@@ -881,34 +881,34 @@ void signalmchist(TFile* outfile,
 
   for(auto iPoint : massPoint){
     if(iPoint.interaction == interaction and interaction == "Vector"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Vector/sigfilter/sig_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Vector/sigfilter/sig_VectorMonoW_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Vector/sigfilter/sig_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Vector/sigfilter/sig_tree_DMV_NNPDF30_Vector_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Vector/sigfilter/sig_tree_VectorMonoW_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Vector/sigfilter/sig_tree_VectorMonoZ_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Axial"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_AxialMonoW_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-madgraph.root").c_str()));
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Scalar"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Scalar/sigfilter/sig_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));      
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Scalar/sigfilter/sig_tree_DMS_NNPDF30_Scalar_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));      
     }
-    else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Pseudoscalar/sigfilter/sig_DMS_NNPDF30_Pseudoscalar_Mphi-"+
-					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Pseudoscalar/sigfilter/sig_DM_PseudoscalarWH_Mphi-"+
-					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Pseudoscalar/sigfilter/sig_DM_PseudoscalarZH_Mphi-"+
-					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_13TeV-JHUGen.root").c_str()));
+    else if(iPoint.interaction == interaction and interaction == "PseudoScalar"){
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_PseudoScalar/sigfilter/sig_tree_DMS_NNPDF30_PseudoScalar_Mphi-"+
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root").c_str()));
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_PseudoScalar/sigfilter/sig_tree_DMS_PseudoScalarWH_Mphi-"+
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_PseudoScalar/sigfilter/sig_tree_DMS_PseudoScalarZH_Mphi-"+
+					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));
     }
   }
 
@@ -1546,6 +1546,8 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
   string baseDirMonoW;
   string baseDirMonoZ;
 
+  cout<<"interaction "<<interaction<<endl;
+
   if(interaction == "Vector"){
     baseDirMonoJet = baseInputTreePath+"/DMV_Vector/sigfilter/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Vector/sigfilter/";
@@ -1561,10 +1563,10 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
     baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
   }
-  else if(interaction == "Pseudoscalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
+  else if(interaction == "PseudoScalar"){
+    baseDirMonoJet = baseInputTreePath+"/DMS_PseudoScalar/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_PseudoScalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_PseudoScalar/sigfilter/";
   }
   else{
     cout<<"[findAllPossibleMassPoints]: interaction type not found --> exit "<<endl;
@@ -1590,9 +1592,16 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
         if(line == "") continue;
         TString fileName (line.c_str());
         seglist.clear();
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	if(interaction == "Vector" or interaction == "Axial"){
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
+	else{
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
         stringstream name(fileName.Data());
         string segment;
         while(getline(name, segment, '_')){
@@ -1601,7 +1610,6 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
         monoJetSamples.push_back(seglist.at(seglist.size()-2)+"_"+seglist.back());
       }
     }
-
     infile.close();
   }
 
@@ -1616,9 +1624,16 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
         if(line == "") continue;
         TString fileName (line.c_str());
         seglist.clear();
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	if(interaction == "Vector" or interaction == "Axial"){
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
+	else{
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
         stringstream name(fileName.Data());
         string segment;
         while(getline(name, segment, '_')){
@@ -1638,9 +1653,16 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
         if(line == "") continue;
         TString fileName (line.c_str());
         seglist.clear();
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg.root","");
-        fileName.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen.root","");
+	if(interaction == "Vector" or interaction == "Axial"){
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
+	else{
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-madgraph.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root","");
+	  fileName.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root","");
+	}
         stringstream name(fileName.Data());
         string segment;
         while(getline(name, segment, '_')){

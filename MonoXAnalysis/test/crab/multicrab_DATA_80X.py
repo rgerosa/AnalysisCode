@@ -23,7 +23,7 @@ pyCfgParams = ['isMC=False',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=RECO',
-               'globalTag=80X_dataRun2_Prompt_v8',
+               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
                'outputFileName=tree.root',
                'nThreads=3',
                'isCrab=True']

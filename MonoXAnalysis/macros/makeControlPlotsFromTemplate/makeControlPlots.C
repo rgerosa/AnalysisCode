@@ -584,7 +584,12 @@ void makeControlPlots(string templateFileName,
 
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();  
-  vector<double> bins = selectBinning(observable,category);
+  vector<double> bins ;
+  if(observable == "bosonPt")
+    bins = selectBinning("bosonpt",category);
+  else
+    bins = selectBinning(observable,category);
+
   float xMin = bins.front();
   if(observable == "tau2tau1")
     xMin = minTau2Tau1;
@@ -629,7 +634,9 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"3.99");
+  //  CMS_lumi(canvas,"3.99");
+  //  CMS_lumi(canvas,"0.81");
+  CMS_lumi(canvas,"2.77");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
