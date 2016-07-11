@@ -328,7 +328,7 @@ void prepostSig(string fitFilename,
   zlhist->SetLineColor(kBlack);
   zlhist->Add(gmhist);
 
-  znhist->SetFillColor(TColor::GetColor("#258039"));
+  znhist->SetFillColor(TColor::GetColor("#3A8C4C"));
   znhist->SetLineColor(kBlack);
 
   wlhist->SetFillColor(TColor::GetColor("#FAAF08"));
@@ -410,7 +410,7 @@ void prepostSig(string fitFilename,
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
   
-  TLegend* leg = new TLegend(0.6, 0.55, 0.9, 0.9);
+  TLegend* leg = new TLegend(0.6, 0.55, 0.92, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);  
@@ -427,12 +427,12 @@ void prepostSig(string fitFilename,
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2->GetYaxis()->SetRangeUser(-0.5,2);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
-    frame2->GetXaxis()->SetNdivisions(210);
+    frame2->GetXaxis()->SetNdivisions(510);
   frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();

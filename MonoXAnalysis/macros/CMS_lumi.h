@@ -100,7 +100,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, f
   if(reduceSize == 2)
     latex2->SetTextSize(0.60*pad->GetTopMargin());
   
-  latex2->DrawLatex(0.9, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
+  latex2->DrawLatex(0.94, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
 
   if(up){
     latex2->SetTextSize(0.65*pad->GetTopMargin());
@@ -117,7 +117,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, f
 
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
-    latex2->DrawLatex(0.19+offset, 0.85, "CMS");
+    latex2->DrawLatex(0.175+offset, 0.85, "CMS");
   }
 
   if(up){
@@ -127,7 +127,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, f
     latex2->DrawLatex(0.25+offset, 0.95, "Preliminary");
   }
   else{
-    latex2->SetTextSize(0.5*pad->GetTopMargin());
+    latex2->SetTextSize(0.6*pad->GetTopMargin());
     if(reduceSize == 1)
       latex2->SetTextSize(0.45*pad->GetTopMargin());
     else if(reduceSize == 2)
@@ -135,7 +135,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, f
     latex2->SetTextFont(52);
     latex2->SetTextAlign(11);    
     if(reduceSize == 1)
-      latex2->DrawLatex(0.225+offset, 0.85, "Preliminary");
+      latex2->DrawLatex(0.235+offset, 0.85, "Preliminary");
     else if(reduceSize == 2)
       latex2->DrawLatex(0.24+offset, 0.85, "Preliminary");
     else

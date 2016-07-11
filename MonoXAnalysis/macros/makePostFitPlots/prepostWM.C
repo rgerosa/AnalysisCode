@@ -182,10 +182,10 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
   
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
-  
+  dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.5, 0.65, 0.90, 0.90);
+  TLegend* leg = new TLegend(0.6, 0.62, 0.92, 0.92);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
