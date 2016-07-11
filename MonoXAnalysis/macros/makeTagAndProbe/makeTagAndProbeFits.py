@@ -15,14 +15,14 @@ from subprocess import Popen
 #            Job steering                  #                                                                                                                                 
 ############################################                                                                                                                                   
 
-muonPtBinning  = [10.0,20.0,30.0,40.0,50.0,70.0,100.0,300.0];
-muonEtaBinning = [0.0,0.8,1.5,2.4]
+muonPtBinning  = [10.,20.,30.,40.,50.,70.,100.,135.,500.];
+muonEtaBinning = [-2.4,-1.2,0.0,1.2,2.4];
 
-electronPtBinning  = [10.0,22.0,32.0,40.0,50.0,70.0,100.0,300.0];
-electronEtaBinning = [0.0,0.8,1.5,2.0,2.5];
+electronPtBinning  = [10.,20.,30.,40.,50.,70.,100.,135.,500.];
+electronEtaBinning = [-2.5,-1.4,0.0,1.4,2.5];
 
-photonPtBinning  = [10.0,22.0,32.0,40.0,50.0,70.0,100.0,300.0];
-photonEtaBinning = [0.0,0.8,1.5,2.0,2.5];
+photonPtBinning  = [10.,20.,30.,40.,50.,70.,100.,135.,500.];
+photonEtaBinning = [-2.5,-1.4,0.0,1.4,2.5];
 
 parser = OptionParser()
 parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
@@ -35,6 +35,7 @@ parser.add_option('--typeID',       action="store", type="string", dest="typeID"
 parser.add_option('--leptonType',   action="store", type="string", dest="leptonType",   default="",   help="lepton type: muon or electron or photon")
 parser.add_option('--doAlternativeBkg',  action="store_true",      dest="doAlternativeBkg",           help="run the fits with a exponential background shape")
 parser.add_option('--doAlternativeSig',  action="store_true",      dest="doAlternativeSig",           help="run the fits with alternative signal template")
+parser.add_option('--absetaBin',         action="store_true",      dest="absetaBin",                  help="bin in abs eta instead of eta")
 
 ##  for submitting jobs in lxbatch
 parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
@@ -54,11 +55,15 @@ if __name__ == '__main__':
 
     currentDIR = os.getcwd();
 
+    add_option = "";
+    if options.absetaBin:
+        add_option = "absEta=True";
+
     if options.leptonType == "muon":
         for pt in range(len(muonPtBinning)-1):
             for eta in range(len(muonEtaBinning)-1):
                 if not options.batchMode:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1]);
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1])+" "+add_option;
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
@@ -81,7 +86,7 @@ if __name__ == '__main__':
                         os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
 
                 else:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1]);
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1])+" "+add_option;
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
@@ -142,7 +147,7 @@ if __name__ == '__main__':
         for pt in range(len(electronPtBinning)-1):
             for eta in range(len(electronEtaBinning)-1):
                 if not options.batchMode:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])+" "+add_option
 
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
@@ -168,7 +173,7 @@ if __name__ == '__main__':
                         os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
 
                 else:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./"+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./"+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])+ " "+add_option
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(electronPtBinning[pt])+"_"+str(electronPtBinning[pt+1])+"_eta_"+str(electronEtaBinning[eta])+"_"+str(electronEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
@@ -228,7 +233,7 @@ if __name__ == '__main__':
         for pt in range(len(photonPtBinning)-1):
             for eta in range(len(photonEtaBinning)-1):
                 if not options.batchMode:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])+ " "+add_option
 
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
@@ -254,7 +259,7 @@ if __name__ == '__main__':
                         os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
 
                 else:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])
+                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])+" "+add_option
                     ### look for the template file
                     templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/TagAndProbeTemplates/TemplateNominal/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(photonPtBinning[pt])+"_"+str(photonPtBinning[pt+1])+"_eta_"+str(photonEtaBinning[eta])+"_"+str(photonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);

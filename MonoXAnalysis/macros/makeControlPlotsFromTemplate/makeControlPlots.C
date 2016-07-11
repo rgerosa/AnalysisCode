@@ -304,7 +304,7 @@ void makeControlPlots(string templateFileName,
   }
 
   if(vnnhist) {
-      vnnhist->SetFillColor(TColor::GetColor("#258039"));
+      vnnhist->SetFillColor(TColor::GetColor("#4D975D"));
       vnnhist->SetLineColor(kBlack);
   }
   if(vllhist){    
@@ -415,8 +415,8 @@ void makeControlPlots(string templateFileName,
 
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
-    stack->Add(vghist);
-    stack->Add(vlhist);
+    //    stack->Add(vghist);
+    //    stack->Add(vlhist);
     stack->Add(qcdhist);
     stack->Add(gamhist);
   }
@@ -635,8 +635,8 @@ void makeControlPlots(string templateFileName,
   
   frame->Draw();
   //  CMS_lumi(canvas,"3.99");
-  //  CMS_lumi(canvas,"0.81");
-  CMS_lumi(canvas,"2.77");
+  CMS_lumi(canvas,"0.8");
+  //CMS_lumi(canvas,"2.77");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -662,15 +662,15 @@ void makeControlPlots(string templateFileName,
 
   TLegend* leg = NULL;
   if(controlRegion == "gam")
-    leg = new TLegend(0.62, 0.70, 0.85, 0.90);
+    leg = new TLegend(0.60, 0.70, 0.92, 0.92);
   else if (observable == "chfrac" or observable == "nhfrac" or observable == "emfrac")
-    leg = new TLegend(0.52, 0.35, 0.88, 0.65);  
+    leg = new TLegend(0.60, 0.35, 0.92, 0.65);  
   else if(controlRegion == "SR" and isLog)
-    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);  
   else if(controlRegion == "SR" and not isLog)
-    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);  
   else
-    leg = new TLegend(0.62, 0.50, 0.85, 0.90);
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);
 
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
@@ -680,8 +680,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
-    leg->AddEntry(vlhist, "W+Jets","F");
-    leg->AddEntry(vghist, "V#gamma","F");
+    //    leg->AddEntry(vlhist, "W+Jets","F");
+    //    leg->AddEntry(vghist, "V#gamma","F");
   }
 
   else if(controlRegion == "zmm"){
@@ -776,13 +776,13 @@ void makeControlPlots(string templateFileName,
 
   else if(controlRegion == "SR"){
     leg->AddEntry(datahist,"Data","PLE");
-    leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
-    leg->AddEntry(vlhist,  "W(l#nu)", "F");
+    leg->AddEntry(vnnhist, "Z #rightarrow #nu#nu","F");
+    leg->AddEntry(vlhist,  "W #rightarrow l#nu", "F");
     if(category == Category::VBF)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    leg->AddEntry(dbhist,  "Dibosons", "F");
-    leg->AddEntry(tophist, "Top", "F");
-    leg->AddEntry(vllhist, "Others: Z(ll), #gamma+jets","F");
+    leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
+    leg->AddEntry(tophist, "Top quark", "F");
+    leg->AddEntry(vllhist, "Z #rightarrow ll, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
     if( not isHiggsInvisible){
       TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
@@ -816,23 +816,23 @@ void makeControlPlots(string templateFileName,
   if(category == Category::monojet or category == Category::inclusive)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::monoV)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
-    frame2->GetXaxis()->SetNdivisions(210);
+    frame2->GetXaxis()->SetNdivisions(510);
   frame2->GetYaxis()->SetNdivisions(5);
 
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetLabelSize(0.035);
   frame2->GetYaxis()->SetTitleSize(0.04);
   frame2->GetXaxis()->SetLabelSize(0.04);
   frame2->GetXaxis()->SetTitleSize(0.05);

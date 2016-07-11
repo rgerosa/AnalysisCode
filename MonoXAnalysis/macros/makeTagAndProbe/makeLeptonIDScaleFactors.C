@@ -695,7 +695,7 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
     can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_etaBin_"+string(Form("%d",int(iproj)))+".pdf").c_str(),"pdf");    
   }      
 
-  /*
+  
   // use RooCMSShape as central value + uncertaint from alternative background description --> total 2D hist SF stored in root file.
   for(int iBinX = 0; iBinX < histoEfficiencySF_RooCMSShape->GetNbinsX(); iBinX++){
     for(int iBinY = 0; iBinY < histoEfficiencySF_RooCMSShape->GetNbinsY(); iBinY++){      
@@ -731,5 +731,5 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   system(("mkdir -p "+outputDIR+"/Alternative").c_str());
   if(tagAndProbeFits_Alternative.size() != 0)
     makeTagAndProbeFits(tagAndProbeFits_Alternative,outputDIR+"/Alternative",typeID,lumi);
-  */  
+  
 }

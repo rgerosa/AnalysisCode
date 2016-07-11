@@ -57,20 +57,21 @@ if options.inputFiles == []:
 
         if options.isMC:
             process.source.fileNames.append(
-                '/store/mc/RunIISpring16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/50000/E2654E59-4D1C-E611-922C-0CC47A713A04.root'
+                '/store/mc/RunIISpring16MiniAODv2/DYToEE_NNPDF30_13TeV-powheg-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/88BF817F-FA1A-E611-B23E-14187733AD81.root'
                 )
         else:
             process.source.fileNames.append(
+		    'root://xrootd-cms.infn.it:1194//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/274/094/00000/5C319205-6425-E611-BBF4-02163E011F60.root',
 #		    '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
-		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
+#		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
                 )
             
 else:
     process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(options.inputFiles))
 
-
-#process.source.eventsToProcess = cms.untracked.VEventRange('273728:2:967809')
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:227204:45121334')
+process.source.skipEvents = cms.untracked.uint32(72000)
 
 # Setup the service to make a ROOT TTree
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tnptree.root"))

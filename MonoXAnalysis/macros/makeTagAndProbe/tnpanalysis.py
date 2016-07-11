@@ -47,6 +47,10 @@ options.register(
     'max eta for leptons');
 
 options.register(
+    'absEta',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'use absEta instead of eta for binning');
+
+options.register(
     'templateFile',
     "",VarParsing.multiplicity.singleton,VarParsing.varType.string,
     'input file with templates RooHistPdf');
@@ -159,8 +163,14 @@ PDFName = "pdfSignalPlusBackground"
 ### Binnning in eta and pt for the efficiency fit
 EfficiencyBins = cms.PSet(
     pt     = cms.vdouble(options.ptMin,options.ptMax),
-    eta    = cms.vdouble(options.etaMin,options.etaMax)
     )
+
+if not options.absEta:
+    EfficiencyBins.eta = cms.vdouble(options.etaMin,options.etaMax)
+else:
+    EfficiencyBins.abseta = cms.vdouble(options.etaMin,options.etaMax)
+    
+
 ### Defining the observable as well as the PDF names for each bin (total PDF for fitting pass and fail samples)-> One per pt
 EfficiencyBinningSpecification = cms.PSet(
     UnbinnedVariables = cms.vstring("mass"),
