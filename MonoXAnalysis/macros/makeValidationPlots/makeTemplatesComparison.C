@@ -70,7 +70,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.55,1.1);
+  frame->GetYaxis()->SetRangeUser(0.9,1.1);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");

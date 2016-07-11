@@ -32,7 +32,7 @@ const int   nBjets          = 1;
 const bool  reweightNVTX    = false;
 const bool  reweightPhton   = false;
 const bool  applyPhotonScale = true;
-const float photonScaleUnc  = 0.025;
+const float photonScaleUnc  = 0.015;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
@@ -130,10 +130,10 @@ void makehist4(TTree* tree, /*input tree*/
   TH1* gamRecoilWeight = (TH1*) gamRecoilFile.Get("gamma_jets_ratio");
      
   // electron and muon ID scale factor files                                                                                                                                    
-  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid.root");
-  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid.root");
-  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid.root");
-  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid.root");
+  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_2p6.root");
+  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_2p6.root");
+  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_2p6.root");
+  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_2p6.root");
 
   TH2*  msfloose = (TH2*)sffile_muLoose.Get("scaleFactor_muon_looseid_RooCMSShape");
   TH2*  msftight = (TH2*)sffile_muTight.Get("scaleFactor_muon_tightid_RooCMSShape");
@@ -141,8 +141,8 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  esftight = (TH2*)sffile_eleTight.Get("scaleFactor_electron_tightid_RooCMSShape");
 
   // Photon ID scale factor                                                                                                                                                     
-  TFile sffile_phoLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_looseid.root");
-  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid.root");
+  TFile sffile_phoLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_looseid_2p6.root");
+  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_2p6.root");
   TH2*  psfloose  = (TH2*)sffile_phoLoose.Get("scaleFactor_photon_looseid_RooCMSShape");
   TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
 
@@ -457,6 +457,7 @@ void makehist4(TTree* tree, /*input tree*/
   while(myReader.Next()){
 
     if(not isMC and *run > 274443) continue;
+    //if(not isMC and *run > 274240) continue;
 
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
@@ -930,20 +931,84 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = *nvtx;
       else if(name.Contains("t1pfmet"))
 	fillvar = *met;      
+      else if(name.Contains("elp1pt") and pid1 > 0)
+	fillvar = pt1;      
+      else if(name.Contains("elm1pt") and pid1 < 0)
+	fillvar = pt1;      
       else if(name.Contains("el1pt"))
 	fillvar = pt1;      
+      else if(name.Contains("mup1pt") and pid1 > 0)
+	fillvar = pt1;
+      else if(name.Contains("mum1pt") and pid1 < 0)
+	fillvar = pt1;
       else if(name.Contains("mu1pt"))
 	fillvar = pt1;
+      else if(name.Contains("mup2pt") and pid2 > 0)
+	fillvar = pt2;
+      else if(name.Contains("mum2pt") and pid2 < 0)
+	fillvar = pt2;
       else if(name.Contains("mu2pt"))
+	fillvar = pt2;
+      else if(name.Contains("elp2pt") and pid2 > 0)
+	fillvar = pt2;
+      else if(name.Contains("elm2pt") and pid2 < 0)
 	fillvar = pt2;
       else if(name.Contains("el2pt"))
 	fillvar = pt2;
+      else if(name.Contains("mup1eta")){
+	if(pid1 > 0)
+	  fillvar = eta1;      
+	else 
+	  fillvar = -99.;
+      }
+      else if(name.Contains("mum1eta")){
+	if(pid1 < 0)
+          fillvar = eta1;
+	else
+          fillvar = -99.;
+      }
       else if(name.Contains("mu1eta"))
-	fillvar = eta1;
+	fillvar = eta1;      
+      else if(name.Contains("mup2eta")){
+	if(pid2 > 0)
+	  fillvar = eta2;
+	else
+	  fillvar = -99.;
+      } 
+      else if(name.Contains("mum2eta")){
+	if(pid2 < 0)
+	  fillvar = eta2;
+	else
+	  fillvar = -99.;
+      } 
       else if(name.Contains("mu2eta"))
 	fillvar = eta2;
+      else if(name.Contains("elp1eta")){
+	if(pid1 > 0)
+	  fillvar = eta1;      
+	else 
+	  fillvar = -99.;
+      }
+      else if(name.Contains("elm1eta")){
+	if(pid1 < 0)	  
+	  fillvar = eta1;      
+	else
+	  fillvar = -99.;
+      }
       else if(name.Contains("el1eta"))
 	fillvar = eta1;
+      else if(name.Contains("elp2eta")){
+	if(pid1 > 0)
+	  fillvar = eta2;
+	else
+	  fillvar = -99.;
+      }
+      else if(name.Contains("elm2eta")){
+	if(pid2 > 0)
+	  fillvar = eta2;
+	else
+	  fillvar = -99.;
+      }
       else if(name.Contains("el2eta"))
 	fillvar = eta2;
       else if(name.Contains("wmt"))

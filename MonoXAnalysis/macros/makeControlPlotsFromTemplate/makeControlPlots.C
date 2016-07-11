@@ -635,8 +635,8 @@ void makeControlPlots(string templateFileName,
   
   frame->Draw();
   //  CMS_lumi(canvas,"3.99");
-  CMS_lumi(canvas,"0.8");
-  //CMS_lumi(canvas,"2.77");
+  //  CMS_lumi(canvas,"0.8");
+  CMS_lumi(canvas,"2.77");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
