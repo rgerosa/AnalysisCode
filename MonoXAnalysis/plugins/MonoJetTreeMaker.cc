@@ -67,8 +67,8 @@
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 // b-tagging SF
+#include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
-#include "CondFormats/BTauObjects/interface/BTagCalibrationReader.h"
 
 
 // ROOT
@@ -134,11 +134,15 @@ private:
   const edm::InputTag triggerResultsTag;
   const edm::InputTag filterResultsTag;
   const edm::InputTag prescalesTag;
+  const edm::InputTag badChargedCandidateTag;
+  const edm::InputTag badPFMuonTag;
 
   // trgger and filter tokens
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
   edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken;
   edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
+  edm::EDGetTokenT<bool> badChargedCandidateToken;
+  edm::EDGetTokenT<bool> badPFMuonToken;
   
   // Vertex
   const edm::InputTag verticesTag;
@@ -283,21 +287,13 @@ private:
   edm::FileInPath bTagScaleFactorFileMVA;
   edm::FileInPath bTagScaleFactorFileSubCSV;
 
-  std::auto_ptr<BTagCalibration> calibCSV;
-  std::auto_ptr<BTagCalibration> calibMVA;
-  std::auto_ptr<BTagCalibration> calibSubCSV;
+  BTagCalibration calibCSV;
+  BTagCalibration calibMVA;
+  BTagCalibration calibSubCSV;
 
   std::vector<BTagCalibrationReader> bMediumCSV;
-  std::vector<BTagCalibrationReader> bMediumCSVUp;
-  std::vector<BTagCalibrationReader> bMediumCSVDown;
-
   std::vector<BTagCalibrationReader> bMediumMVA;
-  std::vector<BTagCalibrationReader> bMediumMVAUp;
-  std::vector<BTagCalibrationReader> bMediumMVADown;
-
   std::vector<BTagCalibrationReader> bMediumSubCSV;
-  std::vector<BTagCalibrationReader> bMediumSubCSVUp;
-  std::vector<BTagCalibrationReader> bMediumSubCSVDown;
 
   // 
   const bool addPhotonIDVariables;
@@ -342,7 +338,7 @@ private:
   double pswgt_ph120,pswgt_ph50,pswgt_ph75,pswgt_ph90;
   double pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350,pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
   
-  uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo;
+  uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo, flagbadchpf, flagbadpfmu;
   
   // muon, ele, dilepton info
   double mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
@@ -564,6 +560,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
   filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
   prescalesTag(iConfig.getParameter<edm::InputTag>("prescales")),
+  badChargedCandidateTag(iConfig.getParameter<edm::InputTag>("badChargedCandidate")),
+  badPFMuonTag(iConfig.getParameter<edm::InputTag>("badPFMuon")),
   // vertexes
   verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
   // rho
@@ -637,6 +635,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   triggerResultsToken   = consumes<edm::TriggerResults> (triggerResultsTag);
   triggerPrescalesToken = consumes<pat::PackedTriggerPrescales>(prescalesTag);
   filterResultsToken    = consumes<edm::TriggerResults> (filterResultsTag);
+  badChargedCandidateToken = consumes<bool>(badChargedCandidateTag);
+  badPFMuonToken = consumes<bool>(badPFMuonTag);
 
   verticesToken  = consumes<std::vector<reco::Vertex> > (verticesTag);
 
@@ -744,27 +744,27 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     if ( bTagScaleFactorFileCSV.location()!=edm::FileInPath::Local)
       throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileCSV << " !!\n";
 
-    calibCSV = std::auto_ptr<BTagCalibration>(new BTagCalibration("CSVv2",bTagScaleFactorFileCSV.fullPath()));
+    calibCSV = BTagCalibration("CSVv2",bTagScaleFactorFileCSV.fullPath());
 
-    bMediumCSV.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"incl","central")); // for light flavor
-    bMediumCSV.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"mujets","central")); // for b and c-jets
-    bMediumCSVUp.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"incl","up"));
-    bMediumCSVUp.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"mujets","up"));
-    bMediumCSVDown.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"incl","down"));
-    bMediumCSVDown.push_back(BTagCalibrationReader(calibCSV.get(),BTagEntry::OP_MEDIUM,"mujets","down"));
+    bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_B,"mujets");
+    bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_C,"mujets");
+    bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_UDSG,"incl");
 
     bTagScaleFactorFileMVA = iConfig.getParameter<edm::FileInPath>("bTagScaleFactorFileMVA");
     if ( bTagScaleFactorFileMVA.location()!=edm::FileInPath::Local)
       throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileMVA << " !!\n";
 
-    calibMVA = std::auto_ptr<BTagCalibration>(new BTagCalibration("CMVAv2",bTagScaleFactorFileMVA.fullPath()));
+    calibMVA = BTagCalibration("CMVAv2",bTagScaleFactorFileMVA.fullPath());
 
-    bMediumMVA.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"incl","central")); // for light flavor
-    bMediumMVA.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"ttbar","central")); // for b and c-jets
-    bMediumMVAUp.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"incl","up"));
-    bMediumMVAUp.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"ttbar","up"));
-    bMediumMVADown.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"incl","down"));
-    bMediumMVADown.push_back(BTagCalibrationReader(calibMVA.get(),BTagEntry::OP_MEDIUM,"ttbar","down"));
+    bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_B,"ttbar");
+    bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_C,"ttbar");
+    bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+    bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_UDSG,"incl");
 
     if(addSubstructureCHS or addSubstructurePuppi){
 
@@ -772,14 +772,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
       if ( bTagScaleFactorFileSubCSV.location()!=edm::FileInPath::Local)
 	throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileSubCSV << " !!\n";
       
-      calibSubCSV = std::auto_ptr<BTagCalibration>(new BTagCalibration("CSVv2",bTagScaleFactorFileSubCSV.fullPath()));
+      calibSubCSV = BTagCalibration("CSVv2",bTagScaleFactorFileSubCSV.fullPath());
+
+      bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+      bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_B,"lt");
+      bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+      bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_C,"lt");
+      bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
+      bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_UDSG,"incl");
       
-      bMediumSubCSV.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"incl","central")); // for light flavor
-      bMediumSubCSV.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"lt","central")); // for b and c-jets
-      bMediumSubCSVUp.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"incl","up"));
-      bMediumSubCSVUp.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"lt","up"));
-      bMediumSubCSVDown.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"incl","down"));
-      bMediumSubCSVDown.push_back(BTagCalibrationReader(calibSubCSV.get(),BTagEntry::OP_MEDIUM,"lt","down"));            
     }    
   }
 
@@ -823,6 +824,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(triggerPrescalesToken, triggerPrescalesH);
     Handle<TriggerResults> filterResultsH;
     iEvent.getByToken(filterResultsToken, filterResultsH);
+    edm::Handle<bool> filterBadChCandH;
+    iEvent.getByToken(badChargedCandidateToken,filterBadChCandH);      
+    edm::Handle<bool> filterBadPFMuonH;
+    iEvent.getByToken(badPFMuonToken,filterBadPFMuonH);
+   
 
     // GEN INFO    
     Handle<vector<PileupSummaryInfo> > pileupInfoH;
@@ -1243,6 +1249,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     flagecaltp    = 0;
     flaggoodvertices = 0;
     flagglobaltighthalo = 0;
+    flagbadchpf = *filterBadChCandH;
+    flagbadpfmu = *filterBadPFMuonH;
 
     if(filterResultsH.isValid()){
       // Which MET filters passed
@@ -1255,7 +1263,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (i == 3  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaghbheiso   = 1; // HBHENoiseIsoFilter
 	if (i == 4  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagecaltp    = 1; // Dead Ecal TP
 	if (i == 5  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaggoodvertices = 1; // Good vertices
-	if (i == 6  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagglobaltighthalo = 1; // 2016 global halo filter
+	if (i == 6  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagglobaltighthalo = 1; // 2016 global halo filter	
       }
     }
 
@@ -3624,6 +3632,8 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("flagecaltp"           , &flagecaltp           , "flagecaltp/b");
   tree->Branch("flaggoodvertices"     , &flaggoodvertices     , "flaggoodvertices/b");
   tree->Branch("flagglobaltighthalo"  , &flagglobaltighthalo  , "flagglobaltighthalo/b");
+  tree->Branch("flagbadchpf"          , &flagbadchpf          , "flagbadchpf/b");
+  tree->Branch("flagbadpfmu"          , &flagbadpfmu          , "flagbadpfmu/b");
 
   // Object counts
   tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
@@ -4613,101 +4623,63 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 				       std::vector<double> & scalefactor, std::vector<double> & scalefactorUp, std::vector<double> & scalefactorDown){
 
   if(algorithm != "CSV" and algorithm != "MVA" and algorithm != "SubCSV") return;
-
-  float MaxBJetPt = 670.;
-  float minBJetPt = 30.;
-  float maxEta    = 2.4;
-
-  if(algorithm == "MVA")
-    MaxBJetPt = 320.;
-  
-
-  if(jet.hadronFlavour() == 0){
-    MaxBJetPt = 1000.;
-    minBJetPt = 20.;
-  }
-	      
-  bool  doubleUncertainty = false;
-
   // bounds for CSVv2 and MVAv2
   float jetPt = jet.pt();
-  if(jet.pt() > MaxBJetPt){	     
-    jetPt = MaxBJetPt;
-    doubleUncertainty = true;
-  }
-  if(jet.pt() < minBJetPt){
-    jetPt = minBJetPt;
-    doubleUncertainty = true;
-  }
-  
   float jetEta = jet.eta();
-  if(fabs(jetEta) > maxEta){
-    jetEta = maxEta;
-    doubleUncertainty = true;
-  }
 
   if(algorithm == "CSV"){
 
     if(jet.hadronFlavour() == 5){
-      scalefactor.push_back(bMediumCSV[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));	      
-      scalefactorUp.push_back(bMediumCSVUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumCSVDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));		
+      scalefactor.push_back(bMediumCSV[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }    
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumCSV[1].eval(BTagEntry::FLAV_C, jetEta, jetPt));
-      scalefactorUp.push_back(bMediumCSVUp[1].eval(BTagEntry::FLAV_C, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumCSVDown[1].eval(BTagEntry::FLAV_C, jetEta, jetPt));      
+      scalefactor.push_back(bMediumCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
     }
     else{
-      scalefactor.push_back(bMediumCSV[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorUp.push_back(bMediumCSVUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumCSVDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));	      
+      scalefactor.push_back(bMediumCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }	      
   }
   else if(algorithm == "MVA"){
     if(jet.hadronFlavour() == 5){            
-      scalefactor.push_back(bMediumMVA[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));	      
-      scalefactorUp.push_back(bMediumMVAUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumMVADown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));		
-
+      scalefactor.push_back(bMediumMVA[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumMVA[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));	      
-      scalefactorUp.push_back(bMediumMVAUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumMVADown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));		
+      scalefactor.push_back(bMediumMVA[1].eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA[1].eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA[1].eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
       
     }
     else{      
-      scalefactor.push_back(bMediumMVA[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorUp.push_back(bMediumMVAUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumMVADown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));	      
+      scalefactor.push_back(bMediumMVA[2].eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA[2].eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA[2].eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }
   }
   else if(algorithm == "SubCSV"){
     if(jet.hadronFlavour() == 5){            
-      scalefactor.push_back(bMediumSubCSV[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSVUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumSubCSVDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));		
-
+      scalefactor.push_back(bMediumSubCSV[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumSubCSV[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSVUp[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumSubCSVDown[1].eval(BTagEntry::FLAV_B, jetEta, jetPt));		
-      
+      scalefactor.push_back(bMediumSubCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else{      
-      scalefactor.push_back(bMediumSubCSV[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorUp.push_back(bMediumSubCSVUp[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));
-      scalefactorDown.push_back(bMediumSubCSVDown[0].eval(BTagEntry::FLAV_UDSG, jetEta, jetPt));	      
+      scalefactor.push_back(bMediumSubCSV[2].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV[2].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV[2].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
   }
-
-  if(doubleUncertainty){
-    scalefactorUp.back() = 2*(scalefactorUp.back()-scalefactor.back())+scalefactor.back();
-    scalefactorDown.back() = 2*(scalefactorDown.back()-scalefactor.back())+scalefactor.back();
-  }
-  
 }
 
 

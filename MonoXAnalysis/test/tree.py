@@ -485,6 +485,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      triggerResults = cms.InputTag("TriggerResults", "",options.triggerName),
 			      prescales      = cms.InputTag("patTrigger"),    
 			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+			      badChargedCandidate = cms.InputTag("BadChargedCandidateFilter"),
+			      badPFMuon           = cms.InputTag("BadPFMuonFilter"),
 			      ## vertexes			    
 			      vertices       = cms.InputTag("goodVertices"),
 			      ## muons    

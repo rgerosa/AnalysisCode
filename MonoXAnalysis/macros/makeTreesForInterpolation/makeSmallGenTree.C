@@ -65,7 +65,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   system("rm file.temp");
 
   // load all the re-weight files
-  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_4p0fb.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
 
   // trigger efficiency for met trigger                                                                                                                                       

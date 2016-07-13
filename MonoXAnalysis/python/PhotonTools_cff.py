@@ -19,7 +19,7 @@ def PhotonTools(process,addEGMSmear,isMC):
                 from EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi import calibratedPatPhotons,files
                 setattr(process,"calibratedPhotons",calibratedPatPhotons.clone(
                                 isMC = cms.bool(isMC),
-				correctionFile = cms.string(files["76XReReco"]),
+				correctionFile = cms.string(files["80Xapproval"]),
 				
                                 ))
 

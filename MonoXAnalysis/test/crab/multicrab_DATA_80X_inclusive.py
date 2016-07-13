@@ -43,8 +43,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-06-06-2016_80X_Data864pb-1_Inclusive/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-274421_13TeV_PromptReco_Collisions16_JSON.txt'  
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-06-06-2016_80X_Data7p65fb-1_Inclusive/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'  
 config.Data.publication   = False
 
 

@@ -28,7 +28,7 @@ def ElectronTools(process,addEGMSmear,isMC):
 		setattr(process,"calibratedElectrons",calibratedPatElectrons.clone(
 				isMC = cms.bool(isMC),				
 				electrons = cms.InputTag('selectedElectrons'),
-				correctionFile = cms.string(files["76XReReco"])
+				correctionFile = cms.string(files["80Xapproval"])
 				))
 
 		

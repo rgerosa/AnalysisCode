@@ -146,13 +146,13 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   loosemuisocut  = cms.double(0.25),
 				   tightmuisocut  = cms.double(0.15),
 				   tagmuonptcut   = cms.double(22),
-				   tagmuonetacut  = cms.double(2.4),
+				   tagmuonetacut  = cms.double(2.1),
 				   tagmuontrigmatchdR = cms.double(0.3),
 				   requiremuonhlt = cms.bool(True),
 				   tagmuontriggers = tagmuontriggernames,
 				   #### Electron information for identification --> pt cut and matching with trigger info
 				   tagelectronptcut   = cms.double(35),
-				   tagelectronetacut  = cms.double(2.5),
+				   tagelectronetacut  = cms.double(2.1),
 				   tagelectrontrigmatchdR = cms.double(0.3),
 				   requireelectronhlt = cms.bool(True),
 				   tagelectrontriggers = tagelectrontriggernames,
@@ -174,14 +174,14 @@ if options.isMC:
 # Tag muons --> filter on the collection content --> at least one
 process.tagmuons = cms.EDFilter("PATMuonSelector", 
     src = cms.InputTag("probeinfo", "tightmuons"),
-    cut = cms.string("abs(eta) < 2.1"),
+    cut = cms.string(""),
     filter = cms.bool(True) 
 )
 
 # Tag electrons --> filter on the collection content --> at least one
 process.tagelectrons = cms.EDFilter("PATElectronSelector",
     src = cms.InputTag("probeinfo", "tightelectrons"),
-    cut = cms.string("abs(eta) < 2.1"),
+    cut = cms.string(""),
     filter = cms.bool(True)
 ) 
 
