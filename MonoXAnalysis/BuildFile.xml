@@ -9,6 +9,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="CondFormats/BTauObjects"/>
+<use   name="CondTools/BTau"/>
 <use   name="rootrflx"/>
 <use   name="root"/>
 <use   name="rootmath"/>
