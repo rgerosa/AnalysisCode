@@ -130,10 +130,10 @@ void makehist4(TTree* tree, /*input tree*/
   TH1* gamRecoilWeight = (TH1*) gamRecoilFile.Get("gamma_jets_ratio");
      
   // electron and muon ID scale factor files                                                                                                                                    
-  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_2p6.root");
-  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_2p6.root");
-  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_2p6.root");
-  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_2p6.root");
+  TFile sffile_eleTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_4p3.root");
+  TFile sffile_eleVeto("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_4p3.root");
+  TFile sffile_muTight("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_4p3.root");
+  TFile sffile_muLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_4p3.root");
 
   TH2*  msfloose = (TH2*)sffile_muLoose.Get("scaleFactor_muon_looseid_RooCMSShape");
   TH2*  msftight = (TH2*)sffile_muTight.Get("scaleFactor_muon_tightid_RooCMSShape");
@@ -141,9 +141,7 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  esftight = (TH2*)sffile_eleTight.Get("scaleFactor_electron_tightid_RooCMSShape");
 
   // Photon ID scale factor                                                                                                                                                     
-  TFile sffile_phoLoose("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_looseid_2p6.root");
-  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_2p6.root");
-  TH2*  psfloose  = (TH2*)sffile_phoLoose.Get("scaleFactor_photon_looseid_RooCMSShape");
+  TFile sffile_phoMedium("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_4p3.root");
   TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
 
   // Photon Purity                                                                                                                                                              
@@ -456,7 +454,7 @@ void makehist4(TTree* tree, /*input tree*/
   // loop on events
   while(myReader.Next()){
 
-    if(not isMC and *run > 274443) continue;
+    //if(not isMC and *run > 274443) continue;
     //if(not isMC and *run > 274240) continue;
 
     // check trigger depending on the sample
@@ -1428,7 +1426,6 @@ void makehist4(TTree* tree, /*input tree*/
   sffile_eleVeto.Close();
   sffile_muTight.Close();
   sffile_muLoose.Close();
-  sffile_phoLoose.Close();
   sffile_phoMedium.Close();
   purityfile_photon.Close();
   triggerfile_SinglEle.Close();
