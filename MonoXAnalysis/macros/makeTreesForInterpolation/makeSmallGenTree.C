@@ -245,11 +245,12 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
       }
       
       TString name_tmp_2 (seglist.at(0).c_str());
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph","");
       name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-madgraph","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-JHUGen","");
       name_tmp_2.ReplaceAll("_13TeV_powheg_pythia8","");

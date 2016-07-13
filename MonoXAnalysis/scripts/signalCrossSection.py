@@ -9,6 +9,7 @@ aparser.add_argument('-med'  ,'--med'   ,action='store' ,dest='med' ,default='50
 aparser.add_argument('-dm'   ,'--dm'    ,action='store' ,dest='dm'  ,default='10',    help='dm mass')
 aparser.add_argument('-vid'  ,'--vid'   ,action='store' ,dest='vid' ,default=0,      help='boson id (0,23,24)')
 aparser.add_argument('-gSM'  ,'--gSM'   ,action='store' ,dest='gSM' ,default=1,      help='gSM')
+aparser.add_argument('-gDM'  ,'--gDM'   ,action='store' ,dest='gDM' ,default=1,      help='gDM')
 
 aparser.add_argument('-list' ,'--list'  ,action='store_true',dest='list'  ,  help='list everything')
 options = aparser.parse_args()
@@ -19,7 +20,7 @@ entries_ex1 = 0
 entries_ex2 = 0
 
 eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
-basedir='eos/cms/store/cmst3/group/monojet/mc/model3/'
+basedir='eos/cms/store/cmst3/group/monojet/mc/model3_v2/'
 
 def getXS(iMed,iId,basedir='/afs/cern.ch/user/p/pharris/pharris/public/bacon/prod/CMSSW_7_3_3/src/genproductions/bin/JHUGen/'):
     lFile  = r.TFile(basedir+'/patches/WZXS.root')
@@ -42,10 +43,10 @@ def getXS(iMed,iId,basedir='/afs/cern.ch/user/p/pharris/pharris/public/bacon/pro
     BRCorr = min(lBR.Eval(iMed)*246.*246./lBaseMass/lBaseMass,1.)
     return lG.Eval(iMed)*lScale.Eval(scale)*BRCorr
 
-def computeXS(med,dm,proc,gSM):
+def computeXS(med,dm,proc,gSM,gDM):
     global entries_sum,entries_inc,entries_ex1,entries_ex2 
 
-    infile='%s/MonoJ_%s_%s_%s_%s.root' % (basedir,med,dm,gSM,proc)
+    infile='%s/MonoJ_%s_%s_%s_%s_%s.root' % (basedir,med,dm,gSM,gDM,proc)
     lFile  = r.TFile().Open("root://eoscms//%s" % (infile))
     lTree  = lFile.Get("Events")
     lWHist = r.TH1F("W","W",1,-100000,10000000)
@@ -60,9 +61,9 @@ def computeXS(med,dm,proc,gSM):
     entries_ex2 += lXHist.Integral()
     entries_sum += lTree.GetEntries()
 
-def computeXSV(med,dm,proc,iId,gSM):
+def computeXSV(med,dm,proc,iId,gSM,gDM):
     global entries_sum,entries_inc,entries_ex1,entries_ex2 
-    infile='%s/MonoV_%s_%s_%s_%s.root' % (basedir,med,dm,gSM,proc)
+    infile='%s/MonoV_%s_%s_%s_%s_%s.root' % (basedir,med,dm,gSM,gDM,proc)
     lFile  = r.TFile().Open("root://eoscms//%s" % (infile))
     lTree  = lFile.Get("Events")
     lZHist = r.TH1F("Z","W",1,-100000,10000000)
@@ -90,18 +91,18 @@ def computeXSV(med,dm,proc,iId,gSM):
 if __name__ == '__main__':
 
     if options.list: 
-        command = '%s ls eos/cms/store/cmst3/group/monojet/mc/model3/ | sed "s@_@ @g" | awk \'{print "mMed="$2" mDM="$3}\' | uniq' % eos
+        command = '%s ls eos/cms/store/cmst3/group/monojet/mc/model3_v2/ | sed "s@_@ @g" | awk \'{print "mMed="$2" mDM="$3}\' | uniq' % eos
         if options.vid > 0:
-            command = '%s ls eos/cms/store/cmst3/group/monojet/mc/model3/ | grep MonoV | sed "s@_@ @g" | awk \'{print "mMed="$2" mDM="$3}\' | uniq' % eos
+            command = '%s ls eos/cms/store/cmst3/group/monojet/mc/model3_v2/ | grep MonoV | sed "s@_@ @g" | awk \'{print "mMed="$2" mDM="$3}\' | uniq' % eos
         exists = commands.getoutput(command)
         for line in exists.splitlines():
             print line
         quit()
 
     if int(options.vid) == 0:
-        computeXS(options.med,options.dm,options.proc,options.gSM)
+        computeXS(options.med,options.dm,options.proc,options.gSM,options.gDM)
 
     if int(options.vid) > 0:
-        computeXSV(options.med,options.dm,options.proc,options.vid,options.gSM)
+        computeXSV(options.med,options.dm,options.proc,options.vid,options.gSM,options.gDM)
     
     print options.proc,"-",options.vid,"-",options.med,"-",options.dm,"XS (inclusive) ",entries_inc/entries_sum," XS (Met > 200):",entries_ex1/entries_sum,"XS (Met > 500):",entries_ex2/entries_sum

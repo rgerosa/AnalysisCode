@@ -1222,9 +1222,9 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     gamdatamchist(&outfile,category,observables,observables_2D,lumi,runHiggsInvisible,true,applyPostFitWeights);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,false,false,applyPostFitWeights); 
+    //    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,false,false,applyPostFitWeights); 
     cout<<"start wmunu region data"<<endl;
-    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,false,false,applyPostFitWeights); 
+    //    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,false,false,applyPostFitWeights); 
     cout<<"start zee region data"<<endl;
     lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,doShapeSystematics,runHiggsInvisible,true,false,true,applyPostFitWeights); 
     cout<<"start wenu region data"<<endl;
