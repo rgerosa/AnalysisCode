@@ -299,7 +299,6 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames); // un-pack names
       if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)) continue; //check dR matching
-      if(muons_iter->pt()/trgobj.pt() < 0.5 or muons_iter->pt()/trgobj.pt() > 1.5) continue; // check some pt matching
 
       for (std::string trigpath : tagmuontriggers) { 
 	// loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
@@ -419,7 +418,6 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
       if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)) continue; //check dR matching
-      if(electrons_iter->pt()/trgobj.pt() < 0.5 or electrons_iter->pt()/trgobj.pt() > 1.5) continue; // check some pt matching
       
       for (std::string trigpath : tagelectrontriggers) {
 	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true)) triggermatched = true;

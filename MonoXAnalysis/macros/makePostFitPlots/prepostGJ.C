@@ -133,7 +133,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"2.6");
+  CMS_lumi(canvas,"2.77");
   
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
@@ -165,9 +165,9 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   frame2->Reset("ICES");
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

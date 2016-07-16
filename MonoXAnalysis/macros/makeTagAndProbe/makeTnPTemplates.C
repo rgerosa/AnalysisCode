@@ -1,12 +1,12 @@
 #include "../CMS_lumi.h"
 
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,135,500};
-vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,70.,100,135,500};
-vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,70.,100,135,500};
-vector<float> etaBinMuon     = {-2.4,-1.2,0,1.2,2.4};
-vector<float> etaBinElectron = {-2.5,-1.44,0,1.44,2.5};
-vector<float> etaBinPhoton   = {-2.5,-1.44,0,1.44,2.5};
-bool isabseta = false;
+vector<float> ptBinMuon      = {10.,20.,30.,40.,55.,80.,110,500};
+vector<float> ptBinElectron  = {10.,20.,30.,40.,55.,80.,110,500};
+vector<float> ptBinPhoton    = {10.,20.,30.,40.,55.,80.,110,500};
+vector<float> etaBinMuon     = {0.,0.9,1.2,2.1,2.4};
+vector<float> etaBinElectron = {0,0.75,1.5,2.,2.5};
+vector<float> etaBinPhoton   = {0,0.75,1.5,2.,2.5};
+bool isabseta = true;
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -33,7 +33,7 @@ void maketemplate(const string & inputDIR,
   inputMC->Add((inputDIR+"/*root").c_str());
   
   // pileup-re-weight from external file
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_4p0fb.root");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_7p65fb.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
 
   TTreeReader reader(inputMC);
@@ -69,11 +69,11 @@ void maketemplate(const string & inputDIR,
   while(reader.Next()){
     
     Float_t puwgt = 0.;
-    if (*nvtx <= 50) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
+    if (*nvtx <= 60) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(fabs(*eta) > 1.479 and fabs(*eta) < 1.552) continue;    
+    //    if(fabs(*eta) > 1.479 and fabs(*eta) < 1.552) continue;    
     if(isabseta and (fabs(*eta) < etaMin or fabs(*eta) > etaMax)) continue;
     else if(not isabseta and (*eta < etaMin or *eta > etaMax)) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds

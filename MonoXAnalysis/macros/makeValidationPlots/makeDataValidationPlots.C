@@ -2,7 +2,7 @@
 #include "../makeTemplates/histoUtils2D.h"
 #include "../CMS_lumi.h"
 
-void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix){
+void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const int & rebinFactor){
 
   // final plot
   TCanvas* canvas = new TCanvas(("canvas_"+postfix).c_str(),"",600,650);
@@ -25,6 +25,11 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   canvas->cd();
   pad2->Draw();
 
+  if(rebinFactor > 1){
+    histoData->Rebin(rebinFactor);
+    histoMC->Rebin(rebinFactor);
+  }
+
   pad1->cd();
   vector<double> bins = selectBinning(observable,category);
 
@@ -43,7 +48,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   frame->GetYaxis()->SetTitleSize(0.050);
 
   frame->Draw();
-  CMS_lumi(pad1,"2.61",true);
+  CMS_lumi(pad1,"7.65",true);
 
   float maxdata  = -1;
   float mindata  = 1000000;
@@ -171,7 +176,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
 }
 
 
-void makeDataValidationPlots(string inputFileName, Category category, string observable, string observableLatex, bool addWgamma = false){
+void makeDataValidationPlots(string inputFileName, Category category, string observable, string observableLatex, bool addWgamma = false, int rebinFactor = 1){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -455,17 +460,17 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 
   // make plots
   
-  makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm");  
-  makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee");
-  makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll");
-  makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm");
-  makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee");
-  makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");  
+  makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm",rebinFactor);  
+  makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee",rebinFactor);
+  makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll",rebinFactor);
+  makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm",rebinFactor);
+  makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee",rebinFactor);
+  makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll",rebinFactor);  
 
   if(addWgamma){
-    makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m");
-    makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e");
-    makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l");    
+    makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m",rebinFactor);
+    makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e",rebinFactor);
+    makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l",rebinFactor);    
   }
 
 }

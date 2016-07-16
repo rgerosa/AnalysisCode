@@ -328,7 +328,7 @@ void prepostSig(string fitFilename,
   zlhist->SetLineColor(kBlack);
   zlhist->Add(gmhist);
 
-  znhist->SetFillColor(TColor::GetColor("#4D975D"));
+  znhist->SetFillColor(TColor::GetColor("#3A8C4C"));
   znhist->SetLineColor(kBlack);
 
   wlhist->SetFillColor(TColor::GetColor("#FAAF08"));

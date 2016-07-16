@@ -26,7 +26,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 90000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/Production-12-07-2016_80X_TagAndProbe_7p65fb-1/'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-12-07-2016_80X_TagAndProbe_7p65fb-1/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276097_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 config.Data.publication   = False
 

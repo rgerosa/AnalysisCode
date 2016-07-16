@@ -577,8 +577,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
 			      ## b-tag scale factors
 			      addBTagScaleFactor         = cms.bool(True),
-			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X.csv'), 	     
-			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_76X.csv'), 			      
+			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_80X.csv'), 	     
+			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_80X.csv'), 	 
 			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv'),
 			      ## photon id
 			      addPhotonIDVariables = cms.bool(options.addPhotonIDVariables),

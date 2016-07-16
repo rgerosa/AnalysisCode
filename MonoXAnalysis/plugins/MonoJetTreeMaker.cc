@@ -747,9 +747,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     calibCSV = BTagCalibration("CSVv2",bTagScaleFactorFileCSV.fullPath());
 
     bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
-    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_B,"mujets");
+    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_B,"comb");
     bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
-    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_C,"mujets");
+    bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_C,"comb");
     bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_UDSG,"incl");
 

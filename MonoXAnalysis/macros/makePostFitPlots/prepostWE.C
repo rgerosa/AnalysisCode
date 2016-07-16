@@ -40,8 +40,10 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch6/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch6/Dibosons");
     qcdhist = (TH1*)pfile->Get("shapes_fit_b/ch6/QCD_WE");
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKW");
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKZ");
+    if(category == Category::VBF){
+      ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKW");
+      ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch6/EWKZ");
+    }
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch6/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch6/total_background");
 
@@ -52,8 +54,10 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch6/ZJets_WE");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch6/Top");
     qcdhist = (TH1*)pfile->Get("shapes_fit_s/ch6/QCD_WE");
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKW");
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKZ");
+    if(category == Category::VBF){
+      ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKW");
+      ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch6/EWKZ");
+    }
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch6/Dibosons");
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch6/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch6/total_background");
@@ -90,14 +94,16 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
     VVRate << dihist->GetBinContent(iBin);
   }
 
-  for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
-    EWKWRate << "   ";
-    EWKWRate << ewkwhist->GetBinContent(iBin);
-  }
-
-  for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
-    EWKZRate << "   ";
-    EWKZRate << ewkzhist->GetBinContent(iBin);
+  if(category == Category::VBF){
+    for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+      EWKWRate << "   ";
+      EWKWRate << ewkwhist->GetBinContent(iBin);
+    }
+    
+    for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+      EWKZRate << "   ";
+      EWKZRate << ewkzhist->GetBinContent(iBin);
+    }
   }
 
   for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
@@ -125,10 +131,12 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
   outputfile<<"######################"<<endl;
   outputfile<<VVRate.str()<<endl;
   outputfile<<"######################"<<endl;
-  outputfile<<EWKWRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<EWKZRate.str()<<endl;
-  outputfile<<"######################"<<endl;
+  if(category == Category::VBF){
+    outputfile<<EWKWRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<EWKZRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+  }
   outputfile<<WJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<PreRate.str()<<endl;
@@ -151,8 +159,10 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
-  wlhist->Add(ewkwhist);
-  wlhist->Add(ewkzhist);
+  if(category == Category::VBF){
+    wlhist->Add(ewkwhist);
+    wlhist->Add(ewkzhist);
+  }
   wlhist->Add(qcdhist);
 
   TH1* frame = (TH1*) dthist->Clone("frame");
@@ -175,7 +185,7 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
 
   frame->Draw();
   
-  CMS_lumi(canvas,"2.6");
+  CMS_lumi(canvas,"2.77");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -205,9 +215,9 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
   frame2->Reset("ICES");
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

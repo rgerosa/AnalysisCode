@@ -71,7 +71,7 @@ else:
                                 fileNames = cms.untracked.vstring(options.inputFiles))
 
 #process.source.eventsToProcess = cms.untracked.VEventRange('1:227204:45121334')
-process.source.skipEvents = cms.untracked.uint32(72000)
+#process.source.skipEvents = cms.untracked.uint32(72000)
 
 # Setup the service to make a ROOT TTree
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tnptree.root"))
@@ -146,13 +146,13 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   loosemuisocut  = cms.double(0.25),
 				   tightmuisocut  = cms.double(0.15),
 				   tagmuonptcut   = cms.double(22),
-				   tagmuonetacut  = cms.double(2.1),
+				   tagmuonetacut  = cms.double(2.4),
 				   tagmuontrigmatchdR = cms.double(0.3),
 				   requiremuonhlt = cms.bool(True),
 				   tagmuontriggers = tagmuontriggernames,
 				   #### Electron information for identification --> pt cut and matching with trigger info
 				   tagelectronptcut   = cms.double(35),
-				   tagelectronetacut  = cms.double(2.1),
+				   tagelectronetacut  = cms.double(2.5),
 				   tagelectrontrigmatchdR = cms.double(0.3),
 				   requireelectronhlt = cms.bool(True),
 				   tagelectrontriggers = tagelectrontriggernames,

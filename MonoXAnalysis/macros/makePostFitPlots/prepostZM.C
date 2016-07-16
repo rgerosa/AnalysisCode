@@ -40,8 +40,10 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
     wlhist = (TH1*)pfile->Get("shapes_fit_b/ch2/WJets_ZM");
     tthist = (TH1*)pfile->Get("shapes_fit_b/ch2/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_b/ch2/Dibosons");
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch2/EWKW");
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch2/EWKZ");
+    if(category == Category::VBF){
+      ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch2/EWKW");
+      ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch2/EWKZ");
+    }
     pohist = (TH1*)pfile->Get("shapes_fit_b/ch2/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
 
@@ -53,8 +55,10 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
     wlhist = (TH1*)pfile->Get("shapes_fit_s/ch2/WJets_ZM");
     tthist = (TH1*)pfile->Get("shapes_fit_s/ch2/Top");
     dihist = (TH1*)pfile->Get("shapes_fit_s/ch2/Dibosons");
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch2/EWKW");
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch2/EWKZ");
+    if(category == Category::VBF){
+      ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch2/EWKW");
+      ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch2/EWKZ");
+    }
     pohist = (TH1*)pfile->Get("shapes_fit_s/ch2/total_background");
     prhist = (TH1*)pfile->Get("shapes_prefit/ch2/total_background");
 
@@ -92,14 +96,17 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
     VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
   }
 
-  for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
-    EWKWRate <<"   ";
-    EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
-    EWKZRate <<"   ";
-    EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
+  if(category == Category::VBF){
+    
+    for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
+      EWKWRate <<"   ";
+      EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
+    }
+    
+    for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
+      EWKZRate <<"   ";
+      EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
+    }
   }
 
   for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
@@ -156,8 +163,10 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
-  wlhist->Add(ewkwhist);
-  wlhist->Add(ewkzhist);
+  if(category == Category::VBF){
+      wlhist->Add(ewkwhist);
+      wlhist->Add(ewkzhist);
+  }
 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
@@ -180,7 +189,7 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
 
   frame ->Draw();
   
-  CMS_lumi(canvas,"2.6");
+  CMS_lumi(canvas,"2.77");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -210,9 +219,9 @@ void prepostZM(string fitFilename, string templateFileName, string observable, C
   frame2->Reset("ICES");
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
