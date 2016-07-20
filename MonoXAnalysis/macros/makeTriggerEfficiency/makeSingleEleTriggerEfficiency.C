@@ -32,14 +32,21 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   hnum->Sumw2();
   hden->Sumw2();
 
+  TH2F* hnum_recover = new TH2F("hnum_recover", "", binsEta.size()-1, &binsEta[0],binsPt.size()-1, &binsPt[0]);
+  TH2F* hden_recover = new TH2F("hden_recover", "", binsEta.size()-1, &binsEta[0],binsPt.size()-1, &binsPt[0]);
+  hnum_recover->Sumw2();
+  hden_recover->Sumw2();
+
   // define numerator as event with a medium photon + trigger requirement
   tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel || hltelnoiso) && t1pfmet > 50"));
   tree->Draw("el1pt:abs(el1eta) >> hden",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && t1pfmet > 50"));
-  //tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && (hltsingleel || hltelnoiso || hltPFHT800 || hltEcalHT800) && t1pfmet > 50"));
-  //tree->Draw("el1pt:abs(el1eta) >> hden",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && t1pfmet > 50"));
+  tree->Draw("el1pt:abs(el1eta) >> hnum_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && (hltsingleel || hltelnoiso || hltPFHT800 || hltEcalHT800) && t1pfmet > 50"));
+  tree->Draw("el1pt:abs(el1eta) >> hden_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && t1pfmet > 50"));
   
   TEfficiency* efficiency = new TEfficiency(*hnum,*hden);
+  TEfficiency* efficiency_recover = new TEfficiency(*hnum_recover,*hden_recover);
   TH2* histoEff = efficiency->CreateHistogram();
+  TH2* histoEff_recover = efficiency_recover->CreateHistogram();
   // in order to plot the 2D histo
   fitfunc->SetLineColor(kBlue);
   fitfunc->SetLineWidth(2);
@@ -69,23 +76,48 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   canvas->SaveAs((outputDIR+"/electronTriggerEff.pdf").c_str(),"pdf");
   canvas->SetLogy(0);
 
+  canvas->Draw();
+  canvas->cd();
+  canvas->SetLogy();
+  gStyle->SetPaintTextFormat(".2f");
+  efficiency_recover->Draw("colztext same");
+  canvas->RedrawAxis();
+  CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
+  canvas->SaveAs((outputDIR+"/electronTriggerEff_recover.png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/electronTriggerEff_recover.pdf").c_str(),"pdf");
+  canvas->SetLogy(0);
+
   TCanvas* canvas2 = new TCanvas("canvas2", "canvas2", 600, 625);
   canvas2->cd();
   gPad->SetRightMargin(0.06);
   for(int iBinX = 0; iBinX < histoEff->GetNbinsX(); iBinX++){
     TGraphAsymmErrors* projection_pt = new TGraphAsymmErrors();
+    TGraphAsymmErrors* projection_pt_recover = new TGraphAsymmErrors();
     for(int iBinY = 0; iBinY < histoEff->GetNbinsY(); iBinY++){
       int globalBin = histoEff->GetBin(iBinX+1,iBinY+1);
       projection_pt->SetPoint(iBinY+1,histoEff->GetYaxis()->GetBinCenter(iBinY+1),efficiency->GetEfficiency(globalBin));
       projection_pt->SetPointError(iBinY+1,histoEff->GetYaxis()->GetBinWidth(iBinY+1)/2,histoEff->GetYaxis()->GetBinWidth(iBinY+1)/2,efficiency->GetEfficiencyErrorLow(globalBin),efficiency->GetEfficiencyErrorUp(globalBin));
     }
+
+    for(int iBinY = 0; iBinY < histoEff_recover->GetNbinsY(); iBinY++){
+      int globalBin = histoEff_recover->GetBin(iBinX+1,iBinY+1);
+      projection_pt_recover->SetPoint(iBinY+1,histoEff_recover->GetYaxis()->GetBinCenter(iBinY+1),efficiency_recover->GetEfficiency(globalBin));
+      projection_pt_recover->SetPointError(iBinY+1,histoEff_recover->GetYaxis()->GetBinWidth(iBinY+1)/2,histoEff_recover->GetYaxis()->GetBinWidth(iBinY+1)/2,efficiency_recover->GetEfficiencyErrorLow(globalBin),efficiency_recover->GetEfficiencyErrorUp(globalBin));
+    }
+
     projection_pt->GetXaxis()->SetTitle("Electron p_{T} [GeV]");
     projection_pt->GetYaxis()->SetTitle("Trigger EfficiencyHisto");
     projection_pt->SetMarkerSize(1);
     projection_pt->SetMarkerStyle(20);
-    projection_pt->SetMarkerColor(kBlack);
-    projection_pt->SetLineColor(kBlack);
+    projection_pt->SetMarkerColor(kRed);
+    projection_pt->SetLineColor(kRed);
     projection_pt->Draw("AE1P");
+    projection_pt_recover->SetMarkerSize(1);
+    projection_pt_recover->SetMarkerStyle(20);
+    projection_pt_recover->SetMarkerColor(kBlue);
+    projection_pt_recover->SetLineColor(kBlue);
+    projection_pt_recover->Draw("E1Psame");
+    
     if(doFit)
       projection_pt->Fit(fitfunc);
     CMS_lumi(canvas2,string(Form("%.2f",lumi)),true);

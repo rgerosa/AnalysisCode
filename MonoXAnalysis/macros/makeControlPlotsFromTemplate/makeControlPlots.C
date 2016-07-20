@@ -600,12 +600,13 @@ void makeControlPlots(string templateFileName,
   // set Y-axis range
   if(category == Category::monojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+  //    frame->GetYaxis()->SetRangeUser(100,datahist->GetMaximum()*500);  
   else if(category == Category::inclusive and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::monojet and not isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
   else if(category == Category::inclusive and not isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
   else if(category == Category::monoV and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::boosted and isLog)
@@ -613,7 +614,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::VBF and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   if(TString(observableLatex).Contains("GeV"))

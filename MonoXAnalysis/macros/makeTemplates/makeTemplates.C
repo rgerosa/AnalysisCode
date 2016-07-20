@@ -1232,13 +1232,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;
-      topdatamchist(&outfile,Sample::topmu,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);
+      topdatamchist(&outfile,Sample::topmu,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights);
       cout<<"start Top+el region data"<<endl;
-      topdatamchist(&outfile,Sample::topel,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);
+      topdatamchist(&outfile,Sample::topel,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights);
     }
 
     //add qcd data templates
-    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016.root");
+    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016_7p65.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
       cout<<"Take templates QCD from data"<<endl;
       vector<double> met_bins = selectBinning("met",category);

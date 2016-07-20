@@ -902,12 +902,12 @@ void signalmchist(TFile* outfile,
       monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Scalar/sigfilter/sig_tree_DM_ScalarWH_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));      
     }
-    else if(iPoint.interaction == interaction and interaction == "PseudoScalar"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_PseudoScalar/sigfilter/sig_tree_DMS_NNPDF30_PseudoScalar_Mphi-"+
+    else if(iPoint.interaction == interaction and interaction == "Pseudoscalar"){
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMS_Pseudoscalar/sigfilter/sig_tree_DMS_NNPDF30_Pseudoscalar_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-powheg.root").c_str()));
-      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_PseudoScalar/sigfilter/sig_tree_DMS_PseudoScalarWH_Mphi-"+
+      monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Pseudoscalar/sigfilter/sig_tree_DMS_PseudoscalarWH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));
-      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_PseudoScalar/sigfilter/sig_tree_DMS_PseudoScalarZH_Mphi-"+
+      monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Pseudoscalar/sigfilter/sig_tree_DMS_PseudoscalarZH_Mphi-"+
 					iPoint.mediatorMass+"_Mchi-"+iPoint.dmMass+"_gSM-1p0_gDM-1p0_v2_13TeV-JHUGen.root").c_str()));
     }
   }
@@ -1563,10 +1563,10 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
     baseDirMonoW   = baseInputTreePath+"/MonoW_Scalar/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Scalar/sigfilter/";
   }
-  else if(interaction == "PseudoScalar"){
-    baseDirMonoJet = baseInputTreePath+"/DMS_PseudoScalar/sigfilter/";
-    baseDirMonoW   = baseInputTreePath+"/MonoW_PseudoScalar/sigfilter/";
-    baseDirMonoZ   = baseInputTreePath+"/MonoZ_PseudoScalar/sigfilter/";
+  else if(interaction == "Pseudoscalar"){
+    baseDirMonoJet = baseInputTreePath+"/DMS_Pseudoscalar/sigfilter/";
+    baseDirMonoW   = baseInputTreePath+"/MonoW_Pseudoscalar/sigfilter/";
+    baseDirMonoZ   = baseInputTreePath+"/MonoZ_Pseudoscalar/sigfilter/";
   }
   else{
     cout<<"[findAllPossibleMassPoints]: interaction type not found --> exit "<<endl;

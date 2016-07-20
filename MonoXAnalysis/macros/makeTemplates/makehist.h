@@ -37,7 +37,7 @@ const float photonScaleUnc  = 0.015;
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_10_06_2016_v2/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016//";
 
 VectorSorter jetSorter;
 
@@ -226,6 +226,7 @@ void makehist4(TTree* tree, /*input tree*/
 
   // general info
   TTreeReaderValue<unsigned int> run    (myReader,"run");
+  TTreeReaderValue<unsigned int> lumisection    (myReader,"lumi");
   TTreeReaderValue<unsigned int> event  (myReader,"event");
   TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
   TTreeReaderValue<int>          putrue (myReader,"putrue");
@@ -249,7 +250,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if(sysName == "btagDown" or sysName == "btagDw" or sysName == "bDown" or sysName == "bDw")
       btagname = "wgtbtagDown";
     else
-      btagname = "wgtbtag";
+      btagname    = "wgtbtag";
     prescalename  = "pswgt_ph120";
     hltphotonname = "hltphoton120";
   }
@@ -301,11 +302,14 @@ void makehist4(TTree* tree, /*input tree*/
 
   string cscfilter = "flagglobaltighthalo";
   if(isMC) cscfilter = "flagcsctight";
+   
   TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
   TTreeReaderValue<UChar_t> fcsct  (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
+  //  TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
+  //  TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
 
   TTreeReaderValue<unsigned int> njets    (myReader,"njets");
   TTreeReaderValue<unsigned int> ntaus    (myReader,"ntaus");
@@ -451,6 +455,8 @@ void makehist4(TTree* tree, /*input tree*/
 
   TTreeReaderValue<double> toppt  (myReader,topptname.c_str());
   TTreeReaderValue<double> atoppt (myReader,atopptname.c_str());
+
+  ofstream dump("dumpSR.txt");
 
   // loop on events
   while(myReader.Next()){
@@ -673,11 +679,11 @@ void makehist4(TTree* tree, /*input tree*/
       if(pt1 > 0. and fabs(eta1) < 1.2)
 	sfwgt *= 0.99;
       else if(pt1 > 0. and fabs(eta1) > 1.2)
-	sfwgt *= 0.98;
+	sfwgt *= 0.985;
       if(pt2 > 0. and fabs(eta2) < 1.2)
 	sfwgt *= 0.99;
       else if(pt2 > 0. and fabs(eta2) > 1.2)
-	sfwgt *= 0.98;
+	sfwgt *= 0.985;
     }
     
 
@@ -723,9 +729,13 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // B10-4 -tag weight
-    double btagw = *wgtbtag;
-    if( btagw > 2 || btagw <= 0)
+    double btagw = *wgtbtag;    
+    //    if( btagw > 2 || btagw <= 0)
+    if(sample != Sample::topmu and sample != Sample::topel)
       btagw = 1;
+    else
+      btagw = 0.92;
+
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -841,6 +851,7 @@ void makehist4(TTree* tree, /*input tree*/
 	}
       	
 	if(not goodMonoJet) continue;
+	if(pfmet > 1000. and not isMC) dump<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<" met "<<pfmet<<" \n";
       }
 
       else if(category == Category::monoV or category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1){
@@ -1432,6 +1443,8 @@ void makehist4(TTree* tree, /*input tree*/
 	hist->Fill(fillvarX,fillvarY,evtwgt);            
      }
   }
+
+  dump.close();
 
   sffile_eleTight.Close();
   sffile_eleVeto.Close();

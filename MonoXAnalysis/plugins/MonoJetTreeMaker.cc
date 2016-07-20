@@ -748,9 +748,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
     bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_B,"comb");
-    bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_C,"comb");
-    bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_UDSG,"incl");
 
     bTagScaleFactorFileMVA = iConfig.getParameter<edm::FileInPath>("bTagScaleFactorFileMVA");
@@ -758,12 +756,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
       throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileMVA << " !!\n";
 
     calibMVA = BTagCalibration("CMVAv2",bTagScaleFactorFileMVA.fullPath());
-
     bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_B,"ttbar");
-    bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_C,"ttbar");
-    bMediumMVA.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_UDSG,"incl");
 
     if(addSubstructureCHS or addSubstructurePuppi){
@@ -773,14 +768,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 	throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileSubCSV << " !!\n";
       
       calibSubCSV = BTagCalibration("CSVv2",bTagScaleFactorFileSubCSV.fullPath());
-
       bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
       bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_B,"lt");
-      bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
       bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_C,"lt");
-      bMediumSubCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
-      bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_UDSG,"incl");
-      
+      bMediumSubCSV.back().load(calibSubCSV,BTagEntry::FLAV_UDSG,"incl");      
     }    
   }
 
@@ -4630,54 +4621,54 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
   if(algorithm == "CSV"){
 
     if(jet.hadronFlavour() == 5){
-      scalefactor.push_back(bMediumCSV[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumCSV[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumCSV[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }    
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
     }
     else{
-      scalefactor.push_back(bMediumCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }	      
   }
   else if(algorithm == "MVA"){
     if(jet.hadronFlavour() == 5){            
-      scalefactor.push_back(bMediumMVA[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumMVA[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumMVA[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumMVA.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumMVA[1].eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumMVA[1].eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumMVA[1].eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumMVA.back().eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA.back().eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA.back().eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
       
     }
     else{      
-      scalefactor.push_back(bMediumMVA[2].eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumMVA[2].eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumMVA[2].eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumMVA.back().eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumMVA.back().eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumMVA.back().eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }
   }
   else if(algorithm == "SubCSV"){
     if(jet.hadronFlavour() == 5){            
-      scalefactor.push_back(bMediumSubCSV[0].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSV[0].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumSubCSV[0].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumSubCSV[1].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSV[1].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumSubCSV[1].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else{      
-      scalefactor.push_back(bMediumSubCSV[2].eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSV[2].eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumSubCSV[2].eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
   }
 }
