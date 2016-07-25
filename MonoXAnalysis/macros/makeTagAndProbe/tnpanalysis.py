@@ -79,7 +79,17 @@ options.register(
 );
 
 options.register(
-    'saveWorkspace',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'doBinnedFit',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'in order to perform a binned fit instead of unbinned one'
+)
+
+options.register(
+    'binsForFit',80,VarParsing.multiplicity.singleton,VarParsing.varType.int,
+    'Number of bins used in the binned fit'
+)
+
+options.register(
+    'saveWorkspace',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
     'store a workspace with the full model in the output file'
 );
 
@@ -226,6 +236,8 @@ process.leptonIdTnP = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                                      SaveWorkspace = cms.bool(options.saveWorkspace),
                                      floatShapeParameters = cms.bool(options.floatShapeParameters),
                                      binsForMassPlots = cms.uint32(options.binsForMassPlots),
+                                     binnedFit  = cms.bool(options.doBinnedFit),
+                                     binsForFit = cms.uint32(options.binsForFit),
                                      Variables = cms.PSet(
         mass   = cms.vstring("Tag-Probe Mass", "65.0", "115.0", "GeV/c^{2}"),
         pt     = cms.vstring("Probe p_{T}", str(options.ptMin),  str(options.ptMax), "GeV/c"),
@@ -259,10 +271,10 @@ if not options.doAnalyticalFit:
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("FCONV::signalFail(mass, signalFailMC, signalFailSmear)");
 else:
    process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalPassPeak1(mass, mP1[91, 85, 97],sigmaP1[2,1.,10.], alphaP1[-0.01,-100,0.], nP1[1.,0.,100.0])")
-   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalPassPeak2(mass, mP2[75, 66, 84],sigmaP2[5,1.,10.], alphaP2[0.01,0.,100], nP2[1.,0.,100.0])")
+   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalPassPeak2(mass, mP2[75, 66, 91],sigmaP2[5,1.,10.], alphaP2[0.01,0.,100], nP2[1.,0.,100.0])")
    process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("SUM:signalPass(fracPass[0.1,0.,1.]*signalPassPeak1,signalPassPeak2)")
-   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalFailPeak1(mass, mP1[91, 85, 97],sigmaP1[2,1.,10.], alphaP1[-0.01,-100,0.], nP1[1.,0.,100.0])")
-   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalFailPeak1(mass, mP2[75, 66, 84],sigmaP2[5,1.,10.], alphaP2[0.01,0.,100], nP2[1.,0.,100.0])")
+   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalFailPeak1(mass, mF1[91, 85, 97],sigmaF1[2,1.,10.], alphaF1[-0.01,-100,0.], nF1[1.,0.,100.0])")
+   process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCBShape::signalFailPeak2(mass, mF2[75, 66, 91],sigmaF2[5,1.,10.], alphaF2[0.01,0.,100], nF2[1.,0.,100.0])")
    process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("SUM:signalFail(fracFail[0.1,0.,1.]*signalFailPeak1,signalFailPeak2)")
 
 
@@ -283,6 +295,10 @@ if options.backgroundType == "RooCMSShape" and not options.loadSnapShot :
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCMSShape::backgroundPass(mass, alphaPass[105.,80.,150.], betaPass[0.01,-1,1], gammaPass[0.05, -0.1, 0.1], peakPass[91.2,90, 92])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("RooCMSShape::backgroundFail(mass, alphaFail[125.,80.,150.], betaFail[0.01,-1,1], gammaFail[0.05, -0.1, 0.5], peakFail[91.2,90, 92])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("efficiency[0.8,0,1]");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency, fSigAll[.9,0,1],numTot[1,0,1e10])");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalFail('(1-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgPass('effBkg*(1-fSigAll)*numTot', effBkg[.9,0,1],fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgFail('(1-effBkg)*(1-fSigAll)*numTot', effBkg,fSigAll,numTot)");
 
 elif options.backgroundType == "Exponential" and not options.loadSnapShot:
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("Exponential::backgroundPass(mass, cP[-0.05, -2.0, 2.0])");
@@ -292,6 +308,11 @@ elif options.backgroundType == "Exponential" and not options.loadSnapShot:
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("Exponential::backgroundPass(mass, cP[-0.05, -2.0, 2.0])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("Exponential::backgroundFail(mass, cF[-0.05, -2.0, 2.0])");
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("efficiency[0.8,0,1]");
+
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency, fSigAll[.9,0,1],numTot[1,0,1e10])");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalFail('(1-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgPass('effBkg*(1-fSigAll)*numTot', effBkg[.9,0,1],fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgFail('(1-effBkg)*(1-fSigAll)*numTot', effBkg,fSigAll,numTot)");
 
 elif options.backgroundType == "RooCMSShape" and options.loadSnapShot :
             
@@ -308,6 +329,9 @@ elif options.backgroundType == "RooCMSShape" and options.loadSnapShot :
     betaFail = "";
     gammaFail = "";
     peakFail = "";
+    effBkg   = "";
+    numTot   = "";
+    fSigAll  = "";
 
     for line in snapShot:
         entry = line.split(":");
@@ -327,10 +351,20 @@ elif options.backgroundType == "RooCMSShape" and options.loadSnapShot :
             gammaFail = entry[1];
         if entry[0] == "peakFail" :
             peakFail = entry[1];
+        if entry[0] == "effBkg" :
+            effBkg = entry[1];
+        if entry[0] == "numTot" :
+            numTot = entry[1];
+        if entry[0] == "fSigAll" :
+            fSigAll = entry[1];
                                                                                                                                                                
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append(("RooCMSShape::backgroundPass(mass, alphaPass[%s], betaPass[%s], gammaPass[%s], peakPass[%s])")%(alphaPass,betaPass,gammaPass,peakPass));                     
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append(("RooCMSShape::backgroundFail(mass, alphaFail[%s], betaFail[%s], gammaFail[%s], peakFail[%s])")%(alphaFail,betaFail,gammaFail,peakFail));                     
     process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("efficiency[0.8,0,1]");                                                                                       
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency, fSigAll[.9,0,1],numTot[1,0,1e10])");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalFail('(1-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgPass('effBkg*(1-fSigAll)*numTot', effBkg[.9,0,1],fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgFail('(1-effBkg)*(1-fSigAll)*numTot', effBkg,fSigAll,numTot)");
 
 elif options.backgroundType == "Exponential" and options.loadSnapShot :
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground.append("Exponential::backgroundPass(mass, cP[-0.05, -2.0, 2.0])");
@@ -340,6 +374,9 @@ elif options.backgroundType == "Exponential" and options.loadSnapShot :
     snapShot = open(options.loadSnapShot,'r');
     cPass = "";
     cFail = "";
+    effBkg   = "";
+    numTot   = "";
+    fSigAll  = "";
 
     for line in snapShot:
         entry = line.split(" ");
@@ -347,13 +384,26 @@ elif options.backgroundType == "Exponential" and options.loadSnapShot :
             cPass = entry[1];
         if entry[0] == "cFail" :
             cFail = entry[1];
+        if entry[0] == "effBkg" :
+            effBkg = entry[1];
+        if entry[0] == "numTot" :
+            numTot = entry[1];
+        if entry[0] == "fSigAll" :
+            fSigAll = entry[1];
 
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground0.append(("Exponential::backgroundPass(mass, cP[%s])")%(cPass));                            
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground0.append(("Exponential::backgroundFail(mass, cF[%s])")%(cFail));                            
     process.leptonIdTnP.PDFs.pdfSignalPlusBackground0.append("efficiency[0.8,0,1]");                                                                                        
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalPass('efficiency*fSigAll*numTot', efficiency, fSigAll[.9,0,1],numTot[1,0,1e10])");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nSignalFail('(1-efficiency)*fSigAll*numTot', efficiency, fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgPass('effBkg*(1-fSigAll)*numTot', effBkg[.9,0,1],fSigAll,numTot)");
+#process.leptonIdTnP.PDFs.pdfSignalPlusBackgroundb0.append("expr::nBkgFail('(1-effBkg)*(1-fSigAll)*numTot', effBkg,fSigAll,numTot)");
  
 
 else:
     sys.exit('Background model are: RooCMSShape or Expnential --> your model not recognized --> return');
 
 process.fit = cms.Path(process.leptonIdTnP)
+
+processDumpFile = open('processDump.py', 'w')
+print >> processDumpFile, process.dumpPython()

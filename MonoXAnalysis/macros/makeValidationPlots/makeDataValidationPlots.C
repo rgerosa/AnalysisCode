@@ -2,6 +2,18 @@
 #include "../makeTemplates/histoUtils2D.h"
 #include "../CMS_lumi.h"
 
+float musf = 0.02;
+float elsf = 0.02;
+float phsf = 0.02;
+float mutrack = 0.01;
+float eltrack = 0.01;
+float mettrig = 0.01;
+float eltrig = 0.02;
+float phtrig = 0.02;
+float lepveto = 0.03;
+
+
+
 void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const int & rebinFactor){
 
   // final plot
@@ -48,7 +60,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   frame->GetYaxis()->SetTitleSize(0.050);
 
   frame->Draw();
-  CMS_lumi(pad1,"7.65",true);
+  CMS_lumi(pad1,"12.9",true);
 
   float maxdata  = -1;
   float mindata  = 1000000;
@@ -344,6 +356,11 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZGMC_mm->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZGMC_mm->GetBinError(iBin+1)*ZGMC_mm->GetBinError(iBin+1);
+    err += pow(ZGMC_mm->GetBinContent(iBin+1)*musf*2,2);
+    err += pow(ZGMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
+    err += pow(ZGMC_mm->GetBinContent(iBin+1)*mettrig,2);
+    err += pow(ZGMC_mm->GetBinContent(iBin+1)*phtrig,2);
+    err += pow(ZGMC_mm->GetBinContent(iBin+1)*phsf,2);
     err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
@@ -357,6 +374,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZGMC_ee->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZGMC_ee->GetBinError(iBin+1)*ZGMC_ee->GetBinError(iBin+1);
+    err += pow(ZGMC_ee->GetBinContent(iBin+1)*elsf*2,2);
+    err += pow(ZGMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
+    err += pow(ZGMC_ee->GetBinContent(iBin+1)*phtrig,2);
+    err += pow(ZGMC_ee->GetBinContent(iBin+1)*phsf,2);
     err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
@@ -370,6 +391,13 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZGMC_ll->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZGMC_ll->GetBinError(iBin+1)*ZGMC_ll->GetBinError(iBin+1);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*musf*2,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*mutrack*2,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*mettrig,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*elsf*2,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*eltrack*2,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*phtrig,2);
+    err += pow(ZGMC_ll->GetBinContent(iBin+1)*phsf,2);
     err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
@@ -383,6 +411,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZWMC_mm->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_mm->GetBinError(iBin+1)*ZWMC_mm->GetBinError(iBin+1);
+    err += pow(ZWMC_mm->GetBinContent(iBin+1)*musf,2);
+    err += pow(ZWMC_mm->GetBinContent(iBin+1)*mutrack,2);
     err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZW_re2->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
@@ -395,6 +425,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZWMC_ee->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_ee->GetBinError(iBin+1)*ZWMC_ee->GetBinError(iBin+1);
+    err += pow(ZWMC_ee->GetBinContent(iBin+1)*elsf,2);
+    err += pow(ZWMC_ee->GetBinContent(iBin+1)*eltrack,2);
     err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZW_re2->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
@@ -407,6 +439,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZWMC_ll->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_ll->GetBinError(iBin+1)*ZWMC_ll->GetBinError(iBin+1);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*elsf,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrack,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*musf,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*mutrack,2);
     err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_re2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
@@ -421,6 +457,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     for(int iBin = 0; iBin < WGMC_m->GetNbinsX(); iBin++){
       double err = 0.;
       err += WGMC_m->GetBinError(iBin+1)*WGMC_m->GetBinError(iBin+1);
+      err += pow(WGMC_m->GetBinContent(iBin+1)*musf,2);
+      err += pow(WGMC_m->GetBinContent(iBin+1)*mutrack,2);
+      err += pow(WGMC_m->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(WGMC_m->GetBinContent(iBin+1)*phsf,2);
       err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
       err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
       err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
@@ -434,6 +474,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     for(int iBin = 0; iBin < WGMC_e->GetNbinsX(); iBin++){
       double err = 0.;
       err += WGMC_e->GetBinError(iBin+1)*WGMC_e->GetBinError(iBin+1);
+      err += pow(WGMC_e->GetBinContent(iBin+1)*elsf,2);
+      err += pow(WGMC_e->GetBinContent(iBin+1)*eltrack,2);
+      err += pow(WGMC_e->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(WGMC_e->GetBinContent(iBin+1)*phsf,2);
       err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
       err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
       err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
@@ -447,6 +491,12 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     for(int iBin = 0; iBin < WGMC_l->GetNbinsX(); iBin++){
       double err = 0.;
       err += WGMC_l->GetBinError(iBin+1)*WGMC_l->GetBinError(iBin+1);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*elsf,2);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*eltrack,2);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*musf,2);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*mutrack,2);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(WGMC_l->GetBinContent(iBin+1)*phsf,2);
       err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
       err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
       err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);

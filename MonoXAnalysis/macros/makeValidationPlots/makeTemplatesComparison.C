@@ -1,7 +1,10 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string label2){
+void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string label2, bool logScale){
+
+  //  histo_1->Rebin(2);
+  //  histo_2->Rebin(2);
 
   pad1->cd();
   TH1* frame = (TH1*) histo_1->Clone("htemp");
@@ -14,10 +17,12 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   frame->GetYaxis()->SetTitleSize(0.042);
   frame->GetYaxis()->SetTitleOffset(1.35);
   frame->GetYaxis()->SetTitle("Events");
-  if(histo_1->GetMinimum() != 0)
+  if(histo_1->GetMinimum() != 0 and logScale)
     frame->GetYaxis()->SetRangeUser(histo_1->GetMinimum()*0.5,histo_1->GetMaximum()*100);
-  else 
+  else if(logScale)
     frame->GetYaxis()->SetRangeUser(0.001,histo_1->GetMaximum()*100);
+  else
+    frame->GetYaxis()->SetRangeUser(0,histo_1->GetMaximum()*1.5);
 
   frame ->Draw();  
 
@@ -70,7 +75,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.9,1.1);
+  frame->GetYaxis()->SetRangeUser(0.8,1.2);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
@@ -110,7 +115,8 @@ void makeTemplateComparison( string templateFile_1, // template file 1
 			     string observable, 
 			     bool   isHiggsInvisible,
 			     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle,
-			     float lumiWeight = 1){
+			     float lumiWeight = 1,
+			     bool  logScale = true){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -125,13 +131,13 @@ void makeTemplateComparison( string templateFile_1, // template file 1
 
   if(controlRegion == "SR"){
     data_1 = (TH1*) template1->FindObjectAny(("datahist_"+observable).c_str());
-    data_2 = (TH1*) template2->FindObjectAny(("datahist_"+observable).c_str());
+    data_2 = (TH1*) template2->FindObjectAny(("datahist_"+observable).c_str()); 
     if(data_2)
       data_2->Scale(lumiWeight);
   }
   else{
     data_1 = (TH1*) template1->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
-    data_2 = (TH1*) template2->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
+    data_2 = (TH1*) template2->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());    
     if(data_2)
       data_2->Scale(lumiWeight);
   }
@@ -287,45 +293,46 @@ void makeTemplateComparison( string templateFile_1, // template file 1
   canvas->cd();
   canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
-  canvas->SetLogy();
+  if(logScale)
+    canvas->SetLogy();
 
   if(data_1 != NULL and data_2 != NULL){
-    drawUpperPlot(canvas,data_1,data_2,"Data "+ templateFile_1_Label,"Data "+ templateFile_2_Label);
+    drawUpperPlot(canvas,data_1,data_2,"Data "+ templateFile_1_Label,"Data "+ templateFile_2_Label,logScale);
     drawDownPlot(data_1,data_2,xAxisTitle);
     canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(zinv_1 != NULL and zinv_2 != NULL){
-    drawUpperPlot(canvas,zinv_1,zinv_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,zinv_1,zinv_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label,logScale);
     drawDownPlot(zinv_1,zinv_2,xAxisTitle);
     canvas->SaveAs(("Znunu_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Znunu_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(wjet_1 != NULL and wjet_2 != NULL){
-    drawUpperPlot(canvas,wjet_1,wjet_2,"W #rightarrow l#nu "+ templateFile_1_Label,"W #rightarrow l#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,wjet_1,wjet_2,"W #rightarrow l#nu "+ templateFile_1_Label,"W #rightarrow l#nu "+ templateFile_2_Label,logScale);
     drawDownPlot(wjet_1,wjet_2,xAxisTitle);
     canvas->SaveAs(("Wjet_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Wjet_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
   
   if(zjet_1 != NULL and zjet_2 != NULL){
-    drawUpperPlot(canvas,zjet_1,zjet_2,"Z #rightarrow ll "+ templateFile_1_Label,"Z #rightarrow ll "+ templateFile_2_Label);
+    drawUpperPlot(canvas,zjet_1,zjet_2,"Z #rightarrow ll "+ templateFile_1_Label,"Z #rightarrow ll "+ templateFile_2_Label,logScale);
     drawDownPlot(zjet_1,zjet_2,xAxisTitle);
     canvas->SaveAs(("Zjet_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Zjet_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(qcd_1 != NULL and qcd_2 != NULL){
-    drawUpperPlot(canvas,qcd_1,qcd_2,"QCD "+ templateFile_1_Label,"QCD "+ templateFile_2_Label);
+    drawUpperPlot(canvas,qcd_1,qcd_2,"QCD "+ templateFile_1_Label,"QCD "+ templateFile_2_Label,logScale);
     drawDownPlot(qcd_1,qcd_2,xAxisTitle);
     canvas->SaveAs(("QCD_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("QDC_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(diboson_1 != NULL and diboson_2 != NULL){
-    drawUpperPlot(canvas,diboson_1,diboson_2,"DiBoson "+ templateFile_1_Label,"DiBoson "+ templateFile_2_Label);
+    drawUpperPlot(canvas,diboson_1,diboson_2,"DiBoson "+ templateFile_1_Label,"DiBoson "+ templateFile_2_Label,logScale);
     drawDownPlot(diboson_1,diboson_2,xAxisTitle);
     canvas->SaveAs(("DiBoson_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("DiBoson_"+controlRegion+"_"+observable+".png").c_str(),"png");
@@ -333,42 +340,42 @@ void makeTemplateComparison( string templateFile_1, // template file 1
 
 
   if(gamma_1 != NULL and gamma_2 != NULL){
-    drawUpperPlot(canvas,gamma_1,gamma_2,"#gamma+jet "+ templateFile_1_Label,"#gamma+jet "+ templateFile_2_Label);
+    drawUpperPlot(canvas,gamma_1,gamma_2,"#gamma+jet "+ templateFile_1_Label,"#gamma+jet "+ templateFile_2_Label,logScale);
     drawDownPlot(gamma_1,gamma_2,xAxisTitle);
     canvas->SaveAs(("GJets_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("GJets_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(top_1 != NULL and top_2 != NULL){
-    drawUpperPlot(canvas,top_1,top_2,"top "+ templateFile_1_Label,"top "+ templateFile_2_Label);
+    drawUpperPlot(canvas,top_1,top_2,"top "+ templateFile_1_Label,"top "+ templateFile_2_Label,logScale);
     drawDownPlot(top_1,top_2,xAxisTitle);
     canvas->SaveAs(("Top_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("Top_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(ggH_1 != NULL and ggH_2 != NULL){
-    drawUpperPlot(canvas,ggH_1,ggH_2,"ggH "+ templateFile_1_Label,"ggH "+ templateFile_2_Label);
+    drawUpperPlot(canvas,ggH_1,ggH_2,"ggH "+ templateFile_1_Label,"ggH "+ templateFile_2_Label,logScale);
     drawDownPlot(ggH_1,ggH_2,xAxisTitle);
     canvas->SaveAs(("ggH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("ggH_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(qqH_1 != NULL and qqH_2 != NULL){
-    drawUpperPlot(canvas,qqH_1,qqH_2,"qqH "+ templateFile_1_Label,"qqH "+ templateFile_2_Label);
+    drawUpperPlot(canvas,qqH_1,qqH_2,"qqH "+ templateFile_1_Label,"qqH "+ templateFile_2_Label,logScale);
     drawDownPlot(qqH_1,qqH_2,xAxisTitle);
     canvas->SaveAs(("qqH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("qqH_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(wH_1 != NULL and wH_2 != NULL){
-    drawUpperPlot(canvas,wH_1,wH_2,"wH "+ templateFile_1_Label,"wH "+ templateFile_2_Label);
+    drawUpperPlot(canvas,wH_1,wH_2,"wH "+ templateFile_1_Label,"wH "+ templateFile_2_Label,logScale);
     drawDownPlot(wH_1,wH_2,xAxisTitle);
     canvas->SaveAs(("wH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("wH_"+controlRegion+"_"+observable+".png").c_str(),"png");
   }
 
   if(zH_1 != NULL and zH_2 != NULL){
-    drawUpperPlot(canvas,zH_1,zH_2,"zH "+ templateFile_1_Label,"zH "+ templateFile_2_Label);
+    drawUpperPlot(canvas,zH_1,zH_2,"zH "+ templateFile_1_Label,"zH "+ templateFile_2_Label,logScale);
     drawDownPlot(zH_1,zH_2,xAxisTitle);
     canvas->SaveAs(("zH_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
     canvas->SaveAs(("zH_"+controlRegion+"_"+observable+".png").c_str(),"png");

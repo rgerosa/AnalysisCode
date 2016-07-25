@@ -15,13 +15,13 @@ from subprocess import Popen
 #            Job steering                  #                                                                                                                                 
 ############################################                                                                                                                                   
 
-muonPtBinning  = [10.,20.,30.,40.,55.,80.,110.,500.];
+muonPtBinning  = [10.,20.,30.,40.,55.,80.,100.,500.];
 muonEtaBinning = [0.,0.9,1.2,2.1,2.4];
 
-electronPtBinning  = [10.,20.,30.,40.,55.,80.,110.,500.];
+electronPtBinning  = [10.,20.,30.,40.,55.,80.,100.,500.];
 electronEtaBinning = [0.,0.8,1.5,2.0,2.5];
 
-photonPtBinning  = [10.,20.,30.,40.,55.,80.,110.,500.];
+photonPtBinning  = [10.,20.,30.,40.,55.,80.,100.,500.];
 photonEtaBinning = [0.,0.8,1.5,2.0,2.5];
 
 parser = OptionParser()
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 if not options.batchMode:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1])+" "+add_option;
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal_highPU/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -92,8 +92,8 @@ if __name__ == '__main__':
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(13)+" ptMin="+str(muonPtBinning[pt])+" ptMax="+str(muonPtBinning[pt+1])+" etaMin="+str(muonEtaBinning[eta])+" etaMax="+str(muonEtaBinning[eta+1])+" "+add_option;
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
-                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
+                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(muonPtBinning[pt])+"_"+str(muonPtBinning[pt+1])+"_eta_"+str(muonEtaBinning[eta])+"_"+str(muonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);                    
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
                     for line in file:
@@ -103,8 +103,9 @@ if __name__ == '__main__':
                         sys.exit('Problem more than one template file for a single configuration --> return');
                     command += " templateFile="+templatePath+"/"+listOffile[0];
                     ### submit jobs
-                    os.system("mkdir -p "+options.jobDIR);
+                    os.system("mkdir -p "+options.jobDIR);                    
                     jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f'%(options.leptonType,options.typeID,muonPtBinning[pt],muonPtBinning[pt+1],muonEtaBinning[eta],muonEtaBinning[eta+1])
+                    
                     jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
                     jobscript.write('cd %s \n'%currentDIR)
                     jobscript.write('eval ` scramv1 runtime -sh ` \n')
@@ -153,7 +154,7 @@ if __name__ == '__main__':
                         jobscript.write('cd - \n')
                         jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
                         command = command.replace(templatePathAlt,templatePath);
-                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                         jobscript.write(command+' backgroundType=RooCMSShape\n');
                
                         if options.isMC:
@@ -175,7 +176,9 @@ if __name__ == '__main__':
                         pyscript.write("snapShot.write(\"betaFail:%f\\n\"%floatParsFinal.find(\"betaFail\").getVal())\n");
                         pyscript.write("snapShot.write(\"gammaFail:%f\\n\"%floatParsFinal.find(\"gammaFail\").getVal())\n");
                         pyscript.write("snapShot.write(\"peakFail:%f\\n\"%floatParsFinal.find(\"peakFail\").getVal())\n"); 
-
+                        pyscript.write("snapShot.write(\"effBkg:%f\\n\"%floatParsFinal.find(\"effBkg\").getVal())\n"); 
+                        pyscript.write("snapShot.write(\"fSigAll:%f\\n\"%floatParsFinal.find(\"fSigAll\").getVal())\n"); 
+                        pyscript.write("snapShot.write(\"numTot:%f\\n\"%floatParsFinal.find(\"numTot\").getVal())\n"); 
                         jobscript.write("scp "+currentDIR+"/%s/%s_Analytical.py ./\n"%(options.jobDIR,jobName));
                         jobscript.write('python %s_Analytical.py\n'%(jobName));
                         jobscript.write(command+' backgroundType=RooCMSShape doAnalyticalFit=True loadSnapShot=snapShotFit.txt\n');
@@ -193,7 +196,7 @@ if __name__ == '__main__':
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])+" "+add_option
 
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(electronPtBinning[pt])+"_"+str(electronPtBinning[pt+1])+"_eta_"+str(electronEtaBinning[eta])+"_"+str(electronEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -221,7 +224,7 @@ if __name__ == '__main__':
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./"+" typeID="+options.typeID+" leptonPID="+str(11)+" ptMin="+str(electronPtBinning[pt])+" ptMax="+str(electronPtBinning[pt+1])+" etaMin="+str(electronEtaBinning[eta])+" etaMax="+str(electronEtaBinning[eta+1])+ " "+add_option
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(electronPtBinning[pt])+"_"+str(electronPtBinning[pt+1])+"_eta_"+str(electronEtaBinning[eta])+"_"+str(electronEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -234,6 +237,7 @@ if __name__ == '__main__':
                     ### submit jobs
                     os.system("mkdir -p "+options.jobDIR);
                     jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f'%(options.leptonType,options.typeID,electronPtBinning[pt],electronPtBinning[pt+1],electronEtaBinning[eta],electronEtaBinning[eta+1])
+
                     jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
                     jobscript.write('cd %s \n'%currentDIR)
                     jobscript.write('eval ` scramv1 runtime -sh ` \n')
@@ -282,7 +286,7 @@ if __name__ == '__main__':
                         jobscript.write('cd - \n')
                         jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
                         command = command.replace(templatePathAlt,templatePath);
-                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                         jobscript.write(command+' backgroundType=RooCMSShape\n');
                
                         if options.isMC:
@@ -321,7 +325,7 @@ if __name__ == '__main__':
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])+ " "+add_option
 
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(photonPtBinning[pt])+"_"+str(photonPtBinning[pt+1])+"_eta_"+str(photonEtaBinning[eta])+"_"+str(photonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -349,7 +353,7 @@ if __name__ == '__main__':
                 else:
                     command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(22)+" ptMin="+str(photonPtBinning[pt])+" ptMax="+str(photonPtBinning[pt+1])+" etaMin="+str(photonEtaBinning[eta])+" etaMax="+str(photonEtaBinning[eta+1])+" "+add_option
                     ### look for the template file
-                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                    templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(photonPtBinning[pt])+"_"+str(photonPtBinning[pt+1])+"_eta_"+str(photonEtaBinning[eta])+"_"+str(photonEtaBinning[eta+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -362,6 +366,7 @@ if __name__ == '__main__':
                     ## submit jobs
                     os.system("mkdir -p "+options.jobDIR);
                     jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f'%(options.leptonType,options.typeID,photonPtBinning[pt],photonPtBinning[pt+1],photonEtaBinning[eta],photonEtaBinning[eta+1])
+
                     jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
                     jobscript.write('cd %s \n'%currentDIR)
                     jobscript.write('eval ` scramv1 runtime -sh ` \n')
@@ -410,7 +415,7 @@ if __name__ == '__main__':
                         jobscript.write('cd - \n')
                         jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
                         command = command.replace(templatePathAlt,templatePath);
-                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
+                        templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal_highPU/')
                         jobscript.write(command+' backgroundType=RooCMSShape\n');
                
                         if options.isMC:
@@ -431,6 +436,9 @@ if __name__ == '__main__':
                         pyscript.write("snapShot.write(\"alphaFail:%f\\n\"%floatParsFinal.find(\"alphaFail\").getVal())\n");
                         pyscript.write("snapShot.write(\"betaFail:%f\\n\"%floatParsFinal.find(\"betaFail\").getVal())\n");
                         pyscript.write("snapShot.write(\"gammaFail:%f\\n\"%floatParsFinal.find(\"gammaFail\").getVal())\n");
+                        pyscript.write("snapShot.write(\"peakFail:%f\\n\"%floatParsFinal.find(\"peakFail\").getVal())\n"); 
+                        pyscript.write("snapShot.write(\"peakFail:%f\\n\"%floatParsFinal.find(\"peakFail\").getVal())\n"); 
+                        pyscript.write("snapShot.write(\"peakFail:%f\\n\"%floatParsFinal.find(\"\").getVal())\n"); 
                         pyscript.write("snapShot.write(\"peakFail:%f\\n\"%floatParsFinal.find(\"peakFail\").getVal())\n"); 
 
                         jobscript.write("scp "+currentDIR+"/%s/%s_Analytical.py ./\n"%(options.jobDIR,jobName));
