@@ -4,6 +4,16 @@
 
 using namespace std;
 
+float musf = 0.02;
+float elsf = 0.02;
+float phsf = 0.02;
+float mutrack = 0.01;
+float eltrack = 0.01;
+float mettrig = 0.01;
+float eltrig = 0.02;
+float phtrig = 0.02;
+float lepveto = 0.03;
+
 void rzmm(string fileName, Category category, string observable) {
 
     TCanvas* canvas = new TCanvas("czmm", "czmm", 600, 600);
@@ -43,13 +53,13 @@ void rzmm(string fileName, Category category, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError(i)*hist->GetBinError(i);
-        err += pow(hist->GetBinContent(i)*0.02, 2);
-
+        err += pow(hist->GetBinContent(i)*musf*2, 2);
+        err += pow(hist->GetBinContent(i)*mutrack*2, 2);	
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -108,14 +118,14 @@ void rzee(string fileName, Category category, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError(i)*hist->GetBinError(i);
-        err += pow(hist->GetBinContent(i)*0.04, 2);
-        err += pow(hist->GetBinContent(i)*0.01, 2);
-
+        err += pow(hist->GetBinContent(i)*elsf*2, 2);
+        err += pow(hist->GetBinContent(i)*eltrack*2, 2);
+        err += pow(hist->GetBinContent(i)*mettrig, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -172,14 +182,14 @@ void rwmn(string fileName, Category category, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError(i)*hist->GetBinError(i);
-        err += pow(hist->GetBinContent(i)*0.01, 2);
-        err += pow(hist->GetBinContent(i)*0.03, 2);
-
+        err += pow(hist->GetBinContent(i)*musf, 2);
+        err += pow(hist->GetBinContent(i)*mutrack, 2);
+        err += pow(hist->GetBinContent(i)*lepveto, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -237,15 +247,17 @@ void rwen(string fileName, Category category, string observable) {
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError(i)*hist->GetBinError(i);
-        err += pow(hist->GetBinContent(i)*0.05, 2);
-        err += pow(hist->GetBinContent(i)*0.01, 2);
-        err += pow(hist->GetBinContent(i)*0.03, 2);
+        err += pow(hist->GetBinContent(i)*elsf, 2);
+        err += pow(hist->GetBinContent(i)*eltrack, 2);
+        err += pow(hist->GetBinContent(i)*eltrig, 2);
+        err += pow(hist->GetBinContent(i)*mettrig, 2);
+        err += pow(hist->GetBinContent(i)*lepveto, 2);
 
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -321,12 +333,14 @@ void rgam(string fileName, Category category, string observable) {
         err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-        err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);
+        err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);       
+        err += pow(hist->GetBinContent(i)*phtrig, 2);
+        err += pow(hist->GetBinContent(i)*phsf, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -403,11 +417,12 @@ void rzwj(string fileName, Category category, string observable) {
         err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+        err += pow(hist->GetBinContent(i)*lepveto, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -486,11 +501,15 @@ void rwgam(string fileName, Category category, string observable) {
         err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);
+        err += pow(hist->GetBinContent(i)*phsf, 2);
+        err += pow(hist->GetBinContent(i)*phtrig, 2);
+        err += pow(hist->GetBinContent(i)*mettrig, 2);
+        err += pow(hist->GetBinContent(i)*lepveto, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -560,7 +579,7 @@ void rtopmu(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -626,7 +645,7 @@ void rtopel(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"7.65",true);
+    CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");

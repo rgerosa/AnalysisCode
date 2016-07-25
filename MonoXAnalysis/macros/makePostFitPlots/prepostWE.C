@@ -185,7 +185,7 @@ void prepostWE(string fitFilename, string templateFileName, string observable, C
 
   frame->Draw();
   
-  CMS_lumi(canvas,"2.77");
+  CMS_lumi(canvas,"12.9");
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");

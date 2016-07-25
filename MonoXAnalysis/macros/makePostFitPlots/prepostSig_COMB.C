@@ -1,15 +1,15 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostSig(string fitFilename, 
-		string templateFileName, 
-		string observable, 
-		Category category, 
-		bool   isHiggsInvisible, 
-		int    scaleSig = 1, 
-		bool   blind = true, 
-		bool   plotSBFit = false, 
-		string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
+void prepostSig_COMB(string fitFilename, 
+		     string templateFileName, 
+		     string observable, 
+		     Category category, 
+		     bool   isHiggsInvisible, 
+		     int    scaleSig = 1, 
+		     bool   blind = true, 
+		     bool   plotSBFit = false, 
+		     string interaction = "Vector", string mediatorMass = "2000", string DMMass = "10") {
   
 
   gROOT->SetBatch(kTRUE);
@@ -86,33 +86,37 @@ void prepostSig(string fitFilename,
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
+  string dir = "ch1_ch1";
+  if(category == Category::monoV)
+    dir = "ch2_ch1";
+  
   if(!plotSBFit){
-
-    znhist = (TH1*)pfile->Get("shapes_fit_b/ch1/Znunu");    
-    zlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/ZJets");    
-    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch1/WJets");    
-    tthist = (TH1*)pfile->Get("shapes_fit_b/ch1/Top");    
-    dihist = (TH1*)pfile->Get("shapes_fit_b/ch1/Dibosons");    
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch1/EWKW");    
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch1/EWKZ");    
-    qchist = (TH1*)pfile->Get("shapes_fit_b/ch1/QCD");    
-    gmhist = (TH1*)pfile->Get("shapes_fit_b/ch1/GJets");    
-    tohist = (TH1*)pfile->Get("shapes_fit_b/ch1/total_background");    
-    tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");    
+    
+    znhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Znunu").c_str());    
+    zlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/ZJets").c_str());    
+    wlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/WJets").c_str());    
+    tthist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Top").c_str());    
+    dihist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Dibosons").c_str());    
+    ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKW").c_str());    
+    ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKZ").c_str());    
+    qchist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/QCD").c_str());    
+    gmhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/GJets").c_str());    
+    tohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());    
+    tphist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());    
   }
   else{
-    znhist = (TH1*)pfile->Get("shapes_fit_s/ch1/Znunu");    
-    zlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/ZJets");    
-    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch1/WJets");    
-    tthist = (TH1*)pfile->Get("shapes_fit_s/ch1/Top");    
-    dihist = (TH1*)pfile->Get("shapes_fit_s/ch1/Dibosons");    
-    ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch1/EWKW");    
-    ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch1/EWKZ");    
-    qchist = (TH1*)pfile->Get("shapes_fit_s/ch1/QCD");    
-    gmhist = (TH1*)pfile->Get("shapes_fit_s/ch1/GJets");    
-    tohist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_background");    
-    tphist = (TH1*)pfile->Get("shapes_prefit/ch1/total_background");      
-    sighist = (TH1*)pfile->Get("shapes_fit_s/ch1/total_signal");
+    znhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Znunu").c_str());    
+    zlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/ZJets").c_str());    
+    wlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets").c_str());    
+    tthist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Top").c_str());    
+    dihist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Dibosons").c_str());    
+    ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKW").c_str());    
+    ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKZ").c_str());    
+    qchist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/QCD").c_str());    
+    gmhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/GJets").c_str());    
+    tohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());    
+    tphist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());      
+    sighist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_signal").c_str());
   }
 
   TH1* dthist = NULL;
@@ -426,9 +430,9 @@ void prepostSig(string fitFilename,
   TH1* frame2 = (TH1*) dthist->Clone("frame2");
   frame2->Reset();
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
-    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -573,13 +577,17 @@ void prepostSig(string fitFilename,
   canvas->RedrawAxis("sameaxis");
   canvas->SetLogy();
 
+  string postfix = "_MJ";
+  if(category == Category::monoV)
+    postfix = "_MV";
+
   if(blind){
-    canvas->SaveAs("postfit_sig_blind.pdf");
-    canvas->SaveAs("postfit_sig_blind.png");
+    canvas->SaveAs(("postfit_sig_blind"+postfix+".pdf").c_str());
+    canvas->SaveAs(("postfit_sig_blind"+postfix+".png").c_str());
   }
   else{
-    canvas->SaveAs("postfit_sig.pdf");
-    canvas->SaveAs("postfit_sig.png");
+    canvas->SaveAs(("postfit_sig"+postfix+".pdf").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+".png").c_str());
   }
   
   TH1* totalSignal = NULL;
@@ -642,8 +650,8 @@ void prepostSig(string fitFilename,
   SoverB_postfit->Draw("hist same");
   pad2->RedrawAxis("sameaxis");
   
-  canvas->SaveAs("postfit_sig_SoB.pdf");
-  canvas->SaveAs("postfit_sig_SoB.png");
+  canvas->SaveAs(("postfit_sig_SoB"+postfix+".pdf").c_str());
+  canvas->SaveAs(("postfit_sig_SoB"+postfix+".png").c_str());
  
   TFile* outFile = new TFile("postfit_weights_Sig.root","RECREATE");
   outFile->cd();

@@ -19,7 +19,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 20, 1200, 5);
   fitfunc->SetParameters(30., 5., 5., 4., 1.);
 
-  vector<float> binsPt  = {100,125,150,200,250,300,400,500,600,700,800,1200};
+  vector<float> binsPt  = {100,125,150,200,250,300,350,400,450,500,550,600,700,800,1200};
   vector<float> binsEta = {0,1.5,2.5};  
   fitfunc->SetRange(binsPt.front(),binsPt.back());
   
@@ -40,7 +40,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   // define numerator as event with a medium photon + trigger requirement
   tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel || hltelnoiso) && t1pfmet > 50"));
   tree->Draw("el1pt:abs(el1eta) >> hden",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && t1pfmet > 50"));
-  tree->Draw("el1pt:abs(el1eta) >> hnum_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && (hltsingleel || hltelnoiso || hltPFHT800 || hltEcalHT800) && t1pfmet > 50"));
+  tree->Draw("el1pt:abs(el1eta) >> hnum_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && (hltsingleel || hltelnoiso || hltPFHT800) && t1pfmet > 50"));
   tree->Draw("el1pt:abs(el1eta) >> hden_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && t1pfmet > 50"));
   
   TEfficiency* efficiency = new TEfficiency(*hnum,*hden);
@@ -71,7 +71,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   gStyle->SetPaintTextFormat(".2f");
   efficiency->Draw("colztext same");
   canvas->RedrawAxis();
-  CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
+  CMS_lumi(canvas,string(Form("%.1f",lumi)),true);
   canvas->SaveAs((outputDIR+"/electronTriggerEff.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/electronTriggerEff.pdf").c_str(),"pdf");
   canvas->SetLogy(0);
@@ -82,7 +82,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   gStyle->SetPaintTextFormat(".2f");
   efficiency_recover->Draw("colztext same");
   canvas->RedrawAxis();
-  CMS_lumi(canvas,string(Form("%.2f",lumi)),true);
+  CMS_lumi(canvas,string(Form("%.1f",lumi)),true);
   canvas->SaveAs((outputDIR+"/electronTriggerEff_recover.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/electronTriggerEff_recover.pdf").c_str(),"pdf");
   canvas->SetLogy(0);
@@ -106,6 +106,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     }
 
     projection_pt->GetXaxis()->SetTitle("Electron p_{T} [GeV]");
+    projection_pt->GetXaxis()->SetRangeUser(binsPt.front(),binsPt.back());
     projection_pt->GetYaxis()->SetTitle("Trigger EfficiencyHisto");
     projection_pt->SetMarkerSize(1);
     projection_pt->SetMarkerStyle(20);
@@ -117,10 +118,18 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     projection_pt_recover->SetMarkerColor(kBlue);
     projection_pt_recover->SetLineColor(kBlue);
     projection_pt_recover->Draw("E1Psame");
+
+    TLegend* leg = new TLegend(0.6,0.25,0.9,0.45);
+    leg->SetFillStyle(0);
+    leg->SetFillColor(0);
+    leg->SetBorderSize(0);
+    leg->AddEntry(projection_pt,"HLT_Ele27 || HLT_Ele_105","PE");
+    leg->AddEntry(projection_pt_recover,"HLT_Ele27 || HLT_Ele_105 || HLT_PFHT800","PE");
+      
     
     if(doFit)
       projection_pt->Fit(fitfunc);
-    CMS_lumi(canvas2,string(Form("%.2f",lumi)),true);
+    CMS_lumi(canvas2,string(Form("%.1f",lumi)),true);
     canvas2->SaveAs((outputDIR+"/"+string(histoEff->GetName())+string(Form("_projection_pt_eta_%.1f_%.1f.png",histoEff->GetXaxis()->GetBinLowEdge(iBinX+1),
 									   histoEff->GetXaxis()->GetBinLowEdge(iBinX+2)))).c_str(),"png");
     canvas2->SaveAs((outputDIR+"/"+string(histoEff->GetName())+string(Form("_projection_pt_eta_%.1f_%.1f.pdf",histoEff->GetXaxis()->GetBinLowEdge(iBinX+1),

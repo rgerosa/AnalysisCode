@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
+void prepostGJ_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -32,24 +32,32 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
+  string dir = "ch1_ch4";
+  if(category == Category::monoV)
+    dir = "ch2_ch4";
+
+  string postfix = "_MJ";
+  if(category == Category::monoV)
+    postfix = "_MV";
+  
   if(!plotSBFit){
     
     dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
-    qchist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");
-    vghist = (TH1*)pfile->Get("shapes_fit_b/ch4/VGamma_GJ");
-    vlhist = (TH1*)pfile->Get("shapes_fit_b/ch4/WJets_GJ");
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch4/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
+    qchist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/QCD_GJ").c_str());
+    vghist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/VGamma_GJ").c_str());
+    vlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/WJets_GJ").c_str());
+    pohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   else{
 
     dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
-    qchist = (TH1*)pfile->Get("shapes_fit_s/ch4/QCD_GJ");
-    vghist = (TH1*)pfile->Get("shapes_fit_s/ch4/VGamma_GJ");
-    vlhist = (TH1*)pfile->Get("shapes_fit_s/ch4/WJets_GJ");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch4/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
+    qchist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/QCD_GJ").c_str());
+    vghist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/VGamma_GJ").c_str());
+    vlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets_GJ").c_str());
+    pohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   dthist->Scale(1.0, "width");
@@ -250,17 +258,17 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   unhist->Draw("hist same");  
   pad2->RedrawAxis("G sameaxis");
   
-  canvas->SaveAs("prepostfit_gam.pdf");
-  canvas->SaveAs("prepostfit_gam.png");
-
+  canvas->SaveAs(("prepostfit_gam"+postfix+".pdf").c_str());
+  canvas->SaveAs(("prepostfit_gam"+postfix+".png").c_str());
+  
   if(dumpHisto){
 
-    TFile* outFile = new TFile("postfit_weights_GJ.root","RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_GJ"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
 
     dthist->Write("data");
     qchist->Write("qcd_post_fit");
-    TH1* qchist_prefit = (TH1*) pfile->Get("shapes_prefit/ch4/QCD_GJ");
+    TH1* qchist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/QCD_GJ").c_str());
     qchist_prefit->Write("wjets_pre_fit");
     pohist->Write("post_fit_post_fit");
     prhist->Write("pre_fit_post_fit");

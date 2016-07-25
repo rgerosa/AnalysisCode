@@ -16,9 +16,9 @@ vector<string> fileListForChain (const std::string path, bool isEOS){
 
   vector<string> outputFileList;
   if(isEOS)
-    system(("/afs/cern.ch/project/eos/installation/cms/bin/eos.select find "+path+" -name \"*.root\" > file.temp").c_str());
+    system(("/afs/cern.ch/project/eos/installation/cms/bin/eos.select find "+path+" -name \"*.root\" | grep -v failed > file.temp").c_str());
   else
-    system(("find "+path+" -name \"*.root\" > file.temp").c_str());
+    system(("find "+path+" -name \"*.root\" | grep -v failed > file.temp").c_str());
 
   
   ifstream infile;

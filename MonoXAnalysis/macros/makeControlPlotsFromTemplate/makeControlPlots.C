@@ -192,6 +192,91 @@ void makeControlPlots(string templateFileName,
     }
   }
 
+  if(controlRegion == "SR" and observable == "met"){
+
+    // write yields in a output in a text file 
+    ofstream outputfile;
+    outputfile.open("preFitSR.txt");
+
+    stringstream QCDRate;
+    QCDRate << "Process: QCD";
+    stringstream GJetsRate;
+    GJetsRate << "Process: GJets";
+    stringstream DiBosonRate;
+    DiBosonRate << "Process: DiBoson";
+    stringstream TopRate;
+    TopRate << "Process: TopRate";
+    stringstream ZJetsRate;
+    ZJetsRate << "Process: ZJetsRate";
+    stringstream WJetsRate;
+    WJetsRate << "Process: WJetsRate";
+    stringstream ZnunuRate;
+    ZnunuRate << "Process: ZnunuRate";
+    stringstream DataRate;
+    DataRate << "Process: Data";
+    
+    for(int iBin = 0; iBin < qcdhist->GetNbinsX(); iBin++){
+      QCDRate << "   ";
+      QCDRate << qcdhist->GetBinContent(iBin+1) << " \\pm "<<qcdhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < gamhist->GetNbinsX(); iBin++){
+      GJetsRate << "   ";
+      GJetsRate << gamhist->GetBinContent(iBin+1)<< " \\pm "<<gamhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < dbhist->GetNbinsX(); iBin++){
+      DiBosonRate << "   ";
+      DiBosonRate << dbhist->GetBinContent(iBin+1)<< " \\pm "<<dbhist->GetBinError(iBin+1);;
+    }
+    
+    for(int iBin = 0; iBin < tophist->GetNbinsX(); iBin++){
+      TopRate << "   ";
+      TopRate << tophist->GetBinContent(iBin+1) << " \\pm "<<tophist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
+      ZJetsRate << "   ";
+      ZJetsRate << vllhist->GetBinContent(iBin+1)<< " \\pm "<<vllhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vlhist->GetNbinsX(); iBin++){
+      WJetsRate << "   ";
+      WJetsRate << vlhist->GetBinContent(iBin+1)<< " \\pm "<<vlhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vnnhist->GetNbinsX(); iBin++){
+      ZnunuRate << "   ";
+      ZnunuRate << vnnhist->GetBinContent(iBin+1) << " \\pm "<<vnnhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < datahist->GetNbinsX(); iBin++){
+      DataRate << "   ";
+      DataRate << datahist->GetBinContent(iBin+1) << " \\pm "<<datahist->GetBinError(iBin+1);
+    }
+
+    outputfile<<"######################"<<endl;
+    outputfile<<QCDRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<GJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DiBosonRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<TopRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<WJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZnunuRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+
+    outputfile.close();
+  }
+
+
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
 
@@ -483,104 +568,6 @@ void makeControlPlots(string templateFileName,
     stack->Add(vnnhist);
   }
 
-  if(controlRegion == "SR" and observable == "met"){
-
-    // write yields in a output in a text file 
-    ofstream outputfile;
-    outputfile.open("preFitSR.txt");
-
-    stringstream QCDRate;
-    QCDRate << "Process: QCD";
-    stringstream GJetsRate;
-    GJetsRate << "Process: GJets";
-    stringstream DiBosonRate;
-    DiBosonRate << "Process: DiBoson";
-    stringstream TopRate;
-    TopRate << "Process: TopRate";
-    stringstream ZJetsRate;
-    ZJetsRate << "Process: ZJetsRate";
-    stringstream WJetsRate;
-    WJetsRate << "Process: WJetsRate";
-    stringstream ZnunuRate;
-    ZnunuRate << "Process: ZnunuRate";
-    stringstream PreRate;
-    PreRate << "Process: Pre-fit (total)";
-    stringstream PostRate;
-    PostRate << "Process: Post-fit (total)";
-    stringstream DataRate;
-    DataRate << "Process: Data";
-    
-    for(int iBin = 0; iBin < qcdhist->GetNbinsX(); iBin++){
-      QCDRate << "   ";
-      QCDRate << qcdhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < gamhist->GetNbinsX(); iBin++){
-      GJetsRate << "   ";
-      GJetsRate << gamhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < dbhist->GetNbinsX(); iBin++){
-      DiBosonRate << "   ";
-      DiBosonRate << dbhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < tophist->GetNbinsX(); iBin++){
-      TopRate << "   ";
-      TopRate << tophist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
-      ZJetsRate << "   ";
-      ZJetsRate << vllhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vlhist->GetNbinsX(); iBin++){
-      WJetsRate << "   ";
-      WJetsRate << vlhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vnnhist->GetNbinsX(); iBin++){
-      ZnunuRate << "   ";
-      ZnunuRate << vnnhist->GetBinContent(iBin+1);
-    }
-
-    TH1* histoTotal = (TH1*) stack->GetStack()->At(stack->GetNhists()-1);
-
-    for(int iBin = 0; iBin < histoTotal->GetNbinsX(); iBin++){
-      PreRate << "   ";
-      PreRate << histoTotal->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < datahist->GetNbinsX(); iBin++){
-      DataRate << "   ";
-      DataRate << datahist->GetBinContent(iBin+1);
-    }
-
-    outputfile<<"######################"<<endl;
-    outputfile<<QCDRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<GJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<DiBosonRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<TopRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<ZJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<WJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<ZnunuRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<PreRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<PostRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<DataRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-
-    outputfile.close();
-  }
 
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();  
@@ -638,7 +625,8 @@ void makeControlPlots(string templateFileName,
   //  CMS_lumi(canvas,"4.33");
   //  CMS_lumi(canvas,"0.8");
   //  CMS_lumi(canvas,"2.77");
-  CMS_lumi(canvas,"7.65");
+  //  CMS_lumi(canvas,"7.65");
+  CMS_lumi(canvas,"12.9");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");

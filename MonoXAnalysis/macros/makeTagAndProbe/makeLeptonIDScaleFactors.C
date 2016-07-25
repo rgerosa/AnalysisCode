@@ -302,8 +302,9 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
   pad2->Draw();
   
   for(auto imap : tagAndProbeFits){
-    iFile++;
+    iFile++;    
     RooWorkspace* workspace = (RooWorkspace*) imap.second->FindObjectAny("w");
+    if(workspace == NULL or not workspace) continue;
     RooDataSet* data = (RooDataSet*) workspace->obj("data");
     RooDataSet* dataPass = (RooDataSet*) data->reduce((typeID+" > 0").c_str());
     RooDataSet* dataFail = (RooDataSet*) data->reduce((typeID+" <= 0").c_str());

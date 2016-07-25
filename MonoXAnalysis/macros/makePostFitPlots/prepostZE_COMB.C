@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostZE(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
+void prepostZE_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -33,34 +33,42 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   TH1* pohist  = NULL;
   TH1* prhist  = NULL;
 
+  string dir = "ch1_ch5";
+  string postfix = "_MJ";
+  if(category == Category::monoV){
+    dir = "ch2_ch5";
+    postfix = "_MV";
+  }
+
+
   if(!plotSBFit){
     
     dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_b/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_b/ch5/Top");
-    dihist = (TH1*)pfile->Get("shapes_fit_b/ch5/Dibosons");
+    zllhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Znunu").c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/WJets_ZE").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Top").c_str());
+    dihist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Dibosons").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKZ").c_str());
     }
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
+    pohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   else{
 
     dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_s/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_s/ch5/Top");
+    zllhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Znunu").c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets_ZE").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Top").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKZ").c_str());
     }
-    dihist = (TH1*)pfile->Get("shapes_fit_s/ch5/Dibosons");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
+    dihist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Dibosons").c_str());
+    pohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   dthist->Scale(1.0, "width");
@@ -293,8 +301,10 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE SAME");
-  d2hist->Draw("PE SAME");
+  d1hist->Draw("E1 SAME");
+  d2hist->Draw("E1 SAME");
+  d1hist->Draw("PE1 SAME");
+  d2hist->Draw("PE1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 
@@ -310,8 +320,8 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
 
   canvas->Update();
   
-  canvas->SaveAs("prepostfit_zee.pdf");
-  canvas->SaveAs("prepostfit_zee.png");
+  canvas->SaveAs(("prepostfit_zee"+postfix+".pdf").c_str());
+  canvas->SaveAs(("prepostfit_zee"+postfix+".png").c_str());
 
   if(dumpHisto){
 
@@ -324,10 +334,10 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* zllhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Znunu");
-    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/WJets_ZE");
-    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Top");
-    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Dibosons");
+    TH1* zllhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Znunu").c_str());
+    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WJets_ZE").c_str());
+    TH1* tthist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Top").c_str());
+    TH1* dihist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Dibosons").c_str());
     
     zllhist_prefit->Write("zjets_pre_fit");
     wlhist_prefit->Write("wjets_pre_fit");

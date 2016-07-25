@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostZE(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
+void prepostZM_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -33,40 +33,47 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   TH1* pohist  = NULL;
   TH1* prhist  = NULL;
 
+  string dir = "ch1_ch2";
+  string postfix = "_MJ";
+  if(category == Category::monoV){
+    dir = "ch2_ch2";
+    postfix = "_MV";
+  }
+
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_b/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_b/ch5/Top");
-    dihist = (TH1*)pfile->Get("shapes_fit_b/ch5/Dibosons");
+    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
+    zllhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Znunu").c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/WJets_ZM").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Top").c_str());
+    dihist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Dibosons").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKZ").c_str());
     }
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
+    pohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   else{
 
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_s/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_s/ch5/Top");
+    dthist = (TH1*)dfile->FindObjectAny(("datahistzmm_"+observable).c_str());
+    zllhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Znunu").c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets_ZM").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Top").c_str());
+    dihist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Dibosons").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKZ").c_str());
     }
-    dihist = (TH1*)pfile->Get("shapes_fit_s/ch5/Dibosons");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
+    pohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   dthist->Scale(1.0, "width");
  
   ofstream  outputfile;
-  outputfile.open("prepostZE.txt");
+  outputfile.open("prepostZM.txt");
   stringstream TopRate;
   TopRate << "Process: Top";
   stringstream VVRate;
@@ -102,7 +109,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
       EWKWRate <<"   ";
       EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
     }
-
+    
     for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
       EWKZRate <<"   ";
       EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
@@ -138,12 +145,6 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   outputfile<<TopRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<VVRate.str()<<endl;
-  if(category == Category::VBF){
-    outputfile<<"######################"<<endl;
-    outputfile<<EWKWRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<EWKZRate.str()<<endl;
-  }
   outputfile<<"######################"<<endl;
   outputfile<<WJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
@@ -170,13 +171,14 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   wlhist->Add(tthist);
   wlhist->Add(dihist);
   if(category == Category::VBF){
-    wlhist->Add(ewkwhist);
-    wlhist->Add(ewkzhist);
+      wlhist->Add(ewkwhist);
+      wlhist->Add(ewkzhist);
   }
+
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.001,wlhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
   else
     frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*100);
 
@@ -186,7 +188,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);  
-  if(category  == Category::monojet)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
@@ -204,12 +206,12 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.60, 0.60, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.6, 0.60, 0.92, 0.92);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (Z #rightarrow ee)","L");
-  leg->AddEntry(prhist, "Pre-fit (Z #rightarrow ee)","L");
+  leg->AddEntry(pohist, "Post-fit (Z #rightarrow #mu#mu)","L");
+  leg->AddEntry(prhist, "Pre-fit (Z #rightarrow #mu#mu)","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
@@ -293,8 +295,8 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE SAME");
-  d2hist->Draw("PE SAME");
+  d1hist->Draw("PE10 SAME");
+  d2hist->Draw("PE10 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 
@@ -310,12 +312,12 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
 
   canvas->Update();
   
-  canvas->SaveAs("prepostfit_zee.pdf");
-  canvas->SaveAs("prepostfit_zee.png");
+  canvas->SaveAs(("prepostfit_zmm"+postfix+".pdf").c_str());
+  canvas->SaveAs(("prepostfit_zmm"+postfix+".png").c_str());
 
   if(dumpHisto){
 
-    TFile* outFile = new TFile("postfit_weights_ZE.root","RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_ZM"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
     
     dthist->Write("data");
@@ -324,10 +326,10 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* zllhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Znunu");
-    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/WJets_ZE");
-    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Top");
-    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Dibosons");
+    TH1* zllhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Znunu").c_str());
+    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WJets_ZM").c_str());
+    TH1* tthist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Top").c_str());
+    TH1* dihist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Dibosons").c_str());
     
     zllhist_prefit->Write("zjets_pre_fit");
     wlhist_prefit->Write("wjets_pre_fit");

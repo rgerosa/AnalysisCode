@@ -70,7 +70,7 @@ if __name__ == '__main__':
         os.system("rm file_temp.txt");
 
     elif not options.isCrabDirectory and options.isOnEOS: ## not a crab directory do the same with eos ls command
-        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep root | grep -v failed  > file_temp.txt");
+        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root | grep -v failed  > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
             line = line.replace('\n','');
@@ -82,6 +82,7 @@ if __name__ == '__main__':
         print "Problem in parsing the following job informations: batchMode = ",options.batchMode," isOnEOS = ",options.isOnEOS," isCrabDir ",options.isCrabDirectory;
         
 
+        
     ## fix options
     storeGenTree = 0;
     if options.storeGenTree:

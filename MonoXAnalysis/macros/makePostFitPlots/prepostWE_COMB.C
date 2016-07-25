@@ -1,9 +1,9 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostZE(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
+void prepostWE_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
 
-  gROOT->SetBatch(kTRUE); 
+  gROOT->SetBatch(kTRUE);   
   setTDRStyle();
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
@@ -13,7 +13,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
 
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9); 
+  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
   pad2->SetTopMargin(0.7);
   pad2->SetRightMargin(0.06);
   pad2->SetFillColor(0);
@@ -23,50 +23,57 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   TFile* pfile = new TFile(fitFilename.c_str());
   TFile* dfile = new TFile(templateFileName.c_str());
 
-  TH1* dthist  = NULL;
-  TH1* zllhist = NULL;
-  TH1* wlhist  = NULL;
-  TH1* tthist  = NULL;
-  TH1* dihist  = NULL;
-  TH1* ewkwhist  = NULL;
-  TH1* ewkzhist  = NULL;
-  TH1* pohist  = NULL;
-  TH1* prhist  = NULL;
+  TH1* dthist = NULL;
+  TH1* wlhist = NULL;
+  TH1* tthist = NULL;
+  TH1* dihist = NULL;
+  TH1* ewkwhist = NULL;
+  TH1* ewkzhist = NULL;
+  TH1* qcdhist = NULL;
+  TH1* pohist = NULL;
+  TH1* prhist = NULL;
+
+  string dir = "ch1_ch6";
+  string postfix = "_MJ";
+  if(category == Category::monoV){
+    dir = "ch2_ch6";
+    postfix = "_MV";
+  }
 
   if(!plotSBFit){
     
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_b/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_b/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_b/ch5/Top");
-    dihist = (TH1*)pfile->Get("shapes_fit_b/ch5/Dibosons");
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwen_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/ZJets_WE").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Top").c_str());
+    dihist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Dibosons").c_str());
+    qcdhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/QCD_WE").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_b/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKZ").c_str());
     }
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
-
+    pohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
+    
   }
   else{
-
-    dthist = (TH1*)dfile->FindObjectAny(("datahistzee_"+observable).c_str());
-    zllhist = (TH1*)pfile->Get("shapes_fit_s/ch5/Znunu");
-    wlhist = (TH1*)pfile->Get("shapes_fit_s/ch5/WJets_ZE");
-    tthist = (TH1*)pfile->Get("shapes_fit_s/ch5/Top");
+    
+    dthist = (TH1*)dfile->FindObjectAny(("datahistwen_"+observable).c_str());
+    wlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/ZJets_WE").c_str());
+    tthist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Top").c_str());
+    qcdhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/QCD_WE").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKW");
-      ewkzhist = (TH1*)pfile->Get("shapes_fit_s/ch5/EWKZ");
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKW").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKZ").c_str());
     }
-    dihist = (TH1*)pfile->Get("shapes_fit_s/ch5/Dibosons");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch5/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch5/total_background");
+    dihist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Dibosons").c_str());
+    pohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());
+    prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
 
   }
   dthist->Scale(1.0, "width");
- 
+
   ofstream  outputfile;
-  outputfile.open("prepostZE.txt");
+  outputfile.open("prepostWE.txt");
   stringstream TopRate;
   TopRate << "Process: Top";
   stringstream VVRate;
@@ -77,8 +84,6 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   EWKZRate << "Process: EWKZ";
   stringstream WJetRate;
   WJetRate << "Process: WJet";
-  stringstream ZJetRate;
-  ZJetRate << "Process: ZJet";
   stringstream PreRate;
   PreRate << "Process: Pre-fit (total)";
   stringstream PostRate;
@@ -86,68 +91,60 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   stringstream DataRate;
   DataRate << "Process: Data";
 
-  for(int iBin = 1; iBin <= tthist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
     TopRate << "   ";
-    TopRate << tthist->GetBinContent(iBin) <<" pm "<<tthist->GetBinError(iBin);
+    TopRate << tthist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= dihist->GetNbinsX(); iBin++){
-    VVRate <<"   ";
-    VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
+  for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
+    VVRate << "   ";
+    VVRate << dihist->GetBinContent(iBin);
   }
 
   if(category == Category::VBF){
+    for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+      EWKWRate << "   ";
+      EWKWRate << ewkwhist->GetBinContent(iBin);
+    }
     
-    for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
-      EWKWRate <<"   ";
-      EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
-    }
-
-    for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
-      EWKZRate <<"   ";
-      EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
+    for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+      EWKZRate << "   ";
+      EWKZRate << ewkzhist->GetBinContent(iBin);
     }
   }
 
-  for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
     WJetRate << "   ";
-    WJetRate << wlhist->GetBinContent(iBin)<< " pm "<<wlhist->GetBinError(iBin);
+    WJetRate << wlhist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= zllhist->GetNbinsX(); iBin++){
-    ZJetRate << "   ";
-    ZJetRate << zllhist->GetBinContent(iBin)<< " pm "<<zllhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= prhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
     PreRate << "   ";
-    PreRate << prhist->GetBinContent(iBin) << " pm "<<prhist->GetBinError(iBin);
+    PreRate << prhist->GetBinContent(iBin);
   }
 
-  for(int iBin = 1; iBin <= pohist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
     PostRate << "   ";
-    PostRate << pohist->GetBinContent(iBin) <<" pm "<<pohist->GetBinError(iBin);
+    PostRate << pohist->GetBinContent(iBin);
   }  
 
-  for(int iBin = 1; iBin <= dthist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
     DataRate << "   ";
-    DataRate << dthist->GetBinContent(iBin) << " pm "<<dthist->GetBinError(iBin);
+    DataRate << dthist->GetBinContent(iBin);
   }
 
   outputfile<<"######################"<<endl;
   outputfile<<TopRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<VVRate.str()<<endl;
+  outputfile<<"######################"<<endl;
   if(category == Category::VBF){
-    outputfile<<"######################"<<endl;
     outputfile<<EWKWRate.str()<<endl;
     outputfile<<"######################"<<endl;
     outputfile<<EWKZRate.str()<<endl;
+    outputfile<<"######################"<<endl;
   }
-  outputfile<<"######################"<<endl;
   outputfile<<WJetRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<ZJetRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<PreRate.str()<<endl;
   outputfile<<"######################"<<endl;
@@ -173,26 +170,27 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
     wlhist->Add(ewkwhist);
     wlhist->Add(ewkzhist);
   }
+  wlhist->Add(qcdhist);
+
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.001,wlhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*50);
   else
-    frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
   frame->GetYaxis()->SetTitle("Events / GeV");
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
-  frame->GetYaxis()->SetTitleSize(0.050);  
-  if(category  == Category::monojet)
+  frame->GetYaxis()->SetTitleSize(0.050);
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
 
-
-  frame ->Draw();
+  frame->Draw();
   
   CMS_lumi(canvas,"12.9");
   prhist->Draw("HIST SAME");
@@ -204,19 +202,19 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.60, 0.60, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.6, 0.60, 0.92, 0.92);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (Z #rightarrow ee)","L");
-  leg->AddEntry(prhist, "Pre-fit (Z #rightarrow ee)","L");
+  leg->AddEntry(pohist, "Post-fit (W #rightarrow e#nu)","L");
+  leg->AddEntry(prhist, "Pre-fit (W #rightarrow e#nu)","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
   canvas->RedrawAxis("sameaxis");
-  canvas->SetLogy();  
+  canvas->SetLogy();
+  
   canvas->cd();
-
   pad2->Draw();
   pad2->cd();
 
@@ -233,7 +231,7 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   else
     frame2->GetXaxis()->SetNdivisions(210);
   frame2->GetYaxis()->SetNdivisions(5);
-  
+
 
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
@@ -285,9 +283,9 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
       erhist->SetBinError(iBin,erhist->GetBinError(iBin+1)*0.9);
   }
 
-  d1hist->GetYaxis()->SetTitleOffset(1.5);
-  d1hist->GetYaxis()->SetLabelSize(0.03);
-  d1hist->GetYaxis()->SetTitleSize(0.04);
+  d1hist->GetYaxis()->SetTitleOffset(0.3);
+  d1hist->GetYaxis()->SetLabelSize(0.12);
+  d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
   d1hist->Draw("PE1 SAME");    
@@ -307,38 +305,33 @@ void prepostZE(string fitFilename, string templateFileName, string observable, C
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
   pad2->RedrawAxis("G sameaxis");
-
-  canvas->Update();
   
-  canvas->SaveAs("prepostfit_zee.pdf");
-  canvas->SaveAs("prepostfit_zee.png");
+  canvas->SaveAs(("prepostfit_wen"+postfix+".pdf").c_str());
+  canvas->SaveAs(("prepostfit_wen"+postfix+".png").c_str());
 
   if(dumpHisto){
 
-    TFile* outFile = new TFile("postfit_weights_ZE.root","RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_WE"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
-    
+
     dthist->Write("data");
-    zllhist->Write("zjets_post_fit");
-    wlhist->Write("wjets_post_fit");
+    wlhist->Write("zjets_post_fit");
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* zllhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Znunu");
-    TH1* wlhist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/WJets_ZE");
-    TH1* tthist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Top");
-    TH1* dihist_prefit = (TH1*) pfile->Get("shapes_prefit/ch5/Dibosons");
-    
-    zllhist_prefit->Write("zjets_pre_fit");
-    wlhist_prefit->Write("wjets_pre_fit");
+    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ZJets_WE").c_str());
+    TH1* tthist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Top").c_str());
+    TH1* dihist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Dibosons").c_str());
+
+    wlhist_prefit->Write("zjets_pre_fit");
     tthist_prefit->Write("top_pre_fit");
     dihist_prefit->Write("diboson_pre_fit");
 
     pohist->Write("post_fit_post_fit");
-    prhist->Write("pre_fit_post_fit");      
-
+    prhist->Write("pre_fit_post_fit");
 
     outFile->Close();
   }
+
 }
 
