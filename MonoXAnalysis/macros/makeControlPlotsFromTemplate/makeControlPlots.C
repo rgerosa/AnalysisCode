@@ -586,7 +586,7 @@ void makeControlPlots(string templateFileName,
 
   // set Y-axis range
   if(category == Category::monojet and isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+    frame->GetYaxis()->SetRangeUser(1.5e-2,datahist->GetMaximum()*500);  
   //    frame->GetYaxis()->SetRangeUser(100,datahist->GetMaximum()*500);  
   else if(category == Category::inclusive and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
@@ -804,6 +804,7 @@ void makeControlPlots(string templateFileName,
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
   if(category == Category::monojet or category == Category::inclusive)
+    // frame2->GetYaxis()->SetRangeUser(0.,3.5);
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);

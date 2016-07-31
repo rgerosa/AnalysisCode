@@ -21,8 +21,8 @@ using namespace std;
 // some basic cut values
 const float tau2tau1        = 0.6;
 const float tau2tau1LP      = 0.75;
-const float prunedMassMin   = 65.;
-const float prunedMassMax   = 105.;
+const float prunedMassMin   = 0.;
+const float prunedMassMax   = 200.;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
 const float pfMetMonoVLower = 250.;
@@ -146,7 +146,7 @@ void makehist4(TTree* tree, /*input tree*/
   TH2*  psfmedium = (TH2*)sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
 
   // Photon Purity                                                                                                                                                              
-  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi7p6fb_16072016.root");
+  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
   TH2*  purhist = (TH2*) purityfile_photon.Get("purity");
 
   // Muon track efficiency

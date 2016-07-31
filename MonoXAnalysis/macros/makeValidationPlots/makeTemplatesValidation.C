@@ -31,7 +31,7 @@ void makeTemplatesValidation(string fileFullSIM, // file with templates from ful
   // mkae by had comparison list
   if(interaction == "Vector"){
     medMassFullSIM.push_back("100"); medMassInterpolation.push_back("0100");
-    medMassFullSIM.push_back("500"); medMassInterpolation.push_back("0525");
+    medMassFullSIM.push_back("500"); medMassInterpolation.push_back("0500");
     medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
     medMassFullSIM.push_back("1250"); medMassInterpolation.push_back("1200");
     medMassFullSIM.push_back("1250"); medMassInterpolation.push_back("1200");
@@ -60,19 +60,22 @@ void makeTemplatesValidation(string fileFullSIM, // file with templates from ful
     dmMassFullSIM.push_back("10");  dmMassInterpolation.push_back("0010");
     dmMassFullSIM.push_back("350"); dmMassInterpolation.push_back("0300");
     dmMassFullSIM.push_back("50");  dmMassInterpolation.push_back("0050");
-    dmMassFullSIM.push_back("350"); dmMassInterpolation.push_back("0300");
+    dmMassFullSIM.push_back("1"); dmMassInterpolation.push_back("0001");
 			     
   }
   else if(interaction == "Scalar"){
     medMassFullSIM.push_back("50");  medMassInterpolation.push_back("0050");
     medMassFullSIM.push_back("100");  medMassInterpolation.push_back("0100");
     medMassFullSIM.push_back("100");  medMassInterpolation.push_back("0100");
-    medMassFullSIM.push_back("500");  medMassInterpolation.push_back("0525");
+    medMassFullSIM.push_back("300");  medMassInterpolation.push_back("0300");
+    medMassFullSIM.push_back("500");  medMassInterpolation.push_back("0500");
+    medMassFullSIM.push_back("500");  medMassInterpolation.push_back("0500");
     medMassFullSIM.push_back("1000"); medMassInterpolation.push_back("1000");
-    medMassFullSIM.push_back("1250"); medMassInterpolation.push_back("1200");
+    medMassFullSIM.push_back("1250"); medMassInterpolation.push_back("1250");
     dmMassFullSIM.push_back("1"); dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("1"); dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("50"); dmMassInterpolation.push_back("0050");
+    dmMassFullSIM.push_back("100");  dmMassInterpolation.push_back("0100");
     dmMassFullSIM.push_back("1");  dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("1");  dmMassInterpolation.push_back("0001");
     dmMassFullSIM.push_back("200");  dmMassInterpolation.push_back("0200");
@@ -133,7 +136,8 @@ void makeTemplatesValidation(string fileFullSIM, // file with templates from ful
   
     TH1F* histoFullSIM = (TH1F*) inputFileFullSIM->FindObjectAny((signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met").c_str());   
     TH1F* histoInterpolation = (TH1F*) inputFileInterpolation->Get((cat+"/signal_signal_"+model+medMassInterpolation.at(ipoint)+dmMassInterpolation.at(ipoint)).c_str());
-    cout<<histoFullSIM<<" "<<histoInterpolation<<endl;    
+    cout<<signalType+"hist_"+interaction+"_"+medMassFullSIM.at(ipoint)+"_"+dmMassFullSIM.at(ipoint)+"_met"<<endl;
+    cout<<histoFullSIM<<" "<<histoInterpolation<<" integral "<<histoFullSIM->Integral()<<" "<<histoInterpolation->Integral()<<endl;    
     histoFullSIM->SetTitle("");
     histoFullSIM->Scale(lumiScaleFullSIM);
     histoInterpolation->GetXaxis()->SetTitle("");    
@@ -159,7 +163,7 @@ void makeTemplatesValidation(string fileFullSIM, // file with templates from ful
     histoInterpolation->GetYaxis()->SetRangeUser(max(0.00001,min(histoInterpolation->GetMinimum(),histoFullSIM->GetMinimum())*0.5),max(histoInterpolation->GetMaximum(),histoFullSIM->GetMaximum())*10);
     histoInterpolation->Draw("PE");
 
-    CMS_lumi(pad1,"2.6",true);
+    CMS_lumi(pad1,"12.9",true);
 
     TH1* histoFullSIM_band = (TH1*) histoFullSIM->Clone("histoFullSIM_band");
     histoFullSIM_band->SetFillColor(kGray);
@@ -200,7 +204,7 @@ void makeTemplatesValidation(string fileFullSIM, // file with templates from ful
     ratio->SetLineColor(kBlack);
     ratio->SetMarkerSize(0.8);
     ratio->SetMarkerStyle(20);
-
+    
     ratio->Draw("PEsame");
 
     pad2->RedrawAxis("sameaxis");
