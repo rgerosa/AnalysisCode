@@ -72,7 +72,7 @@ void prepostSig(string fitFilename,
 	zHhist->Scale(1.0, "width");
     }
   }
-
+  
   TH1* znhist = NULL;
   TH1* zlhist = NULL;
   TH1* wlhist = NULL;
@@ -138,10 +138,12 @@ void prepostSig(string fitFilename,
   DiBosonRate << "Process: DiBoson";
   stringstream TopRate;
   TopRate << "Process: TopRate";
+  /*
   stringstream EWKWRate;
   EWKWRate << "Process: EWKWRate";
   stringstream EWKZRate;
   EWKZRate << "Process: EWKZRate";
+  */
   stringstream ZJetsRate;
   ZJetsRate << "Process: ZJetsRate";
   stringstream WJetsRate;
@@ -159,24 +161,24 @@ void prepostSig(string fitFilename,
 
   for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
     QCDRate << "   ";
-    QCDRate << qchist->GetBinContent(iBin+1);
+    QCDRate << qchist->GetBinContent(iBin+1)*qchist->GetBinWidth(iBin+1) << " \\pm "<<qchist->GetBinError(iBin+1)*qchist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < gmhist->GetNbinsX(); iBin++){
     GJetsRate << "   ";
-    GJetsRate << gmhist->GetBinContent(iBin+1);
+    GJetsRate << gmhist->GetBinContent(iBin+1)*gmhist->GetBinWidth(iBin+1) << " \\pm "<<gmhist->GetBinError(iBin+1)*gmhist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
     DiBosonRate << "   ";
-    DiBosonRate << dihist->GetBinContent(iBin+1);
+    DiBosonRate << dihist->GetBinContent(iBin+1)*dihist->GetBinWidth(iBin+1) << " \\pm "<<dihist->GetBinError(iBin+1)*dihist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
     TopRate << "   ";
-    TopRate << tthist->GetBinContent(iBin+1);
+    TopRate << tthist->GetBinContent(iBin+1)*tthist->GetBinWidth(iBin+1) << " \\pm "<<tthist->GetBinError(iBin+1)*tthist->GetBinWidth(iBin+1);
   }
-
+  /*
   for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
     EWKWRate << "   ";
     EWKWRate << ewkwhist->GetBinContent(iBin+1);
@@ -186,37 +188,35 @@ void prepostSig(string fitFilename,
     EWKZRate << "   ";
     EWKZRate << ewkzhist->GetBinContent(iBin+1);
   }
-
+  */
   for(int iBin = 0; iBin < zlhist->GetNbinsX(); iBin++){
     ZJetsRate << "   ";
-    ZJetsRate << zlhist->GetBinContent(iBin+1);
+    ZJetsRate << zlhist->GetBinContent(iBin+1)*zlhist->GetBinWidth(iBin+1) << " \\pm "<<zlhist->GetBinError(iBin+1)*zlhist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < wlhist->GetNbinsX(); iBin++){
     WJetsRate << "   ";
-    WJetsRate << wlhist->GetBinContent(iBin+1);
+    WJetsRate << wlhist->GetBinContent(iBin+1)*wlhist->GetBinWidth(iBin+1) << " \\pm "<<wlhist->GetBinError(iBin+1)*wlhist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < znhist->GetNbinsX(); iBin++){
     ZnunuRate << "   ";
-    ZnunuRate << znhist->GetBinContent(iBin+1);
+    ZnunuRate << znhist->GetBinContent(iBin+1)*znhist->GetBinWidth(iBin+1) << " \\pm "<<znhist->GetBinError(iBin+1)*znhist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < tphist->GetNbinsX(); iBin++){
     PreRate << "   ";
-    PreRate << tphist->GetBinContent(iBin+1);
+    PreRate << tphist->GetBinContent(iBin+1)*tphist->GetBinWidth(iBin+1) << " \\pm "<<tphist->GetBinError(iBin+1)*tphist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < tohist->GetNbinsX(); iBin++){
     PostRate << "   ";
-    PostRate << tohist->GetBinContent(iBin+1);
-    PostRateUnc << "   ";
-    PostRateUnc << tohist->GetBinError(iBin+1);
+    PostRate << tohist->GetBinContent(iBin+1)*tohist->GetBinWidth(iBin+1) << " \\pm "<<tohist->GetBinError(iBin+1)*tohist->GetBinWidth(iBin+1);
   }
 
   for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
     DataRate << "   ";
-    DataRate << dthist->GetBinContent(iBin+1);
+    DataRate << dthist->GetBinContent(iBin+1)*dthist->GetBinWidth(iBin+1) << " \\pm "<<dthist->GetBinError(iBin+1)*dthist->GetBinWidth(iBin+1);
   }
 
   outputfile<<"######################"<<endl;
@@ -228,9 +228,9 @@ void prepostSig(string fitFilename,
   outputfile<<"######################"<<endl;
   outputfile<<TopRate.str()<<endl;
   outputfile<<"######################"<<endl;
-  outputfile<<EWKWRate.str()<<endl;
+  //  outputfile<<EWKWRate.str()<<endl;
   outputfile<<"######################"<<endl;
-  outputfile<<EWKZRate.str()<<endl;
+  //  outputfile<<EWKZRate.str()<<endl;
   outputfile<<"######################"<<endl;
   outputfile<<ZJetsRate.str()<<endl;
   outputfile<<"######################"<<endl;
@@ -248,7 +248,7 @@ void prepostSig(string fitFilename,
   outputfile<<"######################"<<endl;
 
   outputfile.close();
-
+  
   //signal style  
   if(mjhist){
     mjhist->SetFillColor(0);
@@ -318,7 +318,7 @@ void prepostSig(string fitFilename,
 
   if(wHhist and zHhist)
     wHhist->Add(zHhist);
-  
+
   qchist->SetFillColor(TColor::GetColor("#F1F1F2"));
   qchist->SetLineColor(kBlack);
 
@@ -340,17 +340,18 @@ void prepostSig(string fitFilename,
   tthist->SetFillColor(TColor::GetColor("#CF3721"));
   tthist->SetLineColor(kBlack);
 
+  /*
   ewkwhist->SetFillColor(kBlack);
   ewkwhist->SetLineColor(kBlack);
   ewkzhist->SetFillColor(kBlack);
   ewkzhist->SetLineColor(kBlack);
-
+  */
   if(sighist){
     sighist->SetFillColor(kBlack);
     sighist->SetLineColor(kBlack);
     sighist->SetFillStyle(3001);
   }
-
+  
   // make the stack
   THStack* stack = new THStack("stack", "stack");
   stack->Add(qchist);
@@ -384,7 +385,7 @@ void prepostSig(string fitFilename,
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"2.6");
+  CMS_lumi(canvas,"12.9");
 
   stack ->Draw("HIST SAME");
   if(mwhist && !plotSBFit)
@@ -425,9 +426,9 @@ void prepostSig(string fitFilename,
   TH1* frame2 = (TH1*) dthist->Clone("frame2");
   frame2->Reset();
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
   else
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -461,16 +462,19 @@ void prepostSig(string fitFilename,
   dahist->SetMarkerStyle(20);
 
   TH1* mphist = (TH1*)tphist->Clone("mphist");
-  TH1* mchist = (TH1*)zlhist->Clone("mchist");
-  TH1* unhist = (TH1*)zlhist->Clone("unhist");
+  TH1* mchist = (TH1*)tphist->Clone("mchist");
+  TH1* unhist = (TH1*)tphist->Clone("unhist");
+  mchist->Reset();
+  unhist->Reset();
+  mchist->Add(qchist);
   mchist->Add(wlhist);
-  mchist->Add(gmhist);
+  mchist->Add(zlhist);
   mchist->Add(tthist);
   mchist->Add(dihist);
-  mchist->Add(qchist);
   mchist->Add(znhist);
   if(sighist && plotSBFit)
     mchist->Add(sighist);
+
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
@@ -527,7 +531,7 @@ void prepostSig(string fitFilename,
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"Backgraound (Post-Fit)","PLE");
   leg2->AddEntry(dphist,"Backgraound (Pre-Fit)","PLE");
-  leg2->Draw("same");
+  //  leg2->Draw("same");
 
   
   pad2->RedrawAxis("G sameaxis");
@@ -540,8 +544,7 @@ void prepostSig(string fitFilename,
   leg->AddEntry(znhist, "Z #rightarrow #nu#nu", "F");
   leg->AddEntry(wlhist, "W #rightarrow l#nu", "F");
   leg->AddEntry(dihist, "WW/WZ/ZZ", "F");
-  //  leg->AddEntry(ewkzhist, "EWK W/Z+2jets", "F");
-  leg->AddEntry(tthist, "Top Quark", "F");
+  //  leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(zlhist, "Z/#gamma #rightarrow ll, #gamma+jets", "F");
   leg->AddEntry(qchist, "QCD", "F");
