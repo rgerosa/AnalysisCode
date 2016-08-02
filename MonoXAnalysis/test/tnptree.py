@@ -10,6 +10,10 @@ options.register (
         'flag to indicate data or MC');
 
 options.register (
+        'isRecoEfficiency',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'special setup (probe definition) to measure electron reconstruction efficiency');
+
+options.register (
         'globalTag','80X_dataRun2_Prompt_v8',VarParsing.multiplicity.singleton,VarParsing.varType.string,
         'gloabl tag to be uses');
 
@@ -94,11 +98,19 @@ process.probemuons = cms.EDFilter("PATMuonSelector",
 				  )
 
 # Probe electrons
-process.probeelectrons = cms.EDFilter("PATElectronSelector",
-				      src = cms.InputTag("slimmedElectrons"),
-				      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
-				      filter = cms.bool(True)  
-				      )
+if not options.isRecoEfficiency:
+	process.probeelectrons = cms.EDFilter("PATElectronSelector",
+					      src = cms.InputTag("slimmedElectrons"),
+					      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
+					      filter = cms.bool(True)  
+					      )
+else:
+	process.probeelectrons = cms.EDFilter("PATElectronSelector",
+					      src = cms.InputTag("slimmedPhotons"),
+					      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
+					      filter = cms.bool(True)  
+					      )
+	
 
 
 
@@ -231,6 +243,8 @@ process.muontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 				     flags = cms.PSet(
 		pfid      = cms.string("isPFMuon"), ## if is a PF muon
 		globalid  = cms.string("isGlobalMuon"),
+		standaloneid = cms.string("isStandAloneMuon"),
+		trackerid    = cms.string("isTrackerMuon"),
 		hltmu20   = cms.InputTag("probeinfo", "hltmu20muonrefs"),   ## if it belongs to hltmu20
 		hlttkmu20 = cms.InputTag("probeinfo", "hlttkmu20muonrefs"), ## if it belongs to isotk20
 		hltmu22   = cms.InputTag("probeinfo", "hltmu22muonrefs"),   ## if it belongs to hltmu22

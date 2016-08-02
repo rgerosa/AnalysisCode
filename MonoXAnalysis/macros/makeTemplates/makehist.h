@@ -21,12 +21,14 @@ using namespace std;
 // some basic cut values
 const float tau2tau1        = 0.6;
 const float tau2tau1LP      = 0.75;
-const float prunedMassMin   = 0.;
-const float prunedMassMax   = 200.;
+const float prunedMassMin   = 65.;
+const float prunedMassMax   = 105.;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
 const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
+const float pfMetMonoJUpper = 8000.;
+const float pfMetMonoJLower = 200.;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1;
 const bool  reweightNVTX    = true;
@@ -325,6 +327,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> ntausraw    (myReader,"ntausraw");
   TTreeReaderValue<unsigned int> nincjets (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets   (myReader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> nbjetshigh   (myReader,"nbjets");
   TTreeReaderValue<double> ht   (myReader,"ht");
 
   TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
@@ -623,7 +626,8 @@ void makehist4(TTree* tree, /*input tree*/
     
     // met selection
     if(category == Category::monojet or category == Category::inclusive){
-      if (pfmet < 200.) continue;
+      if (pfmet < pfMetMonoJLower) continue;
+      if (pfmet > pfMetMonoJUpper) continue;
     }
     else{
       if(pfmet < pfMetMonoVLower) continue;
