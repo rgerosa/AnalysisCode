@@ -58,7 +58,6 @@ if __name__ == '__main__':
     for name in options.skipName:
         command += " | grep -v "+name;
     command += " > dir_list.txt";
-    print command
     os.system(command);
     fs = open("dir_list.txt","r");
     dirList = [];
@@ -67,6 +66,7 @@ if __name__ == '__main__':
         dirList.append(line);
     os.system("rm dir_list.txt");
 
+    print dirList
     for dir in dirList:
         command = "python scripts/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS --metCut "+options.metCut+" ";
         if options.calculateXSfromSW:

@@ -1,11 +1,14 @@
 #include "../CMS_lumi.h"
 
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,70.,100,300};
-vector<float> ptBinElectron  = {10.,22.,32.,40.,50.,70.,100,300};
-vector<float> ptBinPhoton    = {10.,22.,32.,40.,50.,70.,100,300};
-vector<float> etaBinMuon     = {0,0.75,1.5,2.4};
-vector<float> etaBinElectron = {0,0.75,1.55,2.0,2.5};
-vector<float> etaBinPhoton   = {0,0.75,1.55,2.0,2.5};
+vector<float> ptBinMuon      = {10.,20.,30.,40.,55.,80.,100,500};
+vector<float> ptBinElectron  = {10.,20.,30.,40.,55.,80.,100,500};
+vector<float> ptBinPhoton    = {10.,20.,30.,40.,55.,80.,100,500};
+vector<float> etaBinMuon     = {0.,0.9,1.2,2.1,2.4};
+vector<float> etaBinElectron = {0,0.75,1.5,2.,2.5};
+vector<float> etaBinPhoton   = {0,0.75,1.5,2.,2.5};
+bool  isabseta = true;
+float luminosity = 12.9;
+int pilepUp = -1;
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -30,9 +33,15 @@ void maketemplate(const string & inputDIR,
     inputMC = new TChain("photontnptree/fitter_tree");
 
   inputMC->Add((inputDIR+"/*root").c_str());
-  
+
+  map<string,float> crossSection;
+  crossSection["100to200"] = 148.;
+  crossSection["200to400"] = 40.94;
+  crossSection["400to600"] = 5.49;
+  crossSection["600toInf"] = 2.19;
+
   // pileup-re-weight from external file
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makePUReweight/pileup_2p1fb/purwtzee.root");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
 
   TTreeReader reader(inputMC);
@@ -65,20 +74,43 @@ void maketemplate(const string & inputDIR,
 
   reader.SetEntry(0);
   // loop on the event
+  string currentTree ;
+
   while(reader.Next()){
+
+    if(pilepUp == 0 and *nvtx > 15) continue;
+    else if(pilepUp == 1 and *nvtx <= 15) continue;
+
+    float lumiwgt = 1.;
+    float xsec = 1;
+    for(auto entry : crossSection){      
+      if(TString(reader.GetTree()->GetCurrentFile()->GetName()).Contains(entry.first)){
+	lumiwgt = luminosity*1000*entry.second;      
+	xsec = entry.second;
+      }
+    }
     
+    if(currentTree != reader.GetTree()->GetCurrentFile()->GetName()){
+      cout<<"current tree "<<reader.GetTree()->GetCurrentFile()->GetName()<<" xsec "<<xsec<<endl;
+      currentTree = reader.GetTree()->GetCurrentFile()->GetName();
+    }
+
     Float_t puwgt = 0.;
     if (*nvtx <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
+    else puwgt = 1;
 
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;
+    //    if(fabs(*eta) > 1.479 and fabs(*eta) < 1.552) continue;    
+    if(isabseta and (fabs(*eta) < etaMin or fabs(*eta) > etaMax)) continue;
+    else if(not isabseta and (*eta < etaMin or *eta > etaMax)) continue;
+
     // if not matched to a genLepton skip --> we want to extract the true templateds
     if(not *mcTrue) continue;
-    if (*id == 0) hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);
-    if (*id >  0) hpass.Fill(*mass, puwgt*(*wgt)/wgtsum);
-    if (*id >  0) hp.Fill(*mass, puwgt*(*wgt)/wgtsum);
-    ha.Fill(*mass, puwgt*(*wgt)/wgtsum);
+    if (*id == 0) hfail.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+    if (*id >  0) hpass.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+    if (*id >  0) hp.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+    ha.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
   }
 
   for (int j = 1; j <= nbins; j++) {
@@ -140,8 +172,9 @@ void maketemplate(const string & inputDIR,
   c1->SaveAs((outputDIR+"/"+fileName+".pdf").c_str(),"pdf");
 }
 
-void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR) {
+void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR, int pileupScenario = -1) {
 
+  pilepUp = pileupScenario;
   gROOT->SetBatch(kTRUE);
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();

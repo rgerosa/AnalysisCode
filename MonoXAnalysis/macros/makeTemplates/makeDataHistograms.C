@@ -26,7 +26,6 @@ void sigdatamchist(TFile* outfile,
 
   TChain* zltree = new TChain("tree/tree");
   TChain* tttree = new TChain("tree/tree");
-  TChain* stoptree = new TChain("tree/tree");
   TChain* tttree_alt = NULL;
   if(doAlternativeTop)
     tttree_alt = new TChain("tree/tree");
@@ -53,11 +52,11 @@ void sigdatamchist(TFile* outfile,
   }
   zltree->Add((baseInputTreePath+"DYJets/sigfilter/*root").c_str());
   tttree->Add((baseInputTreePath+"Top/sigfilter/*root").c_str());
-  stoptree->Add((baseInputTreePath+"STop/sigfilter/*root").c_str());
-  if(doAlternativeTop and tttree_alt != NULL)
+  if(doAlternativeTop and tttree_alt != NULL){
     tttree_alt->Add((baseInputTreePath+"TopAlternative/sigfilter/*root").c_str());
+  }
   qcdtree->Add((baseInputTreePath+"QCD/sigfilter/*root").c_str());
-  ditree->Add((baseInputTreePath+"DiBoson/sigfilter/*root").c_str());
+  ditree->Add((baseInputTreePath+"DiBoson/sigfilter/sig*root").c_str());
   gmtree->Add((baseInputTreePath+"PhotonJets/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/sigfilter/*root").c_str());
@@ -507,23 +506,24 @@ void sigdatamchist(TFile* outfile,
 
   cout<<"signal region: Z->nunu sample "<<endl;
   if(not useNLOSamples)
-    makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
+    //    makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
+    makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else
     makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
   cout<<"signal region: W+jets sample "<<endl;
   if(not useNLOSamples){ // temp use 76X sample
-    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.10,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.11,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.15,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.13,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   }
     //  makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else{
-    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.10,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.11,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.15,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.13,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   }
   cout<<"signal region: Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -535,13 +535,11 @@ void sigdatamchist(TFile* outfile,
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.26,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
   cout<<"signal region: TTbar sample "<<endl;
   makehist4(tttree,tthist,tthist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
-  makehist4(stoptree,tthist,tthist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
 
     //alternative ttbar             
   if(doAlternativeTop){
     cout<<"signal region: TTbar alternative sample "<<endl;
     makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_alt,tthist_alt_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
   }
 
   cout<<"signal region: Diboson sample "<<endl;
@@ -552,38 +550,23 @@ void sigdatamchist(TFile* outfile,
   if(doShapeSystematics){
     cout<<"signal region analysis --> do top shape sys "<<endl;
     makehist4(tttree,tthist_bUp,tthist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_bUp,tthist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_bDw,tthist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_bDw,tthist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metJetUp,tthist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metJetDw,tthist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metResUp,tthist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metResUp,tthist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metResDw,tthist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metResDw,tthist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metUncUp,tthist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metUncUp,tthist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metUncDw,tthist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metUncDw,tthist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     
     if(doAlternativeTop){
       cout<<"signal region analysis --> do top alternative shape sys "<< endl;
       makehist4(tttree_alt,tthist_alt_bUp,tthist_alt_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_bUp,tthist_alt_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_bDw,tthist_alt_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_bDw,tthist_alt_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metJetUp,tthist_alt_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metJetUp,tthist_alt_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metJetDw,tthist_alt_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metJetDw,tthist_alt_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metResUp,tthist_alt_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metResUp,tthist_alt_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metResDw,tthist_alt_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metResDw,tthist_alt_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metUncUp,tthist_alt_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metUncUp,tthist_alt_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_alt_metUncDw,tthist_alt_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt_metUncDw,tthist_alt_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     }
 
 
@@ -672,98 +655,100 @@ void sigdatamchist(TFile* outfile,
   }
 
   //smooth
-  for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dihist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : gmhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dihist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : zlhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  //  for(auto hist : qcdhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkwhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkzhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-  for(auto hist : tthist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dihist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : gmhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dihist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : zlhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  //  for(auto hist : qcdhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkwhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkzhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-  if(doShapeSystematics){
+  if(doSmoothing){
+    for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dihist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dihist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : zlhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : qcdhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
     
-    for(auto hist : tthist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : dihist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : zlhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : gmhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : tthist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dihist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dihist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : zlhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    //  for(auto hist : qcdhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
     
-    for(auto hist : tthist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : dihist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dihist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : zlhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : zlhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : gmhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-            
+    if(doShapeSystematics){
+      
+      for(auto hist : tthist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : dihist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : zlhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : gmhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : tthist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : dihist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dihist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : zlhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : zlhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : gmhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+    }
   }
 
   // data                                                
@@ -1052,10 +1037,11 @@ void gamdatamchist(TFile* outfile,
 
   dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
   if(useJetHT)
-    //    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"DoubleEG/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
+  //dttree->Add((baseInputTreePath+"DoubleEG/gamfilter/*root").c_str());
   
   gmtree->Add((baseInputTreePath+"/PhotonJets/gamfilter/*root").c_str());
+  //  gmtree->Add((baseInputTreePath+"/PhotonJets_dR/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
   wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
   vltree->Add((baseInputTreePath+"WJets/gamfilter/*root").c_str());
@@ -1225,7 +1211,6 @@ void lepdatamchist(TFile* outfile,
   }
 
   TChain* tttree  = new TChain("tree/tree");
-  TChain* stoptree  = new TChain("tree/tree");
   TChain* dbtree  = new TChain("tree/tree"); 
   TChain* gmtree  = new TChain("tree/tree");
   TChain* qctree  = new TChain("tree/tree");
@@ -1257,8 +1242,7 @@ void lepdatamchist(TFile* outfile,
     qctree->Add((baseInputTreePath+"QCD/zmmfilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"DiBoson/zmmfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"PhotonJets/zmmfilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"Top/zmmfilter/*root").c_str());
-    stoptree->Add((baseInputTreePath+"STop/zmmfilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"TopAlternative/zmmfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/zmmfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zmmfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zmmfilter/*root").c_str());
@@ -1282,8 +1266,8 @@ void lepdatamchist(TFile* outfile,
     qctree->Add((baseInputTreePath+"/QCD/wmnfilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"/DiBoson/wmnfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"/PhotonJets/wmnfilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"/Top/wmnfilter/*root").c_str());
-    stoptree->Add((baseInputTreePath+"STop/wmnfilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"/TopAlternative/wmnfilter/*root").c_str());
+
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/wmnfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wmnfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wmnfilter/*root").c_str());
@@ -1306,8 +1290,7 @@ void lepdatamchist(TFile* outfile,
     qctree->Add((baseInputTreePath+"QCD/zeefilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"DiBoson/zeefilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"PhotonJets/zeefilter/*root").c_str());
-    stoptree->Add((baseInputTreePath+"STop/zeefilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"Top/zeefilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"TopAlternative/zeefilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zeefilter/*root").c_str());
@@ -1317,8 +1300,8 @@ void lepdatamchist(TFile* outfile,
     if(useSinglePhoton)
       dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
     else if(useJetHT)
-      //      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
-      dttree_2->Add((baseInputTreePath+"DoubleEG/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
+      //      dttree_2->Add((baseInputTreePath+"DoubleEG/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1336,8 +1319,8 @@ void lepdatamchist(TFile* outfile,
     qctree->Add((baseInputTreePath+"QCD/wenfilter/*root").c_str());
     dbtree->Add((baseInputTreePath+"DiBoson/wenfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"PhotonJets/wenfilter/*root").c_str());
-    stoptree->Add((baseInputTreePath+"STop/wenfilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"Top/wenfilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"TopAlternative/wenfilter/*root").c_str());
+
     ewkwtree->Add((baseInputTreePath+"WJetsEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wenfilter/*root").c_str());
@@ -1345,8 +1328,8 @@ void lepdatamchist(TFile* outfile,
     dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useJetHT)
-      //      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
-      dttree_2->Add((baseInputTreePath+"DoubleEG/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
+    //dttree_2->Add((baseInputTreePath+"DoubleEG/wenfilter/*root").c_str());
     else if(useSinglePhoton)
       dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
   }
@@ -1778,16 +1761,15 @@ void lepdatamchist(TFile* outfile,
   if(not useNLOSamples)
     makehist4(vltree,vlhist,vlhist_2D,true,sample,category,false,1.0,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else{
-    makehist4(vltree_nlo1,vlhist,vlhist_2D,true,sample,category,false,1.10,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(vltree_nlo2,vlhist,vlhist_2D,true,sample,category,false,1.11,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(vltree_nlo3,vlhist,vlhist_2D,true,sample,category,false,1.15,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(vltree_nlo4,vlhist,vlhist_2D,true,sample,category,false,1.13,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vltree_nlo1,vlhist,vlhist_2D,true,sample,category,false,1.00,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vltree_nlo2,vlhist,vlhist_2D,true,sample,category,false,1.00,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vltree_nlo3,vlhist,vlhist_2D,true,sample,category,false,1.00,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vltree_nlo4,vlhist,vlhist_2D,true,sample,category,false,1.00,lumi,vlhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   }
   cout<<"lepton+jets control region --> Z+jets"<<endl;
   makehist4(vlltree,vllhist,vllhist_2D,true,sample,category,false,1.0,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> top"<<endl;
   makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
-  makehist4(stoptree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
   cout<<"lepton+jets control region --> Diboson"<<endl;
   makehist4(dbtree,dbhist,dbhist_2D,true,sample,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> gamma+jets"<<endl;
@@ -1826,21 +1808,13 @@ void lepdatamchist(TFile* outfile,
 
     cout<<"lepton +jets region --> systematics for top"<<endl;
     makehist4(tttree,tthist_bUp,tthist_bUp_2D,true,sample,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_bUp,tthist_bUp_2D,true,sample,category,false,1.00,lumi,ehists,"btagUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_bDw,tthist_bDw_2D,true,sample,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_bDw,tthist_bDw_2D,true,sample,category,false,1.00,lumi,ehists,"btagDown",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metJetUp,tthist_metJetUp_2D,true,sample,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metJetUp,tthist_metJetUp_2D,true,sample,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metJetDw,tthist_metJetDw_2D,true,sample,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metJetDw,tthist_metJetDw_2D,true,sample,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metResUp,tthist_metResUp_2D,true,sample,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metResUp,tthist_metResUp_2D,true,sample,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metResDw,tthist_metResDw_2D,true,sample,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metResDw,tthist_metResDw_2D,true,sample,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metUncUp,tthist_metUncUp_2D,true,sample,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metUncUp,tthist_metUncUp_2D,true,sample,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_metUncDw,tthist_metUncDw_2D,true,sample,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_metUncDw,tthist_metUncDw_2D,true,sample,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
 
     cout<<"lepton +jets region --> systematics for di-boson"<<endl;
     makehist4(dbtree,dbhist_bUp,dbhist_bUp_2D,true,sample,category,isWJet,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -1869,117 +1843,118 @@ void lepdatamchist(TFile* outfile,
   makehist4(dttree_merged,dthist,dthist_2D,false,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
   //smooth
-  for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dbhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : gmhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : vlhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : vllhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : qchist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkwhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkzhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+  if(doSmoothing){
+    for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vlhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vllhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : qchist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    
+    for(auto hist : tthist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vlhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vllhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : qchist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    
 
-  for(auto hist : tthist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : dbhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : gmhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : vlhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : vllhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : qchist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkwhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-  for(auto hist : ewkzhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    if(doShapeSystematics){
+      
+      for(auto hist : tthist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : dbhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : vlhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
 
-
-  if(doShapeSystematics){
-
-    for(auto hist : tthist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : dbhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : vlhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : vllhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : gmhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : tthist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : tthist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : dbhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : dbhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : vlhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vlhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : vllhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : vllhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-
-    for(auto hist : gmhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    for(auto hist : gmhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-   
+      for(auto hist : vllhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : gmhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_bDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : tthist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : tthist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : dbhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : dbhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : vlhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vlhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : vllhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : vllhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      
+      for(auto hist : gmhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metJetDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metResDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+      for(auto hist : gmhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    }
   }
   
   //
@@ -2243,7 +2218,6 @@ void topdatamchist(TFile* outfile,
   if (sample != Sample::topmu && sample != Sample::topel) return;
 
   TChain* tttree      = new TChain("tree/tree");
-  TChain* stoptree      = new TChain("tree/tree");
   TChain* tttree_alt  = new TChain("tree/tree");
   TChain* dbtree  = new TChain("tree/tree");
   TChain* gmtree  = new TChain("tree/tree");
@@ -2264,9 +2238,8 @@ void topdatamchist(TFile* outfile,
   qctree->Add((baseInputTreePath+"QCD/"+suffix+"filter/*root").c_str());
   dbtree->Add((baseInputTreePath+"DiBoson/"+suffix+"filter/*root").c_str());
   gmtree->Add((baseInputTreePath+"PhotonJets/"+suffix+"filter/*root").c_str());
-  tttree_alt->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
-  stoptree->Add((baseInputTreePath+"STop/"+suffix+"filter/*root").c_str());
   tttree->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
+  tttree_alt->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
     dttree->Add((baseInputTreePath+"MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
@@ -2643,25 +2616,19 @@ void topdatamchist(TFile* outfile,
   if(not makeResonantSelection){
     cout<<"top+jets control region --> Top"<<endl;
     makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     cout<<"top+jets control region --> Top alternative"<<endl;
     if(doAlternativeTop){
       makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_alt,tthist_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,true);
     }
   }
   else{
     cout<<"top+jets control region --> Top"<<endl;
     makehist4(tttree,tthist_matched,tthist_matched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,1,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_matched,tthist_matched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,1,isHInv,applyPFWeight,-1,NULL,NULL,true);
     makehist4(tttree,tthist_unmatched,tthist_unmatched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,2,isHInv,applyPFWeight);
-    makehist4(stoptree,tthist_unmatched,tthist_unmatched_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,2,isHInv,applyPFWeight,-1,NULL,NULL,true);
     cout<<"top+jets control region --> Top alternative"<<endl;
     if(doAlternativeTop){
       makehist4(tttree_alt,tthist_matched_alt,tthist_matched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,1,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_matched_alt,tthist_matched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,1,isHInv,applyPFWeight,-1,NULL,NULL,true);
       makehist4(tttree_alt,tthist_unmatched_alt,tthist_unmatched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,2,isHInv,applyPFWeight);
-      makehist4(stoptree,tthist_unmatched_alt,tthist_unmatched_alt_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,2,isHInv,applyPFWeight,-1,NULL,NULL,true);
     }
   }
 

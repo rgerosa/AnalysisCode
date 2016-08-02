@@ -181,12 +181,11 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
 	continue;
 
       // require puid
-      bool passpuid = applyPileupJetID(jet,"medium",isPuppi);
-      if (!passpuid)
-	continue;
+      // bool passpuid = applyPileupJetID(jet,"medium",isPuppi);
+      // if (!passpuid)
+      // continue;
 
-      int hadronFlavor = jet.hadronFlavour();      
-    
+      int hadronFlavor = jet.hadronFlavour();          
       for(auto iPSet : bDiscriminatorInfo){ 
       
 	std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");

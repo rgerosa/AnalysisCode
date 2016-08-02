@@ -19,7 +19,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   fitfunc->SetParameters(165., 5., 5., 4., 1.);
   vector<float> bins = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
   if(useJetHT)
-    bins = {150,160,165,170,175,180,190,200,250,300,350,400,450,500,600,700,800,1000,1200,1400};  
+    bins = {175,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};  
   fitfunc->SetRange(bins.front(),bins.back());
   
   TChain* tree = new TChain("tree/tree");
@@ -42,11 +42,11 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltphoton50 || hltphoton75 || hltphoton90 || hltphoton120) && run <= %d",runCut));    
   }
   else{
-    tree->Draw("phpt>>hnum",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
-    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && run <= %d",runCut));
+    tree->Draw("phpt>>hnum",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650) && (hltphoton175 || hltphoton165) && run <= %d",runCut));
+    tree->Draw("phpt>>hden",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650) && run <= %d",runCut));
 
-    tree->Draw("phpt>>hnum_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && (hltphoton175 || hltphoton165 || hltEcalHT800) && run <= %d",runCut));
-    tree->Draw("phpt>>hden_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600) && run <= %d",runCut));
+    tree->Draw("phpt>>hnum_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650) && (hltphoton175 || hltphoton165 || hltPFHT800) && run <= %d",runCut));
+    tree->Draw("phpt>>hden_2",Form("nphotons == 1 && phidm == 1 && abs(pheta) < 1.4442 && (hltPFHT650 || hltPFHT400 || hltPFHT475 || hltPFHT600 || hltPFHT650) && run <= %d",runCut));
   }
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);  
@@ -57,7 +57,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   fitfunc->SetLineColor(kBlue);
   fitfunc->SetLineWidth(2);
   
-  TH1* frame = canvas->DrawFrame(bins.front(), 0.02, bins.back(), 1.1, "");
+  TH1* frame = canvas->DrawFrame(bins.front(), 0.4, bins.back(), 1.1, "");
   frame->GetXaxis()->SetTitle("Photon p_{T} [GeV]");
   frame->GetYaxis()->SetTitle("Trigger Efficiency");
   frame->GetYaxis()->SetLabelSize(0.8*frame->GetYaxis()->GetLabelSize());
@@ -104,12 +104,12 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     }
     canvas->RedrawAxis();
     
-    TLegend* leg = new TLegend(0.35,0.25,0.9,0.65);
+    TLegend* leg = new TLegend(0.35,0.25,0.9,0.45);
     leg->SetFillColor(0);
     leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     leg->AddEntry(eff,"Photon 165/175","PLE");
-    leg->AddEntry(eff_2,"Photon 165/175 or EcaHT800 ","PLE");
+    leg->AddEntry(eff_2,"Photon || PFHT800 ","PLE");
     leg->Draw("same");
   }
  

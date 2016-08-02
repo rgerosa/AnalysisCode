@@ -30,7 +30,7 @@ pyCfgParams = ['isMC=False',
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_80X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_80X_jetHT'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -45,8 +45,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-18-06-2016_80X_Data2p6fb-1/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.txt'  
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/Production-20-07-2016_80X_Data12p9fb-1_JetHT/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'  
 #config.Data.runRange
 config.Data.publication   = False
 

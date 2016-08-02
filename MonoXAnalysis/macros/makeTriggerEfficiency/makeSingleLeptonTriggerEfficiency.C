@@ -37,7 +37,7 @@ void makeTrigger(TTree* tree, // tree
   ha.Sumw2();
 
   // pileup-re-weight from external file                                                                                                                                        
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt.root");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
 
   TTreeReader reader(tree);
@@ -124,8 +124,12 @@ void makeTrigger(TTree* tree, // tree
   histoNum->SetBinError(histoNum->GetXaxis()->FindBin((etaMax+etaMin)/2),histoNum->GetYaxis()->FindBin((ptMax+ptMin)/2),hp.GetBinError(1));
   histoDen->SetBinContent(histoDen->GetXaxis()->FindBin((etaMax+etaMin)/2),histoDen->GetYaxis()->FindBin((ptMax+ptMin)/2),ha.GetBinContent(1));
   histoDen->SetBinError(histoDen->GetXaxis()->FindBin((etaMax+etaMin)/2),histoDen->GetYaxis()->FindBin((ptMax+ptMin)/2),ha.GetBinError(1));
+  
+  if(triggerFlag_2 == "")
+    std::cout << "Efficiency for "+triggerFlag+" -- pT [" << ptMin << ", " << ptMax << "], eta [" << etaMin << ", " << etaMax << "]  :  " << hr.GetBinContent(1) << " +/- " << hr.GetBinError(1) << std::endl; 
+  else
+    std::cout << "Efficiency for "+triggerFlag+" || "+triggerFlag_2+" -- pT [" << ptMin << ", " << ptMax << "], eta [" << etaMin << ", " << etaMax << "]  :  " << hr.GetBinContent(1) << " +/- " << hr.GetBinError(1) << std::endl; 
 
-  std::cout << "Efficiency for "+triggerFlag+" -- pT [" << ptMin << ", " << ptMax << "], eta [" << etaMin << ", " << etaMax << "]  :  " << hr.GetBinContent(1) << " +/- " << hr.GetBinError(1) << std::endl; 
   pufile->Close();
   
 }

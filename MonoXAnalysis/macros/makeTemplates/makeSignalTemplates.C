@@ -17,8 +17,8 @@ void makeSignalTemplates(
 			 const double & lumi                   = 2.30, // 
 			 const string & outDir                 = "", // output dir for template file
 			 const string & templateSuffix         = "",  // suffix for the output file
-			 vector<string> observables    = {"met"}, // 1D histo
-			 vector<string> observables_2D = {},  // 2D histo
+			 vector<string> observables            = {"met"}, // 1D histo
+			 vector<string> observables_2D         = {},  // 2D histo
 			 const string & interactionType        = "",  // can be Vector, Axial, Scalar, Pseudoscalar or All
 			 const bool & doShapeSystematics       = false, // run all the met, b-tag shape variations
 			 const int  & typeOfDMSignal           = 0,     // 0 means both mono-j and mono-V, 1 is mono-j, 2 is mono-V
@@ -38,7 +38,7 @@ void makeSignalTemplates(
       findAllPossibleMassPoints(signalMassPoint,"Vector",typeOfDMSignal);  
       findAllPossibleMassPoints(signalMassPoint,"Axial", typeOfDMSignal);  
       findAllPossibleMassPoints(signalMassPoint,"Scalar",typeOfDMSignal);  
-      findAllPossibleMassPoints(signalMassPoint,"PseudoScalar",typeOfDMSignal);  
+      findAllPossibleMassPoints(signalMassPoint,"Pseudoscalar",typeOfDMSignal);  
     }
   }
 
@@ -58,7 +58,7 @@ void makeSignalTemplates(
   }
   else if(runHiggsInvisible){
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03},1);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.414E+04,3.782E+03,1.373E+03,7.612E+02,1.227E+02},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,1.373E+03,7.612E+02,1.227E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01},1);

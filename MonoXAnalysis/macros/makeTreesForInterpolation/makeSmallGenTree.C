@@ -65,12 +65,13 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   system("rm file.temp");
 
   // load all the re-weight files
-  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_2.60.root");
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
 
   // trigger efficiency for met trigger                                                                                                                                       
-  TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency.root");
-  TF1*  triggermet    = (TF1*) trmfile->Get("efficiency_func");
+  TFile* trmfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency_12p9.root");
+  TEfficiency*  triggermet_eff    = (TEfficiency*) trmfile->Get("trig_eff");
+  TGraphAsymmErrors* triggermet = (TGraphAsymmErrors*) triggermet_eff->CreateGraph();
 
   TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -87,7 +88,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   double  genX1Pt, genX1Eta, genX1Phi, genX1Mass, genX1RealMass;
   double  genX2Pt, genX2Eta, genX2Phi, genX2Mass, genX2RealMass;
   double  genMetPt, genMetPhi;
-  double  weight, genWeight;
+  double  weightPU, weightTurnOn, genWeight;
   double  pfMetPt, pfMetPhi;
   double  recoAK8JetPt,recoAK8JetPrunedMass, recoAK8JetTau2Tau1;
 
@@ -146,7 +147,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   outputTree->Branch("pfMetPt", &pfMetPt, "pfMetPt/D");  
   outputTree->Branch("pfMetPhi", &pfMetPhi, "pfMetPhi/D");  
 
-  outputTree->Branch("weight", &weight, "weight/D");  
+  outputTree->Branch("weightPU", &weightPU, "weightPU/D");  
+  outputTree->Branch("weightTurnOn", &weightTurnOn, "weightTurnOn/D");  
   outputTree->Branch("genWeight", &genWeight, "genWeight/D");  
   
   // setup read input file                                                                                                                                                  
@@ -163,7 +165,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
   TTreeReaderValue<unsigned int> nphotons  (myReader,"nphotons");
@@ -245,11 +247,12 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
       }
       
       TString name_tmp_2 (seglist.at(0).c_str());
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph","");
       name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-powheg","");
+      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-madgraph","");
       name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-JHUGen","");
       name_tmp_2.ReplaceAll("_13TeV_powheg_pythia8","");
@@ -274,6 +277,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
       }
     }
     
+
     // Set Branches
     id = -1;
     
@@ -324,7 +328,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     genMetPhi = 0.;
     pfMetPt = 0.;
     pfMetPhi = 0.;
-    weight = 1.;
+    weightPU = 1.;
+    weightTurnOn = 1.;
     genWeight = 1.;
 
     // basic monojet
@@ -416,10 +421,11 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     genMediatorPhi  = *mediatorPhi;
     genMediatorRealMass = *mediatorMass;
     genMediatorMass = stod(medMass);
-    
-    if(*nvtx<= 40)
-      weight *= triggermet->Eval(min(*mmet,triggermet->GetXmax()))*puhist->GetBinContent(puhist->FindBin(min(double(*nvtx),puhist->GetBinLowEdge(puhist->GetNbinsX()+1)-1)));
 
+    weightTurnOn = triggermet->Eval(min(*mmet,triggermet->GetXaxis()->GetXmax()));
+    if (*nvtx <= 60)
+      weightPU = puhist->GetBinContent(puhist->FindBin(*nvtx));
+    
     pfMetPt   = *mmet;
     pfMetPhi  = *mmetphi;
     genMetPt  = *genmet;

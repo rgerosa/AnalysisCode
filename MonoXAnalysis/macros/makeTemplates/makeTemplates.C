@@ -747,7 +747,7 @@ void fillAndSaveCorrHistograms(const vector<string> & observables, TFile & outpu
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
 		   Category category             = Category::monojet,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
-		   double lumi                   = 2.30, // 
+		   double lumi                   = 7.65, // 
 		   string outDir                 = "", // output dir for template file
 		   string templateSuffix         = "",  // suffix for the output file
 		   vector<string> observables    = {"met"}, // 1D histo
@@ -1232,13 +1232,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;
-      topdatamchist(&outfile,Sample::topmu,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);
+      topdatamchist(&outfile,Sample::topmu,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights);
       cout<<"start Top+el region data"<<endl;
-      topdatamchist(&outfile,Sample::topel,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,true,applyPostFitWeights);
+      topdatamchist(&outfile,Sample::topel,category,observables,observables_2D,lumi,makeResonantSelection,doShapeSystematics,runHiggsInvisible,false,applyPostFitWeights);
     }
 
     //add qcd data templates
-    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016.root");
+    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016_12p9.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
       cout<<"Take templates QCD from data"<<endl;
       vector<double> met_bins = selectBinning("met",category);
@@ -1256,17 +1256,17 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	qcd_nominal->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category == Category::monojet)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_FitUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllUp");
       else if(category ==  Category::monoV)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_FitUp");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllUp");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_up->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
       
       if(category == Category::monojet)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_FitDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_AllDown");
       else if(category ==  Category::monoV)
-	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_FitDown");
+	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoV_AllDown");
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));

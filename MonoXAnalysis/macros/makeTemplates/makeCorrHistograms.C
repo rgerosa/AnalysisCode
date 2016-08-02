@@ -475,14 +475,14 @@ void makewmncorhist( const string &  signalRegionFile,
   whistsnlo.push_back(wewkhist);
   
   if(useNLOSamples){
-    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
@@ -679,14 +679,14 @@ void makewencorhist( const string & signalRegionFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(useNLOSamples){
-    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wen, category, false, 1.10, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wen, category, false, 1.11, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wen, category, false, 1.15, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wen, category, false, 1.13, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
@@ -933,10 +933,10 @@ void  makezwjcorhist(const string & znunuFile,
   if(not useNLOSamples)
     makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   else{
-    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo1, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo2, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo3, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree_nlo4, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   if(ntreeEWK != NULL and ntreeEWK != 0)
@@ -1453,10 +1453,10 @@ void makewgamcorhist( const string & wlnuFile,
   if(not useNLOSamples)
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
   else{
-    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.10, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.11, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.15, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.13, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo1, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo2, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo3, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree_nlo4, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
 
   if(ntreeEWK != NULL and ntreeEWK != 0)

@@ -192,6 +192,91 @@ void makeControlPlots(string templateFileName,
     }
   }
 
+  if(controlRegion == "SR" and observable == "met"){
+
+    // write yields in a output in a text file 
+    ofstream outputfile;
+    outputfile.open("preFitSR.txt");
+
+    stringstream QCDRate;
+    QCDRate << "Process: QCD";
+    stringstream GJetsRate;
+    GJetsRate << "Process: GJets";
+    stringstream DiBosonRate;
+    DiBosonRate << "Process: DiBoson";
+    stringstream TopRate;
+    TopRate << "Process: TopRate";
+    stringstream ZJetsRate;
+    ZJetsRate << "Process: ZJetsRate";
+    stringstream WJetsRate;
+    WJetsRate << "Process: WJetsRate";
+    stringstream ZnunuRate;
+    ZnunuRate << "Process: ZnunuRate";
+    stringstream DataRate;
+    DataRate << "Process: Data";
+    
+    for(int iBin = 0; iBin < qcdhist->GetNbinsX(); iBin++){
+      QCDRate << "   ";
+      QCDRate << qcdhist->GetBinContent(iBin+1) << " \\pm "<<qcdhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < gamhist->GetNbinsX(); iBin++){
+      GJetsRate << "   ";
+      GJetsRate << gamhist->GetBinContent(iBin+1)<< " \\pm "<<gamhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < dbhist->GetNbinsX(); iBin++){
+      DiBosonRate << "   ";
+      DiBosonRate << dbhist->GetBinContent(iBin+1)<< " \\pm "<<dbhist->GetBinError(iBin+1);;
+    }
+    
+    for(int iBin = 0; iBin < tophist->GetNbinsX(); iBin++){
+      TopRate << "   ";
+      TopRate << tophist->GetBinContent(iBin+1) << " \\pm "<<tophist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
+      ZJetsRate << "   ";
+      ZJetsRate << vllhist->GetBinContent(iBin+1)<< " \\pm "<<vllhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vlhist->GetNbinsX(); iBin++){
+      WJetsRate << "   ";
+      WJetsRate << vlhist->GetBinContent(iBin+1)<< " \\pm "<<vlhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < vnnhist->GetNbinsX(); iBin++){
+      ZnunuRate << "   ";
+      ZnunuRate << vnnhist->GetBinContent(iBin+1) << " \\pm "<<vnnhist->GetBinError(iBin+1);
+    }
+    
+    for(int iBin = 0; iBin < datahist->GetNbinsX(); iBin++){
+      DataRate << "   ";
+      DataRate << datahist->GetBinContent(iBin+1) << " \\pm "<<datahist->GetBinError(iBin+1);
+    }
+
+    outputfile<<"######################"<<endl;
+    outputfile<<QCDRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<GJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DiBosonRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<TopRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<WJetsRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZnunuRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+
+    outputfile.close();
+  }
+
+
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
 
@@ -304,7 +389,7 @@ void makeControlPlots(string templateFileName,
   }
 
   if(vnnhist) {
-      vnnhist->SetFillColor(TColor::GetColor("#258039"));
+      vnnhist->SetFillColor(TColor::GetColor("#4D975D"));
       vnnhist->SetLineColor(kBlack);
   }
   if(vllhist){    
@@ -415,8 +500,8 @@ void makeControlPlots(string templateFileName,
 
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
-    stack->Add(vghist);
-    stack->Add(vlhist);
+    //    stack->Add(vghist);
+    //    stack->Add(vlhist);
     stack->Add(qcdhist);
     stack->Add(gamhist);
   }
@@ -483,104 +568,6 @@ void makeControlPlots(string templateFileName,
     stack->Add(vnnhist);
   }
 
-  if(controlRegion == "SR" and observable == "met"){
-
-    // write yields in a output in a text file 
-    ofstream outputfile;
-    outputfile.open("preFitSR.txt");
-
-    stringstream QCDRate;
-    QCDRate << "Process: QCD";
-    stringstream GJetsRate;
-    GJetsRate << "Process: GJets";
-    stringstream DiBosonRate;
-    DiBosonRate << "Process: DiBoson";
-    stringstream TopRate;
-    TopRate << "Process: TopRate";
-    stringstream ZJetsRate;
-    ZJetsRate << "Process: ZJetsRate";
-    stringstream WJetsRate;
-    WJetsRate << "Process: WJetsRate";
-    stringstream ZnunuRate;
-    ZnunuRate << "Process: ZnunuRate";
-    stringstream PreRate;
-    PreRate << "Process: Pre-fit (total)";
-    stringstream PostRate;
-    PostRate << "Process: Post-fit (total)";
-    stringstream DataRate;
-    DataRate << "Process: Data";
-    
-    for(int iBin = 0; iBin < qcdhist->GetNbinsX(); iBin++){
-      QCDRate << "   ";
-      QCDRate << qcdhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < gamhist->GetNbinsX(); iBin++){
-      GJetsRate << "   ";
-      GJetsRate << gamhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < dbhist->GetNbinsX(); iBin++){
-      DiBosonRate << "   ";
-      DiBosonRate << dbhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < tophist->GetNbinsX(); iBin++){
-      TopRate << "   ";
-      TopRate << tophist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vllhist->GetNbinsX(); iBin++){
-      ZJetsRate << "   ";
-      ZJetsRate << vllhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vlhist->GetNbinsX(); iBin++){
-      WJetsRate << "   ";
-      WJetsRate << vlhist->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < vnnhist->GetNbinsX(); iBin++){
-      ZnunuRate << "   ";
-      ZnunuRate << vnnhist->GetBinContent(iBin+1);
-    }
-
-    TH1* histoTotal = (TH1*) stack->GetStack()->At(stack->GetNhists()-1);
-
-    for(int iBin = 0; iBin < histoTotal->GetNbinsX(); iBin++){
-      PreRate << "   ";
-      PreRate << histoTotal->GetBinContent(iBin+1);
-    }
-    
-    for(int iBin = 0; iBin < datahist->GetNbinsX(); iBin++){
-      DataRate << "   ";
-      DataRate << datahist->GetBinContent(iBin+1);
-    }
-
-    outputfile<<"######################"<<endl;
-    outputfile<<QCDRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<GJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<DiBosonRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<TopRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<ZJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<WJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<ZnunuRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<PreRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<PostRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<DataRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-
-    outputfile.close();
-  }
 
   TH1* frame = (TH1*) datahist->Clone("frame");
   frame->Reset();  
@@ -599,13 +586,14 @@ void makeControlPlots(string templateFileName,
 
   // set Y-axis range
   if(category == Category::monojet and isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+    frame->GetYaxis()->SetRangeUser(1.5e-2,datahist->GetMaximum()*500);  
+  //    frame->GetYaxis()->SetRangeUser(100,datahist->GetMaximum()*500);  
   else if(category == Category::inclusive and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::monojet and not isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
   else if(category == Category::inclusive and not isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
   else if(category == Category::monoV and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::boosted and isLog)
@@ -613,7 +601,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::VBF and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*1.5);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
     
   frame->GetXaxis()->SetTitle(observableLatex.c_str());
   if(TString(observableLatex).Contains("GeV"))
@@ -634,9 +622,11 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  //  CMS_lumi(canvas,"3.99");
-  //  CMS_lumi(canvas,"0.81");
-  CMS_lumi(canvas,"2.77");
+  //  CMS_lumi(canvas,"4.33");
+  //  CMS_lumi(canvas,"0.8");
+  //  CMS_lumi(canvas,"2.77");
+  //  CMS_lumi(canvas,"7.65");
+  CMS_lumi(canvas,"12.9");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -662,15 +652,15 @@ void makeControlPlots(string templateFileName,
 
   TLegend* leg = NULL;
   if(controlRegion == "gam")
-    leg = new TLegend(0.62, 0.70, 0.85, 0.90);
+    leg = new TLegend(0.60, 0.70, 0.92, 0.92);
   else if (observable == "chfrac" or observable == "nhfrac" or observable == "emfrac")
-    leg = new TLegend(0.52, 0.35, 0.88, 0.65);  
+    leg = new TLegend(0.60, 0.35, 0.92, 0.65);  
   else if(controlRegion == "SR" and isLog)
-    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);  
   else if(controlRegion == "SR" and not isLog)
-    leg = new TLegend(0.52, 0.55, 0.88, 0.90);  
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);  
   else
-    leg = new TLegend(0.62, 0.50, 0.85, 0.90);
+    leg = new TLegend(0.60, 0.55, 0.92, 0.92);
 
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
@@ -680,8 +670,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
-    leg->AddEntry(vlhist, "W+Jets","F");
-    leg->AddEntry(vghist, "V#gamma","F");
+    //    leg->AddEntry(vlhist, "W+Jets","F");
+    //    leg->AddEntry(vghist, "V#gamma","F");
   }
 
   else if(controlRegion == "zmm"){
@@ -776,13 +766,13 @@ void makeControlPlots(string templateFileName,
 
   else if(controlRegion == "SR"){
     leg->AddEntry(datahist,"Data","PLE");
-    leg->AddEntry(vnnhist, "Z(#nu#nu)","F");
-    leg->AddEntry(vlhist,  "W(l#nu)", "F");
+    leg->AddEntry(vnnhist, "Z #rightarrow #nu#nu","F");
+    leg->AddEntry(vlhist,  "W #rightarrow l#nu", "F");
     if(category == Category::VBF)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    leg->AddEntry(dbhist,  "Dibosons", "F");
-    leg->AddEntry(tophist, "Top", "F");
-    leg->AddEntry(vllhist, "Others: Z(ll), #gamma+jets","F");
+    leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
+    leg->AddEntry(tophist, "Top quark", "F");
+    leg->AddEntry(vllhist, "Z #rightarrow ll, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
     if( not isHiggsInvisible){
       TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
@@ -814,25 +804,26 @@ void makeControlPlots(string templateFileName,
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
   if(category == Category::monojet or category == Category::inclusive)
+    // frame2->GetYaxis()->SetRangeUser(0.,3.5);
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::monoV)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1)
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
-    frame2->GetXaxis()->SetNdivisions(210);
+    frame2->GetXaxis()->SetNdivisions(510);
   frame2->GetYaxis()->SetNdivisions(5);
 
   frame2->GetXaxis()->SetTitle(observableLatex.c_str());
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetLabelSize(0.035);
   frame2->GetYaxis()->SetTitleSize(0.04);
   frame2->GetXaxis()->SetLabelSize(0.04);
   frame2->GetXaxis()->SetTitleSize(0.05);
