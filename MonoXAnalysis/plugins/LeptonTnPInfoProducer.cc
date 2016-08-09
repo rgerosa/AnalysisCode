@@ -41,6 +41,7 @@ private:
   const edm::EDGetTokenT<std::vector<reco::Vertex> >  verticesToken;
   const edm::EDGetTokenT<pat::MuonCollection>     muonsToken;
   const edm::EDGetTokenT<pat::ElectronCollection> electronsToken;
+  const edm::EDGetTokenT<pat::ElectronCollection> electronsFullCollectionToken;
   const edm::EDGetTokenT<pat::PhotonCollection>   photonsToken;
 
   const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
@@ -74,6 +75,7 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
     verticesToken(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
     muonsToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
     electronsToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    electronsFullCollectionToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronsFullCollection"))),
     photonsToken(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     triggerObjectsToken(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerobjects"))),
     triggerResultsToken(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
@@ -153,6 +155,7 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::PhotonRefVector>("loosephotonrefs");
   produces<pat::PhotonRefVector>("mediumphotonrefs");
   produces<pat::PhotonRefVector>("tightphotonrefs");
+  produces<pat::PhotonRefVector>("recoelectronmatch");
 
 }
 
@@ -177,6 +180,9 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   Handle<pat::ElectronCollection> electronsH;
   iEvent.getByToken(electronsToken, electronsH);
+
+  Handle<pat::ElectronCollection> electronsFullCollectionH;
+  iEvent.getByToken(electronsFullCollectionToken, electronsFullCollectionH);
 
   Handle<pat::PhotonCollection> photonsH;
   iEvent.getByToken(photonsToken, photonsH);
@@ -258,6 +264,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<pat::PhotonRefVector> outputmediumphotonrefs(new pat::PhotonRefVector);
   std::auto_ptr<pat::PhotonRefVector> outputtightphotonrefs(new pat::PhotonRefVector);
   std::auto_ptr<pat::PhotonCollection> outputtightphotons(new pat::PhotonCollection);
+  std::auto_ptr<pat::PhotonRefVector> outputrecoelectronmatchrefs (new pat::PhotonRefVector);
   
   // event weight
   float wgt = 1.0;
@@ -444,7 +451,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, true))
 	hltele115matched = true;
     }
-    
+       
+
     if(hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched) hltelematched = true;
     
     if (!requireelectronhlt) triggermatched = true;    
@@ -471,7 +479,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       outputhltele115electronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     if (verticesH->size() != 0 && hltelematched) 
       outputhlthltelelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin())); 
-    
+
     // veto electrons
     if (verticesH->size() != 0 && (*electronVetoIdH)  [electronPtr]) 
       outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
@@ -513,6 +521,18 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     
     phnvtxvector.push_back(float(verticesH->size()));
     phwgtvector.push_back(wgt);
+
+    bool recoelectronmatch =  false;
+
+    // match probe with full collection
+    float minDR = 100.;
+    for(vector<pat::Electron>::const_iterator itEle = electronsFullCollectionH->begin(); itEle != electronsFullCollectionH->end(); ++itEle) {
+      float DR = deltaR(photons_iter->eta(), photons_iter->phi(),itEle->eta(),itEle->phi());
+      if(DR < tagelectrontrigmatchdR and DR < minDR){	
+	DR = deltaR(photons_iter->eta(), photons_iter->phi(),itEle->eta(),itEle->phi());
+	recoelectronmatch = true;
+      }
+    }
     
     // loose photons
     if (verticesH->size() != 0 && (*photonLooseIdH) [photonPtr]) 
@@ -523,6 +543,10 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // tight photons
     if (verticesH->size() != 0 && (*photonTightIdH) [photonPtr]) 
       outputtightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+    // mathcing with reco electrons
+    if (verticesH->size() != 0 && recoelectronmatch) 
+      outputrecoelectronmatchrefs->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+
   }
   
   edm::ValueMap<float>::Filler munvtxfiller(*outputmunvtxmap);
@@ -631,6 +655,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(outputloosephotonrefs, "loosephotonrefs");
   iEvent.put(outputmediumphotonrefs,"mediumphotonrefs");
   iEvent.put(outputtightphotonrefs, "tightphotonrefs");
+  iEvent.put(outputrecoelectronmatchrefs,      "recoelectronmatch");
 
 }
 
