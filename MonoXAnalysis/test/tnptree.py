@@ -10,10 +10,6 @@ options.register (
         'flag to indicate data or MC');
 
 options.register (
-        'isRecoEfficiency',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-        'special setup (probe definition) to measure electron reconstruction efficiency');
-
-options.register (
         'globalTag','80X_dataRun2_Prompt_v8',VarParsing.multiplicity.singleton,VarParsing.varType.string,
         'gloabl tag to be uses');
 
@@ -65,9 +61,9 @@ if options.inputFiles == []:
                 )
         else:
             process.source.fileNames.append(
-#		    'root://xrootd-cms.infn.it:1194//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/274/094/00000/5C319205-6425-E611-BBF4-02163E011F60.root',
+		    'root://xrootd-cms.infn.it:1194//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/274/094/00000/5C319205-6425-E611-BBF4-02163E011F60.root',
 #		    '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
-		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
+#		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
                 )
             
 else:
@@ -88,18 +84,11 @@ process.goodVertices = cms.EDFilter("VertexSelector",
 				    )
 
 # Probe muons --> definition ->even looser than the loose muon ID
-if options.isRecoEfficiency: ## define a probe object as a stand-alone muon
-	process.probemuons = cms.EDFilter("PATMuonSelector",
-					  src = cms.InputTag("slimmedMuons"),
-					  cut = cms.string("pt > 10 && abs(eta) < 2.4 && (isStandAloneMuon)"),
-					  filter = cms.bool(True)  
-					  )
-else: ## stand alone or tracker muon
-	process.probemuons = cms.EDFilter("PATMuonSelector",
-					  src = cms.InputTag("slimmedMuons"),
-					  cut = cms.string("pt > 10 && abs(eta) < 2.4 && (isStandAloneMuon || isTrackerMuon)"),
-					  filter = cms.bool(True)  
-					  )
+process.probemuons = cms.EDFilter("PATMuonSelector",
+				  src = cms.InputTag("slimmedMuons"),
+				  cut = cms.string("pt > 10 && abs(eta) < 2.4 && (isStandAloneMuon || isTrackerMuon)"),
+				  filter = cms.bool(True)  
+				  )
 	
 
 process.probeelectrons = cms.EDFilter("PATElectronSelector",
