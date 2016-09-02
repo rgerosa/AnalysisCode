@@ -115,6 +115,8 @@ void checkEventsForSync(string inputFile, string outputDir){
   TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
   TTreeReaderValue<double> zmmeta (myReader,"zeta");
 
+  TTreeReaderValue<double> wgt (myReader,"wgt");
+
   // output text files for the comparison
   ofstream leptonVeto((outputDir+"/leptonVeto_SR.txt").c_str());
   ofstream leptonPhtonVeto((outputDir+"/leptonPhtonVeto_SR.txt").c_str());
@@ -143,46 +145,75 @@ void checkEventsForSync(string inputFile, string outputDir){
   long int n_emVBF      = 0;
   long int n_detaVBF      = 0;
   long int n_mjjVBF       = 0;
+
+  double nwgt_total        = 0;
+  double nwgt_muonVeto     = 0;
+  double nwgt_electronVeto = 0;
+  double nwgt_photonVeto   = 0;
+  double nwgt_tauVeto      = 0;
+  double nwgt_bjetVeto     = 0;
+  double nwgt_jetpt        = 0;
+  double nwgt_jetid        = 0;
+  double nwgt_jetdphi      = 0;
+  double nwgt_metcut       = 0;
+  double nwgt_ak8pt        = 0;
+  double nwgt_ak8tau2tau1  = 0;
+  double nwgt_ak8mpruned   = 0;
+  double nwgt_metHard      = 0;
+  double nwgt_jetVBF       = 0;
+  double nwgt_emVBF      = 0;
+  double nwgt_detaVBF      = 0;
+  double nwgt_mjjVBF       = 0;
   
   /// event loop
   while(myReader.Next()){
     
     n_total++;
+    nwgt_total += *wgt;
 
     if(*nmuons != 0) continue;
     n_muonVeto++;
-
+    nwgt_muonVeto += *wgt;
+    
     if(*nelectrons != 0) continue;
     n_electronVeto++;
+    nwgt_electronVeto += *wgt;
     leptonVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
 
     if(*nphotons != 0) continue;    
     n_photonVeto++;
+    nwgt_photonVeto += *wgt;
     leptonPhtonVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
 
     if(*ntaus != 0) continue;
     n_tauVeto++;
+    nwgt_tauVeto += *wgt;
     leptonPhtonTauVeto << *run << " "<<*lumi<<" "<<*event<<"\n";
         
     if(*nbjetslowpt > 0) continue;
     n_bjetVeto++;
+    nwgt_bjetVeto += *wgt;
     btagVetoSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
     
     if(jetpt->size() <= 0) continue;
     if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) > 2.5) continue;
     n_jetpt++;
+    nwgt_jetpt += *wgt;
     
     if(chfrac->at(0) < 0.1) continue;
     if(nhfrac->at(0) > 0.8) continue;
     n_jetid++;
+    nwgt_jetid += *wgt;
 
     ak4JetSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
 
     if(*jmmdphi < 0.5) continue;
     n_jetdphi++;
+    nwgt_jetdphi += *wgt;
 
     if(*met < 200) continue;
     n_metcut++;
+    nwgt_metcut += *wgt;
     metSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
 
     /// VBF block
@@ -222,16 +253,20 @@ void checkEventsForSync(string inputFile, string outputDir){
     if(boostedJetpt->at(0) < 250 ) continue;
     if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
     n_ak8pt++;
+    nwgt_ak8pt += *wgt;
 
     if(boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) continue;
     n_ak8tau2tau1++;
+    nwgt_ak8tau2tau1 += *wgt;
 
     if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
     n_ak8mpruned++;
+    nwgt_ak8mpruned += *wgt;
     VtaggingSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
    
     if(*met<250) continue;
     n_metHard++;
+    nwgt_metHard += *wgt;
     
   }
   
@@ -248,23 +283,48 @@ void checkEventsForSync(string inputFile, string outputDir){
   cout<<"## Event report in the SR ##"<<endl;
   cout<<"############################"<<endl;
   cout<<"total event = "<<n_total<<endl;
-  cout<<"muon veto event = "<<n_muonVeto<<endl;
-  cout<<"electron veto event = "<<n_electronVeto<<endl;
-  cout<<"photon veto event = "<<n_photonVeto<<endl;
-  cout<<"tau veto event = "<<n_tauVeto<<endl;
-  cout<<"bjet veto event = "<<n_bjetVeto<<endl;
-  cout<<"jetpt event = "<<n_jetpt<<endl;
-  cout<<"jetid event = "<<n_jetid<<endl;
-  cout<<"jetphi event = "<<n_jetdphi<<endl;
-  cout<<"met cut event = "<<n_metcut<<endl;
-  cout<<"ak8 pt event = "<<n_ak8pt<<endl;
-  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<endl;
-  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<endl;
-  cout<<"met hard cut = "<<n_metHard<<endl;
-  cout<<"njet VBF = "<<n_jetVBF<<endl;
-  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
-  cout<<"deta VBF = "<<n_detaVBF<<endl;
-  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
+  cout<<"muon veto event = "<<n_muonVeto<<" efficiency "<<float(n_muonVeto)/n_total<<endl;
+  cout<<"electron veto event = "<<n_electronVeto<<" efficiency "<<float(n_electronVeto)/n_total<<endl;
+  cout<<"photon veto event = "<<n_photonVeto<<" efficiency "<<float(n_photonVeto)/n_total<<endl;
+  cout<<"tau veto event = "<<n_tauVeto<<" efficiency "<<float(n_tauVeto)/n_total<<endl;
+  cout<<"bjet veto event = "<<n_bjetVeto<<" efficiency "<<float(n_bjetVeto)/n_total<<endl;
+  cout<<"jetpt event = "<<n_jetpt<<" efficiency "<<float(n_jetpt)/n_total<<endl;
+  cout<<"jetid event = "<<n_jetid<<" efficiency "<<float(n_jetid)/n_total<<endl;
+  cout<<"jetphi event = "<<n_jetdphi<<" efficiency "<<float(n_jetdphi)/n_total<<endl;
+  cout<<"met cut event = "<<n_metcut<<" efficiency "<<float(n_metcut)/n_total<<endl;
+  cout<<"ak8 pt event = "<<n_ak8pt<<" efficiency "<<float(n_ak8pt)/n_total<<endl;
+  cout<<"ak8 tau2tau1 event = "<<n_ak8tau2tau1<<" efficiency "<<float(n_ak8tau2tau1)/n_total<<endl;
+  cout<<"ak8 mpruned event = "<<n_ak8mpruned<<" efficiency "<<float(n_ak8mpruned)/n_total<<endl;
+  cout<<"met hard cut = "<<n_metHard<<" efficiency "<<float(n_metHard)/n_total<<endl;
+  //  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  //  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  //  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  //  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
+
+
+
+  cout<<"############################"<<endl;
+  cout<<"## Event report in the SR weighted ##"<<endl;
+  cout<<"############################"<<endl;
+  cout<<"total event = "<<nwgt_total<<endl;
+  cout<<"muon veto event = "<<nwgt_muonVeto<<" efficiency "<<float(nwgt_muonVeto)/nwgt_total<<endl;
+  cout<<"electron veto event = "<<nwgt_electronVeto<<" efficiency "<<float(nwgt_electronVeto)/nwgt_total<<endl;
+  cout<<"photon veto event = "<<nwgt_photonVeto<<" efficiency "<<float(nwgt_photonVeto)/nwgt_total<<endl;
+  cout<<"tau veto event = "<<nwgt_tauVeto<<" efficiency "<<float(nwgt_tauVeto)/nwgt_total<<endl;
+  cout<<"bjet veto event = "<<nwgt_bjetVeto<<" efficiency "<<float(nwgt_bjetVeto)/nwgt_total<<endl;
+  cout<<"jetpt event = "<<nwgt_jetpt<<" efficiency "<<float(nwgt_jetpt)/nwgt_total<<endl;
+  cout<<"jetid event = "<<nwgt_jetid<<" efficiency "<<float(nwgt_jetid)/nwgt_total<<endl;
+  cout<<"jetphi event = "<<nwgt_jetdphi<<" efficiency "<<float(nwgt_jetdphi)/nwgt_total<<endl;
+  cout<<"met cut event = "<<nwgt_metcut<<" efficiency "<<float(nwgt_metcut)/nwgt_total<<endl;
+  cout<<"ak8 pt event = "<<nwgt_ak8pt<<" efficiency "<<float(nwgt_ak8pt)/nwgt_total<<endl;
+  cout<<"ak8 tau2tau1 event = "<<nwgt_ak8tau2tau1<<" efficiency "<<float(nwgt_ak8tau2tau1)/nwgt_total<<endl;
+  cout<<"ak8 mpruned event = "<<nwgt_ak8mpruned<<" efficiency "<<float(nwgt_ak8mpruned)/nwgt_total<<endl;
+  cout<<"met hard cut = "<<nwgt_metHard<<" efficiency "<<float(nwgt_metHard)/nwgt_total<<endl;
+  //  cout<<"njet VBF = "<<n_jetVBF<<endl;
+  //  cout<<"n opposite hem VBF = "<<n_emVBF<<endl;
+  //  cout<<"deta VBF = "<<n_detaVBF<<endl;
+  //  cout<<"mjj VBF = "<<n_mjjVBF<<endl;
+
 
   // Double muon CR
   long int n_muons = 0;
@@ -702,7 +762,7 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_jetdphi++;
     if(*emet < 200) continue;
     n_metcut++;
-
+    
     /// VBF block
     if(jetpt->size()  >= 2){
       TLorentzVector leadingJet;
@@ -735,8 +795,8 @@ void checkEventsForSync(string inputFile, string outputDir){
 	}
       }
     }
-
-
+    
+    
     if(boostedJetpt->size() <= 0) continue;
     if(boostedJetpt->at(0) < 250 ) continue;
     if(fabs(boostedJeteta->at(0)) > 2.4 ) continue;
