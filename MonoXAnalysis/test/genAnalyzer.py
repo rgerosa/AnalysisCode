@@ -12,6 +12,8 @@ options.register (
         'debugName','debug',VarParsing.multiplicity.singleton,VarParsing.varType.string,
         'name for debug file');
 
+options.register ('useDebug',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,'debug statement')
+
 options.parseArguments()
 
 process = cms.Process('ANA')
@@ -37,7 +39,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
-process.MessageLogger.destinations = cms.untracked.vstring(options.debugName)
+if options.useDebug:
+    process.MessageLogger.destinations = cms.untracked.vstring(options.debugName)
 
 
 process.source = cms.Source(

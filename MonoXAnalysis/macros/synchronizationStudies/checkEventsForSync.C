@@ -75,7 +75,7 @@ void checkEventsForSync(string inputFile, string outputDir){
 
   TTreeReaderValue<unsigned int> nmuons     (myReader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons (myReader,"nelectrons");
-  TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
+  TTreeReaderValue<unsigned int> ntaus      (myReader,"ntausraw");
   TTreeReaderValue<unsigned int> nphotons   (myReader,"nphotons");
 
   // Muon information
@@ -196,7 +196,8 @@ void checkEventsForSync(string inputFile, string outputDir){
     btagVetoSelections << *run << " "<<*lumi<<" "<<*event<<"\n";
     
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) > 2.5) continue;
+    if(jetpt->at(0)  < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
     n_jetpt++;
     nwgt_jetpt += *wgt;
     
@@ -379,7 +380,8 @@ void checkEventsForSync(string inputFile, string outputDir){
 
 
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) > 2.5) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
     n_jetpt++;
     
     if(chfrac->at(0) < 0.1) continue;
@@ -506,7 +508,8 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_bjetVeto++;
 
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0))> 2.5) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0))> 2.5) continue;
     n_jetpt++;
     
     if(chfrac->at(0) < 0.1) continue;
@@ -630,7 +633,8 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_bjetVeto++;
 
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) < 2.4) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) < 2.4) continue;
     n_jetpt++;
     
     if(chfrac->at(0) < 0.1) continue;
@@ -751,7 +755,8 @@ void checkEventsForSync(string inputFile, string outputDir){
     n_bjetVeto++;
 
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) > 2.5) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
     n_jetpt++;
     
     if(chfrac->at(0) < 0.1) continue;
@@ -878,7 +883,8 @@ void checkEventsForSync(string inputFile, string outputDir){
     photonBvetoSelections << *run << " " <<*lumi<<" "<<*event<<"\n";
 
     if(jetpt->size() <= 0) continue;
-    if(jetpt->at(0) < 100 and fabs(jeteta->at(0)) > 2.5) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
     n_jetpt++;
     
     if(chfrac->at(0) < 0.1) continue;
