@@ -1,7 +1,7 @@
 ///////// Basic options
 static bool  debug = false; // for debugging printout
 static float muMin = 0.001; // min mu for limit scam
-static float muMax = 6;     // max mu for limit scan
+static float muMax = 0.001; // max mu for limit scan
 static float muPoint = 300; // number of points in the limit scan
 static bool  calculateExpSigma = true; // if calculate also 1s and 2s band on limit values
 static bool  doLikelihoodScan  = true; // to perform a likelihood scan around minimum [-muMax,muMax] in muPoint
@@ -387,7 +387,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   signal         = importSignalHistogram(signalROOTFile,signalID);
 
   // Signal
-  RooRealVar* mu = new RooRealVar("mu","",1.,-100,100);
+  RooRealVar* mu = new RooRealVar("mu","",0.,-1e4,1e4);
   RooArgList obsSignal;
   for(int iBin = 0; iBin < signal->GetNbinsX(); iBin++){
     RooFormulaVar *mean = new RooFormulaVar(Form("signal_exp_%d",iBin+1),Form("%f*@0",signal->GetBinContent(iBin+1)),RooArgList(*mu));
@@ -512,8 +512,14 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   cout<<"##### S+B fit Minos step : -Log(L) "<<nllSB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<<endl;
   double nllFit_SB = nllSB->getVal();
   double muFit_SB  = mu->getVal();
-  double muFit_SB_errUp  = mu->getErrorLo();
-  double muFit_SB_errDw  = mu->getErrorHi();
+  double muFit_SB_errUp  = mu->getErrorHi();
+  double muFit_SB_errDw  = mu->getErrorLo();
+
+  // fix muMin and muMax dynamically
+  if(muFit_SB < 0) muMin = 0.001;
+  else if( muFit_SB + 10*muFit_SB_errDw < 0) muMin = 0.001;
+  else muMin = muFit_SB +  10*muFit_SB_errDw;
+  muMax = fabs(muFit_SB) + 10*muFit_SB_errUp;
 
   if(debug){
     cout<<"########### After S+B fit ############"<<endl;
@@ -656,7 +662,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   TGraph* graphExpected1sDw = new TGraph();
   TGraph* graphExpected2sDw = new TGraph();
 
-  cout<<"#### Start Scan for limit computation "<<endl;
+  cout<<"#### Start Scan for limit computation : muMin "<<muMin<<" muMax "<<muMax<<endl;  
   for(int istep = 0; istep <= muPoint; istep++){
     clsObs = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,true,nllDataScan,nllAsimovScan);    
     clsExp = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.5);
@@ -683,15 +689,15 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   cout<<"##### limitExp mu < "<<limitExp<<endl;
 
   if(calculateExpSigma){
+    limitExpDw2s = graphExpected2sDw->Eval(1-0.95);
+    cout<<"##### limitExp 2sigma dw mu < "<<limitExpDw2s<<endl;
+    limitExpDw1s = graphExpected1sDw->Eval(1-0.95);
+    cout<<"##### limitExp 1sigma dw mu < "<<limitExpDw1s<<endl;
     limitExpUp1s = graphExpected1sUp->Eval(1-0.95);
     cout<<"##### limitExp 1sigma up mu < "<<limitExpUp1s<<endl;
     limitExpUp2s = graphExpected2sUp->Eval(1-0.95);
     cout<<"##### limitExp 2sigma up mu < "<<limitExpUp2s<<endl;
 
-    limitExpDw1s = graphExpected1sDw->Eval(1-0.95);
-    cout<<"##### limitExp 1sigma dw mu < "<<limitExpDw1s<<endl;
-    limitExpDw2s = graphExpected2sDw->Eval(1-0.95);
-    cout<<"##### limitExp 2sigma dw mu < "<<limitExpDw2s<<endl;
   }
 
   // make likelihood scan
