@@ -532,7 +532,6 @@ void prepostSig(string fitFilename,
   leg2->AddEntry(dahist,"Backgraound (Post-Fit)","PLE");
   leg2->AddEntry(dphist,"Backgraound (Pre-Fit)","PLE");
   //  leg2->Draw("same");
-
   
   pad2->RedrawAxis("G sameaxis");
 

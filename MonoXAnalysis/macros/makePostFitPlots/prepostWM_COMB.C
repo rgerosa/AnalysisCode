@@ -157,6 +157,7 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   
   prhist->SetLineColor(kRed);
   prhist->SetLineWidth(2);
+  prhist->SetLineStyle(7);
   pohist->SetLineColor(kBlue);
   pohist->SetLineWidth(2);
   prhist->SetMarkerColor(kRed);
@@ -175,9 +176,9 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*50);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*200);
   else
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*150);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -202,12 +203,12 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.6, 0.62, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.55, 0.62, 0.92, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (W #rightarrow #mu#nu)","L");
-  leg->AddEntry(prhist, "Pre-fit (W #rightarrow #mu#nu)","L");
+  leg->AddEntry(pohist, "Post-fit single-muon C.R.","L");
+  leg->AddEntry(prhist, "Pre-fit single-muon C.R.","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
@@ -222,9 +223,9 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   frame2->Reset("ICES");
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -253,7 +254,7 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   d2hist->SetLineColor(kBlue);
   d1hist->SetMarkerColor(kRed);
   d1hist->SetMarkerSize(1);
-  d1hist->SetMarkerStyle(20);
+  d1hist->SetMarkerStyle(24);
   d2hist->SetMarkerColor(kBlue);
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
@@ -304,6 +305,18 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   unhist->SetLineWidth(2);
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
+
+  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.27,NULL,"brNDC");
+  leg2->SetFillColor(0);
+  leg2->SetFillStyle(1);
+  leg2->SetBorderSize(0);
+  leg2->SetLineColor(0);
+  leg2->SetNColumns(2);
+  leg2->AddEntry(d2hist,"post-fit","PLE");
+  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  leg2->Draw("same");
+
+
   pad2->RedrawAxis("G sameaxis");
   
   canvas->SaveAs(("prepostfit_wmn"+postfix+".pdf").c_str());

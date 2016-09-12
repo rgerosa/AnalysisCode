@@ -430,9 +430,9 @@ void prepostSig_COMB(string fitFilename,
   TH1* frame2 = (TH1*) dthist->Clone("frame2");
   frame2->Reset();
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

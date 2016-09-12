@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
+void prepostGJ(string fitFilename, string templateFileName, string observable, Category category, bool plotSBFit = false,  bool dumpInfo = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -52,51 +52,54 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
     prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
 
   }
+
   dthist->Scale(1.0, "width");
 
-  ofstream  outputfile;
-  outputfile.open("prepostGJ.txt");
-  stringstream QCDRate;
-  QCDRate << "Process: QCD";
-  stringstream PreRate;
-  PreRate << "Process: Pre-fit (total)";
-  stringstream PostRate;
-  PostRate << "Process: Post-fit (total)";
-  stringstream DataRate;
-  DataRate << "Process: Data";
+  if(dumpInfo){
 
-  for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
-    QCDRate << "   ";
-    QCDRate << qchist->GetBinContent(iBin);
+    ofstream  outputfile;
+    outputfile.open("prepostGJ.txt");
+    stringstream QCDRate;
+    QCDRate << "Process: QCD";
+    stringstream PreRate;
+    PreRate << "Process: Pre-fit (total)";
+    stringstream PostRate;
+    PostRate << "Process: Post-fit (total)";
+    stringstream DataRate;
+    DataRate << "Process: Data";
+    
+    for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
+      QCDRate << "   ";
+      QCDRate << qchist->GetBinContent(iBin);
+    }
+    
+    
+    for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
+      PreRate << "   ";
+      PreRate << prhist->GetBinContent(iBin);
+    }
+    
+    for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
+      PostRate << "   ";
+      PostRate << pohist->GetBinContent(iBin);
+    }  
+    
+    for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
+      DataRate << "   ";
+      DataRate << dthist->GetBinContent(iBin);
+    }
+    
+    outputfile<<"######################"<<endl;
+    outputfile<<QCDRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PreRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PostRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    
+    outputfile.close();
   }
-
-
-  for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
-    PreRate << "   ";
-    PreRate << prhist->GetBinContent(iBin);
-  }
-
-  for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
-    PostRate << "   ";
-    PostRate << pohist->GetBinContent(iBin);
-  }  
-
-  for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
-    DataRate << "   ";
-    DataRate << dthist->GetBinContent(iBin);
-  }
-
-  outputfile<<"######################"<<endl;
-  outputfile<<QCDRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PreRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PostRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<DataRate.str()<<endl;
-  
-  outputfile.close();
-  
   
   prhist->SetLineColor(kRed);
   prhist->SetLineWidth(2);
@@ -253,7 +256,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   canvas->SaveAs("prepostfit_gam.pdf");
   canvas->SaveAs("prepostfit_gam.png");
 
-  if(dumpHisto){
+  if(dumpInfo){
 
     TFile* outFile = new TFile("postfit_weights_GJ.root","RECREATE");
     outFile->cd();
@@ -264,8 +267,6 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
     qchist_prefit->Write("wjets_pre_fit");
     pohist->Write("post_fit_post_fit");
     prhist->Write("pre_fit_post_fit");
-
-
     outFile->Close();
   }
 }

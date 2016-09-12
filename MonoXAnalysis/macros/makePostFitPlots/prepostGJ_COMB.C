@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostGJ_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpHisto = false) {
+void prepostGJ_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpInfo = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -62,52 +62,55 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   }
   dthist->Scale(1.0, "width");
 
-  ofstream  outputfile;
-  outputfile.open("prepostGJ.txt");
-  stringstream QCDRate;
-  QCDRate << "Process: QCD";
-  stringstream PreRate;
-  PreRate << "Process: Pre-fit (total)";
-  stringstream PostRate;
-  PostRate << "Process: Post-fit (total)";
-  stringstream DataRate;
-  DataRate << "Process: Data";
+  if(dumpInfo){
 
-  for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
-    QCDRate << "   ";
-    QCDRate << qchist->GetBinContent(iBin);
-  }
-
-
-  for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
-    PreRate << "   ";
-    PreRate << prhist->GetBinContent(iBin);
-  }
-
-  for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
-    PostRate << "   ";
-    PostRate << pohist->GetBinContent(iBin);
-  }  
-
-  for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
-    DataRate << "   ";
+    ofstream  outputfile;
+    outputfile.open("prepostGJ.txt");
+    stringstream QCDRate;
+    QCDRate << "Process: QCD";
+    stringstream PreRate;
+    PreRate << "Process: Pre-fit (total)";
+    stringstream PostRate;
+    PostRate << "Process: Post-fit (total)";
+    stringstream DataRate;
+    DataRate << "Process: Data";
+    
+    for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
+      QCDRate << "   ";
+      QCDRate << qchist->GetBinContent(iBin);
+    }
+    
+    
+    for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
+      PreRate << "   ";
+      PreRate << prhist->GetBinContent(iBin);
+    }
+    
+    for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
+      PostRate << "   ";
+      PostRate << pohist->GetBinContent(iBin);
+    }  
+    
+    for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
+      DataRate << "   ";
     DataRate << dthist->GetBinContent(iBin);
+    }
+    
+    outputfile<<"######################"<<endl;
+    outputfile<<QCDRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PreRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PostRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    
+    outputfile.close();
   }
-
-  outputfile<<"######################"<<endl;
-  outputfile<<QCDRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PreRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PostRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<DataRate.str()<<endl;
-  
-  outputfile.close();
-  
   
   prhist->SetLineColor(kRed);
   prhist->SetLineWidth(2);
+  prhist->SetLineStyle(7);
   pohist->SetLineColor(kBlue);
   pohist->SetLineWidth(2);
   prhist->SetMarkerColor(kRed);
@@ -123,9 +126,9 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*200);
   else
-    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*150);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -152,12 +155,13 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.6, 0.60, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.55, 0.62, 0.92, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
+  leg->SetFillStyle(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (#gamma + jets)","L");
-  leg->AddEntry(prhist, "Pre-fit (#gamma + jets)","L");
+  leg->AddEntry(pohist, "Post-fit #gamma+jets C.R.","L");
+  leg->AddEntry(prhist, "Pre-fit #gamma+jets C.R.","L");
   leg->AddEntry(qchist, "Other Backgrounds", "F");
   leg->Draw("SAME");
 
@@ -173,9 +177,9 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   frame2->Reset("ICES");
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -205,7 +209,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   d2hist->SetLineColor(kBlue);
   d1hist->SetMarkerColor(kRed);
   d1hist->SetMarkerSize(1);
-  d1hist->SetMarkerStyle(20);
+  d1hist->SetMarkerStyle(24);
   d2hist->SetMarkerColor(kBlue);
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
@@ -256,12 +260,23 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   unhist->SetLineWidth(2);
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
+
+  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.27,NULL,"brNDC");
+  leg2->SetFillColor(0);
+  leg2->SetFillStyle(1);
+  leg2->SetBorderSize(0);
+  leg2->SetLineColor(0);
+  leg2->SetNColumns(2);
+  leg2->AddEntry(d2hist,"post-fit","PLE");
+  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  leg2->Draw("same");                                                                                                                                                      
+
   pad2->RedrawAxis("G sameaxis");
   
   canvas->SaveAs(("prepostfit_gam"+postfix+".pdf").c_str());
   canvas->SaveAs(("prepostfit_gam"+postfix+".png").c_str());
   
-  if(dumpHisto){
+  if(dumpInfo){
 
     TFile* outFile = new TFile(("postfit_weights_GJ"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();

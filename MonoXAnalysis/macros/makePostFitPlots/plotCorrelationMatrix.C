@@ -1,17 +1,21 @@
 #include "../makeTemplates/histoUtils.h"
 #include "../CMS_lumi.h"
 
-void plotCorrelationMatrix(string inputFile, Category category){
+void plotCorrelationMatrix(string inputFile, Category category, bool isCombo){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
 
   TFile *file = new TFile(inputFile.c_str(),"READ");
   TCanvas* canvas = new TCanvas("canvas","",600,600);
-  canvas->cd();
+  canvas->cd();  
   string dir = "ch1_ch1";
   if(category == Category::monoV)
     dir = "ch2_ch1";
+
+  if(isCombo == false)
+    dir = "ch1";
+
 
   canvas->SetRightMargin(0.15);
 
