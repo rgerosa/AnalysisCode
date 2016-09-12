@@ -1,8 +1,8 @@
 ///////// Basic options
 static bool  debug = false; // for debugging printout
-static float muMin = 0.01; // min mu for limit scam
-static float muMax = 3;     // max mu for limit scan
-static float muPoint = 200; // number of points in the limit scan
+static float muMin = 0.001; // min mu for limit scam
+static float muMax = 6;     // max mu for limit scan
+static float muPoint = 300; // number of points in the limit scan
 static bool  calculateExpSigma = true; // if calculate also 1s and 2s band on limit values
 static bool  doLikelihoodScan  = true; // to perform a likelihood scan around minimum [-muMax,muMax] in muPoint
   
@@ -577,7 +577,14 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   }
     
   system(("mkdir -p "+outputDirectory).c_str());
-  TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+signalID+".root").c_str(),"RECREATE");
+
+  string cat;
+  if (category == 1)
+    cat = "monojet";
+  else if(category == 2)
+    cat = "monov";
+
+  TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
 
   double mh      = 0;
