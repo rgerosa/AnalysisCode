@@ -247,31 +247,16 @@ if options.inputFiles == []:
 	process.source = cms.Source("PoolSource", 
    		 fileNames = cms.untracked.vstring())
 	if not options.isMC :
-		process.source.fileNames.append(
-#			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/00DD3222-261A-E611-9FD2-02163E011E34.root'
-#			'/store/data/Run2016C/SingleElectron/MINIAOD/PromptReco-v2/000/275/778/00000/10675705-BC3C-E611-A9C9-02163E011877.root'
-#			'/store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/273/158/00000/3EF170D2-1C1A-E611-9962-02163E011F00.root'
-			'root://xrootd2.ihepa.ufl.edu//store/data/Run2016B/SinglePhoton/MINIAOD/PromptReco-v2/000/275/310/00000/E228CD15-8E37-E611-B786-02163E01430F.root'
-#			'root://xrootd.unl.edu//store/data/Run2016B/MET/MINIAOD/PromptReco-v2/000/273/150/00000/2CF02CDC-D819-E611-AA68-02163E011A52.root'
-			)
+
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/327DB0D1-F93C-E611-8A11-02163E01450B.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/48E5D6C8-F93C-E611-8A3E-02163E014439.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/528A6ECD-F93C-E611-B0A1-02163E01383E.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/EEDEE0C4-F93C-E611-BF84-02163E0144CC.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/FEBBCBD8-F93C-E611-BC8F-02163E01445A.root')
+
 	else:
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C06A61EE-EF25-E611-870A-02163E011A12.root')
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/C25A5FEA-EF25-E611-A65E-02163E011826.root')
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/D09C4AEB-EF25-E611-AB07-02163E0142E2.root')
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/CA36E6F2-EF25-E611-80AA-02163E01430A.root')
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/1AF1FDE9-EF25-E611-82DA-02163E011D1C.root')
-		process.source.fileNames.append(
-			'/store/mc/RunIISpring16MiniAODv2/TTbarDMJets_pseudoscalar_Mchi-1_Mphi-100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16RAWAODSIM_80X_mcRun2_asymptotic_2016_miniAODv2_v0_ext1-v1/40000/92AAB9ED-EF25-E611-A912-02163E013450.root')
-#		process.source.fileNames.append(
-#			'/store/mc/RunIISpring16MiniAODv1/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_v3-v1/00000/06F3F567-9102-E611-86DE-D4856459AC30.root')
-#		process.source.fileNames.append( 
-#			'/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/40B73BDD-4F21-E611-9C0A-003048CF5F68.root')
-#		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/127DD5B1-DC1A-E611-93AE-0025905AC824.root')
+		process.source.fileNames.append('root://cmseos.fnal.gov//store/group/lpcdm/gurpinar/ADDMonojet/ADDMonojet_d2mD5_TuneCUETP8M1_13TeV-pythia8_MINIAODSIM/160826_005445/0000/ADDMonojet_d2mD5_TuneCUETP8M1_13TeV-pythia8_MINIAODSIM_80.root')
 			
 else:
    process.source = cms.Source("PoolSource",
@@ -290,7 +275,9 @@ else:
 		numberOfThreads = cms.untracked.uint32(options.nThreads),
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('275310:142:267411185')
+
+#process.source.eventsToProcess = cms.untracked.VEventRange('275782:193:361769559')
+
 
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #					ignoreTotal = cms.untracked.int32(1),
@@ -397,12 +384,19 @@ else:
                                       fileName = cms.untracked.string(options.outputFileName),
                                       outputCommands = cms.untracked.vstring(
                                         'drop *',
+					'keep *_*reducedEgamma*_*_*',
+					'keep *_offlineSlimmedPrimaryVertices*_*_*',
+					'keep *_packedPFCandidates_*_*',
                                       	'keep *_*T1*_*_*'+options.processName+'*',
                                       	'keep *_*metSysProducer*_*_*'+options.processName+'*',
                                       	'drop *_*T0*_*_*'+options.processName+'*',
                                       	'drop *_*T2*_*_*'+options.processName+'*',
                                       	'keep *_*slimmed*_*_*'+options.processName+'*',
 					'keep *_*slimmedJets*_*_*',
+					'keep *_*slimmedMuons*_*_*',
+					'keep *_*slimmedElectrons*_*_*',
+					'keep *_*slimmedTaus*_*_*',
+					'keep *_*slimmedPhotons*_*_*',
                                       	'keep *_*slimmedMETs*_*_*',
                                       	'keep *_patJetsAK8*_*_*',
                                       	'keep *_*Matched_*_*',

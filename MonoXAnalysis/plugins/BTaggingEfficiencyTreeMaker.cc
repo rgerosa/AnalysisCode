@@ -123,9 +123,9 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
   StringCutObjectSelector<pat::Jet> jetSelection(selection);
 
   // apply pileup jet id                                                                                                                                                   
-  bool isPuppi = false;
-  if(TString(srcJets.label()).Contains("Puppi"))
-    isPuppi = true;
+  //  bool isPuppi = false;
+  //  if(TString(srcJets.label()).Contains("Puppi"))
+  //    isPuppi = true;
 
   int ijet = 0;
   for(auto itJet = jetsH->begin(); itJet != jetsH->end(); ++itJet){

@@ -10,10 +10,6 @@ options.register (
         'flag to indicate data or MC');
 
 options.register (
-        'isRecoEfficiency',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-        'special setup (probe definition) to measure electron reconstruction efficiency');
-
-options.register (
         'globalTag','80X_dataRun2_Prompt_v8',VarParsing.multiplicity.singleton,VarParsing.varType.string,
         'gloabl tag to be uses');
 
@@ -74,9 +70,6 @@ else:
     process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(options.inputFiles))
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('1:227204:45121334')
-#process.source.skipEvents = cms.untracked.uint32(72000)
-
 # Setup the service to make a ROOT TTree
 process.TFileService = cms.Service("TFileService", fileName = cms.string("tnptree.root"))
 
@@ -93,23 +86,16 @@ process.goodVertices = cms.EDFilter("VertexSelector",
 # Probe muons --> definition ->even looser than the loose muon ID
 process.probemuons = cms.EDFilter("PATMuonSelector",
 				  src = cms.InputTag("slimmedMuons"),
-				  cut = cms.string("pt > 10 && abs(eta) < 2.4 && (isTrackerMuon || isStandAloneMuon)"),
+				  cut = cms.string("pt > 10 && abs(eta) < 2.4 && (isStandAloneMuon || isTrackerMuon)"),
 				  filter = cms.bool(True)  
 				  )
+	
 
-# Probe electrons
-if not options.isRecoEfficiency:
-	process.probeelectrons = cms.EDFilter("PATElectronSelector",
-					      src = cms.InputTag("slimmedElectrons"),
-					      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
-					      filter = cms.bool(True)  
-					      )
-else:
-	process.probeelectrons = cms.EDFilter("PATElectronSelector",
-					      src = cms.InputTag("slimmedPhotons"),
-					      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
-					      filter = cms.bool(True)  
-					      )
+process.probeelectrons = cms.EDFilter("PATElectronSelector",
+				      src = cms.InputTag("slimmedElectrons"),
+				      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
+				      filter = cms.bool(True)  
+				      )
 	
 
 
@@ -148,6 +134,8 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   muons     = cms.InputTag("probemuons"),     
 				   electrons = cms.InputTag("probeelectrons"), 
 				   photons   = cms.InputTag("slimmedPhotons"), 
+				   ## in case of reco electron efficiency used to match probeelectorns with reco gsf ones
+				   electronsFullCollection = cms.InputTag("slimmedElectrons"),
 				   ## additional event info
 				   geninfo   = cms.InputTag("generator"),
 				   vertices  = cms.InputTag("goodVertices"), 
@@ -160,13 +148,13 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   tagmuonptcut   = cms.double(22),
 				   tagmuonetacut  = cms.double(2.4),
 				   tagmuontrigmatchdR = cms.double(0.3),
-				   requiremuonhlt = cms.bool(True),
+				   requiremuonhlt  = cms.bool(True),
 				   tagmuontriggers = tagmuontriggernames,
 				   #### Electron information for identification --> pt cut and matching with trigger info
 				   tagelectronptcut   = cms.double(35),
 				   tagelectronetacut  = cms.double(2.5),
 				   tagelectrontrigmatchdR = cms.double(0.3),
-				   requireelectronhlt = cms.bool(True),
+				   requireelectronhlt  = cms.bool(True),
 				   tagelectrontriggers = tagelectrontriggernames,
 				   ### electorn ID
 				   electronvetoid   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
@@ -209,6 +197,7 @@ process.electrontnp = cms.EDProducer("CandViewShallowCloneCombiner",
 				     cut   = cms.string("60 < mass < 120 & charge=0"),
 				     checkCharge = cms.bool(True)
 				     )
+
 
 process.photontnp = cms.EDProducer("CandViewShallowCloneCombiner",
 				   decay = cms.string("tagelectrons@+ slimmedPhotons@-"),
@@ -337,6 +326,7 @@ process.photontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		looseid   = cms.InputTag("probeinfo", "loosephotonrefs"),
 		mediumid  = cms.InputTag("probeinfo", "mediumphotonrefs"),
 		tightid   = cms.InputTag("probeinfo", "tightphotonrefs"),
+		recoelectronmatch = cms.InputTag("probeinfo","recoelectronmatch")
 		),
 				       isMC = cms.bool(options.isMC)
 				       )
