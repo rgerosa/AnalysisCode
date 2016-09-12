@@ -75,15 +75,17 @@ if __name__ == '__main__':
 
 
     ### loop to submit jobs for different mass point
+    monojetfile = ROOT.TFile(monojetFile,"READ");
+    monojetws   = monojetfile.Get("combinedws");
+    monowfile   = ROOT.TFile(monowFile,"READ");
+    monowws   = monowfile.Get("combinedws");
+    monozfile = ROOT.TFile(monozFile,"READ");
+    monozws   = monozfile.Get("combinedws");
+
     for mmed in mMED:
         for mdm in mDM:
+
             expMassPoint = index+"%04d%04d"%(mmed,mdm);
-            monojetfile = ROOT.TFile(monojetFile,"READ");
-            monojetws   = monojetfile.Get("combinedws");
-            monowfile = ROOT.TFile(monowFile,"READ");
-            monowws   = monowfile.Get("combinedws");
-            monozfile = ROOT.TFile(monozFile,"READ");
-            monozws   = monozfile.Get("combinedws");
 
             if options.category == "monojet":    
                 if not monojetws.obj("monojet_signal_signal_"+expMassPoint) or not monowws.obj("monojet_signal_signal_"+expMassPoint) or not monozws.obj("monojet_signal_signal_"+expMassPoint):
@@ -92,9 +94,10 @@ if __name__ == '__main__':
                 if not monojetws.obj("monov_signal_signal_"+expMassPoint) or not monowws.obj("monov_signal_signal_"+expMassPoint) or not monozws.obj("monov_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
 
+
             jobname = "job_"+options.mediatorType+"_cat"+options.category+"_"+expMassPoint;
             os.system("mkdir -p "+options.jobDIR+"/"+jobname);
-
+            
             if options.category == "monojet":
                 category = 1;
             elif options.category == "monov":
