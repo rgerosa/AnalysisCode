@@ -38,60 +38,96 @@ mDM  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750
 
 if __name__ == '__main__':
 
-    monojetFile = "";
-    monowFile = "";
-    monozFile = "";
+    monojetFile_mj = "";
+    monowFile_mj = "";
+    monozFile_mj = "";
+    monojetFile_mv = "";
+    monowFile_mv = "";
+    monozFile_mv = "";
     index = "";
 
-    if options.mediatorType == "Vector" or options.mediatorType == "vector":
-        monojetFile = options.inputSignalDIR+"/MonoJ_800_0.25_cat"+options.category+"_13TeV_v1.root";
-        monowFile = options.inputSignalDIR+"/MonoW_800_0.25_cat"+options.category+"_13TeV_v1.root";
-        monozFile = options.inputSignalDIR+"/MonoZ_800_0.25_cat"+options.category+"_13TeV_v1.root";
+    ### signal file list
+    if options.mediatorType == "Vector" or options.mediatorType == "vector" :
+        monojetFile_mj = options.inputSignalDIR+"/MonoJ_800_0.25_catmonojet_13TeV_v1.root";
+        monowFile_mj = options.inputSignalDIR+"/MonoW_800_0.25_catmonojet_13TeV_v1.root";
+        monozFile_mj = options.inputSignalDIR+"/MonoZ_800_0.25_catmonojet_13TeV_v1.root";
         index = "800";
-    if options.mediatorType == "Axial"  or options.mediatorType == "axial":
-        monojetFile = options.inputSignalDIR+"/MonoJ_801_0.25_cat"+options.category+"_13TeV_v1.root";
-        monowFile = options.inputSignalDIR+"/MonoW_801_0.25_cat"+options.category+"_13TeV_v1.root";
-        monozFile = options.inputSignalDIR+"/MonoZ_801_0.25_cat"+options.category+"_13TeV_v1.root";
+    if options.mediatorType == "Axial"  or options.mediatorType == "axial" :
+        monojetFile_mj = options.inputSignalDIR+"/MonoJ_801_0.25_catmonojet_13TeV_v1.root";
+        monowFile_mj = options.inputSignalDIR+"/MonoW_801_0.25_catmonojet_13TeV_v1.root";
+        monozFile_mj = options.inputSignalDIR+"/MonoZ_801_0.25_catmonojet_13TeV_v1.root";
         index = "801";
-    if options.mediatorType == "Scalar" or options.mediatorType == "scalar":
-        monojetFile = options.inputSignalDIR+"/MonoJ_805_1.0_cat"+options.category+"_13TeV_v1.root";
-        monowFile = options.inputSignalDIR+"/MonoW_805_1.0_cat"+options.category+"_13TeV_v1.root";
-        monozFile = options.inputSignalDIR+"/MonoZ_805_1.0_cat"+options.category+"_13TeV_v1.root";
+    if options.mediatorType == "Scalar" or options.mediatorType == "scalar" :
+        monojetFile_mj = options.inputSignalDIR+"/MonoJ_805_1.0_catmonojet_13TeV_v1.root";
+        monowFile_mj   = options.inputSignalDIR+"/MonoW_805_1.0_catmonojet_13TeV_v1.root";
+        monozFile_mj   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonojet_13TeV_v1.root";
         index = "805";
-    if options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar":
-        monojetFile = options.inputSignalDIR+"/MonoJ_805_1.0_cat"+options.category+"_13TeV_v1.root";
-        monowFile = options.inputSignalDIR+"/MonoW_805_1.0_cat"+options.category+"_13TeV_v1.root";
-        monozFile = options.inputSignalDIR+"/MonoZ_805_1.0_cat"+options.category+"_13TeV_v1.root";
+    if options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar" :
+        monojetFile_mj  = options.inputSignalDIR+"/MonoJ_805_1.0_catmonojet_13TeV_v1.root";
+        monowFile_mj    = options.inputSignalDIR+"/MonoW_805_1.0_catmonojet_13TeV_v1.root";
+        monozFile_mj    = options.inputSignalDIR+"/MonoZ_805_1.0_catmonojet_13TeV_v1.root";
+        index = "806";
+
+    if options.mediatorType == "Vector" or options.mediatorType == "vector" :
+        monojetFile_mv = options.inputSignalDIR+"/MonoJ_800_0.25_catmonov_13TeV_v1.root";
+        monowFile_mv   = options.inputSignalDIR+"/MonoW_800_0.25_catmonov_13TeV_v1.root";
+        monozFile_mv   = options.inputSignalDIR+"/MonoZ_800_0.25_catmonov_13TeV_v1.root";
+        index = "800";
+    if options.mediatorType == "Axial"  or options.mediatorType == "axial" :
+        monojetFile_mv = options.inputSignalDIR+"/MonoJ_801_0.25_catmonov_13TeV_v1.root";
+        monowFile_mv   = options.inputSignalDIR+"/MonoW_801_0.25_catmonov_13TeV_v1.root";
+        monozFile_mv   = options.inputSignalDIR+"/MonoZ_801_0.25_catmonov_13TeV_v1.root";
+        index = "801";
+    if options.mediatorType == "Scalar" or options.mediatorType == "scalar" :
+        monojetFile_mv = options.inputSignalDIR+"/MonoJ_805_1.0_catmonov_13TeV_v1.root";
+        monowFile_mv   = options.inputSignalDIR+"/MonoW_805_1.0_catmonov_13TeV_v1.root";
+        monozFile_mv   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonov_13TeV_v1.root";
+        index = "805";
+    if options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar" :
+        monojetFile_mv = options.inputSignalDIR+"/MonoJ_805_1.0_catmonov_13TeV_v1.root";
+        monowFile_mv   = options.inputSignalDIR+"/MonoW_805_1.0_catmonov_13TeV_v1.root";
+        monozFile_mv   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonov_13TeV_v1.root";
         index = "806";
 
     
     currentDIR = os.getcwd();
     os.system("mkdir -p "+options.outputDIR);
     os.system("mkdir -p "+options.jobDIR);
-    os.system("rm -r "+options.jobDIR+"/*");
-
+    os.system("rm -r "+options.jobDIR+"/*"+options.category+"*");
+    
     workspacedir = options.inputWorkspace.split("/")[0];
     mlfitdir = options.inputMLFitFile.split("/")[0];
 
-
     ### loop to submit jobs for different mass point
-    monojetfile = ROOT.TFile(monojetFile,"READ");
-    monojetws   = monojetfile.Get("combinedws");
-    monowfile   = ROOT.TFile(monowFile,"READ");
-    monowws   = monowfile.Get("combinedws");
-    monozfile = ROOT.TFile(monozFile,"READ");
-    monozws   = monozfile.Get("combinedws");
+    if monojetFile_mj != "":
+        monojetfile_mj = ROOT.TFile(monojetFile_mj,"READ");
+        monojetws_mj   = monojetfile_mj.Get("combinedws");
+    if monowFile_mj != "":
+        monowfile_mj   = ROOT.TFile(monowFile_mj,"READ");
+        monowws_mj   = monowfile_mj.Get("combinedws");
+    if monozFile_mj != "":
+        monozfile_mj = ROOT.TFile(monozFile_mj,"READ");
+        monozws_mj   = monozfile_mj.Get("combinedws");
+    if monojetFile_mv != "":
+        monojetfile_mv = ROOT.TFile(monojetFile_mv,"READ");
+        monojetws_mv   = monojetfile_mv.Get("combinedws");
+    if monowFile_mv != "":
+        monowfile_mv   = ROOT.TFile(monowFile_mv,"READ");
+        monowws_mv   = monowfile_mv.Get("combinedws");
+    if monozFile_mv != "":
+        monozfile_mv = ROOT.TFile(monozFile_mv,"READ");
+        monozws_mv   = monozfile_mv.Get("combinedws");
 
+    ##########################
     for mmed in mMED:
         for mdm in mDM:
 
             expMassPoint = index+"%04d%04d"%(mmed,mdm);
-
-            if options.category == "monojet":    
-                if not monojetws.obj("monojet_signal_signal_"+expMassPoint) or not monowws.obj("monojet_signal_signal_"+expMassPoint) or not monozws.obj("monojet_signal_signal_"+expMassPoint):
+            if options.category == "monojet" or options.category == "combined":    
+                if not monojetws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monowws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monozws_mj.obj("monojet_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
-            elif options.category == "monov":
-                if not monojetws.obj("monov_signal_signal_"+expMassPoint) or not monowws.obj("monov_signal_signal_"+expMassPoint) or not monozws.obj("monov_signal_signal_"+expMassPoint):
+            elif options.category == "monov" or options.category == "combined":
+                if not monojetws_mv.obj("monov_signal_signal_"+expMassPoint) or not monowws_mv.obj("monov_signal_signal_"+expMassPoint) or not monozws_mv.obj("monov_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
 
 
@@ -102,12 +138,14 @@ if __name__ == '__main__':
                 category = 1;
             elif options.category == "monov":
                 category = 2;
+            elif options.category == "combined":
+                category = 0;
             
     
             jobmacro = open('%s/%s/job.C'%(options.jobDIR,jobname),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/limitSimplifiedLikelihood.C\");\n");
-            jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile.GetName(),monowfile.GetName(),monozfile.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+            jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
             jobmacro.write("}\n");
             jobmacro.close();
 

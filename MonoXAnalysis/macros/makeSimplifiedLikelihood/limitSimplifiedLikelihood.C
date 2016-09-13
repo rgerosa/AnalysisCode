@@ -1,4 +1,4 @@
-///////// Basic options
+//////// Basic options
 static bool  debug = false; // for debugging printout
 static float muMin = 0.001; // min mu for limit scam
 static float muMax = 0.001; // max mu for limit scan
@@ -42,8 +42,9 @@ void resetRooArgList(RooArgList & list1, const RooArgList & list2){
 }
 
 // calculate CLS using asymptotic formula for both observed and expected case, giving a quantile. Store also -Log(L) from S+B best fit
-float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu, double muVal, bool isObserved, double & nllData, double & nllA, const double & quantile = 0){
+float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, double muVal, bool isObserved, double & nllData, double & nllA, const double & quantile = 0){
 
+  RooRealVar* mu = ws_asimov->var("mu");
   mu->setConstant(false); 
 
   if(debug){
@@ -56,7 +57,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
     cout<<"#################################"<<endl;
     cout<<"#################################"<<endl;
   }
-
+  
   //make S+B fit of asimov toy --> used as background only hypothesis
   RooMinimizer mAsimovSB(*nllAsimov);
   if(not debug){
@@ -80,8 +81,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
   nllA = muAsimov_SB;
   if(debug)
     cout<<"##### -Log(L) Asimov Toy S+B fit Minos Step: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<" err up "<<mu->getErrorHi()<<" err dw "<<mu->getErrorLo()<<endl;
-  
-  //make S+B fit of asimov toy fixed mu
+
+  //make S+B fit of asimov toy fixed mu  
   mu->setConstant(true);  mu->setVal(muVal);
   RooMinimizer mAsimovSfix(*nllAsimov);
   if(not debug){
@@ -100,8 +101,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
 
-  
   //make S+B again on data
+  mu = ws_sb->var("mu");
   mu->setConstant(false); 
   RooMinimizer mSB(*nllSB);
   if(not debug){
@@ -150,7 +151,6 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
     if(debug)
       cout<<"##### -Log(L) Data S+B fit Migrad improved Step: "<<nllSB->getVal()<<" mu "<<mu->getVal()<<endl;
   }
-
   
   //Calculate LHC test statistics
   double qmu = 2*(minNLL_Sfix - minNLL_SB); 
@@ -195,8 +195,11 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
   
   if(debug)
     cout<<"LHC test statistics: Asimov wrt to mu = "<<muVal<<" qA "<<qA<<" -Log(L) @ mu = 1 "<<minNLLAsimov_Sfix<<" -Log(L) @ mu best "<<minNLLAsimov_SB<<endl;
-  mu->setConstant(false);
 
+  mu->setConstant(false);
+  mu = ws_asimov->var("mu");
+  mu->setConstant(false);
+  
   if(isObserved){
 
     double CLsb = ROOT::Math::normal_cdf_c(TMath::Sqrt(qmu));
@@ -226,12 +229,12 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooRealVar *mu
   }
 
   return -1;
-  
 }
 
 /////
-double makeFitFixedStrenght(RooAbsReal *nll, RooRealVar *mu, double muVal){
+double makeFitFixedStrenght(RooAbsReal *nll, RooWorkspace *ws, double muVal){
 
+  RooRealVar* mu = ws->var("mu");
   mu->setConstant(true);
   mu->setVal(muVal);
   RooMinimizer minim (*nll);
@@ -304,7 +307,7 @@ TH1F* importDataHistogram(TFile* dataFile, const int & category){
 }
 
 // import signal template --> total signl
-TH1F* importSignalHistogram( const vector<string> & signalROOTFile, const string & signalID){
+TH1F* importSignalHistogram( const vector<string> & signalROOTFile, const string & signalID, const int & category){
 
   TH1F*  signal  = NULL;
   for(auto name :  signalROOTFile){
@@ -312,12 +315,14 @@ TH1F* importSignalHistogram( const vector<string> & signalROOTFile, const string
     RooWorkspace* ws = (RooWorkspace*) file->Get("combinedws");
     RooDataHist*  histo = NULL;
     RooRealVar*   met = NULL;
-    met = (RooRealVar*) ws->obj("met_monojet");
-    if(met == NULL or met == 0)
+    if(category == 1)
+      met = (RooRealVar*) ws->obj("met_monojet");
+    else if(category == 2)
       met = (RooRealVar*) ws->obj("met_monov");
 
-    histo = (RooDataHist*) ws->obj(("monojet_signal_signal_"+signalID).c_str());
-    if(histo == NULL or histo == 0)
+    if(category == 1)
+      histo = (RooDataHist*) ws->obj(("monojet_signal_signal_"+signalID).c_str());
+    else if(category == 2)
       histo = (RooDataHist*) ws->obj(("monov_signal_signal_"+signalID).c_str());
     
     if(debug){
@@ -341,159 +346,312 @@ TH1F* importSignalHistogram( const vector<string> & signalROOTFile, const string
   return signal;
 }
 
-/// main function to run the analysis
-void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile, vector<string> signalROOTFile, string signalID, int category, string outputDirectory){
 
-  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
-  gROOT->SetBatch(1);
-  gStyle->SetOptStat(0);
-  gSystem->Load("$CMSSW_BASE/lib/slc6_amd64_gcc493/libHiggsAnalysisCombinedLimit.so");
-
-  // workspace with data distribution
-  TFile* dataFile = TFile::Open(dataWorkspace.c_str(),"READ");
-  TH1F* data_obs  = NULL;
-  data_obs  = importDataHistogram(dataFile,category); 
-  
-  if(debug){   
-    for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
-      cout<<"Data OBS: iBin "<<iBin+1<<" low edge "<<data_obs->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<data_obs->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<data_obs->GetBinContent(iBin+1)<<endl;
-    }
-  }
+// make a likelihood for a given event category
+void makeLikelihood (RooWorkspace* model_sb, RooWorkspace* model_b, TH1* data_obs, TH1* signal, TH1* background, TH2* correlation, const string & postfix = ""){
 
   // Create a RooDataSet for the observed events
-  RooCategory* templateBin = new RooCategory("bin","");
-  RooRealVar*  observation =  new RooRealVar("observed","",1);
+  RooCategory* templateBin = new RooCategory(Form("bin_%s",postfix.c_str()),"");
+  RooRealVar*  observation = new RooRealVar(Form("observed_%s",postfix.c_str()),"",1);
   
   for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
-    templateBin->defineType(Form("bin_%d",iBin+1),iBin+1);
+    templateBin->defineType(Form("bin_%s_%d",postfix.c_str(),iBin+1),iBin+1);
     templateBin->setIndex(iBin+1);
   }
-
+  
   if(debug){
     templateBin->Print();
   }
- 
+  
   RooArgSet*  obsargset = new RooArgSet(*observation,*templateBin);
-  RooDataSet* obsdata   = new RooDataSet("combinedData","Data in all Bins",*obsargset);
-
+  obsargset->setName(Form("obs_%s",postfix.c_str()));
+  
+  RooDataSet* obsdata   = new RooDataSet(Form("combinedData_%s",postfix.c_str()),"Data in all Bins",*obsargset);  
   for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
     observation->setVal(data_obs->GetBinContent(iBin+1));
     templateBin->setIndex(iBin+1);
     obsdata->add(RooArgSet(*observation,*templateBin));
   }
 
-  //signal template
-  TH1F*  signal  = NULL;
-  signal         = importSignalHistogram(signalROOTFile,signalID);
-
-  // Signal
-  RooRealVar* mu = new RooRealVar("mu","",0.,-1e4,1e4);
+  // imports
+  model_sb->import(*obsdata);
+  model_b->import(*obsdata);
+  
   RooArgList obsSignal;
+  obsSignal.setName(Form("obsSignal_%s",postfix.c_str()));
+  RooRealVar* mu = NULL;
+  if(model_sb->var("mu"))
+    mu = model_sb->var("mu");
+  else
+    mu = new RooRealVar("mu","",1.,-1e4,1e4);
+
   for(int iBin = 0; iBin < signal->GetNbinsX(); iBin++){
-    RooFormulaVar *mean = new RooFormulaVar(Form("signal_exp_%d",iBin+1),Form("%f*@0",signal->GetBinContent(iBin+1)),RooArgList(*mu));
+    RooFormulaVar *mean = new RooFormulaVar(Form("signal_exp_%s_%d",postfix.c_str(),iBin+1),Form("%f*@0",signal->GetBinContent(iBin+1)),RooArgList(*mu));
     if(debug)
       cout<<"Signal exp: iBin "<<iBin<<" low edge "<<signal->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<signal->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<signal->GetBinContent(iBin+1)<<" value "<<mean->getVal()<<endl;
     obsSignal.add(*mean);
   }
 
-  if(debug)
-    obsSignal.Print();
- 
-  
-  //take histograms from combine ML fit
-  TFile* combineMLFitFile = TFile::Open(combineMLFitRootFile.c_str(),"READ");  
-  TH1F* background = NULL;
-  if(category == 1)
-    background = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
-  else if(category == 2)
-    background = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
-
-  if(background == NULL or background == 0){
-    if(category == 1)
-      background = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
-    else if(category == 2)
-      background = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
-  }  
-  multipleByBinWidth(background);
-
-  TH2F* correlation = NULL;
-  if(category == 1)
-    correlation = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
-  else if(category == 2)
-    correlation = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
-
-  if(correlation == NULL or correlation == 0){
-    if(category == 1)
-      correlation = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
-    else
-      correlation = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
-  }
-  
-  multipleByBinWidth(correlation,background);
-  
   //Create a vector with: central background prediction fixed --> one RooRealVar per bin, one nuisance per bin, one uncertainty per bin
   RooArgList centralBkg;
+  centralBkg.setName(Form("centralBkg_%s",postfix.c_str()));
   RooArgList centralBkgAsimov;
+  centralBkgAsimov.setName(Form("centralBkgAsimov_%s",postfix.c_str()));
   RooArgList obsBkg;
+  obsBkg.setName(Form("obsBkg_%s",postfix.c_str()));
   TMatrixDSym covariance(background->GetNbinsX());
-
+  
   for(int iBin = 0; iBin < background->GetNbinsX(); iBin++){
-
-    RooRealVar *mean = new RooRealVar(Form("exp_bin_%d_In",iBin+1),"",background->GetBinContent(iBin+1));
+    
+    RooRealVar *mean = new RooRealVar(Form("exp_bin_%s_%d_In",postfix.c_str(),iBin+1),"",background->GetBinContent(iBin+1));
     mean->setConstant(kTRUE);
     centralBkg.add(*mean);
-
-    RooRealVar *meanAsimov = new RooRealVar(Form("exp_bin_%d_In_Asimov",iBin+1),"",background->GetBinContent(iBin+1));
+    
+    RooRealVar *meanAsimov = new RooRealVar(Form("exp_bin_%s_%d_In_Asimov",postfix.c_str(),iBin+1),"",background->GetBinContent(iBin+1));
     meanAsimov->setConstant(kTRUE);
     centralBkgAsimov.add(*meanAsimov);
 
-    RooRealVar* nuis = new RooRealVar(Form("exp_bin_%d",iBin+1),"",background->GetBinContent(iBin+1),background->GetBinContent(iBin+1)/10,background->GetBinContent(iBin+1)*10);
+    RooRealVar* nuis = new RooRealVar(Form("exp_bin_%s_%d",postfix.c_str(),iBin+1),"",background->GetBinContent(iBin+1),background->GetBinContent(iBin+1)/10,background->GetBinContent(iBin+1)*10);
     obsBkg.add(*nuis);
+
+    model_sb->import(*meanAsimov);
+    model_b->import(*meanAsimov);
 
     for(int jBin = 0; jBin < background->GetNbinsX(); jBin++){
       covariance[iBin][jBin] = correlation->GetBinContent(iBin+1,jBin+1);
     }
 
     if(debug)
-      cout<<"Background pre-fit: iBin "<<iBin<<" low edge "<<background->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<background->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<mean->getVal()<<endl;
-    
+      cout<<"Background pre-fit: iBin "<<iBin<<" low edge "<<background->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<background->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<mean->getVal()<<endl;    
   }
 
   if(debug){
     centralBkg.Print();
     obsBkg.Print();
   }
+
+
   
   //Create the likelihood --> one poisson for each bin
   RooArgList binSum;
+  binSum.setName(Form("binSum_%s",postfix.c_str()));
   RooArgList binPoission;
   templateBin->setIndex(1);
-  RooSimultaneous combined_pdf("combined_pdf","",*templateBin); // one category for each bin and one pdf for each bin
- 
+  RooSimultaneous* combined_pdf = new RooSimultaneous(Form("combined_pdf_%s",postfix.c_str()),"",*templateBin); // one category for each bin and one pdf for each bin
+  
+
   for(int iBin = 0; iBin < signal->GetNbinsX(); iBin++){
-    RooAddition *sum  = new RooAddition(Form("splusb_bin_%d",iBin+1),"",RooArgList(*((RooRealVar*)(obsSignal.at(iBin))),*((RooRealVar*)(obsBkg.at(iBin)))));
+    RooAddition *sum  = new RooAddition(Form("splusb_bin_%s_%d",postfix.c_str(),iBin+1),"",RooArgList(*((RooRealVar*)(obsSignal.at(iBin))),*((RooRealVar*)(obsBkg.at(iBin)))));
     if(debug)
       cout<<"iBin "<<iBin+1<<" signal "<<((RooRealVar*)(obsSignal.at(iBin)))->getVal()<<" bkg "<<((RooRealVar*)(obsBkg.at(iBin)))->getVal()<<" sum "<<sum->getVal()<<" S/sqrt(B) "<<((RooRealVar*)(obsSignal.at(iBin)))->getVal()/sqrt(((RooRealVar*)(obsBkg.at(iBin)))->getVal())<<endl;
-    RooPoisson  *pois = new RooPoisson(Form("pdf_bin_%d",iBin+1),"",*observation,*sum); 
-    combined_pdf.addPdf(*pois,Form("bin_%d",iBin+1));
+    observation->setVal(data_obs->GetBinContent(iBin+1));
+    RooPoisson  *pois = new RooPoisson(Form("pdf_bin_%s_%d",postfix.c_str(),iBin+1),"",*observation,*sum); 
+    combined_pdf->addPdf(*pois,Form("bin_%s_%d",postfix.c_str(),iBin+1));
     binSum.add(*sum);
-    binPoission.add(*pois);
+    binPoission.add(*pois);  
   }
   
   if(debug){
     binSum.Print();
     binPoission.Print();
-    combined_pdf.Print();
-  }
-  
-  RooMultiVarGaussian constraint_pdf("constraint_pdf","",obsBkg,centralBkg,covariance);
-  RooAbsReal *nllSB = combined_pdf.createNLL(*obsdata,RooFit::ExternalConstraints(RooArgList(constraint_pdf)),RooFit::Verbose(-1));
-  if(debug){
-    constraint_pdf.Print();
-    nllSB->Print();
+    combined_pdf->Print();
   }
 
-  // make S+B fit
+  model_sb->import(*combined_pdf);
+  model_b->import(*combined_pdf);
+
+  RooMultiVarGaussian* constraint_pdf = new RooMultiVarGaussian(Form("constraint_%s_pdf",postfix.c_str()),"",obsBkg,centralBkg,covariance);
+  // S+B likelihood
+  RooAbsReal* nllSB = combined_pdf->createNLL(*obsdata,RooFit::ExternalConstraints(RooArgList(*constraint_pdf)),RooFit::Verbose(-1));
+  nllSB->SetName(Form("nllSB_%s",postfix.c_str()));
+
+  //Make B-only fit and prepare asimov toy
+  resetRooArgList(obsBkg,centralBkg);
+  RooAbsReal* nllB = combined_pdf->createNLL(*obsdata,RooFit::ExternalConstraints(RooArgList(*constraint_pdf)),RooFit::Verbose(-1));  
+  nllB->SetName(Form("nllB_%s",postfix.c_str()));
+  model_sb->import(*nllSB);
+  model_b->import(*nllB);
+
+  // define sets
+  model_sb->defineSet(Form("obs_%s",postfix.c_str()),*obsargset);
+  model_b->defineSet(Form("obs_%s",postfix.c_str()),*obsargset);
+  model_sb->defineSet(Form("obsSignal_%s",postfix.c_str()),obsSignal);
+  model_b->defineSet(Form("obsSignal_%s",postfix.c_str()),obsSignal);
+  model_sb->defineSet(Form("obsBkg_%s",postfix.c_str()),obsBkg);
+  model_b->defineSet(Form("obsBkg_%s",postfix.c_str()),obsBkg);
+  model_sb->defineSet(Form("centralBkg_%s",postfix.c_str()),centralBkg);
+  model_b->defineSet(Form("centralBkg_%s",postfix.c_str()),centralBkg);
+  model_sb->defineSet(Form("centralBkgAsimov_%s",postfix.c_str()),centralBkgAsimov);
+  model_b->defineSet(Form("centralBkgAsimov_%s",postfix.c_str()),centralBkgAsimov);
+  model_sb->defineSet(Form("binSum_%s",postfix.c_str()),binSum);
+  model_b->defineSet(Form("binSum_%s",postfix.c_str()),binSum);  
+
+  if(debug){
+    constraint_pdf->Print();
+    nllSB->Print();
+    nllB->Print();
+    model_sb->Print();
+    model_b->Print();
+  }
+  
+}
+
+// in order to make the asimov likelihood
+void  makeAsimovLikelihood(RooWorkspace* ws_asimov, TH1* data_obs, RooWorkspace* ws, TMatrixDSym* covariance, const string & postfix = ""){
+
+  RooCategory* templateBin = (RooCategory*) ws->obj(Form("bin_%s",postfix.c_str()));
+  RooRealVar*  observation = ws->var(Form("observed_%s",postfix.c_str()));
+  RooArgList*  binSum      = (RooArgList*)  ws->set(Form("binSum_%s",postfix.c_str()));
+  RooArgList*  centralBkgAsimov = (RooArgList*) ws->set(Form("centralBkgAsimov_%s",postfix.c_str())); 
+  RooArgList*  obsBkg      = (RooArgList*) ws->set(Form("obsBkg_%s",postfix.c_str())); 
+  RooDataSet*  asimovdata  = new RooDataSet(Form("AsimovData_%s",postfix.c_str()),"",*ws->set(Form("obs_%s",postfix.c_str())));
+
+  for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
+    templateBin->setIndex(iBin+1);
+    // make integer to mimic data
+    double expectation = double(int(((RooRealVar*) binSum->at(iBin))->getVal()+0.5));
+    if(debug)
+      cout<<"Asimov daaset: ibin "<<iBin<<" sum S+B, with S=0 "<<((RooRealVar*) binSum->at(iBin))->getVal()<<" expectation "<<expectation<<endl;
+    ((RooRealVar*) centralBkgAsimov->at(iBin))->setVal(expectation);
+    observation->setVal(expectation);
+    asimovdata->add(RooArgSet(*observation,*templateBin));
+  }
+  ws_asimov->import(*asimovdata);
+    
+  RooMultiVarGaussian asimov_constraint_pdf(Form("asimov_constraint_%s_pdf",postfix.c_str()),"",*obsBkg,*centralBkgAsimov,*covariance);
+  RooSimultaneous* combined_pdf = (RooSimultaneous*) ws->pdf(Form("combined_pdf_%s",postfix.c_str()));
+  ws_asimov->import(*combined_pdf);
+  RooAbsReal* nll = combined_pdf->createNLL(*asimovdata,RooFit::ExternalConstraints(RooArgList(asimov_constraint_pdf)),RooFit::Verbose(-1));
+  nll->SetName(Form("nllAsimov_%s",postfix.c_str()));
+  ws_asimov->import(*nll);
+
+}
+
+
+/// main function to run the analysis
+void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile, vector<string> signalROOTFileMonoJet, vector<string> signalROOTFileMonoV, string signalID, int category, string outputDirectory){
+
+  RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
+  gROOT->SetBatch(1);
+  gStyle->SetOptStat(0);
+  gSystem->Load("$CMSSW_BASE/lib/slc6_amd64_gcc493/libHiggsAnalysisCombinedLimit.so");
+
+  // workspace with data distribution
+  TFile* dataFile         = TFile::Open(dataWorkspace.c_str(),"READ");
+  TH1F* data_obs_monojet  = NULL;
+  TH1F* data_obs_monov    = NULL;
+  if(category == 0){ // take both mono-jet and mono-v data
+    data_obs_monojet  = importDataHistogram(dataFile,1); 
+    data_obs_monov    = importDataHistogram(dataFile,2); 
+  }
+  else if(category == 1)
+    data_obs_monojet  = importDataHistogram(dataFile,category); 
+  else if(category == 2)
+    data_obs_monov    = importDataHistogram(dataFile,category); 
+ 
+  //signal template
+  TH1F*  signal_monojet  = NULL;
+  TH1F*  signal_monov    = NULL;
+  if(category == 0){// take both mono-jet and mono-v
+    signal_monojet    = importSignalHistogram(signalROOTFileMonoJet,signalID,1);
+    signal_monov      = importSignalHistogram(signalROOTFileMonoV,signalID,2);
+  }
+  else if(category == 1)
+    signal_monojet  = importSignalHistogram(signalROOTFileMonoJet,signalID,category);
+  else if(category == 2)
+    signal_monov    = importSignalHistogram(signalROOTFileMonoV,signalID,category);
+     
+  //take histograms from combine ML fit
+  TFile* combineMLFitFile = TFile::Open(combineMLFitRootFile.c_str(),"READ");  
+  TH1F* background_monojet = NULL;
+  TH1F* background_monov   = NULL;
+  if(category == 0){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+  }
+  else if(category == 1)
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+  else if(category == 2)
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+
+  if(background_monojet == NULL or background_monojet == 0){
+    if(category == 0 or category == 1)
+      background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
+  }  
+  
+  if(background_monov == NULL or background_monov == 0){
+    if(category == 0 or category == 2)
+      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+  }  
+  
+  if(background_monojet)
+    multipleByBinWidth(background_monojet);
+  if(background_monov)
+    multipleByBinWidth(background_monov);
+
+  TH2F* correlation_monojet = NULL;
+  TH2F* correlation_monov   = NULL;
+  if(category == 0 or category == 1)
+    correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
+  if(category == 0 or category == 2)
+    correlation_monov   = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
+
+  if(correlation_monojet == NULL or correlation_monojet == 0){
+    if(category == 0 or category == 1)
+      correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
+  }
+  if(correlation_monov == NULL or correlation_monov == 0){
+    if(category == 0 or category == 2)
+      correlation_monov = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
+  }
+  if(background_monojet)
+    multipleByBinWidth(correlation_monojet,background_monojet);
+  if(background_monov)
+    multipleByBinWidth(correlation_monov,background_monov);
+
+  // Build the individual likelihoods for each category
+  RooAbsReal* nllSB_monojet = NULL;
+  RooAbsReal* nllB_monojet  = NULL;
+  RooAbsReal* nllSB_monov   = NULL;
+  RooAbsReal* nllB_monov    = NULL;
+  RooWorkspace* ws_sb  = NULL;
+  RooWorkspace* ws_b   = NULL;
+  if(category == 0 or category == 1){
+    ws_sb = new RooWorkspace("ws_sb","ws_sb");
+    ws_b  = new RooWorkspace("ws_b","ws_b");
+    makeLikelihood(ws_sb,ws_b,data_obs_monojet,signal_monojet,background_monojet,correlation_monojet,"monojet");
+    nllSB_monojet = (RooAbsReal*) ws_sb->obj("nllSB_monojet");
+    nllB_monojet = (RooAbsReal*) ws_b->obj("nllB_monojet");
+  }
+  
+  if(category == 0 or category == 2){
+    if(ws_sb == NULL)
+      ws_sb = new RooWorkspace("ws_sb","ws_sb");
+    if(ws_b == NULL)
+    ws_b  = new RooWorkspace("ws_b","ws_b");
+    makeLikelihood(ws_sb,ws_b,data_obs_monov,signal_monov,background_monov,correlation_monov,"monov");
+    nllSB_monov = (RooAbsReal*) ws_sb->obj("nllSB_monov");
+    nllB_monov  = (RooAbsReal*) ws_b->obj("nllB_monov");
+  }
+
+  RooAddition* nllSB = NULL;
+  RooAddition* nllB  = NULL;
+
+  if(category == 1){
+    nllSB = dynamic_cast<RooAddition*>(nllSB_monojet);
+    nllB  = dynamic_cast<RooAddition*>(nllB_monojet);
+  }
+  else if(category == 2){
+    nllSB = dynamic_cast<RooAddition*>(nllSB_monov);
+    nllB  = dynamic_cast<RooAddition*>(nllB_monov);
+  }
+  else if(category == 0){
+    nllSB = new RooAddition("nllSBsum","",RooArgList(*nllSB_monojet,*nllSB_monov));
+    nllB = new RooAddition("nllBsum","",RooArgList(*nllB_monojet,*nllB_monov));
+  }
+
+  ///////////////// make S+B fit
+  RooRealVar* mu = ws_sb->var("mu");
   RooMinimizer mSB(*nllSB);
   if(not debug){
     mSB.setVerbose(kFALSE);
@@ -523,18 +681,15 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   if(debug){
     cout<<"########### After S+B fit ############"<<endl;
-    combined_pdf.Print();
-    constraint_pdf.Print();
     cout<<"nllFit "<<nllFit_SB<<" muFit "<<muFit_SB<<" + "<<muFit_SB_errUp<<" - "<<muFit_SB_errDw<<endl;
     cout<<"######################################"<<endl;
   }
 
-  //Make B-only fit and prepare asimov toy
+  
+  /////////// make b-only fit
+  mu = ws_b->var("mu");
+  mu->setConstant(true);
   mu->setVal(0);
-  mu->setConstant(true);  
-  resetRooArgList(obsBkg,centralBkg);
-
-  RooAbsReal *nllB = combined_pdf.createNLL(*obsdata,RooFit::ExternalConstraints(RooArgList(constraint_pdf)),RooFit::Verbose(-1));  
   RooMinimizer mB(*nllB);
   if(not debug){
     mB.setVerbose(kFALSE);
@@ -552,35 +707,54 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   
   if(debug){
     cout<<"########### After B-only fit ############"<<endl;
-    combined_pdf.Print();
-    constraint_pdf.Print();
     cout<<"nllFit "<<nllFit_B<<endl;
     cout<<"#########################################"<<endl;
   }
+  
+  //make covariance
+  TMatrixDSym* covariance_monojet = NULL;
+  if(correlation_monojet != NULL){
+    covariance_monojet =  new TMatrixDSym(background_monojet->GetNbinsX());
+    for(int ibin = 0; ibin < correlation_monojet->GetNbinsX(); ibin++){
+      for(int jbin = 0; jbin < correlation_monojet->GetNbinsY(); jbin++){
+	(*covariance_monojet)[ibin][jbin] = correlation_monojet->GetBinContent(ibin+1,jbin+1);
+      }
+    }
+  }
+  TMatrixDSym* covariance_monov = NULL;
+  if(correlation_monov != NULL){
+    covariance_monov =  new TMatrixDSym(background_monov->GetNbinsX());
+    for(int ibin = 0; ibin < correlation_monov->GetNbinsX(); ibin++){
+      for(int jbin = 0; jbin < correlation_monov->GetNbinsY(); jbin++){
+	(*covariance_monov)[ibin][jbin] = correlation_monov->GetBinContent(ibin+1,jbin+1);
+      }
+    }
+  }
 
   //Build asimov data
-  RooDataSet asimovdata("AsimovData","",*obsargset);
-  for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
-    templateBin->setIndex(iBin+1);
-    // make integer to mimic data
-    double expectation = double(int(((RooRealVar*) binSum.at(iBin))->getVal()+0.5));
-    if(debug)
-      cout<<"Asimov daaset: ibin "<<iBin<<" sum S+B, with S=0 "<<((RooRealVar*) binSum.at(iBin))->getVal()<<" expectation "<<expectation<<endl;
-    ((RooRealVar*) centralBkgAsimov.at(iBin))->setVal(expectation);
-    observation->setVal(expectation);
-    asimovdata.add(RooArgSet(*observation,*templateBin));
-  }
-    
-  RooMultiVarGaussian asimov_constraint_pdf("asimov_constraint_pdf","",obsBkg,centralBkgAsimov,covariance);
-  RooAbsReal *nllAsimov = combined_pdf.createNLL(asimovdata,RooFit::ExternalConstraints(RooArgList(asimov_constraint_pdf)),RooFit::Verbose(-1)); // no need to refit, we have done the b-only fit estimating parameters, they toy is just fixing the central value without randomizing and re-doing the fit
+  RooWorkspace* ws_asimov = NULL;
+  RooAbsReal* nllAsimov_monojet = NULL;
+  RooAbsReal* nllAsimov_monov   = NULL;
 
-  if(debug){
-    cout<<"########### Asimov dataset ############"<<endl;
-    asimovdata.Print();
-    asimov_constraint_pdf.Print();
-    combined_pdf.Print();
-    cout<<"#######################################"<<endl;
+  if(category == 0 or category == 1){
+    ws_asimov = new RooWorkspace("ws_asimov","ws_asimov");
+    makeAsimovLikelihood(ws_asimov,data_obs_monojet,ws_b,covariance_monojet,"monojet");
+    nllAsimov_monojet = (RooAbsReal*) ws_asimov->obj("nllAsimov_monojet");
   }
+  if(category == 0 or category == 2){
+    if(ws_asimov == NULL)
+      ws_asimov = new RooWorkspace("ws_asimov","ws_asimov");
+    makeAsimovLikelihood(ws_asimov,data_obs_monov,ws_b,covariance_monov,"monov");
+    nllAsimov_monov = (RooAbsReal*) ws_asimov->obj("nllAsimov_monov");
+  }
+
+  RooAddition* nllAsimov = NULL;
+  if(category == 1)
+    nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_monojet);
+  else if(category == 2)
+    nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_monov);
+  else if(category == 0)
+   nllAsimov = new RooAddition("nllAsimovSum","",RooArgList(*nllAsimov_monojet,*nllAsimov_monov));
     
   system(("mkdir -p "+outputDirectory).c_str());
 
@@ -589,6 +763,8 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cat = "monojet";
   else if(category == 2)
     cat = "monov";
+  else if(category == 0)
+    cat =  "combined";
 
   TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -639,12 +815,12 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   double nllData   = 0;
   double nllA      = 0;
-
-  CLsObs = calculateCLsLimit(nllSB,nllAsimov,mu,1,true,nllData,nllA);
-  cout<<"#### -Log(L) data : "<<nllData<<" -Log(L) Asimov : "<<nllA+NLL_B<<endl;
-  CLsExp = calculateCLsLimit(nllSB,nllAsimov,mu,1,false,nllData,nllA,0.5);
-  cout<<"#### Get observed and expected CLs values : observed "<<CLsObs<<" expected "<<CLsExp<<endl;
   
+  
+  CLsObs = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,true,nllData,nllA);
+  cout<<"#### -Log(L) data : "<<nllData<<" -Log(L) Asimov : "<<nllA+NLL_B<<endl;
+  CLsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,false,nllData,nllA,0.5);
+  cout<<"#### Get observed and expected CLs values : observed "<<CLsObs<<" expected "<<CLsExp<<endl;
   // Calculate upper limit on signal strenght --> find CLs value at 95% of the range -> associated mu --> store also the nLL for Asimov and Data --> Likelihood scan
   double nllDataScan = 0;
   double nllAsimovScan = 0;
@@ -664,20 +840,21 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   cout<<"#### Start Scan for limit computation : muMin "<<muMin<<" muMax "<<muMax<<endl;  
   for(int istep = 0; istep <= muPoint; istep++){
-    clsObs = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,true,nllDataScan,nllAsimovScan);    
-    clsExp = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.5);
+    clsObs = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,true,nllDataScan,nllAsimovScan);    
+    clsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.5);    
     if(debug)
       cout<<"#### Step: "<<istep<<" muMin "<<muMin<<" muMax "<<muMax<<" muVal "<<muMin+istep*(muMax-muMin)/muPoint<<" ---> nllObs "<<nllDataScan-nllData<<" nllExp "<<nllAsimovScan-nllA-NLL_B<<" clsObs "<<clsObs<<" clsExp "<<clsExp<<endl;
     graphObserved->SetPoint(istep,clsObs,muMin+istep*(muMax-muMin)/muPoint);
     graphExpected->SetPoint(istep,clsExp,muMin+istep*(muMax-muMin)/muPoint);
+    
     if(calculateExpSigma){
-      clsExp1sUp = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.84);
+      clsExp1sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.84);
       graphExpected1sUp->SetPoint(istep,clsExp1sUp,muMin+istep*(muMax-muMin)/muPoint);
-      clsExp2sUp = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.975);
+      clsExp2sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.975);
       graphExpected2sUp->SetPoint(istep,clsExp2sUp,muMin+istep*(muMax-muMin)/muPoint);
-      clsExp1sDw = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.16);
+      clsExp1sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.16);
       graphExpected1sDw->SetPoint(istep,clsExp1sDw,muMin+istep*(muMax-muMin)/muPoint);
-      clsExp2sDw = calculateCLsLimit(nllSB,nllAsimov,mu,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.025);
+      clsExp2sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.025);
       graphExpected2sDw->SetPoint(istep,clsExp2sDw,muMin+istep*(muMax-muMin)/muPoint);
     }
   }
@@ -687,7 +864,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   cout<<"##### limitObs mu < "<<limitObs<<endl;
   cout<<"##### limitExp mu < "<<limitExp<<endl;
-
+  
   if(calculateExpSigma){
     limitExpDw2s = graphExpected2sDw->Eval(1-0.95);
     cout<<"##### limitExp 2sigma dw mu < "<<limitExpDw2s<<endl;
@@ -703,16 +880,15 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   // make likelihood scan
   if(doLikelihoodScan){
     cout<<"Make Likelihood Scan  ---> "<<endl;
-    nllA = makeFitFixedStrenght(nllAsimov,mu,0);
+    nllA = makeFitFixedStrenght(nllAsimov,ws_asimov,0);
     for(int istep = 0; istep <= muPoint; istep++){
       muVal.push_back(-muMax+istep*(muMax+muMax)/muPoint);
-      nllDataScan = makeFitFixedStrenght(nllSB,mu,muVal.back());
-      nllAsimovScan = makeFitFixedStrenght(nllAsimov,mu,muVal.back());
+      nllDataScan   = makeFitFixedStrenght(nllSB,ws_sb,muVal.back());
+      nllAsimovScan = makeFitFixedStrenght(nllAsimov,ws_asimov,muVal.back());
       nllObserved.push_back(nllDataScan-nllData);
       nllExpected.push_back(nllAsimovScan-nllA);
     }
   }
-
   tree->Fill();
   tree->Write();
   outputFile->Close();
