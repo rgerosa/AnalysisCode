@@ -100,7 +100,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   double muAsimov_Sfix     = mu->getVal();
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
-
+  
   //make S+B again on data
   mu = ws_sb->var("mu");
   mu->setConstant(false); 
@@ -227,8 +227,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
       cout<<"Expected  CLsb "<<CLsb<<" CLb "<<CLb<<" CLs "<<CLs<<endl;
     return CLs;
   }
-
   return -1;
+  
 }
 
 /////
@@ -383,7 +383,7 @@ void makeLikelihood (RooWorkspace* model_sb, RooWorkspace* model_b, TH1* data_ob
   if(model_sb->var("mu"))
     mu = model_sb->var("mu");
   else
-    mu = new RooRealVar("mu","",1.,-1e4,1e4);
+    mu = new RooRealVar("mu","",0.,-1e4,1e4);
 
   for(int iBin = 0; iBin < signal->GetNbinsX(); iBin++){
     RooFormulaVar *mean = new RooFormulaVar(Form("signal_exp_%s_%d",postfix.c_str(),iBin+1),Form("%f*@0",signal->GetBinContent(iBin+1)),RooArgList(*mu));
@@ -816,11 +816,11 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   double nllData   = 0;
   double nllA      = 0;
   
-  
   CLsObs = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,true,nllData,nllA);
   cout<<"#### -Log(L) data : "<<nllData<<" -Log(L) Asimov : "<<nllA+NLL_B<<endl;
   CLsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,false,nllData,nllA,0.5);
   cout<<"#### Get observed and expected CLs values : observed "<<CLsObs<<" expected "<<CLsExp<<endl;
+
   // Calculate upper limit on signal strenght --> find CLs value at 95% of the range -> associated mu --> store also the nLL for Asimov and Data --> Likelihood scan
   double nllDataScan = 0;
   double nllAsimovScan = 0;
@@ -892,5 +892,4 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   tree->Fill();
   tree->Write();
   outputFile->Close();
-  
 }

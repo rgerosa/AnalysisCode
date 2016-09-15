@@ -33,8 +33,18 @@ parser.add_option('--submit',       action="store_true",           dest="submit"
 
 (options, args) = parser.parse_args()
 
-mMED = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000];
-mDM  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000];
+mMED_v = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000];
+mDM_v  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000];
+
+mMED_av = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000];
+mDM_av  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000];
+
+mMED_s  = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+mDM_s   = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000]
+
+mMED_ps  = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+mDM_ps   = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000]
+
 
 if __name__ == '__main__':
 
@@ -48,45 +58,51 @@ if __name__ == '__main__':
 
     ### signal file list
     if options.mediatorType == "Vector" or options.mediatorType == "vector" :
+
         monojetFile_mj = options.inputSignalDIR+"/MonoJ_800_0.25_catmonojet_13TeV_v1.root";
         monowFile_mj = options.inputSignalDIR+"/MonoW_800_0.25_catmonojet_13TeV_v1.root";
         monozFile_mj = options.inputSignalDIR+"/MonoZ_800_0.25_catmonojet_13TeV_v1.root";
-        index = "800";
-    if options.mediatorType == "Axial"  or options.mediatorType == "axial" :
-        monojetFile_mj = options.inputSignalDIR+"/MonoJ_801_0.25_catmonojet_13TeV_v1.root";
-        monowFile_mj = options.inputSignalDIR+"/MonoW_801_0.25_catmonojet_13TeV_v1.root";
-        monozFile_mj = options.inputSignalDIR+"/MonoZ_801_0.25_catmonojet_13TeV_v1.root";
-        index = "801";
-    if options.mediatorType == "Scalar" or options.mediatorType == "scalar" :
-        monojetFile_mj = options.inputSignalDIR+"/MonoJ_805_1.0_catmonojet_13TeV_v1.root";
-        monowFile_mj   = options.inputSignalDIR+"/MonoW_805_1.0_catmonojet_13TeV_v1.root";
-        monozFile_mj   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonojet_13TeV_v1.root";
-        index = "805";
-    if options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar" :
-        monojetFile_mj  = options.inputSignalDIR+"/MonoJ_805_1.0_catmonojet_13TeV_v1.root";
-        monowFile_mj    = options.inputSignalDIR+"/MonoW_805_1.0_catmonojet_13TeV_v1.root";
-        monozFile_mj    = options.inputSignalDIR+"/MonoZ_805_1.0_catmonojet_13TeV_v1.root";
-        index = "806";
 
-    if options.mediatorType == "Vector" or options.mediatorType == "vector" :
         monojetFile_mv = options.inputSignalDIR+"/MonoJ_800_0.25_catmonov_13TeV_v1.root";
         monowFile_mv   = options.inputSignalDIR+"/MonoW_800_0.25_catmonov_13TeV_v1.root";
         monozFile_mv   = options.inputSignalDIR+"/MonoZ_800_0.25_catmonov_13TeV_v1.root";
+
         index = "800";
-    if options.mediatorType == "Axial"  or options.mediatorType == "axial" :
+
+    elif options.mediatorType == "Axial"  or options.mediatorType == "axial" :
+
+        monojetFile_mj = options.inputSignalDIR+"/MonoJ_801_0.25_catmonojet_13TeV_v1.root";
+        monowFile_mj = options.inputSignalDIR+"/MonoW_801_0.25_catmonojet_13TeV_v1.root";
+        monozFile_mj = options.inputSignalDIR+"/MonoZ_801_0.25_catmonojet_13TeV_v1.root";
+
         monojetFile_mv = options.inputSignalDIR+"/MonoJ_801_0.25_catmonov_13TeV_v1.root";
         monowFile_mv   = options.inputSignalDIR+"/MonoW_801_0.25_catmonov_13TeV_v1.root";
         monozFile_mv   = options.inputSignalDIR+"/MonoZ_801_0.25_catmonov_13TeV_v1.root";
+
         index = "801";
-    if options.mediatorType == "Scalar" or options.mediatorType == "scalar" :
+
+    elif options.mediatorType == "Scalar" or options.mediatorType == "scalar" :
+
+        monojetFile_mj = options.inputSignalDIR+"/MonoJ_805_1.0_catmonojet_13TeV_v1.root";
+        monowFile_mj   = options.inputSignalDIR+"/MonoW_805_1.0_catmonojet_13TeV_v1.root";
+        monozFile_mj   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonojet_13TeV_v1.root";
+
         monojetFile_mv = options.inputSignalDIR+"/MonoJ_805_1.0_catmonov_13TeV_v1.root";
         monowFile_mv   = options.inputSignalDIR+"/MonoW_805_1.0_catmonov_13TeV_v1.root";
         monozFile_mv   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonov_13TeV_v1.root";
+
         index = "805";
-    if options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar" :
-        monojetFile_mv = options.inputSignalDIR+"/MonoJ_805_1.0_catmonov_13TeV_v1.root";
-        monowFile_mv   = options.inputSignalDIR+"/MonoW_805_1.0_catmonov_13TeV_v1.root";
-        monozFile_mv   = options.inputSignalDIR+"/MonoZ_805_1.0_catmonov_13TeV_v1.root";
+
+    elif options.mediatorType == "Pseudoscalar" or options.mediatorType == "pseudoscalar" :
+
+        monojetFile_mj  = options.inputSignalDIR+"/MonoJ_806_1.0_catmonojet_13TeV_v1.root";
+        monowFile_mj    = options.inputSignalDIR+"/MonoW_806_1.0_catmonojet_13TeV_v1.root";
+        monozFile_mj    = options.inputSignalDIR+"/MonoZ_806_1.0_catmonojet_13TeV_v1.root";
+
+        monojetFile_mv = options.inputSignalDIR+"/MonoJ_806_1.0_catmonov_13TeV_v1.root";
+        monowFile_mv   = options.inputSignalDIR+"/MonoW_806_1.0_catmonov_13TeV_v1.root";
+        monozFile_mv   = options.inputSignalDIR+"/MonoZ_806_1.0_catmonov_13TeV_v1.root";
+
         index = "806";
 
     
@@ -104,10 +120,11 @@ if __name__ == '__main__':
         monojetws_mj   = monojetfile_mj.Get("combinedws");
     if monowFile_mj != "":
         monowfile_mj   = ROOT.TFile(monowFile_mj,"READ");
-        monowws_mj   = monowfile_mj.Get("combinedws");
+        monowws_mj     = monowfile_mj.Get("combinedws");
     if monozFile_mj != "":
         monozfile_mj = ROOT.TFile(monozFile_mj,"READ");
         monozws_mj   = monozfile_mj.Get("combinedws");
+
     if monojetFile_mv != "":
         monojetfile_mv = ROOT.TFile(monojetFile_mv,"READ");
         monojetws_mv   = monojetfile_mv.Get("combinedws");
@@ -118,15 +135,32 @@ if __name__ == '__main__':
         monozfile_mv = ROOT.TFile(monozFile_mv,"READ");
         monozws_mv   = monozfile_mv.Get("combinedws");
 
+    ###############
+    mMED = [];
+    mDM  = [];
+
+    if options.mediatorType == "vector":
+        mMED = mMED_v;
+        mDM  = mDM_v;
+    elif options.mediatorType == "axial":
+        mMED = mMED_av;
+        mDM  = mDM_av;
+    elif options.mediatorType == "scalar":
+        mMED = mMED_s;
+        mDM  = mDM_s;
+    elif options.mediatorType == "pseudoscalar":
+        mMED = mMED_ps;
+        mDM  = mDM_ps;
+
     ##########################
     for mmed in mMED:
         for mdm in mDM:
 
             expMassPoint = index+"%04d%04d"%(mmed,mdm);
-            if options.category == "monojet" or options.category == "combined":    
+            if options.category == "monojet" or options.category == "combined" and options.mediatorType != "pseudoscalar":    
                 if not monojetws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monowws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monozws_mj.obj("monojet_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
-            elif options.category == "monov" or options.category == "combined":
+            elif options.category == "monov" or options.category == "combined" and options.mediatorType != "pseudoscalar":
                 if not monojetws_mv.obj("monov_signal_signal_"+expMassPoint) or not monowws_mv.obj("monov_signal_signal_"+expMassPoint) or not monozws_mv.obj("monov_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
 
@@ -145,7 +179,11 @@ if __name__ == '__main__':
             jobmacro = open('%s/%s/job.C'%(options.jobDIR,jobname),'w')
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/limitSimplifiedLikelihood.C\");\n");
-            jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+            if options.mediatorType != "pseudoscalar":
+                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+            else:
+                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\"},{\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monojetfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+
             jobmacro.write("}\n");
             jobmacro.close();
 
