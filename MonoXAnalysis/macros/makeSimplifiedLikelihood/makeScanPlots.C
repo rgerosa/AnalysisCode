@@ -38,11 +38,10 @@ TList* getContourList(TH2* inputHisto, const string & postfix, double* contLevel
 	obs->SetLineColor(kGray+2);
 	obs->SetLineWidth(2);
       }      
-      if(j==0)
-	obsContour->Add((TGraph*) obs->Clone());
+      obsContour->Add((TGraph*) obs->Clone());
     }
   }
-
+  
   return obsContour;
   
 }
@@ -62,12 +61,21 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
     dmMax  = 250;
   }
 
+  if(mediatorType == "scalar" or mediatorType == "pseudoscalar"){
+    minYaxis = minYaxis*20;
+    maxYaxis = maxYaxis*0.7;
+  }
+
+
   TChain* limit = new TChain("limit","limit");
   limit->Add((inputDIR+"/*"+category+"*.root").c_str());
 
-  TGraph2D* observedLimit = new TGraph2D();
+  TGraph2D* observedLimit    = new TGraph2D();
+  TGraph2D* observedLimitAlt = new TGraph2D();
   observedLimit->SetNpx(500);
   observedLimit->SetNpy(500);
+  observedLimitAlt->SetNpx(500);
+  observedLimitAlt->SetNpy(500);
   TGraph2D* expectedLimit = new TGraph2D();
   expectedLimit->SetNpx(500);
   expectedLimit->SetNpy(500);
@@ -128,13 +136,62 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
     if(**limitObs < minExp1sDw and **limitExp1sDw != bugLimitExp) minExp1sDw = **limitExp1sDw;
     if(**limitObs < minExp2sUp and **limitExp2sUp != bugLimitExp) minExp2sUp = **limitExp2sUp;
     if(**limitObs < minExp2sDw and **limitExp2sDw != bugLimitExp) minExp2sDw = **limitExp2sDw;
+    
+    if(atof(mediatorMass.c_str()) > 2*atof(dmMass.c_str()) and (mediatorType == "scalar" or mediatorType  == "pseudoscalar"))
+      observedLimitAlt->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
+    else 
+      observedLimitAlt->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
 
-    observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
-    expectedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp);
-    expectedLimit1sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sUp);
-    expectedLimit1sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sDw);
-    expectedLimit2sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sUp);
-    expectedLimit2sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sDw);
+    if(not TString(mediatorType.c_str()).Contains("scalar")){
+      observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
+      expectedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp);
+      expectedLimit1sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sUp);
+      expectedLimit1sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sDw);
+      expectedLimit2sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sUp);
+      expectedLimit2sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sDw);
+    }
+    else{
+      if(atof(mediatorMass.c_str()) > 2*atof(dmMass.c_str())){
+	observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
+	expectedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp);
+	expectedLimit1sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sUp);
+	expectedLimit1sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp1sDw);
+	expectedLimit2sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sUp);
+	expectedLimit2sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()), **limitExp2sDw);	
+      }
+      else{
+
+	if(**limitObs <= 1) 
+	  observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitObs);
+
+	if(**limitExp <= 1) 
+	  expectedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  expectedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitExp);
+
+	if(**limitExp1sUp <= 1) 
+	  expectedLimit1sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  expectedLimit1sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitExp1sUp);
+
+	if(**limitExp1sDw <= 1) 
+	  expectedLimit1sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  expectedLimit1sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitExp1sDw);
+
+	if(**limitExp2sUp <= 1) 
+	  expectedLimit2sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  expectedLimit2sUp->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitExp2sUp);
+
+	if(**limitExp2sDw <= 1) 
+	  expectedLimit2sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),1.1);
+	else
+	  expectedLimit2sDw->SetPoint(nPoint,atof(mediatorMass.c_str()),atof(dmMass.c_str()),**limitExp2sDw);
+      }
+    }
     nPoint++;				  
   }
 
@@ -147,6 +204,16 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
     if(z[N] == bugLimitObs or z[N] == bugLimitExp) z[N] = minObs;
     observedLimit->SetPoint(N,x[N],y[N],z[N]);
   }
+
+  z = observedLimitAlt->GetZ();
+  x = observedLimitAlt->GetX();
+  y = observedLimitAlt->GetY();
+
+  for(int N = 0; N < observedLimitAlt->GetN(); N++){
+    if(z[N] == bugLimitObs or z[N] == bugLimitExp) z[N] = minObs;
+    observedLimitAlt->SetPoint(N,x[N],y[N],z[N]);
+  }
+
   
   z = expectedLimit->GetZ();
   x = expectedLimit->GetX();
@@ -209,6 +276,7 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   frame->GetXaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetZaxis()->SetTitleOffset(0.1);
+  frame->GetYaxis()->SetNdivisions(510);
   gStyle->SetLabelSize(0.035,"X");
   gStyle->SetLabelSize(0.035,"Y");
   gStyle->SetLabelSize(0.035,"Z");
@@ -224,6 +292,7 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
       x = rand.Uniform(medMin,medMax);
       y = rand.Uniform(dmMin,dmMax);
       observedLimit->Interpolate(x,y);
+      observedLimitAlt->Interpolate(x,y);
       expectedLimit->Interpolate(x,y);
       expectedLimit1sUp->Interpolate(x,y);
       expectedLimit1sDw->Interpolate(x,y);
@@ -233,6 +302,7 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   }
 
   TH2* observed = observedLimit->GetHistogram();
+  TH2* observedAlt = observedLimitAlt->GetHistogram();
   TH2* expected = expectedLimit->GetHistogram();
   TH2* expected1sUp = expectedLimit1sUp->GetHistogram();
   TH2* expected1sDw = expectedLimit1sDw->GetHistogram();
@@ -240,6 +310,7 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   TH2* expected2sDw = expectedLimit2sDw->GetHistogram();
 
   observed->GetZaxis()->SetRangeUser(minYaxis,maxYaxis);
+  observedAlt->GetZaxis()->SetRangeUser(minYaxis,maxYaxis);
   observed->Draw("colz same");
   canvas->RedrawAxis("sameaxis");
   canvas->SaveAs((outputPlotDIR+"/observedLimit_"+category+"_"+mediatorType+".png").c_str(),"png");
@@ -304,15 +375,22 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   c->SetTickx();
   c->SetTicky();
   c->SetLeftMargin(0.12);
-  c->SetRightMargin(0.18);
+  c->SetRightMargin(0.15);
  
   c->cd();
   frame->Draw();
-  observed->Draw("COLZ same");
+  observedAlt->Draw("COLZ same");
+
   obsContour->Draw("Lsame");  
   expContour->Draw("Lsame");  
-  expContour1sUp->Draw("Lsame");  
-  expContour1sDw->Draw("Lsame");  
+  if(mediatorType == "vector" or mediatorType == "axial"){
+    expContour1sUp->Draw("Lsame");  
+    expContour1sDw->Draw("Lsame");  
+  }
+  else{
+    expContour1sDw->Draw("Lsame");
+  }
+
   c->RedrawAxis("sameaxis");
 
   TLatex * texLumi = new TLatex();
@@ -335,16 +413,28 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   texZaxis->SetLineWidth(2);
   texZaxis->SetTextSize(0.042);
   texZaxis->SetTextAngle(270);
-  texZaxis->DrawLatex(0.965,0.73,"Observed #sigma_{95% CL}/#sigma_{th}");
+  texZaxis->DrawLatex(0.963,0.73,"Observed #sigma_{95% CL}/#sigma_{th}");
 
   TLegend leg (0.2,0.6,0.65,0.9);
   leg.SetBorderSize(0);
   leg.SetFillStyle(0);
   leg.SetFillColor(0);
-  leg.AddEntry((TObject*)0,"Vector med., Dirac DM, g_{q}=0.25, g_{DM}=1","");
+  if(mediatorType == "vector")
+    leg.AddEntry((TObject*)0,"Vector med., Dirac DM, g_{q}=0.25, g_{DM}=1","");
+  else if(mediatorType == "axial")
+    leg.AddEntry((TObject*)0,"Axial Vector med., Dirac DM, g_{q}=0.25, g_{DM}=1","");
+  else if(mediatorType == "scalar")
+    leg.AddEntry((TObject*)0,"Scalar med., Dirac DM, g_{q}=1, g_{DM}=1","");
+  else if(mediatorType == "pseudoscalar")
+    leg.AddEntry((TObject*)0,"PseudoScalar med., Dirac DM, g_{q}=1, g_{DM}=1","");
+
   leg.AddEntry(obsContour->At(0),"Observed 95% CL","L"); 
   leg.AddEntry(expContour->At(0),"Median Expected 95% CL","L"); 
-  leg.AddEntry(expContour1sUp->At(0),"Expected #pm 1#sigma","L"); 
+  if(mediatorType == "vector" or mediatorType == "axial")
+    leg.AddEntry(expContour1sUp->At(0),"Expected #pm 1#sigma","L"); 
+  else
+    leg.AddEntry(expContour1sUp->At(0),"Expected - 1#sigma","L"); 
+
   leg.Draw("same");
 
   c->SaveAs((outputPlotDIR+"/scan_"+category+"_"+mediatorType+".png").c_str());
