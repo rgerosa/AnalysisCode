@@ -25,7 +25,11 @@ parser.add_option('--inputSignalDIR',  action="store", type="string", dest="inpu
 parser.add_option('--mediatorType',    action="store", type="string", dest="mediatorType",    default="",   help="mediator type: vector, axial, scalar, pseudoscalar")
 parser.add_option('--category',        action="store", type="string", dest="category",        default="",   help="mediator type: category for limit -> monojet or monov")
 parser.add_option('--outputDIR',       action="store", type="string", dest="outputDIR",       default="",   help="output DIR")
-##  for submitting jobs in lxbatch                                                                                                                                                                    
+parser.add_option('--calculateExpSigma', action="store", type=int,    dest="calculateExpSigma", default=1,   help="to calculate expected for quantiles = 0.025,0.16,0.84,0.975")
+parser.add_option('--doLikelihoodScan', action="store", type=int,     dest="doLikelihoodScan",  default=1,   help="in order to perform a likelihood scan")
+parser.add_option('--skipCorrelations', action="store", type=int,     dest="skipCorrelations",  default=1,   help="to skip correlation across bins")
+
+##  for submitting jobs in lxbatch                                                                                                                                                                
 parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
 parser.add_option('--jobDIR',       action="store", type="string", dest="jobDIR",  default="",        help="directory for job")
 parser.add_option('--queque',       action="store", type="string", dest="queque",  default="",        help="queque for LSF")
@@ -180,9 +184,9 @@ if __name__ == '__main__':
             jobmacro.write("{\n");
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/limitSimplifiedLikelihood.C\");\n");
             if options.mediatorType != "pseudoscalar":
-                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\",%d,%d,%d)"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR,options.calculateExpSigma,options.doLikelihoodScan,options.skipCorrelations)+"\");\n");
             else:
-                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\"},{\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\")"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monojetfile_mv.GetName(),expMassPoint,category,options.outputDIR)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\"},{\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\",%d,%d,%d)"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monojetfile_mv.GetName(),expMassPoint,category,options.calculateExpSigma,options.doLikelihoodScan,options.skipCorrelations)+"\");\n");
 
             jobmacro.write("}\n");
             jobmacro.close();
