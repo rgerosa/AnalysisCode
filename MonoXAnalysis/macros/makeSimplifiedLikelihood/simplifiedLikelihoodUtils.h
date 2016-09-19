@@ -186,7 +186,7 @@ void makeLikelihood (RooWorkspace* model_sb, RooWorkspace* model_b, TH1* data_ob
   if(model_sb->var("mu"))
     mu = model_sb->var("mu");
   else
-    mu = new RooRealVar("mu","",0.,-1e4,1e4);
+    mu = new RooRealVar("mu","",1.,-1e4,1e4);
 
   for(int iBin = 0; iBin < signal->GetNbinsX(); iBin++){
     RooFormulaVar *mean = new RooFormulaVar(Form("signal_exp_%s_%d",postfix.c_str(),iBin+1),Form("%f*@0",signal->GetBinContent(iBin+1)),RooArgList(*mu));
@@ -228,10 +228,10 @@ void makeLikelihood (RooWorkspace* model_sb, RooWorkspace* model_b, TH1* data_ob
 	else
 	  covariance[iBin][jBin] = 0;
       }
-      
-      if(debug)
-	cout<<"Background pre-fit: iBin "<<iBin<<" low edge "<<background->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<background->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<mean->getVal()<<endl;
     }
+    if(debug)
+      cout<<"Background pre-fit: iBin "<<iBin<<" low edge "<<background->GetXaxis()->GetBinLowEdge(iBin+1)<<" upper edge "<<background->GetXaxis()->GetBinLowEdge(iBin+2)<<" content "<<mean->getVal()<<endl;
+    
   }
   if(debug){
     centralBkg.Print();
