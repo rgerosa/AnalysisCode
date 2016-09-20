@@ -1,14 +1,43 @@
 #include "../CMS_lumi.h"
+#include "PDFs/RooErfExpPdf.h"
 
-vector<float> ptBinMuon      = {10.,20.,30.,40.,55.,80.,100,500};
-vector<float> ptBinElectron  = {10.,20.,30.,40.,55.,80.,100,500};
-vector<float> ptBinPhoton    = {10.,20.,30.,40.,55.,80.,100,500};
+/////////////////////
+vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
+vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
+vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
 vector<float> etaBinMuon     = {0.,0.9,1.2,2.1,2.4};
-vector<float> etaBinElectron = {0,0.75,1.5,2.,2.5};
-vector<float> etaBinPhoton   = {0,0.75,1.5,2.,2.5};
-bool  isabseta = true;
-float luminosity = 12.9;
-int pilepUp = -1;
+vector<float> etaBinElectron = {0.,0.75,1.5,2.,2.5};
+vector<float> etaBinPhoton   = {0.,0.75,1.5,2.,2.5};
+vector<float> nvtxBinMuon     = {0.,16,50.};
+vector<float> nvtxBinElectron = {0.,16,50.};
+vector<float> nvtxBinPhoton   = {0.,16,50.};
+/////////////////////
+vector<float> ptBinMuonReco      = {10.,20.,30.,40.,150};
+vector<float> ptBinElectronReco  = {10.,20.,30.,50.,150};
+vector<float> ptBinPhotonReco    = {10.,20.,30.,50.,150};
+vector<float> etaBinMuonReco     = {0.,0.45,0.9,1.2,1.8,2.4};
+vector<float> etaBinElectronReco = {0.,0.35,0.75,1.5,2.0,2.5};
+vector<float> etaBinPhotonReco   = {0.,0.35,0.75,1.5,2.0,2.5};
+vector<float> nvtxBinMuonReco     = {0.,16,50.};
+vector<float> nvtxBinElectronReco = {0.,16,50.};
+vector<float> nvtxBinPhotonReco   = {0.,16,50.};
+
+// bin in abs eta instead of eta
+static bool  isabseta     = true;
+static float luminosity   = 12.9;
+// reco efficiency or id
+static bool  isRecoEff    = false;
+// normalize plots to a.u.
+static bool  plotRescaled = true;
+// perform a continous fit as well
+static bool  simFit       = true;
+// which kind of PDF you want to use
+static bool  usePolynomial = false;
+static bool  useCBShape     = false;
+static bool  useRooCMSShape = false;
+static bool  useErfExpPdf   = false;
+// RooCMSShape for 10-20 pt, or high pt, RooErfExp in the middle pt range
+static bool  useMixedModel  = false;
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -19,17 +48,20 @@ void maketemplate(const string & inputDIR,
 		  const float  & ptMax,
 		  const float  & etaMin,
 		  const float  & etaMax,
+		  const float  & nvtxMin,
+		  const float  & nvtxMax,
 		  bool  smooth = true,
 		  int   nbins = 60, 
 		  float xmin  = 60, 
 		  float xmax  = 120) {
 
+
   TChain* inputMC = NULL;
   if(leptonType == "muon")
     inputMC = new TChain("muontnptree/fitter_tree");
-  else if(leptonType == "electron")
+  else if(leptonType == "electron" and not isRecoEff)
     inputMC = new TChain("electrontnptree/fitter_tree");
-  else if(leptonType == "photon")
+  else if(leptonType == "photon" or (leptonType == "electron" and isRecoEff))
     inputMC = new TChain("photontnptree/fitter_tree");
 
   inputMC->Add((inputDIR+"/*root").c_str());
@@ -43,7 +75,7 @@ void maketemplate(const string & inputDIR,
   // pileup-re-weight from external file
   TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
-
+  
   TTreeReader reader(inputMC);
   TTreeReaderValue<float> mass (reader, "mass");
   TTreeReaderValue<float> eta  (reader, "eta");
@@ -51,10 +83,28 @@ void maketemplate(const string & inputDIR,
   TTreeReaderValue<float> pt   (reader, "pt");
   TTreeReaderValue<float> nvtx (reader, "nvtx");
   TTreeReaderValue<float> wgt  (reader, "wgt");
-  TTreeReaderValue<int>   id   (reader, idName.c_str());
   TTreeReaderValue<int>   mcTrue (reader, "mcTrue");
-  TTreeReaderValue<float> mcMass (reader, "mcMass");
+  TTreeReaderValue<int>   id   (reader, idName.c_str());
 
+  string trackerid = "";
+  string standaloneid = "";
+  if(leptonType == "muon"){
+    trackerid    = "trackerid";
+    standaloneid = "standaloneid";
+  }
+  else if((leptonType == "electron" and isRecoEff) or leptonType == "photon"){
+    standaloneid = "recoelectronmatch";
+    trackerid = "recoelectronmatch";
+  }
+  else{
+    trackerid = idName  ;
+    standaloneid = idName;
+  }
+
+  TTreeReaderValue<int>   isStandAloneMuon (reader, standaloneid.c_str());
+  TTreeReaderValue<int>   isTrackerMuon    (reader, trackerid.c_str());
+  TTreeReaderValue<float> mcMass (reader, "mcMass");
+  
   TH1F hpass("hpass", "", nbins, xmin, xmax);
   TH1F hfail("hfail", "", nbins, xmin, xmax);
   TH1F hp("hp" , "", 1, xmin, xmax);
@@ -65,7 +115,7 @@ void maketemplate(const string & inputDIR,
   hp.Sumw2();
   ha.Sumw2();
   hr.Sumw2();
-  
+
   // weight sum
   double wgtsum = 0;
   while(reader.Next()){
@@ -75,12 +125,16 @@ void maketemplate(const string & inputDIR,
   reader.SetEntry(0);
   // loop on the event
   string currentTree ;
-
+  
   while(reader.Next()){
+   
+    // probe definition
+    if(leptonType == "muon"){
+      if(isRecoEff == true and not *isStandAloneMuon) continue;
+      else if(isRecoEff == false and not (*isStandAloneMuon || *isTrackerMuon)) continue;
+    }
 
-    if(pilepUp == 0 and *nvtx > 15) continue;
-    else if(pilepUp == 1 and *nvtx <= 15) continue;
-
+    // in case HT binned samples
     float lumiwgt = 1.;
     float xsec = 1;
     for(auto entry : crossSection){      
@@ -101,9 +155,9 @@ void maketemplate(const string & inputDIR,
 
     // check the probe lepton information --> if it falls inside the bins
     if(*pt < ptMin or *pt > ptMax) continue;
-    //    if(fabs(*eta) > 1.479 and fabs(*eta) < 1.552) continue;    
     if(isabseta and (fabs(*eta) < etaMin or fabs(*eta) > etaMax)) continue;
     else if(not isabseta and (*eta < etaMin or *eta > etaMax)) continue;
+    if(*nvtx < nvtxMin or *nvtx > nvtxMax) continue;
 
     // if not matched to a genLepton skip --> we want to extract the true templateds
     if(not *mcTrue) continue;
@@ -129,52 +183,184 @@ void maketemplate(const string & inputDIR,
   }
   
   // Build the RooHistPdf  
-  string fileName = "template_TaP_"+leptonType+"_"+idName+"_pt_"+string(Form("%.1f",ptMin))+"_"+string(Form("%.1f",ptMax))+"_eta_"+string(Form("%.1f",etaMin))+"_"+string(Form("%.1f",etaMax));
+  string fileName = "template_TaP_"+leptonType+"_"+idName+"_pt_"+string(Form("%.1f",ptMin))+"_"+string(Form("%.1f",ptMax))+"_eta_"+string(Form("%.1f",etaMin))+"_"+string(Form("%.1f",etaMax))+"_pu_"+string(Form("%.1f",nvtxMin))+"_"+string(Form("%.1f",nvtxMax));
   TFile outfile((outputDIR+"/"+fileName+".root").c_str(), "RECREATE");
   hr.Write("efficiency");
 
+  /// lineshape observable
   RooRealVar m("mass", "", xmin, xmax);
+  // passing and failing sample binnned data
   RooDataHist dhpass("dhpass", "", RooArgList(m), RooFit::Import(hpass), 0);
   RooDataHist dhfail("dhfail", "", RooArgList(m), RooFit::Import(hfail), 0);
+  // passing and failing histogram pdf
   RooHistPdf signalPassMC("signalPassMC", "", RooArgSet(m), dhpass);
   RooHistPdf signalFailMC("signalFailMC", "", RooArgSet(m), dhfail);
+  
+  // Resolution for passing sample -> simple CB
+  RooRealVar  zPeakP1    ("zPeakP1","",91.,85.,101);
+  RooRealVar  zWidthP1   ("zWidthP1","",2.1,0.,3.4);
+  RooRealVar  sigmaP1    ("sigmaP1","",2.,0.,10.);
+  RooVoigtian zPeakPass  ("zPeakPass","",m,zPeakP1,zWidthP1,sigmaP1);
+  RooRealVar  meanP2     ("meanP2","",62.,60.,88.);
+  RooRealVar  sigmaP2    ("sigmaP2","",2.,1.,10.);
+  RooRealVar  alphaP2    ("alphaP2","",0.1,-10,10.);
+  RooRealVar  nP2        ("nP2","",1.,0.,10.);
+  RooCBShape  zTailPass  ("zTailPass","",m,meanP2,sigmaP2,alphaP2,nP2);
+  RooRealVar  fracPass   ("fracPass","",0.9,0.,1.);
+  RooAddPdf   signalPass ("signalPass","",RooArgList(zPeakPass,zTailPass),fracPass);
+  // create a CB for the resolution
+  RooRealVar zPeakF1     ("zPeakF1","",91.,85.,101);
+  RooRealVar zWidthF1    ("zWidthF1","",2.1,0.,3.4);
+  RooRealVar sigmaF1     ("sigmaF1","",2.,0.,10.);
+  RooVoigtian zPeakFail  ("zPeakFail","",m,zPeakF1,zWidthF1,sigmaF1); 
+  // poly
+  RooRealVar   a0        ("a0","a0",0.5,-10.,10.) ;
+  RooRealVar   a1        ("a1","a1",0.5,-10.,10.) ;
+  RooChebychev zPol      ("zRooChebychev","",m,RooArgList(a0,a1));
+  // CB
+  RooRealVar  meanF2     ("meanF2","",65.,60.,85.);
+  RooRealVar  sigmaF2    ("sigmaF2","",2.,1.,20.);
+  RooRealVar  alphaF2    ("alphaF2","",0.1,-10,10.);
+  RooRealVar  nF2        ("nF2","",1.,-10.,10.);
+  RooCBShape  zCB        ("zCrystalBall","",m,meanF2,sigmaF2,alphaF2,nF2);  
+  // RooCMSShape
+  RooRealVar alphaFail ("alphaFail","alphaFail",125,30,300);
+  RooRealVar betaFail  ("betaFail","betaFail",0.01,-1,1);
+  RooRealVar gammaFail ("gammaFail","gammaFail",0.05,-0.5,0.5);
+  RooRealVar peakFail  ("peakFail","peakFail",91.2,60,120);
+  RooCMSShape backgroundFail ("zRooCMSShape","",m,alphaFail,betaFail,gammaFail,peakFail);
 
+  // RooErfExp
+  RooRealVar   cExp ("cExp","",   -0.005,-1,0.);
+  RooRealVar   offset ("offset","",90,60,120);
+  RooRealVar   width ("width","",  10,0.,25);
+  RooErfExpPdf erfExp ("zRooErfExp","",m,cExp,offset,width);
+
+  RooRealVar  fracFail   ("fracFail","",0.9,0.,1.);
+  RooAddPdf*  signalFail = NULL;  
+  if(usePolynomial)
+    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,zPol),fracFail);
+  else if(useCBShape)
+    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,zCB),fracFail);
+  else if(useRooCMSShape or (useMixedModel and (ptMin < 20 ))))
+    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,backgroundFail),fracFail);
+  else if(useErfExpPdf or (useMixedModel and  (ptMin >= 20 )))
+    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,erfExp),fracFail);
+
+  /// prepare for simultaneous fit --> define efficiency, total pass and fial, as well as extended pdfs
+  RooRealVar efficiency("efficiency", "Efficiency", dhpass.sumEntries()/(dhfail.sumEntries()+dhpass.sumEntries()),0, 1); 
+  RooRealVar    nTot    ("nTot","",dhfail.sumEntries()+dhpass.sumEntries(),0,(dhfail.sumEntries()+dhpass.sumEntries())*100);  
+  RooFormulaVar nPass   ("nPass","@0*@1",RooArgList(efficiency,nTot));
+  RooFormulaVar nFail   ("nFail","(1-@0)*@1",RooArgList(efficiency,nTot));  
+  RooRealVar    nSignal ("nSignal","",dhpass.sumEntries(),0,dhpass.sumEntries()*100);
+  RooRealVar    nBack   ("nBack","",dhfail.sumEntries(),0,dhfail.sumEntries()*100);
+
+  RooExtendPdf  *pdfPass, *pdfFail;
+  if(simFit){
+    pdfPass = new RooExtendPdf("pdfPass","",signalPass,nPass);
+    pdfFail = new RooExtendPdf("pdfFail","",*signalFail,nFail);
+  }
+  else{
+    pdfPass = new RooExtendPdf("pdfPass","",signalPass,nSignal);
+    pdfFail = new RooExtendPdf("pdfFail","",*signalFail,nBack);
+  }
+
+  //combined category and pdf
+  RooCategory category("category","category") ;
+  category.defineType("Pass");
+  category.defineType("Fail");
+
+  RooSimultaneous simPdf("simPdf","simultaneous pdf",category) ;
+  simPdf.addPdf(*pdfPass,"Pass");
+  simPdf.addPdf(*pdfFail,"Fail");
+
+  // combined dataset
+  std::map <string,RooDataHist*> histoMap;
+  histoMap ["Pass"] = &dhpass;
+  histoMap ["Fail"] = &dhfail;
+  RooDataHist combData = RooDataHist( "combData", "combined data", RooArgList(m),category,histoMap);
+
+  if(simFit){
+    RooAbsReal* simNLL = simPdf.createNLL(combData,RooFit::Extended(true));
+    RooMinuit minuit(*simNLL);
+    cout<<" Minimize with Migrad "<<endl;
+    minuit.migrad();
+    cout<<" Minimize with Hesse "<<endl;
+    minuit.hesse();
+    cout<<" Final fit "<<endl;
+    simPdf.fitTo(combData,RooFit::Extended(true),RooFit::SumW2Error(kTRUE));
+  }
+  else{
+    pdfPass->fitTo(dhpass,RooFit::SumW2Error(kTRUE));
+    pdfFail->fitTo(dhfail,RooFit::SumW2Error(kTRUE));    
+  }
   RooWorkspace w("w", "");
+  // RooDataHist used for efficiency
   w.import(dhpass);
   w.import(dhfail);
-  w.import(signalPassMC);
-  w.import(signalFailMC);
+  // RooHistPdf used for tag and probe fit
+  if(simFit)
+    w.import(simPdf);
+  else{
+    w.import(signalPass);
+    w.import(*signalFail);
+  }
   w.Write();
-  
-  cout << "Efficiency -- pT [" << ptMin << ", " << ptMax << "], eta [" << etaMin << ", " << etaMax << "]   :   " << hr.GetBinContent(1) << " +/- " << hr.GetBinError(1) << endl;
 
+  cout << "Efficiency -- pT [" << ptMin << ", " << ptMax << "], eta [" << etaMin << ", " << etaMax << "]   :  pu [" << nvtxMin << " ,  "<<nvtxMax<<" ] " << hr.GetBinContent(1) << " +/- " << hr.GetBinError(1) << endl;
+
+  // plotting part
   TCanvas* c1 = new TCanvas("c1","",600,650);
   c1->cd();
-  TH1F* hpassForPlot = (TH1F*) hpass.Clone("hpassForPlot");
-  hpassForPlot->Scale(1./hpassForPlot->Integral());
-  TH1F* hfailForPlot = (TH1F*) hfail.Clone("hfailForPlot");
-  hfailForPlot->Scale(1./hfailForPlot->Integral());
-  hfailForPlot->SetLineColor(kRed);
-  hpassForPlot->SetLineColor(kBlue);
-  hfailForPlot->SetLineWidth(2);
-  hpassForPlot->SetLineWidth(2);  
-  hpassForPlot->Draw("hist");
-  hfailForPlot->Draw("hist same");
-
-  TLegend* leg = new TLegend(0.2,0.7,0.4,0.9);
+  RooPlot* frame = m.frame();
+  frame->SetTitle("");
+  frame->GetXaxis()->SetTitle("mass (GeV)");
+  frame->GetYaxis()->SetTitle("a.u.");
+  frame->GetYaxis()->SetTitleOffset(1.1);
+  if(plotRescaled){    
+    dhpass.plotOn(frame,RooFit::LineColor(kRed),RooFit::MarkerColor(kRed),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::DataError(RooAbsData::SumW2),RooFit::DrawOption("EP"),RooFit::Rescale(1./hpass.Integral()));
+    dhfail.plotOn(frame,RooFit::LineColor(kBlack),RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::DataError(RooAbsData::SumW2),RooFit::DrawOption("EP"),RooFit::Rescale(1./hfail.Integral()));
+    
+    hpass.Scale(1./hpass.Integral());
+    hfail.Scale(1./hfail.Integral());
+    frame->SetMaximum(max(hpass.GetMaximum(),hfail.GetMaximum())*1.2);
+    pdfPass->plotOn(frame,RooFit::LineColor(kRed),RooFit::LineWidth(2),RooFit::DrawOption("L"),RooFit::Normalization(1,RooAbsReal::NumEvent));
+    pdfFail->plotOn(frame,RooFit::LineColor(kBlack),RooFit::LineWidth(2),RooFit::DrawOption("L"),RooFit::Normalization(1,RooAbsReal::NumEvent));
+  }
+  else{
+    dhpass.plotOn(frame,RooFit::LineColor(kRed),RooFit::MarkerColor(kRed),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::DataError(RooAbsData::SumW2),RooFit::DrawOption("EP"),RooFit::Binning(40,m.getMin(),m.getMax()));
+    dhfail.plotOn(frame,RooFit::LineColor(kBlack),RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::DataError(RooAbsData::SumW2),RooFit::DrawOption("EP"),RooFit::Binning(40,m.getMin(),m.getMax()));
+    pdfPass->plotOn(frame,RooFit::LineColor(kRed),RooFit::LineWidth(2),RooFit::DrawOption("L"));
+    pdfFail->plotOn(frame,RooFit::LineColor(kBlack),RooFit::LineWidth(2),RooFit::DrawOption("L"));
+  }
+  frame->Draw();  
+  TLegend* leg = new TLegend(0.2,0.75,0.5,0.92);
   leg->SetFillColor(0);
   leg->SetBorderSize(0);
-  leg->AddEntry(hpassForPlot,"Passing probes","L");
-  leg->AddEntry(hfailForPlot,"Failing probes","L");
+  hpass.SetLineColor(kRed);
+  hfail.SetLineColor(kBlack);
+  hfail.SetLineWidth(2);
+  hpass.SetLineWidth(2);
+  leg->AddEntry(&hpass,"Pass Probes","L");
+  leg->AddEntry(&hfail,"Fail Probes","L");
   leg->Draw("same");
-
+  CMS_lumi(c1,"",true);
   c1->SaveAs((outputDIR+"/"+fileName+".png").c_str(),"png");
   c1->SaveAs((outputDIR+"/"+fileName+".pdf").c_str(),"pdf");
+
+  if(frame) delete frame;
+  if(leg) delete leg;
+  if(c1) delete c1;
 }
 
-void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR, int pileupScenario = -1) {
+void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR, bool isRecoEfficiency = false) {
 
-  pilepUp = pileupScenario;
+  TGaxis::SetMaxDigits(3);
+
+  gSystem->Load("PDFs/RooErfExpPdf_cc.so");
+
+  isRecoEff = isRecoEfficiency;
+
   gROOT->SetBatch(kTRUE);
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
@@ -184,36 +370,69 @@ void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR, int 
     return;
   }
     
-  
-  if(leptonType == "muon"){
-    for(size_t ipt = 0; ipt < ptBinMuon.size()-1; ipt++){
-      for(size_t ieta = 0; ieta < etaBinMuon.size()-1; ieta++){
-	string idName = "looseid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);    
-	idName = "tightid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinMuon.at(ipt), ptBinMuon.at(ipt+1), etaBinMuon.at(ieta), etaBinMuon.at(ieta+1),true);
 
+  if(not isRecoEff){ //sequence for lepon id template maker
+
+    if(leptonType == "muon"){
+      for(size_t ipt = 0; ipt < ptBinMuon.size()-1; ipt++){
+	for(size_t ieta = 0; ieta < etaBinMuon.size()-1; ieta++){
+	  for(size_t invtx = 0; invtx < nvtxBinMuon.size()-1; invtx++){
+	    string idName = "looseid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinMuon.at(ipt),ptBinMuon.at(ipt+1),etaBinMuon.at(ieta),etaBinMuon.at(ieta+1),nvtxBinMuon.at(invtx),nvtxBinMuon.at(invtx+1),true);    
+	    idName = "tightid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinMuon.at(ipt),ptBinMuon.at(ipt+1),etaBinMuon.at(ieta),etaBinMuon.at(ieta+1),nvtxBinMuon.at(invtx),nvtxBinMuon.at(invtx+1),true);    
+	  }
+	}
+      }
+    }
+    else if(leptonType == "electron"){
+      for(size_t ipt = 0; ipt < ptBinElectron.size()-1; ipt++){
+	for(size_t ieta = 0; ieta < etaBinElectron.size()-1; ieta++){
+	  for(size_t invtx = 0; invtx < nvtxBinElectron.size()-1; invtx++){
+	    string idName = "vetoid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinElectron.at(ipt),ptBinElectron.at(ipt+1),etaBinElectron.at(ieta),etaBinElectron.at(ieta+1),nvtxBinMuon.at(invtx),nvtxBinMuon.at(invtx+1));    	
+	    idName = "tightid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinElectron.at(ipt),ptBinElectron.at(ipt+1),etaBinElectron.at(ieta),etaBinElectron.at(ieta+1),nvtxBinMuon.at(invtx),nvtxBinMuon.at(invtx+1));    	
+	  }
+	} 
+      }
+    }
+    else if (leptonType == "photon"){
+      for(size_t ipt = 0; ipt < ptBinPhoton.size()-1; ipt++){
+	for(size_t ieta = 0; ieta < etaBinPhoton.size()-1; ieta++){
+	  for(size_t invtx = 0; invtx < nvtxBinPhoton.size()-1; invtx++){
+	    string idName = "looseid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinPhoton.at(ipt),ptBinPhoton.at(ipt+1),etaBinPhoton.at(ieta),etaBinPhoton.at(ieta+1),nvtxBinPhoton.at(invtx),etaBinPhoton.at(invtx+1));
+	    idName = "mediumid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinPhoton.at(ipt),ptBinPhoton.at(ipt+1),etaBinPhoton.at(ieta),etaBinPhoton.at(ieta+1),nvtxBinPhoton.at(invtx),etaBinPhoton.at(invtx+1));
+	  }
+	}     
       }
     }
   }
-  else if(leptonType == "electron"){
-    for(size_t ipt = 0; ipt < ptBinElectron.size()-1; ipt++){
-      for(size_t ieta = 0; ieta < etaBinElectron.size()-1; ieta++){
-	string idName = "vetoid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));    	
-	idName = "tightid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinElectron.at(ipt), ptBinElectron.at(ipt+1), etaBinElectron.at(ieta), etaBinElectron.at(ieta+1));
+  // template for reco efficiency
+  else{
+
+    if (leptonType == "muon"){
+      for(size_t ipt = 0; ipt < ptBinMuonReco.size()-1; ipt++){
+	for(size_t ieta = 0; ieta < etaBinMuonReco.size()-1; ieta++){
+	  for(size_t invtx = 0; invtx < nvtxBinMuonReco.size()-1; invtx++){
+	    string idName = "trackerid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinMuonReco.at(ipt),ptBinMuonReco.at(ipt+1),etaBinMuonReco.at(ieta),etaBinMuonReco.at(ieta+1),nvtxBinMuonReco.at(invtx),nvtxBinMuonReco.at(invtx+1),true);    
+	  }
+	}
       }
-    } 
-  }
-  else if (leptonType == "photon"){
-    for(size_t ipt = 0; ipt < ptBinPhoton.size()-1; ipt++){
-      for(size_t ieta = 0; ieta < etaBinPhoton.size()-1; ieta++){
-	string idName = "looseid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));    	
-	idName = "mediumid";
-	maketemplate(inputDIR, leptonType, outputDIR, idName, ptBinPhoton.at(ipt), ptBinPhoton.at(ipt+1), etaBinPhoton.at(ieta), etaBinPhoton.at(ieta+1));
+    }
+    else if(leptonType == "electron"){
+      for(size_t ipt = 0; ipt < ptBinElectronReco.size()-1; ipt++){
+	for(size_t ieta = 0; ieta < etaBinElectronReco.size()-1; ieta++){
+	  for(size_t invtx = 0; invtx < nvtxBinElectronReco.size()-1; invtx++){
+	    string idName = "recoelectronmatch";
+	    leptonType = "photon";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinElectronReco.at(ipt),ptBinElectronReco.at(ipt+1),etaBinElectronReco.at(ieta),etaBinElectronReco.at(ieta+1),nvtxBinElectronReco.at(invtx),nvtxBinElectronReco.at(invtx+1));    
+	  }
+	}
       }
-    }     
+    }
   }
 }
