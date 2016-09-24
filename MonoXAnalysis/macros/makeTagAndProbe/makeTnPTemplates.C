@@ -2,7 +2,7 @@
 #include "PDFs/RooErfExpPdf.h"
 
 /////////////////////
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
+vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,60.,80.,100.,500.};
 vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
 vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
 vector<float> etaBinMuon     = {0.,0.9,1.2,2.1,2.4};
@@ -37,7 +37,7 @@ static bool  useCBShape     = false;
 static bool  useRooCMSShape = false;
 static bool  useErfExpPdf   = false;
 // RooCMSShape for 10-20 pt, or high pt, RooErfExp in the middle pt range
-static bool  useMixedModel  = false;
+static bool  useMixedModel  = true;
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -207,7 +207,8 @@ void maketemplate(const string & inputDIR,
   RooRealVar  nP2        ("nP2","",1.,0.,10.);
   RooCBShape  zTailPass  ("zTailPass","",m,meanP2,sigmaP2,alphaP2,nP2);
   RooRealVar  fracPass   ("fracPass","",0.9,0.,1.);
-  RooAddPdf   signalPass ("signalPass","",RooArgList(zPeakPass,zTailPass),fracPass);
+  //RooAddPdf   signalPassAna ("signalPassAna","",RooArgList(zPeakPass,zTailPass),fracPass);
+  RooAddPdf   signalPassAna ("signalPass","",RooArgList(zPeakPass,zTailPass),fracPass); // we will trust MC signal for passing sample in the analytical fit
   // create a CB for the resolution
   RooRealVar zPeakF1     ("zPeakF1","",91.,85.,101);
   RooRealVar zWidthF1    ("zWidthF1","",2.1,0.,3.4);
@@ -228,7 +229,7 @@ void maketemplate(const string & inputDIR,
   RooRealVar betaFail  ("betaFail","betaFail",0.01,-1,1);
   RooRealVar gammaFail ("gammaFail","gammaFail",0.05,-0.5,0.5);
   RooRealVar peakFail  ("peakFail","peakFail",91.2,60,120);
-  RooCMSShape backgroundFail ("zRooCMSShape","",m,alphaFail,betaFail,gammaFail,peakFail);
+  RooCMSShape zRooCMSShape ("zRooCMSShape","",m,alphaFail,betaFail,gammaFail,peakFail);
 
   // RooErfExp
   RooRealVar   cExp ("cExp","",   -0.005,-1,0.);
@@ -237,18 +238,18 @@ void maketemplate(const string & inputDIR,
   RooErfExpPdf erfExp ("zRooErfExp","",m,cExp,offset,width);
 
   RooRealVar  fracFail   ("fracFail","",0.9,0.,1.);
-  RooAddPdf*  signalFail = NULL;  
+  RooAddPdf*  signalFailAna = NULL;  // failing signal will be convoluted with a gaussian.
   if(usePolynomial)
-    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,zPol),fracFail);
+    signalFailAna = new RooAddPdf("signalFailAna","",RooArgList(zPeakFail,zPol),fracFail);
   else if(useCBShape)
-    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,zCB),fracFail);
-  else if(useRooCMSShape or (useMixedModel and (ptMin < 20 ))))
-    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,backgroundFail),fracFail);
+    signalFailAna = new RooAddPdf("signalFailAna","",RooArgList(zPeakFail,zCB),fracFail);
+  else if(useRooCMSShape or (useMixedModel and (ptMin < 20 )))
+    signalFailAna = new RooAddPdf("signalFailAna","",RooArgList(zPeakFail,zRooCMSShape),fracFail);
   else if(useErfExpPdf or (useMixedModel and  (ptMin >= 20 )))
-    signalFail = new RooAddPdf("signalFail","",RooArgList(zPeakFail,erfExp),fracFail);
+    signalFailAna = new RooAddPdf("signalFailAna","",RooArgList(zPeakFail,erfExp),fracFail);
 
   /// prepare for simultaneous fit --> define efficiency, total pass and fial, as well as extended pdfs
-  RooRealVar efficiency("efficiency", "Efficiency", dhpass.sumEntries()/(dhfail.sumEntries()+dhpass.sumEntries()),0, 1); 
+  RooRealVar efficiency ("efficiency", "Efficiency", dhpass.sumEntries()/(dhfail.sumEntries()+dhpass.sumEntries()),0, 1); 
   RooRealVar    nTot    ("nTot","",dhfail.sumEntries()+dhpass.sumEntries(),0,(dhfail.sumEntries()+dhpass.sumEntries())*100);  
   RooFormulaVar nPass   ("nPass","@0*@1",RooArgList(efficiency,nTot));
   RooFormulaVar nFail   ("nFail","(1-@0)*@1",RooArgList(efficiency,nTot));  
@@ -257,12 +258,12 @@ void maketemplate(const string & inputDIR,
 
   RooExtendPdf  *pdfPass, *pdfFail;
   if(simFit){
-    pdfPass = new RooExtendPdf("pdfPass","",signalPass,nPass);
-    pdfFail = new RooExtendPdf("pdfFail","",*signalFail,nFail);
+    pdfPass = new RooExtendPdf("pdfPassAna","",signalPassAna,nPass);
+    pdfFail = new RooExtendPdf("pdfFailAna","",*signalFailAna,nFail);
   }
   else{
-    pdfPass = new RooExtendPdf("pdfPass","",signalPass,nSignal);
-    pdfFail = new RooExtendPdf("pdfFail","",*signalFail,nBack);
+    pdfPass = new RooExtendPdf("pdfPassAna","",signalPassAna,nSignal);
+    pdfFail = new RooExtendPdf("pdfFailAna","",*signalFailAna,nBack);
   }
 
   //combined category and pdf
@@ -270,7 +271,7 @@ void maketemplate(const string & inputDIR,
   category.defineType("Pass");
   category.defineType("Fail");
 
-  RooSimultaneous simPdf("simPdf","simultaneous pdf",category) ;
+  RooSimultaneous simPdf("simPdfAna","simultaneous pdf",category) ;
   simPdf.addPdf(*pdfPass,"Pass");
   simPdf.addPdf(*pdfFail,"Fail");
 
@@ -298,12 +299,23 @@ void maketemplate(const string & inputDIR,
   // RooDataHist used for efficiency
   w.import(dhpass);
   w.import(dhfail);
+  w.import(signalPassMC);
+  w.import(signalFailMC);
+  // fix pdf parameters before storing the workspace
+  RooArgList passParam = RooArgList(*(signalPassAna.getParameters(dhpass)));
+  RooArgList failParam = RooArgList(*(signalFailAna->getParameters(dhfail)));
+  for(int i = 0; i < passParam.getSize(); i++)
+    ((RooRealVar*) passParam.at(i))->setConstant(kTRUE);  
+  for(int i = 0; i < failParam.getSize(); i++)
+    ((RooRealVar*) failParam.at(i))->setConstant(kTRUE);
+  
+
   // RooHistPdf used for tag and probe fit
   if(simFit)
     w.import(simPdf);
   else{
-    w.import(signalPass);
-    w.import(*signalFail);
+    w.import(signalPassAna);
+    w.import(*signalFailAna);
   }
   w.Write();
 

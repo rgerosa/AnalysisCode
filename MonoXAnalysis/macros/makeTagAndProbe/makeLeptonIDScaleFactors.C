@@ -130,10 +130,13 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
 	  tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
       
       RooFitResult* fitResult = (RooFitResult*) inputFile->FindObjectAny("fitresults");
-      RooArgList parameter    = fitResult->floatParsFinal();
-      RooRealVar* eff         = dynamic_cast<RooRealVar*>(parameter.find("efficiency"));	
-      efficiency->SetBinContent(ieta+1,ipt+1,eff->getVal());
-      efficiency->SetBinError(ieta+1,ipt+1,(eff->getErrorHi()+fabs(eff->getErrorLo()))/2);
+      cout<<fitResult<<endl;
+      if(fitResult){
+	RooArgList parameter    = fitResult->floatParsFinal();
+	RooRealVar* eff         = dynamic_cast<RooRealVar*>(parameter.find("efficiency"));	
+	efficiency->SetBinContent(ieta+1,ipt+1,eff->getVal());
+	efficiency->SetBinError(ieta+1,ipt+1,(eff->getErrorHi()+fabs(eff->getErrorLo()))/2);
+      }
     }
   }
   return;
