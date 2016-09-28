@@ -10,8 +10,8 @@ static double minMedMass = 100.;
 //////////////
 static float massStep = 25;
 //////////////
-static float ptStep  = 10;
-static float etaStep = 0.2;
+static float ptStep  = 50;
+static float etaStep = 1;
 
 // use the small trees produced by makeTreesForInterpolation/makeSmallGenTree.C and used for gen-interpolation to make a spline
 void makeSignalSplineInterpolation (string inputFileName, string outputDIR, string category){
@@ -59,20 +59,19 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   std::sort(darkMatterMassBinning.begin(),darkMatterMassBinning.end());
 
   TH2F* massDenominator = new TH2F("massDenominator","",mediatorMassBinning.size()-1,&mediatorMassBinning[0],darkMatterMassBinning.size()-1,&darkMatterMassBinning[0]);
-  massDenominator->Sumw2();
   TH2F* massNumerator = new TH2F("massNumerator","",mediatorMassBinning.size()-1,&mediatorMassBinning[0],darkMatterMassBinning.size()-1,&darkMatterMassBinning[0]);
-  massNumerator->Sumw2();
   TH2F* mediatorDenominator = new TH2F("mediatorDenominator","",mediatorPtBinning.size()-1,&mediatorPtBinning[0],mediatorEtaBinning.size()-1,&mediatorEtaBinning[0]);
-  mediatorDenominator->Sumw2();
   TH2F* mediatorNumerator = new TH2F("mediatorNumerator","",mediatorPtBinning.size()-1,&mediatorPtBinning[0],mediatorEtaBinning.size()-1,&mediatorEtaBinning[0]);
+  massDenominator->Sumw2();
+  massNumerator->Sumw2();
+  mediatorDenominator->Sumw2();
   mediatorNumerator->Sumw2();
-  reader.SetEntry(0);
 
+  reader.SetEntry(0);
   while(reader.Next()){
 
     massDenominator->Fill(*genMediatorMass,*genX1Mass,(*weightPU)*(*genWeight));
     mediatorDenominator->Fill(*genMediatorPt,fabs(*genMediatorEta),(*weightPU)*(*genWeight));
-
     if(category == "monojet" and *id == 1){
       massNumerator->Fill(*genMediatorMass,*genX1Mass,(*weightPU)*(*genWeight)*(*weightTurnOn));
       if(*genMediatorMass > minMedMass)
@@ -84,7 +83,6 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
 	mediatorNumerator->Fill(*genMediatorPt,fabs(*genMediatorEta),(*weightPU)*(*genWeight)*(*weightTurnOn));
     }    
   }
-
 
   // calculate the efficiency
   TH2F* efficiencyMass = (TH2F*) massNumerator->Clone("efficiencyMass");
@@ -115,6 +113,7 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   efficiencyMediator->Draw("colz text");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D.pdf").c_str(),"pdf");
+ 
 
   TGraph2D *graphEfficiencyMass = new TGraph2D();
   TGraph2D *graphEfficiencyMediator = new TGraph2D();
@@ -184,9 +183,9 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   RooArgList list1 (*mmed,*mdm);
   RooArgList list2 (*bpt,*beta);
   
-  RooSplineND *spline_mmed_mdm = new RooSplineND("spline_mmed_mdm","spline_mmed_mdm",list1,treeMass,"effm",0.1,true);  
-  RooSplineND *spline_bpt_beta = new RooSplineND("spline_bpt_beta","spline_bpt_beta",list2,treeMediator,"effb",0.01,true);  
-  TGraph2D* splineMassGraph = new TGraph2D();
+  RooSplineND *spline_mmed_mdm = new RooSplineND("spline_mmed_mdm","spline_mmed_mdm",list1,treeMass,"effm",1,true);  
+  RooSplineND *spline_bpt_beta = new RooSplineND("spline_bpt_beta","spline_bpt_beta",list2,treeMediator,"effb",1,true);  
+  TGraph2D* splineMassGraph     = new TGraph2D();
   TGraph2D* splineMediatorGraph = new TGraph2D();
 
   // Create interpolated graphs
@@ -211,17 +210,15 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   }
 
   canvas->SetLogx();  
-  //  graphEfficiencyMass->Draw("P0");
-  //  splineMassGraph->Draw("surf1 same");
-  //  graphEfficiencyMass->Draw("P0same");
+  graphEfficiencyMass->Draw("P0");
+  splineMassGraph->Draw("surf1 same");
   splineMassGraph->Draw("P0");
   canvas->SaveAs((outputDIR+"/efficiencyMass_2D_Graph.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/efficiencyMass_2D_Graph.pdf").c_str(),"pdf");
   canvas->SetLogx(0);
-  //graphEfficiencyMediator->Draw("P0");
-  //  splineMediatorGraph->Draw("surf same");
-  splineMediatorGraph->Draw("P0");
-  // graphEfficiencyMediator->Draw("P0same");
+  graphEfficiencyMediator->Draw("P0");
+  splineMediatorGraph->Draw("surf1 same");
+  graphEfficiencyMediator->Draw("P0same");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_Graph.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_Graph.pdf").c_str(),"pdf");    
   
