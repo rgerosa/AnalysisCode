@@ -312,7 +312,7 @@ void  makeAsimovLikelihood(RooWorkspace* ws_asimov, TH1* data_obs, RooWorkspace*
   for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
     templateBin->setIndex(iBin+1);
     // make integer to mimic data                                                                                                                                                                   
-    double expectation = double(int(((RooRealVar*) binSum->at(iBin))->getVal()+0.5));
+    double expectation = double(int(((RooRealVar*) binSum->at(iBin))->getVal()));
     if(debug)
       cout<<"Asimov daaset: ibin "<<iBin<<" sum S+B, with S=0 "<<((RooRealVar*) binSum->at(iBin))->getVal()<<" expectation "<<expectation<<endl;
     ((RooRealVar*) centralBkgAsimov->at(iBin))->setVal(expectation);

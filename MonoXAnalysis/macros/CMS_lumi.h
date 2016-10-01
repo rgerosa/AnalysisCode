@@ -100,7 +100,10 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, int reduceSize = false, f
   if(reduceSize == 2)
     latex2->SetTextSize(0.60*pad->GetTopMargin());
   
-  latex2->DrawLatex(0.94, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
+  if(lumi != "")
+    latex2->DrawLatex(0.94, 0.95,(lumi+" fb^{-1} (13 TeV)").c_str());
+  else
+    latex2->DrawLatex(0.88, 0.95,(lumi+"(13 TeV)").c_str());
 
   if(up){
     latex2->SetTextSize(0.65*pad->GetTopMargin());

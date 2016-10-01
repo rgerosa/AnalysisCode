@@ -39,6 +39,30 @@ class VectorSorter{
   }
 };
 
+//////////
+class SamplesNLO {
+
+ public:
+
+ SamplesNLO(bool a, bool b, bool c, bool d):
+  useWJetsNLO(a),
+    useZJetsNLO(b),
+    useDYJetsNLO(c),
+    usePhotonJetsNLO(d){};
+
+  bool useWJetsNLO;
+  bool useZJetsNLO;
+  bool useDYJetsNLO;
+  bool usePhotonJetsNLO;
+  string WJetsDIR;
+  string ZJetsDIR;
+  string DYJetsDIR;
+  string PhotonJetsDIR;
+ 
+};
+
+
+
 ////////////////////////////////////////////////////
 // define binnings for the different observables // 
 ///////////////////////////////////////////////////                               

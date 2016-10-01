@@ -20,7 +20,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.8
 
   vector<float> bins;
   if(singleMuon)
-    bins = {50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100., 105., 110., 115., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000.};
+    //    bins = {50.,55.,60.,65.,70.,75.,80.,85.,90.,95.,100., 105., 110., 115., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000.};
+    bins = {200., 225, 250., 275., 300., 325, 350., 375, 400., 425, 450., 500., 525, 550., 600, 650., 700, 800., 900, 1000., 1200};
   else
     bins = {50.,70.,90.,100,110.,120.,140.,160., 180., 200., 250., 350.,450,550,650,1000.};
     
@@ -37,8 +38,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.8
   // define numerator as event with tight muon + trigger requirement
   // define denominator as an event with a tight muon passing single muon trigger
   if(singleMuon){
-    tree->Draw("t1mumet>>hnum","(hltmet90 == 1 || hltmet100 == 1 || hltmet110 == 1 || hltmetwithmu170 == 1) && hltsinglemu==1 && mu1pt>20 && mu1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
-    tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 &&  abs(combinejeteta[0]) < 2.5");    
+    tree->Draw("t1mumet>>hnum","(hltmet90 == 1 || hltmet100 == 1 || hltmet110 == 1 || hltmetwithmu170 == 1) && hltsinglemu==1 && mu1pt>20 && mu1id==1  && abs(mu1eta) < 1.1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
+    tree->Draw("t1mumet>>hden","hltsinglemu==1 && mu1pt>20 && mu1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 &&  abs(combinejeteta[0]) < 2.5 && abs(mu1eta) < 1.1");    
   }
   else{
     tree->Draw("t1pfmet>>hnum","(hltmet90 == 1 || hltmet100 == 1 || hltmet110 == 1 || hltmetwithmu170 == 1) && hltsingleel==1 && el1pt>40 && el1id==1 && combinejetpt[0]>100. && combinejetCHfrac[0]>0.1 && abs(combinejeteta[0]) < 2.5");    
@@ -54,7 +55,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.8
   fitfunc->SetLineColor(kBlue);
   fitfunc->SetLineWidth(2);
   
-  TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.1, "");
+  //  TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.1, "");
+  TH1* frame = canvas->DrawFrame(bins.front(), 0.9, bins.back(), 1.1, "");
   if(singleMuon)
     frame->GetXaxis()->SetTitle("E_{T#mu}^{miss} [GeV]");
   else
