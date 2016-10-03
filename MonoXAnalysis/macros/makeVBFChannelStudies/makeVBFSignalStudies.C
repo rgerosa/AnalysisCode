@@ -5,7 +5,7 @@ void fillHisto(TH1* histo, double val){ // embed the overflow
   if(val < histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
     histo->Fill(val);
   else
-    histo->Fill(histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1)-1);
+    histo->Fill(histo->GetXaxis()->GetBinCenter(histo->GetNbinsX()));
 
 }
 
@@ -15,12 +15,12 @@ void fillHisto(TH2* histo, double valx, double valy){ // Embed- the overflow
   if(valx < histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
     x = valx;
   else
-    x = histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1)-1;
+    x =histo->GetXaxis()->GetBinCenter(histo->GetNbinsX());
   double y = 0;
   if(valy < histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1))
     y = valy;
   else
-    y = histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1)-1;
+    y = histo->GetYaxis()->GetBinCenter(histo->GetNbinsY()));
 
   histo->Fill(x,y);
 }
