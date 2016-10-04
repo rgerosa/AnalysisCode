@@ -9,7 +9,7 @@ config = Configuration()
 pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
                'filterHighMETEvents=True',
-               'metCut=175',
+               'metCut=125',
                'usePrivateSQliteJEC=False',
                'applyL2L3Residuals=True',
                'addQGLikelihood=True',
@@ -30,7 +30,7 @@ pyCfgParams = ['isMC=False',
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_80X_v2'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_80X'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -45,8 +45,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 50000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_30_08_2016_24p5fb/'
-config.Data.lumiMask      = '/afs/cern.ch/user/r/rgerosa/work/MONOJET_ANALYSIS/CMSSW_8_0_14/src/AnalysisCode/MonoXAnalysis/test/crab/crabJSONFiles/addionJSON_RunG.txt'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_01_10_2016_27fb/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
 #config.Data.runRange
 config.Data.publication   = False
 

@@ -26,7 +26,7 @@ pyCfgParams = ['isMC=True',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
                'nThreads=3',
-               'triggerName=HLT2',
+               'triggerName=HLT',
                'isCrab=True']
 
 config.section_('General')
@@ -46,7 +46,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-12-06-2016-80X-MC-Signal_v2/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_SignalHiggs_01_10_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

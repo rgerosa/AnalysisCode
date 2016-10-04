@@ -500,8 +500,8 @@ void makeControlPlots(string templateFileName,
 
   THStack* stack = new THStack("stack", "stack");
   if(controlRegion == "gam"){
-    //    stack->Add(vghist);
-    //    stack->Add(vlhist);
+    stack->Add(vghist);
+    stack->Add(vlhist);
     stack->Add(qcdhist);
     stack->Add(gamhist);
   }
@@ -670,8 +670,8 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(gamhist, "#gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
-    //    leg->AddEntry(vlhist, "W+Jets","F");
-    //    leg->AddEntry(vghist, "V#gamma","F");
+    leg->AddEntry(vlhist, "W+Jets","F");
+    leg->AddEntry(vghist, "V#gamma","F");
   }
 
   else if(controlRegion == "zmm"){
@@ -805,7 +805,7 @@ void makeControlPlots(string templateFileName,
   frame2->Reset();
   if(category == Category::monojet or category == Category::inclusive)
     // frame2->GetYaxis()->SetRangeUser(0.,3.5);
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.8,1.2);
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF)

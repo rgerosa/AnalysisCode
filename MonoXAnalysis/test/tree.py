@@ -616,7 +616,7 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 			 wpLabel = cms.string("Loose"),
 			 wpValue = cms.double(-0.715)),
 
-		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
 			 wpValue = cms.double(0.185)),
 		))

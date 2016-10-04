@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=175',
+               'metCut=125',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
@@ -26,6 +26,7 @@ pyCfgParams = ['isMC=True',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
                'nThreads=3',
+               'triggerName=HLT2',
                'isCrab=True']
 
 config.section_('General')
@@ -45,7 +46,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_30_08_2016/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_01_10_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

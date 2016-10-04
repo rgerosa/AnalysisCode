@@ -24,6 +24,8 @@ const float tau2tau1LP      = 0.75;
 const float prunedMassMin   = 65.;
 const float prunedMassMax   = 105.;
 const float leadingJetPtCut = 100.;
+const float leadingJetPtCutVBF  = 60.;
+const float trailingJetPtCutVBF = 50.;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
 const float pfMetMonoVLower = 250.;
@@ -984,19 +986,18 @@ void makehist4(TTree* tree, /*input tree*/
       else if(category == Category::VBF){
 	if(centralJets.size()+forwardJets.size() < 2) continue;
 	if(fabs(jeteta->at(0)) > 4.7 || fabs(jeteta->at(1)) > 4.7) continue;
-	if(jetpt->at(0) < leadingJetPtCut) continue;
+	if(jetpt->at(0) < leadingJetPtCutVBF) continue;
+	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
 	if(jmdphi < 0.5) continue; // deltaPhi cut                                                                                                                             
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-	if(fabs(jeteta->at(0)) > 3.0) continue;
-	if(jetpt->at(1) < 40) continue;
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < 4) continue;
+	if(fabs(jeteta->at(0)-jeteta->at(1)) < 2) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() < 1000) continue;
+	if((jet1+jet2).M() < 400) continue;
       }
     }
 
