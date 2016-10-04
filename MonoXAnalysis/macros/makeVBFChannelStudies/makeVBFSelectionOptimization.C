@@ -8,6 +8,8 @@ static float deltaEtaJJ    = 2;
 static float Mjj           = 400;
 static int   reduceStatistics = 2;
 ////////////////////// 
+float mjj, detajj, jetpt1, jeteta1, jeteta2, jetpt2, dphijj, jetmetdphi, mTjj, njet, weight;
+//////////////////////
 void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<TH1*> khists, const float & luminosity, const bool & isKfactor = false, const bool & reduceStat = false){
 
   // pileup re-weight
@@ -19,7 +21,6 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
   TGraphAsymmErrors* triggermet_graph = triggermet->CreateGraph();
 
   // optput tree
-  float mjj, detajj, jetpt1, jeteta1, jeteta2, jetpt2, dphijj, jetmetdphi, mTjj, njet, weight;
   outputTree->Branch("mjj",&mjj,"mjj/F");
   outputTree->Branch("detajj",&detajj,"detajj/F");
   outputTree->Branch("jetpt1",&jetpt1,"jetpt1/F");
@@ -175,8 +176,10 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
 // on combo do Likelihood, MLP and BDT
 void makeVBFSelectionOptimization(float luminosity, string outputDirectory, string outputName, bool doSingleVariables, bool doVariablesPair, bool doCombo){
 
-  vector<TString> inputVariablesSingle = {"mjj","detajj","dphijj","mTjj","njet","jetmetdphi","jetpt1","jetpt2"};
-  vector<TString> inputVariablesPair   = {"mjj-detajj","mjj-dphijj","mjj-mTjj","mjj-njet","mjj-jetmetdphi","detajj-dphijj","detajj-njet","detajj-mTjj","detajj-jmetmetdphi"};
+  //  vector<TString> inputVariablesSingle = {"mjj","detajj","dphijj","mTjj","jetmetdphi","jetpt1","jetpt2"};
+  vector<TString> inputVariablesSingle = {"jetmetdphi","jetpt1","jetpt2"};
+  vector<TString> inputVariablesPair   = {"mjj-detajj","mjj-dphijj","mjj-mTjj","mjj-njet","mjj-jetmetdphi","detajj-dphijj","detajj-njet","detajj-mTjj","detajj-jetmetdphi"};
+  vector<TString> inputVariablesComb   = {"mjj","detajj","dphijj","mTjj","jetmetdphi","jetpt1","jetpt2","njet"};
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -278,7 +281,10 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   cout<<"Fill VBF tree for training/testing "<<endl;
   makeSimpleTreeForTraining(vbftree_training,vbftree,khists,luminosity,false,false);
   cout<<"Fill Znn QCD tree for training/testing "<<endl;
-  makeSimpleTreeForTraining(znntree_training,znntree,khists,luminosity,true,true);  
+  if(not doCombo)
+    makeSimpleTreeForTraining(znntree_training,znntree,khists,luminosity,true,true);  
+  else
+    makeSimpleTreeForTraining(znntree_training,znntree,khists,luminosity,true,false);  
   cout<<"Fill Znn EWK tree for training/testing "<<endl;
   makeSimpleTreeForTraining(znnewktree_training,znnewktree,khists,luminosity,false,false);
   
@@ -287,7 +293,10 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   khists.push_back(wewkhist);
 
   cout<<"Fill W+jets QCD tree for training/testing "<<endl;
-  makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,true);
+  if(not doCombo)
+    makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,true);
+  else
+    makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,false);
   cout<<"Fill W+jets EWK tree for training/testing "<<endl;
   makeSimpleTreeForTraining(wjetewktree_training,wjetewktree,khists,luminosity,false,false);
   
@@ -301,6 +310,7 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
     for(auto var :inputVariablesSingle){
       // create a factory
       TFile* outputFile = new TFile((outputDirectory+"/"+outputName+"_"+string(var)+"_cuts.root").c_str(),"RECREATE"); 
+      outputFile->cd();
       TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification:Transformations=I");
       system(("mkdir -p "+outputDirectory+"/WeightCut_"+string(var)).c_str());
       (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory+"/WeightCut_"+var;
@@ -314,7 +324,6 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
       factory->SetBackgroundWeightExpression("weight");
       factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
       factory->BookMethod( TMVA::Types::kCuts, "Cuts","!H:!V:FitMethod=MC:EffSel:VarProp=FSmart" );
-      //factory->BookMethod( TMVA::Types::kCuts, "Cuts", "!H:!V:FitMethod=SA:EffSel:MaxCalls=150000:KernelTemp=IncAdaptive:InitialTemp=1e+6:MinTemp=1e-6:Eps=1e-10:UseDefaultScale");
       
       factory->TrainAllMethods();
       factory->TestAllMethods();
@@ -338,6 +347,7 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
       TString var2 (((TObjString *) array->At(1))->String());
 
       TFile* outputFile = new TFile((outputDirectory+"/"+outputName+"_"+string(var1)+"_"+string(var2)+".root").c_str(),"RECREATE");
+      outputFile->cd();
       TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification:Transformations=I");
       system(("mkdir -p "+outputDirectory+"/WeightCut_"+string(var1)+"_"+string(var2)).c_str());
       (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory+"/WeightCut_"+var1+"_"+var2;
@@ -352,8 +362,7 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
       factory->SetBackgroundWeightExpression("weight");      
       factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
       factory->BookMethod( TMVA::Types::kCuts, "Cuts","!H:!V:FitMethod=MC:EffSel:VarProp=FSmart" );
-      //factory->BookMethod(TMVA::Types::kLikelihood, "Likelihood","!H:!V:!TransformOutput:PDFInterpol=Spline3:NSmoothSig[0]=20:NSmoothBkg[0]=20:NSmooth=5:NAvEvtPerBin=50:CreateMVAPdfs:VarTransform=D");
-      factory->BookMethod(TMVA::Types::kLikelihood, "Likelihood","!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:CreateMVAPdfs:KDEFineFactor=0.3:KDEborder=None:VarTransform=D");
+      factory->BookMethod(TMVA::Types::kLikelihood, "Likelihood","!H:!V:!TransformOutput:PDFInterpol=Spline3:NSmoothSig[0]=20:NSmoothBkg[0]=20:NSmoothBkg[1]=10:NSmooth=1:NAvEvtPerBin=50:VarTransform=D");
       factory->TrainAllMethods();
       factory->TestAllMethods();
       factory->EvaluateAllMethods();
@@ -366,10 +375,11 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   if(doCombo){
 
     TFile* outputFile = new TFile((outputDirectory+"/"+outputName+"_combo.root").c_str(),"RECREATE");
-    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification:Transformations=I;D;P;G");
+      outputFile->cd();
+    TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification:Transformations=I");
     (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory;
     
-    for(auto var : inputVariablesSingle)
+    for(auto var : inputVariablesComb)
       factory->AddVariable(var,'F');
     
     factory->AddSignalTree(vbftree_training,1.0);
@@ -380,18 +390,15 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
     factory->SetSignalWeightExpression("weight");
     factory->SetBackgroundWeightExpression("weight");
     factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
-        
-    //factory->BookMethod(TMVA::Types::kLikelihood, "Likelihood","!H:!V:!TransformOutput:PDFInterpol=KDE:KDEtype=Gauss:KDEiter=Adaptive:CreateMVAPdfs:KDEFineFactor=0.3:KDEborder=None:VarTransform=D"); 
-    factory->BookMethod(TMVA::Types::kBDT, "BDTG","!H:!V:CreateMVAPdfs:NTrees=500:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=0.5:PruneMethod=NoPruning:PruneStrength=5:MaxDepth=5:SeparationType=GiniIndex:Shrinkage=0.1:nCuts=200:VarTransform=D,P,G");
-    
+    factory->BookMethod(TMVA::Types::kBDT, "BDTG","!H:!V:CreateMVAPdfs:NTrees=1000:BoostType=Grad:!UseBaggedGrad:GradBaggingFraction=0.5:PruneMethod=NoPruning:PruneStrength=5:MaxDepth=5:SeparationType=GiniIndex:Shrinkage=0.1:nCuts=200:VarTransform=D,P,G");
     factory->TrainAllMethods();
     factory->TestAllMethods();
     factory->EvaluateAllMethods();
+
     outputFile->Close();
     delete factory;
   }
     
-
   outputTemp->Close();
   system("rm -r /tmp/rgerosa/outputTemp.root");
 
