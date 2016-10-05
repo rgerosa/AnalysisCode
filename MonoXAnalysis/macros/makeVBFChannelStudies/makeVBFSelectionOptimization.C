@@ -1,19 +1,19 @@
 #include "../CMS_lumi.h"
 
-static float leadingJetPt  = 50;
+static float leadingJetPt  = 70;
 static float trailingJetPt = 50;
 static float missingEnergy = 150;
-static float jetMetDPhi    = 0.5;
-static float deltaEtaJJ    = 2;
-static float Mjj           = 400;
+static float jetMetDPhi    = 1.0;
+static float deltaEtaJJ    = 3.5;
+static float Mjj           = 600;
 static int   reduceStatistics = 2;
 ////////////////////// 
-float mjj, detajj, jetpt1, jeteta1, jeteta2, jetpt2, dphijj, jetmetdphi, mTjj, njet, weight;
+float mjj, detajj, jetpt1, jeteta1, jeteta2, jetpt2, dphijj, jetmetdphi, mTjj, njet, weight, t1pfmet;
 //////////////////////
 void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<TH1*> khists, const float & luminosity, const bool & isKfactor = false, const bool & reduceStat = false){
 
   // pileup re-weight
-  TFile* pileupFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
+  TFile* pileupFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   TH1*   puhist = (TH1*) pileupFile->Get("puhist");
   // trigger MET
   TFile* triggerfile_MET   =  TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency_12p9.root");
@@ -31,8 +31,9 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
   outputTree->Branch("jetmetdphi",&jetmetdphi,"jetmetdphi/F");
   outputTree->Branch("mTjj",&mTjj,"mTjj/F");
   outputTree->Branch("njet",&njet,"njet/F");
+  outputTree->Branch("t1pfmet",&t1pfmet,"t1pfmet/F");
   outputTree->Branch("weight",&weight,"weight/F");  
-  mjj = -1; detajj = -1; jetpt1 = -1; jeteta1 = -1; jeteta2 = -1; jetpt2 = -1; dphijj = -1; jetmetdphi = -1; mTjj= -1; njet = -1; weight = -1;
+  mjj = -1; detajj = -1; jetpt1 = -1; jeteta1 = -1; jeteta2 = -1; jetpt2 = -1; dphijj = -1; jetmetdphi = -1; mTjj= -1; njet = -1; weight = -1; t1pfmet = -1;
 
   for(auto tree : chain){ 
 
@@ -94,7 +95,7 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
       if(nEvent > tree->GetEntries()/reduceStatistics and reduceStat) continue;
       nEvent++;
 
-      mjj = -1; detajj = -1; jetpt1 = -1; jeteta1 = -1; jeteta2 = -1; jetpt2 = -1; dphijj = -1; jetmetdphi = -1; mTjj= -1; njet = -1; weight = -1;
+      mjj = -1; detajj = -1; jetpt1 = -1; jeteta1 = -1; jeteta2 = -1; jetpt2 = -1; dphijj = -1; jetmetdphi = -1; mTjj= -1; njet = -1; weight = -1; t1pfmet = -1;
       
       // met trigger requirement
       if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) continue;    
@@ -154,6 +155,7 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
       jetmetdphi = *jmmdphi4; 
       mTjj   = sqrt(2*jet1.Pt()*jet2.Pt()*(1-cos(jet1.DeltaPhi(jet2)))); 
       njet   = *njetsinc; 
+      t1pfmet = *mmet;
       if(not reduceStat)
 	weight = *xsec*luminosity*(*wgt)*kwgt*puwgt*trgwgt/(*wgtsum);
       else
@@ -174,12 +176,17 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
 // on single variable do rectangular cut optimization
 // on pairs variable do rectangular cut optimization and Likelihood
 // on combo do Likelihood, MLP and BDT
-void makeVBFSelectionOptimization(float luminosity, string outputDirectory, string outputName, bool doSingleVariables, bool doVariablesPair, bool doCombo){
+void makeVBFSelectionOptimization(float luminosity, string outputDirectory, string outputName, bool doSingleVariables, bool doVariablesPair, bool doCombo, string backgroundScenario){
 
-  //  vector<TString> inputVariablesSingle = {"mjj","detajj","dphijj","mTjj","jetmetdphi","jetpt1","jetpt2"};
-  vector<TString> inputVariablesSingle = {"jetmetdphi","jetpt1","jetpt2"};
+  if(backgroundScenario != "all" and backgroundScenario != "qcd" and backgroundScenario != "ewk"){
+    cerr<<"backgroundScenario not recongnized --> options are : all, qcd, ewk --> exit"<<endl;
+    return;
+  }
+
+  vector<TString> inputVariablesSingle = {"mjj"};
+  //,"detajj","dphijj","mTjj","jetmetdphi"};
   vector<TString> inputVariablesPair   = {"mjj-detajj","mjj-dphijj","mjj-mTjj","mjj-njet","mjj-jetmetdphi","detajj-dphijj","detajj-njet","detajj-mTjj","detajj-jetmetdphi"};
-  vector<TString> inputVariablesComb   = {"mjj","detajj","dphijj","mTjj","jetmetdphi","jetpt1","jetpt2","njet"};
+  vector<TString> inputVariablesComb   = {"mjj","detajj","dphijj","mTjj","jetmetdphi","jetpt1","jetpt2","njet","t1pfmet"};
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -188,64 +195,69 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   // take trees for VBF signal
   vector<TFile*> vbftreeFile;
   vector<TTree*> vbftree;
-  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M110_13TeV_powheg_pythia8.root"));
+  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M125_13TeV_powheg_pythia8.root"));
   vbftree.push_back((TTree*) vbftreeFile.back()->Get("tree/tree"));
-  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M125_13TeV_powheg_pythia8.root"));
+  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M150_13TeV_powheg_pythia8.root"));
   vbftree.push_back((TTree*) vbftreeFile.back()->Get("tree/tree"));
-  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M150_13TeV_powheg_pythia8.root"));
-  vbftree.push_back((TTree*) vbftreeFile.back()->Get("tree/tree"));
-  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M200_13TeV_powheg_pythia8.root"));
+  vbftreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M200_13TeV_powheg_pythia8.root"));
   vbftree.push_back((TTree*) vbftreeFile.back()->Get("tree/tree"));
 
   // Znn backgrounds : QCD and EWK
   vector<TFile*>  znntreeFile ;
   vector<TTree*>  znntree ;
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-100To200_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-200To400_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-400To600_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-600To800_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-800To1200_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
-  znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.root"));
-  znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+  if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-100To200_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-200To400_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-400To600_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-600To800_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-800To1200_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-1200To2500_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+    znntreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-2500ToInf_13TeV-madgraph.root"));
+    znntree.push_back((TTree*) znntreeFile.back()->Get("tree/tree"));
+  }
 
   vector<TFile*> znnewktreeFile;
-  znnewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJetsToNuNuEWK/sigfilter/sig_EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8.root"));
   vector<TTree*> znnewktree;
-  znnewktree.push_back((TTree*) znnewktreeFile.back()->Get("tree/tree"));
-  
+  if(backgroundScenario == "all" or backgroundScenario == "ewk"){
+    znnewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJetsToNuNuEWK/sigfilter/sig_EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8.root"));
+    znnewktree.push_back((TTree*) znnewktreeFile.back()->Get("tree/tree"));
+  }
+
   // WJet backgrounds : QCD and EWK
   vector<TFile*> wjettreeFile;
   vector<TTree*> wjettree;
-
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
-  wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJets/sigfilter/sig_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
-  wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+  if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-200To400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-600To800_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-800To1200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-1200To2500_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+    wjettreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJets/sigfilter/sig_WJetsToLNu_HT-2500ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8.root"));
+    wjettree.push_back((TTree*) wjettreeFile.back()->Get("tree/tree"));
+  }
 
   vector<TFile*> wjetewktreeFile;
   vector<TTree*> wjetewktree;
-  wjetewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJetsEWK/sigfilter/sig_EWKWMinus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8.root"));
-  wjetewktree.push_back((TTree*) wjetewktreeFile.back()->Get("tree/tree"));
-  wjetewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/WJetsEWK/sigfilter/sig_EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8.root"));
-  wjetewktree.push_back((TTree*) wjetewktreeFile.back()->Get("tree/tree"));
-  
+  if(backgroundScenario == "all" or backgroundScenario == "ewk"){
+    wjetewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJetsEWK/sigfilter/sig_EWKWMinus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8.root"));
+    wjetewktree.push_back((TTree*) wjetewktreeFile.back()->Get("tree/tree"));
+    wjetewktreeFile.push_back(TFile::Open("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/WJetsEWK/sigfilter/sig_EWKWPlus2Jets_WToLNu_M-50_13TeV-madgraph-pythia8.root"));
+    wjetewktree.push_back((TTree*) wjetewktreeFile.back()->Get("tree/tree"));
+  }
+
   // get k-factors NLO                                                                                                                                                                                
   TFile kffile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root");
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
@@ -269,7 +281,10 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   khists.push_back(zewkhist);
 
   // make small trees for traning
-  TFile* outputTemp = new TFile("/tmp/rgerosa/outputTemp.root","RECREATE");
+  TRandom3 rand;
+  rand.SetSeed(0);
+  TString name = Form("/tmp/rgerosa/outputTemp_%d.root",int(rand.Uniform(0,1000000)));
+  TFile* outputTemp = new TFile(name,"RECREATE");
   outputTemp->cd();
   
   TTree* vbftree_training = new TTree("vbftree","vbftree");
@@ -281,24 +296,30 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   cout<<"Fill VBF tree for training/testing "<<endl;
   makeSimpleTreeForTraining(vbftree_training,vbftree,khists,luminosity,false,false);
   cout<<"Fill Znn QCD tree for training/testing "<<endl;
+  if(backgroundScenario == "all" or backgroundScenario == "qcd"){
   if(not doCombo)
     makeSimpleTreeForTraining(znntree_training,znntree,khists,luminosity,true,true);  
   else
     makeSimpleTreeForTraining(znntree_training,znntree,khists,luminosity,true,false);  
+  }
   cout<<"Fill Znn EWK tree for training/testing "<<endl;
-  makeSimpleTreeForTraining(znnewktree_training,znnewktree,khists,luminosity,false,false);
+  if(backgroundScenario == "all" or backgroundScenario == "ewk")
+    makeSimpleTreeForTraining(znnewktree_training,znnewktree,khists,luminosity,false,false);
   
   khists.clear();
   khists.push_back(wnlohist);
   khists.push_back(wewkhist);
 
   cout<<"Fill W+jets QCD tree for training/testing "<<endl;
-  if(not doCombo)
-    makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,true);
-  else
-    makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,false);
+  if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+    if(not doCombo)
+      makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,true);
+    else
+      makeSimpleTreeForTraining(wjettree_training,wjettree,khists,luminosity,true,false);
+  }
   cout<<"Fill W+jets EWK tree for training/testing "<<endl;
-  makeSimpleTreeForTraining(wjetewktree_training,wjetewktree,khists,luminosity,false,false);
+  if(backgroundScenario == "all" or backgroundScenario == "ewk")
+    makeSimpleTreeForTraining(wjetewktree_training,wjetewktree,khists,luminosity,false,false);
   
 
   // setup the MVA factory
@@ -316,10 +337,14 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
       (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory+"/WeightCut_"+var;
       factory->AddVariable(var,'F');
       factory->AddSignalTree(vbftree_training,1.0);
-      factory->AddBackgroundTree(znntree_training,1.0);
-      factory->AddBackgroundTree(znnewktree_training,1.0);
-      factory->AddBackgroundTree(wjettree_training,1.0);
-      factory->AddBackgroundTree(wjetewktree_training,1.0);      
+      if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+	factory->AddBackgroundTree(znntree_training,1.0);
+	factory->AddBackgroundTree(wjettree_training,1.0);
+      }
+      if(backgroundScenario == "all" or backgroundScenario == "ewk"){      
+	factory->AddBackgroundTree(znnewktree_training,1.0);
+	factory->AddBackgroundTree(wjetewktree_training,1.0); 
+      }     
       factory->SetSignalWeightExpression("weight");
       factory->SetBackgroundWeightExpression("weight");
       factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
@@ -354,10 +379,14 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
       factory->AddVariable(var1,'F');
       factory->AddVariable(var2,'F');
       factory->AddSignalTree(vbftree_training,1.0);
-      factory->AddBackgroundTree(znntree_training,1.0);
-      factory->AddBackgroundTree(znnewktree_training,1.0);
-      factory->AddBackgroundTree(wjettree_training,1.0);
-      factory->AddBackgroundTree(wjetewktree_training,1.0);
+      if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+	factory->AddBackgroundTree(znntree_training,1.0);
+	factory->AddBackgroundTree(wjettree_training,1.0);
+      }
+      if(backgroundScenario == "all" or backgroundScenario == "ewk"){      
+	factory->AddBackgroundTree(znnewktree_training,1.0);
+	factory->AddBackgroundTree(wjetewktree_training,1.0); 
+      }     
       factory->SetSignalWeightExpression("weight");
       factory->SetBackgroundWeightExpression("weight");      
       factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
@@ -377,16 +406,20 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
     TFile* outputFile = new TFile((outputDirectory+"/"+outputName+"_combo.root").c_str(),"RECREATE");
       outputFile->cd();
     TMVA::Factory *factory = new TMVA::Factory("TMVAClassification", outputFile,"!V:!Silent:Color:DrawProgressBar:AnalysisType=Classification:Transformations=I");
-    (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory;
+    (TMVA::gConfig().GetIONames()).fWeightFileDir = outputDirectory+"/WeightCombo";
     
     for(auto var : inputVariablesComb)
       factory->AddVariable(var,'F');
     
     factory->AddSignalTree(vbftree_training,1.0);
-    factory->AddBackgroundTree(znntree_training,1.0);
-    factory->AddBackgroundTree(znnewktree_training,1.0);
-    factory->AddBackgroundTree(wjettree_training,1.0);
-    factory->AddBackgroundTree(wjetewktree_training,1.0);
+    if(backgroundScenario == "all" or backgroundScenario == "qcd"){
+      factory->AddBackgroundTree(znntree_training,1.0);
+      factory->AddBackgroundTree(wjettree_training,1.0);
+    }
+    if(backgroundScenario == "all" or backgroundScenario == "ewk"){      
+      factory->AddBackgroundTree(znnewktree_training,1.0);
+      factory->AddBackgroundTree(wjetewktree_training,1.0); 
+    }     
     factory->SetSignalWeightExpression("weight");
     factory->SetBackgroundWeightExpression("weight");
     factory->PrepareTrainingAndTestTree("","nTrain_Signal=0:nTrain_Background=0:nTest_Signal=0:nTest_Background=0:SplitMode=Random:NormMode=NumEvents:!V");
@@ -400,6 +433,6 @@ void makeVBFSelectionOptimization(float luminosity, string outputDirectory, stri
   }
     
   outputTemp->Close();
-  system("rm -r /tmp/rgerosa/outputTemp.root");
+  system(("rm -r "+string(name)).c_str());
 
 }

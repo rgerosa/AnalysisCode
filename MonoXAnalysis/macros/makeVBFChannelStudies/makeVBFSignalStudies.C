@@ -20,7 +20,7 @@ void fillHisto(TH2* histo, double valx, double valy){ // Embed- the overflow
   if(valy < histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1))
     y = valy;
   else
-    y = histo->GetYaxis()->GetBinCenter(histo->GetNbinsY()));
+    y = histo->GetYaxis()->GetBinCenter(histo->GetNbinsY());
 
   histo->Fill(x,y);
 }
@@ -91,7 +91,7 @@ void plotDistribution(TCanvas* canvas, TH2* qqH, TH2* ggH, const string & labelX
   qqHPlot->GetZaxis()->SetTitle("a.u");   
   qqHPlot->Draw("colz");
 
-  TProfile* qqHProfile = qqH->ProfileY(Form("%s_pfy",qqH->GetName()));
+  TProfile* qqHProfile = qqH->ProfileX(Form("%s_pfx",qqH->GetName()));
   qqHProfile->SetMarkerColor(kBlack);
   qqHProfile->SetMarkerStyle(20);
   qqHProfile->SetMarkerSize(1);
@@ -131,7 +131,7 @@ void plotDistribution(TCanvas* canvas, TH2* qqH, TH2* ggH, const string & labelX
   ggHPlot->Draw("colz");
   CMS_lumi(canvas,"");
 
-  TProfile* ggHProfile = ggH->ProfileY(Form("%s_pfy",ggH->GetName()));
+  TProfile* ggHProfile = ggH->ProfileX(Form("%s_pfx",ggH->GetName()));
   ggHProfile->SetMarkerColor(kBlack);
   ggHProfile->SetMarkerStyle(20);
   ggHProfile->SetMarkerSize(1);
@@ -159,15 +159,13 @@ void makeVBFSignalStudies(string outputPlot){
 
   TChain* vbftree = new TChain("tree/tree");
   TChain* ggHtree = new TChain("tree/tree");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/qqH/*110*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/qqH/*125*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/qqH/*150*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/qqH/*200*root");
-  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/ggH/*110*root");
-  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/ggH/*125*root");
-  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/ggH/*150*root");
-  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS/SignalSample/ggH/*200*root");
-
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*VBF*125*root");
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*VBF*150*root");
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*VBF*200*root");
+  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*GluGlu*125*root");
+  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*GluGlu*150*root");
+  ggHtree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/*GluGlu*200*root");
+  
   
   TTreeReader myReader (vbftree);
   TTreeReaderValue<unsigned int> njetsinc  (myReader,"njetsinc");

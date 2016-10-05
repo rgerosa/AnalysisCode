@@ -1,15 +1,15 @@
 #include "../CMS_lumi.h"
 
-void fillHisto(TH1* histo, double val){ // embed the overflow                                                                                                                                        
+void fillHisto(TH1* histo, double val, double weight){ // embed the overflow                                                                                                                       
  
   if(val < histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
-    histo->Fill(val);
+    histo->Fill(val,weight);
   else
-    histo->Fill(histo->GetXaxis()->GetBinCenter(histo->GetNbinsX()));
+    histo->Fill(histo->GetXaxis()->GetBinCenter(histo->GetNbinsX()),weight);
 
 }
 
-void fillHisto(TH2* histo, double valx, double valy){ // Embed- the overflow                                                                                                                          
+void fillHisto(TH2* histo, double valx, double valy, double weight){ // Embed- the overflow                                                                                                       
 
   double x = 0;
   if(valx < histo->GetXaxis()->GetBinLowEdge(histo->GetNbinsX()+1))
@@ -20,9 +20,9 @@ void fillHisto(TH2* histo, double valx, double valy){ // Embed- the overflow
   if(valy < histo->GetYaxis()->GetBinLowEdge(histo->GetNbinsY()+1))
     y = valy;
   else
-    y = histo->GetYaxis()->GetBinCenter(histo->GetNbinsY()));
+    y = histo->GetYaxis()->GetBinCenter(histo->GetNbinsY());
 
-histo->Fill(x,y);
+  histo->Fill(x,y,weight);
 }
 
 
@@ -200,16 +200,15 @@ void makeVBFSignalVSBackground(string outputPlot){
   system(("mkdir -p "+outputPlot).c_str());
 
   TChain* vbftree = new TChain("tree/tree");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*110*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*125*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*150*root");
-  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*200*root");
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*125*root");
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*150*root");
+  vbftree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M*200*root");
 
   TChain* znntree = new TChain("tree/tree");
-  znntree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-*root");
+  znntree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJets/sigfilter/sig_ZJetsToNuNu_HT-*root");
 
   TChain* znnewktree = new TChain("tree/tree");
-  znnewktree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_16_07_2016/ZJetsToNuNuEWK/sigfilter/sig_EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8.root");
+  znnewktree->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/ZJetsToNuNuEWK/sigfilter/sig_EWKZ2Jets_ZToNuNu_13TeV-madgraph-pythia8.root");
 
   // get k-factors NLO                                                                                                                                                                                
   TFile kffile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root");
@@ -357,7 +356,7 @@ void makeVBFSignalVSBackground(string outputPlot){
     if (fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
     if (fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
     // relaxed met cut
-    if (*mmet     < 200) continue;
+    if (*mmet     < 150) continue;
     if (*jmmdphi4 < 0.5) continue;
 
     TLorentzVector jet1, jet2;
@@ -502,7 +501,7 @@ void makeVBFSignalVSBackground(string outputPlot){
     if (fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
     if (fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
     // relaxed met cut                                                                                                                                                                                
-    if (*mmet     < 130) continue;
+    if (*mmet     < 150) continue;
     if (*jmmdphi4 < 0.5) continue;
 
     TLorentzVector jet1, jet2;
@@ -646,7 +645,7 @@ void makeVBFSignalVSBackground(string outputPlot){
     if (fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
     if (fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
     // relaxed met cut                                                                                                                                                                                
-    if (*mmet     < 130) continue;
+    if (*mmet     < 150) continue;
     if (*jmmdphi4 < 0.5) continue;
 
     TLorentzVector jet1, jet2;
