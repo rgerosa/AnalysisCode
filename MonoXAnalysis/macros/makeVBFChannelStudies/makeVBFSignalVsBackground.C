@@ -268,7 +268,7 @@ void makeVBFSignalVSBackground(string outputPlot){
   TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
   
   TH1F* qqH_bosonPt = new TH1F("qqH_bosonPt","qqH_bosonPt",25,150,1250);
-  TH1F* qqH_bosonEta = new TH1F("qqH_bosonEta","qqH_bosonEta",25,-3.5,3.5);
+  TH1F* qqH_bosonEta = new TH1F("qqH_bosonEta","qqH_bosonEta",25,-4.5,4.5);
   TH1F* qqH_bosonPhi = new TH1F("qqH_bosonPhi","qqH_bosonPhi",25,0.,3.14);
   TH1F* qqH_bosonPz    = new TH1F("qqH_bosonPz","qqH_bosonPz",25,150,1250);
   TH1F* qqH_bosonPzOPt = new TH1F("qqH_bosonPzOPt","qqH_bosonPzOPt",20,0,20);
@@ -278,8 +278,8 @@ void makeVBFSignalVSBackground(string outputPlot){
   TH1F* qqH_jetpz2   = new TH1F("qqH_jetpz2","qqH_jetpz2",25,50,500);
   TH1F* qqH_jetpz1Opt   = new TH1F("qqH_jetpz1Opt","qqH_jetpz1",20,0,20);  
   TH1F* qqH_jetpz2Opt   = new TH1F("qqH_jetpz2OPt","qqH_jetpz2",20,0,20);
-  TH1F* qqH_jeteta1  = new TH1F("qqH_jeteta1","qqH_jeteta1",25,-3.5,3.5);
-  TH1F* qqH_jeteta2  = new TH1F("qqH_jeteta2","qqH_jeteta2",25,-3.5,3.5);
+  TH1F* qqH_jeteta1  = new TH1F("qqH_jeteta1","qqH_jeteta1",25,-4.5,4.5);
+  TH1F* qqH_jeteta2  = new TH1F("qqH_jeteta2","qqH_jeteta2",25,-4.5,4.5);
   TH1F* qqH_jetphi1  = new TH1F("qqH_jetphi1","qqH_jetphi1",25,0,3.14);
   TH1F* qqH_jetphi2  = new TH1F("qqH_jetphi2","qqH_jetphi2",25,0,3.14);
   TH1F* qqH_jetDeltaPhi  = new TH1F("qqH_jetDeltaPhi","qqH_jetDeltaPhi",25,0,3.14);
@@ -410,7 +410,7 @@ void makeVBFSignalVSBackground(string outputPlot){
 
   ////  
   TH1F* znnewk_bosonPt = new TH1F("znnewk_bosonPt","znnewk_bosonPt",25,150,1250);
-  TH1F* znnewk_bosonEta = new TH1F("znnewk_bosonEta","znnewk_bosonEta",25,-3.5,3.5);
+  TH1F* znnewk_bosonEta = new TH1F("znnewk_bosonEta","znnewk_bosonEta",25,-4.5,4.5);
   TH1F* znnewk_bosonPhi = new TH1F("znnewk_bosonPhi","znnewk_bosonPhi",25,0.,3.14);
   TH1F* znnewk_bosonPz    = new TH1F("znnewk_bosonPz","znnewk_bosonPz",25,150,1250);
   TH1F* znnewk_bosonPzOPt = new TH1F("znnewk_bosonPzOPt","znnewk_bosonPzOPt",20,0,20);
@@ -420,8 +420,8 @@ void makeVBFSignalVSBackground(string outputPlot){
   TH1F* znnewk_jetpz2   = new TH1F("znnewk_jetpz2","znnewk_jetpz2",25,50,500);
   TH1F* znnewk_jetpz1Opt   = new TH1F("znnewk_jetpz1Opt","znnewk_jetpz1",20,0,20);  
   TH1F* znnewk_jetpz2Opt   = new TH1F("znnewk_jetpz2OPt","znnewk_jetpz2",20,0,20);
-  TH1F* znnewk_jeteta1  = new TH1F("znnewk_jeteta1","znnewk_jeteta1",25,-3.5,3.5);
-  TH1F* znnewk_jeteta2  = new TH1F("znnewk_jeteta2","znnewk_jeteta2",25,-3.5,3.5);
+  TH1F* znnewk_jeteta1  = new TH1F("znnewk_jeteta1","znnewk_jeteta1",25,-4.5,4.5);
+  TH1F* znnewk_jeteta2  = new TH1F("znnewk_jeteta2","znnewk_jeteta2",25,-4.5,4.5);
   TH1F* znnewk_jetphi1  = new TH1F("znnewk_jetphi1","znnewk_jetphi1",25,0,3.14);
   TH1F* znnewk_jetphi2  = new TH1F("znnewk_jetphi2","znnewk_jetphi2",25,0,3.14);
   TH1F* znnewk_jetDeltaPhi  = new TH1F("znnewk_jetDeltaPhi","znnewk_jetDeltaPhi",25,0,3.14);
@@ -557,7 +557,7 @@ void makeVBFSignalVSBackground(string outputPlot){
   myReader.SetEntry(0);
   
   TH1F* znn_bosonPt = new TH1F("znn_bosonPt","znn_bosonPt",25,150,1250);
-  TH1F* znn_bosonEta = new TH1F("znn_bosonEta","znn_bosonEta",25,-3.5,3.5);
+  TH1F* znn_bosonEta = new TH1F("znn_bosonEta","znn_bosonEta",25,-4.5,4.5);
   TH1F* znn_bosonPhi = new TH1F("znn_bosonPhi","znn_bosonPhi",25,0.,3.14);
   TH1F* znn_bosonPz    = new TH1F("znn_bosonPz","znn_bosonPz",25,150,1250);
   TH1F* znn_bosonPzOPt = new TH1F("znn_bosonPzOPt","znn_bosonPzOPt",20,0,20);
@@ -567,8 +567,8 @@ void makeVBFSignalVSBackground(string outputPlot){
   TH1F* znn_jetpz2   = new TH1F("znn_jetpz2","znn_jetpz2",25,50,500);
   TH1F* znn_jetpz1Opt   = new TH1F("znn_jetpz1Opt","znn_jetpz1",20,0,20);  
   TH1F* znn_jetpz2Opt   = new TH1F("znn_jetpz2OPt","znn_jetpz2",20,0,20);
-  TH1F* znn_jeteta1  = new TH1F("znn_jeteta1","znn_jeteta1",25,-3.5,3.5);
-  TH1F* znn_jeteta2  = new TH1F("znn_jeteta2","znn_jeteta2",25,-3.5,3.5);
+  TH1F* znn_jeteta1  = new TH1F("znn_jeteta1","znn_jeteta1",25,-4.5,4.5);
+  TH1F* znn_jeteta2  = new TH1F("znn_jeteta2","znn_jeteta2",25,-4.5,4.5);
   TH1F* znn_jetphi1  = new TH1F("znn_jetphi1","znn_jetphi1",25,0,3.14);
   TH1F* znn_jetphi2  = new TH1F("znn_jetphi2","znn_jetphi2",25,0,3.14);
   TH1F* znn_jetDeltaPhi  = new TH1F("znn_jetDeltaPhi","znn_jetDeltaPhi",25,0,3.14);
