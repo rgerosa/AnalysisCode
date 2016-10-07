@@ -1,8 +1,8 @@
 #include "../CMS_lumi.h"
 
 //////////////
-vector<double> mediatorPtBinning  = {150,200,250,300,350,400,450,500,600,700,850,1000,1250};
-vector<double> mediatorEtaBinning = {0.,1,2,3,5};
+vector<double> mediatorPtBinning   = {120,150,180,200,230,260,290,320,360,400,450,500,600,800};
+vector<double> mediatorEtaBinning  = {0,1.5,2.5,5};
 vector<double> mediatorMassBinning = {};
 vector<double> darkMatterMassBinning = {};
 //////////////
@@ -71,7 +71,8 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   while(reader.Next()){
 
     massDenominator->Fill(*genMediatorMass,*genX1Mass,(*weightPU)*(*genWeight));
-    mediatorDenominator->Fill(*genMediatorPt,fabs(*genMediatorEta),(*weightPU)*(*genWeight));
+    if(*genMediatorMass > minMedMass)
+      mediatorDenominator->Fill(*genMediatorPt,fabs(*genMediatorEta),(*weightPU)*(*genWeight));
     if(category == "monojet" and *id == 1){
       massNumerator->Fill(*genMediatorMass,*genX1Mass,(*weightPU)*(*genWeight)*(*weightTurnOn));
       if(*genMediatorMass > minMedMass)
@@ -83,11 +84,11 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
 	mediatorNumerator->Fill(*genMediatorPt,fabs(*genMediatorEta),(*weightPU)*(*genWeight)*(*weightTurnOn));
     }    
   }
-
+  
   // calculate the efficiency
   TH2F* efficiencyMass = (TH2F*) massNumerator->Clone("efficiencyMass");
   efficiencyMass->Reset();
-  efficiencyMass->Divide(massNumerator,massDenominator,1,1,"B");
+  efficiencyMass->Divide(massNumerator,massDenominator,1,1,"B");  
   TH2F* efficiencyMediator = (TH2F*) mediatorNumerator->Clone("efficiencyMediator");
   efficiencyMediator->Reset();
   efficiencyMediator->Divide(mediatorNumerator,mediatorDenominator,1,1,"B");
@@ -105,7 +106,7 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   efficiencyMass->Draw("colz text");
   canvas->SaveAs((outputDIR+"/efficiencyMass_2D.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/efficiencyMass_2D.pdf").c_str(),"pdf");
-
+  
   canvas->SetLogx(0);
   efficiencyMediator->GetXaxis()->SetTitle("Mediator p_{T} [GeV]");
   efficiencyMediator->GetYaxis()->SetTitle("Mediator |#eta|");
@@ -113,20 +114,32 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
   efficiencyMediator->Draw("colz text");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/efficiencyMediator_2D.pdf").c_str(),"pdf");
+
+  efficiencyMediator->Smooth();
+  efficiencyMediator->Draw("colz text");
+  canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_smooth.png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_smooth.pdf").c_str(),"pdf");
  
 
   TGraph2D *graphEfficiencyMass = new TGraph2D();
   TGraph2D *graphEfficiencyMediator = new TGraph2D();
+  TGraph2D *graphEfficiencyMass_interp = new TGraph2D();
+  TGraph2D *graphEfficiencyMediator_interp = new TGraph2D();
+  graphEfficiencyMediator_interp->SetNpx(500);
+  graphEfficiencyMediator_interp->SetNpy(500);
+  graphEfficiencyMass_interp->SetNpx(500);
+  graphEfficiencyMass_interp->SetNpy(500);
   graphEfficiencyMass->SetMarkerSize(0.8);
   graphEfficiencyMass->SetMarkerStyle(20);
   graphEfficiencyMediator->SetMarkerSize(0.8);
   graphEfficiencyMediator->SetMarkerStyle(20);
- 
+
   int nPoint = 0;
   for(int binX = 0; binX < efficiencyMass->GetNbinsX()+1; binX++){
     for(int binY = 0; binY < efficiencyMass->GetNbinsY()+1; binY++){
       if(efficiencyMass->GetBinContent(binX+1,binY+1) == 0) continue;
       graphEfficiencyMass->SetPoint(nPoint,efficiencyMass->GetXaxis()->GetBinLowEdge(binX+1),efficiencyMass->GetYaxis()->GetBinLowEdge(binY+1),efficiencyMass->GetBinContent(binX+1,binY+1));
+      graphEfficiencyMass_interp->SetPoint(nPoint,efficiencyMass->GetXaxis()->GetBinLowEdge(binX+1),efficiencyMass->GetYaxis()->GetBinLowEdge(binY+1),efficiencyMass->GetBinContent(binX+1,binY+1));
       nPoint++;
     }
   }
@@ -135,10 +148,45 @@ void makeSignalSplineInterpolation (string inputFileName, string outputDIR, stri
     for(int binY = 0; binY < efficiencyMediator->GetNbinsY()+1; binY++){
       if(efficiencyMediator->GetBinContent(binX+1,binY+1) == 0) continue;
       graphEfficiencyMediator->SetPoint(nPoint,efficiencyMediator->GetXaxis()->GetBinCenter(binX+1),efficiencyMediator->GetYaxis()->GetBinCenter(binY+1),efficiencyMediator->GetBinContent(binX+1,binY+1));
+      graphEfficiencyMediator_interp->SetPoint(nPoint,efficiencyMediator->GetXaxis()->GetBinCenter(binX+1),efficiencyMediator->GetYaxis()->GetBinCenter(binY+1),efficiencyMediator->GetBinContent(binX+1,binY+1));
       nPoint++;
     }
   }
+  
+  ///////////////
+  TRandom3 rand;
+  for(int nPoints = 0; nPoints < 10000; nPoints++){
+    graphEfficiencyMass_interp->Interpolate(rand.Uniform(efficiencyMass->GetXaxis()->GetBinLowEdge(1),efficiencyMass->GetXaxis()->GetBinLowEdge(efficiencyMass->GetNbinsX())),
+					    rand.Uniform(efficiencyMass->GetYaxis()->GetBinLowEdge(1),efficiencyMass->GetYaxis()->GetBinLowEdge(efficiencyMass->GetNbinsY())));
+    graphEfficiencyMediator_interp->Interpolate(rand.Uniform(efficiencyMediator->GetXaxis()->GetBinLowEdge(1),efficiencyMediator->GetXaxis()->GetBinLowEdge(efficiencyMediator->GetNbinsX())),
+						rand.Uniform(efficiencyMediator->GetYaxis()->GetBinLowEdge(1),efficiencyMediator->GetYaxis()->GetBinLowEdge(efficiencyMediator->GetNbinsY())));
+  }
+  
+  TH2D* histoMass_inter = graphEfficiencyMass_interp->GetHistogram();
+  histoMass_inter->SetName("histoMass_inter");
+  histoMass_inter->GetXaxis()->SetTitle("Mediator Mass [GeV]");
+  histoMass_inter->GetYaxis()->SetTitle("DM Mass [GeV]");
+  histoMass_inter->GetYaxis()->SetTitleOffset(1.1);
+  histoMass_inter->GetZaxis()->SetTitle("Signal Efficiency");
+  histoMass_inter->GetZaxis()->SetTitleOffset(1.1);
+  histoMass_inter->Smooth();
+  histoMass_inter->Draw("colz");
+  canvas->SetLogx();
+  canvas->SaveAs((outputDIR+"/efficiencyMass_2D_interpolated.png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/efficiencyMass_2D_interpolated.pdf").c_str(),"pdf");
+  canvas->SetLogx(0);
 
+  TH2D* histoMediator_inter = graphEfficiencyMediator_interp->GetHistogram();
+  histoMediator_inter->SetName("histoMediator_inter");
+  histoMediator_inter->GetXaxis()->SetTitle("Mediator p_{T} [GeV]");
+  histoMediator_inter->GetYaxis()->SetTitle("Mediator |#eta|");
+  histoMediator_inter->GetZaxis()->SetTitle("Signal Efficiency");
+  histoMediator_inter->Smooth();
+  histoMediator_inter->Draw("colz");
+  canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_interpolated.png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/efficiencyMediator_2D_interpolated.pdf").c_str(),"pdf");
+  
+  
   // Create the spline
   RooRealVar* mmed  = new RooRealVar("mmed","",(mediatorMassBinning.back()+mediatorMassBinning.front())/2,mediatorMassBinning.front(),mediatorMassBinning.back());
   RooRealVar* mdm   = new RooRealVar("mdm","",(darkMatterMassBinning.front()+darkMatterMassBinning.back())/2,darkMatterMassBinning.front(),darkMatterMassBinning.back());
