@@ -1,5 +1,5 @@
 //////// Basic options
-static bool  debug = false; // for debugging printout
+static bool  debug = true; // for debugging printout
 static float muMin = 0.001; // min mu for limit scam
 static float muMax = 0.001; // max mu for limit scan
 static float muPoint = 300; // number of points in the limit scan
@@ -8,7 +8,7 @@ static bool  doLikelihoodScan  = false; // to perform a likelihood scan around m
 static bool  skipCorrelations  = false; // to skip off-diagona term in the covariance matrix
 
 #include "simplifiedLikelihoodUtils.h"
-  
+
 // calculate CLS using asymptotic formula for both observed and expected case, giving a quantile. Store also -Log(L) from S+B best fit
 float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, double muVal, bool isObserved, double & nllData, double & nllA, const double & quantile = 0){
 
@@ -199,9 +199,13 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   
 }
 
-
 /// main function to run the analysis
 void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile, vector<string> signalROOTFileMonoJet, vector<string> signalROOTFileMonoV, string signalID, int category, string outputDirectory, bool calcExpSigma = true,  bool doLikeScan = true, bool skipCorr = false){
+
+  if(category < -1 or category > 2){
+    cerr<<"Problems in the category definition: -1 means super combo (i.e. big covariance), 0 means monojet x monoV, 1 means monojet only, 2 means monoV only "<<endl;
+    return;
+  }
 
   skipCorrelations = skipCorr;
   doLikelihoodScan = doLikeScan;
@@ -216,7 +220,11 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   TFile* dataFile         = TFile::Open(dataWorkspace.c_str(),"READ");
   TH1F* data_obs_monojet  = NULL;
   TH1F* data_obs_monov    = NULL;
-  if(category == 0){ // take both mono-jet and mono-v data
+  TH1F* data_obs_total    = NULL;
+  if(category == -1){
+    data_obs_total = importMergedDataHistogram(dataFile);
+  }
+  else if(category == 0){ // take both mono-jet and mono-v data
     data_obs_monojet  = importDataHistogram(dataFile,1); 
     data_obs_monov    = importDataHistogram(dataFile,2); 
   }
@@ -226,6 +234,12 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     data_obs_monov    = importDataHistogram(dataFile,category); 
 
   if(debug){
+    if(data_obs_total){
+      cout<<"Data monojet+monov merged "<<endl;
+      for(int iBin = 0; iBin < data_obs_total->GetNbinsX(); iBin++)
+	cout<<"iBin = "<<iBin<<" data content "<<data_obs_total->GetBinContent(iBin+1)<<endl;
+    }
+
     if(data_obs_monojet){
       cout<<"Data monojet "<<endl;
       for(int iBin = 0; iBin < data_obs_monojet->GetNbinsX(); iBin++)
@@ -241,7 +255,11 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   //signal template
   TH1F*  signal_monojet  = NULL;
   TH1F*  signal_monov    = NULL;
-  if(category == 0){// take both mono-jet and mono-v
+  TH1F*  signal_total    = NULL;
+  if(category == -1){
+    signal_total = importMergedSignalHistogram(signalROOTFileMonoJet,signalROOTFileMonoV,signalID);
+  }
+  else if(category == 0){// take both mono-jet and mono-v
     signal_monojet    = importSignalHistogram(signalROOTFileMonoJet,signalID,1);
     signal_monov      = importSignalHistogram(signalROOTFileMonoV,signalID,2);
   }
@@ -249,30 +267,56 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     signal_monojet  = importSignalHistogram(signalROOTFileMonoJet,signalID,category);
   else if(category == 2)
     signal_monov    = importSignalHistogram(signalROOTFileMonoV,signalID,category);
-     
+ 
   //take histograms from combine ML fit
   TFile* combineMLFitFile = TFile::Open(combineMLFitRootFile.c_str(),"READ");  
   TH1F* background_monojet = NULL;
   TH1F* background_monov   = NULL;
-  if(category == 0){
-    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
-    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
-  }
-  else if(category == 1)
-    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
-  else if(category == 2)
-    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+  TH1F* background_total   = NULL;
 
-  if(background_monojet == NULL or background_monojet == 0){
-    if(category == 0 or category == 1)
+  if(category == -1){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background");
+    if(background_monojet == NULL or background_monojet == 0)
+      background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
+    
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+
+    background_total = new TH1F("background_total","",background_monojet->GetNbinsX()+background_monov->GetNbinsX(),0,background_monojet->GetNbinsX()+background_monov->GetNbinsX()+1);
+    background_total->Sumw2();
+    int iBin = 0;
+    for(; iBin < background_monojet->GetNbinsX(); iBin++){
+      background_total->SetBinContent(iBin+1,background_monojet->GetBinContent(iBin+1));
+      background_total->SetBinError(iBin+1,background_monojet->GetBinError(iBin+1));
+    }
+    for(int iBinX = 0; iBinX < background_monov->GetNbinsX(); iBinX++,iBin++){
+      background_total->SetBinContent(iBin+1,background_monov->GetBinContent(iBinX+1));
+      background_total->SetBinError(iBin+1,background_monojet->GetBinError(iBinX+1));
+    }
+  }
+  else if(category == 0){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+    if(background_monojet == NULL or background_monojet == 0)
+      background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
+
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+  }
+  else if(category == 1){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+    if(background_monojet == NULL or background_monojet == 0)
       background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
   }  
-  
-  if(background_monov == NULL or background_monov == 0){
-    if(category == 0 or category == 2)
-      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+  else if(category == 2){
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+	background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
   }  
-  
+    
+  if(background_total)
+    multipleByBinWidth(background_total,background_monojet,background_monov);
   if(background_monojet)
     multipleByBinWidth(background_monojet);
   if(background_monov)
@@ -289,28 +333,48 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
       for(int iBin = 0; iBin < background_monov->GetNbinsX(); iBin++)
 	cout<<"iBin = "<<iBin<<" rate "<<background_monov->GetBinContent(iBin+1)<<endl;
     }	
+    if(background_total){
+      cout<<"Background rate total "<<endl;
+      for(int iBin = 0; iBin < background_total->GetNbinsX(); iBin++)
+	cout<<"iBin = "<<iBin<<" rate "<<background_total->GetBinContent(iBin+1)<<endl;
+    }	
   }
 
+  ///// correlation matrix
   TH2F* correlation_monojet = NULL;
   TH2F* correlation_monov   = NULL;
-  if(category == 0 or category == 1)
-    correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
-  if(category == 0 or category == 2)
-    correlation_monov   = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
+  TH2F* correlation_total   = NULL;
 
-  if(correlation_monojet == NULL or correlation_monojet == 0){
-    if(category == 0 or category == 1)
+  if(category == -1){
+    TH2F* inputCovariance = (TH2F*) combineMLFitFile->Get("shapes_fit_b/overall_total_covar");
+    correlation_total = importCorrelationMatrix(inputCovariance,"ch1_ch1","ch2_ch1");
+    if(correlation_total == NULL or correlation_total == 0)
+      correlation_total = importCorrelationMatrix(inputCovariance,"monojet_signal","monov_signal");
+
       correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
-  }
-  if(correlation_monov == NULL or correlation_monov == 0){
-    if(category == 0 or category == 2)
       correlation_monov = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
   }
+
+  if(category == 0 or category == 1){
+    correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
+    if(correlation_monojet == NULL or correlation_monojet == 0){
+      correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
+    }
+  }
+  if(category == 0 or category == 2){
+    correlation_monov   = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
+    if(correlation_monov == NULL or correlation_monov == 0){
+      correlation_monov = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
+    }
+  }
+
+  if(background_total)
+    multipleByBinWidth(correlation_total,background_monojet,background_monov);
   if(background_monojet)
     multipleByBinWidth(correlation_monojet,background_monojet);
   if(background_monov)
     multipleByBinWidth(correlation_monov,background_monov);
-
+  /*
   // Build the individual likelihoods for each category
   RooAbsReal* nllSB_monojet = NULL;
   RooAbsReal* nllB_monojet  = NULL;
@@ -607,4 +671,5 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   tree->Fill();
   tree->Write();
   outputFile->Close();
+  */
 }
