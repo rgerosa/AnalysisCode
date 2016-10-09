@@ -8,9 +8,10 @@ static bool  doLikelihoodScan  = false; // to perform a likelihood scan around m
 static bool  skipCorrelations  = false; // to skip off-diagona term in the covariance matrix
 
 #include "simplifiedLikelihoodUtils.h"
+#include <cmath>
 
 // calculate CLS using asymptotic formula for both observed and expected case, giving a quantile. Store also -Log(L) from S+B best fit
-float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, double muVal, bool isObserved, double & nllData, double & nllA, const double & quantile = 0){
+float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, float muVal, bool isObserved, float & nllData, float & nllA, const float & quantile = 0){
 
   RooRealVar* mu = ws_asimov->var("mu");
   mu->setConstant(false); 
@@ -42,10 +43,10 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   if(debug)
     cout<<"##### -Log(L) Asimov Toy S+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<" err up "<<mu->getErrorHi()<<" err dw "<<mu->getErrorLo()<<endl;
   mAsimovSB.minos(RooArgSet(*mu));
-  double minNLLAsimov_SB = nllAsimov->getVal();
-  double muAsimov_SB     = mu->getVal();
-  double muAsimov_SB_errUp     = mu->getErrorHi();
-  double muAsimov_SB_errDw     = mu->getErrorLo();
+  float minNLLAsimov_SB = nllAsimov->getVal();
+  float muAsimov_SB     = mu->getVal();
+  float muAsimov_SB_errUp     = mu->getErrorHi();
+  float muAsimov_SB_errDw     = mu->getErrorLo();
   nllA = muAsimov_SB;
   if(debug)
     cout<<"##### -Log(L) Asimov Toy S+B fit Minos Step: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<" err up "<<mu->getErrorHi()<<" err dw "<<mu->getErrorLo()<<endl;
@@ -64,8 +65,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Step: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
   mAsimovSfix.minimize("Minuit2","migradimproved"); 
-  double minNLLAsimov_Sfix = nllAsimov->getVal();
-  double muAsimov_Sfix     = mu->getVal();
+  float minNLLAsimov_Sfix = nllAsimov->getVal();
+  float muAsimov_Sfix     = mu->getVal();
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
   
@@ -77,8 +78,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
     mSB.setVerbose(kFALSE);
     mSB.setPrintLevel(-1);
   }
-  double minNLL_SB = 0 ;
-  double mu_SB     = 0 ;
+  float minNLL_SB = 0 ;
+  float mu_SB     = 0 ;
 
   if(isObserved){
     mSB.minimize("Minuit2","minimize");
@@ -106,7 +107,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
     mSfix.setVerbose(kFALSE);
     mSfix.setPrintLevel(-1);
   }
-  double minNLL_Sfix = 0;
+  float minNLL_Sfix = 0;
   if(isObserved){
     mSfix.minimize("Minuit2","minimize");
     if(debug)
@@ -121,7 +122,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   }
   
   //Calculate LHC test statistics
-  double qmu = 2*(minNLL_Sfix - minNLL_SB); 
+  float qmu = 2*(minNLL_Sfix - minNLL_SB); 
   if (qmu < 0){
     cerr<<" Problem -->negative q_mu --> something bad going on in the fit "<<endl;
     qmu = 0;
@@ -154,7 +155,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   }
   
   
-  double qA  = 2*(minNLLAsimov_Sfix - minNLLAsimov_SB); 
+  float qA  = 2*(minNLLAsimov_Sfix - minNLLAsimov_SB); 
   if (qA < 0){
     qA = 0; // shouldn't this always be 0?
     if(debug)
@@ -170,27 +171,27 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   
   if(isObserved){
 
-    double CLsb = ROOT::Math::normal_cdf_c(TMath::Sqrt(qmu));
-    double CLb  = ROOT::Math::normal_cdf(TMath::Sqrt(qA)-TMath::Sqrt(qmu));
+    float CLsb = ROOT::Math::normal_cdf_c(TMath::Sqrt(qmu));
+    float CLb  = ROOT::Math::normal_cdf(TMath::Sqrt(qA)-TMath::Sqrt(qmu));
     
     if (qmu > qA) {
       // In this region, things are tricky
-      double mos = TMath::Sqrt(qA); // mu/sigma
+      float mos = TMath::Sqrt(qA); // mu/sigma
       CLsb = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
       CLb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
     }
     
-    double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
+    float CLs  = (CLb == 0 ? 0 : CLsb/CLb);
     if(debug)
       cout<<"Observed CLsb "<<CLsb<<" CLb "<<CLb<<" CLs "<<CLs<<endl;
     return CLs;
   }
   else{
 
-    double N    = ROOT::Math::normal_quantile(quantile,1.0);
-    double CLb  = quantile;
-    double CLsb = ROOT::Math::normal_cdf_c( TMath::Sqrt(qA) - N, 1.);
-    double CLs  = (CLb != 0 ? CLsb/CLb : 0); 
+    float N    = ROOT::Math::normal_quantile(quantile,1.0);
+    float CLb  = quantile;
+    float CLsb = ROOT::Math::normal_cdf_c( TMath::Sqrt(qA) - N, 1.);
+    float CLs  = (CLb != 0 ? CLsb/CLb : 0); 
     if(debug)
       cout<<"Expected  CLsb "<<CLsb<<" CLb "<<CLb<<" CLs "<<CLs<<endl;
     return CLs;
@@ -450,16 +451,16 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"##### S+B fit Migrad improved step : -Log(L) "<<nllSB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<< endl;
   mSB.minos(RooArgSet(*mu));
   cout<<"##### S+B fit Minos step : -Log(L) "<<nllSB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<<endl;
-  double nllFit_SB = nllSB->getVal();
-  double muFit_SB  = mu->getVal();
-  double muFit_SB_errUp  = mu->getErrorHi();
-  double muFit_SB_errDw  = mu->getErrorLo();
+  float nllFit_SB = nllSB->getVal();
+  float muFit_SB  = mu->getVal();
+  float muFit_SB_errUp  = mu->getErrorHi();
+  float muFit_SB_errDw  = mu->getErrorLo();
 
   // fix muMin and muMax dynamically
   if(muFit_SB < 0) muMin = 0.001;
   else if( muFit_SB + 5*muFit_SB_errDw < 0) muMin = 0.001;
-  else muMin = muFit_SB +  8*muFit_SB_errDw;
-  muMax = fabs(muFit_SB) + 8*muFit_SB_errUp;
+  else muMin = muFit_SB +  5*muFit_SB_errDw;
+  muMax = fabs(muFit_SB) + 5*muFit_SB_errUp;
 
   if(debug){
     cout<<"########### After S+B fit ############"<<endl;
@@ -484,7 +485,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"##### B fit Migrad step : -Log(L) "<<nllB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<<endl;
   mB.minimize("Minuit2","migradimproved");
   cout<<"##### B fit Migrad improved step : -Log(L) "<<nllB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<< endl;
-  double nllFit_B = nllB->getVal();
+  float nllFit_B = nllB->getVal();
   
   if(debug){
     cout<<"########### After B-only fit ############"<<endl;
@@ -594,7 +595,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
 
-  double mh      = 0;
+  float mh      = 0;
   float mu_      = 0;
   float muErrUp_ = 0;
   float muErrDw_ = 0;
@@ -638,23 +639,23 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   muErrUp_ = muFit_SB_errUp;
   muErrDw_ = muFit_SB_errDw;
 
-  double nllData   = 0;
-  double nllA      = 0;
-  
+  float nllData   = 0;
+  float nllA      = 0;
+
   CLsObs = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,true,nllData,nllA);
   cout<<"#### -Log(L) data : "<<nllData<<" -Log(L) Asimov : "<<nllA+NLL_B<<endl;
   CLsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,false,nllData,nllA,0.5);
   cout<<"#### Get observed and expected CLs values : observed "<<CLsObs<<" expected "<<CLsExp<<endl;
 
   // Calculate upper limit on signal strenght --> find CLs value at 95% of the range -> associated mu --> store also the nLL for Asimov and Data --> Likelihood scan
-  double nllDataScan = 0;
-  double nllAsimovScan = 0;
-  double clsObs = 0;
-  double clsExp = 0;
-  double clsExp1sUp = 0;
-  double clsExp1sDw = 0;
-  double clsExp2sUp = 0;
-  double clsExp2sDw = 0;
+  float nllDataScan = 0;
+  float nllAsimovScan = 0;
+  float clsObs = 0;
+  float clsExp = 0;
+  float clsExp1sUp = 0;
+  float clsExp1sDw = 0;
+  float clsExp2sUp = 0;
+  float clsExp2sDw = 0;
 
   TGraph* graphObserved = new TGraph();
   TGraph* graphExpected = new TGraph();
@@ -669,18 +670,24 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     clsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.5);    
     if(debug)
       cout<<"#### Step: "<<istep<<" muMin "<<muMin<<" muMax "<<muMax<<" muVal "<<muMin+istep*(muMax-muMin)/muPoint<<" ---> nllObs "<<nllDataScan-nllData<<" nllExp "<<nllAsimovScan-nllA-NLL_B<<" clsObs "<<clsObs<<" clsExp "<<clsExp<<endl;
-    graphObserved->SetPoint(istep,clsObs,muMin+istep*(muMax-muMin)/muPoint);
-    graphExpected->SetPoint(istep,clsExp,muMin+istep*(muMax-muMin)/muPoint);
-    
+    if(not isnan(clsObs))
+      graphObserved->SetPoint(istep,clsObs,muMin+istep*(muMax-muMin)/muPoint);
+    if(not isnan(clsExp))
+      graphExpected->SetPoint(istep,clsExp,muMin+istep*(muMax-muMin)/muPoint);
+
     if(calculateExpSigma){
       clsExp1sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.84);
-      graphExpected1sUp->SetPoint(istep,clsExp1sUp,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp1sUp))
+	graphExpected1sUp->SetPoint(istep,clsExp1sUp,muMin+istep*(muMax-muMin)/muPoint);
       clsExp2sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.975);
-      graphExpected2sUp->SetPoint(istep,clsExp2sUp,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp2sUp))
+	graphExpected2sUp->SetPoint(istep,clsExp2sUp,muMin+istep*(muMax-muMin)/muPoint);
       clsExp1sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.16);
-      graphExpected1sDw->SetPoint(istep,clsExp1sDw,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp1sDw))
+	graphExpected1sDw->SetPoint(istep,clsExp1sDw,muMin+istep*(muMax-muMin)/muPoint);
       clsExp2sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.025);
-      graphExpected2sDw->SetPoint(istep,clsExp2sDw,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp2sDw))
+	graphExpected2sDw->SetPoint(istep,clsExp2sDw,muMin+istep*(muMax-muMin)/muPoint);
     }
   }
 
@@ -689,7 +696,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   cout<<"##### limitObs mu < "<<limitObs<<endl;
   cout<<"##### limitExp mu < "<<limitExp<<endl;
-  
+
   if(calculateExpSigma){
     limitExpDw2s = graphExpected2sDw->Eval(1-0.95);
     cout<<"##### limitExp 2sigma dw mu < "<<limitExpDw2s<<endl;
@@ -707,11 +714,14 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"Make Likelihood Scan  ---> "<<endl;
     nllA = makeFitFixedStrenght(nllAsimov,ws_asimov,0);
     for(int istep = 0; istep <= muPoint; istep++){
-      muVal.push_back(-muMax+istep*(muMax+muMax)/muPoint);
-      nllDataScan   = makeFitFixedStrenght(nllSB,ws_sb,muVal.back());
-      nllAsimovScan = makeFitFixedStrenght(nllAsimov,ws_asimov,muVal.back());
-      nllObserved.push_back(nllDataScan-nllData);
-      nllExpected.push_back(nllAsimovScan-nllA);
+      float muStep = -muMax+istep*(muMax+muMax)/muPoint;
+      nllDataScan   = makeFitFixedStrenght(nllSB,ws_sb,muStep);
+      nllAsimovScan = makeFitFixedStrenght(nllAsimov,ws_asimov,muStep);
+      if(not isnan(nllDataScan) and not isnan(nllAsimovScan)){
+	nllObserved.push_back(nllDataScan-nllData);
+	nllExpected.push_back(nllAsimovScan-nllA);
+	muVal.push_back(muStep);
+      }
     }
   }
   tree->Fill();
