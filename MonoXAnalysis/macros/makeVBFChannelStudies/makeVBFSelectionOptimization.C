@@ -116,7 +116,7 @@ void makeSimpleTreeForTraining(TTree* outputTree, vector<TTree*> chain, vector<T
       if (fabs(jeteta->at(0)) > 4.7) continue;
       if (fabs(jeteta->at(1)) > 4.7) continue;
       if (fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-      if (fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) > 0.8) continue;
+      if (fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
       
       // relaxed met cut                                                                                                                                                                               
       if (*mmet     < missingEnergy) continue;
