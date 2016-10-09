@@ -1,5 +1,5 @@
 //////// Basic options
-static bool  debug = true; // for debugging printout
+static bool  debug = false; // for debugging printout
 static float muMin = 0.001; // min mu for limit scam
 static float muMax = 0.001; // max mu for limit scan
 static float muPoint = 300; // number of points in the limit scan
@@ -209,7 +209,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   skipCorrelations = skipCorr;
   doLikelihoodScan = doLikeScan;
-  calculatedExpSigma = calcExpSigma;
+  calculateExpSigma  = calcExpSigma;
 
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   gROOT->SetBatch(1);
@@ -374,12 +374,14 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     multipleByBinWidth(correlation_monojet,background_monojet);
   if(background_monov)
     multipleByBinWidth(correlation_monov,background_monov);
-  /*
+
   // Build the individual likelihoods for each category
   RooAbsReal* nllSB_monojet = NULL;
   RooAbsReal* nllB_monojet  = NULL;
   RooAbsReal* nllSB_monov   = NULL;
   RooAbsReal* nllB_monov    = NULL;
+  RooAbsReal* nllSB_total   = NULL;
+  RooAbsReal* nllB_total    = NULL;
   RooWorkspace* ws_sb  = NULL;
   RooWorkspace* ws_b   = NULL;
   if(category == 0 or category == 1){
@@ -394,10 +396,20 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     if(ws_sb == NULL)
       ws_sb = new RooWorkspace("ws_sb","ws_sb");
     if(ws_b == NULL)
-    ws_b  = new RooWorkspace("ws_b","ws_b");
+      ws_b  = new RooWorkspace("ws_b","ws_b");
     makeLikelihood(ws_sb,ws_b,data_obs_monov,signal_monov,background_monov,correlation_monov,"monov");
     nllSB_monov = (RooAbsReal*) ws_sb->obj("nllSB_monov");
     nllB_monov  = (RooAbsReal*) ws_b->obj("nllB_monov");
+  }
+
+  if(category == -1){
+    if(ws_sb == NULL)
+      ws_sb = new RooWorkspace("ws_sb","ws_sb");
+    if(ws_b == NULL)
+      ws_b  = new RooWorkspace("ws_b","ws_b");
+    makeLikelihood(ws_sb,ws_b,data_obs_total,signal_total,background_total,correlation_total,"total");
+    nllSB_total = (RooAbsReal*) ws_sb->obj("nllSB_total");
+    nllB_total  = (RooAbsReal*) ws_b->obj("nllB_total");
   }
 
   RooAddition* nllSB = NULL;
@@ -414,6 +426,10 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   else if(category == 0){
     nllSB = new RooAddition("nllSBsum","",RooArgList(*nllSB_monojet,*nllSB_monov));
     nllB = new RooAddition("nllBsum","",RooArgList(*nllB_monojet,*nllB_monov));
+  }
+  else if(category == -1){
+    nllSB = dynamic_cast<RooAddition*>(nllSB_total);
+    nllB = dynamic_cast<RooAddition*>(nllB_total);
   }
 
   ///////////////// make S+B fit
@@ -441,9 +457,9 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   // fix muMin and muMax dynamically
   if(muFit_SB < 0) muMin = 0.001;
-  else if( muFit_SB + 10*muFit_SB_errDw < 0) muMin = 0.001;
-  else muMin = muFit_SB +  10*muFit_SB_errDw;
-  muMax = fabs(muFit_SB) + 10*muFit_SB_errUp;
+  else if( muFit_SB + 5*muFit_SB_errDw < 0) muMin = 0.001;
+  else muMin = muFit_SB +  8*muFit_SB_errDw;
+  muMax = fabs(muFit_SB) + 8*muFit_SB_errUp;
 
   if(debug){
     cout<<"########### After S+B fit ############"<<endl;
@@ -510,8 +526,27 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     }
   }
 
+  TMatrixDSym* covariance_total = NULL;
+  if(correlation_total != NULL){
+    covariance_total =  new TMatrixDSym(background_total->GetNbinsX());
+    for(int ibin = 0; ibin < correlation_total->GetNbinsX(); ibin++){
+      for(int jbin = 0; jbin < correlation_total->GetNbinsY(); jbin++){
+	if(not skipCorrelations)
+	  (*covariance_total)[ibin][jbin] = correlation_total->GetBinContent(ibin+1,jbin+1);
+	else{
+	  if(ibin == jbin)
+	    (*covariance_total)[ibin][jbin] = correlation_total->GetBinContent(ibin+1,jbin+1);
+	  else
+	    (*covariance_total)[ibin][jbin] = 0.;
+	}
+      }
+    }
+  }
+
+
   //Build asimov data
   RooWorkspace* ws_asimov = NULL;
+  RooAbsReal* nllAsimov_total   = NULL;
   RooAbsReal* nllAsimov_monojet = NULL;
   RooAbsReal* nllAsimov_monov   = NULL;
 
@@ -526,6 +561,12 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     makeAsimovLikelihood(ws_asimov,data_obs_monov,ws_b,covariance_monov,"monov");
     nllAsimov_monov = (RooAbsReal*) ws_asimov->obj("nllAsimov_monov");
   }
+  if(category == -1){
+    if(ws_asimov == NULL)
+      ws_asimov = new RooWorkspace("ws_asimov","ws_asimov");
+    makeAsimovLikelihood(ws_asimov,data_obs_total,ws_b,covariance_total,"total");
+    nllAsimov_total = (RooAbsReal*) ws_asimov->obj("nllAsimov_total");
+  }
 
   RooAddition* nllAsimov = NULL;
   if(category == 1)
@@ -534,6 +575,9 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_monov);
   else if(category == 0)
    nllAsimov = new RooAddition("nllAsimovSum","",RooArgList(*nllAsimov_monojet,*nllAsimov_monov));
+  else if(category == -1)
+    nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_total);
+
     
   system(("mkdir -p "+outputDirectory).c_str());
 
@@ -544,6 +588,8 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cat = "monov";
   else if(category == 0)
     cat =  "combined";
+  else if(category == -1)
+    cat =  "supercombo";
 
   TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -671,5 +717,4 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   tree->Fill();
   tree->Write();
   outputFile->Close();
-  */
 }

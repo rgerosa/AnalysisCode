@@ -39,21 +39,21 @@ void multipleByBinWidth (TH2F* hist, TH1F* histo_monojet, TH1F* histo_monov){
 
   for(int iBin = 0; iBin < hist->GetNbinsX(); iBin++){
     for(int jBin = 0; jBin < hist->GetNbinsY(); jBin++){
-      if(iBin < histo_monojet->GetNbinsX() and jBin < histo_monojet->GetNbinsY()){
+      if(iBin < histo_monojet->GetNbinsX() and jBin < histo_monojet->GetNbinsX()){
 	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monojet->GetXaxis()->GetBinWidth(jBin+1));
 	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monojet->GetXaxis()->GetBinWidth(jBin+1));
       }
-      else if(iBin < histo_monojet->GetNbinsX() and jBin >= histo_monojet->GetNbinsY()){
-	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsY()));
-	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsY()));
+      else if(iBin < histo_monojet->GetNbinsX() and jBin >= histo_monojet->GetNbinsX()){
+	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsX()));
+	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monojet->GetXaxis()->GetBinWidth(iBin+1)*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsX()));
       }
-      else if(iBin >= histo_monojet->GetNbinsX() and jBin < histo_monojet->GetNbinsY()){
+      else if(iBin >= histo_monojet->GetNbinsX() and jBin < histo_monojet->GetNbinsX()){
 	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monojet->GetXaxis()->GetBinWidth(jBin+1));
 	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monojet->GetXaxis()->GetBinWidth(jBin+1));
       }
-      else if(iBin >= histo_monojet->GetNbinsX() and jBin >= histo_monojet->GetNbinsY()){
-	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsY()));
-	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsY()));
+      else if(iBin >= histo_monojet->GetNbinsX() and jBin >= histo_monojet->GetNbinsX()){
+	hist->SetBinContent(iBin+1,jBin+1,hist->GetBinContent(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsX()));
+	hist->SetBinError(iBin+1,jBin+1,hist->GetBinError(iBin+1,jBin+1)*histo_monov->GetXaxis()->GetBinWidth(iBin+1-histo_monojet->GetNbinsX())*histo_monov->GetXaxis()->GetBinWidth(jBin+1-histo_monojet->GetNbinsX()));
       }
       else{
 	cerr<<"Problem with binning in total covariance matrix : x-axis bin "<<iBin<<" y-axis bin "<<jBin<<endl;
@@ -454,7 +454,7 @@ void  makeAsimovLikelihood(RooWorkspace* ws_asimov, TH1* data_obs, RooWorkspace*
   for(int iBin = 0; iBin < data_obs->GetNbinsX(); iBin++){
     templateBin->setIndex(iBin+1);
     // make integer to mimic data                                                                                                                                                                   
-    double expectation = double(int(((RooRealVar*) binSum->at(iBin))->getVal()));
+    double expectation = double(int(((RooRealVar*) binSum->at(iBin))->getVal()+0.5));
     if(debug)
       cout<<"Asimov daaset: ibin "<<iBin<<" sum S+B, with S=0 "<<((RooRealVar*) binSum->at(iBin))->getVal()<<" expectation "<<expectation<<endl;
     ((RooRealVar*) centralBkgAsimov->at(iBin))->setVal(expectation);

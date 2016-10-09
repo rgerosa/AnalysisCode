@@ -161,10 +161,10 @@ if __name__ == '__main__':
         for mdm in mDM:
 
             expMassPoint = index+"%04d%04d"%(mmed,mdm);
-            if options.category == "monojet" or options.category == "combined" and options.mediatorType != "pseudoscalar":    
+            if options.category == "monojet" or options.category == "combined" or options.category == "supercombo" and options.mediatorType != "pseudoscalar":    
                 if not monojetws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monowws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monozws_mj.obj("monojet_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
-            elif options.category == "monov" or options.category == "combined" and options.mediatorType != "pseudoscalar":
+            elif options.category == "monov" or options.category == "combined" or options.category == "supercombo" and options.mediatorType != "pseudoscalar":
                 if not monojetws_mv.obj("monov_signal_signal_"+expMassPoint) or not monowws_mv.obj("monov_signal_signal_"+expMassPoint) or not monozws_mv.obj("monov_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
 
@@ -178,6 +178,8 @@ if __name__ == '__main__':
                 category = 2;
             elif options.category == "combined":
                 category = 0;
+            elif options.category == "supercombo":
+                category = -1;
             
     
             jobmacro = open('%s/%s/job.C'%(options.jobDIR,jobname),'w')
@@ -204,6 +206,5 @@ if __name__ == '__main__':
             jobscript.write('root -l -b -q job.C\n');
             jobscript.write('scp '+options.outputDIR+"/*"+expMassPoint+"*root "+currentDIR+"/"+options.outputDIR);
             os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,jobname))
-
             if options.submit:
                 os.system('bsub -q %s -o %s/%s/%s/job.log -e %s/%s/%s/job.err %s/%s/%s/job.sh'%(options.queque,currentDIR,options.jobDIR,jobname,currentDIR,options.jobDIR,jobname,currentDIR,options.jobDIR,jobname))
