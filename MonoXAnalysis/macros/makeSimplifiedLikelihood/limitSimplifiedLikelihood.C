@@ -8,9 +8,10 @@ static bool  doLikelihoodScan  = false; // to perform a likelihood scan around m
 static bool  skipCorrelations  = false; // to skip off-diagona term in the covariance matrix
 
 #include "simplifiedLikelihoodUtils.h"
-  
+#include <cmath>
+
 // calculate CLS using asymptotic formula for both observed and expected case, giving a quantile. Store also -Log(L) from S+B best fit
-float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, double muVal, bool isObserved, double & nllData, double & nllA, const double & quantile = 0){
+float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* ws_sb, RooWorkspace* ws_asimov, float muVal, bool isObserved, float & nllData, float & nllA, const float & quantile = 0){
 
   RooRealVar* mu = ws_asimov->var("mu");
   mu->setConstant(false); 
@@ -42,10 +43,10 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   if(debug)
     cout<<"##### -Log(L) Asimov Toy S+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<" err up "<<mu->getErrorHi()<<" err dw "<<mu->getErrorLo()<<endl;
   mAsimovSB.minos(RooArgSet(*mu));
-  double minNLLAsimov_SB = nllAsimov->getVal();
-  double muAsimov_SB     = mu->getVal();
-  double muAsimov_SB_errUp     = mu->getErrorHi();
-  double muAsimov_SB_errDw     = mu->getErrorLo();
+  float minNLLAsimov_SB = nllAsimov->getVal();
+  float muAsimov_SB     = mu->getVal();
+  float muAsimov_SB_errUp     = mu->getErrorHi();
+  float muAsimov_SB_errDw     = mu->getErrorLo();
   nllA = muAsimov_SB;
   if(debug)
     cout<<"##### -Log(L) Asimov Toy S+B fit Minos Step: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<" err up "<<mu->getErrorHi()<<" err dw "<<mu->getErrorLo()<<endl;
@@ -64,8 +65,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Step: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
   mAsimovSfix.minimize("Minuit2","migradimproved"); 
-  double minNLLAsimov_Sfix = nllAsimov->getVal();
-  double muAsimov_Sfix     = mu->getVal();
+  float minNLLAsimov_Sfix = nllAsimov->getVal();
+  float muAsimov_Sfix     = mu->getVal();
   if(debug)
     cout<<"##### -Log(L) Asimov Toy Sfix+B fit Migrad Improved: "<<nllAsimov->getVal()<<" mu "<<mu->getVal()<<endl;
   
@@ -77,8 +78,8 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
     mSB.setVerbose(kFALSE);
     mSB.setPrintLevel(-1);
   }
-  double minNLL_SB = 0 ;
-  double mu_SB     = 0 ;
+  float minNLL_SB = 0 ;
+  float mu_SB     = 0 ;
 
   if(isObserved){
     mSB.minimize("Minuit2","minimize");
@@ -106,7 +107,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
     mSfix.setVerbose(kFALSE);
     mSfix.setPrintLevel(-1);
   }
-  double minNLL_Sfix = 0;
+  float minNLL_Sfix = 0;
   if(isObserved){
     mSfix.minimize("Minuit2","minimize");
     if(debug)
@@ -121,7 +122,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   }
   
   //Calculate LHC test statistics
-  double qmu = 2*(minNLL_Sfix - minNLL_SB); 
+  float qmu = 2*(minNLL_Sfix - minNLL_SB); 
   if (qmu < 0){
     cerr<<" Problem -->negative q_mu --> something bad going on in the fit "<<endl;
     qmu = 0;
@@ -154,7 +155,7 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   }
   
   
-  double qA  = 2*(minNLLAsimov_Sfix - minNLLAsimov_SB); 
+  float qA  = 2*(minNLLAsimov_Sfix - minNLLAsimov_SB); 
   if (qA < 0){
     qA = 0; // shouldn't this always be 0?
     if(debug)
@@ -170,27 +171,27 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   
   if(isObserved){
 
-    double CLsb = ROOT::Math::normal_cdf_c(TMath::Sqrt(qmu));
-    double CLb  = ROOT::Math::normal_cdf(TMath::Sqrt(qA)-TMath::Sqrt(qmu));
+    float CLsb = ROOT::Math::normal_cdf_c(TMath::Sqrt(qmu));
+    float CLb  = ROOT::Math::normal_cdf(TMath::Sqrt(qA)-TMath::Sqrt(qmu));
     
     if (qmu > qA) {
       // In this region, things are tricky
-      double mos = TMath::Sqrt(qA); // mu/sigma
+      float mos = TMath::Sqrt(qA); // mu/sigma
       CLsb = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
       CLb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
     }
     
-    double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
+    float CLs  = (CLb == 0 ? 0 : CLsb/CLb);
     if(debug)
       cout<<"Observed CLsb "<<CLsb<<" CLb "<<CLb<<" CLs "<<CLs<<endl;
     return CLs;
   }
   else{
 
-    double N    = ROOT::Math::normal_quantile(quantile,1.0);
-    double CLb  = quantile;
-    double CLsb = ROOT::Math::normal_cdf_c( TMath::Sqrt(qA) - N, 1.);
-    double CLs  = (CLb != 0 ? CLsb/CLb : 0); 
+    float N    = ROOT::Math::normal_quantile(quantile,1.0);
+    float CLb  = quantile;
+    float CLsb = ROOT::Math::normal_cdf_c( TMath::Sqrt(qA) - N, 1.);
+    float CLs  = (CLb != 0 ? CLsb/CLb : 0); 
     if(debug)
       cout<<"Expected  CLsb "<<CLsb<<" CLb "<<CLb<<" CLs "<<CLs<<endl;
     return CLs;
@@ -199,13 +200,17 @@ float calculateCLsLimit(RooAbsReal *nllSB, RooAbsReal *nllAsimov, RooWorkspace* 
   
 }
 
-
 /// main function to run the analysis
 void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile, vector<string> signalROOTFileMonoJet, vector<string> signalROOTFileMonoV, string signalID, int category, string outputDirectory, bool calcExpSigma = true,  bool doLikeScan = true, bool skipCorr = false){
 
+  if(category < -1 or category > 2){
+    cerr<<"Problems in the category definition: -1 means super combo (i.e. big covariance), 0 means monojet x monoV, 1 means monojet only, 2 means monoV only "<<endl;
+    return;
+  }
+
   skipCorrelations = skipCorr;
   doLikelihoodScan = doLikeScan;
-  calculatedExpSigma = calcExpSigma;
+  calculateExpSigma  = calcExpSigma;
 
   RooMsgService::instance().setGlobalKillBelow(RooFit::ERROR);
   gROOT->SetBatch(1);
@@ -216,7 +221,11 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   TFile* dataFile         = TFile::Open(dataWorkspace.c_str(),"READ");
   TH1F* data_obs_monojet  = NULL;
   TH1F* data_obs_monov    = NULL;
-  if(category == 0){ // take both mono-jet and mono-v data
+  TH1F* data_obs_total    = NULL;
+  if(category == -1){
+    data_obs_total = importMergedDataHistogram(dataFile);
+  }
+  else if(category == 0){ // take both mono-jet and mono-v data
     data_obs_monojet  = importDataHistogram(dataFile,1); 
     data_obs_monov    = importDataHistogram(dataFile,2); 
   }
@@ -226,6 +235,12 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     data_obs_monov    = importDataHistogram(dataFile,category); 
 
   if(debug){
+    if(data_obs_total){
+      cout<<"Data monojet+monov merged "<<endl;
+      for(int iBin = 0; iBin < data_obs_total->GetNbinsX(); iBin++)
+	cout<<"iBin = "<<iBin<<" data content "<<data_obs_total->GetBinContent(iBin+1)<<endl;
+    }
+
     if(data_obs_monojet){
       cout<<"Data monojet "<<endl;
       for(int iBin = 0; iBin < data_obs_monojet->GetNbinsX(); iBin++)
@@ -241,7 +256,11 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   //signal template
   TH1F*  signal_monojet  = NULL;
   TH1F*  signal_monov    = NULL;
-  if(category == 0){// take both mono-jet and mono-v
+  TH1F*  signal_total    = NULL;
+  if(category == -1){
+    signal_total = importMergedSignalHistogram(signalROOTFileMonoJet,signalROOTFileMonoV,signalID);
+  }
+  else if(category == 0){// take both mono-jet and mono-v
     signal_monojet    = importSignalHistogram(signalROOTFileMonoJet,signalID,1);
     signal_monov      = importSignalHistogram(signalROOTFileMonoV,signalID,2);
   }
@@ -249,30 +268,56 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     signal_monojet  = importSignalHistogram(signalROOTFileMonoJet,signalID,category);
   else if(category == 2)
     signal_monov    = importSignalHistogram(signalROOTFileMonoV,signalID,category);
-     
+ 
   //take histograms from combine ML fit
   TFile* combineMLFitFile = TFile::Open(combineMLFitRootFile.c_str(),"READ");  
   TH1F* background_monojet = NULL;
   TH1F* background_monov   = NULL;
-  if(category == 0){
-    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
-    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
-  }
-  else if(category == 1)
-    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
-  else if(category == 2)
-    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+  TH1F* background_total   = NULL;
 
-  if(background_monojet == NULL or background_monojet == 0){
-    if(category == 0 or category == 1)
+  if(category == -1){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background");
+    if(background_monojet == NULL or background_monojet == 0)
+      background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
+    
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+
+    background_total = new TH1F("background_total","",background_monojet->GetNbinsX()+background_monov->GetNbinsX(),0,background_monojet->GetNbinsX()+background_monov->GetNbinsX()+1);
+    background_total->Sumw2();
+    int iBin = 0;
+    for(; iBin < background_monojet->GetNbinsX(); iBin++){
+      background_total->SetBinContent(iBin+1,background_monojet->GetBinContent(iBin+1));
+      background_total->SetBinError(iBin+1,background_monojet->GetBinError(iBin+1));
+    }
+    for(int iBinX = 0; iBinX < background_monov->GetNbinsX(); iBinX++,iBin++){
+      background_total->SetBinContent(iBin+1,background_monov->GetBinContent(iBinX+1));
+      background_total->SetBinError(iBin+1,background_monojet->GetBinError(iBinX+1));
+    }
+  }
+  else if(category == 0){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+    if(background_monojet == NULL or background_monojet == 0)
+      background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
+
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+  }
+  else if(category == 1){
+    background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_background"); // take post fit background
+    if(background_monojet == NULL or background_monojet == 0)
       background_monojet = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_background");
   }  
-  
-  if(background_monov == NULL or background_monov == 0){
-    if(category == 0 or category == 2)
-      background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
+  else if(category == 2){
+    background_monov   = (TH1F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_background"); // take post fit background
+    if(background_monov == NULL or background_monov == 0)
+	background_monov = (TH1F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_background");
   }  
-  
+    
+  if(background_total)
+    multipleByBinWidth(background_total,background_monojet,background_monov);
   if(background_monojet)
     multipleByBinWidth(background_monojet);
   if(background_monov)
@@ -289,23 +334,43 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
       for(int iBin = 0; iBin < background_monov->GetNbinsX(); iBin++)
 	cout<<"iBin = "<<iBin<<" rate "<<background_monov->GetBinContent(iBin+1)<<endl;
     }	
+    if(background_total){
+      cout<<"Background rate total "<<endl;
+      for(int iBin = 0; iBin < background_total->GetNbinsX(); iBin++)
+	cout<<"iBin = "<<iBin<<" rate "<<background_total->GetBinContent(iBin+1)<<endl;
+    }	
   }
 
+  ///// correlation matrix
   TH2F* correlation_monojet = NULL;
   TH2F* correlation_monov   = NULL;
-  if(category == 0 or category == 1)
-    correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
-  if(category == 0 or category == 2)
-    correlation_monov   = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
+  TH2F* correlation_total   = NULL;
 
-  if(correlation_monojet == NULL or correlation_monojet == 0){
-    if(category == 0 or category == 1)
+  if(category == -1){
+    TH2F* inputCovariance = (TH2F*) combineMLFitFile->Get("shapes_fit_b/overall_total_covar");
+    correlation_total = importCorrelationMatrix(inputCovariance,"ch1_ch1","ch2_ch1");
+    if(correlation_total == NULL or correlation_total == 0)
+      correlation_total = importCorrelationMatrix(inputCovariance,"monojet_signal","monov_signal");
+
       correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
-  }
-  if(correlation_monov == NULL or correlation_monov == 0){
-    if(category == 0 or category == 2)
       correlation_monov = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
   }
+
+  if(category == 0 or category == 1){
+    correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch1_ch1/total_covar");
+    if(correlation_monojet == NULL or correlation_monojet == 0){
+      correlation_monojet = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monojet_signal/total_covar");
+    }
+  }
+  if(category == 0 or category == 2){
+    correlation_monov   = (TH2F*) combineMLFitFile->Get("shapes_fit_b/ch2_ch1/total_covar");
+    if(correlation_monov == NULL or correlation_monov == 0){
+      correlation_monov = (TH2F*) combineMLFitFile->Get("shapes_fit_b/monov_signal/total_covar");
+    }
+  }
+
+  if(background_total)
+    multipleByBinWidth(correlation_total,background_monojet,background_monov);
   if(background_monojet)
     multipleByBinWidth(correlation_monojet,background_monojet);
   if(background_monov)
@@ -316,6 +381,8 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   RooAbsReal* nllB_monojet  = NULL;
   RooAbsReal* nllSB_monov   = NULL;
   RooAbsReal* nllB_monov    = NULL;
+  RooAbsReal* nllSB_total   = NULL;
+  RooAbsReal* nllB_total    = NULL;
   RooWorkspace* ws_sb  = NULL;
   RooWorkspace* ws_b   = NULL;
   if(category == 0 or category == 1){
@@ -330,10 +397,20 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     if(ws_sb == NULL)
       ws_sb = new RooWorkspace("ws_sb","ws_sb");
     if(ws_b == NULL)
-    ws_b  = new RooWorkspace("ws_b","ws_b");
+      ws_b  = new RooWorkspace("ws_b","ws_b");
     makeLikelihood(ws_sb,ws_b,data_obs_monov,signal_monov,background_monov,correlation_monov,"monov");
     nllSB_monov = (RooAbsReal*) ws_sb->obj("nllSB_monov");
     nllB_monov  = (RooAbsReal*) ws_b->obj("nllB_monov");
+  }
+
+  if(category == -1){
+    if(ws_sb == NULL)
+      ws_sb = new RooWorkspace("ws_sb","ws_sb");
+    if(ws_b == NULL)
+      ws_b  = new RooWorkspace("ws_b","ws_b");
+    makeLikelihood(ws_sb,ws_b,data_obs_total,signal_total,background_total,correlation_total,"total");
+    nllSB_total = (RooAbsReal*) ws_sb->obj("nllSB_total");
+    nllB_total  = (RooAbsReal*) ws_b->obj("nllB_total");
   }
 
   RooAddition* nllSB = NULL;
@@ -350,6 +427,10 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   else if(category == 0){
     nllSB = new RooAddition("nllSBsum","",RooArgList(*nllSB_monojet,*nllSB_monov));
     nllB = new RooAddition("nllBsum","",RooArgList(*nllB_monojet,*nllB_monov));
+  }
+  else if(category == -1){
+    nllSB = dynamic_cast<RooAddition*>(nllSB_total);
+    nllB = dynamic_cast<RooAddition*>(nllB_total);
   }
 
   ///////////////// make S+B fit
@@ -370,16 +451,16 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"##### S+B fit Migrad improved step : -Log(L) "<<nllSB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<< endl;
   mSB.minos(RooArgSet(*mu));
   cout<<"##### S+B fit Minos step : -Log(L) "<<nllSB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<<endl;
-  double nllFit_SB = nllSB->getVal();
-  double muFit_SB  = mu->getVal();
-  double muFit_SB_errUp  = mu->getErrorHi();
-  double muFit_SB_errDw  = mu->getErrorLo();
+  float nllFit_SB = nllSB->getVal();
+  float muFit_SB  = mu->getVal();
+  float muFit_SB_errUp  = mu->getErrorHi();
+  float muFit_SB_errDw  = mu->getErrorLo();
 
   // fix muMin and muMax dynamically
   if(muFit_SB < 0) muMin = 0.001;
-  else if( muFit_SB + 10*muFit_SB_errDw < 0) muMin = 0.001;
-  else muMin = muFit_SB +  10*muFit_SB_errDw;
-  muMax = fabs(muFit_SB) + 10*muFit_SB_errUp;
+  else if( muFit_SB + 5*muFit_SB_errDw < 0) muMin = 0.001;
+  else muMin = muFit_SB +  5*muFit_SB_errDw;
+  muMax = fabs(muFit_SB) + 5*muFit_SB_errUp;
 
   if(debug){
     cout<<"########### After S+B fit ############"<<endl;
@@ -404,7 +485,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"##### B fit Migrad step : -Log(L) "<<nllB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<<endl;
   mB.minimize("Minuit2","migradimproved");
   cout<<"##### B fit Migrad improved step : -Log(L) "<<nllB->getVal()<<" mu : "<<mu->getVal()<<" err dw "<<mu->getErrorLo()<<" err up "<<mu->getErrorHi()<< endl;
-  double nllFit_B = nllB->getVal();
+  float nllFit_B = nllB->getVal();
   
   if(debug){
     cout<<"########### After B-only fit ############"<<endl;
@@ -446,8 +527,27 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     }
   }
 
+  TMatrixDSym* covariance_total = NULL;
+  if(correlation_total != NULL){
+    covariance_total =  new TMatrixDSym(background_total->GetNbinsX());
+    for(int ibin = 0; ibin < correlation_total->GetNbinsX(); ibin++){
+      for(int jbin = 0; jbin < correlation_total->GetNbinsY(); jbin++){
+	if(not skipCorrelations)
+	  (*covariance_total)[ibin][jbin] = correlation_total->GetBinContent(ibin+1,jbin+1);
+	else{
+	  if(ibin == jbin)
+	    (*covariance_total)[ibin][jbin] = correlation_total->GetBinContent(ibin+1,jbin+1);
+	  else
+	    (*covariance_total)[ibin][jbin] = 0.;
+	}
+      }
+    }
+  }
+
+
   //Build asimov data
   RooWorkspace* ws_asimov = NULL;
+  RooAbsReal* nllAsimov_total   = NULL;
   RooAbsReal* nllAsimov_monojet = NULL;
   RooAbsReal* nllAsimov_monov   = NULL;
 
@@ -462,6 +562,12 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     makeAsimovLikelihood(ws_asimov,data_obs_monov,ws_b,covariance_monov,"monov");
     nllAsimov_monov = (RooAbsReal*) ws_asimov->obj("nllAsimov_monov");
   }
+  if(category == -1){
+    if(ws_asimov == NULL)
+      ws_asimov = new RooWorkspace("ws_asimov","ws_asimov");
+    makeAsimovLikelihood(ws_asimov,data_obs_total,ws_b,covariance_total,"total");
+    nllAsimov_total = (RooAbsReal*) ws_asimov->obj("nllAsimov_total");
+  }
 
   RooAddition* nllAsimov = NULL;
   if(category == 1)
@@ -470,6 +576,9 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_monov);
   else if(category == 0)
    nllAsimov = new RooAddition("nllAsimovSum","",RooArgList(*nllAsimov_monojet,*nllAsimov_monov));
+  else if(category == -1)
+    nllAsimov = dynamic_cast<RooAddition*>(nllAsimov_total);
+
     
   system(("mkdir -p "+outputDirectory).c_str());
 
@@ -480,11 +589,13 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cat = "monov";
   else if(category == 0)
     cat =  "combined";
+  else if(category == -1)
+    cat =  "supercombo";
 
   TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
 
-  double mh      = 0;
+  float mh      = 0;
   float mu_      = 0;
   float muErrUp_ = 0;
   float muErrDw_ = 0;
@@ -528,23 +639,23 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   muErrUp_ = muFit_SB_errUp;
   muErrDw_ = muFit_SB_errDw;
 
-  double nllData   = 0;
-  double nllA      = 0;
-  
+  float nllData   = 0;
+  float nllA      = 0;
+
   CLsObs = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,true,nllData,nllA);
   cout<<"#### -Log(L) data : "<<nllData<<" -Log(L) Asimov : "<<nllA+NLL_B<<endl;
   CLsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,1,false,nllData,nllA,0.5);
   cout<<"#### Get observed and expected CLs values : observed "<<CLsObs<<" expected "<<CLsExp<<endl;
 
   // Calculate upper limit on signal strenght --> find CLs value at 95% of the range -> associated mu --> store also the nLL for Asimov and Data --> Likelihood scan
-  double nllDataScan = 0;
-  double nllAsimovScan = 0;
-  double clsObs = 0;
-  double clsExp = 0;
-  double clsExp1sUp = 0;
-  double clsExp1sDw = 0;
-  double clsExp2sUp = 0;
-  double clsExp2sDw = 0;
+  float nllDataScan = 0;
+  float nllAsimovScan = 0;
+  float clsObs = 0;
+  float clsExp = 0;
+  float clsExp1sUp = 0;
+  float clsExp1sDw = 0;
+  float clsExp2sUp = 0;
+  float clsExp2sDw = 0;
 
   TGraph* graphObserved = new TGraph();
   TGraph* graphExpected = new TGraph();
@@ -559,18 +670,24 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     clsExp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.5);    
     if(debug)
       cout<<"#### Step: "<<istep<<" muMin "<<muMin<<" muMax "<<muMax<<" muVal "<<muMin+istep*(muMax-muMin)/muPoint<<" ---> nllObs "<<nllDataScan-nllData<<" nllExp "<<nllAsimovScan-nllA-NLL_B<<" clsObs "<<clsObs<<" clsExp "<<clsExp<<endl;
-    graphObserved->SetPoint(istep,clsObs,muMin+istep*(muMax-muMin)/muPoint);
-    graphExpected->SetPoint(istep,clsExp,muMin+istep*(muMax-muMin)/muPoint);
-    
+    if(not isnan(clsObs))
+      graphObserved->SetPoint(istep,clsObs,muMin+istep*(muMax-muMin)/muPoint);
+    if(not isnan(clsExp))
+      graphExpected->SetPoint(istep,clsExp,muMin+istep*(muMax-muMin)/muPoint);
+
     if(calculateExpSigma){
       clsExp1sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.84);
-      graphExpected1sUp->SetPoint(istep,clsExp1sUp,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp1sUp))
+	graphExpected1sUp->SetPoint(istep,clsExp1sUp,muMin+istep*(muMax-muMin)/muPoint);
       clsExp2sUp = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.975);
-      graphExpected2sUp->SetPoint(istep,clsExp2sUp,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp2sUp))
+	graphExpected2sUp->SetPoint(istep,clsExp2sUp,muMin+istep*(muMax-muMin)/muPoint);
       clsExp1sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.16);
-      graphExpected1sDw->SetPoint(istep,clsExp1sDw,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp1sDw))
+	graphExpected1sDw->SetPoint(istep,clsExp1sDw,muMin+istep*(muMax-muMin)/muPoint);
       clsExp2sDw = calculateCLsLimit(nllSB,nllAsimov,ws_sb,ws_asimov,muMin+istep*(muMax-muMin)/muPoint,false,nllDataScan,nllAsimovScan,0.025);
-      graphExpected2sDw->SetPoint(istep,clsExp2sDw,muMin+istep*(muMax-muMin)/muPoint);
+      if(not isnan(clsExp2sDw))
+	graphExpected2sDw->SetPoint(istep,clsExp2sDw,muMin+istep*(muMax-muMin)/muPoint);
     }
   }
 
@@ -579,7 +696,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
 
   cout<<"##### limitObs mu < "<<limitObs<<endl;
   cout<<"##### limitExp mu < "<<limitExp<<endl;
-  
+
   if(calculateExpSigma){
     limitExpDw2s = graphExpected2sDw->Eval(1-0.95);
     cout<<"##### limitExp 2sigma dw mu < "<<limitExpDw2s<<endl;
@@ -597,11 +714,14 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
     cout<<"Make Likelihood Scan  ---> "<<endl;
     nllA = makeFitFixedStrenght(nllAsimov,ws_asimov,0);
     for(int istep = 0; istep <= muPoint; istep++){
-      muVal.push_back(-muMax+istep*(muMax+muMax)/muPoint);
-      nllDataScan   = makeFitFixedStrenght(nllSB,ws_sb,muVal.back());
-      nllAsimovScan = makeFitFixedStrenght(nllAsimov,ws_asimov,muVal.back());
-      nllObserved.push_back(nllDataScan-nllData);
-      nllExpected.push_back(nllAsimovScan-nllA);
+      float muStep = -muMax+istep*(muMax+muMax)/muPoint;
+      nllDataScan   = makeFitFixedStrenght(nllSB,ws_sb,muStep);
+      nllAsimovScan = makeFitFixedStrenght(nllAsimov,ws_asimov,muStep);
+      if(not isnan(nllDataScan) and not isnan(nllAsimovScan)){
+	nllObserved.push_back(nllDataScan-nllData);
+	nllExpected.push_back(nllAsimovScan-nllA);
+	muVal.push_back(muStep);
+      }
     }
   }
   tree->Fill();

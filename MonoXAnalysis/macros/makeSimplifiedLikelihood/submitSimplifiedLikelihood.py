@@ -27,7 +27,7 @@ parser.add_option('--category',        action="store", type="string", dest="cate
 parser.add_option('--outputDIR',       action="store", type="string", dest="outputDIR",       default="",   help="output DIR")
 parser.add_option('--calculateExpSigma', action="store", type=int,    dest="calculateExpSigma", default=1,   help="to calculate expected for quantiles = 0.025,0.16,0.84,0.975")
 parser.add_option('--doLikelihoodScan', action="store", type=int,     dest="doLikelihoodScan",  default=1,   help="in order to perform a likelihood scan")
-parser.add_option('--skipCorrelations', action="store", type=int,     dest="skipCorrelations",  default=1,   help="to skip correlation across bins")
+parser.add_option('--skipCorrelations', action="store", type=int,     dest="skipCorrelations",  default=0,   help="to skip correlation across bins")
 
 ##  for submitting jobs in lxbatch                                                                                                                                                                
 parser.add_option('--batchMode',    action="store_true",           dest="batchMode",                  help="batchMode")
@@ -43,10 +43,12 @@ mDM_v  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,17
 mMED_av = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000];
 mDM_av  = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000];
 
-mMED_s  = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+#mMED_s  = [10,20,30,40,50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+mMED_s  = [10,20,30,40]
 mDM_s   = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000]
 
-mMED_ps  = [50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+#mMED_ps  = [10,20,30,40,50,60,70,80,90,100,125,150,175,200,300,325,400,525,600,725,800,925,1000,1125,1200,1325,1400,1525,1600,1725,1800,1925,2000,2500,3000,3500,4000,5000]
+mMED_ps  = [10,20,30,40]
 mDM_ps   = [1,5,10,25,50,100,150,200,300,400,500,600,700,800,900,1000,1250,1500,1750,2000]
 
 
@@ -161,12 +163,15 @@ if __name__ == '__main__':
         for mdm in mDM:
 
             expMassPoint = index+"%04d%04d"%(mmed,mdm);
-            if options.category == "monojet" or options.category == "combined" and options.mediatorType != "pseudoscalar":    
+            if options.category == "monojet" or options.category == "combined" or options.category == "supercombo" and options.mediatorType != "pseudoscalar":    
                 if not monojetws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monowws_mj.obj("monojet_signal_signal_"+expMassPoint) or not monozws_mj.obj("monojet_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
-            elif options.category == "monov" or options.category == "combined" and options.mediatorType != "pseudoscalar":
+            elif options.category == "monov" or options.category == "combined" or options.category == "supercombo" and options.mediatorType != "pseudoscalar":
                 if not monojetws_mv.obj("monov_signal_signal_"+expMassPoint) or not monowws_mv.obj("monov_signal_signal_"+expMassPoint) or not monozws_mv.obj("monov_signal_signal_"+expMassPoint):
                     continue; ### signal histogram not found
+            elif options.category == "monojet" or options.category == "combined" or options.category == "supercombo" and options.mediatorType == "pseudoscalar":
+                if not monojetws_mj.obj("monojet_signal_signal_"+expMassPoint):
+                    continue
 
 
             jobname = "job_"+options.mediatorType+"_cat"+options.category+"_"+expMassPoint;
@@ -178,6 +183,8 @@ if __name__ == '__main__':
                 category = 2;
             elif options.category == "combined":
                 category = 0;
+            elif options.category == "supercombo":
+                category = -1;
             
     
             jobmacro = open('%s/%s/job.C'%(options.jobDIR,jobname),'w')
@@ -185,8 +192,8 @@ if __name__ == '__main__':
             jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/limitSimplifiedLikelihood.C\");\n");
             if options.mediatorType != "pseudoscalar":
                 jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},{\\\"%s\\\",\\\"%s\\\",\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\",%d,%d,%d)"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monowfile_mj.GetName(),monozfile_mj.GetName(),monojetfile_mv.GetName(),monowfile_mv.GetName(),monozfile_mv.GetName(),expMassPoint,category,options.outputDIR,options.calculateExpSigma,options.doLikelihoodScan,options.skipCorrelations)+"\");\n");
-            else:
-                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\"},{\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\",%d,%d,%d)"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monojetfile_mv.GetName(),expMassPoint,category,options.calculateExpSigma,options.doLikelihoodScan,options.skipCorrelations)+"\");\n");
+            else:                
+                jobmacro.write("gROOT->ProcessLine(\""+"limitSimplifiedLikelihood(\\\"%s\\\",\\\"%s\\\",{\\\"%s\\\"},{\\\"%s\\\"},\\\"%s\\\",%d,\\\"%s\\\",%d,%d,%d)"%(options.inputWorkspace,options.inputMLFitFile,monojetfile_mj.GetName(),monojetfile_mv.GetName(),expMassPoint,category,options.outputDIR,options.calculateExpSigma,options.doLikelihoodScan,options.skipCorrelations)+"\");\n");
 
             jobmacro.write("}\n");
             jobmacro.close();
@@ -204,6 +211,5 @@ if __name__ == '__main__':
             jobscript.write('root -l -b -q job.C\n');
             jobscript.write('scp '+options.outputDIR+"/*"+expMassPoint+"*root "+currentDIR+"/"+options.outputDIR);
             os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,jobname))
-
             if options.submit:
                 os.system('bsub -q %s -o %s/%s/%s/job.log -e %s/%s/%s/job.err %s/%s/%s/job.sh'%(options.queque,currentDIR,options.jobDIR,jobname,currentDIR,options.jobDIR,jobname,currentDIR,options.jobDIR,jobname))
