@@ -595,7 +595,7 @@ void limitSimplifiedLikelihood(string dataWorkspace, string combineMLFitRootFile
   TFile* outputFile = new TFile((outputDirectory+"/simplifiedLikelihood_"+cat+"_"+signalID+".root").c_str(),"RECREATE");
   outputFile->cd();
 
-  float mh      = 0;
+  double mh      = 0;
   float mu_      = 0;
   float muErrUp_ = 0;
   float muErrDw_ = 0;
