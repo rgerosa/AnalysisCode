@@ -10,6 +10,14 @@
 #include "TH1F.h"
 #include "TLorentzVector.h"
 
+float metCut = 200;
+float leadingJetVBF = 80;
+float trailingJetVBF = 60;
+float detajjVBF = 4;
+float mjjVBF    = 800;
+float dphiVBF   = 1.5;
+
+
 void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory){
 
   system(("mkdir -p "+outputDirectory).c_str());
@@ -154,25 +162,26 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   // setup read input file                                                                                                                                                  
   TTreeReader myReader(chain);
 
-  TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
-  TTreeReaderValue<double> wgt   (myReader,"wgt");
-
-  TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
-  TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
-  TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
-  TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
-  TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
-  TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
+  TTreeReaderValue<unsigned int> nvtx (myReader,"nvtx");
+  TTreeReaderValue<double> wgt        (myReader,"wgt");
+  TTreeReaderValue<UChar_t> hltm90    (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm100   (myReader,"hltmet100");
+  TTreeReaderValue<UChar_t> hltm110   (myReader,"hltmet110");
+  TTreeReaderValue<UChar_t> hltm120   (myReader,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120 (myReader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170 (myReader,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300 (myReader,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90  (myReader,"hltmetwithmu90");
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
-  TTreeReaderValue<unsigned int> njets  (myReader,"njets");
-  TTreeReaderValue<unsigned int> nphotons  (myReader,"nphotons");
-  TTreeReaderValue<unsigned int> nelectrons  (myReader,"nelectrons");
-  TTreeReaderValue<unsigned int> ntaus  (myReader,"ntausraw");
+  TTreeReaderValue<unsigned int> njets      (myReader,"njets");
+  TTreeReaderValue<unsigned int> nphotons   (myReader,"nphotons");
+  TTreeReaderValue<unsigned int> nelectrons (myReader,"nelectrons");
+  TTreeReaderValue<unsigned int> ntaus   (myReader,"ntausraw");
   TTreeReaderValue<unsigned int> nmuons  (myReader,"nmuons");
-  TTreeReaderValue<unsigned int> nbjets (myReader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> nbjets  (myReader,"nbjetslowpt");
   TTreeReaderValue<vector<double> > jetpt   (myReader,"combinejetpt");
   TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
   TTreeReaderValue<vector<double> > jetphi  (myReader,"combinejetphi");
@@ -193,7 +202,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<vector<double> > boostedJetGenphi   (myReader,"boostedJetGenphi");
   TTreeReaderValue<vector<double> > boostedJetGenm     (myReader,"boostedJetGenm");
   TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm");
-  TTreeReaderValue<vector<double> > prunedJetGenm      (myReader,"prunedJetGenm");
+  TTreeReaderValue<vector<double> > prunedJetGenm   (myReader,"prunedJetGenm");
   TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
   TTreeReaderValue<vector<double> > boostedJetGentau2  (myReader,"boostedJetGentau2");
@@ -218,11 +227,11 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<double > x2Pt      (myReader,"dmX2pt");
   TTreeReaderValue<double > x2Eta     (myReader,"dmX2eta");
   TTreeReaderValue<double > x2Phi     (myReader,"dmX2phi");
-  TTreeReaderValue<double> mmet        (myReader,"t1mumet");
-  TTreeReaderValue<double> mmetphi     (myReader,"t1mumetphi");
-  TTreeReaderValue<double> genmet        (myReader,"genmet");
-  TTreeReaderValue<double> genmetphi     (myReader,"genmetphi");
-  TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
+  TTreeReaderValue<double> mmet       (myReader,"t1mumet");
+  TTreeReaderValue<double> mmetphi    (myReader,"t1mumetphi");
+  TTreeReaderValue<double> genmet     (myReader,"genmet");
+  TTreeReaderValue<double> genmetphi  (myReader,"genmetphi");
+  TTreeReaderValue<double> jmmdphi    (myReader,"incjetmumetdphimin4");
 
   // loop on the event and apply selections
   cout<<"Events in the chain "<<chain->GetEntries()<<endl;
@@ -332,35 +341,70 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     weightTurnOn = 1.;
     genWeight = 1.;
 
-    // basic monojet
-    if (*hltm90 == 0 and *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
+    // basic selections in common between all categories
+    // trigger
+    if (*hltm90 == 0 and *hltm100 == 0 and *hltm110 == 0 and  *hltm120 == 0 and *hltmwm120 == 0 and *hltmwm170 == 0 and *hltmwm300 == 0 and *hltmwm90 == 0 ) id = 0;
+    // met filters
     if (*fhbhe  == 0 or *fhbiso == 0 or *feeb == 0 or *fcsc  == 0) id = 0;
+    // number of jets
     if (*njets  < 1) id = 0;
+    // b-veto
     if (*nbjets > 0) id = 0;    
+    // njets
     if (chfrac->size() == 0 or nhfrac->size() == 0 or jetpt->size() == 0 or jeteta->size() == 0) id = 0;                                                                
-    if (chfrac->size() > 0 and chfrac->at(0) < 0.1)   id = 0;
-    if (nhfrac->size() > 0 and nhfrac->at(0) > 0.8)   id = 0;
-    if (jeteta->size() > 0 and fabs(jeteta->at(0)) > 2.5) id = 0;
-    if (jetpt->size()  > 0 and jetpt->at(0)  < 100.)  id = 0;
+    // jet met dphi
     if (*jmmdphi < 0.5)  id = 0;
-    if (*mmet < 200)     id = 0;    
+    // met cut
+    if (*mmet < metCut)  id = 0;    
+    // vetoes on leptons/photons/taus
     if (*nmuons > 0)     id = 0;
     if (*nelectrons > 0) id = 0;
     if (*ntaus > 0)      id = 0;
     if (*nphotons > 0)   id = 0;
 
-    if(id == -1 and boostedJetpt->size()  == 0) id = 1;
-    if(id == -1 and boostedJetpt->size()  > 0 and fabs(boostedJeteta->at(0)) > 2.4) id = 1;
-    if(id == -1 and boostedJetpt->size()  > 0 and boostedJetpt->at(0) < 250.) id = 1;
-    if(id == -1 and boostedJetpt->size()  > 0 and boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6) id = 1;
-    if(id == -1 and boostedJetpt->size()  > 0 and (prunedJetm->at(0) < 65 or prunedJetm->at(0) > 105)) id = 1;
+    bool isVBF = false;
+    // VBF selections
+    if(jetpt->size()  > 2){
+      if(jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajjVBF and *jmmdphi > dphiVBF and jeteta->at(0)*jeteta->at(1) < 0){
+	TLorentzVector jet1, jet2;
+	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	if((jet1+jet2).M() > mjjVBF) {
+	  if(fabs(jetpt->at(0)) < 2.5 and chfrac->at(0) > 0.1 and nhfrac->at(0) < 0.8)
+	    isVBF = true;
+	  else if(fabs(jetpt->at(0)) > 2.5)
+	    isVBF = true;
+	}
+      }
+    }
 
-    if(id == -1 and prunedJetm->size() > 0 and prunedJetm->at(0) > 0 and boostedJetpt->at(0) > 250. and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and *mmet > 250 and fabs(boostedJeteta->at(0)) < 2.4) id = 2;
-    
-    if (id == -1 and *mmet > 200 and *mmet < 250) id = 0;
+    if(isVBF) id = 3;
+    else{
+      
+      // mono-jet and mono-V category if an event does not fall into the VBF phase space
+      if(jetpt->size()  > 0 and jetpt->at(0) < 100.) id = 0;      
+      if(jetpt->size()  > 0 and nhfrac->at(0) > 0.8) id = 0;
+      if(jetpt->size()  > 0 and chfrac->at(0) < 0.1) id = 0;
+      if(id == -1 and boostedJetpt->size()  == 0)      id = 1; // good mono-jet event
+      if(id == -1 and boostedJetpt->size()  > 0 and fabs(boostedJeteta->at(0)) > 2.4) id = 1; // good monojet event
+      if(id == -1 and boostedJetpt->size()  > 0 and boostedJetpt->at(0) < 250.)       id = 1; // good monojet event
+      if(id == -1 and boostedJetpt->size()  > 0 and boostedJettau2->at(0)/boostedJettau1->at(0) > 0.6  ) id = 1; // good monojet event
+      if(id == -1 and boostedJetpt->size()  > 0 and (prunedJetm->at(0) < 65 or prunedJetm->at(0) > 105)) id = 1; // good monojet event
+      
+      if(id == -1 and 
+	 prunedJetm->size() > 0 and 
+	 prunedJetm->at(0) >  0 and 
+	 boostedJetpt->at(0) > 250. and 
+	 boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and 
+	 prunedJetm->at(0) > 65 and 
+	 prunedJetm->at(0) < 105 and *mmet > 250 and 
+	 fabs(boostedJeteta->at(0)) < 2.4) id = 2; // good mono-V event
+      
+      if (id == -1 and *mmet > 200 and *mmet < 250) id = 0; // failing cut
+    }
 
     if(id == -1) cout<<"Huston we have a problem ... "<<*hltm90<<" "<<*fhbhe<<" "<<*fhbiso<<" "<<*feeb<<" "<<*fcsc<<" "<<*njets<<" "<<*nbjets<<" "<<chfrac->at(0)<<" "<<nhfrac->at(0) << " "<<jetpt->at(0)<<" "<<*jmmdphi<<" "<<*mmet<<" "<<boostedJetpt->at(0)<<" "<<boostedJettau2->at(0)/boostedJettau1->at(0)<<" "<<prunedJetm->at(0)<<endl;
-      
+    
     // fill branches
     genVBosonPt   = *bosonPt;  
     genVBosonPhi  = *bosonPhi;  
