@@ -4,8 +4,8 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-vector <float> bins_monojet_muon = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1250, 1500};
-vector <float> bins_vbf_muon     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1250, 1500};
+vector <float> bins_monojet_muon = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
+vector <float> bins_vbf_muon     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
 vector <float> bins_vbf_elec     = {0.,50.,60.,70.,80.,85.,90.,95.,100,110.,120.,140.,160., 180., 200., 225.,250., 300.,350.,450,550,650,800,1000.,1250,1500};
 vector <float> bins_monojet_elec = {0.,50.,60.,70.,80.,85.,90.,95.,100,110.,120.,140.,160., 180., 200., 225.,250., 300.,350.,450,550,650,800,1000.,1250,1500};
 
@@ -13,12 +13,12 @@ vector <float> bins_monojet_elec = {0.,50.,60.,70.,80.,85.,90.,95.,100,110.,120.
 //vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
 
-static float leadingVBF  = 70;
+static float leadingVBF  = 60;
 static float trailingVBF = 50;
-static float leadingVBFtight  = 90;
-static float trailingVBFtight = 70;
-static float detajj = 3; 
-static float mjj    = 600; 
+static float leadingVBFtight  = 80;
+static float trailingVBFtight = 60;
+static float detajj = 2.5; 
+static float mjj    = 450; 
 static float jetmetdphi = 1.0; 
 
 void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool singleMuon = true) {
@@ -126,6 +126,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<double>  el1pt     (reader,"el1pt");
   TTreeReaderValue<double>  el1eta    (reader,"el1eta");
   TTreeReaderValue<int>     el1id     (reader,"el1id");
+  TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsc   (reader,"flagglobaltighthalo");
   TTreeReaderValue<UChar_t> fcsct  (reader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (reader,"flageebadsc");
@@ -221,7 +223,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyVBFSelections_tight->SetBinContent(4,efficiencyVBFSelections_tight->GetBinContent(4)+1);
     efficiencyVBFSelections_central->SetBinContent(4,efficiencyVBFSelections_central->GetBinContent(4)+1);
     //
-    if(not *fcsc or not *fcsct or not *feeb or not *fetp or not *fvtx or not *fbadmu or not *fbadch) continue;
+    if(not *fcsc or not *fcsct or not *feeb or not *fetp or not *fvtx or not *fbadmu or not *fbadch or not *fhbhe or not *fhbiso) continue;
     efficiencyMonojetSelections->SetBinContent(5,efficiencyMonojetSelections->GetBinContent(5)+1);
     efficiencyVBFSelections_loose->SetBinContent(5,efficiencyVBFSelections_loose->GetBinContent(5)+1);
     efficiencyVBFSelections_tight->SetBinContent(5,efficiencyVBFSelections_tight->GetBinContent(5)+1);
@@ -233,7 +235,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections_loose->SetBinContent(6,efficiencyVBFSelections_loose->GetBinContent(6)+1);
       efficiencyVBFSelections_tight->SetBinContent(6,efficiencyVBFSelections_tight->GetBinContent(6)+1);
       efficiencyVBFSelections_central->SetBinContent(6,efficiencyVBFSelections_central->GetBinContent(6)+1);
-      if(*mu1pt < 25) continue;
+      if(*mu1pt < 20) continue;
       if(fabs(*mu1eta) > 2.4) continue;
       efficiencyMonojetSelections->SetBinContent(7,efficiencyMonojetSelections->GetBinContent(7)+1);
       efficiencyVBFSelections_loose->SetBinContent(7,efficiencyVBFSelections_loose->GetBinContent(7)+1);
@@ -275,13 +277,16 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       }
       
       // denominator VBF
-      if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and 
-	 *jmmdphi > jetmetdphi and jeteta->at(0)*jetpt->at(1) < 0){
+      if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and *jmmdphi > jetmetdphi){
+
+	// charge fraction cut on the central jet
+	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
+	if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
 
 	efficiencyVBFSelections_loose->SetBinContent(12,efficiencyVBFSelections_loose->GetBinContent(12)+1);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  efficiencyVBFSelections_tight->SetBinContent(12,efficiencyVBFSelections_tight->GetBinContent(12)+1);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  efficiencyVBFSelections_central->SetBinContent(12,efficiencyVBFSelections_central->GetBinContent(12)+1);
 
 	TLorentzVector jet1, jet2;
@@ -291,13 +296,13 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	efficiencyVBFSelections_loose->SetBinContent(13,efficiencyVBFSelections_loose->GetBinContent(13)+1);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  efficiencyVBFSelections_tight->SetBinContent(13,efficiencyVBFSelections_tight->GetBinContent(13)+1);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  efficiencyVBFSelections_central->SetBinContent(13,efficiencyVBFSelections_central->GetBinContent(13)+1);
 	
 	hden_vbf_loose->Fill(*mmet);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  hden_vbf_tight->Fill(*mmet);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight)
 	  hden_vbf_central->Fill(*mmet);
 
 	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){	  
@@ -307,7 +312,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    hnum_vbf_tight->Fill(*mmet);
 	    efficiencyVBFSelections_tight->SetBinContent(14,efficiencyVBFSelections_tight->GetBinContent(14)+1);
 	  }
-	  if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight ){
+	  if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight){
 	    hnum_vbf_central->Fill(*mmet);
 	    efficiencyVBFSelections_central->SetBinContent(14,efficiencyVBFSelections_central->GetBinContent(14)+1);
 	  }
@@ -365,12 +370,16 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       }
 
       // denominator VBF
-      if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and 
-	 *jemdphi > jetmetdphi  and jeteta->at(0)*jetpt->at(1) < 0){
+      if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and *jemdphi > jetmetdphi){
+
+	// charge fraction cut on the central jet
+	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
+	if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
+
 	efficiencyVBFSelections_loose->SetBinContent(12,efficiencyVBFSelections_loose->GetBinContent(12)+1);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  efficiencyVBFSelections_tight->SetBinContent(12,efficiencyVBFSelections_tight->GetBinContent(12)+1);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  efficiencyVBFSelections_central->SetBinContent(12,efficiencyVBFSelections_central->GetBinContent(12)+1);
 
 	TLorentzVector jet1, jet2;
@@ -381,13 +390,13 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  efficiencyVBFSelections_tight->SetBinContent(13,efficiencyVBFSelections_tight->GetBinContent(13)+1);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  efficiencyVBFSelections_central->SetBinContent(13,efficiencyVBFSelections_central->GetBinContent(13)+1);
 
 	hden_vbf_loose->Fill(*met);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
 	  hden_vbf_tight->Fill(*met);
-	if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
+	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  hden_vbf_central->Fill(*met);
 	  
 	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
@@ -397,7 +406,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    efficiencyVBFSelections_tight->SetBinContent(14,efficiencyVBFSelections_tight->GetBinContent(14)+1);
 	    hnum_vbf_tight->Fill(*met);	
 	  }
-	  if(fabs(jetpt->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight ){
+	  if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight ){
 	    efficiencyVBFSelections_central->SetBinContent(14,efficiencyVBFSelections_central->GetBinContent(14)+1);
 	    hnum_vbf_central->Fill(*met);	
 	  }
@@ -494,8 +503,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   fitfunc_monojet->Draw("SAME");
   fitfunc_vbf_loose->Draw("SAME");
   fitfunc_vbf_tight->Draw("SAME");
-  eff_vbf_tight->Draw("E1PSAME");
-  eff_vbf_central->Draw("E1PSAME");
+  fitfunc_vbf_central->Draw("SAME");
   canvas->RedrawAxis();
   CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
 
@@ -504,9 +512,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
   leg.AddEntry(eff_monojet,"mono-jet selection","PE");
-  leg.AddEntry(eff_vbf_loose,"VBF jet p_{T} [70,50] GeV","PE");
-  leg.AddEntry(eff_vbf_tight,"VBF jet p_{T} [90,70] GeV","PE");
-  leg.AddEntry(eff_vbf_central,"VBF jet p_{T} [90,50] |#eta| < 2.5 GeV","PE");
+  leg.AddEntry(eff_vbf_loose,"VBF jet p_{T} [60,50] GeV","PE");
+  leg.AddEntry(eff_vbf_tight,"VBF jet p_{T} [80,60] GeV","PE");
+  leg.AddEntry(eff_vbf_central,"VBF jet p_{T} [80,50] |#eta| < 2.5 GeV","PE");
   leg.Draw("same");
 
   if(singleMuon){
