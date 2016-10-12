@@ -16,7 +16,7 @@ using namespace std;
 
 // Basic enum
 enum class Sample   { qcd, sig, gam, wmn, zmm, wen, zee, topmu, topel};
-enum class Category { inclusive, monojet, monoV, VBF, boosted, prunedMass, tau2tau1, combined};
+enum class Category { inclusive, monojet, monoV, VBF, boosted, prunedMass, tau2tau1, combined, total};
 
 class signalSample{
   

@@ -117,6 +117,7 @@ private:
 
   // Gen Particles and MC info
   const bool isMC;
+  const bool isTriggerTree;
   const bool uselheweights;
   const edm::InputTag lheEventTag;
   const edm::InputTag lheRunTag;
@@ -547,6 +548,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   ///////////// GEN INFO
   // isMC or Data --> default Data
   isMC(iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
+  isTriggerTree(iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false),
   // use lhe weights or not
   uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
   lheEventTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
@@ -1043,6 +1045,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltCaloJet500 = 0; hltEcalHT800 = 0; hltPFJet450 = 0; hltPFJet500 =0;
     hltphoton90PFHT500 = 0; hltphoton90PFHT600 = 0;
 
+    const edm::TriggerNames &names = iEvent.triggerNames(*triggerResultsH);
+    for (unsigned int i = 0, n = triggerResultsH->size(); i < n; ++i) {
+      if(TString(names.triggerName(i)).Contains("HLT")) continue;
+      std::cout<<"Names "<<names.triggerName(i)<<endl;
+    }
     // Which triggers fired
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
@@ -1370,7 +1377,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       taumetphi   = -99;
     }
 
-    if(addMETSystematics){          
+    if(addMETSystematics  and not isTriggerTree){          
       if(t1metH.isValid()){
 	t1pfmetMuEnUp     = t1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnUp,   pat::MET::METCorrectionLevel::Type1);
 	t1pfmetMuEnDown   = t1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnDown, pat::MET::METCorrectionLevel::Type1);
@@ -1427,7 +1434,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pfmetneutralhadron = -99. ; pfmetneutralhadronphi = -99. ; pfmetelectrons = -99. ; pfmetelectronsphi = -99. ; 
     pfmetmuons = -99. ; pfmetmuonsphi = -99. ; pfmetphotons = -99. ; pfmetphotonsphi = -99. ; pfmetunclustered = -99. ; pfmetunclusteredphi = -99.;
 
-    if(addMETBreakDown){
+    if(addMETBreakDown and not isTriggerTree){
       pfmethadronHF    = pfMetHadronHFH->front().pt();
       pfmethadronHFphi = pfMetHadronHFH->front().phi();
       pfmetegammaHF    = pfMetEgammaHFH->front().pt();
@@ -1467,7 +1474,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     puppit1pfmetJetEnUpPhi = -99.; puppit1pfmetJetEnDownPhi = -99.; puppit1pfmetJetResUpPhi = -99.; puppit1pfmetJetResDownPhi = -99.;
     puppit1pfmetUncEnUpPhi = -99.; puppit1pfmetUncEnDownPhi = -99.;
 
-    if(addPuppiMET){
+    if(addPuppiMET and not isTriggerTree){
 
       if(puppit1metH.isValid()){
 	puppit1pfmet        = puppit1metH->front().corPt();
@@ -1504,7 +1511,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	puppitaumetphi       = puppit1taumetH->front().uncorPhi();
       }
 
-      if(addMETSystematics){	
+      if(addMETSystematics and not isTriggerTree){	
 	if(puppit1metH.isValid()){
 	  puppit1pfmetMuEnUp     = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnUp, pat::MET::METCorrectionLevel::Type1);
 	  puppit1pfmetMuEnDown   = puppit1metH->front().shiftedPt(pat::MET::METUncertainty::MuonEnDown, pat::MET::METCorrectionLevel::Type1);       
@@ -1774,7 +1781,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }
 
     // PUPPI AK4 jets
-    if(addPuppiJets){
+    if(addPuppiJets and not isTriggerTree){
 
       vector<pat::JetRef> incPuppijets;
       vector<pat::JetRef> Puppijets;
@@ -2299,7 +2306,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     int hardestPhotonPurityIndex = -1;
     double hardestPhotonPurityPt = 0.0;
 
-    if(addPhotonPurity){
+    if(addPhotonPurity and not isTriggerTree){
       phPuritypt     = 0.0;
       phPurityeta    = 0.0;
       phPurityphi    = 0.0;
@@ -2353,7 +2360,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Substructure CHS
-    if(addSubstructureCHS){      
+    if(addSubstructureCHS and not isTriggerTree){      
       //sort collection to make sure it is ordered
       vector<pat::JetRef> jetsBoosted;
       if(boostedJetsH.isValid()){
@@ -2485,7 +2492,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  }
 
 	  /*
-	  // ecf
 	  if(jetsBoosted[i]->hasUserFloat("ecf"+boostedJetsCHSLabel+":ecf1"))
 	    boostedJetecf1 .push_back( jetsBoosted[i]->userFloat("ecf"+boostedJetsCHSLabel+":ecf1"));
 	  
@@ -2772,7 +2778,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Substructure Puppi
-    if(addSubstructurePuppi){      
+    if(addSubstructurePuppi and not isTriggerTree){      
       //sort collection to make sure it is ordered
       vector<pat::JetRef> puppiJetsBoosted;
       
@@ -3182,7 +3188,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // phtoon and electron ID info
-    if(photonIDH.isValid() and addPhotonIDVariables){
+    if(photonIDH.isValid() and addPhotonIDVariables and not isTriggerTree){
 
       photonPt.clear();
       photonEta.clear();
@@ -3228,7 +3234,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}	
       }      
     }
-    if(electronIDH.isValid() and addElectronIDVariables){
+
+    if(electronIDH.isValid() and addElectronIDVariables and not isTriggerTree){
 
       electronPt.clear();
       electronEta.clear();
@@ -3297,7 +3304,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     dmX1mass = 0.; dmX1phi = 0.; dmX1eta = 0.; dmX1pt = 0.; dmX1id = 0;
     dmX2mass = 0.; dmX2phi = 0.; dmX2eta = 0.; dmX2pt = 0.; dmX2id = 0;
 
-    if (isSignalSample && gensH.isValid()) {
+    if (isSignalSample and gensH.isValid() and not isTriggerTree) {
 
       TLorentzVector dm1vec; 
       TLorentzVector dm2vec; 
@@ -3377,7 +3384,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // dump inportant gen particles
-    if(addGenParticles and gensH.isValid()){
+    if(addGenParticles and gensH.isValid() and not isTriggerTree){
       
       // loop on genParticles (prunedGenParticles) trying to find W/Z decying leptonically or hadronically, top and anti-top quarks
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
@@ -3598,23 +3605,23 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltphoton90PFHT500"   , &hltphoton90PFHT500   , "hltphoton90PFHT500/b");
   tree->Branch("hltphoton90PFHT600"   , &hltphoton90PFHT600   , "hltphoton90PFHT600/b");
 
-  tree->Branch("pswgt_ph50"           , &pswgt_ph50           , "pswgt_ph50/D");
-  tree->Branch("pswgt_ph75"           , &pswgt_ph75           , "pswgt_ph75/D");
-  tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
-  tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
-
-  tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/D");
-  tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/D");
-  tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/D");
-  tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/D");
-  tree->Branch("pswgt_ht300"          , &pswgt_ht350          , "pswgt_ht350/D");
-  tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
-  tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
-  tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
-  tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/D");
-  tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/D");
-  tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/D");
-
+  if(not isTriggerTree){
+    tree->Branch("pswgt_ph50"           , &pswgt_ph50           , "pswgt_ph50/D");
+    tree->Branch("pswgt_ph75"           , &pswgt_ph75           , "pswgt_ph75/D");
+    tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
+    tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
+    tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/D");
+    tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/D");
+    tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/D");
+    tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/D");
+    tree->Branch("pswgt_ht300"          , &pswgt_ht350          , "pswgt_ht350/D");
+    tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
+    tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
+    tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
+    tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/D");
+    tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/D");
+    tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/D");
+  }
   // MET filters
   tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
   tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
@@ -3660,27 +3667,34 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/D");
   tree->Branch("calomet"              , &calomet              , "calomet/D");   //ND
   tree->Branch("calometphi"           , &calometphi           , "calometphi/D");//ND
-  tree->Branch("mumet"                , &mumet                , "mumet/D");
-  tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
+  if(not isTriggerTree){    
+    tree->Branch("mumet"                , &mumet                , "mumet/D");
+    tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
+  }
   tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/D");
   tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/D");
-  tree->Branch("elmet"                , &elmet                , "elmet/D");
-  tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/D");
+  if(not isTriggerTree){
+    tree->Branch("elmet"                , &elmet                , "elmet/D");
+    tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/D");
+  }
   tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/D");
   tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/D");
-  tree->Branch("phmet"                , &phmet                , "phmet/D");
-  tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/D");
+  if(not isTriggerTree){
+    tree->Branch("phmet"                , &phmet                , "phmet/D");
+    tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/D");
+  }
   tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
   tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
-  tree->Branch("taumet"                , &taumet                , "taumet/D");
-  tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/D");
-  tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/D");
-  tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/D");
+  if(not isTriggerTree){
+    tree->Branch("taumet"                , &taumet                , "taumet/D");
+    tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/D");
+    tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/D");
+    tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/D");
+    tree->Branch("genmet",    &genmet,   "genmet/D");
+    tree->Branch("genmetphi", &genmetphi,"genmetphi/D");
+  }
 
-  tree->Branch("genmet",    &genmet,   "genmet/D");
-  tree->Branch("genmetphi", &genmetphi,"genmetphi/D");
-
-  if(addMETBreakDown){
+  if(addMETBreakDown and not isTriggerTree){
     
     tree->Branch("pfmethadronHF",&pfmethadronHF,"pfmethadronHF/D");
     tree->Branch("pfmethadronHFphi",&pfmethadronHFphi,"pfmethadronHFphi/D");
@@ -3700,12 +3714,12 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("pfmetunclusteredphi",&pfmetunclusteredphi,"pfmetunclusteredphi/D");
   }
 
-  if(addMVAMet){
+  if(addMVAMet and not isTriggerTree){
     tree->Branch("mvamet"              , &mvamet              , "mvamet/D");
     tree->Branch("mvametphi"           , &mvametphi           , "mvametphi/D");
   }
 
-  if(addMETSystematics){
+  if(addMETSystematics and not isTriggerTree){
     tree->Branch("t1pfmetMuEnUp"       , &t1pfmetMuEnUp       , "t1pfmetMuEnUp/D");
     tree->Branch("t1pfmetMuEnDown"     , &t1pfmetMuEnDown     , "t1pfmetMuEnDown/D");
     tree->Branch("t1pfmetElEnUp"       , &t1pfmetElEnUp       , "t1pfmetElEnUp/D");
@@ -3742,7 +3756,7 @@ void MonoJetTreeMaker::beginJob() {
 
   }
 
-  if(addPuppiMET){
+  if(addPuppiMET and not isTriggerTree){
     tree->Branch("puppipfmet"                , &puppipfmet                , "puppipfmet/D");
     tree->Branch("puppipfmetphi"             , &puppipfmetphi             , "puppipfmetphi/D");
     tree->Branch("puppit1pfmet"              , &puppit1pfmet              , "puppit1pfmet/D");
@@ -3760,7 +3774,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("puppit1phmet"              , &puppit1phmet              , "puppit1phmet/D");
     tree->Branch("puppit1phmetphi"           , &puppit1phmetphi           , "puppit1phmetphi/D");
 
-    if(addMETSystematics){
+    if(addMETSystematics and not isTriggerTree){
       tree->Branch("puppit1pfmetMuEnUp"       , &puppit1pfmetMuEnUp       , "puppit1pfmetMuEnUp/D");
       tree->Branch("puppit1pfmetMuEnDown"     , &puppit1pfmetMuEnDown     , "puppit1pfmetMuEnDown/D");
       tree->Branch("puppit1pfmetElEnUp"       , &puppit1pfmetElEnUp       , "puppit1pfmetElEnUp/D");
@@ -3801,56 +3815,61 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("combinejeteta",     "std::vector<double>", &combinejeteta);
   tree->Branch("combinejetphi",     "std::vector<double>", &combinejetphi);
   tree->Branch("combinejetm",       "std::vector<double>", &combinejetm);
-  tree->Branch("combinejetbtag",    "std::vector<double>", &combinejetbtag);
-  tree->Branch("combinejetbtagMVA", "std::vector<double>", &combinejetbtagMVA);
+  if(not isTriggerTree){
+    tree->Branch("combinejetbtag",    "std::vector<double>", &combinejetbtag);
+    tree->Branch("combinejetbtagMVA", "std::vector<double>", &combinejetbtagMVA);
+  }
   tree->Branch("combinejetCHfrac",  "std::vector<double>", &combinejetCHfrac);
   tree->Branch("combinejetNHfrac",  "std::vector<double>", &combinejetNHfrac);
-  tree->Branch("combinejetEMfrac",  "std::vector<double>", &combinejetEMfrac);
-  tree->Branch("combinejetCEMfrac", "std::vector<double>", &combinejetCEMfrac);
-  tree->Branch("combinejetmetdphi", "std::vector<double>", &combinejetmetdphi);
-  tree->Branch("combinejetHFlav",   "std::vector<double>", &combinejetHFlav);
-  tree->Branch("combinejetPFlav",   "std::vector<double>", &combinejetPFlav);
-  tree->Branch("combinejetQGL",     "std::vector<double>", &combinejetQGL);
-  tree->Branch("combinejetPUID",    "std::vector<double>", &combinejetPUID);
-  tree->Branch("combinejetPassPUID",    "std::vector<double>", &combinejetPassPUID);
-  tree->Branch("combinejetGenpt",   "std::vector<double>", &combinejetGenpt);
-  tree->Branch("combinejetGeneta",  "std::vector<double>", &combinejetGeneta);
-  tree->Branch("combinejetGenphi",  "std::vector<double>", &combinejetGenphi);
-  tree->Branch("combinejetGenm",    "std::vector<double>", &combinejetGenm);
-  tree->Branch("combinejetBtagSF",  "std::vector<double>", &combinejetBtagSF);
-  tree->Branch("combinejetBtagSFUp", "std::vector<double>", &combinejetBtagSFUp);
-  tree->Branch("combinejetBtagSFDown",    "std::vector<double>", &combinejetBtagSFDown);
-  tree->Branch("combinejetBtagMVASF",     "std::vector<double>", &combinejetBtagMVASF);
-  tree->Branch("combinejetBtagMVASFUp",   "std::vector<double>", &combinejetBtagMVASFUp);
-  tree->Branch("combinejetBtagMVASFDown", "std::vector<double>", &combinejetBtagMVASFDown);
+  if(not isTriggerTree){
+    tree->Branch("combinejetEMfrac",  "std::vector<double>", &combinejetEMfrac);
+    tree->Branch("combinejetCEMfrac", "std::vector<double>", &combinejetCEMfrac);
+    tree->Branch("combinejetmetdphi", "std::vector<double>", &combinejetmetdphi);
+    tree->Branch("combinejetHFlav",   "std::vector<double>", &combinejetHFlav);
+    tree->Branch("combinejetPFlav",   "std::vector<double>", &combinejetPFlav);
+    tree->Branch("combinejetQGL",     "std::vector<double>", &combinejetQGL);
+    tree->Branch("combinejetPUID",    "std::vector<double>", &combinejetPUID);
+    tree->Branch("combinejetPassPUID",    "std::vector<double>", &combinejetPassPUID);
+    tree->Branch("combinejetGenpt",   "std::vector<double>", &combinejetGenpt);
+    tree->Branch("combinejetGeneta",  "std::vector<double>", &combinejetGeneta);
+    tree->Branch("combinejetGenphi",  "std::vector<double>", &combinejetGenphi);
+    tree->Branch("combinejetGenm",    "std::vector<double>", &combinejetGenm);
+    tree->Branch("combinejetBtagSF",  "std::vector<double>", &combinejetBtagSF);
+    tree->Branch("combinejetBtagSFUp", "std::vector<double>", &combinejetBtagSFUp);
+    tree->Branch("combinejetBtagSFDown",    "std::vector<double>", &combinejetBtagSFDown);
+    tree->Branch("combinejetBtagMVASF",     "std::vector<double>", &combinejetBtagMVASF);
+    tree->Branch("combinejetBtagMVASFUp",   "std::vector<double>", &combinejetBtagMVASFUp);
+    tree->Branch("combinejetBtagMVASFDown", "std::vector<double>", &combinejetBtagMVASFDown);    
+    tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
+  
 
-  tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
-
-  tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
-  tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/D");
-  tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
-  tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
-
-  tree->Branch("alljetmetdphimin"     , &alljetmetdphimin     , "alljetmetdphimin/D");
-  tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/D");
-  tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/D");
-  tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/D");
+    tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
+    tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/D");
+    tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
+    tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
+    
+    tree->Branch("alljetmetdphimin"     , &alljetmetdphimin     , "alljetmetdphimin/D");
+    tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/D");
+    tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/D");
+    tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/D");
+  }
 
   tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/D");
   tree->Branch("incjetmumetdphimin4"  , &incjetmumetdphimin4  , "incjetmumetdphimin4/D");
   tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/D");
   tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/D");
 
-  tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/D");
-  tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/D");
-  tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/D");
-  tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/D");
+  if(not isTriggerTree){
+    tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/D");
+    tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/D");
+    tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/D");
+    tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/D");    
+    tree->Branch("ht"                   , &ht                   , "ht/D");
+    tree->Branch("htinc"                , &htinc                , "htinc/D");
+    tree->Branch("ht30"                 , &ht30                 , "ht30/D");
+  }
 
-  tree->Branch("ht"                   , &ht                   , "ht/D");
-  tree->Branch("htinc"                , &htinc                , "htinc/D");
-  tree->Branch("ht30"                 , &ht30                 , "ht30/D");
-
-  if(addPuppiJets){
+  if(addPuppiJets and not isTriggerTree){
 
     tree->Branch("combinePuppijetpt",  "std::vector<double>", &combinePuppijetpt);
     tree->Branch("combinePuppijeteta", "std::vector<double>", &combinePuppijeteta);
@@ -3908,9 +3927,11 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/D");
   tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/D");
   tree->Branch("mu1phi"               , &mu1phi               , "mu1phi/D");
-  tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/D");
-  tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/D");
-  tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/D");
+  if(not isTriggerTree){
+    tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/D");
+    tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/D");
+    tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/D");
+  }
   tree->Branch("mu1id"                , &mu1id                , "mu1id/I");
   tree->Branch("mu1idm"               , &mu1idm               , "mu1idm/I");
   tree->Branch("mu1idt"               , &mu1idt               , "mu1idt/I");
@@ -3920,9 +3941,11 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("mu2pt"                , &mu2pt                , "mu2pt/D");
   tree->Branch("mu2eta"               , &mu2eta               , "mu2eta/D");
   tree->Branch("mu2phi"               , &mu2phi               , "mu2phi/D");
-  tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/D");
-  tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/D");
-  tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/D");
+  if(not isTriggerTree){
+    tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/D");
+    tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/D");
+    tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/D");
+  }
   tree->Branch("mu2id"                , &mu2id                , "mu2id/I");
   tree->Branch("mu2idm"               , &mu2idm               , "mu2idm/I");
   tree->Branch("mu2idt"               , &mu2idt               , "mu2idt/I");
@@ -3942,50 +3965,52 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("el2id"                , &el2id                , "el2id/I");
   tree->Branch("el2idl"               , &el2idl               , "el2idl/I");
 
-  tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
-  tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/D");
-  tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/D");
-  tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/D");
-  tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/D");
-  tree->Branch("tau1m"               , &tau1m               , "tau1m/D");
-
-  tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
-  tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/D");
-  tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/D");
-  tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/D");
-  tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/D");
-  tree->Branch("tau2m"               , &tau2m               , "tau2m/D");
-
+  if(not isTriggerTree){
+    tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
+    tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/D");
+    tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/D");
+    tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/D");
+    tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/D");
+    tree->Branch("tau1m"               , &tau1m               , "tau1m/D");
+    
+    tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
+    tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/D");
+    tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/D");
+    tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/D");
+    tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/D");
+    tree->Branch("tau2m"               , &tau2m               , "tau2m/D");
+  }
 
     // Dilepton info
-  tree->Branch("zmass"                , &zmass                , "zmass/D");
-  tree->Branch("zpt"                  , &zpt                  , "zpt/D");
-  tree->Branch("zeta"                 , &zeta                 , "zeta/D");
-  tree->Branch("zphi"                 , &zphi                 , "zphi/D");
-  tree->Branch("wmt"                  , &wmt                  , "wmt/D");
-  tree->Branch("emumass"              , &emumass              , "emumass/D");
-  tree->Branch("emupt"                , &emupt                , "emupt/D");
-  tree->Branch("emueta"               , &emueta               , "emueta/D");
-  tree->Branch("emuphi"               , &emuphi               , "emuphi/D");
-  tree->Branch("zeemass"              , &zeemass              , "zeemass/D");
-  tree->Branch("zeept"                , &zeept                , "zeept/D");
-  tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/D");
-  tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
-  tree->Branch("wemt"                 , &wemt                 , "wemt/D");
-  tree->Branch("zttmass"              , &zttmass              , "zttmass/D");
-  tree->Branch("zttpt"                , &zttpt                , "zttept/D");
-  tree->Branch("ztteta"               , &ztteta               , "ztteta/D");
-  tree->Branch("zttphi"               , &zttphi               , "zttphi/D");
-  tree->Branch("wtmt"                 , &wtmt                 , "wtmt/D");
-  tree->Branch("taumumass"              , &taumumass              , "taumumass/D");
-  tree->Branch("taumupt"                , &taumupt                , "taumupt/D");
-  tree->Branch("taumueta"               , &taumueta               , "taumueta/D");
-  tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/D");
-  tree->Branch("tauemass"              , &tauemass              , "tauemass/D");
-  tree->Branch("tauept"                , &tauept                , "tauept/D");
-  tree->Branch("taueeta"               , &taueeta               , "taueeta/D");
-  tree->Branch("tauephi"               , &tauephi               , "tauephi/D");
-
+  if(not isTriggerTree){
+    tree->Branch("zmass"                , &zmass                , "zmass/D");
+    tree->Branch("zpt"                  , &zpt                  , "zpt/D");
+    tree->Branch("zeta"                 , &zeta                 , "zeta/D");
+    tree->Branch("zphi"                 , &zphi                 , "zphi/D");
+    tree->Branch("wmt"                  , &wmt                  , "wmt/D");
+    tree->Branch("emumass"              , &emumass              , "emumass/D");
+    tree->Branch("emupt"                , &emupt                , "emupt/D");
+    tree->Branch("emueta"               , &emueta               , "emueta/D");
+    tree->Branch("emuphi"               , &emuphi               , "emuphi/D");
+    tree->Branch("zeemass"              , &zeemass              , "zeemass/D");
+    tree->Branch("zeept"                , &zeept                , "zeept/D");
+    tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/D");
+    tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
+    tree->Branch("wemt"                 , &wemt                 , "wemt/D");
+    tree->Branch("zttmass"              , &zttmass              , "zttmass/D");
+    tree->Branch("zttpt"                , &zttpt                , "zttept/D");
+    tree->Branch("ztteta"               , &ztteta               , "ztteta/D");
+    tree->Branch("zttphi"               , &zttphi               , "zttphi/D");
+    tree->Branch("wtmt"                 , &wtmt                 , "wtmt/D");
+    tree->Branch("taumumass"              , &taumumass              , "taumumass/D");
+    tree->Branch("taumupt"                , &taumupt                , "taumupt/D");
+    tree->Branch("taumueta"               , &taumueta               , "taumueta/D");
+    tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/D");
+    tree->Branch("tauemass"              , &tauemass              , "tauemass/D");
+    tree->Branch("tauept"                , &tauept                , "tauept/D");
+    tree->Branch("taueeta"               , &taueeta               , "taueeta/D");
+    tree->Branch("tauephi"               , &tauephi               , "tauephi/D");
+  }
   // Photon info
   tree->Branch("phidl"                , &phidl                , "phidl/I");
   tree->Branch("phidm"                , &phidm                , "phidm/I");
@@ -3995,7 +4020,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("pheta"                , &pheta                , "pheta/D");
   tree->Branch("phphi"                , &phphi                , "phphi/D");
 
-  if(addPhotonPurity){
+  if(addPhotonPurity and not isTriggerTree){
 
     tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/i");
     tree->Branch("rho"             , &rho             , "rho/D");
@@ -4021,86 +4046,87 @@ void MonoJetTreeMaker::beginJob() {
   }
   
   // W/Z gen-level info: leptonic and hadronic
-  tree->Branch("wzid"                 , &wzid                 , "wzid/I");
-  tree->Branch("wzmass"               , &wzmass               , "wzmass/D");
-  tree->Branch("wzmt"                 , &wzmt                 , "wzmt/D");
-  tree->Branch("wzpt"                 , &wzpt                 , "wzpt/D");
-  tree->Branch("wzeta"                , &wzeta                , "wzeta/D");
-  tree->Branch("wzphi"                , &wzphi                , "wzphi/D");
-  tree->Branch("wzmothid"             , &wzmothid             , "wzmothid/D");
-  tree->Branch("ismatch"              , &ismatch              , "ismatch/I");
-  tree->Branch("isdirect"             , &isdirect             , "isdirect/I");
-
-  tree->Branch("l1id"                 , &l1id                 , "l1id/I");
-  tree->Branch("l1pt"                 , &l1pt                 , "l1pt/D");
-  tree->Branch("l1eta"                , &l1eta                , "l1eta/D");
-  tree->Branch("l1phi"                , &l1phi                , "l1phi/D");
-  tree->Branch("l2id"                 , &l2id                 , "l2id/I");
-  tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
-  tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
-  tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
-
-  tree->Branch("wzid_h"                 , &wzid_h                 , "wzid_h/I");
-  tree->Branch("wzmass_h"               , &wzmass_h               , "wzmass_h/D");
-  tree->Branch("wzmt_h"                 , &wzmt_h                 , "wzmt_h/D");
-  tree->Branch("wzpt_h"                 , &wzpt_h                 , "wzpt_h/D");
-  tree->Branch("wzeta_h"                , &wzeta_h                , "wzeta_h/D");
-  tree->Branch("wzphi_h"                , &wzphi_h                , "wzphi_h/D");
-  tree->Branch("q1id"                 , &q1id                 , "q1id/I");
-  tree->Branch("q1pt"                 , &q1pt                 , "q1pt/D");
-  tree->Branch("q1eta"                , &q1eta                , "q1eta/D");
-  tree->Branch("q1phi"                , &q1phi                , "q1phi/D");
-  tree->Branch("q2id"                 , &q2id                 , "q2id/I");
-  tree->Branch("q2pt"                 , &q2pt                 , "q2pt/D");
-  tree->Branch("q2eta"                , &q2eta                , "q2eta/D");
-  tree->Branch("q2phi"                , &q2phi                , "q2phi/D");
-
-  // Top info
-  tree->Branch("topmass"               , &topmass               , "topmass/D");
-  tree->Branch("toppt"                 , &toppt                 , "toppt/D");
-  tree->Branch("topeta"                , &topeta                , "topeta/D");
-  tree->Branch("topphi"                , &topphi                , "topphi/D");
-  tree->Branch("atopmass"               , &atopmass               , "atopmass/D");
-  tree->Branch("atoppt"                 , &atoppt                 , "atoppt/D");
-  tree->Branch("atopeta"                , &atopeta                , "atopeta/D");
-  tree->Branch("atopphi"                , &atopphi                , "atopphi/D");
-
-  // photon gen info
-  tree->Branch("parid"                , &parid                , "parid/I");
-  tree->Branch("parpt"                , &parpt                , "parpt/D");
-  tree->Branch("pareta"               , &pareta               , "pareta/D");
-  tree->Branch("parphi"               , &parphi               , "parphi/D");
-  tree->Branch("ancid"                , &ancid                , "ancid/I");
-  tree->Branch("ancpt"                , &ancpt                , "ancpt/D");
-  tree->Branch("anceta"               , &anceta               , "anceta/D");
-  tree->Branch("ancphi"               , &ancphi               , "ancphi/D");
-
-  // DM mediator
-  tree->Branch("dmmass",&dmmass,"dmmass/D");
-  tree->Branch("dmpt",&dmpt,"dmpt/D");
-  tree->Branch("dmeta",&dmeta,"dmeta/D");
-  tree->Branch("dmphi",&dmphi,"dmphi/D");
-  tree->Branch("dmid",&dmid,"dmid/I");
-
-  // DM particles
-  tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
-  tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/D");
-  tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/D");
-  tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/D");
-  tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/D");
-
-  tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
-  tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/D");
-  tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/D");
-  tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/D");
-  tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/D");
-
-  // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
-  tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
-  tree->Branch("sampledmM",    &sampledmM, "sampledmM/D");
-
+  if(not isTriggerTree){
+    tree->Branch("wzid"                 , &wzid                 , "wzid/I");
+    tree->Branch("wzmass"               , &wzmass               , "wzmass/D");
+    tree->Branch("wzmt"                 , &wzmt                 , "wzmt/D");
+    tree->Branch("wzpt"                 , &wzpt                 , "wzpt/D");
+    tree->Branch("wzeta"                , &wzeta                , "wzeta/D");
+    tree->Branch("wzphi"                , &wzphi                , "wzphi/D");
+    tree->Branch("wzmothid"             , &wzmothid             , "wzmothid/D");
+    tree->Branch("ismatch"              , &ismatch              , "ismatch/I");
+    tree->Branch("isdirect"             , &isdirect             , "isdirect/I");
+    
+    tree->Branch("l1id"                 , &l1id                 , "l1id/I");
+    tree->Branch("l1pt"                 , &l1pt                 , "l1pt/D");
+    tree->Branch("l1eta"                , &l1eta                , "l1eta/D");
+    tree->Branch("l1phi"                , &l1phi                , "l1phi/D");
+    tree->Branch("l2id"                 , &l2id                 , "l2id/I");
+    tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
+    tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
+    tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
+    
+    tree->Branch("wzid_h"                 , &wzid_h                 , "wzid_h/I");
+    tree->Branch("wzmass_h"               , &wzmass_h               , "wzmass_h/D");
+    tree->Branch("wzmt_h"                 , &wzmt_h                 , "wzmt_h/D");
+    tree->Branch("wzpt_h"                 , &wzpt_h                 , "wzpt_h/D");
+    tree->Branch("wzeta_h"                , &wzeta_h                , "wzeta_h/D");
+    tree->Branch("wzphi_h"                , &wzphi_h                , "wzphi_h/D");
+    tree->Branch("q1id"                 , &q1id                 , "q1id/I");
+    tree->Branch("q1pt"                 , &q1pt                 , "q1pt/D");
+    tree->Branch("q1eta"                , &q1eta                , "q1eta/D");
+    tree->Branch("q1phi"                , &q1phi                , "q1phi/D");
+    tree->Branch("q2id"                 , &q2id                 , "q2id/I");
+    tree->Branch("q2pt"                 , &q2pt                 , "q2pt/D");
+    tree->Branch("q2eta"                , &q2eta                , "q2eta/D");
+    tree->Branch("q2phi"                , &q2phi                , "q2phi/D");
+    
+    // Top info
+    tree->Branch("topmass"               , &topmass               , "topmass/D");
+    tree->Branch("toppt"                 , &toppt                 , "toppt/D");
+    tree->Branch("topeta"                , &topeta                , "topeta/D");
+    tree->Branch("topphi"                , &topphi                , "topphi/D");
+    tree->Branch("atopmass"               , &atopmass               , "atopmass/D");
+    tree->Branch("atoppt"                 , &atoppt                 , "atoppt/D");
+    tree->Branch("atopeta"                , &atopeta                , "atopeta/D");
+    tree->Branch("atopphi"                , &atopphi                , "atopphi/D");
+    
+    // photon gen info
+    tree->Branch("parid"                , &parid                , "parid/I");
+    tree->Branch("parpt"                , &parpt                , "parpt/D");
+    tree->Branch("pareta"               , &pareta               , "pareta/D");
+    tree->Branch("parphi"               , &parphi               , "parphi/D");
+    tree->Branch("ancid"                , &ancid                , "ancid/I");
+    tree->Branch("ancpt"                , &ancpt                , "ancpt/D");
+    tree->Branch("anceta"               , &anceta               , "anceta/D");
+    tree->Branch("ancphi"               , &ancphi               , "ancphi/D");
+    
+    // DM mediator
+    tree->Branch("dmmass",&dmmass,"dmmass/D");
+    tree->Branch("dmpt",&dmpt,"dmpt/D");
+    tree->Branch("dmeta",&dmeta,"dmeta/D");
+    tree->Branch("dmphi",&dmphi,"dmphi/D");
+    tree->Branch("dmid",&dmid,"dmid/I");
+    
+    // DM particles
+    tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
+    tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/D");
+    tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/D");
+    tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/D");
+    tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/D");
+    
+    tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
+    tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/D");
+    tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/D");
+    tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/D");
+    tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/D");
+    
+    // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
+    tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
+    tree->Branch("sampledmM",    &sampledmM, "sampledmM/D");
+  }
   // AK8 Puppi jets                                                                                                                                                             
-  if(addSubstructureCHS){
+  if(addSubstructureCHS and not isTriggerTree){
 
     tree->Branch("boostedJetpt",  "std::vector<double>", &boostedJetpt);
     tree->Branch("boostedJeteta", "std::vector<double>", &boostedJeteta);
@@ -4247,7 +4273,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<double>", &softDropSubJetBtagSFDown_2);
   }
 
-  if(addSubstructurePuppi){
+  if(addSubstructurePuppi and not isTriggerTree){
 
     tree->Branch("boostedPuppiJetpt", "std::vector<double>", &boostedPuppiJetpt);
     tree->Branch("boostedPuppiJeteta", "std::vector<double>", &boostedPuppiJeteta);
@@ -4395,7 +4421,7 @@ void MonoJetTreeMaker::beginJob() {
 
   }
 
-  if(addPhotonIDVariables){
+  if(addPhotonIDVariables and not isTriggerTree){
     if(not addPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/D");
     tree->Branch("photonPt", "std::vector<double>", &photonPt);
@@ -4413,7 +4439,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("photonEMIso", "std::vector<double>", &photonEMIso);
     tree->Branch("photonElectronVeto", "std::vector<double>", &photonElectronVeto);
   }
-  if(addElectronIDVariables){
+  if(addElectronIDVariables and not isTriggerTree){
     if(not addPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/D");
     tree->Branch("electronPt", "std::vector<double>", &electronPt);

@@ -124,6 +124,10 @@ options.register (
 	'triggerName','HLT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
+options.register (
+	'isTriggerTree',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'reduce the number of braches for trigger studies: photons and met triggers');
+
 ## outputFile Name
 options.register (
 	'outputFileName','tree.root',VarParsing.multiplicity.singleton,VarParsing.varType.string,
@@ -478,6 +482,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      gens                   = cms.InputTag("prunedGenParticles"),
 			      xsec                   = cms.double(options.crossSection),   
 			      ## trigger info
+			      isTriggerTree  = cms.bool(options.isTriggerTree),
 			      triggerResults = cms.InputTag("TriggerResults", "",options.triggerName),
 			      prescales      = cms.InputTag("patTrigger"),    
 			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),

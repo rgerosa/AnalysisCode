@@ -115,16 +115,23 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> hltm110    (reader,"hltmet110");
   TTreeReaderValue<UChar_t> hltm120    (reader,"hltmet120");
   TTreeReaderValue<UChar_t> hltmwm120  (reader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm100  (reader,"hltmetwithmu100");
+  TTreeReaderValue<UChar_t> hltmwm110  (reader,"hltmetwithmu110");
   TTreeReaderValue<UChar_t> hltmwm170  (reader,"hltmetwithmu170");
   TTreeReaderValue<UChar_t> hltmwm300  (reader,"hltmetwithmu300");
   TTreeReaderValue<UChar_t> hltmwm90   (reader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hltjm90   (reader,"hltjetmet90");
+  TTreeReaderValue<UChar_t> hltjm100  (reader,"hltjetmet100");
+  TTreeReaderValue<UChar_t> hltjm110  (reader,"hltjetmet110");
   TTreeReaderValue<UChar_t> hltsinglemu (reader,"hltsinglemu");
   TTreeReaderValue<UChar_t> hlte      (reader,"hltsingleel");
   TTreeReaderValue<double>  mu1pt     (reader,"mu1pt");
   TTreeReaderValue<double>  mu1eta    (reader,"mu1eta");
+  TTreeReaderValue<double>  mu1phi    (reader,"mu1phi");
   TTreeReaderValue<int>     mu1id     (reader,"mu1id");
   TTreeReaderValue<double>  el1pt     (reader,"el1pt");
   TTreeReaderValue<double>  el1eta    (reader,"el1eta");
+  TTreeReaderValue<double>  el1phi    (reader,"el1phi");
   TTreeReaderValue<int>     el1id     (reader,"el1id");
   TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
@@ -157,7 +164,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<double> metcalo     (reader,"calomet");
   TTreeReaderValue<double> jmmdphi (reader,"incjetmumetdphimin4");
   TTreeReaderValue<double> jemdphi (reader,"incjetelmetdphimin4");
-
+ 
   //////////////////
   long int nTotal = tree->GetEntries();
   cout<<"Total number of events: "<<nTotal<<endl;
@@ -223,7 +230,16 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyVBFSelections_tight->SetBinContent(4,efficiencyVBFSelections_tight->GetBinContent(4)+1);
     efficiencyVBFSelections_central->SetBinContent(4,efficiencyVBFSelections_central->GetBinContent(4)+1);
     //
-    if(not *fcsc or not *fcsct or not *feeb or not *fetp or not *fvtx or not *fbadmu or not *fbadch or not *fhbhe or not *fhbiso) continue;
+    if(not *fcsc)  continue;
+    if(not *fcsct) continue;
+    if(not *feeb)  continue;
+    if(not *fetp)  continue;
+    if(not *fvtx)  continue;
+    if(not *fbadmu) continue;
+    if(not *fbadch) continue; 
+    if(not *fhbhe)  continue;
+    if(not *fhbiso) continue;
+
     efficiencyMonojetSelections->SetBinContent(5,efficiencyMonojetSelections->GetBinContent(5)+1);
     efficiencyVBFSelections_loose->SetBinContent(5,efficiencyVBFSelections_loose->GetBinContent(5)+1);
     efficiencyVBFSelections_tight->SetBinContent(5,efficiencyVBFSelections_tight->GetBinContent(5)+1);
@@ -242,6 +258,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections_tight->SetBinContent(7,efficiencyVBFSelections_tight->GetBinContent(7)+1);
       efficiencyVBFSelections_central->SetBinContent(7,efficiencyVBFSelections_central->GetBinContent(7)+1);
       if(*mu1id != 1) continue;
+      if(*nmuons > 1) continue;      
       efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
       efficiencyVBFSelections_loose->SetBinContent(8,efficiencyVBFSelections_loose->GetBinContent(8)+1);
       efficiencyVBFSelections_tight->SetBinContent(8,efficiencyVBFSelections_tight->GetBinContent(8)+1);
@@ -261,17 +278,23 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections_loose->SetBinContent(11,efficiencyVBFSelections_loose->GetBinContent(11)+1);
       efficiencyVBFSelections_tight->SetBinContent(11,efficiencyVBFSelections_tight->GetBinContent(11)+1);
       efficiencyVBFSelections_central->SetBinContent(11,efficiencyVBFSelections_central->GetBinContent(11)+1);
+      // transverse mass cut
+      float dphi = fabs(*mu1phi-*metphi);
+      if(dphi > TMath::Pi())
+	dphi = 2*TMath::Pi()-dphi;
+      float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
+      if(mtw > 160) continue;
       // denominator monojet
       if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8){
 	hden_monojet->Fill(*mmet);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
 	  hnum_monojet->Fill(*mmet);	
 	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
 	}
 	
-	if(*mmet > 500 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
 	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
 	}
       }
@@ -305,7 +328,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight)
 	  hden_vbf_central->Fill(*mmet);
 
-	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){	  
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
 	  hnum_vbf_loose->Fill(*mmet);	
 	  efficiencyVBFSelections_loose->SetBinContent(14,efficiencyVBFSelections_loose->GetBinContent(14)+1);
 	  if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight){
@@ -317,7 +340,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    efficiencyVBFSelections_central->SetBinContent(14,efficiencyVBFSelections_central->GetBinContent(14)+1);
 	  }
 	}
-	if(*mmet > 500 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
 	  cout<<"VBF analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<endl;
 	}
       }
@@ -335,6 +358,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections_tight->SetBinContent(7,efficiencyVBFSelections_tight->GetBinContent(7)+1);
       efficiencyVBFSelections_central->SetBinContent(7,efficiencyVBFSelections_central->GetBinContent(7)+1);
       if(*el1id != 1) continue;
+      if(*nelectrons > 1) continue;
       efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
       efficiencyVBFSelections_loose->SetBinContent(8,efficiencyVBFSelections_loose->GetBinContent(8)+1);
       efficiencyVBFSelections_tight->SetBinContent(8,efficiencyVBFSelections_tight->GetBinContent(8)+1);
@@ -354,17 +378,24 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections_loose->SetBinContent(11,efficiencyVBFSelections_loose->GetBinContent(11)+1);
       efficiencyVBFSelections_tight->SetBinContent(11,efficiencyVBFSelections_tight->GetBinContent(11)+1);
       efficiencyVBFSelections_central->SetBinContent(11,efficiencyVBFSelections_central->GetBinContent(11)+1);
+      // transverse mass cut
+      float dphi = fabs(*el1phi-*metphi);
+      if(dphi > TMath::Pi())
+	dphi = 2*TMath::Pi()-dphi;
+      float mtw = sqrt(2*(*el1pt)*(*met)*(1-cos(dphi)));
+      if(mtw > 160) continue;
+      
       // denominator monojet
       if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8){
 	hden_monojet->Fill(*met);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110){
 	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
 	  hnum_monojet->Fill(*met);	
 	}
 	
-	if(*met > 500 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
 	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
 	}
       }
@@ -399,7 +430,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	if(fabs(jeteta->at(0)) < 2.5 and jetpt->at(0) > leadingVBFtight )
 	  hden_vbf_central->Fill(*met);
 	  
-	if((*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110){
 	  efficiencyVBFSelections_loose->SetBinContent(14,efficiencyVBFSelections_loose->GetBinContent(14)+1);
 	  hnum_vbf_loose->Fill(*met);	
 	  if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight){
@@ -412,7 +443,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	  }
 	}
 	
-	if(*met > 500 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300)){
+	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
 	  cout<<"VBF analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
 	}
       }      

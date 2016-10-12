@@ -7,6 +7,9 @@
 vector<float> bins_singlePhoton = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
 vector<float> bins_jetHT = {175,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
 
+//vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G"};                                                                                                        
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
+
 void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 0.86, bool useJetHT = false, bool drawFitFunctions =  false, int runCut = 999999999) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
@@ -33,8 +36,9 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   
   TChain* tree = new TChain("tree/tree");
   // should use the wmnu events triggered by single muon
-  tree->Add((inputDIR+"/*root").c_str());
-
+  for(auto era : RunEra)
+    tree->Add((inputDIR+"/*"+era+"*/*root").c_str());
+    
   TH1F* hnum   = new TH1F("hnum", "",   bins.size()-1, &bins[0]);
   TH1F* hden   = new TH1F("hden", "",   bins.size()-1, &bins[0]);
   TH1F* hnum_recover = new TH1F("hnum_recover", "", bins.size()-1, &bins[0]);
@@ -76,8 +80,13 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
 
+  cout<<"Total number of events: "<<tree->GetEntries()<<endl;
+  long int nEvents = 0;
   while(reader.Next()){
 
+    cout.flush();
+    if(nEvents%100000) cout<<" Analyzing events "<<double(nEvents)/tree->GetEntries()*100<<" % ";
+    nEvents++;
     if(*nmuons != 0)   continue;
     if(*nelectrons != 0) continue;
     if(*nbjets != 0)   continue;
@@ -105,6 +114,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
       }      	
     }
   }
+  cout<<endl;
 
   TEfficiency* eff = new TEfficiency(*hnum,*hden);  
   eff->SetMarkerColor(kBlack);
