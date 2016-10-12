@@ -260,7 +260,7 @@ if options.inputFiles == []:
 		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/FEBBCBD8-F93C-E611-BC8F-02163E01445A.root')
 
 	else:
-		process.source.fileNames.append('root://cmseos.fnal.gov//store/group/lpcdm/gurpinar/ADDMonojet/ADDMonojet_d2mD5_TuneCUETP8M1_13TeV-pythia8_MINIAODSIM/160826_005445/0000/ADDMonojet_d2mD5_TuneCUETP8M1_13TeV-pythia8_MINIAODSIM_80.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 			
 else:
    process.source = cms.Source("PoolSource",

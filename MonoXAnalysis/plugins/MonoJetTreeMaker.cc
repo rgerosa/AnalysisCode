@@ -2530,7 +2530,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass")
 				       );
 	      correctedP4 *= 1./jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1)); // apply AK8 corrections
-	      std::cout<<"jet factor "<<jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1))<<" "<<jetsBoosted[i]->jecFactor("Uncorrected")<<" "<<jetsBoosted[i]->jecFactor(0)<<std::endl;
 	      prunedJetm_v2 .push_back(correctedP4.M());
 	      prunedJetpt_v2 .push_back(correctedP4.Pt());
 	      prunedJeteta_v2 .push_back(correctedP4.Eta());
@@ -4713,7 +4712,7 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 
   //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
   if(level == "loose"){ 
-   if (fabs(jet.eta()) <= 2.7 and
+    if (fabs(jet.eta()) <= 2.7 and
 	jet.neutralHadronEnergyFraction() < 0.99 and
 	jet.neutralEmEnergyFraction()     < 0.99 and
 	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
@@ -4726,17 +4725,17 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 	      jet.chargedMultiplicity()         > 0) 
        passjetid = true;
    }
-   else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
-       jet.neutralEmEnergyFraction() < 0.9 and
-       jet.neutralMultiplicity()     > 2) 
-     passjetid = true;  
-  else if(fabs(jet.eta()) > 3.0 and
-	  jet.neutralEmEnergyFraction() < 0.9 and
-	  jet.neutralMultiplicity()     > 10)
-    passjetid = true; 
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
+	     jet.neutralEmEnergyFraction() < 0.9 and
+	     jet.neutralMultiplicity()     > 2) 
+      passjetid = true;  
+    else if(fabs(jet.eta()) > 3.0 and
+	    jet.neutralEmEnergyFraction() < 0.9 and
+	    jet.neutralMultiplicity()     > 10)
+      passjetid = true; 
   } 
   else if(level == "tight"){
-
+    
     if (fabs(jet.eta()) <= 2.7 && 
 	jet.neutralHadronEnergyFraction() < 0.90 && 
 	jet.neutralEmEnergyFraction()     < 0.90 && 
