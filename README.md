@@ -21,6 +21,8 @@ Recipe for 80X:
        cd -
        git cms-merge-topic ahinzmann:fixPUjetIDvariables81
        git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
+       git cms-addpkg FWCore/Framework
+       git revert ccdf67f9dc7ee3968bc489b773561af6025e2115   
        git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_8019_X
 	   
 How to Run the ntuple production (for analysis):

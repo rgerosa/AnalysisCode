@@ -71,6 +71,7 @@
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 
 
+
 // ROOT
 #include "TH1F.h"
 #include "TTree.h"
@@ -198,10 +199,14 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso08Token;
 
   // Taus
-  const edm::InputTag tausTag;
-  edm::EDGetTokenT<pat::TauRefVector>  tausToken;
-  const edm::InputTag tausRawTag;
-  edm::EDGetTokenT<pat::TauRefVector>  tausRawToken;
+  const edm::InputTag tausNewTag;
+  edm::EDGetTokenT<pat::TauRefVector>  tausNewToken;
+  const edm::InputTag tausOldTag;
+  edm::EDGetTokenT<pat::TauRefVector>  tausOldToken;
+  const edm::InputTag tausNewRawTag;
+  edm::EDGetTokenT<pat::TauRefVector>  tausNewRawToken;
+  const edm::InputTag tausOldRawTag;
+  edm::EDGetTokenT<pat::TauRefVector>  tausOldRawToken;
 
   //Jets AK4
   const edm::InputTag jetsTag;
@@ -320,7 +325,7 @@ private:
   uint32_t nvtx;
   uint32_t nmuons,ntightmuons,nhighptmuons;
   uint32_t nelectrons,nlooseelectrons,ntightelectrons,nheepelectrons;
-  uint32_t ntaus,ntausraw,nphotons;
+  uint32_t ntaus,ntausraw,ntausold,ntausrawold,nphotons;
   uint32_t njets,nbjets,nbjetslowpt,nbjetsMVA,nbjetsMVAlowpt;  
   uint32_t npuppijets,npuppibjets,npuppibjetsMVA,npuppibjetslowpt,npuppibjetsMVAlowpt;
   uint32_t njetsinc,npuppijetsinc;
@@ -586,8 +591,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   // photon purity
   addPhotonPurity(iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false),
   // taus
-  tausTag(iConfig.getParameter<edm::InputTag>("taus")),
-  tausRawTag(iConfig.getParameter<edm::InputTag>("tausRaw")),
+  tausNewTag(iConfig.getParameter<edm::InputTag>("taus")),
+  tausOldTag(iConfig.getParameter<edm::InputTag>("tausOld")),
+  tausNewRawTag(iConfig.getParameter<edm::InputTag>("tausRaw")),
+  tausOldRawTag(iConfig.getParameter<edm::InputTag>("tausOldRaw")),
   // jets AK4
   jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
   addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
@@ -674,8 +681,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   }
 
   // taus
-  tausToken = consumes<pat::TauRefVector> (tausTag);
-  tausRawToken = consumes<pat::TauRefVector> (tausRawTag);
+  tausNewToken = consumes<pat::TauRefVector> (tausNewTag);
+  tausOldToken = consumes<pat::TauRefVector> (tausOldTag);
+  tausNewRawToken = consumes<pat::TauRefVector> (tausNewRawTag);
+  tausOldRawToken = consumes<pat::TauRefVector> (tausOldRawTag);
   // jets AK4
   jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
 
@@ -923,13 +932,21 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
     // TAUS
-    Handle<pat::TauRefVector > tausH;
-    iEvent.getByToken(tausToken, tausH);
-    pat::TauRefVector taus = *tausH;
+    Handle<pat::TauRefVector > tausNewH;
+    iEvent.getByToken(tausNewToken, tausNewH);
+    pat::TauRefVector tausNew = *tausNewH;
 
-    Handle<pat::TauRefVector > tausRawH;
-    iEvent.getByToken(tausRawToken, tausRawH);
-    pat::TauRefVector tausRaw = *tausRawH;
+    Handle<pat::TauRefVector > tausOldH;
+    iEvent.getByToken(tausOldToken, tausOldH);
+    pat::TauRefVector tausOld = *tausOldH;
+
+    Handle<pat::TauRefVector > tausNewRawH;
+    iEvent.getByToken(tausNewRawToken, tausNewRawH);
+    pat::TauRefVector tausNewRaw = *tausNewRawH;
+
+    Handle<pat::TauRefVector > tausOldRawH;
+    iEvent.getByToken(tausOldRawToken, tausOldRawH);
+    pat::TauRefVector tausOldRaw = *tausOldRawH;
 
     // AK4 Jets
     Handle<vector<pat::Jet> > jetsH;
@@ -1955,35 +1972,68 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // re-apply the cleaning to be sure
     vector<pat::TauRef> tauvector;
     ntaus = 0;
-    if(tausH.isValid()){
-      for(std::size_t itau =0 ; itau < taus.size(); itau++){
+    if(tausNewH.isValid()){
+      for(std::size_t itau =0 ; itau < tausNew.size(); itau++){
 	bool skiptau = false;
 	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausNew[itau]->eta(), tausNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus[itau]->eta(), taus[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausNew[itau]->eta(), tausNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	if(skiptau) continue;
-	tauvector.push_back(taus[itau]);
+	tauvector.push_back(tausNew[itau]);
 	ntaus++;
       }
     }
-    // old isolation
-    ntausraw = 0;
-    if(tausRawH.isValid()){
-      for(std::size_t itau =0 ; itau < tausRaw.size(); itau++){
+
+ 
+    ntausold = 0;
+    if(tausOldH.isValid()){
+      for(std::size_t itau =0 ; itau < tausOld.size(); itau++){
 	bool skiptau = false;
 	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRaw[itau]->eta(), tausRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausOld[itau]->eta(), tausOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRaw[itau]->eta(), tausRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausOld[itau]->eta(), tausOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausold++;
+      }
+    }
+
+    // old isolation
+    ntausraw = 0;
+    if(tausNewRawH.isValid()){
+      for(std::size_t itau =0 ; itau < tausNewRaw.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausNewRaw[itau]->eta(), tausNewRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausNewRaw[itau]->eta(), tausNewRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
 	}
 	if(skiptau) continue;
 	ntausraw++;
       }
     }
+
+    ntausrawold = 0;
+    if(tausOldRawH.isValid()){
+      for(std::size_t itau =0 ; itau < tausOldRaw.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausOldRaw[itau]->eta(), tausOldRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausOldRaw[itau]->eta(), tausOldRaw[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausrawold++;
+      }
+    }
+
     // W, Z control sample information
     zmass       = 0.0; zpt         = 0.0; zeta        = 0.0; zphi        = 0.0;
     zeemass     = 0.0; zeept       = 0.0; zeeeta      = 0.0; zeephi      = 0.0;
@@ -2154,7 +2204,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       tau1eta   = tau->eta(); 
       tau1phi   = tau->phi();
       tau1m     = tau->mass();
-      tau1iso   = tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
+      tau1iso   = tau->tauID("byVLooseIsolationMVArun2v1DBnewDMwLT");
 
       if (ntaus == 1) 
 	wtmt = sqrt(2.0 * tau1pt * t1pfmet * (1.0 - cos(deltaPhi(tau1phi, t1pfmetphi))));
@@ -2169,7 +2219,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       tau2eta   = tau->eta(); 
       tau2phi   = tau->phi();
       tau2m     = tau->mass();
-      tau2iso   = tau->tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits");
+      tau2iso   = tau->tauID("byVLooseIsolationMVArun2v1DBnewDMwLT");
       
       TLorentzVector tau1vec; 
       tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
@@ -2236,7 +2286,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     // Photon information
     phidl    = 0; phidm    = 0; phidt    = 0; phidh    = 0;
-    phpt     = 0.0; pheta    = 0.0; phphi    = 0.0;
+    phpt     = 0; pheta    = 0; phphi    = 0;
 
     int hardestPhotonIndex = -1;
     double hardestPhotonPt = 0.0;
@@ -3600,6 +3650,8 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/i");
   tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
   tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/i");
+  tree->Branch("ntausold"             , &ntausold             , "ntausold/i");
+  tree->Branch("ntausrawold"          , &ntausrawold          , "ntausrawold/i");
   tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
   tree->Branch("njets"                , &njets                , "njets/i");
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
@@ -4442,7 +4494,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //11
   triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned"); //12
   triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned"); //13
-  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //114
+  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //14
   triggerPathsVector.push_back("HLT_PFMET170_v"); //15
   triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned"); //16
   triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned"); //17
@@ -4458,46 +4510,39 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Photon165_HE10"); //27
   triggerPathsVector.push_back("HLT_Photon175");      //28
   triggerPathsVector.push_back("HLT_Photon120_v");    //29
-  triggerPathsVector.push_back("HLT_Photon50_v");     //30
-  triggerPathsVector.push_back("HLT_Photon75_v");     //31
-  triggerPathsVector.push_back("HLT_Photon90_v");     //32  
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //33
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //34
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //35
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"); //36
-  triggerPathsVector.push_back("HLT_IsoMu20_v"); //37
-  triggerPathsVector.push_back("HLT_IsoMu22_v"); //38
-  triggerPathsVector.push_back("HLT_IsoMu24_v"); //39
-  triggerPathsVector.push_back("HLT_IsoTkMu20"); //40
-  triggerPathsVector.push_back("HLT_IsoTkMu22"); //41
-  triggerPathsVector.push_back("HLT_IsoTkMu24"); //42
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //43
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //44
-  triggerPathsVector.push_back("HLT_Ele24_eta2p1_WPLoose_Gsf_v"); //45
-  triggerPathsVector.push_back("HLT_Ele25_eta2p1_WPTight_Gsf_v"); //46
-  triggerPathsVector.push_back("HLT_Ele27_WPTight_Gsf_v"); //47
-  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_v"); //48 
-  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf_v"); //49
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //50
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //51
-  triggerPathsVector.push_back("HLT_PFHT125_v");//52
-  triggerPathsVector.push_back("HLT_PFHT200_v");//53
-  triggerPathsVector.push_back("HLT_PFHT250_v");//54
-  triggerPathsVector.push_back("HLT_PFHT300_v");//55
-  triggerPathsVector.push_back("HLT_PFHT350_v");//56
-  triggerPathsVector.push_back("HLT_PFHT400_v");//57
-  triggerPathsVector.push_back("HLT_PFHT475_v");//58
-  triggerPathsVector.push_back("HLT_PFHT600_v");//59
-  triggerPathsVector.push_back("HLT_PFHT650_v");//60
-  triggerPathsVector.push_back("HLT_PFHT800_v");//61
-  triggerPathsVector.push_back("HLT_PFHT900_v");//62
-  triggerPathsVector.push_back("HLT_CaloJet500_NoJetID_v");//63
-  triggerPathsVector.push_back("HLT_ECALHT800_v");//64
-  triggerPathsVector.push_back("HLT_PFJet500_v");//65
-  triggerPathsVector.push_back("HLT_PFJet450_v");//66
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//67
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//68
-  
+  triggerPathsVector.push_back("HLT_Photon90_v");     //30
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //31
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //32
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //33
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"); //34
+  triggerPathsVector.push_back("HLT_IsoMu20_v"); //35
+  triggerPathsVector.push_back("HLT_IsoMu22_v"); //36
+  triggerPathsVector.push_back("HLT_IsoMu24_v"); //37
+  triggerPathsVector.push_back("HLT_IsoTkMu20"); //38
+  triggerPathsVector.push_back("HLT_IsoTkMu22"); //39
+  triggerPathsVector.push_back("HLT_IsoTkMu24"); //40
+  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //41
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //42
+  triggerPathsVector.push_back("HLT_Ele24_eta2p1_WPLoose_Gsf_v"); //43
+  triggerPathsVector.push_back("HLT_Ele25_eta2p1_WPTight_Gsf_v"); //44
+  triggerPathsVector.push_back("HLT_Ele27_WPTight_Gsf_v"); //45
+  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_v"); //46 
+  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf_v"); //47
+  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //48
+  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //49
+  triggerPathsVector.push_back("HLT_PFHT400_v");//50
+  triggerPathsVector.push_back("HLT_PFHT475_v");//51
+  triggerPathsVector.push_back("HLT_PFHT600_v");//52
+  triggerPathsVector.push_back("HLT_PFHT650_v");//53
+  triggerPathsVector.push_back("HLT_PFHT800_v");//54
+  triggerPathsVector.push_back("HLT_PFHT900_v");//55
+  triggerPathsVector.push_back("HLT_CaloJet500_NoJetID_v");//56
+  triggerPathsVector.push_back("HLT_ECALHT800_v");//57
+  triggerPathsVector.push_back("HLT_PFJet500_v");//58
+  triggerPathsVector.push_back("HLT_PFJet450_v");//59
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//60
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//61
+
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
   hltConfig.init(iRun, iSetup, triggerResultsTag.process(), changedConfig);
@@ -4505,6 +4550,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   for (size_t i = 0; i < triggerPathsVector.size(); i++) {
     triggerPathsMap[triggerPathsVector[i]] = -1;
   }
+
   
   for(size_t i = 0; i < triggerPathsVector.size(); i++){
     TPRegexp pattern(triggerPathsVector[i]);
@@ -4515,7 +4561,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       }
     }
   }
-  
+
   // MET filter Paths
   filterPathsVector.push_back("Flag_CSCTightHalo2015Filter");
   filterPathsVector.push_back("Flag_HBHENoiseFilter");

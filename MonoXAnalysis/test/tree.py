@@ -260,8 +260,8 @@ if options.inputFiles == []:
 		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/FEBBCBD8-F93C-E611-BC8F-02163E01445A.root')
 
 	else:
-		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
-			
+		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/0015A622-AA2B-E611-A12D-0023AEFDE888.root')
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -520,8 +520,10 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation"),
 			      photonNHiso = cms.InputTag("photonIDValueMapProducer", "phoNeutralHadronIsolation"),
 			      ## taus
-			      taus            = cms.InputTag("selectedObjects","taus"),
-			      tausRaw         = cms.InputTag("selectedObjects","tausRaw"),
+			      taus            = cms.InputTag("selectedObjects","tausNew"),
+			      tausOld         = cms.InputTag("selectedObjects","tausOld"),
+			      tausRaw         = cms.InputTag("selectedObjects","tausNewRaw"),
+			      tausOldRaw      = cms.InputTag("selectedObjects","tausOldRaw"),
 			      ## jets AK4
 			      jets            = cms.InputTag(jetCollName),
 			      addPuppiJets    = cms.bool(options.addPuppiJets),			      

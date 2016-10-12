@@ -358,12 +358,16 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	if (deltaR(outputelectrons.at(vetoElectronPosition)->at(j)->eta(), outputelectrons.at(vetoElectronPosition)->at(j)->phi(), 
 		   taus_iter->eta(), taus_iter->phi()) < itau.getParameter<double>("dRCleaning")) skiptau = true;
       }
-      
+
       // apply loose id and store vector
+      string decayMode = "decayModeFinding";
+      if(itau.getParameter<bool>("useNewDecayMode"))
+	decayMode = "decayModeFindingNewDMs";
+      
       if(itau.getParameter<bool>("graterThan") == true){
 	if (taus_iter->pt() > itau.getParameter<double>("ptMin") &&
 	    fabs(taus_iter->eta()) < itau.getParameter<double>("absEta") &&
-	    taus_iter->tauID("decayModeFinding") > itau.getParameter<double>("decayModeFinding") && 	    
+	    taus_iter->tauID(decayMode) > itau.getParameter<double>("decayModeFinding") && 	    
 	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) > itau.getParameter<double>("isolation") && !skiptau){	
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}
@@ -372,7 +376,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       else{
 	if (taus_iter->pt() > itau.getParameter<double>("ptMin") &&
 	    fabs(taus_iter->eta()) < itau.getParameter<double>("absEta") &&
-	    taus_iter->tauID("decayModeFinding") > itau.getParameter<double>("decayModeFinding") &&
+	    taus_iter->tauID(decayMode) > itau.getParameter<double>("decayModeFinding") &&
 	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) < itau.getParameter<double>("isolation") && !skiptau){	
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}

@@ -45,7 +45,7 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi):
     if not hasattr(process,postfix+"t1taumet"):
         setattr(process, postfix+"t1taumet",cms.EDProducer("TauCorrectedMETProducer",
                                                            met     = cms.InputTag(metName,"",processName),
-                                                           cands   = cms.VInputTag(cms.InputTag("selectedObjects", "taus")),
+                                                           cands   = cms.VInputTag(cms.InputTag("selectedObjects", "tausNew")),
                                                            isPuppi = cms.bool(isPuppi),
                                                            pfCandidates = cms.InputTag("packedPFCandidates")))
         
