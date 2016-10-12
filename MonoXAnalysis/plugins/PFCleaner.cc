@@ -371,7 +371,6 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) > itau.getParameter<double>("isolation") && !skiptau){	
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}
-	ipos++;
       }
       else{
 	if (taus_iter->pt() > itau.getParameter<double>("ptMin") &&
@@ -381,6 +380,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}
       }
+      ipos++;      
     }
   }
 
