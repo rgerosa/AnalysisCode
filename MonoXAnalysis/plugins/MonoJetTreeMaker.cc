@@ -329,15 +329,15 @@ private:
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
   uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
   uint8_t hltjetmet90,hltjetmet100,hltjetmet110,hltjetmet120;
-  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton50,hltphoton75,hltphoton90;
+  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90;
   uint8_t hltdoublemu,hltsinglemu,hltsinglemu22,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
-  uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350, hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
+  uint8_t hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
   uint8_t hltCaloJet500, hltEcalHT800, hltPFJet450, hltPFJet500;
   uint8_t hltphoton90PFHT500, hltphoton90PFHT600;
 
   //pre-scales
-  double pswgt_ph120,pswgt_ph50,pswgt_ph75,pswgt_ph90;
-  double pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350,pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
+  double pswgt_ph120,pswgt_ph90;
+  double pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
   
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo, flagbadchpf, flagbadpfmu;
   
@@ -1031,7 +1031,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltmetwithmu90  = 0; hltmetwithmu100 = 0; hltmetwithmu110 = 0; hltmetwithmu120 = 0;
     hltmetwithmu170 = 0; hltmetwithmu300 = 0;
     hltjetmet90     = 0; hltjetmet100    = 0; hltjetmet110    = 0; hltjetmet120    = 0;
-    hltphoton50     = 0; hltphoton75     = 0; hltphoton90     = 0; hltphoton120    = 0;
+    hltphoton90     = 0; hltphoton120    = 0;
     hltphoton165    = 0; hltphoton175    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
@@ -1040,17 +1040,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltsingleel     = 0;
     hltsingleel27   = 0;
     hltelnoiso      = 0;
-    hltPFHT125 = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0; hltPFHT400 = 0;
+    hltPFHT400 = 0;
     hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
     hltCaloJet500 = 0; hltEcalHT800 = 0; hltPFJet450 = 0; hltPFJet500 =0;
     hltphoton90PFHT500 = 0; hltphoton90PFHT600 = 0;
 
-    const edm::TriggerNames &names = iEvent.triggerNames(*triggerResultsH);
-    for (unsigned int i = 0, n = triggerResultsH->size(); i < n; ++i) {
-      if(TString(names.triggerName(i)).Contains("HLT")) continue;
-      std::cout<<"Names "<<names.triggerName(i)<<endl;
-    }
-    // Which triggers fired
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
         if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;	
@@ -1095,53 +1089,46 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
         if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
         if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
-        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton50    = 1; // Photon trigger
-        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton75    = 1; // Photon trigger
-        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
+        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
 
+        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+        if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
         if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
         if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
-        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
 
+        if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu22   = 1; // Single muon trigger
         if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu22   = 1; // Single muon trigger
         if (i == 39 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 40 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 42 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
 
-        if (i == 43 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
-        if (i == 44 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 41 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
+        if (i == 42 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
 
+        if (i == 43 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 44 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 45 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+        if (i == 45 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel27   = 1; // Single electron trigger
         if (i == 46 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
         if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 47 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel27   = 1; // Single electron trigger
-        if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
-        if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
 
-        if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
-        if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
+        if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
 
-        if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT125      = 1; // jet ht
-        if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT200      = 1; // jet ht
-        if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
-        if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
-        if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
-        if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
-        if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
-        if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
-        if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
-        if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
-        if (i == 62 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
-	if (i == 63 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltCaloJet500   = 1;
-	if (i == 64 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
-	if (i == 65 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet450     = 1;
-	if (i == 66 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet500     = 1;
-	if (i == 67 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT500 = 1;
-	if (i == 68 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT600 = 1;
+        if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
+        if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
+        if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
+        if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
+        if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
+        if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
+	if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltCaloJet500   = 1;
+	if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
+	if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet450     = 1;
+	if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet500     = 1;
+	if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT500 = 1;
+	if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT600 = 1;
 
       }
     }
@@ -1150,7 +1137,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltmetwithmu90  = 1; hltmetwithmu100 = 1; hltmetwithmu110 = 1; hltmetwithmu120 = 1;
       hltmetwithmu170 = 1; hltmetwithmu300 = 1;
       hltjetmet90     = 1; hltjetmet100    = 1; hltjetmet110    = 1; hltjetmet120    = 1;
-      hltphoton50     = 1; hltphoton75     = 1; hltphoton90     = 1; hltphoton120    = 1;
+      hltphoton90     = 1; hltphoton120    = 1;
       hltphoton165    = 1; hltphoton175    = 1;
       hltdoublemu     = 1;
       hltsinglemu     = 1;
@@ -1159,7 +1146,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltsingleel     = 1;
       hltsingleel27   = 1;
       hltelnoiso      = 1;
-      hltPFHT125 = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; hltPFHT400 = 1;
+      hltPFHT400 = 1;
       hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
       hltCaloJet500 = 1; hltEcalHT800 = 1; hltPFJet450 = 1; hltPFJet500 =1;
       hltphoton90PFHT500 = 1; hltphoton90PFHT600 = 1;
@@ -1183,19 +1170,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltphoton165    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
-    if (hltphoton50    == 1) triggered = true;
-    if (hltphoton75    == 1) triggered = true;
     if (hltphoton90    == 1) triggered = true;
     if (hltdoublemu     == 1) triggered = true;
     if (hltsinglemu     == 1) triggered = true;
     if (hltdoubleel     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
     if (hltelnoiso      == 1) triggered = true;
-    if (hltPFHT125      == 1) triggered = true;
-    if (hltPFHT200      == 1) triggered = true;
-    if (hltPFHT250      == 1) triggered = true;
-    if (hltPFHT300      == 1) triggered = true;
-    if (hltPFHT350      == 1) triggered = true;
     if (hltPFHT400      == 1) triggered = true;
     if (hltPFHT475      == 1) triggered = true;
     if (hltPFHT600      == 1) triggered = true;
@@ -1212,25 +1192,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (applyHLTFilter && !triggered) return;
 
     pswgt_ph120 = 1.0;
-    pswgt_ph50  = 1.0;
-    pswgt_ph75  = 1.0;
     pswgt_ph90  = 1.0;
-    pswgt_ht125 = 1.0; pswgt_ht200 = 1.0; pswgt_ht250 = 1.0;
-    pswgt_ht300 = 1.0; pswgt_ht350 = 1.0; pswgt_ht400 = 1.0; 
+    pswgt_ht400 = 1.0; 
     pswgt_ht475 = 1.0; pswgt_ht600 = 1.0; pswgt_ht650 = 1.0; pswgt_ht800 = 1.0; 
     pswgt_ht900 = 1.0;
 
     const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
     for (size_t i = 0; i < triggerResultsH->size(); i++) {
         if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_Photon50_v") != string::npos) pswgt_ph50 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_Photon75_v") != string::npos) pswgt_ph75 = triggerPrescalesH->getPrescaleForIndex(i);
         if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt_ph90 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_PFHT125_v") != string::npos) pswgt_ht125 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_PFHT200_v") != string::npos) pswgt_ht200 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_PFHT250_v") != string::npos) pswgt_ht250 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_PFHT300_v") != string::npos) pswgt_ht300 = triggerPrescalesH->getPrescaleForIndex(i);
-        if (trignames.triggerName(i).find("HLT_PFHT350_v") != string::npos) pswgt_ht350 = triggerPrescalesH->getPrescaleForIndex(i);
         if (trignames.triggerName(i).find("HLT_PFHT400_v") != string::npos) pswgt_ht400 = triggerPrescalesH->getPrescaleForIndex(i);
         if (trignames.triggerName(i).find("HLT_PFHT475_v") != string::npos) pswgt_ht475 = triggerPrescalesH->getPrescaleForIndex(i);
         if (trignames.triggerName(i).find("HLT_PFHT600_v") != string::npos) pswgt_ht600 = triggerPrescalesH->getPrescaleForIndex(i);
@@ -2547,7 +2517,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	  if(jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass")){
 	    prunedJetmraw .push_back( jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass"));
-	    if(jetsBoosted[i]->availableJECSets().size()>1 and 
+	    // apply correction by hand from uncorrected variables
+	    if(jetsBoosted[i]->availableJECSets().size() > 1 and 
 	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:raweta")	and
 	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawphi") and
 	       jetsBoosted[i]->hasUserFloat(boostedJetsCHSLabel+"PrunedMatched:rawpt")){
@@ -2558,7 +2529,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawphi"),
 				       jetsBoosted[i]->userFloat(boostedJetsCHSLabel+"PrunedMatched:rawmass")
 				       );
-	      correctedP4 *= 1./jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1));
+	      correctedP4 *= 1./jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1)); // apply AK8 corrections
+	      std::cout<<"jet factor "<<jetsBoosted[i]->jecFactor("Uncorrected","none",jetsBoosted[i]->availableJECSets().at(1))<<" "<<jetsBoosted[i]->jecFactor("Uncorrected")<<" "<<jetsBoosted[i]->jecFactor(0)<<std::endl;
 	      prunedJetm_v2 .push_back(correctedP4.M());
 	      prunedJetpt_v2 .push_back(correctedP4.Pt());
 	      prunedJeteta_v2 .push_back(correctedP4.Eta());
@@ -3571,10 +3543,8 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
   tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
   tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
-  tree->Branch("hltjetmet100"         , &hltjetmet100          , "hltjetmet100/b");
-  tree->Branch("hltjetmet110"         , &hltjetmet110          , "hltjetmet110/b");
-  tree->Branch("hltphoton50"          , &hltphoton50          , "hltphoton50/b");
-  tree->Branch("hltphoton75"          , &hltphoton75          , "hltphoton75/b");
+  tree->Branch("hltjetmet100"         , &hltjetmet100         , "hltjetmet100/b");
+  tree->Branch("hltjetmet110"         , &hltjetmet110         , "hltjetmet110/b");
   tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
   tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
   tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
@@ -3587,11 +3557,6 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
   tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
 
-  tree->Branch("hltPFHT125"           , &hltPFHT125           , "hltPFHT125/b");
-  tree->Branch("hltPFHT200"           , &hltPFHT200           , "hltPFHT200/b");
-  tree->Branch("hltPFHT250"           , &hltPFHT250           , "hltPFHT250/b");
-  tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");
-  tree->Branch("hltPFHT350"           , &hltPFHT350           , "hltPFHT350/b");
   tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
   tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
   tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
@@ -3606,15 +3571,8 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltphoton90PFHT600"   , &hltphoton90PFHT600   , "hltphoton90PFHT600/b");
 
   if(not isTriggerTree){
-    tree->Branch("pswgt_ph50"           , &pswgt_ph50           , "pswgt_ph50/D");
-    tree->Branch("pswgt_ph75"           , &pswgt_ph75           , "pswgt_ph75/D");
     tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
     tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
-    tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/D");
-    tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/D");
-    tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/D");
-    tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/D");
-    tree->Branch("pswgt_ht300"          , &pswgt_ht350          , "pswgt_ht350/D");
     tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
     tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
     tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
@@ -4755,29 +4713,33 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 
   //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
   if(level == "loose"){ 
-   if (fabs(jet.eta()) <= 3.0 && 
-	jet.neutralHadronEnergyFraction() < 0.99 && 
-	jet.neutralEmEnergyFraction() < 0.99 && 
+   if (fabs(jet.eta()) <= 2.7 and
+	jet.neutralHadronEnergyFraction() < 0.99 and
+	jet.neutralEmEnergyFraction()     < 0.99 and
 	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
       
-     if (fabs(jet.eta()) > 2.4) 
+     if (fabs(jet.eta()) > 2.4)
        passjetid = true;
-     else if (fabs(jet.eta()) <= 2.4 && 
-	      jet.chargedHadronEnergyFraction() > 0. && 
-	      jet.chargedEmEnergyFraction() < 0.99 && 
-	      jet.chargedMultiplicity() > 0) 
+     else if (fabs(jet.eta()) <= 2.4 and
+	      jet.chargedHadronEnergyFraction() > 0. and
+	      jet.chargedEmEnergyFraction()     < 0.99 and 
+	      jet.chargedMultiplicity()         > 0) 
        passjetid = true;
    }
-   if (fabs(jet.eta()) > 3.0 
-       && jet.neutralEmEnergyFraction() < 0.9 
-       && jet.neutralMultiplicity() > 10) 
-     passjetid = true;
-  }
+   else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
+       jet.neutralEmEnergyFraction() < 0.9 and
+       jet.neutralMultiplicity()     > 2) 
+     passjetid = true;  
+  else if(fabs(jet.eta()) > 3.0 and
+	  jet.neutralEmEnergyFraction() < 0.9 and
+	  jet.neutralMultiplicity()     > 10)
+    passjetid = true; 
+  } 
   else if(level == "tight"){
 
-    if (fabs(jet.eta()) <= 3.0 && 
+    if (fabs(jet.eta()) <= 2.7 && 
 	jet.neutralHadronEnergyFraction() < 0.90 && 
-	jet.neutralEmEnergyFraction() < 0.90 && 
+	jet.neutralEmEnergyFraction()     < 0.90 && 
 	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
       
       if (fabs(jet.eta()) > 2.4) 
@@ -4788,15 +4750,18 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 	       jet.chargedMultiplicity() > 0) 
 	passjetid = true;
     }
-    if (fabs(jet.eta()) > 3.0 
-	&& jet.neutralEmEnergyFraction() < 0.9 
-	&& jet.neutralMultiplicity() > 10) 
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 
+	     && jet.neutralEmEnergyFraction() < 0.9 
+	     && jet.neutralMultiplicity() > 2) 
       passjetid = true;
-    
+    else if(fabs(jet.eta()) > 3.0 and
+	    jet.neutralEmEnergyFraction() < 0.9 and
+	    jet.neutralMultiplicity() > 10)
+      passjetid = true;    
   }
   
   else if(level == "tightLepVeto"){
-    if (fabs(jet.eta()) <= 3.0 &&
+    if (fabs(jet.eta()) <= 2.7 &&
         jet.neutralHadronEnergyFraction() < 0.90 &&
         jet.neutralEmEnergyFraction() < 0.90 &&
 	jet.muonEnergyFraction() < 0.80 && 
@@ -4810,16 +4775,17 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
                jet.chargedMultiplicity() > 0)
 	passjetid = true;
     }
-    if (fabs(jet.eta()) > 3.0
-        && jet.neutralEmEnergyFraction() < 0.9
-	&& jet.neutralMultiplicity() > 10)
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0
+	     && jet.neutralEmEnergyFraction() < 0.9
+	     && jet.neutralMultiplicity() > 2)
       passjetid = true;
-
-
-  }
-
-  return passjetid;
-
+    else if (fabs(jet.eta()) > 3.0
+	     && jet.neutralEmEnergyFraction() < 0.9
+	     && jet.neutralMultiplicity() > 10)
+      passjetid = true;    
+    
+  }  
+  return passjetid;  
 }
 
 bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi){
@@ -4841,75 +4807,75 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
   // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon
   if(level == "loose"){
 
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.92) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.89) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.64) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.64) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.64) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.56) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.52) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.56) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.56) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.56) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.44) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.38) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.54) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.54) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.54) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.39) passpuid = true;
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.30) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
 
   }
   else if(level == "medium"){ 
 
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.49) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.006) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.61) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.42) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.35) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.44) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.44) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.44) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.30) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.23) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.42) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.42) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.42) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.23) passpuid = true;
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.17) passpuid = true;
     else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
 
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.26) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.26) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.26) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.62) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.86) passpuid = true;
     else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.34) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.34) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.34) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.21) passpuid = true;
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.10) passpuid = true;
     else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
 
-    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.24) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.24) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.24) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.07) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.01) passpuid = true;
     else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
 
     if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.26) passpuid = true;

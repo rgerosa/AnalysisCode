@@ -275,77 +275,92 @@ bool BTaggingEfficiencyTreeMaker::applyJetID(const pat::Jet & jet, const std::st
     return true;
   
   bool passjetid = false;
-  
-  //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data                                                                         
-  if(level == "loose"){    
-    if (fabs(jet.eta()) <= 3.0 &&
-	jet.neutralHadronEnergyFraction() < 0.99 &&
-	jet.neutralEmEnergyFraction() < 0.99 &&
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
+
+  //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data                                                                                                
+  if(level == "loose"){
+    if (fabs(jet.eta()) <= 2.7 and
+        jet.neutralHadronEnergyFraction() < 0.99 and
+        jet.neutralEmEnergyFraction()     < 0.99 and
+        (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
+
       if (fabs(jet.eta()) > 2.4)
 	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 &&
-	       jet.chargedHadronEnergyFraction() > 0. &&
-	       jet.chargedEmEnergyFraction() < 0.99 &&
-	       jet.chargedMultiplicity() > 0)
-	passjetid = true;
+      else if (fabs(jet.eta()) <= 2.4 and
+	       jet.chargedHadronEnergyFraction() > 0. and
+	       jet.chargedEmEnergyFraction()     < 0.99 and
+	       jet.chargedMultiplicity()         > 0)
+	     passjetid = true;
     }
-    if (fabs(jet.eta()) > 3.0
-	&& jet.neutralEmEnergyFraction() < 0.9
-	&& jet.neutralMultiplicity() > 10)
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
+	     jet.neutralEmEnergyFraction() < 0.9 and
+	     jet.neutralMultiplicity()     > 2)
+      passjetid = true;
+    else if(fabs(jet.eta()) > 3.0 and
+	    jet.neutralEmEnergyFraction() < 0.9 and
+	    jet.neutralMultiplicity()     > 10)
       passjetid = true;
   }
-  else if(level == "tight"){    
-    if (fabs(jet.eta()) <= 3.0 &&
-	jet.neutralHadronEnergyFraction() < 0.90 &&
-	jet.neutralEmEnergyFraction() < 0.90 &&
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
+  else if(level == "tight"){
+
+    if (fabs(jet.eta()) <= 2.7 &&
+        jet.neutralHadronEnergyFraction() < 0.90 &&
+        jet.neutralEmEnergyFraction()     < 0.90 &&
+        (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
+
       if (fabs(jet.eta()) > 2.4)
-	passjetid = true;
+        passjetid = true;
       else if (fabs(jet.eta()) <= 2.4 &&
-	       jet.chargedHadronEnergyFraction() > 0. &&
-	       jet.chargedEmEnergyFraction() < 0.99 &&
-	       jet.chargedMultiplicity() > 0)
-	passjetid = true;
+               jet.chargedHadronEnergyFraction() > 0. &&
+               jet.chargedEmEnergyFraction() < 0.99 &&
+               jet.chargedMultiplicity() > 0)
+        passjetid = true;
     }
-    if (fabs(jet.eta()) > 3.0
-	&& jet.neutralEmEnergyFraction() < 0.9
-	&& jet.neutralMultiplicity() > 10)
-      passjetid = true;    
-  }  
-  else if(level == "tightLepVeto"){
-    if (fabs(jet.eta()) <= 3.0 &&
-	jet.neutralHadronEnergyFraction() < 0.90 &&
-	jet.neutralEmEnergyFraction() < 0.90 &&
-	jet.muonEnergyFraction() < 0.80 &&
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4)
-	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 &&
-	       jet.chargedHadronEnergyFraction() > 0. &&
-	       jet.chargedEmEnergyFraction() < 0.90 &&
-	       jet.chargedMultiplicity() > 0)
-	passjetid = true;
-    }
-    if (fabs(jet.eta()) > 3.0
-	&& jet.neutralEmEnergyFraction() < 0.9
-	&& jet.neutralMultiplicity() > 10)
-      passjetid = true;        
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0
+             && jet.neutralEmEnergyFraction() < 0.9
+             && jet.neutralMultiplicity() > 2)
+      passjetid = true;
+    else if(fabs(jet.eta()) > 3.0 and
+            jet.neutralEmEnergyFraction() < 0.9 and
+            jet.neutralMultiplicity() > 10)
+      passjetid = true;
   }
 
+  else if(level == "tightLepVeto"){
+    if (fabs(jet.eta()) <= 2.7 &&
+        jet.neutralHadronEnergyFraction() < 0.90 &&
+        jet.neutralEmEnergyFraction() < 0.90 &&
+        jet.muonEnergyFraction() < 0.80 &&
+        (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
+
+      if (fabs(jet.eta()) > 2.4)
+        passjetid = true;
+      else if (fabs(jet.eta()) <= 2.4 &&
+               jet.chargedHadronEnergyFraction() > 0. &&
+               jet.chargedEmEnergyFraction() < 0.90 &&
+               jet.chargedMultiplicity() > 0)
+        passjetid = true;
+    }
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0
+             && jet.neutralEmEnergyFraction() < 0.9
+             && jet.neutralMultiplicity() > 2)
+      passjetid = true;
+    else if (fabs(jet.eta()) > 3.0
+             && jet.neutralEmEnergyFraction() < 0.9
+             && jet.neutralMultiplicity() > 10)
+      passjetid = true;
+
+  }
+  
   return passjetid;		 
 }
 
 
 bool BTaggingEfficiencyTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi){
   
-  bool passpuid = false;
-  double puidval = 0;
+  bool passpuid    = false;
+  double puidval   = 0;
   double jetabseta = fabs(jet.eta());
-  double jetpt = jet.pt();
+  double jetpt     = jet.pt();
 
   if(jet.hasUserFloat("puid:fullDiscriminant"))
     puidval = jet.userFloat("puid:fullDiscriminant");
@@ -356,36 +371,83 @@ bool BTaggingEfficiencyTreeMaker::applyPileupJetID(const pat::Jet & jet, const s
   else
     return true;
 
-  // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon                                                                                
+  // from twiki: https://twiki.cern.ch/twiki/bin/view/CMS/PileupJetID --> to be loaded in GT soon                                                                                                      
   if(level == "loose"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.96) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.93) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.62) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.51) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.53) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.48) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.30) passpuid = true;
+
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > -0.97) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > -0.89) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.68) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.52) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.53) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.38) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.47) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.30) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
+
   }
   else if(level == "medium"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > -0.61) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval > -0.20) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.40) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.22) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.36) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.17) passpuid = true;
+
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.18) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.61) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.55) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.42) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.23) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.36) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.17) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
+
   }
   else if(level == "tight"){
-    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and puidval > 0.05) passpuid = true;
-    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 30 and puidval >  0.52) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and puidval > -0.37) passpuid = true;
-    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 30 and puidval > -0.18) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and puidval > -0.23) passpuid = true;
-    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 30 and puidval > -0.04) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and puidval > -0.21) passpuid = true;
-    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 30 and puidval > -0.02) passpuid = true;
+    if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 10 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 20 and jetpt > 10 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 30 and jetpt > 20 and puidval > 0.69) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt < 50 and jetpt > 30 and puidval > 0.86) passpuid = true;
+    else if (jetabseta >= 0.00 and jetabseta < 2.50 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 10 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 20 and jetpt > 10 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 30 and jetpt > 20 and puidval > -0.35) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt < 50 and jetpt > 30 and puidval > -0.10) passpuid = true;
+    else if (jetabseta >= 2.50 and jetabseta < 2.75 and jetpt > 50) passpuid = true;
+    if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 20 and jetpt > 10 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 30 and jetpt > 20 and puidval > -0.21) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt < 50 and jetpt > 30 and puidval > -0.01) passpuid = true;
+    else if (jetabseta >= 2.75 and jetabseta < 3.00 and jetpt > 50) passpuid = true;
+
+    if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 10 and puidval > -0.26) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 20 and jetpt > 10 and puidval > -0.26) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 30 and jetpt > 20 and puidval > -0.26) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt < 50 and jetpt > 30 and puidval > -0.03) passpuid = true;
+    else if (jetabseta >= 3.00 and jetabseta < 5.00 and jetpt > 50) passpuid = true;
   }
 
   return passpuid;

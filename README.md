@@ -6,18 +6,22 @@ Repository for analysis code
 
 Recipe for 80X: 
 
-       cmsrel CMSSW_8_0_8
-       cd CMSSW_8_0_8/src
+       cmsrel CMSSW_8_0_19_patch1
+       cd CMSSW_8_0_19_patch1/src
        cmsenv
        git cms-init
-       git cms-merge-topic -u matteosan1:smearer_76X
        git fetch --all		   
-       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_X:refs/heads/CMSSW_8_0_X
-       git checkout CMSSW_8_0_X
-       git merge official-cmssw/CMSSW_8_0_X
-       git cms-addpkg FWCore/Framework
-       git revert ccdf67f9dc7ee3968bc489b773561af6025e2115
-       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_80X
+       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_19_patchX:refs/heads/CMSSW_8_0_19_patchX
+       git checkout CMSSW_8_0_19_patchX
+       git merge official-cmssw/CMSSW_8_0_19_patchX
+       git cms-merge-topic ikrav:egm_id_80X_v1
+       git cms-merge-topic emanueledimarco:ecal_smear_fix_80X
+       cd EgammaAnalysis/ElectronTools/data
+       git clone -b ICHEP2016_v2 https://github.com/ECALELFS/ScalesSmearings.git
+       cd -
+       git cms-merge-topic ahinzmann:fixPUjetIDvariables81
+       git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
+       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_8019_X
 	   
 How to Run the ntuple production (for analysis):
 
