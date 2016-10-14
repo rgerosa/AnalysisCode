@@ -120,7 +120,7 @@ void sigdatamchist(TFile* outfile,
 
     bins = selectBinning(obs,category);
     if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
     TH1F* znhist_temp = new TH1F(("zinvhist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* wlhist_temp = new TH1F(("wjethist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -310,7 +310,7 @@ void sigdatamchist(TFile* outfile,
 
     bin2D bins = selectBinning2D(obs,category);
     if(bins.binX.empty() or bins.binY.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+"--> please define it"<<endl;
     
     TH2F* znhist_temp = new TH2F(("zinvhist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* wlhist_temp = new TH2F(("wjethist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
@@ -1016,7 +1016,8 @@ void gamdatamchist(TFile* outfile,
 		   const Category & category,
                    vector<string> observables,
                    vector<string> observables_2D,
-                   const double & lumi   = 2.24,
+		   const SamplesNLO & nloSamples,
+                   const double & lumi   = 12.9,
 		   const bool & isHInv   = false,
 		   const bool & useJetHT = false,
 		   const bool & applyPFWeight = false
@@ -1033,10 +1034,8 @@ void gamdatamchist(TFile* outfile,
   dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
   if(useJetHT)
     dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
-  //dttree->Add((baseInputTreePath+"DoubleEG/gamfilter/*root").c_str());
   
-  gmtree->Add((baseInputTreePath+"/PhotonJets/gamfilter/*root").c_str());
-  //  gmtree->Add((baseInputTreePath+"/PhotonJets_dR/gamfilter/*root").c_str());
+  gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
   wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
   vltree->Add((baseInputTreePath+"WJets/gamfilter/*root").c_str());
@@ -1059,7 +1058,7 @@ void gamdatamchist(TFile* outfile,
 
     bins = selectBinning(obs,category);
     if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
     TH1F* gmhist_temp = new TH1F(("gbkghistgam_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* qchist_temp = new TH1F(("qbkghistgam_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -1079,7 +1078,7 @@ void gamdatamchist(TFile* outfile,
 
     bin2D bins = selectBinning2D(obs,category);
     if(bins.binX.empty() or bins.binY.empty() )
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
     TH2F* gmhist_temp = new TH2F(("gbkghistgam_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* qchist_temp = new TH2F(("qbkghistgam_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
@@ -1108,9 +1107,6 @@ void gamdatamchist(TFile* outfile,
     anlohist->Divide(alohist);
 
   // take open loop hitogram                                                                                                                                                    
-  //  TFile kffileGJ (kfactorFileGJ.c_str());
-  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
-
   TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
   TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
@@ -1123,11 +1119,20 @@ void gamdatamchist(TFile* outfile,
   vector<TH1*> ahists;
   vector<TH1*> whists;
   vector<TH1*> ehists;
-  ahists.push_back(aewkhist);
-  ahists.push_back(anlohist);
-  whists.push_back(wnlohist);
-  whists.push_back(wewkhist);
-
+  if(nloSamples.usePhotonJetsNLO){
+    ahists.push_back(anlohist);
+  }
+  else{
+    ahists.push_back(aewkhist);
+    ahists.push_back(anlohist);
+  }
+  if(nloSamples.useWJetsNLO){
+    whists.push_back(wewkhist);
+  }
+  else{
+    whists.push_back(wnlohist);
+    whists.push_back(wewkhist);
+  }
   // NLO k-factor for Zgamma is a function of gamma pT
   vector<TH1*> zghists;
   vector<float> kfactBin = {175,190,250,400,700,10000};
@@ -1234,8 +1239,8 @@ void lepdatamchist(TFile* outfile,
     if(nloSamples.useDYJetsNLO){
       vlltree_nlo1->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-100To250*root").c_str());
       vlltree_nlo2->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-250To400*root").c_str());
-      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-400To600*root").c_str());
-      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-600ToInf*root").c_str());
+      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-400To650*root").c_str());
+      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*Pt-650ToInf*root").c_str());
     }
     else{
       vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/*root").c_str());
@@ -1267,8 +1272,8 @@ void lepdatamchist(TFile* outfile,
     if(nloSamples.useDYJetsNLO){
       vlltree_nlo1->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-100To250*root").c_str());
       vlltree_nlo2->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-250To400*root").c_str());
-      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-400To600*root").c_str());
-      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-600ToInf*root").c_str());
+      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-400To650*root").c_str());
+      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*Pt-650ToInf*root").c_str());
     }
     else{
       vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wmnfilter/*root").c_str());
@@ -1300,8 +1305,8 @@ void lepdatamchist(TFile* outfile,
     if(nloSamples.useDYJetsNLO){
       vlltree_nlo1->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-100To250*root").c_str());
       vlltree_nlo2->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-250To400*root").c_str());
-      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-400To600*root").c_str());
-      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-600ToInf*root").c_str());
+      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-400To650*root").c_str());
+      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*Pt-650ToInf*root").c_str());
     }
     else{
       vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/*root").c_str());
@@ -1331,7 +1336,6 @@ void lepdatamchist(TFile* outfile,
       dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
     else if(useJetHT)
       dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
-    //      dttree_2->Add((baseInputTreePath+"DoubleEG/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1340,8 +1344,8 @@ void lepdatamchist(TFile* outfile,
     if(nloSamples.useDYJetsNLO){
       vlltree_nlo1->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-100To250*root").c_str());
       vlltree_nlo2->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-250To400*root").c_str());
-      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-400To600*root").c_str());
-      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-600ToInf*root").c_str());
+      vlltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-400To650*root").c_str());
+      vlltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*Pt-650ToInf*root").c_str());
     }
     else{
       vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/wenfilter/*root").c_str());
@@ -1371,7 +1375,6 @@ void lepdatamchist(TFile* outfile,
     dttree_2 = new TChain("tree/tree");
     if(useJetHT)
       dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
-    //dttree_2->Add((baseInputTreePath+"DoubleEG/wenfilter/*root").c_str());
     else if(useSinglePhoton)
       dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
   }
@@ -1432,7 +1435,7 @@ void lepdatamchist(TFile* outfile,
 
     bins = selectBinning(obs,category);
     if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
 
     TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -1612,7 +1615,7 @@ void lepdatamchist(TFile* outfile,
 
     bin2D bins = selectBinning2D(obs,category);
     if(bins.binX.empty() or bins.binY.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
 
     TH2F* dthist_temp  = new TH2F((string("datahist")+suffix+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
@@ -2356,7 +2359,7 @@ void topdatamchist(TFile* outfile,
 
     bins = selectBinning(obs,category);
     if(bins.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+"--> please define it"<<endl;
 
     TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -2521,7 +2524,7 @@ void topdatamchist(TFile* outfile,
 
     bin2D bins = selectBinning2D(obs,category);
     if(bins.binX.empty() or bins.binY.empty())
-      cout<<"No binning for this observable --> please define it"<<endl;
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
 
     TH2F* dthist_temp     = new TH2F((string("datahist")+suffix+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* dbhist_temp     = new TH2F((string("dbkghist")+suffix+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);

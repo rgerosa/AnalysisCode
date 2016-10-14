@@ -32,16 +32,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 600);
   canvas->cd();
 
-  // fitting function for the turn-on 
-  TF1 *fitfunc_monojet = new TF1("fitfunc_monojet", ErfCB, 50, 1000, 5);
-  fitfunc_monojet->SetParameters(117., 25., 30., 4., 1.);
-  TF1 *fitfunc_vbf_loose = new TF1("fitfunc_vbf_loose", ErfCB, 50, 1000, 5);
-  fitfunc_vbf_loose->SetParameters(117., 25., 30., 4., 1.);
-  TF1 *fitfunc_vbf_tight = new TF1("fitfunc_vbf_tight", ErfCB, 50, 1000, 5);
-  fitfunc_vbf_tight->SetParameters(117., 25., 30., 4., 1.);
-  TF1 *fitfunc_vbf_central = new TF1("fitfunc_vbf_central", ErfCB, 50, 1000, 5);
-  fitfunc_vbf_central->SetParameters(117., 25., 30., 4., 1.);
-
   // input tree
   TChain* tree = new TChain("tree/tree");
   // use only a subset of directories
@@ -87,6 +77,17 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     bins_vbf = bins_vbf_muon;
   }
 
+  // fitting function for the turn-on 
+  TF1 *fitfunc_monojet = new TF1("fitfunc_monojet", ErfCB, bins_monojet.front(), bins_monojet.back(), 5);
+  fitfunc_monojet->SetParameters(117., 25., 30., 4., 1.);
+  TF1 *fitfunc_vbf_loose = new TF1("fitfunc_vbf_loose", ErfCB, bins_vbf.front(), bins_vbf.back(), 5);
+  fitfunc_vbf_loose->SetParameters(117., 25., 30., 4., 1.);
+  TF1 *fitfunc_vbf_tight = new TF1("fitfunc_vbf_tight", ErfCB, bins_vbf.front(), bins_vbf.back(), 5);
+  fitfunc_vbf_tight->SetParameters(117., 25., 30., 4., 1.);
+  TF1 *fitfunc_vbf_central = new TF1("fitfunc_vbf_central", ErfCB, bins_vbf.front(), bins_vbf.back(), 5);
+  fitfunc_vbf_central->SetParameters(117., 25., 30., 4., 1.);
+
+  
   TH1F* hnum_monojet = new TH1F("hnum_monojet", "", bins_monojet.size()-1, &bins_monojet[0]);
   TH1F* hden_monojet = new TH1F("hden_monojet", "", bins_monojet.size()-1, &bins_monojet[0]);
   hnum_monojet->Sumw2();

@@ -104,9 +104,9 @@ void makezmmcorhist( const string &   signalRegionFile,
   if(useNLOSamples)
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhistsnlo, sysName, false, reweightNVTX, 0, isHiggsInvisible); 
   else
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible,false,-1, NULL, NULL, true);  
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);  
+  
   makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-
   if(ntreeEWK != NULL and ntreeEWK != 0)
     makehist4(ntreeEWK, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);  
   if(dtreeEWK != NULL and dtreeEWK != 0)
@@ -282,7 +282,7 @@ void makezeecorhist( const string &  signalRegionFile,
   if(useNLOSamples)
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhistsnlo, sysName,false, reweightNVTX, 0, isHiggsInvisible);  
   else
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible,false,-1, NULL, NULL, true);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
 
   makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, zhists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
 
@@ -929,7 +929,7 @@ void  makezwjcorhist(const string & znunuFile,
   else if (kfact == 7 and useNLOSamples) {whists.push_back(wpdfhist);}
   
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon,   
-  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false,-1, NULL, NULL, true);  
+  makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);  
   if(not useNLOSamples)
     makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   else{
@@ -1181,7 +1181,7 @@ void makegamcorhist( const string & znunuFile,
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(not useNLOSamples)
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible, false,-1, NULL, NULL, true);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
   else
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhists, "", false, reweightNVTX, 0, isHiggsInvisible);
 

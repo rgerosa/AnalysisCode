@@ -1494,13 +1494,13 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   // medium id + pt + veto
   string cut = "nmuons == 0 && nelectrons == 0  && nphotons == 1 && phpt > 120 && phidm == 1 && t1phmet > "+metCut;
   if(not isMC and not dropHLTFilter and not isJetHT and not isDoubleEG)
-    cut += " && (hltphoton165 || hltphoton175)";
+    cut += " && (hltphoton165 || hltphoton175 || hltphoton120)";
   else if(not isMC and not dropHLTFilter and isJetHT and not isDoubleEG)
     cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
   else if(not isMC and not dropHLTFilter and not isJetHT and isDoubleEG)
     cut += " && (hltphoton165 == 0 && hltphoton175 == 0) && (hltEcalHT800 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
-    cut += " && (hltphoton165 || hltphoton175 || hltEcalHT800 || hltPFHT800 > 0)";
+    cut += " && (hltphoton165 || hltphoton175 || hltphoton120 || hltEcalHT800 || hltPFHT800 > 0)";
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();

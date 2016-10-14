@@ -333,17 +333,18 @@ private:
   // trigger and met filters flags 
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
   uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
-  uint8_t hltjetmet90,hltjetmet100,hltjetmet110,hltjetmet120;
-  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90;
-  uint8_t hltdoublemu,hltsinglemu,hltsinglemu22,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
+  uint8_t hltjetmet;
+  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf;
+  uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
   uint8_t hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
-  uint8_t hltCaloJet500, hltEcalHT800, hltPFJet450, hltPFJet500;
-  uint8_t hltphoton90PFHT500, hltphoton90PFHT600;
+  uint8_t hltEcalHT800;
+  uint8_t hltphoton90PFHT;
 
   //pre-scales
   double pswgt_ph120,pswgt_ph90;
   double pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
   
+  //met filters
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo, flagbadchpf, flagbadpfmu;
   
   // muon, ele, dilepton info
@@ -1047,20 +1048,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltmet90        = 0; hltmet100       = 0; hltmet110       = 0; hltmet120       = 0;
     hltmetwithmu90  = 0; hltmetwithmu100 = 0; hltmetwithmu110 = 0; hltmetwithmu120 = 0;
     hltmetwithmu170 = 0; hltmetwithmu300 = 0;
-    hltjetmet90     = 0; hltjetmet100    = 0; hltjetmet110    = 0; hltjetmet120    = 0;
-    hltphoton90     = 0; hltphoton120    = 0;
+    hltjetmet       = 0; 
+    hltphoton90     = 0; hltphoton120    = 0; hltphoton120vbf = 0;
     hltphoton165    = 0; hltphoton175    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
-    hltsinglemu22   = 0;
     hltdoubleel     = 0;
     hltsingleel     = 0;
     hltsingleel27   = 0;
     hltelnoiso      = 0;
-    hltPFHT400 = 0;
-    hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
-    hltCaloJet500 = 0; hltEcalHT800 = 0; hltPFJet450 = 0; hltPFJet500 =0;
-    hltphoton90PFHT500 = 0; hltphoton90PFHT600 = 0;
+    hltPFHT400      = 0; hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
+    hltEcalHT800    = 0; 
+    hltphoton90PFHT = 0;
 
     if(triggerResultsH.isValid() and setHLTFilterFlag == false){
       for (size_t i = 0; i < triggerPathsVector.size(); i++) {
@@ -1078,35 +1077,36 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
         if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
 
-        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90  = 1; // MET trigger
-        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu100 = 1; // MET trigger
-        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu110 = 1; // MET trigger
+        if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90   = 1; // MET trigger
+        if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu100  = 1; // MET trigger
+        if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu110  = 1; // MET trigger
         if (i == 11  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
 
         if (i == 12  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
         if (i == 13  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
+        if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170  = 1; // MET trigger
+        if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170  = 1; // MET trigger
 
         if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
         if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
         if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
 
-        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
-        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
-        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet90     = 1; // Jet-MET trigger
+        if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+        if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+        if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
 
-        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet100     = 1; // Jet-MET trigger
-        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet110     = 1; // Jet-MET trigger
+        if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+        if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
 
-        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
-        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
-        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet120    = 1; // Jet-MET trigger
+        if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+        if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+        if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
 
         if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
         if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
         if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
-        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90    = 1; // Photon trigger
+        if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90     = 1; // Photon trigger
+        if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120vbf = 1; // Photon trigger
 
         if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
         if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
@@ -1115,7 +1115,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         if (i == 35 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
-        if (i == 36 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu22   = 1; // Single muon trigger
         if (i == 37 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 38 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
         if (i == 39 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
@@ -1140,12 +1139,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
         if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
         if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
-	if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltCaloJet500   = 1;
-	if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
-	if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet450     = 1;
-	if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFJet500     = 1;
-	if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT500 = 1;
-	if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT600 = 1;
+	if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
+	if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
+	if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
 
       }
     }
@@ -1153,20 +1149,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       hltmet90        = 1; hltmet100       = 1; hltmet110       = 1; hltmet120       = 1;
       hltmetwithmu90  = 1; hltmetwithmu100 = 1; hltmetwithmu110 = 1; hltmetwithmu120 = 1;
       hltmetwithmu170 = 1; hltmetwithmu300 = 1;
-      hltjetmet90     = 1; hltjetmet100    = 1; hltjetmet110    = 1; hltjetmet120    = 1;
-      hltphoton90     = 1; hltphoton120    = 1;
+      hltjetmet       = 1; 
+      hltphoton90     = 1; hltphoton120    = 1; hltphoton120vbf = 1;
       hltphoton165    = 1; hltphoton175    = 1;
       hltdoublemu     = 1;
       hltsinglemu     = 1;
-      hltsinglemu22   = 1;
       hltdoubleel     = 1;
       hltsingleel     = 1;
       hltsingleel27   = 1;
       hltelnoiso      = 1;
-      hltPFHT400 = 1;
-      hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
-      hltCaloJet500 = 1; hltEcalHT800 = 1; hltPFJet450 = 1; hltPFJet500 =1;
-      hltphoton90PFHT500 = 1; hltphoton90PFHT600 = 1;
+      hltPFHT400   = 1; hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
+      hltEcalHT800 = 1; 
+      hltphoton90PFHT = 1;
     }
 
     bool triggered = false;
@@ -1180,13 +1174,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltmetwithmu120 == 1) triggered = true;
     if (hltmetwithmu170 == 1) triggered = true;
     if (hltmetwithmu300 == 1) triggered = true;
-    if (hltjetmet90     == 1) triggered = true;
-    if (hltjetmet100    == 1) triggered = true;
-    if (hltjetmet110    == 1) triggered = true;
-    if (hltjetmet120    == 1) triggered = true;
+    if (hltjetmet       == 1) triggered = true;
     if (hltphoton165    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
+    if (hltphoton120vbf == 1) triggered = true;
     if (hltphoton90    == 1) triggered = true;
     if (hltdoublemu     == 1) triggered = true;
     if (hltsinglemu     == 1) triggered = true;
@@ -1199,19 +1191,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (hltPFHT650      == 1) triggered = true;
     if (hltPFHT800      == 1) triggered = true;
     if (hltPFHT900      == 1) triggered = true;
-    if (hltCaloJet500   == 1) triggered = true;
     if (hltEcalHT800    == 1) triggered = true;
-    if (hltPFJet450     == 1) triggered = true;
-    if (hltPFJet500     == 1) triggered = true;
-    if (hltphoton90PFHT500 == 1) triggered = true;
-    if (hltphoton90PFHT600 == 1) triggered = true;
+    if (hltphoton90PFHT == 1) triggered = true;
 
     if (applyHLTFilter && !triggered) return;
 
     pswgt_ph120 = 1.0;
     pswgt_ph90  = 1.0;
     pswgt_ht400 = 1.0; 
-    pswgt_ht475 = 1.0; pswgt_ht600 = 1.0; pswgt_ht650 = 1.0; pswgt_ht800 = 1.0; 
+    pswgt_ht475 = 1.0; 
+    pswgt_ht600 = 1.0; 
+    pswgt_ht650 = 1.0; 
+    pswgt_ht800 = 1.0; 
     pswgt_ht900 = 1.0;
 
     const edm::TriggerNames &trignames = iEvent.triggerNames(*triggerResultsH);
@@ -1308,7 +1299,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       mvametphi = mvaMetH->front().phi();
     }
     else{
-      mvamet = -99.;
+      mvamet    = -99.;
       mvametphi = -99.;
     }
 
@@ -1417,9 +1408,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     // MET break down
     pfmethadronHF = -99. ; pfmethadronHFphi = -99. ; 
-    pfmetegammaHF = -99. ; pfmetegammaHFphi = -99. ; pfmetchargedhadron = -99. ; pfmetchargedhadronphi = -99.;
-    pfmetneutralhadron = -99. ; pfmetneutralhadronphi = -99. ; pfmetelectrons = -99. ; pfmetelectronsphi = -99. ; 
-    pfmetmuons = -99. ; pfmetmuonsphi = -99. ; pfmetphotons = -99. ; pfmetphotonsphi = -99. ; pfmetunclustered = -99. ; pfmetunclusteredphi = -99.;
+    pfmetegammaHF = -99. ; pfmetegammaHFphi = -99. ; 
+    pfmetchargedhadron = -99. ; pfmetchargedhadronphi = -99.;
+    pfmetneutralhadron = -99. ; pfmetneutralhadronphi = -99. ; 
+    pfmetelectrons     = -99. ; pfmetelectronsphi   = -99. ; 
+    pfmetmuons         = -99. ; pfmetmuonsphi       = -99. ; 
+    pfmetphotons       = -99. ; pfmetphotonsphi     = -99. ; 
+    pfmetunclustered   = -99. ; pfmetunclusteredphi = -99.;
 
     if(addMETBreakDown and not isTriggerTree){
       pfmethadronHF    = pfMetHadronHFH->front().pt();
@@ -1581,201 +1576,201 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if(jetref.isAvailable() and jetref.isNonnull())
 	  incjets.push_back(jetref);
       }
-   } 
+    } 
     
-      if(incjets.size() > 0) sort(incjets.begin(), incjets.end(), jetSorter);
+    if(incjets.size() > 0) sort(incjets.begin(), incjets.end(), jetSorter);
     
-      // only central jets
-      for (size_t i = 0; i < incjets.size(); i++) {
-	if (fabs(incjets[i]->eta()) <= 2.5) 
-	  jets.push_back(incjets[i]);
-      }        
-      
-      // sort them in pt
-      if(jets.size() > 0)  sort(jets.begin(), jets.end(), jetSorter);
-      
-      // count central jets    
-      njets       = 0;
-      njetsinc    = 0;
-      nbjets      = 0;
-      nbjetslowpt = 0;
-      nbjetsMVA   = 0;
-      nbjetsMVAlowpt = 0;
-      
-      combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); combinejetCHfrac    .clear();
-      combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi   .clear();
-      combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
-      combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
-      combinejetm         .clear(); combinejetbtagMVA   .clear();
-      combinejetBtagSF .clear(); combinejetBtagSFUp .clear(); combinejetBtagSFDown .clear();
-      combinejetBtagMVASF .clear(); combinejetBtagMVASFUp .clear(); combinejetBtagMVASFDown .clear();
-      combinejetPassPUID.clear();
-      
-      // all jets
-      for(size_t i = 0; i < incjets.size(); i++){
-	if(incjets[i]->pt() > minJetPtCountAK4) njetsinc++;
-      }
+    // only central jets
+    for (size_t i = 0; i < incjets.size(); i++) {
+      if (fabs(incjets[i]->eta()) <= 2.5) 
+	jets.push_back(incjets[i]);
+    }        
     
-      // only central jets
-      for (size_t i = 0; i < jets.size(); i++) {
+    // sort them in pt
+    if(jets.size() > 0)  sort(jets.begin(), jets.end(), jetSorter);
+    
+    // count central jets    
+    njets       = 0;
+    njetsinc    = 0;
+    nbjets      = 0;
+    nbjetslowpt = 0;
+    nbjetsMVA   = 0;
+    nbjetsMVAlowpt = 0;
+    
+    combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); combinejetCHfrac    .clear();
+    combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi   .clear();
+    combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
+    combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
+    combinejetm         .clear(); combinejetbtagMVA   .clear();
+    combinejetBtagSF .clear(); combinejetBtagSFUp .clear(); combinejetBtagSFDown .clear();
+    combinejetBtagMVASF .clear(); combinejetBtagMVASFUp .clear(); combinejetBtagMVASFDown .clear();
+    combinejetPassPUID.clear();
+    
+    // all jets
+    for(size_t i = 0; i < incjets.size(); i++){
+      if(incjets[i]->pt() > minJetPtCountAK4) njetsinc++;
+    }
+    
+    // only central jets
+    for (size_t i = 0; i < jets.size(); i++) {
+      
+      if (jets[i]->pt() > minJetPtCountAK4) njets++;
+      // btagging
+      if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjets++;
+      if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjetslowpt++;
+      
+      if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
+      if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
+    }
+    
+    // fill collections
+    for(size_t i = 0; i < incjets.size(); i++){
+      if (incjets[i]->pt() > minJetPtAK4Store){
 	
-	if (jets[i]->pt() > minJetPtCountAK4) njets++;
-	// btagging
-	if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjets++;
-	if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjetslowpt++;
+	combinejetpt.push_back(incjets[i]->pt());
+	combinejeteta.push_back(incjets[i]->eta());
+	combinejetphi.push_back(incjets[i]->phi());
+	combinejetm.push_back(incjets[i]->mass());
+	combinejetbtag.push_back(incjets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	combinejetbtagMVA.push_back(incjets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
+	combinejetCHfrac  .push_back(incjets[i]->chargedHadronEnergyFraction());
+	combinejetNHfrac  .push_back(incjets[i]->neutralHadronEnergyFraction());
+	combinejetEMfrac  .push_back(incjets[i]->neutralEmEnergyFraction());
+	combinejetCEMfrac .push_back(incjets[i]->chargedEmEnergyFraction());
 	
-	if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
-	if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
-      }
- 
-	// fill collections
-      for(size_t i = 0; i < incjets.size(); i++){
-	if (incjets[i]->pt() > minJetPtAK4Store){
-
-	  combinejetpt.push_back(incjets[i]->pt());
-	  combinejeteta.push_back(incjets[i]->eta());
-	  combinejetphi.push_back(incjets[i]->phi());
-	  combinejetm.push_back(incjets[i]->mass());
-	  combinejetbtag.push_back(incjets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-	  combinejetbtagMVA.push_back(incjets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
-	  combinejetCHfrac  .push_back(incjets[i]->chargedHadronEnergyFraction());
-	  combinejetNHfrac  .push_back(incjets[i]->neutralHadronEnergyFraction());
-	  combinejetEMfrac  .push_back(incjets[i]->neutralEmEnergyFraction());
-	  combinejetCEMfrac .push_back(incjets[i]->chargedEmEnergyFraction());
-	  
-	  if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
-	    combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
+	if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
+	  combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
 	  // pileup jet id
-	  if(incjets[i]->hasUserFloat("puid:fullDiscriminant"))
-	    combinejetPUID  .push_back(incjets[i]->userFloat("puid:fullDiscriminant"));	
-	  else
-	    combinejetPUID  .push_back(incjets[i]->userFloat("pileupJetId:fullDiscriminant"));
-
-	  combinejetPassPUID.push_back(applyPileupJetID(*incjets[i],pileupjetidwp,false));	  
-	  // fill jet met dphi
-	  combinejetmetdphi.push_back(deltaPhi(incjets[i]->phi(), t1pfmetphi));
-	  
-	  // MC based info
-	  if(isMC){
-	    combinejetHFlav.push_back(incjets[i]->hadronFlavour()); 
-	    combinejetPFlav.push_back(incjets[i]->partonFlavour()); 
-	    if(incjets[i]->genJet()){
-	      combinejetGenpt.push_back(incjets[i]->genJet()->pt()); 
-	      combinejetGeneta.push_back(incjets[i]->genJet()->eta()); 
-	      combinejetGenphi.push_back(incjets[i]->genJet()->phi()); 
-	      combinejetGenm.push_back(incjets[i]->genJet()->mass()); 
-	    }
-	    // b-tag SF for jets
-	    if(addBTagScaleFactor){
-	      calculateBtagSF(*incjets[i],"CSV",combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown);
-	      calculateBtagSF(*incjets[i],"MVA",combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown);
-	    }
-	  }  
-	}         	
-      }    
-      
-      // Jet met Dphi      
-      jetjetdphi          = 0.0;   
-      incjetmetdphimin    = 0.0; alljetmetdphimin    = 0.0;
-      incjetmumetdphimin  = 0.0; alljetmumetdphimin  = 0.0;
-      incjetelmetdphimin  = 0.0; alljetelmetdphimin  = 0.0;
-      incjetphmetdphimin  = 0.0; alljetphmetdphimin  = 0.0;
-      incjetmetdphimin4   = 0.0; alljetmetdphimin4   = 0.0;
-      incjetmumetdphimin4 = 0.0; alljetmumetdphimin4 = 0.0;
-      incjetelmetdphimin4 = 0.0; alljetelmetdphimin4 = 0.0;
-      incjetphmetdphimin4 = 0.0; alljetphmetdphimin4 = 0.0;
-
-      // delta phi between jets
-      if (combinejetphi.size() > 1)
-	jetjetdphi = deltaPhi(combinejetphi[0], combinejetphi[1]);
+	if(incjets[i]->hasUserFloat("puid:fullDiscriminant"))
+	  combinejetPUID  .push_back(incjets[i]->userFloat("puid:fullDiscriminant"));	
+	else
+	  combinejetPUID  .push_back(incjets[i]->userFloat("pileupJetId:fullDiscriminant"));
+	
+	combinejetPassPUID.push_back(applyPileupJetID(*incjets[i],pileupjetidwp,false));	  
+	// fill jet met dphi
+	combinejetmetdphi.push_back(deltaPhi(incjets[i]->phi(), t1pfmetphi));
+	
+	// MC based info
+	if(isMC){
+	  combinejetHFlav.push_back(incjets[i]->hadronFlavour()); 
+	  combinejetPFlav.push_back(incjets[i]->partonFlavour()); 
+	  if(incjets[i]->genJet()){
+	    combinejetGenpt.push_back(incjets[i]->genJet()->pt()); 
+	    combinejetGeneta.push_back(incjets[i]->genJet()->eta()); 
+	    combinejetGenphi.push_back(incjets[i]->genJet()->phi()); 
+	    combinejetGenm.push_back(incjets[i]->genJet()->mass()); 
+	  }
+	  // b-tag SF for jets
+	  if(addBTagScaleFactor){
+	    calculateBtagSF(*incjets[i],"CSV",combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown);
+	    calculateBtagSF(*incjets[i],"MVA",combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown);
+	  }
+	}  
+      }         	
+    }    
     
-      std::vector<double> alljetmetdphiminvector;
-      std::vector<double> alljetmetdphimin4vector;
-      std::vector<double> alljetmumetdphiminvector;
-      std::vector<double> alljetmumetdphimin4vector;
-      std::vector<double> alljetelmetdphiminvector;
-      std::vector<double> alljetelmetdphimin4vector;
-      std::vector<double> alljetphmetdphiminvector;
-      std::vector<double> alljetphmetdphimin4vector;
+    // Jet met Dphi      
+    jetjetdphi          = 0.0;   
+    incjetmetdphimin    = 0.0; alljetmetdphimin    = 0.0;
+    incjetmumetdphimin  = 0.0; alljetmumetdphimin  = 0.0;
+    incjetelmetdphimin  = 0.0; alljetelmetdphimin  = 0.0;
+    incjetphmetdphimin  = 0.0; alljetphmetdphimin  = 0.0;
+    incjetmetdphimin4   = 0.0; alljetmetdphimin4   = 0.0;
+    incjetmumetdphimin4 = 0.0; alljetmumetdphimin4 = 0.0;
+    incjetelmetdphimin4 = 0.0; alljetelmetdphimin4 = 0.0;
+    incjetphmetdphimin4 = 0.0; alljetphmetdphimin4 = 0.0;
 
-      for (size_t i = 0; i < alljets.size(); i++) {
-	if (alljets[i]->pt() > minJetPtCountAK4) {	  
-	  double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
-	  alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
-	  alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
-	  alljetelmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
-	  alljetphmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
-	  if (i < 4) alljetmetdphimin4vector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
-	  if (i < 4) alljetmumetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
-	  if (i < 4) alljetelmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
-	  if (i < 4) alljetphmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
-        }
+    // delta phi between jets
+    if (combinejetphi.size() > 1)
+      jetjetdphi = deltaPhi(combinejetphi[0], combinejetphi[1]);
+    
+    std::vector<double> alljetmetdphiminvector;
+    std::vector<double> alljetmetdphimin4vector;
+    std::vector<double> alljetmumetdphiminvector;
+    std::vector<double> alljetmumetdphimin4vector;
+    std::vector<double> alljetelmetdphiminvector;
+    std::vector<double> alljetelmetdphimin4vector;
+    std::vector<double> alljetphmetdphiminvector;
+    std::vector<double> alljetphmetdphimin4vector;
+    
+    for (size_t i = 0; i < alljets.size(); i++) {
+      if (alljets[i]->pt() > minJetPtCountAK4) {	  
+	double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
+	alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
+	alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
+	alljetelmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
+	alljetphmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
+	if (i < 4) alljetmetdphimin4vector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
+	if (i < 4) alljetmumetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
+	if (i < 4) alljetelmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
+	if (i < 4) alljetphmetdphimin4vector.push_back(fabs(deltaPhi(alljetphi, t1phmetphi)));
       }
-      if (alljetmetdphiminvector   .size() > 0) alljetmetdphimin    = *min_element(alljetmetdphiminvector   .begin(), alljetmetdphiminvector   .end());
-      if (alljetmumetdphiminvector .size() > 0) alljetmumetdphimin  = *min_element(alljetmumetdphiminvector .begin(), alljetmumetdphiminvector .end());
-      if (alljetelmetdphiminvector .size() > 0) alljetelmetdphimin  = *min_element(alljetelmetdphiminvector .begin(), alljetelmetdphiminvector .end());
-      if (alljetphmetdphiminvector .size() > 0) alljetphmetdphimin  = *min_element(alljetphmetdphiminvector .begin(), alljetphmetdphiminvector .end());
-      if (alljetmetdphimin4vector  .size() > 0) alljetmetdphimin4   = *min_element(alljetmetdphimin4vector  .begin(), alljetmetdphimin4vector  .end());
-      if (alljetmumetdphimin4vector.size() > 0) alljetmumetdphimin4 = *min_element(alljetmumetdphimin4vector.begin(), alljetmumetdphimin4vector.end());
-      if (alljetelmetdphimin4vector.size() > 0) alljetelmetdphimin4 = *min_element(alljetelmetdphimin4vector.begin(), alljetelmetdphimin4vector.end());
-      if (alljetphmetdphimin4vector.size() > 0) alljetphmetdphimin4 = *min_element(alljetphmetdphimin4vector.begin(), alljetphmetdphimin4vector.end());
-      
-      // delta phi jet-met      
-      std::vector<double> incjetmetdphiminvector;
-      std::vector<double> incjetmetdphimin4vector;
-      std::vector<double> incjetmumetdphiminvector;
-      std::vector<double> incjetmumetdphimin4vector;
-      std::vector<double> incjetelmetdphiminvector;
-      std::vector<double> incjetelmetdphimin4vector;
-      std::vector<double> incjetphmetdphiminvector;
-      std::vector<double> incjetphmetdphimin4vector;
+    }
+    if (alljetmetdphiminvector   .size() > 0) alljetmetdphimin    = *min_element(alljetmetdphiminvector   .begin(), alljetmetdphiminvector   .end());
+    if (alljetmumetdphiminvector .size() > 0) alljetmumetdphimin  = *min_element(alljetmumetdphiminvector .begin(), alljetmumetdphiminvector .end());
+    if (alljetelmetdphiminvector .size() > 0) alljetelmetdphimin  = *min_element(alljetelmetdphiminvector .begin(), alljetelmetdphiminvector .end());
+    if (alljetphmetdphiminvector .size() > 0) alljetphmetdphimin  = *min_element(alljetphmetdphiminvector .begin(), alljetphmetdphiminvector .end());
+    if (alljetmetdphimin4vector  .size() > 0) alljetmetdphimin4   = *min_element(alljetmetdphimin4vector  .begin(), alljetmetdphimin4vector  .end());
+    if (alljetmumetdphimin4vector.size() > 0) alljetmumetdphimin4 = *min_element(alljetmumetdphimin4vector.begin(), alljetmumetdphimin4vector.end());
+    if (alljetelmetdphimin4vector.size() > 0) alljetelmetdphimin4 = *min_element(alljetelmetdphimin4vector.begin(), alljetelmetdphimin4vector.end());
+    if (alljetphmetdphimin4vector.size() > 0) alljetphmetdphimin4 = *min_element(alljetphmetdphimin4vector.begin(), alljetphmetdphimin4vector.end());
+    
+    // delta phi jet-met      
+    std::vector<double> incjetmetdphiminvector;
+    std::vector<double> incjetmetdphimin4vector;
+    std::vector<double> incjetmumetdphiminvector;
+    std::vector<double> incjetmumetdphimin4vector;
+    std::vector<double> incjetelmetdphiminvector;
+    std::vector<double> incjetelmetdphimin4vector;
+    std::vector<double> incjetphmetdphiminvector;
+    std::vector<double> incjetphmetdphimin4vector;
 
-      for (size_t i = 0; i < incjets.size(); i++) {
-	if (incjets[i]->pt() > minJetPtCountAK4) {
-	  double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
-	  incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
-      incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
-      incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
-	  incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
-	  if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
-	  if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
-	  if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
-	  if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
-        }
+    for (size_t i = 0; i < incjets.size(); i++) {
+      if (incjets[i]->pt() > minJetPtCountAK4) {
+	double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
+	incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
+	incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
+	incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
+	incjetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
+	if (i < 4) incjetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
+	if (i < 4) incjetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
+	if (i < 4) incjetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
+	if (i < 4) incjetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, t1phmetphi)));
       }
-      if (incjetmetdphiminvector .size() > 0) incjetmetdphimin  = *min_element(incjetmetdphiminvector .begin(), incjetmetdphiminvector .end());
-      if (incjetmetdphimin4vector.size() > 0) incjetmetdphimin4 = *min_element(incjetmetdphimin4vector.begin(), incjetmetdphimin4vector.end());
-      if (incjetmumetdphiminvector .size() > 0) incjetmumetdphimin  = *min_element(incjetmumetdphiminvector .begin(), incjetmumetdphiminvector .end());
-      if (incjetmumetdphimin4vector.size() > 0) incjetmumetdphimin4 = *min_element(incjetmumetdphimin4vector.begin(), incjetmumetdphimin4vector.end());
-      if (incjetelmetdphiminvector .size() > 0) incjetelmetdphimin  = *min_element(incjetelmetdphiminvector .begin(), incjetelmetdphiminvector .end());
-      if (incjetelmetdphimin4vector.size() > 0) incjetelmetdphimin4 = *min_element(incjetelmetdphimin4vector.begin(), incjetelmetdphimin4vector.end());
-      if (incjetphmetdphiminvector .size() > 0) incjetphmetdphimin  = *min_element(incjetphmetdphiminvector .begin(), incjetphmetdphiminvector .end());
-      if (incjetphmetdphimin4vector.size() > 0) incjetphmetdphimin4 = *min_element(incjetphmetdphimin4vector.begin(), incjetphmetdphimin4vector.end());
-      
-      // QCD suppression handles
-      ht     = 0.;
-      htinc  = 0.;
-      ht30   = 0.;
-      for (size_t i = 0; i < incjets.size(); i++) {
-	if (incjets[i]->pt() > minJetPtCountAK4) {
-	  htinc += incjets[i]->pt(); if (fabs(incjets[i]->eta()) < 3.0) {ht30 += incjets[i]->pt();}
-	}
-      }  
-      for (size_t i = 0; i < jets.size(); i++) {
-	if (jets[i]->pt() > minJetPtCountAK4) {
-	  ht += jets[i]->pt();
-	}
+    }
+    if (incjetmetdphiminvector .size() > 0) incjetmetdphimin  = *min_element(incjetmetdphiminvector .begin(), incjetmetdphiminvector .end());
+    if (incjetmetdphimin4vector.size() > 0) incjetmetdphimin4 = *min_element(incjetmetdphimin4vector.begin(), incjetmetdphimin4vector.end());
+    if (incjetmumetdphiminvector .size() > 0) incjetmumetdphimin  = *min_element(incjetmumetdphiminvector .begin(), incjetmumetdphiminvector .end());
+    if (incjetmumetdphimin4vector.size() > 0) incjetmumetdphimin4 = *min_element(incjetmumetdphimin4vector.begin(), incjetmumetdphimin4vector.end());
+    if (incjetelmetdphiminvector .size() > 0) incjetelmetdphimin  = *min_element(incjetelmetdphiminvector .begin(), incjetelmetdphiminvector .end());
+    if (incjetelmetdphimin4vector.size() > 0) incjetelmetdphimin4 = *min_element(incjetelmetdphimin4vector.begin(), incjetelmetdphimin4vector.end());
+    if (incjetphmetdphiminvector .size() > 0) incjetphmetdphimin  = *min_element(incjetphmetdphiminvector .begin(), incjetphmetdphiminvector .end());
+    if (incjetphmetdphimin4vector.size() > 0) incjetphmetdphimin4 = *min_element(incjetphmetdphimin4vector.begin(), incjetphmetdphimin4vector.end());
+    
+    // QCD suppression handles
+    ht     = 0.;
+    htinc  = 0.;
+    ht30   = 0.;
+    for (size_t i = 0; i < incjets.size(); i++) {
+      if (incjets[i]->pt() > minJetPtCountAK4) {
+	htinc += incjets[i]->pt(); 
+	if (fabs(incjets[i]->eta()) < 3.0) 
+	  ht30 += incjets[i]->pt();
       }
-
+    }  
+    for (size_t i = 0; i < jets.size(); i++) {
+      if (jets[i]->pt() > minJetPtCountAK4)
+	ht += jets[i]->pt();      
+    }
+    
     // PUPPI AK4 jets
     if(addPuppiJets and not isTriggerTree){
-
+      
       vector<pat::JetRef> incPuppijets;
       vector<pat::JetRef> Puppijets;
-
+      
       if(jetsPuppiH.isValid()){	
-	for (auto jets_iter = jetsPuppiH->begin(); jets_iter != jetsPuppiH->end(); ++jets_iter) {
-	  
+	for (auto jets_iter = jetsPuppiH->begin(); jets_iter != jetsPuppiH->end(); ++jets_iter) {	  
 	  //clean from leptons
 	  bool skipjet = false;
 	  if(muonsH.isValid()){
@@ -1809,143 +1804,143 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    incPuppijets.push_back(jetref);
 	}
       }
+      
+      if(incPuppijets.size() > 0) sort(incPuppijets.begin(), incPuppijets.end(), jetSorter);
+      
+      // only central jets
+      for (size_t i = 0; i < incPuppijets.size(); i++) {
+	if (fabs(incPuppijets[i]->eta()) <= 2.5) 
+	  Puppijets.push_back(incPuppijets[i]);
+      }        
 	
-	if(incPuppijets.size() > 0) sort(incPuppijets.begin(), incPuppijets.end(), jetSorter);
+      // sort them in pt
+      if(Puppijets.size() > 0)  sort(Puppijets.begin(), Puppijets.end(), jetSorter);
+      
+      // count central jets    
+      npuppijets       = 0;
+      npuppijetsinc    = 0;
+      npuppibjets      = 0;
+      npuppibjetslowpt = 0;
+      npuppibjetsMVA   = 0;
+      npuppibjetsMVAlowpt = 0;
+      
+      combinePuppijetpt        .clear(); combinePuppijeteta       .clear(); combinePuppijetphi       .clear(); combinePuppijetbtag      .clear(); 
+      combinePuppijetCHfrac    .clear(); combinePuppijetbtagMVA   .clear();
+      combinePuppijetNHfrac    .clear(); combinePuppijetEMfrac    .clear(); combinePuppijetCEMfrac   .clear(); combinePuppijetmetdphi   .clear();
+      combinePuppijetHFlav     .clear(); combinePuppijetPFlav     .clear(); combinePuppijetQGL       .clear(); 
+      combinePuppijetGenpt     .clear(); combinePuppijetGeneta    .clear(); combinePuppijetGenphi    .clear(); combinePuppijetGenm      .clear();
+      combinePuppijetm         .clear(); 
+      combinePuppijetBtagSF    .clear(); combinePuppijetBtagSFUp .clear(); combinePuppijetBtagSFDown .clear();
+      combinePuppijetBtagMVASF    .clear(); combinePuppijetBtagMVASFUp .clear(); combinePuppijetBtagMVASFDown .clear();
+      
+      for(size_t i = 0; i < incPuppijets.size(); i++){
+	if(incPuppijets[i]->pt() > minJetPtCountAK4) npuppijetsinc++;
+      }
+      
+      for (size_t i = 0; i < Puppijets.size(); i++) {
+	
+	if (Puppijets[i]->pt() > minJetPtCountAK4) npuppijets++;
+	if (Puppijets[i]->pt() > minJetPtCountAK4 && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjets++;
+	if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjetslowpt++;
 
-	// only central jets
-	for (size_t i = 0; i < incPuppijets.size(); i++) {
-	  if (fabs(incPuppijets[i]->eta()) <= 2.5) 
-	    Puppijets.push_back(incPuppijets[i]);
-	}        
-	
-	// sort them in pt
-	if(Puppijets.size() > 0)  sort(Puppijets.begin(), Puppijets.end(), jetSorter);
-	
-	// count central jets    
-	npuppijets       = 0;
-	npuppijetsinc    = 0;
-	npuppibjets      = 0;
-	npuppibjetslowpt = 0;
-	npuppibjetsMVA   = 0;
-	npuppibjetsMVAlowpt = 0;
-	
-	combinePuppijetpt        .clear(); combinePuppijeteta       .clear(); combinePuppijetphi       .clear(); combinePuppijetbtag      .clear(); 
-	combinePuppijetCHfrac    .clear(); combinePuppijetbtagMVA   .clear();
-	combinePuppijetNHfrac    .clear(); combinePuppijetEMfrac    .clear(); combinePuppijetCEMfrac   .clear(); combinePuppijetmetdphi   .clear();
-	combinePuppijetHFlav     .clear(); combinePuppijetPFlav     .clear(); combinePuppijetQGL       .clear(); 
-	combinePuppijetGenpt     .clear(); combinePuppijetGeneta    .clear(); combinePuppijetGenphi    .clear(); combinePuppijetGenm      .clear();
-	combinePuppijetm         .clear(); 
-	combinePuppijetBtagSF    .clear(); combinePuppijetBtagSFUp .clear(); combinePuppijetBtagSFDown .clear();
-	combinePuppijetBtagMVASF    .clear(); combinePuppijetBtagMVASFUp .clear(); combinePuppijetBtagMVASFDown .clear();
-	
-	for(size_t i = 0; i < incPuppijets.size(); i++){
-	  if(incPuppijets[i]->pt() > minJetPtCountAK4) npuppijetsinc++;
-	}
-	
-	for (size_t i = 0; i < Puppijets.size(); i++) {
+	if (Puppijets[i]->pt() > minJetPtCountAK4 && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVA++;
+	if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVAlowpt++;
+      }
+      
+      // fill collections
+      for(size_t i = 0; i < incPuppijets.size(); i++){
+	if (incPuppijets[i]->pt() > minJetPtCountAK4){
 	  
-	  if (Puppijets[i]->pt() > minJetPtCountAK4) npuppijets++;
-	  if (Puppijets[i]->pt() > minJetPtCountAK4 && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjets++;
-	  if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) npuppibjetslowpt++;
-
-	  if (Puppijets[i]->pt() > minJetPtCountAK4 && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVA++;
-	  if (Puppijets[i]->pt() > minJetPtBveto && Puppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) npuppibjetsMVAlowpt++;
-	}
+	  combinePuppijetpt.push_back(incPuppijets[i]->pt());
+	  combinePuppijeteta.push_back(incPuppijets[i]->eta());
+	  combinePuppijetphi.push_back(incPuppijets[i]->phi());
+	  combinePuppijetm.push_back(incPuppijets[i]->mass());
+	  combinePuppijetbtag.push_back(incPuppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
+	  combinePuppijetbtagMVA.push_back(incPuppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
+	  combinePuppijetCHfrac  .push_back(incPuppijets[i]->chargedHadronEnergyFraction());
+	  combinePuppijetNHfrac  .push_back(incPuppijets[i]->neutralHadronEnergyFraction());
+	  combinePuppijetEMfrac  .push_back(incPuppijets[i]->neutralEmEnergyFraction());
+	  combinePuppijetCEMfrac .push_back(incPuppijets[i]->chargedEmEnergyFraction());
+	  combinePuppijetmetdphi.push_back(deltaPhi(incPuppijets[i]->phi(), puppit1pfmetphi));
 	  
-	  // fill collections
-	for(size_t i = 0; i < incPuppijets.size(); i++){
-	  if (incPuppijets[i]->pt() > minJetPtCountAK4){
-	    
-	    combinePuppijetpt.push_back(incPuppijets[i]->pt());
-	    combinePuppijeteta.push_back(incPuppijets[i]->eta());
-	    combinePuppijetphi.push_back(incPuppijets[i]->phi());
-	    combinePuppijetm.push_back(incPuppijets[i]->mass());
-	    combinePuppijetbtag.push_back(incPuppijets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"));
-	    combinePuppijetbtagMVA.push_back(incPuppijets[i]->bDiscriminator("pfCombinedMVAV2BJetTags"));
-	    combinePuppijetCHfrac  .push_back(incPuppijets[i]->chargedHadronEnergyFraction());
-	    combinePuppijetNHfrac  .push_back(incPuppijets[i]->neutralHadronEnergyFraction());
-	    combinePuppijetEMfrac  .push_back(incPuppijets[i]->neutralEmEnergyFraction());
-	    combinePuppijetCEMfrac .push_back(incPuppijets[i]->chargedEmEnergyFraction());
-	    combinePuppijetmetdphi.push_back(deltaPhi(incPuppijets[i]->phi(), puppit1pfmetphi));
-	    
-	    if(incPuppijets[i]->hasUserFloat("QGTaggerPuppi:qgLikelihood"))
-	      combinePuppijetQGL   .push_back(incPuppijets[i]->userFloat("QGTaggerPuppi:qgLikelihood")); 
-
-	    // MC based info
-	    if(isMC){
-	      combinePuppijetHFlav.push_back(incPuppijets[i]->hadronFlavour()); 
-	      combinePuppijetPFlav.push_back(incPuppijets[i]->partonFlavour()); 
-	      if(incPuppijets[i]->genJet()){
-		combinePuppijetGenpt.push_back(incPuppijets[i]->genJet()->pt()); 
-		combinePuppijetGeneta.push_back(incPuppijets[i]->genJet()->eta()); 
-		combinePuppijetGenphi.push_back(incPuppijets[i]->genJet()->phi()); 
-		combinePuppijetGenm.push_back(incPuppijets[i]->genJet()->mass()); 
-	      }	  
+	  if(incPuppijets[i]->hasUserFloat("QGTaggerPuppi:qgLikelihood"))
+	    combinePuppijetQGL   .push_back(incPuppijets[i]->userFloat("QGTaggerPuppi:qgLikelihood")); 
+	  
+	  // MC based info
+	  if(isMC){
+	    combinePuppijetHFlav.push_back(incPuppijets[i]->hadronFlavour()); 
+	    combinePuppijetPFlav.push_back(incPuppijets[i]->partonFlavour()); 
+	    if(incPuppijets[i]->genJet()){
+	      combinePuppijetGenpt.push_back(incPuppijets[i]->genJet()->pt()); 
+	      combinePuppijetGeneta.push_back(incPuppijets[i]->genJet()->eta()); 
+	      combinePuppijetGenphi.push_back(incPuppijets[i]->genJet()->phi()); 
+	      combinePuppijetGenm.push_back(incPuppijets[i]->genJet()->mass()); 
+	    }	  
 	    
 	      // b-tag SF for Puppijets
-	      if(addBTagScaleFactor){
-		calculateBtagSF(*incPuppijets[i],"CSV",combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown);
-		calculateBtagSF(*incPuppijets[i],"MVA",combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown);
-	      }    	
-	    }
+	    if(addBTagScaleFactor){
+	      calculateBtagSF(*incPuppijets[i],"CSV",combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown);
+	      calculateBtagSF(*incPuppijets[i],"MVA",combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown);
+	    }    	
 	  }
 	}
-	
-	PuppijetPuppijetdphi    = 0.0;
-	incPuppijetmetdphimin   = 0.0;
-	incPuppijetmumetdphimin = 0.0;
-	incPuppijetelmetdphimin = 0.0;
-	incPuppijetphmetdphimin = 0.0;
-	
-	incPuppijetmetdphimin4  = 0.0;
-	incPuppijetmumetdphimin4= 0.0;
-	incPuppijetelmetdphimin4= 0.0;
-	incPuppijetphmetdphimin4= 0.0;
-	
-	// delta phi between Puppijets
-	if (combinePuppijetphi.size()>1) 
-	  PuppijetPuppijetdphi = deltaPhi(combinePuppijetphi[0], combinePuppijetphi[1]);
-	
-	std::vector<double> incpuppijetmetdphiminvector;
-	std::vector<double> incpuppijetmetdphimin4vector;
-	std::vector<double> incpuppijetmumetdphiminvector;
-	std::vector<double> incpuppijetmumetdphimin4vector;
-	std::vector<double> incpuppijetelmetdphiminvector;
-	std::vector<double> incpuppijetelmetdphimin4vector;
-	std::vector<double> incpuppijetphmetdphiminvector;
-	std::vector<double> incpuppijetphmetdphimin4vector;
-	
-	for (size_t i = 0; i < incPuppijets.size(); i++) {
-	  if (incPuppijets[i]->pt() > minJetPtCountAK4) {
-	    double incjetphi = atan2(sin(incPuppijets[i]->phi()), cos(incPuppijets[i]->phi()));
-	    incpuppijetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
-	    incpuppijetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
-	    incpuppijetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
-	    incpuppijetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
-	    if (i < 4) incpuppijetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
-	    if (i < 4) incpuppijetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
-	    if (i < 4) incpuppijetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
-	    if (i < 4) incpuppijetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
-	  }
+      }
+      
+      PuppijetPuppijetdphi    = 0.0;
+      incPuppijetmetdphimin   = 0.0;
+      incPuppijetmumetdphimin = 0.0;
+      incPuppijetelmetdphimin = 0.0;
+      incPuppijetphmetdphimin = 0.0;
+      
+      incPuppijetmetdphimin4  = 0.0;
+      incPuppijetmumetdphimin4= 0.0;
+      incPuppijetelmetdphimin4= 0.0;
+      incPuppijetphmetdphimin4= 0.0;
+      
+      // delta phi between Puppijets
+      if (combinePuppijetphi.size()>1) 
+	PuppijetPuppijetdphi = deltaPhi(combinePuppijetphi[0], combinePuppijetphi[1]);
+      
+      std::vector<double> incpuppijetmetdphiminvector;
+      std::vector<double> incpuppijetmetdphimin4vector;
+      std::vector<double> incpuppijetmumetdphiminvector;
+      std::vector<double> incpuppijetmumetdphimin4vector;
+      std::vector<double> incpuppijetelmetdphiminvector;
+      std::vector<double> incpuppijetelmetdphimin4vector;
+      std::vector<double> incpuppijetphmetdphiminvector;
+      std::vector<double> incpuppijetphmetdphimin4vector;
+      
+      for (size_t i = 0; i < incPuppijets.size(); i++) {
+	if (incPuppijets[i]->pt() > minJetPtCountAK4) {
+	  double incjetphi = atan2(sin(incPuppijets[i]->phi()), cos(incPuppijets[i]->phi()));
+	  incpuppijetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
+	  incpuppijetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
+	  incpuppijetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
+	  incpuppijetphmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
+	  if (i < 4) incpuppijetmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
+	  if (i < 4) incpuppijetmumetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
+	  if (i < 4) incpuppijetelmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
+	  if (i < 4) incpuppijetphmetdphimin4vector.push_back(fabs(deltaPhi(incjetphi, puppit1phmetphi)));
 	}
-	if (incpuppijetmetdphiminvector .size() > 0) incPuppijetmetdphimin  = *min_element(incpuppijetmetdphiminvector .begin(), incpuppijetmetdphiminvector .end());
-	if (incpuppijetmetdphimin4vector.size() > 0) incPuppijetmetdphimin4 = *min_element(incpuppijetmetdphimin4vector.begin(), incpuppijetmetdphimin4vector.end());
-	if (incpuppijetmumetdphiminvector .size() > 0) incPuppijetmumetdphimin  = *min_element(incpuppijetmumetdphiminvector .begin(), incpuppijetmumetdphiminvector .end());
-	if (incpuppijetmumetdphimin4vector.size() > 0) incPuppijetmumetdphimin4 = *min_element(incpuppijetmumetdphimin4vector.begin(), incpuppijetmumetdphimin4vector.end());
-	if (incpuppijetelmetdphiminvector .size() > 0) incPuppijetelmetdphimin  = *min_element(incpuppijetelmetdphiminvector .begin(), incpuppijetelmetdphiminvector .end());
-	if (incpuppijetelmetdphimin4vector.size() > 0) incPuppijetelmetdphimin4 = *min_element(incpuppijetelmetdphimin4vector.begin(), incpuppijetelmetdphimin4vector.end());
-	if (incpuppijetphmetdphiminvector .size() > 0) incPuppijetphmetdphimin  = *min_element(incpuppijetphmetdphiminvector .begin(), incpuppijetphmetdphiminvector .end());
-	if (incpuppijetphmetdphimin4vector.size() > 0) incPuppijetphmetdphimin4 = *min_element(incpuppijetphmetdphimin4vector.begin(), incpuppijetphmetdphimin4vector.end());
+      }
+      if (incpuppijetmetdphiminvector .size() > 0) incPuppijetmetdphimin  = *min_element(incpuppijetmetdphiminvector .begin(), incpuppijetmetdphiminvector .end());
+      if (incpuppijetmetdphimin4vector.size() > 0) incPuppijetmetdphimin4 = *min_element(incpuppijetmetdphimin4vector.begin(), incpuppijetmetdphimin4vector.end());
+      if (incpuppijetmumetdphiminvector .size() > 0) incPuppijetmumetdphimin  = *min_element(incpuppijetmumetdphiminvector .begin(), incpuppijetmumetdphiminvector .end());
+      if (incpuppijetmumetdphimin4vector.size() > 0) incPuppijetmumetdphimin4 = *min_element(incpuppijetmumetdphimin4vector.begin(), incpuppijetmumetdphimin4vector.end());
+      if (incpuppijetelmetdphiminvector .size() > 0) incPuppijetelmetdphimin  = *min_element(incpuppijetelmetdphiminvector .begin(), incpuppijetelmetdphiminvector .end());
+      if (incpuppijetelmetdphimin4vector.size() > 0) incPuppijetelmetdphimin4 = *min_element(incpuppijetelmetdphimin4vector.begin(), incpuppijetelmetdphimin4vector.end());
+      if (incpuppijetphmetdphiminvector .size() > 0) incPuppijetphmetdphimin  = *min_element(incpuppijetphmetdphiminvector .begin(), incpuppijetphmetdphiminvector .end());
+      if (incpuppijetphmetdphimin4vector.size() > 0) incPuppijetphmetdphimin4 = *min_element(incpuppijetphmetdphimin4vector.begin(), incpuppijetphmetdphimin4vector.end());
 	
-	// QCD suppression handles
-	Puppiht     = 0.;
-	for (size_t i = 0; i < Puppijets.size(); i++) {
-	  if (Puppijets[i]->pt() > minJetPtCountAK4) {
-	    Puppiht += Puppijets[i]->pt();
-	  }
-	}        
+      // QCD suppression handles
+      Puppiht     = 0.;
+      for (size_t i = 0; i < Puppijets.size(); i++) {
+	if (Puppijets[i]->pt() > minJetPtCountAK4) {
+	  Puppiht += Puppijets[i]->pt();
+	}
+      }        
     }
-
+    
     // Lepton part
     vector<pat::MuonRef> muonvector;
     if(muonsH.isValid() and tightmuonsH.isValid() and highptmuonsH.isValid()){
@@ -1968,7 +1963,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       for (size_t i = 0; i < electrons.size(); i++) 
 	electronvector.push_back(electrons[i]);
     }
-
+    
     // re-apply the cleaning to be sure
     vector<pat::TauRef> tauvector;
     ntaus = 0;
@@ -2062,7 +2057,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     sort(muonvector.begin(), muonvector.end(), muonSorter);
     sort(electronvector.begin(), electronvector.end(), electronSorter);
     sort(tauvector.begin(), tauvector.end(), tauSorter);
-
+    
     // one or two loose muons
     if (nmuons == 1 || nmuons == 2) {
       
@@ -2300,7 +2295,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
       }
 
-
       nphotons = photons.size();
       
       if (hardestPhotonIndex >= 0) {
@@ -2322,7 +2316,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	phphi   = photons[hardestPhotonIndex]->phi();
       }
     }
-
+    
     int hardestPhotonPurityIndex = -1;
     double hardestPhotonPurityPt = 0.0;
 
@@ -3572,11 +3566,14 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("run"                  , &run                  , "run/i");
   tree->Branch("lumi"                 , &lumi                 , "lumi/i");
   // Event weights
-  tree->Branch("xsec"                 , &xsec                 , "xsec/D");
-  tree->Branch("wgt"                  , &wgt                  , "wgt/D");
   // Pileup info
-  tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
-  tree->Branch("puobs"                , &puobs                , "puobs/I");
+  if(not isTriggerTree){
+    tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
+    tree->Branch("puobs"                , &puobs                , "puobs/I");
+    tree->Branch("xsec"                 , &xsec                 , "xsec/D");
+    tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+  }
+
   tree->Branch("putrue"               , &putrue               , "putrue/I");
   tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
   
@@ -3591,11 +3588,10 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
   tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
   tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
-  tree->Branch("hltjetmet90"          , &hltjetmet90          , "hltjetmet90/b");
-  tree->Branch("hltjetmet100"         , &hltjetmet100         , "hltjetmet100/b");
-  tree->Branch("hltjetmet110"         , &hltjetmet110         , "hltjetmet110/b");
+  tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/b");
   tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
   tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
   tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
   tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
 
@@ -3612,16 +3608,13 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
   tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
   tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
-  tree->Branch("hltCaloJet500"        , &hltCaloJet500        , "hltCaloJet500/b");
   tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
-  tree->Branch("hltPFJet450"          , &hltPFJet450          , "hltPFJet450/b");
-  tree->Branch("hltPFJet500"          , &hltPFJet500          , "hltPFJet500/b");
-  tree->Branch("hltphoton90PFHT500"   , &hltphoton90PFHT500   , "hltphoton90PFHT500/b");
-  tree->Branch("hltphoton90PFHT600"   , &hltphoton90PFHT600   , "hltphoton90PFHT600/b");
+  tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
 
-  if(not isTriggerTree){
+  tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
+    
+  if(isTriggerTree){
     tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
-    tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
     tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
     tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
     tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
@@ -3629,6 +3622,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/D");
     tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/D");
   }
+
   // MET filters
   tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
   tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
@@ -3657,10 +3651,12 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
   tree->Branch("nbjets"               , &nbjets               , "nbjets/i");
   tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/i");
-  tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/i");
-  tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/i");
+  if(not isTriggerTree){
+    tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/i");
+    tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/i");
+  }
 
-  if(addPuppiJets){
+  if(addPuppiJets and not isTriggerTree){
     tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/i");
     tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/i");
     tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/i");
@@ -4511,6 +4507,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Photon175");      //28
   triggerPathsVector.push_back("HLT_Photon120_v");    //29
   triggerPathsVector.push_back("HLT_Photon90_v");     //30
+  triggerPathsVector.push_back("HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_v");     //31
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //31
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //32
   triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //33
@@ -4536,12 +4533,9 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_PFHT650_v");//53
   triggerPathsVector.push_back("HLT_PFHT800_v");//54
   triggerPathsVector.push_back("HLT_PFHT900_v");//55
-  triggerPathsVector.push_back("HLT_CaloJet500_NoJetID_v");//56
-  triggerPathsVector.push_back("HLT_ECALHT800_v");//57
-  triggerPathsVector.push_back("HLT_PFJet500_v");//58
-  triggerPathsVector.push_back("HLT_PFJet450_v");//59
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//60
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//61
+  triggerPathsVector.push_back("HLT_ECALHT800_v");//56
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//57
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//58
 
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
