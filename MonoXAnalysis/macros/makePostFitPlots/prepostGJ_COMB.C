@@ -145,7 +145,19 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   frame ->Draw();
 
   CMS_lumi(canvas,"12.9");
-  
+
+  /*
+  TLatex* categoryLabel = new TLatex();
+  categoryLabel->SetNDC();
+  categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
+  categoryLabel->SetTextFont(42);
+  categoryLabel->SetTextAlign(11);
+  if(category == Category::monojet)
+    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+  else if(category == Category::monoV)
+    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+  categoryLabel->Draw("same");
+  */
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   qchist->Draw("HIST SAME");
@@ -160,8 +172,8 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit #gamma+jets C.R.","L");
-  leg->AddEntry(prhist, "Pre-fit #gamma+jets C.R.","L");
+  leg->AddEntry(pohist, "Post-fit #gamma+jets CR","L");
+  leg->AddEntry(prhist, "Pre-fit #gamma+jets CR","L");
   leg->AddEntry(qchist, "Other Backgrounds", "F");
   leg->Draw("SAME");
 

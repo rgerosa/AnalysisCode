@@ -208,7 +208,7 @@ void prepostSig_COMB_withSignals(string fitFilename,
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*250);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*350);
   else
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*500);
 
@@ -226,11 +226,22 @@ void prepostSig_COMB_withSignals(string fitFilename,
 
   CMS_lumi(canvas,"12.9");
 
+  TLatex* categoryLabel = new TLatex();
+  categoryLabel->SetNDC();
+  categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
+  categoryLabel->SetTextFont(42);
+  categoryLabel->SetTextAlign(11);
+  if(category == Category::monojet)
+    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+  else if(category == Category::monoV)
+    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+  categoryLabel->Draw("same");
+
+
   stack ->Draw("HIST SAME");
-  //mjhist_v->Draw("hist same");
   mjhist_av->Draw("hist same");
   ggHhist->Draw("hist same");
-
+  
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
   dthist->SetFillStyle(0);
@@ -360,9 +371,9 @@ void prepostSig_COMB_withSignals(string fitFilename,
   leg->AddEntry(dihist, "WW/WZ/ZZ", "F");
   leg->AddEntry(tthist, "Top Quark", "F");
   leg->AddEntry(zlhist, "Z/#gamma #rightarrow ll, #gamma+jets", "F");
-  leg->AddEntry(qchist, "QCD", "F");
-  leg->AddEntry(mjhist_av, "Axial-Vector, M_{med} = 1.6 TeV","L");
+  leg->AddEntry(qchist, "QCD", "F"); 
   leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
+  leg->AddEntry(mjhist_av, "Axial-Vector, M_{med} = 1.6 TeV","L");
   
   leg->Draw("SAME");  
   pad2->RedrawAxis("sameaxis");

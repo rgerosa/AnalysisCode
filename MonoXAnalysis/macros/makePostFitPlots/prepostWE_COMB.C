@@ -176,9 +176,9 @@ void prepostWE_COMB(string fitFilename, string templateFileName, string observab
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*200);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*300);
   else
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*150);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*300);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -194,6 +194,19 @@ void prepostWE_COMB(string fitFilename, string templateFileName, string observab
   frame->Draw();
   
   CMS_lumi(canvas,"12.9");
+
+  /*
+  TLatex* categoryLabel = new TLatex();
+  categoryLabel->SetNDC();
+  categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
+  categoryLabel->SetTextFont(42);
+  categoryLabel->SetTextAlign(11);
+  if(category == Category::monojet)
+    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+  else if(category == Category::monoV)
+    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+  categoryLabel->Draw("same");
+  */
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -207,8 +220,8 @@ void prepostWE_COMB(string fitFilename, string templateFileName, string observab
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit single-electron C.R.","L");
-  leg->AddEntry(prhist, "Pre-fit single-electron C.R.","L");
+  leg->AddEntry(pohist, "Post-fit single-electron CR","L");
+  leg->AddEntry(prhist, "Pre-fit single-electron CR","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
