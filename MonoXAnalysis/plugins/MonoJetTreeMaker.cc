@@ -15,13 +15,15 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "CommonTools/UtilAlgos/interface/TFileService.h" 
 
 // HLT info
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 // Gen Info
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -59,10 +61,10 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
-#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
 // Jet corrections
+#include "CondFormats/JetMETObjects/interface/JetCorrectionUncertainty.h"
+#include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
@@ -70,7 +72,17 @@
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
 
-
+// Level-1
+#include "DataFormats/L1Trigger/interface/EGamma.h" 
+#include "DataFormats/L1Trigger/interface/Tau.h"    
+#include "DataFormats/L1Trigger/interface/Jet.h"    
+#include "DataFormats/L1Trigger/interface/Muon.h"   
+#include "DataFormats/L1Trigger/interface/EtSum.h"  
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
+#include "CondFormats/DataRecord/interface/L1TUtmTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1TUtmTriggerMenu.h"
 
 // ROOT
 #include "TH1F.h"
@@ -107,11 +119,19 @@ private:
   // fill btag scale factors
   void calculateBtagSF(const pat::Jet &, const std::string &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
 
+  // information for photon purity
   double getGammaEAForPhotonIso(double eta);
   double getGammaNewEAForPhotonIso(double eta);
   double getChargedHadronEAForPhotonIso(double eta);
   double getNeutralHadronEAForPhotonIso(double eta);
   double computeDR(const reco::Candidate *genPart,pat::PhotonRef phot);
+
+  // to dump trigger informations (HLT,L1)
+  void fillTriggerObjects(const edm::Handle<pat::TriggerObjectStandAloneCollection> & triggerObjectsH, const edm::TriggerNames & trignames);
+  void fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> & H_L1EG,  const edm::Handle<l1t::TauBxCollection>  & H_L1Tau,
+		     const edm::Handle<l1t::JetBxCollection>    & H_L1Jet, const edm::Handle<l1t::MuonBxCollection> & H_L1Mu,
+		     const edm::Handle<l1t::EtSumBxCollection>  & H_L1Sums);
+  void fillAlgosL1(const edm::Event& iEvent, const edm::EventSetup & eventSetup, const edm::Handle<GlobalAlgBlkBxCollection> & H_L1Algos);
 
 
   bool readDMFromGenParticle;
@@ -119,6 +139,7 @@ private:
   // Gen Particles and MC info
   const bool isMC;
   const bool isTriggerTree;
+  const bool addTriggerObjects;
   const bool uselheweights;
   const edm::InputTag lheEventTag;
   const edm::InputTag lheRunTag;
@@ -138,11 +159,23 @@ private:
   const edm::InputTag prescalesTag;
   const edm::InputTag badChargedCandidateTag;
   const edm::InputTag badPFMuonTag;
+  const edm::InputTag triggerObjectsTag; 
+  const edm::InputTag IT_L1_EG;  
+  const edm::InputTag IT_L1_Jet; 
+  const edm::InputTag IT_L1_Mu;  
+  const edm::InputTag IT_L1_Sums;
+  const edm::InputTag IT_L1_Algos; 
 
   // trgger and filter tokens
-  edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken;
-  edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken;
-  edm::EDGetTokenT<edm::TriggerResults> filterResultsToken;
+  edm::EDGetTokenT<edm::TriggerResults>                    triggerResultsToken;
+  edm::EDGetTokenT<pat::PackedTriggerPrescales>            triggerPrescalesToken;
+  edm::EDGetTokenT<edm::TriggerResults>                    filterResultsToken;
+  edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken; 
+  edm::EDGetTokenT<l1t::EGammaBxCollection>  T_L1EG;
+  edm::EDGetTokenT<l1t::JetBxCollection>     T_L1Jet;
+  edm::EDGetTokenT<l1t::MuonBxCollection>    T_L1Mu;
+  edm::EDGetTokenT<l1t::EtSumBxCollection>   T_L1Sums;
+  edm::EDGetTokenT<GlobalAlgBlkBxCollection> T_L1Algos;
   edm::EDGetTokenT<bool> badChargedCandidateToken;
   edm::EDGetTokenT<bool> badPFMuonToken;
   
@@ -180,7 +213,8 @@ private:
   const edm::InputTag  tightphotonsTag;
   const edm::InputTag  photonLooseIdTag;
   const edm::InputTag  photonHighPtIdTag;
-  const bool addPhotonPurity;
+  const bool           addPhotonPurity;
+
   edm::EDGetTokenT<pat::PhotonRefVector>    photonsToken;
   edm::EDGetTokenT<pat::PhotonRefVector>    mediumphotonsToken;
   edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsToken;
@@ -188,24 +222,25 @@ private:
   edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsPurityToken;  
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   photonsieieToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   photonPHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   photonCHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   photonNHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   rndgammaiso04Token;
-  edm::EDGetTokenT<edm::ValueMap<float> >   rndgammaiso08Token;
-  edm::EDGetTokenT<edm::ValueMap<float> >   gammaisoToken;
-  edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso04Token;
-  edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso08Token;
+  edm::EDGetTokenT<edm::ValueMap<double> >   photonsieieToken;
+  edm::EDGetTokenT<edm::ValueMap<double> >   photonPHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<double> >   photonCHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<double> >   photonNHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<double> >   rndgammaiso04Token;
+  edm::EDGetTokenT<edm::ValueMap<double> >   rndgammaiso08Token;
+  edm::EDGetTokenT<edm::ValueMap<double> >   gammaisoToken;
+  edm::EDGetTokenT<edm::ValueMap<double> >   rndchhadiso04Token;
+  edm::EDGetTokenT<edm::ValueMap<double> >   rndchhadiso08Token;
 
   // Taus
   const edm::InputTag tausNewTag;
-  edm::EDGetTokenT<pat::TauRefVector>  tausNewToken;
   const edm::InputTag tausOldTag;
-  edm::EDGetTokenT<pat::TauRefVector>  tausOldToken;
   const edm::InputTag tausNewRawTag;
-  edm::EDGetTokenT<pat::TauRefVector>  tausNewRawToken;
   const edm::InputTag tausOldRawTag;
+
+  edm::EDGetTokenT<pat::TauRefVector>  tausNewToken;
+  edm::EDGetTokenT<pat::TauRefVector>  tausOldToken;
+  edm::EDGetTokenT<pat::TauRefVector>  tausNewRawToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausOldRawToken;
 
   //Jets AK4
@@ -239,7 +274,6 @@ private:
   edm::EDGetTokenT<edm::View<pat::MET> >  pfMetPhotonsToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  pfMetMuonsToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  pfMetUnclusteredToken;
-
 
   // Puppi MET
   const bool addPuppiMET;
@@ -281,12 +315,6 @@ private:
   TString boostedJetsCHSLabel;
   TString boostedJetsPuppiLabel;
   
-  // inner vectors
-  std::vector<std::string>   triggerPathsVector;
-  std::map<std::string, int> triggerPathsMap;
-  std::vector<std::string>   filterPathsVector;
-  std::map<std::string, int> filterPathsMap;
-
   // Btag SF 
   bool addBTagScaleFactor;
   edm::FileInPath bTagScaleFactorFileCSV;
@@ -301,11 +329,19 @@ private:
   std::vector<BTagCalibrationReader> bMediumMVA;
   std::vector<BTagCalibrationReader> bMediumSubCSV;
 
-  // 
+  // additional info
   const bool addPhotonIDVariables;
   edm::EDGetTokenT<std::vector<pat::Photon> > photonIDCollectionToken;
   const bool addElectronIDVariables;
   edm::EDGetTokenT<std::vector<pat::Electron> > electronIDCollectionToken;
+
+  // inner vectors
+  std::vector<std::string>   triggerPathsVector;
+  std::map<std::string, int> triggerPathsMap;
+  std::vector<std::string>   filterPathsVector;
+  std::map<std::string, int> filterPathsMap;
+
+  std::unique_ptr<HLTPrescaleProvider> hltPrescaleProvider_;
 
   // tree
   TTree* tree;
@@ -355,10 +391,10 @@ private:
   double emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
 
   // photon purity studies
-  int32_t nphotonsPurity;
-  double  phPHiso,  phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
-  double  phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso;
-  double  phPuritysieie, phPurityhoe, phPurityElectronVeto, phPurityEA,phPurityEAEGamma;
+  uint32_t nphotonsPurity;
+  double    phPHiso,  phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
+  double    phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso;
+  double    phPuritysieie, phPurityhoe, phPurityElectronVeto, phPurityEA,phPurityEAEGamma;
  
   // PF MET info (typeI and Raw)
   double rho;
@@ -524,13 +560,28 @@ private:
   double atopmass,atoppt,atopeta,atopphi;
   // DM mediator and DM particles
   double dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
-  int    dmid,dmX1id,dmX2id;
+  int   dmid,dmX1id,dmX2id;
   // for fastSIM
   double samplemedM,sampledmM;
-
   // weights
   double wgt,kfact,puwgt;
 
+  // Trigger objects //ND
+  uint32_t                   trig_obj_n; 
+  std::vector<double>         trig_obj_pt, trig_obj_eta, trig_obj_phi; 
+  std::vector< std::string > trig_obj_col; 
+
+  int trig_L1A_check;
+  int trig_L1A_n;
+  std::vector< std::string > trig_L1A_list;
+
+  std::vector<double> trig_L1EG_pt  , trig_L1EG_eta  , trig_L1EG_phi  ; 
+  std::vector<double> trig_L1Jet_pt , trig_L1Jet_eta , trig_L1Jet_phi ; 
+  std::vector<double> trig_L1Mu_pt  , trig_L1Mu_eta  , trig_L1Mu_phi  ; 
+  double              trig_L1ETM_pt , trig_L1ETM_phi , trig_L1HTM_pt  , trig_L1HTM_phi;
+  double              trig_L1ETT_pt , trig_L1ETT_phi , trig_L1HTT_pt  , trig_L1HTT_phi; 
+  
+ 
   // sorting objects
   template<typename T> 
   class PatPtSorter{
@@ -553,42 +604,49 @@ private:
 MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig): 
   ///////////// GEN INFO
   // isMC or Data --> default Data
-  isMC(iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
-  isTriggerTree(iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false),
+  isMC          (iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
+  isTriggerTree (iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false),
+  addTriggerObjects (iConfig.existsAs<bool>("addTriggerObjects") ? iConfig.getParameter<bool>("addTriggerObjects") : false),
   // use lhe weights or not
-  uselheweights(iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
-  lheEventTag(iConfig.getParameter<edm::InputTag>("lheinfo")),
-  lheRunTag(iConfig.getParameter<edm::InputTag>("lheRuninfo")),
+  uselheweights (iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
+  lheEventTag   (iConfig.getParameter<edm::InputTag>("lheinfo")),
+  lheRunTag     (iConfig.getParameter<edm::InputTag>("lheRuninfo")),
   // is signal sample or not
-  isSignalSample(iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
-  addGenParticles(iConfig.existsAs<bool>("addGenParticles") ? iConfig.getParameter<bool>("addGenParticles") : false),
+  isSignalSample   (iConfig.existsAs<bool>("isSignalSample") ? iConfig.getParameter<bool>("isSignalSample") : false),
+  addGenParticles  (iConfig.existsAs<bool>("addGenParticles") ? iConfig.getParameter<bool>("addGenParticles") : false),
   // xsec
-  xsec(iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.),
+  xsec  (iConfig.existsAs<double>("xsec") ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.),
   ///////////// TRIGGER and filter info INFO
-  triggerResultsTag(iConfig.getParameter<edm::InputTag>("triggerResults")),
-  filterResultsTag(iConfig.getParameter<edm::InputTag>("filterResults")),
-  prescalesTag(iConfig.getParameter<edm::InputTag>("prescales")),
-  badChargedCandidateTag(iConfig.getParameter<edm::InputTag>("badChargedCandidate")),
-  badPFMuonTag(iConfig.getParameter<edm::InputTag>("badPFMuon")),
+  triggerResultsTag  (iConfig.getParameter<edm::InputTag>("triggerResults")),
+  filterResultsTag   (iConfig.getParameter<edm::InputTag>("filterResults")),
+  prescalesTag       (iConfig.getParameter<edm::InputTag>("prescales")),
+  badChargedCandidateTag (iConfig.getParameter<edm::InputTag>("badChargedCandidate")),
+  badPFMuonTag           (iConfig.getParameter<edm::InputTag>("badPFMuon")),
+  triggerObjectsTag  (iConfig.existsAs<edm::InputTag>("triggerObjects") ? iConfig.getParameter<edm::InputTag>("triggerObjects") : edm::InputTag("")),
+  IT_L1_EG           (iConfig.existsAs<edm::InputTag>("triggerL1EG")   ?  iConfig.getParameter<edm::InputTag>("triggerL1EG")   : edm::InputTag("")), 
+  IT_L1_Jet          (iConfig.existsAs<edm::InputTag>("triggerL1Jet")  ?  iConfig.getParameter<edm::InputTag>("triggerL1Jet")  : edm::InputTag("")), 
+  IT_L1_Mu           (iConfig.existsAs<edm::InputTag>("triggerL1Mu")   ?  iConfig.getParameter<edm::InputTag>("triggerL1Mu")   : edm::InputTag("")),
+  IT_L1_Sums         (iConfig.existsAs<edm::InputTag>("triggerL1Sums") ?  iConfig.getParameter<edm::InputTag>("triggerL1Sums") : edm::InputTag("")), 
+  IT_L1_Algos        (iConfig.existsAs<edm::InputTag>("triggerL1algos") ? iConfig.getParameter<edm::InputTag>("triggerL1algos") : edm::InputTag("gtStage2Digis")),
   // vertexes
-  verticesTag(iConfig.getParameter<edm::InputTag>("vertices")),
+  verticesTag (iConfig.getParameter<edm::InputTag>("vertices")),
   // rho
-  rhoToken                 (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
+  rhoToken    (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   //muons
-  muonsTag(iConfig.getParameter<edm::InputTag>("muons")),
-  tightmuonsTag(iConfig.getParameter<edm::InputTag>("tightmuons")),
-  highptmuonsTag(iConfig.getParameter<edm::InputTag>("highptmuons")),
+  muonsTag       (iConfig.getParameter<edm::InputTag>("muons")),
+  tightmuonsTag  (iConfig.getParameter<edm::InputTag>("tightmuons")),
+  highptmuonsTag (iConfig.getParameter<edm::InputTag>("highptmuons")),
   // electrons
-  electronsTag(iConfig.getParameter<edm::InputTag>("electrons")),
-  looseelectronsTag(iConfig.getParameter<edm::InputTag>("looseelectrons")),
-  tightelectronsTag(iConfig.getParameter<edm::InputTag>("tightelectrons")),
-  heepelectronsTag(iConfig.getParameter<edm::InputTag>("heepelectrons")),
+  electronsTag      (iConfig.getParameter<edm::InputTag>("electrons")),
+  looseelectronsTag (iConfig.getParameter<edm::InputTag>("looseelectrons")),
+  tightelectronsTag (iConfig.getParameter<edm::InputTag>("tightelectrons")),
+  heepelectronsTag  (iConfig.getParameter<edm::InputTag>("heepelectrons")),
   // photons
-  photonsTag(iConfig.getParameter<edm::InputTag>("photons")),
-  mediumphotonsTag(iConfig.getParameter<edm::InputTag>("mediumphotons")),
-  tightphotonsTag(iConfig.getParameter<edm::InputTag>("tightphotons")),
-  photonLooseIdTag(iConfig.getParameter<edm::InputTag>("photonLooseId")),
-  photonHighPtIdTag(iConfig.getParameter<edm::InputTag>("photonHighPtId")),
+  photonsTag        (iConfig.getParameter<edm::InputTag>("photons")),
+  mediumphotonsTag  (iConfig.getParameter<edm::InputTag>("mediumphotons")),
+  tightphotonsTag   (iConfig.getParameter<edm::InputTag>("tightphotons")),
+  photonLooseIdTag  (iConfig.getParameter<edm::InputTag>("photonLooseId")),
+  photonHighPtIdTag (iConfig.getParameter<edm::InputTag>("photonHighPtId")),
   // photon purity
   addPhotonPurity(iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false),
   // taus
@@ -645,9 +703,18 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   triggerResultsToken   = consumes<edm::TriggerResults> (triggerResultsTag);
   triggerPrescalesToken = consumes<pat::PackedTriggerPrescales>(prescalesTag);
   filterResultsToken    = consumes<edm::TriggerResults> (filterResultsTag);
+  if(isTriggerTree and addTriggerObjects){
+      triggerObjectsToken   = consumes<pat::TriggerObjectStandAloneCollection>(triggerObjectsTag); 
+      T_L1EG                = consumes<l1t::EGammaBxCollection>(IT_L1_EG  ); //ND
+      T_L1Jet               = consumes<l1t::JetBxCollection   >(IT_L1_Jet ); //ND
+      T_L1Mu                = consumes<l1t::MuonBxCollection  >(IT_L1_Mu  ); //ND
+      T_L1Sums              = consumes<l1t::EtSumBxCollection >(IT_L1_Sums); //ND
+      T_L1Algos             = consumes<GlobalAlgBlkBxCollection>(IT_L1_Algos); //ND
+  }
   badChargedCandidateToken = consumes<bool>(badChargedCandidateTag);
-  badPFMuonToken = consumes<bool>(badPFMuonTag);
+  badPFMuonToken           = consumes<bool>(badPFMuonTag);
 
+  // vertex
   verticesToken  = consumes<std::vector<reco::Vertex> > (verticesTag);
 
   //muons
@@ -670,15 +737,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if(addPhotonPurity){
     photonsPurityToken      = consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("photonsPurity"));
     tightphotonsPurityToken = consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("tightphotonsPurity")); 
-    photonsieieToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie")); 
-    photonPHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonPHiso")); 
-    photonCHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonCHiso")); 
-    photonNHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonNHiso")); 
-    rndgammaiso04Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndgammaiso04")); 
-    rndgammaiso08Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndgammaiso08")); 
-    gammaisoToken           = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("gammaiso"));
-    rndchhadiso04Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndchhadiso04"));  
-    rndchhadiso08Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndchhadiso08"));  
+    photonsieieToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonsieie")); 
+    photonPHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonPHiso")); 
+    photonCHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonCHiso")); 
+    photonNHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonNHiso")); 
+    rndgammaiso04Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndgammaiso04")); 
+    rndgammaiso08Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndgammaiso08")); 
+    gammaisoToken           = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("gammaiso"));
+    rndchhadiso04Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndchhadiso04"));  
+    rndchhadiso08Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndchhadiso08"));  
   }
 
   // taus
@@ -686,9 +753,9 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   tausOldToken = consumes<pat::TauRefVector> (tausOldTag);
   tausNewRawToken = consumes<pat::TauRefVector> (tausNewRawTag);
   tausOldRawToken = consumes<pat::TauRefVector> (tausOldRawTag);
+
   // jets AK4
   jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
-
   t1metToken    = consumes<edm::View<pat::MET> > (t1metTag);
   t1mumetToken  = consumes<edm::View<pat::MET> > (t1mumetTag);
   t1elemetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
@@ -757,7 +824,6 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
       throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileCSV << " !!\n";
 
     calibCSV = BTagCalibration("CSVv2",bTagScaleFactorFileCSV.fullPath());
-
     bMediumCSV.push_back(BTagCalibrationReader(BTagEntry::OP_MEDIUM,"central",{"up","down"})); // for light flavor
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_B,"comb");
     bMediumCSV.back().load(calibCSV,BTagEntry::FLAV_C,"comb");
@@ -790,10 +856,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if(addPhotonIDVariables){
     photonIDCollectionToken =  consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("photonIDCollection"));
     if(not addPhotonPurity){
-      photonsieieToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"));
-      photonPHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonPHiso"));
-      photonCHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonCHiso"));
-      photonNHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonNHiso"));
+      photonsieieToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonsieie"));
+      photonPHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonPHiso"));
+      photonCHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonCHiso"));
+      photonNHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonNHiso"));
     }
   }
   if(addElectronIDVariables){
@@ -802,6 +868,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   readDMFromGenParticle = false;
 
+  hltPrescaleProvider_.reset(new HLTPrescaleProvider(iConfig, consumesCollector(), *this)); //ND
 }
 
 
@@ -827,6 +894,24 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     iEvent.getByToken(triggerPrescalesToken, triggerPrescalesH);
     Handle<TriggerResults> filterResultsH;
     iEvent.getByToken(filterResultsToken, filterResultsH);
+
+    Handle<pat::TriggerObjectStandAloneCollection>   triggerObjectsH; 
+    edm::Handle<l1t::EGammaBxCollection> H_L1EG;
+    edm::Handle<l1t::TauBxCollection>    H_L1Tau;
+    edm::Handle<l1t::JetBxCollection>    H_L1Jet;
+    edm::Handle<l1t::MuonBxCollection>   H_L1Mu;
+    edm::Handle<l1t::EtSumBxCollection>  H_L1Sums;
+    edm::Handle<GlobalAlgBlkBxCollection> H_L1Algos;
+
+    if(isTriggerTree and addTriggerObjects){
+      iEvent.getByToken(triggerObjectsToken, triggerObjectsH);
+      iEvent.getByToken(T_L1EG  , H_L1EG);
+      iEvent.getByToken(T_L1Jet , H_L1Jet);
+      iEvent.getByToken(T_L1Mu  , H_L1Mu);
+      iEvent.getByToken(T_L1Sums, H_L1Sums);
+      iEvent.getByToken(T_L1Algos, H_L1Algos);
+    }
+
     edm::Handle<bool> filterBadChCandH;
     iEvent.getByToken(badChargedCandidateToken,filterBadChCandH);      
     edm::Handle<bool> filterBadPFMuonH;
@@ -905,15 +990,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pat::PhotonRefVector photonsPurity;
     Handle<pat::PhotonRefVector> tightphotonsPurityH;
     pat::PhotonRefVector tightphotonsPurity;
-    Handle<edm::ValueMap<float> > photonsieieH;
-    Handle<edm::ValueMap<float> > photonPHisoH;
-    Handle<edm::ValueMap<float> > photonCHisoH;
-    Handle<edm::ValueMap<float> > photonNHisoH;
-    Handle<edm::ValueMap<float> > rndgammaiso04H;
-    Handle<edm::ValueMap<float> > rndgammaiso08H;
-    Handle<edm::ValueMap<float> > gammaisoH;
-    Handle<edm::ValueMap<float> > rndchhadiso04H;
-    Handle<edm::ValueMap<float> > rndchhadiso08H;
+    Handle<edm::ValueMap<double> > photonsieieH;
+    Handle<edm::ValueMap<double> > photonPHisoH;
+    Handle<edm::ValueMap<double> > photonCHisoH;
+    Handle<edm::ValueMap<double> > photonNHisoH;
+    Handle<edm::ValueMap<double> > rndgammaiso04H;
+    Handle<edm::ValueMap<double> > rndgammaiso08H;
+    Handle<edm::ValueMap<double> > gammaisoH;
+    Handle<edm::ValueMap<double> > rndchhadiso04H;
+    Handle<edm::ValueMap<double> > rndchhadiso08H;
 
     if(addPhotonPurity){
       iEvent.getByToken(photonsPurityToken, photonsPurityH);    
@@ -1241,6 +1326,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (i == 5  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flaggoodvertices = 1; // Good vertices
 	if (i == 6  && filterResultsH->accept(filterPathsMap[filterPathsVector[i]])) flagglobaltighthalo = 1; // 2016 global halo filter	
       }
+    }
+
+    if(isTriggerTree and addTriggerObjects) {
+      fillTriggerObjects(triggerObjectsH, trignames); //dump HL trigger objects
+      fillTriggerL1(H_L1EG, H_L1Tau, H_L1Jet, H_L1Mu, H_L1Sums); //dump L1 objects
+      fillAlgosL1(iEvent, iSetup, H_L1Algos); // dump L1 bits
     }
 
     // Pileup info -- Will need to the updated to the Run-II specifications
@@ -3562,9 +3653,9 @@ void MonoJetTreeMaker::beginJob() {
   tree = fs->make<TTree>("tree"       , "tree");
 
   // Run, Lumi, Event info
-  tree->Branch("event"                , &event                , "event/i");
-  tree->Branch("run"                  , &run                  , "run/i");
-  tree->Branch("lumi"                 , &lumi                 , "lumi/i");
+  tree->Branch("event"                , &event                , "event/I");
+  tree->Branch("run"                  , &run                  , "run/I");
+  tree->Branch("lumi"                 , &lumi                 , "lumi/I");
   // Event weights
   // Pileup info
   if(not isTriggerTree){
@@ -3575,46 +3666,46 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   tree->Branch("putrue"               , &putrue               , "putrue/I");
-  tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
+  tree->Branch("nvtx"                 , &nvtx                 , "nvtx/I");
   
   // Triggers
-  tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
-  tree->Branch("hltmet100"            , &hltmet100            , "hltmet100/b");
-  tree->Branch("hltmet110"            , &hltmet110            , "hltmet110/b");
-  tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
-  tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
-  tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/b");
-  tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/b");
-  tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
-  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
-  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
-  tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/b");
-  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
-  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
-  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
-  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
-  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+  tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/B");
+  tree->Branch("hltmet100"            , &hltmet100            , "hltmet100/B");
+  tree->Branch("hltmet110"            , &hltmet110            , "hltmet110/B");
+  tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/B");
+  tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/B");
+  tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/B");
+  tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/B");
+  tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/B");
+  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/B");
+  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/B");
+  tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/B");
+  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/B");
+  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/B");
+  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/B");
+  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/B");
+  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/B");
 
-  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
-  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
-  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
-  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
-  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
-  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
+  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/B");
+  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/B");
+  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/B");
+  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/B");
+  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/B");
+  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/B");
 
-  tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
-  tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
-  tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
-  tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
-  tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
-  tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
-  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
-  tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
+  tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/B");
+  tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/B");
+  tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/B");
+  tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/B");
+  tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/B");
+  tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/B");
+  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/B");
+  tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/B");
 
   tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
+  tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
     
   if(isTriggerTree){
-    tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
     tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
     tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
     tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
@@ -3624,45 +3715,84 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   // MET filters
-  tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
-  tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
-  tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/b");
-  tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
-  tree->Branch("flagecaltp"           , &flagecaltp           , "flagecaltp/b");
-  tree->Branch("flaggoodvertices"     , &flaggoodvertices     , "flaggoodvertices/b");
-  tree->Branch("flagglobaltighthalo"  , &flagglobaltighthalo  , "flagglobaltighthalo/b");
-  tree->Branch("flagbadchpf"          , &flagbadchpf          , "flagbadchpf/b");
-  tree->Branch("flagbadpfmu"          , &flagbadpfmu          , "flagbadpfmu/b");
+  tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/B");
+  tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/B");
+  tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/B");
+  tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/B");
+  tree->Branch("flagecaltp"           , &flagecaltp           , "flagecaltp/B");
+  tree->Branch("flaggoodvertices"     , &flaggoodvertices     , "flaggoodvertices/B");
+  tree->Branch("flagglobaltighthalo"  , &flagglobaltighthalo  , "flagglobaltighthalo/B");
+  tree->Branch("flagbadchpf"          , &flagbadchpf          , "flagbadchpf/B");
+  tree->Branch("flagbadpfmu"          , &flagbadpfmu          , "flagbadpfmu/B");
+
+  if(isTriggerTree and addTriggerObjects){
+
+    tree->Branch("trig_obj_n"           , &trig_obj_n           , "trig_obj_n/I"); //ND
+    tree->Branch("trig_obj_pt"          , "std::vector<double>" , &trig_obj_pt);   //ND
+    tree->Branch("trig_obj_eta"         , "std::vector<double>" , &trig_obj_eta);  //ND
+    tree->Branch("trig_obj_phi"         , "std::vector<double>" , &trig_obj_phi);  //ND
+    tree->Branch("trig_obj_col"         , "std::vector<std::string>" , &trig_obj_col); //, buffersize); //ND 
+
+    tree->Branch("trig_L1A_check"       , &trig_L1A_check            , "trig_L1A_check/I"); //ND
+    tree->Branch("trig_L1A_n"           , &trig_L1A_n                , "trig_L1A_n/I"); //ND 
+    tree->Branch("trig_L1A_list"        , "std::vector<std::string>" , &trig_L1A_list); //ND
+ 
+    tree->Branch("trig_L1EG_pt"         , "std::vector<double>" , &trig_L1EG_pt); //ND
+    tree->Branch("trig_L1EG_eta"        , "std::vector<double>" , &trig_L1EG_eta); //ND
+    tree->Branch("trig_L1EG_phi"        , "std::vector<double>" , &trig_L1EG_phi); //ND 
+    //
+    tree->Branch("trig_L1Jet_pt"        , "std::vector<double>" , &trig_L1Jet_pt); //ND
+    tree->Branch("trig_L1Jet_eta"       , "std::vector<double>" , &trig_L1Jet_eta); //ND
+    tree->Branch("trig_L1Jet_phi"       , "std::vector<double>" , &trig_L1Jet_phi); //ND
+    //
+    tree->Branch("trig_L1Mu_pt"         , "std::vector<double>" , &trig_L1Mu_pt); //ND
+    tree->Branch("trig_L1Mu_eta"        , "std::vector<double>" , &trig_L1Mu_eta); //ND
+    tree->Branch("trig_L1Mu_phi"        , "std::vector<double>" , &trig_L1Mu_phi); //ND
+    //
+    tree->Branch("trig_L1ETM_pt"        , &trig_L1ETM_pt        , "trig_L1ETM_pt/D"); //ND
+    tree->Branch("trig_L1ETM_phi"       , &trig_L1ETM_phi       , "trig_L1ETM_phi/D"); //ND
+    //
+    tree->Branch("trig_L1ETT_pt"        , &trig_L1ETT_pt        , "trig_L1ETT_pt/D"); //ND
+    tree->Branch("trig_L1ETT_phi"       , &trig_L1ETT_phi       , "trig_L1ETT_phi/D"); //ND
+    //
+    tree->Branch("trig_L1HTM_pt"        , &trig_L1HTM_pt        , "trig_L1HTM_pt/D"); //ND
+    tree->Branch("trig_L1HTM_phi"       , &trig_L1HTM_phi       , "trig_L1HTM_phi/D"); //ND
+    //
+    tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/D"); //ND
+    tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/D"); //ND
+
+
+  }
 
   // Object counts
-  tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
-  tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
-  tree->Branch("nlooseelectrons"      , &nlooseelectrons      , "nlooseelectrons/i");
-  tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/i");
-  tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/i");
-  tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
-  tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/i");
-  tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
-  tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/i");
-  tree->Branch("ntausold"             , &ntausold             , "ntausold/i");
-  tree->Branch("ntausrawold"          , &ntausrawold          , "ntausrawold/i");
-  tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
-  tree->Branch("njets"                , &njets                , "njets/i");
-  tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
-  tree->Branch("nbjets"               , &nbjets               , "nbjets/i");
-  tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/i");
+  tree->Branch("nmuons"               , &nmuons               , "nmuons/I");
+  tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/I");
+  tree->Branch("nlooseelectrons"      , &nlooseelectrons      , "nlooseelectrons/I");
+  tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/I");
+  tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/I");
+  tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/I");
+  tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/I");
+  tree->Branch("ntaus"                , &ntaus                , "ntaus/I");
+  tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/I");
+  tree->Branch("ntausold"             , &ntausold             , "ntausold/I");
+  tree->Branch("ntausrawold"          , &ntausrawold          , "ntausrawold/I");
+  tree->Branch("nphotons"             , &nphotons             , "nphotons/I");
+  tree->Branch("njets"                , &njets                , "njets/I");
+  tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/I");
+  tree->Branch("nbjets"               , &nbjets               , "nbjets/I");
+  tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/I");
   if(not isTriggerTree){
-    tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/i");
-    tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/i");
+    tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/I");
+    tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/I");
   }
 
   if(addPuppiJets and not isTriggerTree){
-    tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/i");
-    tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/i");
-    tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/i");
-    tree->Branch("npuppibjetslowpt"          , &npuppibjetslowpt          , "npuppibjetslowpt/i");
-    tree->Branch("npuppibjetsMVA"            , &npuppibjetsMVA            , "npuppibjetsMVA/i");
-    tree->Branch("npuppibjetsMVAlowpt"       , &npuppibjetsMVAlowpt       , "npuppibjetsMVAlowpt/i");
+    tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/I");
+    tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/I");
+    tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/I");
+    tree->Branch("npuppibjetslowpt"          , &npuppibjetslowpt          , "npuppibjetslowpt/I");
+    tree->Branch("npuppibjetsMVA"            , &npuppibjetsMVA            , "npuppibjetsMVA/I");
+    tree->Branch("npuppibjetsMVAlowpt"       , &npuppibjetsMVAlowpt       , "npuppibjetsMVAlowpt/I");
   }
 
   // MET
@@ -3833,8 +3963,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("combinejetHFlav",   "std::vector<double>", &combinejetHFlav);
     tree->Branch("combinejetPFlav",   "std::vector<double>", &combinejetPFlav);
     tree->Branch("combinejetQGL",     "std::vector<double>", &combinejetQGL);
-    tree->Branch("combinejetPUID",    "std::vector<double>", &combinejetPUID);
-    tree->Branch("combinejetPassPUID",    "std::vector<double>", &combinejetPassPUID);
+    tree->Branch("combinejetPUIF",    "std::vector<double>", &combinejetPUID);
+    tree->Branch("combinejetPassPUIF",    "std::vector<double>", &combinejetPassPUID);
     tree->Branch("combinejetGenpt",   "std::vector<double>", &combinejetGenpt);
     tree->Branch("combinejetGeneta",  "std::vector<double>", &combinejetGeneta);
     tree->Branch("combinejetGenphi",  "std::vector<double>", &combinejetGenphi);
@@ -4027,7 +4157,7 @@ void MonoJetTreeMaker::beginJob() {
 
   if(addPhotonPurity and not isTriggerTree){
 
-    tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/i");
+    tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/I");
     tree->Branch("rho"             , &rho             , "rho/D");
     tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/D");
     tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/D");
@@ -4545,7 +4675,6 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     triggerPathsMap[triggerPathsVector[i]] = -1;
   }
 
-  
   for(size_t i = 0; i < triggerPathsVector.size(); i++){
     TPRegexp pattern(triggerPathsVector[i]);
     for(size_t j = 0; j < hltConfig.triggerNames().size(); j++){
@@ -4555,6 +4684,9 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
       }
     }
   }
+
+  bool changedHLTPSP = false;
+  hltPrescaleProvider_->init(iRun, iSetup, triggerResultsTag.process(), changedHLTPSP); //ND 
 
   // MET filter Paths
   filterPathsVector.push_back("Flag_CSCTightHalo2015Filter");
@@ -4638,8 +4770,8 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 
   if(algorithm != "CSV" and algorithm != "MVA" and algorithm != "SubCSV") return;
   // bounds for CSVv2 and MVAv2
-  float jetPt = jet.pt();
-  float jetEta = jet.eta();
+  double jetPt = jet.pt();
+  double jetEta = jet.eta();
 
   if(algorithm == "CSV"){
 
@@ -4697,7 +4829,7 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 }
 
 
-//This code is ripped off from https://github.com/ikrav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
+//This code is ripped off from https://github.com/krav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
 void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
 
   if (particle == 0)
@@ -4986,6 +5118,160 @@ double MonoJetTreeMaker::getGammaNewEAForPhotonIso(double eta) {
   else return 0.;
 }
 
-DEFINE_FWK_MODULE(MonoJetTreeMaker);
+////////
+void MonoJetTreeMaker::fillTriggerObjects(const edm::Handle<pat::TriggerObjectStandAloneCollection> & triggerObjectsH, 
+					  const edm::TriggerNames & trignames) {
 
-//  LocalWords:  TypeI jetSorter
+  // Initialize 
+  trig_obj_n = 0;
+  trig_obj_pt.clear();
+  trig_obj_eta.clear();
+  trig_obj_phi.clear();
+  trig_obj_col.clear();
+  std::string trgColl = "";
+  int iObj = 0;
+  
+  if(triggerObjectsH.isValid()) {
+    
+    // Loop over trigger objects --> dump all the trigger objects
+    for (pat::TriggerObjectStandAlone obj : *triggerObjectsH) {       
+      iObj++ ;
+      obj.unpackPathNames(trignames);
+      
+      // trigger objec
+      trig_obj_pt.push_back( obj.pt());
+      trig_obj_eta.push_back(obj.eta());
+      trig_obj_phi.push_back(obj.phi());
+
+      // collection name
+      trgColl = obj.collection();
+      trig_obj_col.push_back(trgColl);
+
+      // Increment trigger object index
+      trig_obj_n++ ;
+    }
+  }  
+}
+
+
+/////////
+void MonoJetTreeMaker::fillAlgosL1(const edm::Event & iEvent,
+				   const edm::EventSetup & eventSetup,
+				   const edm::Handle<GlobalAlgBlkBxCollection> & H_L1Algos){
+  
+  // Initialize
+  trig_L1A_check = 0;
+  trig_L1A_n     = 0;
+  trig_L1A_list.clear();
+
+  // Check Handle validity
+  if(!H_L1Algos.isValid()) {
+    trig_L1A_check = -1;
+    return;
+  }
+
+  // Get L1 Menu and utils
+  edm::ESHandle<L1TUtmTriggerMenu> menu;
+  eventSetup.get<L1TUtmTriggerMenuRcd>().get(menu);
+  int iErrorCode = -1;
+  L1GtUtils::TriggerCategory trigCategory = L1GtUtils::AlgorithmTrigger;
+  // Get L1 utils for prescales
+  L1GtUtils const & l1GtUtils = hltPrescaleProvider_->l1GtUtils();
+  l1GtUtils.prescaleFactorSetIndex(iEvent, trigCategory, iErrorCode);
+  // Get the bit/name association //
+  const UInt_t nBits = 512;
+  std::string algoBitToName[nBits];
+  //
+  for (auto const & keyval: menu->getAlgorithmMap()) { 
+    std::string const & trigName  = keyval.second.getName(); 
+    unsigned int index = keyval.second.getIndex(); 
+    if(index<nBits) algoBitToName[index] = trigName;
+  } // end algo Map
+
+  // Get the L1 decision per algo //
+  GlobalAlgBlk const &result = H_L1Algos->at(0,0);
+  //
+  for (unsigned int itrig = 0; itrig < result.maxPhysicsTriggers; ++itrig) {
+    // Check decision for this bit
+    bool myflag = result.getAlgoDecisionFinal(itrig) ; 
+    if(myflag ) { 
+      trig_L1A_list.push_back(algoBitToName[itrig]);
+      trig_L1A_n++ ;
+    }
+  } // end loop: L1 trigger results  
+}
+
+
+void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> & H_L1EG,  const edm::Handle<l1t::TauBxCollection>  & H_L1Tau,
+				     const edm::Handle<l1t::JetBxCollection>    & H_L1Jet, const edm::Handle<l1t::MuonBxCollection> & H_L1Mu,
+				     const edm::Handle<l1t::EtSumBxCollection>  & H_L1Sums) {
+
+  // Initialize
+  trig_L1EG_pt  .clear(); trig_L1EG_eta  .clear(); trig_L1EG_phi  .clear(); 
+  trig_L1Jet_pt .clear(); trig_L1Jet_eta .clear(); trig_L1Jet_phi .clear(); 
+  trig_L1Mu_pt  .clear(); trig_L1Mu_eta  .clear(); trig_L1Mu_phi  .clear(); 
+  trig_L1ETM_pt = trig_L1ETM_phi = trig_L1HTM_pt  = trig_L1HTM_phi = 0; 
+  trig_L1ETT_pt = trig_L1ETT_phi = trig_L1HTT_pt  = trig_L1HTT_phi = 0; 
+
+  int sumType   = -1;
+  double minL1EG  = 20;
+  double minL1Jet = 50;
+  double minL1Mu  = 15;
+
+  // L1 EG    
+  if(H_L1EG.isValid()) {
+    for (l1t::EGammaBxCollection::const_iterator it=H_L1EG->begin(); it!=H_L1EG->end(); it++){
+      if(it->pt() < minL1EG) continue;
+      trig_L1EG_pt .push_back( it->pt()  );
+      trig_L1EG_eta.push_back( it->eta() );
+      trig_L1EG_phi.push_back( it->phi() );
+    }
+  }
+  
+  // L1 Jet
+  if(H_L1Jet.isValid()) {
+    for (l1t::JetBxCollection::const_iterator it=H_L1Jet->begin(); it!=H_L1Jet->end(); it++){
+      if(it->pt() < minL1Jet) continue;
+      trig_L1Jet_pt .push_back( it->pt()  );
+      trig_L1Jet_eta.push_back( it->eta() );
+      trig_L1Jet_phi.push_back( it->phi() );
+    }
+  }
+
+  // L1 Mu
+  if(H_L1Mu.isValid()) {
+    for (l1t::MuonBxCollection::const_iterator it=H_L1Mu->begin(); it!=H_L1Mu->end(); it++){
+      if(it->pt() < minL1Mu) continue;
+      trig_L1Mu_pt .push_back( it->pt()  );
+      trig_L1Mu_eta.push_back( it->eta() );
+      trig_L1Mu_phi.push_back( it->phi() );
+    }
+  }
+  
+  // L1 Sums
+  if(H_L1Sums.isValid()) {
+    for (l1t::EtSumBxCollection::const_iterator it=H_L1Sums->begin(); it!=H_L1Sums->end(); it++){
+      
+      sumType = static_cast<int>( it->getType() );
+      if(sumType == l1t::EtSum::kTotalEt){
+	  trig_L1ETT_pt  = it->et();
+	  trig_L1ETT_phi = it->phi();
+      }
+      else if(sumType == l1t::EtSum::kTotalHt){
+	  trig_L1HTT_pt  = it->et();
+	  trig_L1HTT_phi = it->phi();
+      }
+      else if(sumType == l1t::EtSum::kMissingEt){
+	  trig_L1ETM_pt  = it->et();
+	  trig_L1ETM_phi = it->phi();
+      }
+      else if(sumType == l1t::EtSum::kMissingHt){
+	  trig_L1HTM_pt  = it->et();
+	  trig_L1HTM_phi = it->phi();
+      }      
+    }    
+  }
+}
+  
+
+DEFINE_FWK_MODULE(MonoJetTreeMaker);

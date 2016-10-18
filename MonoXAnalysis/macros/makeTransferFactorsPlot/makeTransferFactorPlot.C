@@ -30,6 +30,22 @@ void rzmm(string fileName, Category category, string observable) {
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
+	frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+      else if(TString(observable).Contains("mjj")){
+	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
 
@@ -93,9 +109,28 @@ void rzee(string fileName, Category category, string observable) {
 
     TH1F*  hist = (TH1F*)file->FindObjectAny(("zeecorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
+
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
-    frame->GetYaxis()->SetTitle("R_{Z(ee)}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+
+    frame->GetYaxis()->SetTitle("R_{Z(ee)}");
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -158,9 +193,28 @@ void rwmn(string fileName, Category category, string observable) {
 
     vector<double> bins = selectBinning(observable,category);
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.0, "");
-    frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
+    TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.5, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+
+
+    frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -223,9 +277,27 @@ void rwen(string fileName, Category category, string observable) {
 
     vector<double> bins = selectBinning(observable,category);
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2., "");
-    frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
+    TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2.5, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+
+    frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -301,8 +373,26 @@ void rgam(string fileName, Category category, string observable) {
     vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0.2, bins.back(), 1.0, "");
-    frame->GetYaxis()->SetTitle("R_{#gamma}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+
+    frame->GetYaxis()->SetTitle("R_{#gamma}");
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -385,8 +475,25 @@ void rzwj(string fileName, Category category, string observable) {
     vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 12.0, "");
-    frame->GetYaxis()->SetTitle("R_{Z/W}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 15.0, "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+    frame->GetYaxis()->SetTitle("R_{Z/W}");
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);
@@ -468,8 +575,27 @@ void rwgam(string fileName, Category category, string observable) {
     vector<double> bins = selectBinning(observable,category);
 
     TH1* frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.0, "");
-    frame->GetYaxis()->SetTitle("R_{W#gamma}");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
+    if(category == Category::VBF){
+      if(TString(observable).Contains("met") and TString(observable).Contains("jetmetdphi"))
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+      else if(TString(observable).Contains("mjj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
+      }
+      else if(TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
+      }
+      else if(TString(observable).Contains("detajj")){
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.0, "");
+	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
+      }
+    }
+
+
+    frame->GetYaxis()->SetTitle("R_{W#gamma}");
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetYaxis()->SetTitleOffset(1.15);
     frame->GetXaxis()->SetLabelSize(0.040);

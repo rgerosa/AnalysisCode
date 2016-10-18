@@ -18,12 +18,6 @@ void sigdatamchist(TFile* outfile,
   // Files for Znunu,Wlnu, Zll, top, qcd , diboson, signal, data                                                                                                            
   TChain* zntree = new TChain("tree/tree");
   TChain* wltree = new TChain("tree/tree");
-
-  TChain* wltree_nlo1 = new TChain("tree/tree");
-  TChain* wltree_nlo2 = new TChain("tree/tree");
-  TChain* wltree_nlo3 = new TChain("tree/tree");
-  TChain* wltree_nlo4 = new TChain("tree/tree");
-
   TChain* zltree = new TChain("tree/tree");
   TChain* tttree = new TChain("tree/tree");
   TChain* tttree_alt = NULL;
@@ -37,15 +31,13 @@ void sigdatamchist(TFile* outfile,
   TChain* dttree = new TChain("tree/tree");
 
   zntree->Add((baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/*root").c_str());
-  wltree_nlo1->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*Pt-100To250*root").c_str());
-  wltree_nlo2->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*Pt-250To400*root").c_str());
-  wltree_nlo3->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*Pt-400To600*root").c_str());
-  wltree_nlo4->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*Pt-600ToInf*root").c_str());
+  wltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*root").c_str());
   zltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/sigfilter/*root").c_str());
   tttree->Add((baseInputTreePath+"Top/sigfilter/*root").c_str());
   if(doAlternativeTop and tttree_alt != NULL){
     tttree_alt->Add((baseInputTreePath+"TopAlternative/sigfilter/*root").c_str());
   }
+
   qcdtree->Add((baseInputTreePath+"QCD/sigfilter/*root").c_str());
   ditree->Add((baseInputTreePath+"DiBoson/sigfilter/sig*root").c_str());
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
@@ -511,15 +503,7 @@ void sigdatamchist(TFile* outfile,
     makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
   cout<<"signal region: W+jets sample "<<endl;
-  if(nloSamples.useWJetsNLO){ // temp use 76X sample
-    makehist4(wltree_nlo1,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo2,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo3,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(wltree_nlo4,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  }
-  else{
-    makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  }
+  makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: gamma+jets sample "<<endl;
@@ -1120,7 +1104,7 @@ void gamdatamchist(TFile* outfile,
   vector<TH1*> whists;
   vector<TH1*> ehists;
   if(nloSamples.usePhotonJetsNLO){
-    ahists.push_back(anlohist);
+    ahists.push_back(aewkhist);
   }
   else{
     ahists.push_back(aewkhist);
@@ -1812,8 +1796,8 @@ void lepdatamchist(TFile* outfile,
     cout<<"lepton+jets control region --> Z+jets"<<endl;
     makehist4(vlltree_nlo1,vllhist,vllhist_2D,true,sample,category,false,1.00,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
     makehist4(vlltree_nlo2,vllhist,vllhist_2D,true,sample,category,false,1.00,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(vlltree_nlo3,vllhist,vllhist_2D,true,sample,category,false,1.07,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(vlltree_nlo4,vllhist,vllhist_2D,true,sample,category,false,1.07,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vlltree_nlo3,vllhist,vllhist_2D,true,sample,category,false,1.00,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+    makehist4(vlltree_nlo4,vllhist,vllhist_2D,true,sample,category,false,1.00,lumi,vllhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   }
 
   if(not nloSamples.useWJetsNLO){

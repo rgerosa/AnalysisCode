@@ -26,8 +26,8 @@ const float prunedMassMax   = 105.;
 const float leadingJetPtCut = 100.;
 const float leadingJetPtCutVBF  = 70.;
 const float trailingJetPtCutVBF = 50.;
-const float detajj          = 2.5;
-const float mjj             = 450;
+const float detajj          = 2;
+const float mjj             = 300;
 const float jetmetdphiVBF   = 1.0;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
@@ -37,17 +37,17 @@ const float pfMetMonoJUpper = 8000.;
 const float pfMetMonoJLower = 200.;
 const float pfMetVBFLower   = 150.;
 const float pfMetVBFUpper   = 8000.;
-const float photonPt        = 165;
+const float photonPt        = 120;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1;
 const bool  reweightNVTX    = true;
 const bool  reweightPhton   = false;
-const bool  applyPhotonScale = false;
-const float photonScaleUnc  = 0.015;
+const bool  applyPhotonScale = true;
+const float photonScaleUnc  = 0.020;
 const bool  doSmoothing     = false;
 const float btagCSVLoose    = 0.460;
 const float btagCSVMedium   = 0.800;
-
+const float recoilThresholdTrigger = 350;
 
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
@@ -188,8 +188,8 @@ void makehist4(TTree* tree, /*input tree*/
   if(category != Category::VBF and category != Category::twojet)
     triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency_12p9.root");
   else
-    //triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/metTriggerEfficiency_muon.root");
     triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/metTriggerEfficiency_electron.root");
+  //triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/metTriggerEfficiency_muon.root");
 
   TEfficiency*  triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
   if(triggermet == 0 or triggermet == NULL)
@@ -197,17 +197,17 @@ void makehist4(TTree* tree, /*input tree*/
   TGraphAsymmErrors* triggermet_graph = triggermet->CreateGraph();
   
   // Photon trigger efficiency measured in jetHT
-  TFile triggerfile_SinglePhoton_jetHT ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt165_jetHT.root");
-  TFile triggerfile_SinglePhoton ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt165_jetHT.root");
+  TFile triggerfile_SinglePhoton_jetHT ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
+  TFile triggerfile_SinglePhoton ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120.root");
   TEfficiency*  triggerphoton       = NULL;
   TEfficiency*  triggerphoton_jetHT = NULL;
   if(category != Category::VBF and category != Category::twojet){
     triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_vbf_recoil");
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_recover_vbf_recoil");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
   }
   else{
     triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_recoil");  
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_recover_recoil");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_recoil");
   }
   TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
@@ -497,6 +497,7 @@ void makehist4(TTree* tree, /*input tree*/
     //    if(not isMC and *run > 274240) continue;
     //    if(not isMC and *run > 275125) continue;
     if(not isMC and *run > 276811) continue;
+    if(sample == Sample::sig and not isMC and (category == Category::VBF or category == Category::twojet) and (*run <  275657 or *run > 276283)) continue;
     // Run E
     //    if(not isMC and *run < 276831) continue;
     //    if(not isMC and *run > 277420) continue;
@@ -593,7 +594,7 @@ void makehist4(TTree* tree, /*input tree*/
       }
       eta1 = *pheta;
     }
-
+    
     // set zpt in case of Zsamples
     Double_t bosonPt  = 0.0;
     Double_t bosonPhi = 0.0;
@@ -640,7 +641,7 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions with two leptons --> one should be tight
     if ((sample == Sample::zmm || sample == Sample::zee)){
-      if(sample == Sample::zmm){
+      if(sample == Sample::zmm){	
 	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;
       }
       else if(sample == Sample::zee){
@@ -656,7 +657,7 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt > 160) continue;
-
+    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet) and pt1 < 40) continue;
     // photon control sample
     if ((sample == Sample::qcd || sample == Sample::gam) && pt1 < photonPt) continue;
     if ((sample == Sample::qcd || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
@@ -806,7 +807,7 @@ void makehist4(TTree* tree, /*input tree*/
     
     // photon trigger scale factor
     if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT && (sample == Sample::qcd || sample == Sample::gam)){ // linear interpolation between graph points            
-      if(*pmet < 350)	
+      if(*pmet < recoilThresholdTrigger)	
 	sfwgt *= triggerphoton_graph->Eval(min(*pmet,triggerphoton_graph->GetXaxis()->GetXmax()));
       else
 	sfwgt *= triggerphoton_graph_jetHT->Eval(min(*pmet,triggerphoton_graph->GetXaxis()->GetXmax()));
@@ -1013,7 +1014,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jetpt->at(0) < leadingJetPtCutVBF) continue;
 	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) > 0.8) continue;
+	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
         if (jmdphi < 0.5) continue;	
       }
     }
@@ -1314,8 +1315,11 @@ void makehist4(TTree* tree, /*input tree*/
 	}
       }
       else if(name.Contains("dphiJJ")){
-	if(jetphi->size() < 2)
+	if(jetphi->size() < 2){				
+	  cout<<"problem with VBF category "<<endl;
+	  cout<<jetpt->at(0)<<" "<<jetpt->at(1)<<endl;
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
+	}
 	else 
 	  fillvar = deltaPhi(jetphi->at(0),jetphi->at(1));
       }

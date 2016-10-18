@@ -6,53 +6,48 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-pyCfgParams = ['isMC=False',
-               'filterOnHLT=True',
-               'filterHighMETEvents=False',
-               'metCut=50',
-               'usePrivateSQliteJEC=False',
-               'applyL2L3Residuals=True',
+pyCfgParams = ['isMC=True',
+               'filterOnHLT=False',
+               'setHLTFilterFlag=True',
+               'filterHighMETEvents=True',
+               'metCut=0',
+               'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
                'addPuppiJets=False',
                'addPuppiMET=False',
                'addEGMSmear=False',
-               'addMVAMet=False',
                'addMETSystematics=False',
                'useOfficialMETSystematics=False',
                'addMETBreakDown=False',
-               'addSubstructureCHS=False',
+               'addSubstructureCHS=True',
                'addSubstructurePuppi=False',
-               'miniAODProcess=RECO',
-               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
+               'miniAODProcess=PAT',
+               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
-               'isTriggerTree=True',
-               'addTriggerObjects=False',
                'nThreads=3',
+               'triggerName=HLT',
                'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_80X_trigger'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_MC_80X'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
+config.JobType.maxMemoryMB      = 2450
 config.JobType.numCores         = 3
-config.JobType.maxMemoryMB      = 2500
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 65000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_30_09_2016_24p8fb_trigger/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'  
-#config.Data.runRange
-config.Data.publication   = False
-
+config.Data.unitsPerJob   = 30000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_sync/'
+config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
@@ -60,11 +55,11 @@ config.Site.storageSite = 'T2_CH_CERN'
 ## multicrab section
 if __name__ == '__main__':
 
-    from CRABAPI.RawCommand import crabCommand
-
     print "################################"
     print "#### Begin multicrab script ####"
     print "################################"
+
+    from CRABAPI.RawCommand import crabCommand
     
     ## to submit jobs
     def submit(config):
@@ -95,18 +90,22 @@ if __name__ == '__main__':
         handle = open(SamplesFile,'r')
         exec(handle)
         handle.close()
-     
+
         # samples to be analysed                   
         for key, value in samples.iteritems():
            print key, ' -> ', value
-        
+
+           ## set name
            config.General.requestName = key
-           config.Data.inputDataset = value[0]
+           ## set dataset
+           config.Data.inputDataset   = value[0]
+           ## set list of python cfg pset parameters extending it
            config.JobType.pyCfgParams = list(pyCfgParams)
            config.JobType.pyCfgParams.extend(value[1])
-        
+           ## declare submitter
+           p = Process(target=submit, args=(config,))           
+           ## start application
            # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#Multiple_submission_fails_with_a
-           p = Process(target=submit, args=(config,))
            p.start()
            p.join()
 
@@ -123,4 +122,3 @@ if __name__ == '__main__':
                 os.system("ls " + SamplesFile + " | awk '{print \" crab kill " + SamplesFile + "/\"$1" + "\" " + additionalConfiguration + "\"}' | /bin/sh") 
             else :
                 os.system("ls " + SamplesFile + " | awk '{print \" crab status " + SamplesFile + "/\"$1}' | /bin/sh")
-

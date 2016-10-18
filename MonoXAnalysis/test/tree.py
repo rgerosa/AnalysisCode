@@ -128,6 +128,10 @@ options.register (
 	'isTriggerTree',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'reduce the number of braches for trigger studies: photons and met triggers');
 
+options.register (
+	'addTriggerObjects',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'add L1 and HLT objects dump');
+
 ## outputFile Name
 options.register (
 	'outputFileName','tree.root',VarParsing.multiplicity.singleton,VarParsing.varType.string,
@@ -483,9 +487,15 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      xsec                   = cms.double(options.crossSection),   
 			      ## trigger info
 			      isTriggerTree  = cms.bool(options.isTriggerTree),
+			      addTriggerObjects = cms.bool(options.addTriggerObjects),
 			      triggerResults = cms.InputTag("TriggerResults", "",options.triggerName),
 			      prescales      = cms.InputTag("patTrigger"),    
 			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+			      triggerObjects = cms.InputTag("selectedPatTrigger"),
+			      triggerL1EG    = cms.InputTag("caloStage2Digis"   , "EGamma"),
+			      triggerL1Jet   = cms.InputTag("caloStage2Digis"   , "Jet"   ),
+			      triggerL1Mu    = cms.InputTag("gmtStage2Digis"    , "Muon"  ),
+			      triggerL1Sums  = cms.InputTag("caloStage2Digis"   , "EtSum" ),
 			      badChargedCandidate = cms.InputTag("BadChargedCandidateFilter"),
 			      badPFMuon           = cms.InputTag("BadPFMuonFilter"),
 			      ## vertexes			    

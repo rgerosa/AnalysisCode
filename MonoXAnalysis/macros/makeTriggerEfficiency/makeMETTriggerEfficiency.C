@@ -286,7 +286,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
       if(mtw > 160) continue;
       // denominator monojet
-      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8){
+      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
 	hden_monojet->Fill(*mmet);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
@@ -306,6 +306,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	// charge fraction cut on the central jet
 	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
+	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.997) continue;
 
 	efficiencyVBFSelections_loose->SetBinContent(12,efficiencyVBFSelections_loose->GetBinContent(12)+1);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
@@ -387,7 +388,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       if(mtw > 160) continue;
       
       // denominator monojet
-      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8){
+      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
 	hden_monojet->Fill(*met);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
@@ -407,6 +408,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	// charge fraction cut on the central jet
 	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
+	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.997) continue;
 
 	efficiencyVBFSelections_loose->SetBinContent(12,efficiencyVBFSelections_loose->GetBinContent(12)+1);
 	if(jetpt->at(0) > leadingVBFtight and jetpt->at(1) > trailingVBFtight)
