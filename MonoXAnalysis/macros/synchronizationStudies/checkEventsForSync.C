@@ -76,7 +76,7 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
   TTreeReaderValue<int> nmuons     (myReader,"nmuons");
   TTreeReaderValue<int> nelectrons (myReader,"nelectrons");
-  TTreeReaderValue<int> ntaus      (myReader,"ntausraw");
+  TTreeReaderValue<int> ntaus      (myReader,"ntausrawold");
   TTreeReaderValue<int> nphotons   (myReader,"nphotons");
 
   // Muon information
@@ -263,6 +263,7 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
     if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *jmmdphi < 0.5) continue;
     else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *jemdphi < 0.5) continue;
     else if(controlRegion == Sample::gam and *jpmdphi < 0.5) continue;
+
     n_jetdphi++;
     nwgt_jetdphi += *wgt;
     

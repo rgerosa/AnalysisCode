@@ -167,5 +167,6 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_total_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.png").c_str());
+    canvas->SaveAs((outputDIR+"/correlation_total_text.root").c_str());
   }
 }

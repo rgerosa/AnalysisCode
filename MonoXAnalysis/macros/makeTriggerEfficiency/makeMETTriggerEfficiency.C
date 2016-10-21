@@ -13,13 +13,13 @@ vector <float> bins_monojet_elec = {0.,50.,60.,70.,80.,85.,90.,95.,100,110.,120.
 //vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
 
-static float leadingVBF  = 60;
+static float leadingVBF  = 70;
 static float trailingVBF = 50;
 static float leadingVBFtight  = 80;
 static float trailingVBFtight = 60;
-static float detajj = 2.5; 
-static float mjj    = 450; 
-static float jetmetdphi = 1.0; 
+static float detajj      = 2.5; 
+static float mjj         = 450; 
+static float jetmetdphi  = 1.0; 
 
 void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool singleMuon = true) {
 

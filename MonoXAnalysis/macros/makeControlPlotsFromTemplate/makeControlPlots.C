@@ -158,7 +158,18 @@ void makeControlPlots(string templateFileName,
     dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttopel_"+observable).c_str());  
     gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttopel_"+observable).c_str());
   }
-
+  else if(controlRegion == "qcd"){    
+    datahist = (TH1*)inputFile->FindObjectAny(("datahistqcd_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistqcd_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghistqcd_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghistqcd_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghistqcd_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghistqcd_"+observable).c_str());
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghistqcd_"+observable).c_str());
+    ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgwhistqcd_"+observable).c_str());
+    ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgzhistqcd_"+observable).c_str());
+    vnnhist   = (TH1*)inputFile->FindObjectAny(("vnnbkghistqcd_"+observable).c_str());    
+  }
   else if(controlRegion == "SR"){
 
     datahist = (TH1*)inputFile->FindObjectAny(("datahist_"+observable).c_str());
@@ -554,6 +565,18 @@ void makeControlPlots(string templateFileName,
     stack->Add(tophist_unmatched);    
     stack->Add(tophist_matched);    
   }
+  else if(controlRegion == "qcd"){
+    vllhist->Add(gamhist);
+    stack->Add(vllhist);
+    stack->Add(dbhist);
+    if(category == Category::VBF){
+      ewkwhist->Add(ewkzhist);
+      stack->Add(ewkwhist);
+    }
+    stack->Add(vlhist);
+    stack->Add(vnnhist);
+    stack->Add(qcdhist);
+  }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
     vllhist->Add(gamhist);
@@ -587,7 +610,6 @@ void makeControlPlots(string templateFileName,
   // set Y-axis range
   if(category == Category::monojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-2,datahist->GetMaximum()*500);  
-  //    frame->GetYaxis()->SetRangeUser(100,datahist->GetMaximum()*500);  
   else if(category == Category::inclusive and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::monojet and not isLog)
@@ -622,10 +644,6 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  //  CMS_lumi(canvas,"4.33");
-  //  CMS_lumi(canvas,"0.8");
-  //  CMS_lumi(canvas,"2.77");
-  //  CMS_lumi(canvas,"7.65");
   CMS_lumi(canvas,"12.9");
   
   stack ->Draw("HIST SAME");
@@ -762,6 +780,19 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
     leg->AddEntry(qcdhist,"QCD","F");
+  }
+
+  else if(controlRegion == "qcd"){
+
+    leg->AddEntry(datahist, "Data","PLE");
+    leg->AddEntry(qcdhist,"QCD","F");
+    leg->AddEntry(vnnhist,"Z #rightarrow #nu#nu","F");
+    leg->AddEntry(vlhist,"W #rightarrow l#nu","F");
+    if(category == Category::VBF)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
+    leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
+    leg->AddEntry(tophist, "Top quark", "F");
+    leg->AddEntry(vllhist, "Z #rightarrow ll, #gamma+jets","F");
   }
 
   else if(controlRegion == "SR"){

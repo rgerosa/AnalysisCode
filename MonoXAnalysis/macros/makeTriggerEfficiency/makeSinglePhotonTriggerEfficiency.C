@@ -5,25 +5,25 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-vector<float> bins_singlePhoton = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
-vector<float> bins_jetHT        = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
-vector<float> bins_singlePhoton_vbf = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
+vector<float> bins_singlePhoton     = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
+vector<float> bins_singlePhoton_vbf = {160,163,166,169,172,175,178,181,184,190,200,210,220,230,240,250};
+vector<float> bins_jetHT            = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
 vector<float> bins_jetHT_vbf        = {160,163,166,169,172,175,178,183,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
 
-vector<float> bins_singlePhoton_recoil = {140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_jetHT_recoil        = {140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_singlePhoton_vbf_recoil = {140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_jetHT_vbf_recoil        = {140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_singlePhoton_recoil     = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_jetHT_recoil            = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_singlePhoton_vbf_recoil = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_jetHT_vbf_recoil        = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
 
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
 
-static float leadingJetVBF  = 60;
-static float trailingJetVBF = 50;
-static float detajj         = 1.0;
-static float mjj            = 200;
-static float jetmetdphi     = 0.5;
+static float leadingJetVBF     = 60;
+static float trailingJetVBF    = 50;
+static float detajj            = 2.5;
+static float mjj               = 450;
+static float jetmetdphi        = 1.0;
 static float recoilSelection   = 150;
-static float photonPtSelection = 165;
+static float photonPtSelection = 120;
 static bool  drawFitFunctions_ = false;
 static float lumi_ = 12.9;
 
@@ -91,7 +91,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TChain* tree = new TChain("tree/tree");
   // use only a subset of directories                                                                                                                                                         
   if(not useJetHT)
-    system(("ls "+inputDIR+"  | grep JetHT > list_dir.txt").c_str());
+    system(("ls "+inputDIR+"  | grep SinglePhoton > list_dir.txt").c_str());
   else
     system(("ls "+inputDIR+"  | grep JetHT > list_dir.txt").c_str());
   ifstream dirlist ("list_dir.txt");
@@ -218,7 +218,6 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
 
-
   TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausraw");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
@@ -273,6 +272,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     /// single photon
     if(not useJetHT){      
       if(*hltp90 or *hltp120){
+
 	if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and *jpmdphi > 0.5){
 	  if(*pmet > recoilSelection)
 	    hden_photonpt->Fill(*phpt);
@@ -314,6 +314,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     // jet ht
     else{
       if(*hltht400 or *hltht475 or *hltht600 or *hltht650){
+
 	if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and *jpmdphi > 0.5){	  
 	  if(*pmet > recoilSelection)
 	    hden_photonpt->Fill(*phpt);
