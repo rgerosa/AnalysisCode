@@ -6,7 +6,7 @@ static float yMin   = 0;
 static float yMax   = 10;
 
 
-void makeBrazilianPlots (string inputDIR, string category, string mediatorType, string outputPlotDIR, double DMmass = 0){
+void makeBrazilianPlots (string inputDIR, string category, string mediatorType, string outputPlotDIR, double DMmass = 0, double mMEDmax = 1000){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -55,6 +55,7 @@ void makeBrazilianPlots (string inputDIR, string category, string mediatorType, 
     dmMass      += mass[10];
 
     if(atof(dmMass.c_str()) != DMmass) continue;
+    if(atof(mediatorMass.c_str()) > mMEDmax) continue;
 
     observedLimit->SetPoint(nPoint,atof(mediatorMass.c_str()),**limitObs);
     observedLimit->SetPointError(nPoint,0,0,0,0);
@@ -128,4 +129,10 @@ void makeBrazilianPlots (string inputDIR, string category, string mediatorType, 
   canvas->SaveAs((outputPlotDIR+"/brazilian_"+category+"_"+mediatorType+".png").c_str());
   canvas->SaveAs((outputPlotDIR+"/brazilian_"+category+"_"+mediatorType+".pdf").c_str());
 
+  TFile* outputLines = new TFile((outputPlotDIR+"/brazilian_"+category+"_"+mediatorType+".root").c_str(),"RECREATE");
+  outputLines->cd();
+  expectedLimit2s->Write("expectedLimit_2s");
+  expectedLimit1s->Write("expectedLimit_1s");
+  expectedLimit->Write("expectedLimit");
+  observedLimit->Write("observedLimit");
 }  

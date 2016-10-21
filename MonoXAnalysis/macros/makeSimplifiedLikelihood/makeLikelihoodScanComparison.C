@@ -13,6 +13,9 @@ void makeLikelihoodScanComparison(string outputDIR){
   TTree*  limitCombineExp = (TTree*) combineExp->Get("limit");
   
   // file for simplified likelihood
+  TFile* simpLikelihoodFullCorr = TFile::Open("ResultsSimplifiedLikelihood/forLikelihoodScan/simplifiedLikelihood_combined_80018000001_mask_fullcorr.root");
+  TTree* limitSimpLikelihoodFullCorr = (TTree*) simpLikelihoodFullCorr->Get("limit");
+  
   TFile* simpLikelihood = TFile::Open("ResultsSimplifiedLikelihood/forLikelihoodScan/simplifiedLikelihood_combined_80018000001_mask_corr.root");
   TTree* limitSimpLikelihood = (TTree*) simpLikelihood->Get("limit");
 
@@ -54,11 +57,31 @@ void makeLikelihoodScanComparison(string outputDIR){
     N++;
   }
 
+  //SL Likelihood full correlation
+  TTreeReader* readerSimpLikelihoodFullCorr = new TTreeReader  (limitSimpLikelihoodFullCorr);
+  TTreeReaderValue<vector<float> >* muVal = new TTreeReaderValue<vector<float> >(*readerSimpLikelihoodFullCorr,"muVal");
+  TTreeReaderValue<vector<float> >* nllObs = new TTreeReaderValue<vector<float> >(*readerSimpLikelihoodFullCorr,"nllObserved");
+  TTreeReaderValue<vector<float> >* nllExp = new TTreeReaderValue<vector<float> >(*readerSimpLikelihoodFullCorr,"nllExpected");
+  
+  TGraph* observedLikelihoodSLFullCorr = new TGraph();
+  TGraph* expectedLikelihoodSLFullCorr = new TGraph();
+
+  while(readerSimpLikelihoodFullCorr->Next()){
+    N = 0;
+    for(size_t imu = 0; imu < (*muVal)->size(); imu++){
+      if(isnan((*nllObs)->at(imu)) or isnan((*nllExp)->at(imu)))  continue;
+      observedLikelihoodSLFullCorr->SetPoint(N,(*muVal)->at(imu),(*nllObs)->at(imu));
+      expectedLikelihoodSLFullCorr->SetPoint(N,(*muVal)->at(imu),(*nllExp)->at(imu));
+      N++;
+    }
+  }
+
+  
   // SL Likelihood
   TTreeReader* readerSimpLikelihood = new TTreeReader (limitSimpLikelihood);
-  TTreeReaderValue<vector<float> >* muVal = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"muVal");
-  TTreeReaderValue<vector<float> >* nllObs = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"nllObserved");
-  TTreeReaderValue<vector<float> >* nllExp = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"nllExpected");
+  muVal = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"muVal");
+  nllObs = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"nllObserved");
+  nllExp = new TTreeReaderValue<vector<float> >(*readerSimpLikelihood,"nllExpected");
    
   TGraph* observedLikelihoodSL = new TGraph();
   TGraph* expectedLikelihoodSL = new TGraph();
@@ -139,6 +162,12 @@ void makeLikelihoodScanComparison(string outputDIR){
   float maxMuExpComb = TMath::MaxElement(expectedLikelihoodComb->GetN(),expectedLikelihoodComb->GetX());
   float rangeComb = min(min(fabs(minMuObsComb),maxMuObsComb),min(fabs(minMuExpComb),maxMuExpComb));
 
+  float minMuObsSLFullCorr = TMath::MinElement(observedLikelihoodSLFullCorr->GetN(),observedLikelihoodSLFullCorr->GetX());
+  float maxMuObsSLFullCorr = TMath::MaxElement(observedLikelihoodSLFullCorr->GetN(),observedLikelihoodSLFullCorr->GetX());
+  float minMuExpSLFullCorr = TMath::MinElement(expectedLikelihoodSLFullCorr->GetN(),expectedLikelihoodSLFullCorr->GetX());
+  float maxMuExpSLFullCorr = TMath::MaxElement(expectedLikelihoodSLFullCorr->GetN(),expectedLikelihoodSLFullCorr->GetX()); 
+  float rangeSLFullCorr = min(min(fabs(minMuObsSLFullCorr),maxMuObsSLFullCorr),min(fabs(minMuExpSLFullCorr),maxMuExpSLFullCorr));
+
   float minMuObsSL = TMath::MinElement(observedLikelihoodSL->GetN(),observedLikelihoodSL->GetX());
   float maxMuObsSL = TMath::MaxElement(observedLikelihoodSL->GetN(),observedLikelihoodSL->GetX());
   float minMuExpSL = TMath::MinElement(expectedLikelihoodSL->GetN(),expectedLikelihoodSL->GetX());
@@ -163,7 +192,7 @@ void makeLikelihoodScanComparison(string outputDIR){
   float maxMuExpSLSRNoCorr = TMath::MaxElement(expectedLikelihoodSLSRNoCorr->GetN(),expectedLikelihoodSLSRNoCorr->GetX());
   float rangeSLSRNoCorr = min(min(fabs(minMuObsSLSRNoCorr),maxMuObsSLSRNoCorr),min(fabs(minMuExpSLSRNoCorr),maxMuExpSLSRNoCorr));
 
-  float muRange = min(rangeComb,min(rangeSL,min(rangeSLNoCorr,min(rangeSLSR,rangeSLSRNoCorr))));
+  float muRange = min(rangeComb,min(rangeSLFullCorr,min(rangeSL,min(rangeSLNoCorr,min(rangeSLSR,rangeSLSRNoCorr)))));
 
   // plotting
   TCanvas* canvas = new TCanvas("canvas","canvas",600,650);
@@ -176,6 +205,9 @@ void makeLikelihoodScanComparison(string outputDIR){
   observedLikelihoodComb->SetLineColor(kBlack);
   observedLikelihoodComb->SetLineWidth(2);
   observedLikelihoodComb->Draw("Csame");
+  observedLikelihoodSLFullCorr->SetLineColor(kYellow);
+  observedLikelihoodSLFullCorr->SetLineWidth(2);
+  observedLikelihoodSLFullCorr->Draw("Csame");
   observedLikelihoodSL->SetLineColor(kBlue);
   observedLikelihoodSL->SetLineWidth(2);
   observedLikelihoodSL->Draw("Csame");
@@ -192,6 +224,7 @@ void makeLikelihoodScanComparison(string outputDIR){
   TLegend leg(0.45,0.5,0.9,0.9);
   leg.SetBorderSize(0);
   leg.AddEntry(observedLikelihoodComb,"Observed full Likelihood","L");
+  leg.AddEntry(observedLikelihoodSLFullCorr,"Observed Simp. Likelihood full correlation","L");
   leg.AddEntry(observedLikelihoodSL,"Observed Simp. Likelihood","L");
   leg.AddEntry(observedLikelihoodSLNoCorr,"Observed Simp. Likelihood w/o corr.","L");
   leg.AddEntry(observedLikelihoodSLSR,"Observed Fit with SR","L");
@@ -206,6 +239,9 @@ void makeLikelihoodScanComparison(string outputDIR){
   expectedLikelihoodComb->SetLineColor(kBlack);
   expectedLikelihoodComb->SetLineWidth(2);
   expectedLikelihoodComb->Draw("Csame");
+  expectedLikelihoodSLFullCorr->SetLineColor(kYellow);
+  expectedLikelihoodSLFullCorr->SetLineWidth(2);
+  expectedLikelihoodSLFullCorr->Draw("Csame");
   expectedLikelihoodSL->SetLineColor(kBlue);
   expectedLikelihoodSL->SetLineWidth(2);
   expectedLikelihoodSL->Draw("Csame");
@@ -224,6 +260,7 @@ void makeLikelihoodScanComparison(string outputDIR){
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
   leg.AddEntry(expectedLikelihoodComb,"Expected full Likelihood","L");
+  leg.AddEntry(expectedLikelihoodSLFullCorr,"Expected Simp. Likelihood full correlation","L");
   leg.AddEntry(expectedLikelihoodSL,"Expected Simp. Likelihood","L");
   leg.AddEntry(expectedLikelihoodSLNoCorr,"Expected Simp. Likelihood w/o corr.","L");
   leg.AddEntry(expectedLikelihoodSLSR,"Expected Fit with SR","L");
@@ -233,4 +270,21 @@ void makeLikelihoodScanComparison(string outputDIR){
   canvas->SaveAs((outputDIR+"/likelihoodComparison_expected.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/likelihoodComparison_expected.pdf").c_str(),"pdf");
 
+  TFile* outputFile = new TFile((outputDIR+"/likelihoodComparison.root").c_str(),"RECREATE");
+  outputFile->cd();
+  observedLikelihoodComb->Write("observed_full_likelihood");
+  expectedLikelihoodComb->Write("expected_full_likelihood");
+  observedLikelihoodSLFullCorr->Write("observed_simp_likelihood_full_covariance");
+  expectedLikelihoodSLFullCorr->Write("expected_simp_likelihood_full_covariance");
+  observedLikelihoodSL->Write("observed_simp_likelihood");
+  expectedLikelihoodSL->Write("expected_simp_likelihood");
+  observedLikelihoodSLNoCorr->Write("observed_simp_likelihood_no_corr");
+  expectedLikelihoodSLNoCorr->Write("expected_simp_likelihood_no_corr");
+  observedLikelihoodSLSR->Write("observed_simp_likelihood_SR");
+  expectedLikelihoodSLSR->Write("expected_simp_likelihood_SR");
+  observedLikelihoodSLSRNoCorr->Write("observed_simp_likelihood_SR_no_corr");
+  expectedLikelihoodSLSRNoCorr->Write("expected_simp_likelihood_SR_no_corr");
+  outputFile->Close();
 }
+
+//  LocalWords:  maxMuExpComb

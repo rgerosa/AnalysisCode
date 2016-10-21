@@ -440,4 +440,13 @@ void makeScanPlots (string inputDIR, string category, string mediatorType, strin
   c->SaveAs((outputPlotDIR+"/scan_"+category+"_"+mediatorType+".png").c_str());
   c->SaveAs((outputPlotDIR+"/scan_"+category+"_"+mediatorType+".pdf").c_str());
 
+  TFile* outputLines = new TFile((outputPlotDIR+"/scan_"+category+"_"+mediatorType+".root").c_str(),"RECREATE");
+  outputLines->cd();
+  observedAlt->Write("observed_scan");
+  expected->Write("expected_scan");
+  obsContour->At(0)->Write("observed_contour");
+  expContour->At(0)->Write("expected_contour");
+  expContour1sUp->At(0)->Write("expected_contour_p1sigma");
+  expContour1sDw->At(0)->Write("expected_contour_m1sigma");
+  outputLines->Close();
 }  
