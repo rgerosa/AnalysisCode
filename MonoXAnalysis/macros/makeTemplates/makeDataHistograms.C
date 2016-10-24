@@ -15,6 +15,7 @@ void sigdatamchist(TFile* outfile,
 		   const bool & isHInv              = false,
 		   const bool & applyPFWeight       = false) {
 
+
   // Files for Znunu,Wlnu, Zll, top, qcd , diboson, signal, data                                                                                                            
   TChain* zntree = new TChain("tree/tree");
   TChain* wltree = new TChain("tree/tree");
@@ -33,18 +34,18 @@ void sigdatamchist(TFile* outfile,
   zntree->Add((baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/*root").c_str());
   wltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*root").c_str());
   zltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/sigfilter/*root").c_str());
-  tttree->Add((baseInputTreePath+"Top/sigfilter/*root").c_str());
+  tttree->Add((baseInputTreePath+"/TopAlternative/sigfilter/*root").c_str());
   if(doAlternativeTop and tttree_alt != NULL){
-    tttree_alt->Add((baseInputTreePath+"TopAlternative/sigfilter/*root").c_str());
+    tttree_alt->Add((baseInputTreePath+"/Top/sigfilter/*root").c_str());
   }
 
-  qcdtree->Add((baseInputTreePath+"QCD/sigfilter/*root").c_str());
-  ditree->Add((baseInputTreePath+"DiBoson/sigfilter/sig*root").c_str());
+  qcdtree->Add((baseInputTreePath+"/QCD/sigfilter/*root").c_str());
+  ditree->Add((baseInputTreePath+"/DiBoson/sigfilter/sig*root").c_str());
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
-  ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/sigfilter/*root").c_str());
-  ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/sigfilter/*root").c_str());
-  ewkwtree->Add((baseInputTreePath+"WJetsEWK/sigfilter/*root").c_str());
-  dttree->Add((baseInputTreePath+"MET/sigfilter/*root").c_str());
+  ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
+  ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/sigfilter/*root").c_str());
+  ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/MET/sigfilter/*root").c_str());
   // make met histograms                                                                                                                                                        
   vector<TH1*> znhist;
   vector<TH1*> wlhist;
@@ -1017,12 +1018,12 @@ void gamdatamchist(TFile* outfile,
 
   dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
   if(useJetHT)
-    dttree->Add((baseInputTreePath+"JetHT/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/JetHT/gamfilter/*root").c_str());
   
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
   wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
-  vltree->Add((baseInputTreePath+"WJets/gamfilter/*root").c_str());
+  vltree->Add((baseInputTreePath+"/WJets/gamfilter/*root").c_str());
 
   vector<TH1*> dthist;
   vector<TH1*> qcdhist;
@@ -1134,7 +1135,7 @@ void gamdatamchist(TFile* outfile,
   cout<<"gamma+jets control region --> Zgamma+jets"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,Sample::gam,category,false,1.00,lumi,zghists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"gamma+jets control region --> QCD"<<endl;
-  makehist4(dttree,qcdhist,qcdhist_2D,false,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(dttree,qcdhist,qcdhist_2D,false,Sample::qcdgam,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"gamma+jets control region --> W+jets"<<endl;
   makehist4(vltree,vlhist,vlhist_2D,true,Sample::gam,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"gamma+jets control region --> data"<<endl;
@@ -1183,10 +1184,10 @@ void lepdatamchist(TFile* outfile,
 		   const double & lumi,
 		   const SamplesNLO & nloSamples,
 		   const bool & doShapeSystematics = false,
-		   const bool & isHInv = false,
-		   const bool & useSinglePhoton = false,
-		   const bool & useJetHT = false,
-		   const bool & applyPFWeight = false) {
+		   const bool & isHInv             = false,
+		   const bool & useSinglePhoton    = false,
+		   const bool & useJetHT           = false,
+		   const bool & applyPFWeight      = false) {
 
   if (sample != Sample::zmm && sample != Sample::zee && sample != Sample::wmn && sample != Sample::wen) return;
 
@@ -1242,13 +1243,13 @@ void lepdatamchist(TFile* outfile,
     }
 
     gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/zmmfilter/*root").c_str());
-    qctree->Add((baseInputTreePath+"QCD/zmmfilter/*root").c_str());
-    dbtree->Add((baseInputTreePath+"DiBoson/zmmfilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"TopAlternative/zmmfilter/*root").c_str());
-    ewkwtree->Add((baseInputTreePath+"WJetsEWK/zmmfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zmmfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zmmfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"MET/zmmfilter/*root").c_str());
+    qctree->Add((baseInputTreePath+"/QCD/zmmfilter/*root").c_str());
+    dbtree->Add((baseInputTreePath+"/DiBoson/zmmfilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"/TopAlternative/zmmfilter/*root").c_str());
+    ewkwtree->Add((baseInputTreePath+"/WJetsEWK/zmmfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/zmmfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/zmmfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET/zmmfilter/*root").c_str());
   }
   else if(sample == Sample::wmn){
 
@@ -1278,9 +1279,9 @@ void lepdatamchist(TFile* outfile,
     dbtree->Add((baseInputTreePath+"/DiBoson/wmnfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/wmnfilter/*root").c_str());
     tttree->Add((baseInputTreePath+"/TopAlternative/wmnfilter/*root").c_str());
-    ewkwtree->Add((baseInputTreePath+"WJetsEWK/wmnfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wmnfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wmnfilter/*root").c_str());
+    ewkwtree->Add((baseInputTreePath+"/WJetsEWK/wmnfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/wmnfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/wmnfilter/*root").c_str());
     dttree->Add((baseInputTreePath+"/MET/wmnfilter/*root").c_str());
   }
   else if(sample == Sample::zee){
@@ -1306,20 +1307,20 @@ void lepdatamchist(TFile* outfile,
       vltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/zeefilter/*root").c_str());
     }
 
-    qctree->Add((baseInputTreePath+"QCD/zeefilter/*root").c_str());
-    dbtree->Add((baseInputTreePath+"DiBoson/zeefilter/*root").c_str());
+    qctree->Add((baseInputTreePath+"/QCD/zeefilter/*root").c_str());
+    dbtree->Add((baseInputTreePath+"/DiBoson/zeefilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/zeefilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"TopAlternative/zeefilter/*root").c_str());
-    ewkwtree->Add((baseInputTreePath+"WJetsEWK/zeefilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/zeefilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/zeefilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"/TopAlternative/zeefilter/*root").c_str());
+    ewkwtree->Add((baseInputTreePath+"/WJetsEWK/zeefilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/zeefilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/zeefilter/*root").c_str());
 
-    dttree->Add((baseInputTreePath+"SingleElectron/zeefilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron/zeefilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useSinglePhoton)
-      dttree_2->Add((baseInputTreePath+"SinglePhoton/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/SinglePhoton/zeefilter/*root").c_str());
     else if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"JetHT/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/JetHT/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1346,21 +1347,21 @@ void lepdatamchist(TFile* outfile,
       vltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wenfilter/*root").c_str());
     }
 
-    qctree->Add((baseInputTreePath+"QCD/wenfilter/*root").c_str());
-    dbtree->Add((baseInputTreePath+"DiBoson/wenfilter/*root").c_str());
+    qctree->Add((baseInputTreePath+"/QCD/wenfilter/*root").c_str());
+    dbtree->Add((baseInputTreePath+"/DiBoson/wenfilter/*root").c_str());
     gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/wenfilter/*root").c_str());
-    tttree->Add((baseInputTreePath+"TopAlternative/wenfilter/*root").c_str());
+    tttree->Add((baseInputTreePath+"/TopAlternative/wenfilter/*root").c_str());
 
-    ewkwtree->Add((baseInputTreePath+"WJetsEWK/wenfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToLLEWK/wenfilter/*root").c_str());
-    ewkztree->Add((baseInputTreePath+"ZJetsToNuNuEWK/wenfilter/*root").c_str());
+    ewkwtree->Add((baseInputTreePath+"/WJetsEWK/wenfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/wenfilter/*root").c_str());
+    ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/wenfilter/*root").c_str());
 
-    dttree->Add((baseInputTreePath+"SingleElectron/wenfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron/wenfilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"JetHT/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/JetHT/wenfilter/*root").c_str());
     else if(useSinglePhoton)
-      dttree_2->Add((baseInputTreePath+"SinglePhoton/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/SinglePhoton/wenfilter/*root").c_str());
   }
 
   vector<TH1*> dthist;
@@ -2249,15 +2250,16 @@ void lepdatamchist(TFile* outfile,
 
 //build template for tt
 void topdatamchist(TFile* outfile,
-		   const Sample & sample,
+		   const Sample   & sample,
 		   const Category & category,
 		   vector<string> observables,vector<string> observables_2D,
-		   const double & lumi = 2.24,
+		   const double & lumi,
+		   const SamplesNLO & nloSamples,
 		   const bool & makeResonantSelection = false,
-		   const bool & doShapeSystematics = false,
-		   const bool & isHInv = false,
-		   const bool & doAlternativeTop = false,
-		   const bool & applyPFWeight = false) {
+		   const bool & doShapeSystematics    = false,
+		   const bool & isHInv                = false,
+		   const bool & doAlternativeTop      = false,
+		   const bool & applyPFWeight         = false) {
 
   if (sample != Sample::topmu && sample != Sample::topel) return;
 
@@ -2277,17 +2279,17 @@ void topdatamchist(TFile* outfile,
   else if(sample == Sample::topel)
     suffix = "topel";
 
-  vlltree->Add((baseInputTreePath+"DYJets/"+suffix+"filter/*root").c_str());
-  vltree->Add((baseInputTreePath+"WJets/"+suffix+"filter/*root").c_str());
-  qctree->Add((baseInputTreePath+"QCD/"+suffix+"filter/*root").c_str());
-  dbtree->Add((baseInputTreePath+"DiBoson/"+suffix+"filter/*root").c_str());
-  gmtree->Add((baseInputTreePath+"/PhotonJets/"+suffix+"filter/*root").c_str());
-  tttree->Add((baseInputTreePath+"TopAlternative/"+suffix+"filter/*root").c_str());
-  tttree_alt->Add((baseInputTreePath+"Top/"+suffix+"filter/*root").c_str());
+  vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/"+suffix+"filter/*root").c_str());
+  vltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/"+suffix+"filter/*root").c_str());
+  qctree->Add((baseInputTreePath+"/QCD/"+suffix+"filter/*root").c_str());
+  dbtree->Add((baseInputTreePath+"/DiBoson/"+suffix+"filter/*root").c_str());
+  gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/"+suffix+"filter/*root").c_str());
+  tttree->Add((baseInputTreePath+"/TopAlternative/"+suffix+"filter/*root").c_str());
+  tttree_alt->Add((baseInputTreePath+"/Top/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
-    dttree->Add((baseInputTreePath+"MET/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
-    dttree->Add((baseInputTreePath+"SingleElectron/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron/"+suffix+"filter/*root").c_str());
   
   vector<TH1*> dthist;
   vector<TH1*> tthist;
@@ -2452,10 +2454,8 @@ void topdatamchist(TFile* outfile,
       vllhist_metResUp.push_back(dynamic_cast<TH1*>(vllhist_metResUp_temp));
       vllhist_metResDw.push_back(dynamic_cast<TH1*>(vllhist_metResDw_temp));
       vllhist_metUncUp.push_back(dynamic_cast<TH1*>(vllhist_metUncUp_temp));
-      vllhist_metUncDw.push_back(dynamic_cast<TH1*>(vllhist_metUncDw_temp));
-      
+      vllhist_metUncDw.push_back(dynamic_cast<TH1*>(vllhist_metUncDw_temp));      
     }
-
   }
 
   vector<TH2*> dthist_2D;
@@ -2611,15 +2611,15 @@ void topdatamchist(TFile* outfile,
   TFile kffile(kfactorFile.c_str());  
   TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
   TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
-  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
+  TH1*  zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
 
   if(zewkhist)
     zewkhist->Divide(znlohist);
   if(znlohist)
     znlohist->Divide(zlohist);
 
-  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1* wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
   TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
 
   if(wewkhist)
@@ -2628,7 +2628,7 @@ void topdatamchist(TFile* outfile,
     wnlohist->Divide(wlohist);
 
   TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
-  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1* alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
   TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
 
   if(aewkhist)
@@ -2636,21 +2636,31 @@ void topdatamchist(TFile* outfile,
   if(anlohist)
     anlohist->Divide(alohist);
 
-  // take open loop hitogram                                                                                                                                                    
-  //  TFile kffileGJ (kfactorFileGJ.c_str());
-  //  anlohist = (TH1*) kffileGJ.Get("NLO_G");
-
   vector<TH1*> ehists;
   vector<TH1*> vlhists;
   vector<TH1*> ahists;
   vector<TH1*> vllhists;
   // apply NLO QCD and EWK corrections for Zll and Wlnu                                                                                                                      
-  ahists.push_back(anlohist);
-  ahists.push_back(aewkhist);
-  vllhists.push_back(znlohist);
-  vllhists.push_back(zewkhist);
-  vlhists.push_back(wnlohist);
-  vlhists.push_back(wewkhist);
+  if(nloSamples.usePhotonJetsNLO)
+    ahists.push_back(aewkhist);
+  else{
+    ahists.push_back(anlohist);
+    ahists.push_back(aewkhist);
+  }
+
+  if(nloSamples.useWJetsNLO)
+    vlhists.push_back(wewkhist);
+  else{
+    vlhists.push_back(wnlohist);
+    vlhists.push_back(wewkhist);
+  }
+  
+  if(nloSamples.useDYJetsNLO)
+    vllhists.push_back(zewkhist);
+  else{
+    vllhists.push_back(znlohist);
+    vllhists.push_back(zewkhist);
+  }
 
   // 
   bool isWJet = false;
@@ -3051,4 +3061,338 @@ void topdatamchist(TFile* outfile,
   vllhist_metUncDw_2D.clear();
   
   cout << "Templates for the top control region computed ..." << endl;
+}
+
+/////////
+void qcddatamchist(TFile* outfile,
+                   const Category & category,
+                   vector<string> observables,
+		   vector<string> observables_2D,
+                   const double & lumi,
+		   const SamplesNLO & nloSamples,
+		   const bool & doAlternativeTop    = false,
+		   const bool & isHInv              = false,
+		   const bool & applyPFWeight       = false) {
+
+
+  // Files for Znunu,Wlnu, Zll, top, qcd , diboson, signal, data                                                                                                            
+  TChain* vnntree = new TChain("tree/tree");
+  TChain* vltree  = new TChain("tree/tree");
+  TChain* vlltree = new TChain("tree/tree");
+  TChain* tttree  = new TChain("tree/tree");
+  TChain* tttree_alt = NULL;
+  if(doAlternativeTop)
+    tttree_alt    = new TChain("tree/tree");
+  TChain* dbtree  = new TChain("tree/tree");
+  TChain* gmtree  = new TChain("tree/tree");
+  TChain* qcdtree = new TChain("tree/tree");
+  TChain* ewkwtree = new TChain("tree/tree");
+  TChain* ewkztree = new TChain("tree/tree");
+  TChain* dttree   = new TChain("tree/tree");
+
+  vnntree->Add((baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/*root").c_str());
+  vltree->Add((baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/*root").c_str());
+  vlltree->Add((baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/sigfilter/*root").c_str());
+  tttree->Add((baseInputTreePath+"/TopAlternative/sigfilter/*root").c_str());
+  if(doAlternativeTop and tttree_alt != NULL){
+    tttree_alt->Add((baseInputTreePath+"Top/sigfilter/*root").c_str());
+  }
+
+  qcdtree->Add((baseInputTreePath+"/QCD/sigfilter/*root").c_str());
+  dbtree->Add((baseInputTreePath+"/DiBoson/sigfilter/sig*root").c_str());
+  gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
+  ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
+  ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/sigfilter/*root").c_str());
+  ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/MET/sigfilter/*root").c_str());
+
+  // make met histograms                                                                                                                                                        
+  vector<TH1*> vnnhist;
+  vector<TH1*> vlhist;
+  vector<TH1*> vllhist;
+  vector<TH1*> tthist;
+  vector<TH1*> tthist_alt;
+  vector<TH1*> dbhist;
+  vector<TH1*> gmhist;
+  vector<TH1*> qcdhist;
+  vector<TH1*> ewkwhist;
+  vector<TH1*> ewkzhist;
+  vector<TH1*> dthist;
+
+  /////////
+  vector<double> bins;
+  for(auto obs : observables){
+
+    bins = selectBinning(obs,category);
+    if(bins.empty())
+      cout<<"No binning for this observable "+obs+" --> please define it"<<endl;
+
+    TH1F* vnnhist_temp = new TH1F(("vnnbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* vlhist_temp = new TH1F(("vlbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* vllhist_temp = new TH1F(("vllbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* tthist_temp = new TH1F(("tbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* dbhist_temp = new TH1F(("dbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* gmhist_temp = new TH1F(("gbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* qcdhist_temp = new TH1F(("qbkghistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* ewkwhist_temp = new TH1F(("ewkbkgwhistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* ewkzhist_temp = new TH1F(("ewkbkgzhistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* dthist_temp = new TH1F(("datahistqcd_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+
+    vnnhist.push_back(dynamic_cast<TH1*>(vnnhist_temp));
+    vlhist.push_back(dynamic_cast<TH1*>(vlhist_temp));
+    vllhist.push_back(dynamic_cast<TH1*>(vllhist_temp));
+    tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
+    qcdhist.push_back(dynamic_cast<TH1*>(qcdhist_temp));
+    dbhist.push_back(dynamic_cast<TH1*>(dbhist_temp));
+    gmhist.push_back(dynamic_cast<TH1*>(gmhist_temp));
+    ewkwhist.push_back(dynamic_cast<TH1*>(ewkwhist_temp));
+    ewkzhist.push_back(dynamic_cast<TH1*>(ewkzhist_temp));
+    dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
+    
+    if(doAlternativeTop){
+      TH1F* tthist_alt_temp = new TH1F(("tbkghistqcd_alt_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      tthist_alt.push_back(dynamic_cast<TH1*>(tthist_alt_temp));
+    }    
+  }
+
+  vector<TH2*> vnnhist_2D;
+  vector<TH2*> vlhist_2D;
+  vector<TH2*> vllhist_2D;
+  vector<TH2*> tthist_2D;
+  vector<TH2*> tthist_alt_2D;
+  vector<TH2*> dbhist_2D;
+  vector<TH2*> gmhist_2D;
+  vector<TH2*> qcdhist_2D;
+  vector<TH2*> ewkwhist_2D;
+  vector<TH2*> ewkzhist_2D;
+  vector<TH2*> dthist_2D;
+
+
+  for(auto obs : observables_2D){
+
+    bin2D bins = selectBinning2D(obs,category);
+    if(bins.binX.empty() or bins.binY.empty())
+      cout<<"No binning for this observable "+obs+"--> please define it"<<endl;
+    
+    TH2F* vnnhist_temp = new TH2F(("vnnbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* vlhist_temp = new TH2F(("vlbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* vllhist_temp = new TH2F(("vllbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* tthist_temp = new TH2F(("tbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* dbhist_temp = new TH2F(("dbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* gmhist_temp = new TH2F(("gbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* qcdhist_temp = new TH2F(("qbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* ewkwhist_temp = new TH2F(("ewkwbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* ewkzhist_temp = new TH2F(("ewkzbkghistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* dthist_temp = new TH2F(("datahistqcd_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+
+    vnnhist_2D.push_back(dynamic_cast<TH2*>(vnnhist_temp));
+    vlhist_2D.push_back(dynamic_cast<TH2*>(vlhist_temp));
+    vllhist_2D.push_back(dynamic_cast<TH2*>(vllhist_temp));
+    tthist_2D.push_back(dynamic_cast<TH2*>(tthist_temp));
+    qcdhist_2D.push_back(dynamic_cast<TH2*>(qcdhist_temp));
+    dbhist_2D.push_back(dynamic_cast<TH2*>(dbhist_temp));
+    gmhist_2D.push_back(dynamic_cast<TH2*>(gmhist_temp));
+    ewkwhist_2D.push_back(dynamic_cast<TH2*>(ewkwhist_temp));
+    ewkzhist_2D.push_back(dynamic_cast<TH2*>(ewkzhist_temp));
+    dthist_2D.push_back(dynamic_cast<TH2*>(dthist_temp));
+
+    if(doAlternativeTop){
+      TH2F* tthist_alt_temp = new TH2F(("tbkghist_alt_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      tthist_alt_2D.push_back(dynamic_cast<TH2*>(tthist_alt_temp));
+    }    
+  }
+
+  
+  // get k-factors NLO                                                                                                                                                         
+  TFile kffile (kfactorFile.c_str());
+  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
+  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
+  TH1*  zewkhist = (TH1*) kffile.Get("EWKcorr/Z");
+
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+
+  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
+  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
+  TH1*  wewkhist = (TH1*) kffile.Get("EWKcorr/W");
+ 
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
+  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
+  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
+
+  if(aewkhist)
+    aewkhist->Divide(anlohist);
+  if(anlohist)
+    anlohist->Divide(alohist);
+
+  vector<TH1*> ehists;
+  vector<TH1*> zhists;
+  vector<TH1*> dyhists;
+  vector<TH1*> whists;
+  vector<TH1*> ahists;
+
+  // apply EWK and QCD corrections                                                                                                                                              
+  float scale = 1;
+  if(nloSamples.useZJetsNLO){
+    zhists.push_back(zewkhist);
+    scale = 3;
+  }
+  else{
+    zhists.push_back(znlohist); 
+    zhists.push_back(zewkhist);
+  }
+  
+  if(nloSamples.useDYJetsNLO)
+    dyhists.push_back(zewkhist);
+  else{
+    dyhists.push_back(znlohist); 
+    dyhists.push_back(zewkhist);
+  }
+  
+  if(nloSamples.useWJetsNLO)
+    whists.push_back(wewkhist);    
+  else{
+    whists.push_back(wnlohist); 
+    whists.push_back(wewkhist);    
+  }
+
+  if(nloSamples.usePhotonJetsNLO)
+    ahists.push_back(aewkhist);
+  else{
+    ahists.push_back(anlohist);
+    ahists.push_back(aewkhist);
+  }
+
+
+  //////////////////
+  bool isWJet = false;
+  if(category == Category::monoV)
+    isWJet = true;
+ 
+  cout<<"QCD region: Z->nunu sample "<<endl;
+  if(not nloSamples.useZJetsNLO)
+    makehist4(vnntree,vnnhist,vnnhist_2D,true,Sample::qcd,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  else
+    makehist4(vnntree,vnnhist,vnnhist_2D,true,Sample::qcd,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+
+  cout<<"QCD region: W+jets sample "<<endl;
+  makehist4(vltree,vlhist,vlhist_2D,true,Sample::qcd,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"QCD region: Z+jets sample "<<endl;
+  makehist4(vlltree,vllhist,vllhist_2D,true,Sample::qcd,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"QCD region: gamma+jets sample "<<endl;
+  makehist4(gmtree,gmhist,gmhist_2D,true,Sample::qcd,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"QCD region: ewkw+jets sample "<<endl;
+  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"QCD region: ewkz+jets sample "<<endl;
+  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
+  cout<<"QCD region: TTbar sample "<<endl;
+  makehist4(tttree,tthist,tthist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
+
+    //alternative ttbar             
+  if(doAlternativeTop){
+    cout<<"QCD region: TTbar alternative sample "<<endl;
+    makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  }
+
+  cout<<"QCD region: Diboson sample "<<endl;
+  makehist4(dbtree,dbhist,dbhist_2D,true,Sample::qcd,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"QCD region: QCD sample "<<endl;
+  makehist4(qcdtree,qcdhist,qcdhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+
+  // take average of ttbar                                                                                                                                                     
+  if(doAlternativeTop){
+    for(size_t iHisto = 0; iHisto < tthist.size(); iHisto++)
+      makeAverage(tthist.at(iHisto),tthist_alt.at(iHisto));      
+    for(size_t iHisto = 0; iHisto < tthist_2D.size(); iHisto++)
+      makeAverage(tthist_2D.at(iHisto),tthist_alt_2D.at(iHisto));
+  }
+
+  //smooth
+  if(doSmoothing){
+    for(auto hist : tthist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vllhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : qcdhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    
+    for(auto hist : tthist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : gmhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : dbhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : vllhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : qcdhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkwhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+    for(auto hist : ewkzhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
+  }
+
+  // data                                                
+  cout<<"QCD region analysis --> loop on data "<<endl;
+  makehist4(dttree,dthist,dthist_2D,false,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  
+  outfile->cd();
+  if(not outfile->GetDirectory("QCD"))
+    outfile->mkdir("QCD");
+  outfile->cd("QCD");
+  // store histograms                                                                                                                                                        
+  for(auto hist : vnnhist) hist->Write();
+  for(auto hist : vlhist) hist->Write();
+  for(auto hist : vllhist) hist->Write();
+  for(auto hist : tthist) hist->Write();
+  for(auto hist : dbhist) hist->Write();
+  for(auto hist : gmhist) hist->Write();
+  for(auto hist : qcdhist) hist->Write();
+  for(auto hist : ewkwhist) hist->Write();
+  for(auto hist : ewkzhist) hist->Write();
+  for(auto hist : dthist) hist->Write();
+
+  // store hist_2Dograms                                                                                                                                                     
+  outfile->cd();
+  outfile->cd("QCD");
+  for(auto hist_2D : vnnhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : vlhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : vllhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : gmhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : tthist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : dbhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : qcdhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : ewkwhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : ewkzhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : dthist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+
+  outfile->cd();
+
+  vnnhist.clear();
+  vlhist.clear();
+  vllhist.clear();
+  tthist.clear();
+  dbhist.clear();
+  gmhist.clear();
+  qcdhist.clear();
+  ewkwhist.clear();
+  ewkzhist.clear();
+  dthist.clear();
+
+  vnnhist_2D.clear();
+  vlhist_2D.clear();
+  vllhist_2D.clear();
+  tthist_2D.clear();
+  tthist_alt_2D.clear();
+  dbhist_2D.clear();
+  gmhist_2D.clear();
+  qcdhist_2D.clear();
+  ewkwhist_2D.clear();
+  ewkzhist_2D.clear();
+  dthist_2D.clear();
+  
+  cout << "Templates for the QCD region computed ..." << endl;
 }

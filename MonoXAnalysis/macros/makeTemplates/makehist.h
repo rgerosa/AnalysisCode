@@ -26,8 +26,8 @@ const float prunedMassMax   = 105.;
 const float leadingJetPtCut = 100.;
 const float leadingJetPtCutVBF  = 70.;
 const float trailingJetPtCutVBF = 50.;
-const float detajj          = 2;
-const float mjj             = 300;
+const float detajj          = 2.5;
+const float mjj             = 450;
 const float jetmetdphiVBF   = 1.0;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
@@ -198,17 +198,24 @@ void makehist4(TTree* tree, /*input tree*/
   
   // Photon trigger efficiency measured in jetHT
   TFile triggerfile_SinglePhoton_jetHT ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
-  TFile triggerfile_SinglePhoton ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120.root");
+  TFile triggerfile_SinglePhoton       ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120.root");
+  TFile triggerfile_SinglePhoton_VBF   ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120_VBF.root");
   TEfficiency*  triggerphoton       = NULL;
   TEfficiency*  triggerphoton_jetHT = NULL;
-  if(category != Category::VBF and category != Category::twojet){
+
+  if(category == Category::twojet){
     triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_vbf_recoil");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
+  }
+  else if(category == Category::VBF){
+    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton_VBF.Get("eff_vbf_recoil");  
     triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
   }
   else{
     triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_recoil");  
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_recoil");
+    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
   }
+  
   TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
   /////////////////////////////////////////
@@ -225,7 +232,7 @@ void makehist4(TTree* tree, /*input tree*/
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_ZE.root");
   else if(sample == Sample::wen and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_WE.root");
-  else if(sample == Sample::qcd and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
+  else if(sample == Sample::qcdgam and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
   else if(sample == Sample::gam and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoJ_2016_2p6fb/postfit_weights_GJ.root");
@@ -239,7 +246,7 @@ void makehist4(TTree* tree, /*input tree*/
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_ZE.root");
   else if(sample == Sample::wen and applyPostFitWeight and category == Category::monoV)
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_WE.root");
-  else if(sample == Sample::qcd and applyPostFitWeight and category == Category::monoV)
+  else if(sample == Sample::qcdgam and applyPostFitWeight and category == Category::monoV)
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
   else if(sample == Sample::gam and applyPostFitWeight and category == Category::monoV)
     postFitFile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/postFitOverPrefit/monoV/postfit_weights_GJ.root");
@@ -357,6 +364,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<double> > chfrac  (myReader,"combinejetCHfrac");
   TTreeReaderValue<vector<double> > nhfrac  (myReader,"combinejetNHfrac");
   TTreeReaderValue<vector<double> > emfrac  (myReader,"combinejetEMfrac");
+  TTreeReaderValue<vector<double> > jetpuid (myReader,"combinejetPUID");
   TTreeReaderValue<vector<double> > pFlav   (myReader,"combinejetPFlav");
 
   // AK8 jet
@@ -511,17 +519,18 @@ void makehist4(TTree* tree, /*input tree*/
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
-    if (sample == Sample::sig || sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu)// single and double muon
+
+    if (sample == Sample::sig || sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu || sample == Sample::qcd)// single and double muon
       hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
-    else if (sample == Sample::qcd || sample == Sample::gam){ // single photon
+    else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
       hlt = *hltp165+*hltp175+*hltpPFHT800;
       hltw = 1;
-      if(*hltp120 and hlt == 0){
-      	hltw = *pswgt_ph120;
-	hlt  = *hltp165+*hltp175+*hltpPFHT800+*hltp120;
-      }
+      //if(*hltp120 and hlt == 0){
+      // hltw = *pswgt_ph120;
+      // hlt  = *hltp165+*hltp175+*hltpPFHT800+*hltp120;
+      //}
     }
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
@@ -531,17 +540,17 @@ void makehist4(TTree* tree, /*input tree*/
 
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
-    if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu) jmdphi = fabs(*jmmdphi);
+    if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd) jmdphi = fabs(*jmmdphi);
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) jmdphi = fabs(*jemdphi);
-    else if (sample == Sample::qcd || sample == Sample::gam) jmdphi = fabs(*jpmdphi);
+    else if (sample == Sample::qcdgam || sample == Sample::gam) jmdphi = fabs(*jpmdphi);
 
     //set met
     Double_t pfmet = 0.0;
     Double_t pfmetphi = 0.0;
-    if (sample == Sample::sig) {pfmet = *mmet; pfmetphi = *mmetphi;}
+    if (sample == Sample::sig || sample == Sample::qcd) {pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ pfmet = *emet; pfmetphi = *emetphi;}
-    else if (sample == Sample::qcd || sample == Sample::gam)  { pfmet = *pmet; pfmetphi = *pmetphi;}
+    else if (sample == Sample::qcdgam || sample == Sample::gam)  { pfmet = *pmet; pfmetphi = *pmetphi;}
 
     // noise cleaner
     if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
@@ -585,7 +594,7 @@ void makehist4(TTree* tree, /*input tree*/
       pid1 = *el1pid;
       pid2 = *el2pid;
     }
-    else if (sample == Sample::qcd || sample == Sample::gam) {
+    else if (sample == Sample::qcdgam || sample == Sample::gam) {
       id1  = *phidm;
       id2  = 1.0;
       pt1  = *phpt;
@@ -609,7 +618,7 @@ void makehist4(TTree* tree, /*input tree*/
       bosonEta = *zeeeta;
       bosonPhi = *zeephi;
     }
-    else if (sample == Sample::qcd or sample == Sample::gam){
+    else if (sample == Sample::qcdgam or sample == Sample::gam){
       if(applyPhotonScale and not isMC)
 	bosonPt = *phpt*(1+photonScaleUnc); // gamma+jets
       else
@@ -617,7 +626,7 @@ void makehist4(TTree* tree, /*input tree*/
       bosonEta  = *pheta;
       bosonPhi  = *phphi;
     }
-    else if (sample == Sample::sig){
+    else if (sample == Sample::sig || sample == Sample::qcd){
       bosonPt = pfmet; // missing energy in case of signal region for Z->nunu
       bosonEta = 0;
       bosonPhi = pfmetphi;
@@ -657,10 +666,10 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt > 160) continue;
-    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet) and pt1 < 40) continue;
+    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet) and *wmt > 100) continue;
     // photon control sample
-    if ((sample == Sample::qcd || sample == Sample::gam) && pt1 < photonPt) continue;
-    if ((sample == Sample::qcd || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
+    if ((sample == Sample::qcdgam || sample == Sample::gam) && pt1 < photonPt) continue;
+    if ((sample == Sample::qcdgam || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
 
     // Wenu kill QCD
     if (sample == Sample::wen && *met < 50.) continue;
@@ -793,7 +802,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // photon purity
-    if (!isMC && purhist && sample == Sample::qcd) {
+    if (!isMC && purhist && sample == Sample::qcdgam) {
       if(pt1 > purhist->GetXaxis()->GetBinLowEdge(1))
 	sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(pt1,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(eta1))));
       else
@@ -801,12 +810,12 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // met trigger scale factor
-    if (isMC && triggermet && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu)) {
+    if (isMC && triggermet && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
       sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
     }
     
     // photon trigger scale factor
-    if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT && (sample == Sample::qcd || sample == Sample::gam)){ // linear interpolation between graph points            
+    if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT && (sample == Sample::qcdgam || sample == Sample::gam)){ // linear interpolation between graph points            
       if(*pmet < recoilThresholdTrigger)	
 	sfwgt *= triggerphoton_graph->Eval(min(*pmet,triggerphoton_graph->GetXaxis()->GetXmax()));
       else
@@ -894,7 +903,8 @@ void makehist4(TTree* tree, /*input tree*/
       if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id
       if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id
       if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV
-      if (jmdphi < 0.5) continue; // deltaPhi cut
+      if (sample != Sample::qcd and jmdphi < 0.5) continue; // deltaPhi cut
+      else if (sample == Sample::qcd and jmdphi > 0.5) continue; // deltaPhi cut
     }
     else{
 
@@ -909,7 +919,8 @@ void makehist4(TTree* tree, /*input tree*/
 	if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                   
 	if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                   
 	if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                          
-	if (jmdphi < 0.5) continue; 
+	if (sample != Sample::qcd and jmdphi < 0.5) continue; 
+	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
 
 	if(boostedJetpt->size()  == 0) goodMonoJet = true;
 	if(boostedJetpt->size() > 0){ // in case one boosted jet	  
@@ -944,7 +955,8 @@ void makehist4(TTree* tree, /*input tree*/
 	if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                     
 	if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                  
 	if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                           
-	if (jmdphi < 0.5) continue; // deltaPhi cut                                                                                                       
+	if (sample != Sample::qcd and jmdphi < 0.5) continue;
+	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
 
 	TLorentzVector jetak4, jetak8;
 	jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -997,11 +1009,16 @@ void makehist4(TTree* tree, /*input tree*/
 	if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
 	if(jetpt->at(0) < leadingJetPtCutVBF) continue;
 	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
-	if(jmdphi < jetmetdphiVBF) continue; // deltaPhi cut                                                                                                                             
+
+	if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
+	else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
+
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
+	if(fabs(jeteta->at(0)) >= 3.0 and nhfrac->at(0) > 0.96) continue;
+	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -1015,7 +1032,10 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-        if (jmdphi < 0.5) continue;	
+	if(fabs(jeteta->at(0)) >= 3.0 and nhfrac->at(0) > 0.96) continue;
+	//	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
+	if (sample != Sample::qcd and jmdphi < 0.5) continue;
+	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
       }
     }
 
@@ -1130,17 +1150,62 @@ void makehist4(TTree* tree, /*input tree*/
       else if(name.Contains("wemt"))
 	fillvar = *wemt;
       // jet fractions
-      else if(name.Contains("chfrac")){
-	if(category == Category::VBF or category == Category::twojet)
+      else if(name.Contains("nhfrac_v2")){
+	if(fabs(jeteta->at(0)) >= 3)
+	  fillvar = nhfrac->at(0);
+	else 
+	  fillvar = -1;
+      }
+      else if(name.Contains("nhfrac_v3")){
+	if(fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
+	  fillvar = nhfrac->at(0);
+	else 
+	  fillvar = -1;
+      }
+      else if(name.Contains("nhfracj2_v2") and jetpt->size() >= 2){
+	if(fabs(jeteta->at(1)) >= 3)
+	  fillvar = nhfrac->at(1);
+	else 
+	  fillvar = -1;
+      }
+      else if(name.Contains("nhfracj2_v3") and jetpt->size() >= 2){
+	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) <= 3)
+	  fillvar = nhfrac->at(1);
+	else 
+	  fillvar = -1;
+      }
+      else if(name.Contains("emfrac_v2")){
+	if(fabs(jeteta->at(0)) >= 3)
+	   fillvar = emfrac->at(0);
+	else 
+	  fillvar = -1;
+      }
+
+      else if(name.Contains("chfrac_v2")){
+	if(fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
 	  fillvar = chfrac->at(0);
+      }
+      else if(name.Contains("chfracj2_v2") and jetpt->size() >= 2){
+	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) <= 3)
+	  fillvar = chfrac->at(1);
+      }
+      else if(name.Contains("chfracj2") and jetpt->size() >= 2){
+	if(category == Category::VBF or category == Category::twojet)
+	  fillvar = chfrac->at(1);
 	else
 	  fillvar = chfrac->at(leadingCentralJetPos);
-      }
+      }      
       else if(name.Contains("nhfrac")){
 	if(category == Category::VBF or category == Category::twojet)
 	  fillvar = nhfrac->at(0);
 	else
 	  fillvar = nhfrac->at(leadingCentralJetPos);
+      }
+      else if(name.Contains("chfrac")){
+	if(category == Category::VBF or category == Category::twojet)
+	  fillvar = chfrac->at(0);
+	else
+	  fillvar = chfrac->at(leadingCentralJetPos);
       }
       else if(name.Contains("emfrac")){
 	if(category == Category::VBF or category == Category::twojet)
@@ -1171,6 +1236,13 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  fillvar = jetpt->at(leadingCentralJetPos);
       }
+      else if(name.Contains("jetpuid")){
+	if(fabs(jeteta->at(0)) >= 3)
+	  fillvar = jetpuid->at(0);
+	else
+	  fillvar = -1;
+      }
+	  
       else if(name.Contains("jeteta")){
 	if(category == Category::VBF or category == Category::twojet)
 	  fillvar = jeteta->at(0);
@@ -1348,7 +1420,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
       }
       
-      if (!isMC && sample == Sample::qcd) 
+      if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*pfwgt*hltw;
       else if (!isMC)
 	evtwgt = hltw;      
@@ -1518,7 +1590,7 @@ void makehist4(TTree* tree, /*input tree*/
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum);
       }
-      if (!isMC && sample == Sample::qcd) 
+      if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
       else if (!isMC)
 	evtwgt = hltw;
