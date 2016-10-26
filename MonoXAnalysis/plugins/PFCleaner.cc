@@ -312,8 +312,54 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     const Ptr<pat::Electron> electronPtr(electronsH, electrons_iter - electronsH->begin());
     size_t ipos = 0;
     for(auto iele : electronSelection){
-      bool passesid       = (*electronMapH.at(ipos))[electronPtr];
-      if(passesid){
+
+      // bool for the electron id
+      bool passesid = (*electronMapH.at(ipos))[electronPtr];      
+      // bool for dxy and dz cut that are taken out from standard electron VID
+      bool pass_dxy = false;
+      bool pass_dz  = false;
+      if(verticesH->size() > 0){
+	const reco::Vertex & vtx  = verticesH->at(0);
+	// barrel
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	   fabs(electrons_iter->gsfTrack()->dxy(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Barrel"))
+	  pass_dxy = true;
+	// endcalp
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+		fabs(electrons_iter->gsfTrack()->dxy(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Endcap"))
+	  pass_dxy = true;
+	// barrel
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	   fabs(electrons_iter->gsfTrack()->dz(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzBarrel"))
+	  pass_dz = true;
+	//endcap
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+		fabs(electrons_iter->gsfTrack()->dz(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzEndcap"))
+	  pass_dz = true;
+      }
+      else{
+	//barrel
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	   fabs(electrons_iter->gsfTrack()->dxy()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Barrel"))
+	  pass_dxy = true;
+	//endcap
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+		fabs(electrons_iter->gsfTrack()->dxy()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Endcap"))
+	  pass_dxy = true;
+	
+	//barrel
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	   fabs(electrons_iter->gsfTrack()->dz()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzBarrel"))
+	  pass_dz = true;
+	//endcap
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+		fabs(electrons_iter->gsfTrack()->dz()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzEndcap"))
+	  pass_dz = true;
+      }
+
+
+
+      if(passesid and pass_dxy and pass_dz){
 	// match with calibrate electrons if possible
 	if(calibratedElectronsH.isValid()){ // check if it exists
 	  for(vector<pat::Electron>::const_iterator calibele_iter = calibratedElectronsH->begin();
@@ -322,8 +368,10 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    if(calibele_iter->pfCandidateRef()     == electrons_iter->pfCandidateRef() or 
 	       calibele_iter->core()               == electrons_iter->core() or
 	       calibele_iter->originalObjectRef()  == electrons_iter->originalObjectRef()){
+	      
 	      bool passeskincuts  = (calibele_iter->pt() > iele.getParameter<double>("ptMin") &&
 				     fabs(calibele_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
+	      
 	      if(not passeskincuts) continue;
 	      outputelectrons.at(ipos)->push_back(pat::ElectronRef(calibratedElectronsH,calibele_iter-calibratedElectronsH->begin()));
 	    }
@@ -397,7 +445,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // loop on the photon colection
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
 
-    float gaisoval      = computePhotonIso(pfcandsH,photons_iter->eta(),  photons_iter->phi(),0.3);     
+    float gaisoval = computePhotonIso(pfcandsH,photons_iter->eta(),  photons_iter->phi(),0.3);     
     gammaiso.push_back(gaisoval);
     float chisoval = 0;
     for(size_t i = 0; i < pfcandsH->size(); i++) {
@@ -514,10 +562,12 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  for(vector<pat::Photon>::const_iterator calibpho_iter = calibratedPhotonsH->begin();
 	      calibpho_iter != calibratedPhotonsH->end(); ++calibpho_iter){
 	    // match by reference                                                                                                                                        
-	    if(calibpho_iter->superCluster()     == photons_iter->superCluster() or
+	    if(calibpho_iter->superCluster()       == photons_iter->superCluster() or
 	       calibpho_iter->originalObjectRef()  == photons_iter->originalObjectRef()){
 	      isMatched = true;
-	      if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or calibpho_iter->pt() < ipho.getParameter<double>("ptMin") or not calibpho_iter->passElectronVeto()) continue;	      
+	      if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or 
+		  calibpho_iter->pt() < ipho.getParameter<double>("ptMin") or 
+		  not calibpho_iter->passElectronVeto()) continue;	      
 	      outputphotons.at(ipos)->push_back(pat::PhotonRef(calibratedPhotonsH,calibpho_iter-calibratedPhotonsH->begin()));
 	    }
 	  }
@@ -525,7 +575,9 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    throw cms::Exception("PFCleaner") <<" missing matching for one photons between calib and un-calib collections --> check \n";
 	}
 	else{
-	  if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or photons_iter->pt() < ipho.getParameter<double>("ptMin") or not photons_iter->passElectronVeto()) continue;
+	  if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or 
+	      photons_iter->pt() < ipho.getParameter<double>("ptMin") or 
+	      not photons_iter->passElectronVeto()) continue;
 	  outputphotons.at(ipos)->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
 	}
       }

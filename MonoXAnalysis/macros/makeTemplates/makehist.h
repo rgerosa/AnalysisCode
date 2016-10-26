@@ -35,7 +35,7 @@ const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
 const float pfMetMonoJUpper = 8000.;
 const float pfMetMonoJLower = 200.;
-const float pfMetVBFLower   = 150.;
+const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -666,7 +666,10 @@ void makehist4(TTree* tree, /*input tree*/
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt > 160) continue;
-    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet) and *wmt > 100) continue;
+    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){
+      if(pfMetVBFLower < 200 and *wmt > 100) continue;
+      else if(pfMetVBFLower > 200 and *wmt > 160) continue;
+    }
     // photon control sample
     if ((sample == Sample::qcdgam || sample == Sample::gam) && pt1 < photonPt) continue;
     if ((sample == Sample::qcdgam || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
@@ -1018,7 +1021,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
 	if(fabs(jeteta->at(0)) >= 3.0 and nhfrac->at(0) > 0.96) continue;
-	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
+	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -1033,7 +1036,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
 	if(fabs(jeteta->at(0)) >= 3.0 and nhfrac->at(0) > 0.96) continue;
-	//	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
+	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
 	if (sample != Sample::qcd and jmdphi < 0.5) continue;
 	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
       }

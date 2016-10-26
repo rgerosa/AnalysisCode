@@ -508,6 +508,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      electrons       = cms.InputTag("selectedObjects", "electrons"),
 			      looseelectrons  = cms.InputTag("selectedObjects", "looseelectrons"),
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
+			      triggerelectrons = cms.InputTag("selectedObjects", "triggerelectrons"),
 			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
 			      ## photons --> can be matched by reference 
 			      rho             = cms.InputTag("fixedGridRhoFastjetAll"),

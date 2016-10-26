@@ -108,23 +108,23 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // find photon info
-  void findMother(const reco::Candidate*, int &, double &, double &, double &);
-  void findFirstNonPhotonMother(const reco::Candidate*, int &, double &, double &, double &);
+  void findMother(const reco::Candidate*, int &, float &, float &, float &);
+  void findFirstNonPhotonMother(const reco::Candidate*, int &, float &, float &, float &);
   // compute isolation
-  double computeMuonIso(const reco::Muon &);  
+  float computeMuonIso(const reco::Muon &);  
   // to apply jet ID
   bool applyJetID(const pat::Jet &, const std::string &);
   // to apply pileup-jet id
   bool applyPileupJetID(const pat::Jet &, const std::string &, const bool &);
   // fill btag scale factors
-  void calculateBtagSF(const pat::Jet &, const std::string &, std::vector<double> &, std::vector<double> &, std::vector<double> &);
+  void calculateBtagSF(const pat::Jet &, const std::string &, std::vector<float> &, std::vector<float> &, std::vector<float> &);
 
   // information for photon purity
-  double getGammaEAForPhotonIso(double eta);
-  double getGammaNewEAForPhotonIso(double eta);
-  double getChargedHadronEAForPhotonIso(double eta);
-  double getNeutralHadronEAForPhotonIso(double eta);
-  double computeDR(const reco::Candidate *genPart,pat::PhotonRef phot);
+  float getGammaEAForPhotonIso(float eta);
+  float getGammaNewEAForPhotonIso(float eta);
+  float getChargedHadronEAForPhotonIso(float eta);
+  float getNeutralHadronEAForPhotonIso(float eta);
+  float computeDR(const reco::Candidate *genPart,pat::PhotonRef phot);
 
   // to dump trigger informations (HLT,L1)
   void fillTriggerObjects(const edm::Handle<pat::TriggerObjectStandAloneCollection> & triggerObjectsH, const edm::TriggerNames & trignames);
@@ -151,7 +151,7 @@ private:
   edm::EDGetTokenT<LHEEventProduct>                  lheInfoToken;
   edm::EDGetTokenT<LHERunInfoProduct>                lheRunInfoToken;
   edm::EDGetTokenT<edm::View<reco::GenParticle> >    gensToken;
-  double xsec;
+  float xsec;
 
   // InputTags for triggers and met filters
   const edm::InputTag triggerResultsTag;
@@ -199,11 +199,13 @@ private:
   const edm::InputTag  electronsTag;
   const edm::InputTag  looseelectronsTag;
   const edm::InputTag  tightelectronsTag;
+  const edm::InputTag  triggerelectronsTag;
   const edm::InputTag  heepelectronsTag;
 
   edm::EDGetTokenT<pat::ElectronRefVector>  electronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  looseelectronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  tightelectronsToken;
+  edm::EDGetTokenT<pat::ElectronRefVector>  triggerelectronsToken;
   edm::EDGetTokenT<pat::ElectronRefVector>  heepelectronsToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
 
@@ -352,7 +354,7 @@ private:
   int32_t wzid_h,q1id,q2id;
   int32_t top_1,top_2;  
   int32_t mu1pid,mu2pid,mu1id,mu2id,mu1idm,mu2idm,mu1idt,mu2idt;
-  int32_t el1pid,el2pid,el1id,el1idl,el2id,el2idl;
+  int32_t el1pid,el2pid,el1id,el1idl,el1idt,el2id,el2idl,el2idt;
   int32_t tau1pid,tau2pid;
   int32_t phidl,phidm,phidt,phidh,parid,ancid; 
 
@@ -360,7 +362,7 @@ private:
   uint32_t event, run, lumi;  
   uint32_t nvtx;
   uint32_t nmuons,ntightmuons,nhighptmuons;
-  uint32_t nelectrons,nlooseelectrons,ntightelectrons,nheepelectrons;
+  uint32_t nelectrons,nlooseelectrons,ntightelectrons,nheepelectrons,ntriggerelectrons;
   uint32_t ntaus,ntausraw,ntausold,ntausrawold,nphotons;
   uint32_t njets,nbjets,nbjetslowpt,nbjetsMVA,nbjetsMVAlowpt;  
   uint32_t npuppijets,npuppibjets,npuppibjetsMVA,npuppibjetslowpt,npuppibjetsMVAlowpt;
@@ -377,209 +379,209 @@ private:
   uint8_t hltphoton90PFHT;
 
   //pre-scales
-  double pswgt_ph120,pswgt_ph90;
-  double pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
+  float pswgt_ph120,pswgt_ph90;
+  float pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
   
   //met filters
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo, flagbadchpf, flagbadpfmu;
   
   // muon, ele, dilepton info
-  double mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
-  double el1pt,el1eta,el1phi,ele1e,el2pt,ele2e,el2eta,el2phi,phpt,pheta,phphi,phe;
-  double tau1pt,tau1eta,tau1phi,tau1m,tau1iso,tau2pt,tau2eta,tau2phi,tau2m,tau2iso;
-  double zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
-  double emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
+  float mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
+  float el1pt,el1eta,el1phi,ele1e,el2pt,ele2e,el2eta,el2phi,phpt,pheta,phphi,phe;
+  float tau1pt,tau1eta,tau1phi,tau1m,tau1iso,tau2pt,tau2eta,tau2phi,tau2m,tau2iso;
+  float zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
+  float emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
 
   // photon purity studies
   uint32_t nphotonsPurity;
-  double    phPHiso,  phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
-  double    phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso;
-  double    phPuritysieie, phPurityhoe, phPurityElectronVeto, phPurityEA,phPurityEAEGamma;
+  float    phPHiso,  phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
+  float    phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso;
+  float    phPuritysieie, phPurityhoe, phPurityElectronVeto, phPurityEA,phPurityEAEGamma;
  
   // PF MET info (typeI and Raw)
-  double rho;
-  double t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
-  double pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
-  double calomet, calometphi;
+  float rho;
+  float t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
+  float pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
+  float calomet, calometphi;
 
   // MET break down
-  double pfmethadronHF,pfmethadronHFphi,pfmetegammaHF,pfmetegammaHFphi,pfmetchargedhadron,pfmetchargedhadronphi;
-  double pfmetneutralhadron,pfmetneutralhadronphi,pfmetelectrons,pfmetelectronsphi,pfmetmuons,pfmetmuonsphi,pfmetphotons,pfmetphotonsphi,pfmetunclustered,pfmetunclusteredphi;
+  float pfmethadronHF,pfmethadronHFphi,pfmetegammaHF,pfmetegammaHFphi,pfmetchargedhadron,pfmetchargedhadronphi;
+  float pfmetneutralhadron,pfmetneutralhadronphi,pfmetelectrons,pfmetelectronsphi,pfmetmuons,pfmetmuonsphi,pfmetphotons,pfmetphotonsphi,pfmetunclustered,pfmetunclusteredphi;
 
   // Puppi MET info (typeI and Raw)
-  double puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi,puppitaumet,puppitaumetphi;
-  double puppit1pfmet,puppit1pfmetphi,puppit1mumet,puppit1mumetphi,puppit1elmet,puppit1elmetphi,puppit1phmet,puppit1phmetphi,puppit1taumet,puppit1taumetphi;
+  float puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi,puppitaumet,puppitaumetphi;
+  float puppit1pfmet,puppit1pfmetphi,puppit1mumet,puppit1mumetphi,puppit1elmet,puppit1elmetphi,puppit1phmet,puppit1phmetphi,puppit1taumet,puppit1taumetphi;
 
   // mva met
-  double mvamet,mvametphi;
+  float mvamet,mvametphi;
 
   // gen met
-  double genmet,genmetphi;
+  float genmet,genmetphi;
 
   // met systematics
-  double t1pfmetMuEnUp,t1pfmetMuEnDown,t1pfmetElEnUp,t1pfmetElEnDown,t1pfmetPhoEnUp,t1pfmetPhoEnDown,t1pfmetTauEnUp,t1pfmetTauEnDown;
-  double t1pfmetJetEnUp,t1pfmetJetEnDown,t1pfmetJetResUp,t1pfmetJetResDown,t1pfmetUncEnUp,t1pfmetUncEnDown,t1pfmetJetSmear,t1pfmetXY;
-  double t1pfmetMuEnUpPhi,t1pfmetMuEnDownPhi,t1pfmetElEnUpPhi,t1pfmetElEnDownPhi,t1pfmetPhoEnUpPhi,t1pfmetPhoEnDownPhi,t1pfmetTauEnUpPhi,t1pfmetTauEnDownPhi;
-  double t1pfmetJetEnUpPhi,t1pfmetJetEnDownPhi,t1pfmetJetResUpPhi,t1pfmetJetResDownPhi,t1pfmetUncEnUpPhi,t1pfmetUncEnDownPhi,t1pfmetJetSmearPhi,t1pfmetXYPhi;
+  float t1pfmetMuEnUp,t1pfmetMuEnDown,t1pfmetElEnUp,t1pfmetElEnDown,t1pfmetPhoEnUp,t1pfmetPhoEnDown,t1pfmetTauEnUp,t1pfmetTauEnDown;
+  float t1pfmetJetEnUp,t1pfmetJetEnDown,t1pfmetJetResUp,t1pfmetJetResDown,t1pfmetUncEnUp,t1pfmetUncEnDown,t1pfmetJetSmear,t1pfmetXY;
+  float t1pfmetMuEnUpPhi,t1pfmetMuEnDownPhi,t1pfmetElEnUpPhi,t1pfmetElEnDownPhi,t1pfmetPhoEnUpPhi,t1pfmetPhoEnDownPhi,t1pfmetTauEnUpPhi,t1pfmetTauEnDownPhi;
+  float t1pfmetJetEnUpPhi,t1pfmetJetEnDownPhi,t1pfmetJetResUpPhi,t1pfmetJetResDownPhi,t1pfmetUncEnUpPhi,t1pfmetUncEnDownPhi,t1pfmetJetSmearPhi,t1pfmetXYPhi;
 
   // met systematics puppi
-  double puppit1pfmetMuEnUp,puppit1pfmetMuEnDown,puppit1pfmetElEnUp,puppit1pfmetElEnDown,puppit1pfmetPhoEnUp,puppit1pfmetPhoEnDown,puppit1pfmetTauEnUp;
-  double puppit1pfmetTauEnDown,puppit1pfmetJetEnUp,puppit1pfmetJetEnDown,puppit1pfmetJetResUp,puppit1pfmetJetResDown,puppit1pfmetUncEnUp,puppit1pfmetUncEnDown;
-  double puppit1pfmetMuEnUpPhi,puppit1pfmetMuEnDownPhi,puppit1pfmetElEnUpPhi,puppit1pfmetElEnDownPhi;
-  double puppit1pfmetPhoEnUpPhi,puppit1pfmetPhoEnDownPhi,puppit1pfmetTauEnUpPhi,puppit1pfmetTauEnDownPhi;
-  double puppit1pfmetJetEnUpPhi,puppit1pfmetJetEnDownPhi,puppit1pfmetJetResUpPhi,puppit1pfmetJetResDownPhi;
-  double puppit1pfmetUncEnUpPhi,puppit1pfmetUncEnDownPhi,puppit1pfmetJetSmearPhi,puppit1pfmetXYPhi;
+  float puppit1pfmetMuEnUp,puppit1pfmetMuEnDown,puppit1pfmetElEnUp,puppit1pfmetElEnDown,puppit1pfmetPhoEnUp,puppit1pfmetPhoEnDown,puppit1pfmetTauEnUp;
+  float puppit1pfmetTauEnDown,puppit1pfmetJetEnUp,puppit1pfmetJetEnDown,puppit1pfmetJetResUp,puppit1pfmetJetResDown,puppit1pfmetUncEnUp,puppit1pfmetUncEnDown;
+  float puppit1pfmetMuEnUpPhi,puppit1pfmetMuEnDownPhi,puppit1pfmetElEnUpPhi,puppit1pfmetElEnDownPhi;
+  float puppit1pfmetPhoEnUpPhi,puppit1pfmetPhoEnDownPhi,puppit1pfmetTauEnUpPhi,puppit1pfmetTauEnDownPhi;
+  float puppit1pfmetJetEnUpPhi,puppit1pfmetJetEnDownPhi,puppit1pfmetJetResUpPhi,puppit1pfmetJetResDownPhi;
+  float puppit1pfmetUncEnUpPhi,puppit1pfmetUncEnDownPhi,puppit1pfmetJetSmearPhi,puppit1pfmetXYPhi;
 
   // AK4CHS combine jet
-  std::vector<double> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA;
-  std::vector<double> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetmetdphi;
-  std::vector<double> combinejetHFlav,combinejetPFlav,combinejetQGL,combinejetPUID, combinejetPassPUID; 
-  std::vector<double> combinejetGenpt,combinejetGeneta,combinejetGenphi,combinejetGenm;
-  std::vector<double> combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown;
-  std::vector<double> combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown;
+  std::vector<float> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA;
+  std::vector<float> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetmetdphi;
+  std::vector<float> combinejetHFlav,combinejetPFlav,combinejetQGL,combinejetPUID, combinejetPassPUID; 
+  std::vector<float> combinejetGenpt,combinejetGeneta,combinejetGenphi,combinejetGenm;
+  std::vector<float> combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown;
+  std::vector<float> combinejetBtagMVASF,combinejetBtagMVASFUp,combinejetBtagMVASFDown;
 
-  double incjetmetdphimin,incjetmumetdphimin,incjetelmetdphimin,incjetphmetdphimin,jetjetdphi,ht,htinc,ht30;
-  double incjetmetdphimin4,incjetmumetdphimin4,incjetelmetdphimin4,incjetphmetdphimin4; 
-  double alljetmetdphimin,alljetmetdphimin4,alljetmumetdphimin,alljetmumetdphimin4,alljetelmetdphimin,alljetelmetdphimin4,alljetphmetdphimin,alljetphmetdphimin4;
+  float incjetmetdphimin,incjetmumetdphimin,incjetelmetdphimin,incjetphmetdphimin,jetjetdphi,ht,htinc,ht30;
+  float incjetmetdphimin4,incjetmumetdphimin4,incjetelmetdphimin4,incjetphmetdphimin4; 
+  float alljetmetdphimin,alljetmetdphimin4,alljetmumetdphimin,alljetmumetdphimin4,alljetelmetdphimin,alljetelmetdphimin4,alljetphmetdphimin,alljetphmetdphimin4;
 
   // AK4Puppi combine jet
-  std::vector<double> combinePuppijetpt,combinePuppijeteta,combinePuppijetphi,combinePuppijetm,combinePuppijetbtag,combinePuppijetbtagMVA;
-  std::vector<double> combinePuppijetCHfrac,combinePuppijetNHfrac,combinePuppijetEMfrac,combinePuppijetCEMfrac,combinePuppijetmetdphi;
-  std::vector<double> combinePuppijetHFlav,combinePuppijetPFlav,combinePuppijetQGL;
-  std::vector<double> combinePuppijetGenpt,combinePuppijetGeneta,combinePuppijetGenphi,combinePuppijetGenm;
-  std::vector<double> combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown;
-  std::vector<double> combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown;
+  std::vector<float> combinePuppijetpt,combinePuppijeteta,combinePuppijetphi,combinePuppijetm,combinePuppijetbtag,combinePuppijetbtagMVA;
+  std::vector<float> combinePuppijetCHfrac,combinePuppijetNHfrac,combinePuppijetEMfrac,combinePuppijetCEMfrac,combinePuppijetmetdphi;
+  std::vector<float> combinePuppijetHFlav,combinePuppijetPFlav,combinePuppijetQGL;
+  std::vector<float> combinePuppijetGenpt,combinePuppijetGeneta,combinePuppijetGenphi,combinePuppijetGenm;
+  std::vector<float> combinePuppijetBtagSF,combinePuppijetBtagSFUp,combinePuppijetBtagSFDown;
+  std::vector<float> combinePuppijetBtagMVASF,combinePuppijetBtagMVASFUp,combinePuppijetBtagMVASFDown;
 
-  double Puppijetmetdphimin,incPuppijetmetdphimin,Puppijetmumetdphimin,incPuppijetmumetdphimin,Puppijetelmetdphimin;
-  double incPuppijetelmetdphimin,Puppijetphmetdphimin,incPuppijetphmetdphimin,PuppijetPuppijetdphi;
-  double Puppijetmetdphimin4,incPuppijetmetdphimin4,Puppijetmumetdphimin4,incPuppijetmumetdphimin4;
-  double Puppijetelmetdphimin4,incPuppijetelmetdphimin4,Puppijetphmetdphimin4,incPuppijetphmetdphimin4,Puppiht; 
+  float Puppijetmetdphimin,incPuppijetmetdphimin,Puppijetmumetdphimin,incPuppijetmumetdphimin,Puppijetelmetdphimin;
+  float incPuppijetelmetdphimin,Puppijetphmetdphimin,incPuppijetphmetdphimin,PuppijetPuppijetdphi;
+  float Puppijetmetdphimin4,incPuppijetmetdphimin4,Puppijetmumetdphimin4,incPuppijetmumetdphimin4;
+  float Puppijetelmetdphimin4,incPuppijetelmetdphimin4,Puppijetphmetdphimin4,incPuppijetphmetdphimin4,Puppiht; 
   
   // AK8 CHS jets
-  std::vector<double> boostedJetpt,boostedJeteta,boostedJetphi,boostedJetm;
-  std::vector<double> boostedJetGenpt,boostedJetGenm,boostedJetGeneta,boostedJetGenphi;
-  std::vector<double> boostedJettau1,boostedJettau2,boostedJettau3,boostedJettau4;
-  std::vector<double> boostedJetGentau1,boostedJetGentau2,boostedJetGentau3,boostedJetGentau4;
-  std::vector<double> boostedJetHFlav,boostedJetPFlav,boostedJetQGL,boostedJetBtag,boostedJetDoubleBtag;
+  std::vector<float> boostedJetpt,boostedJeteta,boostedJetphi,boostedJetm;
+  std::vector<float> boostedJetGenpt,boostedJetGenm,boostedJetGeneta,boostedJetGenphi;
+  std::vector<float> boostedJettau1,boostedJettau2,boostedJettau3,boostedJettau4;
+  std::vector<float> boostedJetGentau1,boostedJetGentau2,boostedJetGentau3,boostedJetGentau4;
+  std::vector<float> boostedJetHFlav,boostedJetPFlav,boostedJetQGL,boostedJetBtag,boostedJetDoubleBtag;
 
-  std::vector<double> prunedJetpt,prunedJetm,prunedJetphi,prunedJeteta;
-  std::vector<double> prunedJetm_v2, prunedJetpt_v2, prunedJetphi_v2, prunedJeteta_v2;
-  std::vector<double> prunedJetGenpt,prunedJetGenm,prunedJetGeneta,prunedJetGenphi;
-  std::vector<double> prunedJetptraw,prunedJetmraw;
-  std::vector<double> prunedJetHFlav,prunedJetPFlav,prunedJetQGL,prunedJetBtag,prunedJetDoubleBtag;
+  std::vector<float> prunedJetpt,prunedJetm,prunedJetphi,prunedJeteta;
+  std::vector<float> prunedJetm_v2, prunedJetpt_v2, prunedJetphi_v2, prunedJeteta_v2;
+  std::vector<float> prunedJetGenpt,prunedJetGenm,prunedJetGeneta,prunedJetGenphi;
+  std::vector<float> prunedJetptraw,prunedJetmraw;
+  std::vector<float> prunedJetHFlav,prunedJetPFlav,prunedJetQGL,prunedJetBtag,prunedJetDoubleBtag;
 
-  std::vector<double> softDropJetpt,softDropJetm,softDropJeteta,softDropJetphi;
-  std::vector<double> softDropJetm_v2, softDropJetpt_v2, softDropJetphi_v2, softDropJeteta_v2;
-  std::vector<double> softDropJetGenpt,softDropJetGenm,softDropJetGeneta,softDropJetGenphi;
-  std::vector<double> softDropJetHFlav,softDropJetPFlav,softDropJetQGL,softDropJetBtag,softDropJetDoubleBtag;
-  std::vector<double> softDropJetptraw,softDropJetmraw;
+  std::vector<float> softDropJetpt,softDropJetm,softDropJeteta,softDropJetphi;
+  std::vector<float> softDropJetm_v2, softDropJetpt_v2, softDropJetphi_v2, softDropJeteta_v2;
+  std::vector<float> softDropJetGenpt,softDropJetGenm,softDropJetGeneta,softDropJetGenphi;
+  std::vector<float> softDropJetHFlav,softDropJetPFlav,softDropJetQGL,softDropJetBtag,softDropJetDoubleBtag;
+  std::vector<float> softDropJetptraw,softDropJetmraw;
 
-  std::vector<double> prunedSubJetpt_1,prunedSubJetm_1,prunedSubJetphi_1,prunedSubJeteta_1;
-  std::vector<double> prunedSubJetHFlav_1,prunedSubJetQGL_1,prunedSubJetBtag_1;
-  std::vector<double> prunedSubJetGenpt_1,prunedSubJetGenm_1,prunedSubJetGeneta_1,prunedSubJetGenphi_1,prunedSubJetPFlav_1;
-  std::vector<double> prunedSubJetptraw_1,prunedSubJetmraw_1;
-  std::vector<double> prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1;
+  std::vector<float> prunedSubJetpt_1,prunedSubJetm_1,prunedSubJetphi_1,prunedSubJeteta_1;
+  std::vector<float> prunedSubJetHFlav_1,prunedSubJetQGL_1,prunedSubJetBtag_1;
+  std::vector<float> prunedSubJetGenpt_1,prunedSubJetGenm_1,prunedSubJetGeneta_1,prunedSubJetGenphi_1,prunedSubJetPFlav_1;
+  std::vector<float> prunedSubJetptraw_1,prunedSubJetmraw_1;
+  std::vector<float> prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1;
 
-  std::vector<double> prunedSubJetpt_2,prunedSubJetm_2,prunedSubJetphi_2,prunedSubJeteta_2,prunedSubJetHFlav_2,prunedSubJetQGL_2,prunedSubJetBtag_2;
-  std::vector<double> prunedSubJetGenpt_2,prunedSubJetGenm_2,prunedSubJetGeneta_2,prunedSubJetGenphi_2,prunedSubJetPFlav_2;
-  std::vector<double> prunedSubJetptraw_2,prunedSubJetmraw_2;
-  std::vector<double> prunedSubJetBtagSF_2,prunedSubJetBtagSFUp_2,prunedSubJetBtagSFDown_2;
+  std::vector<float> prunedSubJetpt_2,prunedSubJetm_2,prunedSubJetphi_2,prunedSubJeteta_2,prunedSubJetHFlav_2,prunedSubJetQGL_2,prunedSubJetBtag_2;
+  std::vector<float> prunedSubJetGenpt_2,prunedSubJetGenm_2,prunedSubJetGeneta_2,prunedSubJetGenphi_2,prunedSubJetPFlav_2;
+  std::vector<float> prunedSubJetptraw_2,prunedSubJetmraw_2;
+  std::vector<float> prunedSubJetBtagSF_2,prunedSubJetBtagSFUp_2,prunedSubJetBtagSFDown_2;
 
-  std::vector<double> softDropSubJetpt_1,softDropSubJetm_1,softDropSubJetphi_1,softDropSubJeteta_1;
-  std::vector<double> softDropSubJetHFlav_1,softDropSubJetQGL_1,softDropSubJetBtag_1;
-  std::vector<double> softDropSubJetGenpt_1,softDropSubJetGenm_1,softDropSubJetGeneta_1,softDropSubJetGenphi_1,softDropSubJetPFlav_1;
-  std::vector<double> softDropSubJetptraw_1,softDropSubJetmraw_1;
-  std::vector<double> softDropSubJetBtagSF_1,softDropSubJetBtagSFUp_1,softDropSubJetBtagSFDown_1;
+  std::vector<float> softDropSubJetpt_1,softDropSubJetm_1,softDropSubJetphi_1,softDropSubJeteta_1;
+  std::vector<float> softDropSubJetHFlav_1,softDropSubJetQGL_1,softDropSubJetBtag_1;
+  std::vector<float> softDropSubJetGenpt_1,softDropSubJetGenm_1,softDropSubJetGeneta_1,softDropSubJetGenphi_1,softDropSubJetPFlav_1;
+  std::vector<float> softDropSubJetptraw_1,softDropSubJetmraw_1;
+  std::vector<float> softDropSubJetBtagSF_1,softDropSubJetBtagSFUp_1,softDropSubJetBtagSFDown_1;
 
-  std::vector<double> softDropSubJetpt_2,softDropSubJetm_2,softDropSubJetphi_2,softDropSubJeteta_2,softDropSubJetHFlav_2; 
-  std::vector<double> softDropSubJetQGL_2,softDropSubJetBtag_2;
-  std::vector<double> softDropSubJetGenpt_2,softDropSubJetGenm_2,softDropSubJetGeneta_2,softDropSubJetGenphi_2,softDropSubJetPFlav_2;
-  std::vector<double> softDropSubJetptraw_2,softDropSubJetmraw_2;
-  std::vector<double> softDropSubJetBtagSF_2,softDropSubJetBtagSFUp_2,softDropSubJetBtagSFDown_2;
+  std::vector<float> softDropSubJetpt_2,softDropSubJetm_2,softDropSubJetphi_2,softDropSubJeteta_2,softDropSubJetHFlav_2; 
+  std::vector<float> softDropSubJetQGL_2,softDropSubJetBtag_2;
+  std::vector<float> softDropSubJetGenpt_2,softDropSubJetGenm_2,softDropSubJetGeneta_2,softDropSubJetGenphi_2,softDropSubJetPFlav_2;
+  std::vector<float> softDropSubJetptraw_2,softDropSubJetmraw_2;
+  std::vector<float> softDropSubJetBtagSF_2,softDropSubJetBtagSFUp_2,softDropSubJetBtagSFDown_2;
 
   // AK8 Puppi jets
-  std::vector<double> boostedPuppiJetpt,boostedPuppiJeteta,boostedPuppiJetphi,boostedPuppiJetm;
-  std::vector<double> boostedPuppiJetGenpt,boostedPuppiJetGenm,boostedPuppiJetGeneta,boostedPuppiJetGenphi;
-  std::vector<double> boostedPuppiJettau1,boostedPuppiJettau2,boostedPuppiJettau3,boostedPuppiJettau4;
-  std::vector<double> boostedPuppiJetGentau1,boostedPuppiJetGentau2,boostedPuppiJetGentau3,boostedPuppiJetGentau4;
-  std::vector<double> boostedPuppiJetHFlav,boostedPuppiJetPFlav,boostedPuppiJetQGL,boostedPuppiJetBtag,boostedPuppiJetDoubleBtag;
+  std::vector<float> boostedPuppiJetpt,boostedPuppiJeteta,boostedPuppiJetphi,boostedPuppiJetm;
+  std::vector<float> boostedPuppiJetGenpt,boostedPuppiJetGenm,boostedPuppiJetGeneta,boostedPuppiJetGenphi;
+  std::vector<float> boostedPuppiJettau1,boostedPuppiJettau2,boostedPuppiJettau3,boostedPuppiJettau4;
+  std::vector<float> boostedPuppiJetGentau1,boostedPuppiJetGentau2,boostedPuppiJetGentau3,boostedPuppiJetGentau4;
+  std::vector<float> boostedPuppiJetHFlav,boostedPuppiJetPFlav,boostedPuppiJetQGL,boostedPuppiJetBtag,boostedPuppiJetDoubleBtag;
 
-  std::vector<double> prunedPuppiJetpt,prunedPuppiJetm,prunedPuppiJetphi,prunedPuppiJeteta;
-  std::vector<double> prunedPuppiJetm_v2, prunedPuppiJetpt_v2, prunedPuppiJetphi_v2, prunedPuppiJeteta_v2;
-  std::vector<double> prunedPuppiJetGenpt,prunedPuppiJetGenm,prunedPuppiJetGeneta,prunedPuppiJetGenphi;
-  std::vector<double> prunedPuppiJetptraw,prunedPuppiJetmraw;
-  std::vector<double> prunedPuppiJetHFlav,prunedPuppiJetPFlav,prunedPuppiJetQGL,prunedPuppiJetBtag,prunedPuppiJetDoubleBtag;
+  std::vector<float> prunedPuppiJetpt,prunedPuppiJetm,prunedPuppiJetphi,prunedPuppiJeteta;
+  std::vector<float> prunedPuppiJetm_v2, prunedPuppiJetpt_v2, prunedPuppiJetphi_v2, prunedPuppiJeteta_v2;
+  std::vector<float> prunedPuppiJetGenpt,prunedPuppiJetGenm,prunedPuppiJetGeneta,prunedPuppiJetGenphi;
+  std::vector<float> prunedPuppiJetptraw,prunedPuppiJetmraw;
+  std::vector<float> prunedPuppiJetHFlav,prunedPuppiJetPFlav,prunedPuppiJetQGL,prunedPuppiJetBtag,prunedPuppiJetDoubleBtag;
 
-  std::vector<double> softDropPuppiJetpt,softDropPuppiJetm,softDropPuppiJeteta,softDropPuppiJetphi;
-  std::vector<double> softDropPuppiJetm_v2, softDropPuppiJetpt_v2, softDropPuppiJeteta_v2, softDropPuppiJetphi_v2;
-  std::vector<double> softDropPuppiJetGenpt,softDropPuppiJetGenm,softDropPuppiJetGeneta,softDropPuppiJetGenphi;
-  std::vector<double> softDropPuppiJetHFlav,softDropPuppiJetPFlav,softDropPuppiJetQGL,softDropPuppiJetBtag,softDropPuppiJetDoubleBtag;
-  std::vector<double> softDropPuppiJetptraw,softDropPuppiJetmraw;
+  std::vector<float> softDropPuppiJetpt,softDropPuppiJetm,softDropPuppiJeteta,softDropPuppiJetphi;
+  std::vector<float> softDropPuppiJetm_v2, softDropPuppiJetpt_v2, softDropPuppiJeteta_v2, softDropPuppiJetphi_v2;
+  std::vector<float> softDropPuppiJetGenpt,softDropPuppiJetGenm,softDropPuppiJetGeneta,softDropPuppiJetGenphi;
+  std::vector<float> softDropPuppiJetHFlav,softDropPuppiJetPFlav,softDropPuppiJetQGL,softDropPuppiJetBtag,softDropPuppiJetDoubleBtag;
+  std::vector<float> softDropPuppiJetptraw,softDropPuppiJetmraw;
 
-  std::vector<double> prunedPuppiSubJetpt_1,prunedPuppiSubJetm_1,prunedPuppiSubJetphi_1,prunedPuppiSubJeteta_1,prunedPuppiSubJetHFlav_1;
-  std::vector<double> prunedPuppiSubJetQGL_1,prunedPuppiSubJetBtag_1;
-  std::vector<double> prunedPuppiSubJetGenpt_1,prunedPuppiSubJetGenm_1,prunedPuppiSubJetGeneta_1,prunedPuppiSubJetGenphi_1,prunedPuppiSubJetPFlav_1;
-  std::vector<double> prunedPuppiSubJetptraw_1,prunedPuppiSubJetmraw_1;
-  std::vector<double> prunedPuppiSubJetBtagSF_1,prunedPuppiSubJetBtagSFUp_1,prunedPuppiSubJetBtagSFDown_1;
+  std::vector<float> prunedPuppiSubJetpt_1,prunedPuppiSubJetm_1,prunedPuppiSubJetphi_1,prunedPuppiSubJeteta_1,prunedPuppiSubJetHFlav_1;
+  std::vector<float> prunedPuppiSubJetQGL_1,prunedPuppiSubJetBtag_1;
+  std::vector<float> prunedPuppiSubJetGenpt_1,prunedPuppiSubJetGenm_1,prunedPuppiSubJetGeneta_1,prunedPuppiSubJetGenphi_1,prunedPuppiSubJetPFlav_1;
+  std::vector<float> prunedPuppiSubJetptraw_1,prunedPuppiSubJetmraw_1;
+  std::vector<float> prunedPuppiSubJetBtagSF_1,prunedPuppiSubJetBtagSFUp_1,prunedPuppiSubJetBtagSFDown_1;
 
-  std::vector<double> prunedPuppiSubJetpt_2,prunedPuppiSubJetm_2,prunedPuppiSubJetphi_2,prunedPuppiSubJeteta_2,prunedPuppiSubJetHFlav_2;
-  std::vector<double> prunedPuppiSubJetQGL_2,prunedPuppiSubJetBtag_2;
-  std::vector<double> prunedPuppiSubJetGenpt_2,prunedPuppiSubJetGenm_2,prunedPuppiSubJetGeneta_2,prunedPuppiSubJetGenphi_2,prunedPuppiSubJetPFlav_2;
-  std::vector<double> prunedPuppiSubJetptraw_2,prunedPuppiSubJetmraw_2;
-  std::vector<double> prunedPuppiSubJetBtagSF_2,prunedPuppiSubJetBtagSFUp_2,prunedPuppiSubJetBtagSFDown_2;
+  std::vector<float> prunedPuppiSubJetpt_2,prunedPuppiSubJetm_2,prunedPuppiSubJetphi_2,prunedPuppiSubJeteta_2,prunedPuppiSubJetHFlav_2;
+  std::vector<float> prunedPuppiSubJetQGL_2,prunedPuppiSubJetBtag_2;
+  std::vector<float> prunedPuppiSubJetGenpt_2,prunedPuppiSubJetGenm_2,prunedPuppiSubJetGeneta_2,prunedPuppiSubJetGenphi_2,prunedPuppiSubJetPFlav_2;
+  std::vector<float> prunedPuppiSubJetptraw_2,prunedPuppiSubJetmraw_2;
+  std::vector<float> prunedPuppiSubJetBtagSF_2,prunedPuppiSubJetBtagSFUp_2,prunedPuppiSubJetBtagSFDown_2;
 
-  std::vector<double> softDropPuppiSubJetpt_1,softDropPuppiSubJetm_1,softDropPuppiSubJetphi_1,softDropPuppiSubJeteta_1;
-  std::vector<double> softDropPuppiSubJetHFlav_1,softDropPuppiSubJetQGL_1,softDropPuppiSubJetBtag_1;
-  std::vector<double> softDropPuppiSubJetGenpt_1,softDropPuppiSubJetGenm_1,softDropPuppiSubJetGeneta_1,softDropPuppiSubJetGenphi_1,softDropPuppiSubJetPFlav_1;
-  std::vector<double> softDropPuppiSubJetptraw_1,softDropPuppiSubJetmraw_1;
-  std::vector<double> softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1;
+  std::vector<float> softDropPuppiSubJetpt_1,softDropPuppiSubJetm_1,softDropPuppiSubJetphi_1,softDropPuppiSubJeteta_1;
+  std::vector<float> softDropPuppiSubJetHFlav_1,softDropPuppiSubJetQGL_1,softDropPuppiSubJetBtag_1;
+  std::vector<float> softDropPuppiSubJetGenpt_1,softDropPuppiSubJetGenm_1,softDropPuppiSubJetGeneta_1,softDropPuppiSubJetGenphi_1,softDropPuppiSubJetPFlav_1;
+  std::vector<float> softDropPuppiSubJetptraw_1,softDropPuppiSubJetmraw_1;
+  std::vector<float> softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1;
 
-  std::vector<double> softDropPuppiSubJetpt_2,softDropPuppiSubJetm_2,softDropPuppiSubJetphi_2,softDropPuppiSubJeteta_2,softDropPuppiSubJetHFlav_2; 
-  std::vector<double> softDropPuppiSubJetQGL_2,softDropPuppiSubJetBtag_2;
-  std::vector<double> softDropPuppiSubJetGenpt_2,softDropPuppiSubJetGenm_2,softDropPuppiSubJetGeneta_2,softDropPuppiSubJetGenphi_2,softDropPuppiSubJetPFlav_2;
-  std::vector<double> softDropPuppiSubJetptraw_2,softDropPuppiSubJetmraw_2;
-  std::vector<double> softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2;
+  std::vector<float> softDropPuppiSubJetpt_2,softDropPuppiSubJetm_2,softDropPuppiSubJetphi_2,softDropPuppiSubJeteta_2,softDropPuppiSubJetHFlav_2; 
+  std::vector<float> softDropPuppiSubJetQGL_2,softDropPuppiSubJetBtag_2;
+  std::vector<float> softDropPuppiSubJetGenpt_2,softDropPuppiSubJetGenm_2,softDropPuppiSubJetGeneta_2,softDropPuppiSubJetGenphi_2,softDropPuppiSubJetPFlav_2;
+  std::vector<float> softDropPuppiSubJetptraw_2,softDropPuppiSubJetmraw_2;
+  std::vector<float> softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2;
 
   // special branches for photon efficiency variables dump
-  std::vector<double> photonPt, photonEta, photonPhi, photonE, photonSCEta, photonSCPhi, photonSCEnergy, photonSCRawEnergy;
-  std::vector<double> photonHOverE, photonSigmaIetaIeta, photonChargedIso,photonNeutralIso,photonEMIso, photonElectronVeto;
-  std::vector<double> electronPt, electronEta, electronPhi, electronE, electronSCEta, electronSCPhi, electronSCEnergy;
-  std::vector<double> electronSCRawEnergy, electronHOverE, electronSigmaIetaIeta, electronChargedIso, electronNeutralIso, electronEMIso, electronGsfPt;
-  std::vector<double> electronEOP, electronDphi, electronDeta, electronMissHit, electronConversion, electronDxy, electronDz;
+  std::vector<float> photonPt, photonEta, photonPhi, photonE, photonSCEta, photonSCPhi, photonSCEnergy, photonSCRawEnergy;
+  std::vector<float> photonHOverE, photonSigmaIetaIeta, photonChargedIso,photonNeutralIso,photonEMIso, photonElectronVeto;
+  std::vector<float> electronPt, electronEta, electronPhi, electronE, electronSCEta, electronSCPhi, electronSCEnergy;
+  std::vector<float> electronSCRawEnergy, electronHOverE, electronSigmaIetaIeta, electronChargedIso, electronNeutralIso, electronEMIso, electronGsfPt;
+  std::vector<float> electronEOP, electronDphi, electronDeta, electronMissHit, electronConversion, electronDxy, electronDz;
 
   // gen info leptoni W/Z boson (1 per event)
-  double wzmass,wzmt,wzpt,wzeta,wzphi,wzmothid,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
+  float wzmass,wzmt,wzpt,wzeta,wzphi,wzmothid,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
   // photon info
-  double parpt,pareta,parphi,ancpt,anceta,ancphi,ancmass;
+  float parpt,pareta,parphi,ancpt,anceta,ancphi,ancmass;
   int32_t ismatch, isdirect;
   // hadronic V and related quarks (1 per event)
-  double wzmass_h,wzmt_h,wzpt_h,wzeta_h,wzphi_h,q1pt,q1eta,q1phi,q2pt,q2eta,q2phi;
+  float wzmass_h,wzmt_h,wzpt_h,wzeta_h,wzphi_h,q1pt,q1eta,q1phi,q2pt,q2eta,q2phi;
   // one top
-  double topmass,toppt,topeta,topphi;
+  float topmass,toppt,topeta,topphi;
   // second top
-  double atopmass,atoppt,atopeta,atopphi;
+  float atopmass,atoppt,atopeta,atopphi;
   // DM mediator and DM particles
-  double dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
+  float dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
   int   dmid,dmX1id,dmX2id;
   // for fastSIM
-  double samplemedM,sampledmM;
+  float samplemedM,sampledmM;
   // weights
-  double wgt,kfact,puwgt;
+  float wgt,kfact,puwgt;
 
   // Trigger objects //ND
   uint32_t                   trig_obj_n; 
-  std::vector<double>         trig_obj_pt, trig_obj_eta, trig_obj_phi; 
+  std::vector<float>         trig_obj_pt, trig_obj_eta, trig_obj_phi; 
   std::vector< std::string > trig_obj_col; 
 
   int trig_L1A_check;
   int trig_L1A_n;
   std::vector< std::string > trig_L1A_list;
 
-  std::vector<double> trig_L1EG_pt  , trig_L1EG_eta  , trig_L1EG_phi  ; 
-  std::vector<double> trig_L1Jet_pt , trig_L1Jet_eta , trig_L1Jet_phi ; 
-  std::vector<double> trig_L1Mu_pt  , trig_L1Mu_eta  , trig_L1Mu_phi  ; 
-  double              trig_L1ETM_pt , trig_L1ETM_phi , trig_L1HTM_pt  , trig_L1HTM_phi;
-  double              trig_L1ETT_pt , trig_L1ETT_phi , trig_L1HTT_pt  , trig_L1HTT_phi; 
+  std::vector<float> trig_L1EG_pt  , trig_L1EG_eta  , trig_L1EG_phi  ; 
+  std::vector<float> trig_L1Jet_pt , trig_L1Jet_eta , trig_L1Jet_phi ; 
+  std::vector<float> trig_L1Mu_pt  , trig_L1Mu_eta  , trig_L1Mu_phi  ; 
+  float              trig_L1ETM_pt , trig_L1ETM_phi , trig_L1HTM_pt  , trig_L1HTM_phi;
+  float              trig_L1ETT_pt , trig_L1ETT_phi , trig_L1HTT_pt  , trig_L1HTT_phi; 
   
  
   // sorting objects
@@ -640,6 +642,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   electronsTag      (iConfig.getParameter<edm::InputTag>("electrons")),
   looseelectronsTag (iConfig.getParameter<edm::InputTag>("looseelectrons")),
   tightelectronsTag (iConfig.getParameter<edm::InputTag>("tightelectrons")),
+  triggerelectronsTag (iConfig.getParameter<edm::InputTag>("triggerelectrons")),
   heepelectronsTag  (iConfig.getParameter<edm::InputTag>("heepelectrons")),
   // photons
   photonsTag        (iConfig.getParameter<edm::InputTag>("photons")),
@@ -726,6 +729,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   electronsToken       = consumes<pat::ElectronRefVector> (electronsTag);
   looseelectronsToken  = consumes<pat::ElectronRefVector> (looseelectronsTag);
   tightelectronsToken  = consumes<pat::ElectronRefVector> (tightelectronsTag);
+  triggerelectronsToken  = consumes<pat::ElectronRefVector> (triggerelectronsTag);
   heepelectronsToken   = consumes<pat::ElectronRefVector> (heepelectronsTag);
   // photons
   photonsToken        = consumes<pat::PhotonRefVector> (photonsTag);
@@ -963,6 +967,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<pat::ElectronRefVector> tightelectronsH;
     iEvent.getByToken(tightelectronsToken, tightelectronsH);
     pat::ElectronRefVector tightelectrons = *tightelectronsH;
+
+    Handle<pat::ElectronRefVector> triggerelectronsH;
+    iEvent.getByToken(triggerelectronsToken, triggerelectronsH);
+    pat::ElectronRefVector triggerelectrons = *triggerelectronsH;
 
     Handle<pat::ElectronRefVector> heepelectronsH;
     iEvent.getByToken(heepelectronsToken, heepelectronsH);
@@ -1775,18 +1783,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (combinejetphi.size() > 1)
       jetjetdphi = deltaPhi(combinejetphi[0], combinejetphi[1]);
     
-    std::vector<double> alljetmetdphiminvector;
-    std::vector<double> alljetmetdphimin4vector;
-    std::vector<double> alljetmumetdphiminvector;
-    std::vector<double> alljetmumetdphimin4vector;
-    std::vector<double> alljetelmetdphiminvector;
-    std::vector<double> alljetelmetdphimin4vector;
-    std::vector<double> alljetphmetdphiminvector;
-    std::vector<double> alljetphmetdphimin4vector;
+    std::vector<float> alljetmetdphiminvector;
+    std::vector<float> alljetmetdphimin4vector;
+    std::vector<float> alljetmumetdphiminvector;
+    std::vector<float> alljetmumetdphimin4vector;
+    std::vector<float> alljetelmetdphiminvector;
+    std::vector<float> alljetelmetdphimin4vector;
+    std::vector<float> alljetphmetdphiminvector;
+    std::vector<float> alljetphmetdphimin4vector;
     
     for (size_t i = 0; i < alljets.size(); i++) {
       if (alljets[i]->pt() > minJetPtCountAK4) {	  
-	double alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
+	float alljetphi = atan2(sin(alljets[i]->phi()), cos(alljets[i]->phi()));
 	alljetmetdphiminvector  .push_back(fabs(deltaPhi(alljetphi, t1pfmetphi)));
 	alljetmumetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1mumetphi)));
 	alljetelmetdphiminvector.push_back(fabs(deltaPhi(alljetphi, t1elmetphi)));
@@ -1807,18 +1815,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (alljetphmetdphimin4vector.size() > 0) alljetphmetdphimin4 = *min_element(alljetphmetdphimin4vector.begin(), alljetphmetdphimin4vector.end());
     
     // delta phi jet-met      
-    std::vector<double> incjetmetdphiminvector;
-    std::vector<double> incjetmetdphimin4vector;
-    std::vector<double> incjetmumetdphiminvector;
-    std::vector<double> incjetmumetdphimin4vector;
-    std::vector<double> incjetelmetdphiminvector;
-    std::vector<double> incjetelmetdphimin4vector;
-    std::vector<double> incjetphmetdphiminvector;
-    std::vector<double> incjetphmetdphimin4vector;
+    std::vector<float> incjetmetdphiminvector;
+    std::vector<float> incjetmetdphimin4vector;
+    std::vector<float> incjetmumetdphiminvector;
+    std::vector<float> incjetmumetdphimin4vector;
+    std::vector<float> incjetelmetdphiminvector;
+    std::vector<float> incjetelmetdphimin4vector;
+    std::vector<float> incjetphmetdphiminvector;
+    std::vector<float> incjetphmetdphimin4vector;
 
     for (size_t i = 0; i < incjets.size(); i++) {
       if (incjets[i]->pt() > minJetPtCountAK4) {
-	double incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
+	float incjetphi = atan2(sin(incjets[i]->phi()), cos(incjets[i]->phi()));
 	incjetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1pfmetphi)));
 	incjetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1mumetphi)));
 	incjetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, t1elmetphi)));
@@ -1992,18 +2000,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (combinePuppijetphi.size()>1) 
 	PuppijetPuppijetdphi = deltaPhi(combinePuppijetphi[0], combinePuppijetphi[1]);
       
-      std::vector<double> incpuppijetmetdphiminvector;
-      std::vector<double> incpuppijetmetdphimin4vector;
-      std::vector<double> incpuppijetmumetdphiminvector;
-      std::vector<double> incpuppijetmumetdphimin4vector;
-      std::vector<double> incpuppijetelmetdphiminvector;
-      std::vector<double> incpuppijetelmetdphimin4vector;
-      std::vector<double> incpuppijetphmetdphiminvector;
-      std::vector<double> incpuppijetphmetdphimin4vector;
+      std::vector<float> incpuppijetmetdphiminvector;
+      std::vector<float> incpuppijetmetdphimin4vector;
+      std::vector<float> incpuppijetmumetdphiminvector;
+      std::vector<float> incpuppijetmumetdphimin4vector;
+      std::vector<float> incpuppijetelmetdphiminvector;
+      std::vector<float> incpuppijetelmetdphimin4vector;
+      std::vector<float> incpuppijetphmetdphiminvector;
+      std::vector<float> incpuppijetphmetdphimin4vector;
       
       for (size_t i = 0; i < incPuppijets.size(); i++) {
 	if (incPuppijets[i]->pt() > minJetPtCountAK4) {
-	  double incjetphi = atan2(sin(incPuppijets[i]->phi()), cos(incPuppijets[i]->phi()));
+	  float incjetphi = atan2(sin(incPuppijets[i]->phi()), cos(incPuppijets[i]->phi()));
 	  incpuppijetmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1pfmetphi)));
 	  incpuppijetmumetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1mumetphi)));
 	  incpuppijetelmetdphiminvector.push_back(fabs(deltaPhi(incjetphi, puppit1elmetphi)));
@@ -2044,13 +2052,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     vector<pat::ElectronRef> electronvector;
-    if(electronsH.isValid() and looseelectronsH.isValid() and tightelectronsH.isValid() and heepelectronsH.isValid()){
+    if(electronsH.isValid() and looseelectronsH.isValid() and tightelectronsH.isValid() and heepelectronsH.isValid() and triggerelectronsH.isValid()){
       
       nelectrons      = electronsH->size();
       nlooseelectrons = looseelectronsH->size();
       ntightelectrons = tightelectronsH->size();
       nheepelectrons  = heepelectronsH->size();
-
+      ntriggerelectrons = triggerelectronsH->size();      
       for (size_t i = 0; i < electrons.size(); i++) 
 	electronvector.push_back(electrons[i]);
     }
@@ -2137,8 +2145,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     mu2pfpt     = 0.0; mu2pfeta    = 0.0; mu2pfphi    = 0.0; mu2id       = 0;
     mu2idm      = 0;   mu2idt      = 0;   mu2iso      = 0.0;
 
-    el1pid      = 0; el1pt       = 0.0; el1eta      = 0.0; el1phi      = 0.0; el1id       = 0;
-    el2pid      = 0; el2pt       = 0.0; el2eta      = 0.0; el2phi      = 0.0; el2id       = 0;
+    el1pid      = 0; el1pt       = 0.0; el1eta      = 0.0; el1phi      = 0.0; el1id       = 0; el1idl       = 0; el1idt       = 0;
+    el2pid      = 0; el2pt       = 0.0; el2eta      = 0.0; el2phi      = 0.0; el2id       = 0; el2idl       = 0; el2idt       = 0;
 
     tau1pid     = 0;   tau1pt    = 0.0; tau1eta     = 0.0; tau1phi     = 0.0; tau1m       = 0.0; tau1iso = 0.0;
     tau2pid     = 0;   tau2pt    = 0.0; tau2eta     = 0.0; tau2phi     = 0.0; tau2m       = 0.0; tau2iso = 0.0;
@@ -2237,6 +2245,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if (electron == tightelectrons[i]) 
 	  el1id = 1;
       }
+
+      for (std::size_t i = 0; i < triggerelectrons.size(); i++) {
+	if (electron == triggerelectrons[i]) 
+	  el1idt = 1;
+      }
       
       for (std::size_t i = 0; i < heepelectrons.size(); i++) {
 	if (electron == heepelectrons[i] and el1id != 1) 
@@ -2261,6 +2274,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         for (std::size_t i = 0; i < tightelectrons.size(); i++) {
             if (electron == tightelectrons[i]) el2id = 1;
+        }
+
+        for (std::size_t i = 0; i < triggerelectrons.size(); i++) {
+            if (electron == triggerelectrons[i]) el2idt = 1;
         }
 
 	for (std::size_t i = 0; i < heepelectrons.size(); i++) {
@@ -2375,7 +2392,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     phpt     = 0; pheta    = 0; phphi    = 0;
 
     int hardestPhotonIndex = -1;
-    double hardestPhotonPt = 0.0;
+    float hardestPhotonPt = 0.0;
 
     if(photonsH.isValid() and photonLooseIdH.isValid() and mediumPhotonsH.isValid() and tightPhotonsH.isValid() and photonHighPtIdH.isValid()){
       
@@ -2409,7 +2426,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
     int hardestPhotonPurityIndex = -1;
-    double hardestPhotonPurityPt = 0.0;
+    float hardestPhotonPurityPt = 0.0;
 
     if(addPhotonPurity and not isTriggerTree){
       phPuritypt     = 0.0;
@@ -3623,7 +3640,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
 	      findMother(&(*gens_iter), parid, parpt, pareta, parphi);
 	      if( abs(ancid) <= 5 || abs(ancid)==2212){ 
-		double dR = computeDR(&(*gens_iter),tightphotonsPurity[hardestPhotonPurityIndex] );
+		float dR = computeDR(&(*gens_iter),tightphotonsPurity[hardestPhotonPurityIndex] );
 		wzid   = gens_iter->pdgId();
 		wzpt   = gens_iter->pt();
 		wzeta  = gens_iter->eta();
@@ -3635,7 +3652,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  genpho.SetPtEtaPhiM(wzpt, wzeta,wzphi,0);
 		  TLorentzVector genpart;
 		  genpart.SetPtEtaPhiM(ancpt, anceta,ancphi,ancmass);
-		  double dRFrag = genpho.DeltaR(genpart);
+		  float dRFrag = genpho.DeltaR(genpart);
 		  if(dRFrag>0.4)isdirect=1;
 		}
 	      }
@@ -3659,10 +3676,10 @@ void MonoJetTreeMaker::beginJob() {
   // Event weights
   // Pileup info
   if(not isTriggerTree){
-    tree->Branch("puwgt"                , &puwgt                , "puwgt/D");
+    tree->Branch("puwgt"                , &puwgt                , "puwgt/F");
     tree->Branch("puobs"                , &puobs                , "puobs/I");
-    tree->Branch("xsec"                 , &xsec                 , "xsec/D");
-    tree->Branch("wgt"                  , &wgt                  , "wgt/D");
+    tree->Branch("xsec"                 , &xsec                 , "xsec/F");
+    tree->Branch("wgt"                  , &wgt                  , "wgt/F");
   }
 
   tree->Branch("putrue"               , &putrue               , "putrue/I");
@@ -3702,16 +3719,16 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/B");
   tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/B");
 
-  tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/D");
-  tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/D");
+  tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
+  tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
     
   if(isTriggerTree){
-    tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/D");
-    tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/D");
-    tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/D");
-    tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/D");
-    tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/D");
-    tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/D");
+    tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/F");
+    tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/F");
+    tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/F");
+    tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/F");
+    tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/F");
+    tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/F");
   }
 
   // MET filters
@@ -3728,38 +3745,38 @@ void MonoJetTreeMaker::beginJob() {
   if(isTriggerTree and addTriggerObjects){
 
     tree->Branch("trig_obj_n"           , &trig_obj_n           , "trig_obj_n/I"); //ND
-    tree->Branch("trig_obj_pt"          , "std::vector<double>" , &trig_obj_pt);   //ND
-    tree->Branch("trig_obj_eta"         , "std::vector<double>" , &trig_obj_eta);  //ND
-    tree->Branch("trig_obj_phi"         , "std::vector<double>" , &trig_obj_phi);  //ND
+    tree->Branch("trig_obj_pt"          , "std::vector<float>" , &trig_obj_pt);   //ND
+    tree->Branch("trig_obj_eta"         , "std::vector<float>" , &trig_obj_eta);  //ND
+    tree->Branch("trig_obj_phi"         , "std::vector<float>" , &trig_obj_phi);  //ND
     tree->Branch("trig_obj_col"         , "std::vector<std::string>" , &trig_obj_col); //, buffersize); //ND 
 
     tree->Branch("trig_L1A_check"       , &trig_L1A_check            , "trig_L1A_check/I"); //ND
     tree->Branch("trig_L1A_n"           , &trig_L1A_n                , "trig_L1A_n/I"); //ND 
     tree->Branch("trig_L1A_list"        , "std::vector<std::string>" , &trig_L1A_list); //ND
  
-    tree->Branch("trig_L1EG_pt"         , "std::vector<double>" , &trig_L1EG_pt); //ND
-    tree->Branch("trig_L1EG_eta"        , "std::vector<double>" , &trig_L1EG_eta); //ND
-    tree->Branch("trig_L1EG_phi"        , "std::vector<double>" , &trig_L1EG_phi); //ND 
+    tree->Branch("trig_L1EG_pt"         , "std::vector<float>" , &trig_L1EG_pt); //ND
+    tree->Branch("trig_L1EG_eta"        , "std::vector<float>" , &trig_L1EG_eta); //ND
+    tree->Branch("trig_L1EG_phi"        , "std::vector<float>" , &trig_L1EG_phi); //ND 
     //
-    tree->Branch("trig_L1Jet_pt"        , "std::vector<double>" , &trig_L1Jet_pt); //ND
-    tree->Branch("trig_L1Jet_eta"       , "std::vector<double>" , &trig_L1Jet_eta); //ND
-    tree->Branch("trig_L1Jet_phi"       , "std::vector<double>" , &trig_L1Jet_phi); //ND
+    tree->Branch("trig_L1Jet_pt"        , "std::vector<float>" , &trig_L1Jet_pt); //ND
+    tree->Branch("trig_L1Jet_eta"       , "std::vector<float>" , &trig_L1Jet_eta); //ND
+    tree->Branch("trig_L1Jet_phi"       , "std::vector<float>" , &trig_L1Jet_phi); //ND
     //
-    tree->Branch("trig_L1Mu_pt"         , "std::vector<double>" , &trig_L1Mu_pt); //ND
-    tree->Branch("trig_L1Mu_eta"        , "std::vector<double>" , &trig_L1Mu_eta); //ND
-    tree->Branch("trig_L1Mu_phi"        , "std::vector<double>" , &trig_L1Mu_phi); //ND
+    tree->Branch("trig_L1Mu_pt"         , "std::vector<float>" , &trig_L1Mu_pt); //ND
+    tree->Branch("trig_L1Mu_eta"        , "std::vector<float>" , &trig_L1Mu_eta); //ND
+    tree->Branch("trig_L1Mu_phi"        , "std::vector<float>" , &trig_L1Mu_phi); //ND
     //
-    tree->Branch("trig_L1ETM_pt"        , &trig_L1ETM_pt        , "trig_L1ETM_pt/D"); //ND
-    tree->Branch("trig_L1ETM_phi"       , &trig_L1ETM_phi       , "trig_L1ETM_phi/D"); //ND
+    tree->Branch("trig_L1ETM_pt"        , &trig_L1ETM_pt        , "trig_L1ETM_pt/F"); //ND
+    tree->Branch("trig_L1ETM_phi"       , &trig_L1ETM_phi       , "trig_L1ETM_phi/F"); //ND
     //
-    tree->Branch("trig_L1ETT_pt"        , &trig_L1ETT_pt        , "trig_L1ETT_pt/D"); //ND
-    tree->Branch("trig_L1ETT_phi"       , &trig_L1ETT_phi       , "trig_L1ETT_phi/D"); //ND
+    tree->Branch("trig_L1ETT_pt"        , &trig_L1ETT_pt        , "trig_L1ETT_pt/F"); //ND
+    tree->Branch("trig_L1ETT_phi"       , &trig_L1ETT_phi       , "trig_L1ETT_phi/F"); //ND
     //
-    tree->Branch("trig_L1HTM_pt"        , &trig_L1HTM_pt        , "trig_L1HTM_pt/D"); //ND
-    tree->Branch("trig_L1HTM_phi"       , &trig_L1HTM_phi       , "trig_L1HTM_phi/D"); //ND
+    tree->Branch("trig_L1HTM_pt"        , &trig_L1HTM_pt        , "trig_L1HTM_pt/F"); //ND
+    tree->Branch("trig_L1HTM_phi"       , &trig_L1HTM_phi       , "trig_L1HTM_phi/F"); //ND
     //
-    tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/D"); //ND
-    tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/D"); //ND
+    tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/F"); //ND
+    tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/F"); //ND
 
 
   }
@@ -3771,6 +3788,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/I");
   tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/I");
   tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/I");
+  tree->Branch("ntriggerelectrons"      , &ntriggerelectrons      , "ntriggerelectrons/I");
   tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/I");
   tree->Branch("ntaus"                , &ntaus                , "ntaus/I");
   tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/I");
@@ -3796,149 +3814,149 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   // MET
-  tree->Branch("pfmet"                , &pfmet                , "pfmet/D");
-  tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/D");
-  tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/D");
-  tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/D");
-  tree->Branch("calomet"              , &calomet              , "calomet/D");   //ND
-  tree->Branch("calometphi"           , &calometphi           , "calometphi/D");//ND
+  tree->Branch("pfmet"                , &pfmet                , "pfmet/F");
+  tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/F");
+  tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/F");
+  tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/F");
+  tree->Branch("calomet"              , &calomet              , "calomet/F");   //ND
+  tree->Branch("calometphi"           , &calometphi           , "calometphi/F");//ND
   if(not isTriggerTree){    
-    tree->Branch("mumet"                , &mumet                , "mumet/D");
-    tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/D");
+    tree->Branch("mumet"                , &mumet                , "mumet/F");
+    tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/F");
   }
-  tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/D");
-  tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/D");
+  tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/F");
+  tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/F");
   if(not isTriggerTree){
-    tree->Branch("elmet"                , &elmet                , "elmet/D");
-    tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/D");
+    tree->Branch("elmet"                , &elmet                , "elmet/F");
+    tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/F");
   }
-  tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/D");
-  tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/D");
+  tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/F");
+  tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/F");
   if(not isTriggerTree){
-    tree->Branch("phmet"                , &phmet                , "phmet/D");
-    tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/D");
+    tree->Branch("phmet"                , &phmet                , "phmet/F");
+    tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/F");
   }
-  tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/D");
-  tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/D");
+  tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/F");
+  tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/F");
   if(not isTriggerTree){
-    tree->Branch("taumet"                , &taumet                , "taumet/D");
-    tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/D");
-    tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/D");
-    tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/D");
-    tree->Branch("genmet",    &genmet,   "genmet/D");
-    tree->Branch("genmetphi", &genmetphi,"genmetphi/D");
+    tree->Branch("taumet"                , &taumet                , "taumet/F");
+    tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/F");
+    tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/F");
+    tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/F");
+    tree->Branch("genmet",    &genmet,   "genmet/F");
+    tree->Branch("genmetphi", &genmetphi,"genmetphi/F");
   }
 
   if(addMETBreakDown and not isTriggerTree){
     
-    tree->Branch("pfmethadronHF",&pfmethadronHF,"pfmethadronHF/D");
-    tree->Branch("pfmethadronHFphi",&pfmethadronHFphi,"pfmethadronHFphi/D");
-    tree->Branch("pfmetegammaHF",&pfmetegammaHF,"pfmetegammaHF/D");
-    tree->Branch("pfmetegammaHFphi",&pfmetegammaHFphi,"pfmetegammaHFphi/D");
-    tree->Branch("pfmetchargedhadron",&pfmetchargedhadron,"pfmetchargedhadron/D");
-    tree->Branch("pfmetchargedhadronphi",&pfmetchargedhadronphi,"pfmetchargedhadronphi/D");
-    tree->Branch("pfmetneutralhadron",&pfmetneutralhadron,"pfmetneutralhadron/D");
-    tree->Branch("pfmetneutralhadronphi",&pfmetneutralhadronphi,"pfmetneutralhadronphi/D");
-    tree->Branch("pfmetelectrons",&pfmetelectrons,"pfmetelectrons/D");
-    tree->Branch("pfmetelectronsphi",&pfmetelectronsphi,"pfmetelectronsphi/D");
-    tree->Branch("pfmetmuons",&pfmetmuons,"pfmetmuons/D");
-    tree->Branch("pfmetmuonsphi",&pfmetmuonsphi,"pfmetmuonsphi/D");
-    tree->Branch("pfmetphotons",&pfmetphotons,"pfmetphotons/D");
-    tree->Branch("pfmetphotonsphi",&pfmetphotonsphi,"pfmetphotonsphi/D");
-    tree->Branch("pfmetunclustered",&pfmetunclustered,"pfmetunclustered/D");
-    tree->Branch("pfmetunclusteredphi",&pfmetunclusteredphi,"pfmetunclusteredphi/D");
+    tree->Branch("pfmethadronHF",&pfmethadronHF,"pfmethadronHF/F");
+    tree->Branch("pfmethadronHFphi",&pfmethadronHFphi,"pfmethadronHFphi/F");
+    tree->Branch("pfmetegammaHF",&pfmetegammaHF,"pfmetegammaHF/F");
+    tree->Branch("pfmetegammaHFphi",&pfmetegammaHFphi,"pfmetegammaHFphi/F");
+    tree->Branch("pfmetchargedhadron",&pfmetchargedhadron,"pfmetchargedhadron/F");
+    tree->Branch("pfmetchargedhadronphi",&pfmetchargedhadronphi,"pfmetchargedhadronphi/F");
+    tree->Branch("pfmetneutralhadron",&pfmetneutralhadron,"pfmetneutralhadron/F");
+    tree->Branch("pfmetneutralhadronphi",&pfmetneutralhadronphi,"pfmetneutralhadronphi/F");
+    tree->Branch("pfmetelectrons",&pfmetelectrons,"pfmetelectrons/F");
+    tree->Branch("pfmetelectronsphi",&pfmetelectronsphi,"pfmetelectronsphi/F");
+    tree->Branch("pfmetmuons",&pfmetmuons,"pfmetmuons/F");
+    tree->Branch("pfmetmuonsphi",&pfmetmuonsphi,"pfmetmuonsphi/F");
+    tree->Branch("pfmetphotons",&pfmetphotons,"pfmetphotons/F");
+    tree->Branch("pfmetphotonsphi",&pfmetphotonsphi,"pfmetphotonsphi/F");
+    tree->Branch("pfmetunclustered",&pfmetunclustered,"pfmetunclustered/F");
+    tree->Branch("pfmetunclusteredphi",&pfmetunclusteredphi,"pfmetunclusteredphi/F");
   }
 
   if(addMVAMet and not isTriggerTree){
-    tree->Branch("mvamet"              , &mvamet              , "mvamet/D");
-    tree->Branch("mvametphi"           , &mvametphi           , "mvametphi/D");
+    tree->Branch("mvamet"              , &mvamet              , "mvamet/F");
+    tree->Branch("mvametphi"           , &mvametphi           , "mvametphi/F");
   }
 
   if(addMETSystematics and not isTriggerTree){
-    tree->Branch("t1pfmetMuEnUp"       , &t1pfmetMuEnUp       , "t1pfmetMuEnUp/D");
-    tree->Branch("t1pfmetMuEnDown"     , &t1pfmetMuEnDown     , "t1pfmetMuEnDown/D");
-    tree->Branch("t1pfmetElEnUp"       , &t1pfmetElEnUp       , "t1pfmetElEnUp/D");
-    tree->Branch("t1pfmetElEnDown"     , &t1pfmetElEnDown     , "t1pfmetElEnDown/D");
-    tree->Branch("t1pfmetPhoEnUp"      , &t1pfmetPhoEnUp      , "t1pfmetPhoEnUp/D");
-    tree->Branch("t1pfmetPhoEnDown"    , &t1pfmetPhoEnDown    , "t1pfmetPhoEnDown/D");
-    tree->Branch("t1pfmetTauEnUp"      , &t1pfmetTauEnUp      , "t1pfmetTauEnUp/D");
-    tree->Branch("t1pfmetTauEnDown"    , &t1pfmetTauEnDown    , "t1pfmetTauEnDown/D");
-    tree->Branch("t1pfmetJetEnUp"      , &t1pfmetJetEnUp      , "t1pfmetJetEnUp/D");
-    tree->Branch("t1pfmetJetEnDown"    , &t1pfmetJetEnDown    , "t1pfmetJetEnDown/D");
-    tree->Branch("t1pfmetJetResUp"     , &t1pfmetJetResUp     , "t1pfmetJetResUp/D");
-    tree->Branch("t1pfmetJetResDown"   , &t1pfmetJetResDown   , "t1pfmetJetResDown/D");
-    tree->Branch("t1pfmetUncEnUp"      , &t1pfmetUncEnUp      , "t1pfmetUncEnUp/D");
-    tree->Branch("t1pfmetUncEnDown"    , &t1pfmetUncEnDown    , "t1pfmetUncEnDown/D");
-    tree->Branch("t1pfmetJetSmear"        , &t1pfmetJetSmear        , "t1pfmetJetSmear/D");
-    tree->Branch("t1pfmetXY"           , &t1pfmetXY           , "t1pfmetXY/D");
+    tree->Branch("t1pfmetMuEnUp"       , &t1pfmetMuEnUp       , "t1pfmetMuEnUp/F");
+    tree->Branch("t1pfmetMuEnDown"     , &t1pfmetMuEnDown     , "t1pfmetMuEnDown/F");
+    tree->Branch("t1pfmetElEnUp"       , &t1pfmetElEnUp       , "t1pfmetElEnUp/F");
+    tree->Branch("t1pfmetElEnDown"     , &t1pfmetElEnDown     , "t1pfmetElEnDown/F");
+    tree->Branch("t1pfmetPhoEnUp"      , &t1pfmetPhoEnUp      , "t1pfmetPhoEnUp/F");
+    tree->Branch("t1pfmetPhoEnDown"    , &t1pfmetPhoEnDown    , "t1pfmetPhoEnDown/F");
+    tree->Branch("t1pfmetTauEnUp"      , &t1pfmetTauEnUp      , "t1pfmetTauEnUp/F");
+    tree->Branch("t1pfmetTauEnDown"    , &t1pfmetTauEnDown    , "t1pfmetTauEnDown/F");
+    tree->Branch("t1pfmetJetEnUp"      , &t1pfmetJetEnUp      , "t1pfmetJetEnUp/F");
+    tree->Branch("t1pfmetJetEnDown"    , &t1pfmetJetEnDown    , "t1pfmetJetEnDown/F");
+    tree->Branch("t1pfmetJetResUp"     , &t1pfmetJetResUp     , "t1pfmetJetResUp/F");
+    tree->Branch("t1pfmetJetResDown"   , &t1pfmetJetResDown   , "t1pfmetJetResDown/F");
+    tree->Branch("t1pfmetUncEnUp"      , &t1pfmetUncEnUp      , "t1pfmetUncEnUp/F");
+    tree->Branch("t1pfmetUncEnDown"    , &t1pfmetUncEnDown    , "t1pfmetUncEnDown/F");
+    tree->Branch("t1pfmetJetSmear"        , &t1pfmetJetSmear        , "t1pfmetJetSmear/F");
+    tree->Branch("t1pfmetXY"           , &t1pfmetXY           , "t1pfmetXY/F");
 
-    tree->Branch("t1pfmetMuEnUpPhi"       , &t1pfmetMuEnUpPhi       , "t1pfmetMuEnUpPhi/D");
-    tree->Branch("t1pfmetMuEnDownPhi"     , &t1pfmetMuEnDownPhi     , "t1pfmetMuEnDownPhi/D");
-    tree->Branch("t1pfmetElEnUpPhi"       , &t1pfmetElEnUpPhi       , "t1pfmetElEnUpPhi/D");
-    tree->Branch("t1pfmetElEnDownPhi"     , &t1pfmetElEnDownPhi     , "t1pfmetElEnDownPhi/D");
-    tree->Branch("t1pfmetPhoEnUpPhi"      , &t1pfmetPhoEnUpPhi      , "t1pfmetPhoEnUpPhi/D");
-    tree->Branch("t1pfmetPhoEnDownPhi"    , &t1pfmetPhoEnDownPhi    , "t1pfmetPhoEnDownPhi/D");
-    tree->Branch("t1pfmetTauEnUpPhi"      , &t1pfmetTauEnUpPhi      , "t1pfmetTauEnUpPhi/D");
-    tree->Branch("t1pfmetTauEnDownPhi"    , &t1pfmetTauEnDownPhi    , "t1pfmetTauEnDownPhi/D");
-    tree->Branch("t1pfmetJetEnUpPhi"      , &t1pfmetJetEnUpPhi      , "t1pfmetJetEnUpPhi/D");
-    tree->Branch("t1pfmetJetEnDownPhi"    , &t1pfmetJetEnDownPhi    , "t1pfmetJetEnDownPhi/D");
-    tree->Branch("t1pfmetJetResUpPhi"     , &t1pfmetJetResUpPhi     , "t1pfmetJetResUpPhi/D");
-    tree->Branch("t1pfmetJetResDownPhi"   , &t1pfmetJetResDownPhi   , "t1pfmetJetResDownPhi/D");
-    tree->Branch("t1pfmetUncEnUpPhi"      , &t1pfmetUncEnUpPhi      , "t1pfmetUncEnUpPhi/D");
-    tree->Branch("t1pfmetUncEnDownPhi"    , &t1pfmetUncEnDownPhi    , "t1pfmetUncEnDownPhi/D");
-    tree->Branch("t1pfmetJetSmearPhi"        , &t1pfmetJetSmearPhi        , "t1pfmetJetSmearPhi/D");
-    tree->Branch("t1pfmetXYPhi"           , &t1pfmetXYPhi           , "t1pfmetXYPhi/D");
+    tree->Branch("t1pfmetMuEnUpPhi"       , &t1pfmetMuEnUpPhi       , "t1pfmetMuEnUpPhi/F");
+    tree->Branch("t1pfmetMuEnDownPhi"     , &t1pfmetMuEnDownPhi     , "t1pfmetMuEnDownPhi/F");
+    tree->Branch("t1pfmetElEnUpPhi"       , &t1pfmetElEnUpPhi       , "t1pfmetElEnUpPhi/F");
+    tree->Branch("t1pfmetElEnDownPhi"     , &t1pfmetElEnDownPhi     , "t1pfmetElEnDownPhi/F");
+    tree->Branch("t1pfmetPhoEnUpPhi"      , &t1pfmetPhoEnUpPhi      , "t1pfmetPhoEnUpPhi/F");
+    tree->Branch("t1pfmetPhoEnDownPhi"    , &t1pfmetPhoEnDownPhi    , "t1pfmetPhoEnDownPhi/F");
+    tree->Branch("t1pfmetTauEnUpPhi"      , &t1pfmetTauEnUpPhi      , "t1pfmetTauEnUpPhi/F");
+    tree->Branch("t1pfmetTauEnDownPhi"    , &t1pfmetTauEnDownPhi    , "t1pfmetTauEnDownPhi/F");
+    tree->Branch("t1pfmetJetEnUpPhi"      , &t1pfmetJetEnUpPhi      , "t1pfmetJetEnUpPhi/F");
+    tree->Branch("t1pfmetJetEnDownPhi"    , &t1pfmetJetEnDownPhi    , "t1pfmetJetEnDownPhi/F");
+    tree->Branch("t1pfmetJetResUpPhi"     , &t1pfmetJetResUpPhi     , "t1pfmetJetResUpPhi/F");
+    tree->Branch("t1pfmetJetResDownPhi"   , &t1pfmetJetResDownPhi   , "t1pfmetJetResDownPhi/F");
+    tree->Branch("t1pfmetUncEnUpPhi"      , &t1pfmetUncEnUpPhi      , "t1pfmetUncEnUpPhi/F");
+    tree->Branch("t1pfmetUncEnDownPhi"    , &t1pfmetUncEnDownPhi    , "t1pfmetUncEnDownPhi/F");
+    tree->Branch("t1pfmetJetSmearPhi"        , &t1pfmetJetSmearPhi        , "t1pfmetJetSmearPhi/F");
+    tree->Branch("t1pfmetXYPhi"           , &t1pfmetXYPhi           , "t1pfmetXYPhi/F");
 
   }
 
   if(addPuppiMET and not isTriggerTree){
-    tree->Branch("puppipfmet"                , &puppipfmet                , "puppipfmet/D");
-    tree->Branch("puppipfmetphi"             , &puppipfmetphi             , "puppipfmetphi/D");
-    tree->Branch("puppit1pfmet"              , &puppit1pfmet              , "puppit1pfmet/D");
-    tree->Branch("puppit1pfmetphi"           , &puppit1pfmetphi           , "puppit1pfmetphi/D");
-    tree->Branch("puppimumet"                , &puppimumet                , "puppimumet/D");
-    tree->Branch("puppimumetphi"             , &puppimumetphi             , "puppimumetphi/D");
-    tree->Branch("puppit1mumet"              , &puppit1mumet              , "puppit1mumet/D");
-    tree->Branch("puppit1mumetphi"           , &puppit1mumetphi           , "puppit1mumetphi/D");
-    tree->Branch("puppielmet"                , &puppielmet                , "puppielmet/D");
-    tree->Branch("puppielmetphi"             , &puppielmetphi             , "elmetphi/D");
-    tree->Branch("puppit1elmet"              , &puppit1elmet              , "puppit1elmet/D");
-    tree->Branch("puppit1elmetphi"           , &puppit1elmetphi           , "puppit1elmetphi/D");
-    tree->Branch("puppiphmet"                , &puppiphmet                , "puppiphmet/D");
-    tree->Branch("puppiphmetphi"             , &puppiphmetphi             , "puppiphmetphi/D");
-    tree->Branch("puppit1phmet"              , &puppit1phmet              , "puppit1phmet/D");
-    tree->Branch("puppit1phmetphi"           , &puppit1phmetphi           , "puppit1phmetphi/D");
+    tree->Branch("puppipfmet"                , &puppipfmet                , "puppipfmet/F");
+    tree->Branch("puppipfmetphi"             , &puppipfmetphi             , "puppipfmetphi/F");
+    tree->Branch("puppit1pfmet"              , &puppit1pfmet              , "puppit1pfmet/F");
+    tree->Branch("puppit1pfmetphi"           , &puppit1pfmetphi           , "puppit1pfmetphi/F");
+    tree->Branch("puppimumet"                , &puppimumet                , "puppimumet/F");
+    tree->Branch("puppimumetphi"             , &puppimumetphi             , "puppimumetphi/F");
+    tree->Branch("puppit1mumet"              , &puppit1mumet              , "puppit1mumet/F");
+    tree->Branch("puppit1mumetphi"           , &puppit1mumetphi           , "puppit1mumetphi/F");
+    tree->Branch("puppielmet"                , &puppielmet                , "puppielmet/F");
+    tree->Branch("puppielmetphi"             , &puppielmetphi             , "elmetphi/F");
+    tree->Branch("puppit1elmet"              , &puppit1elmet              , "puppit1elmet/F");
+    tree->Branch("puppit1elmetphi"           , &puppit1elmetphi           , "puppit1elmetphi/F");
+    tree->Branch("puppiphmet"                , &puppiphmet                , "puppiphmet/F");
+    tree->Branch("puppiphmetphi"             , &puppiphmetphi             , "puppiphmetphi/F");
+    tree->Branch("puppit1phmet"              , &puppit1phmet              , "puppit1phmet/F");
+    tree->Branch("puppit1phmetphi"           , &puppit1phmetphi           , "puppit1phmetphi/F");
 
     if(addMETSystematics and not isTriggerTree){
-      tree->Branch("puppit1pfmetMuEnUp"       , &puppit1pfmetMuEnUp       , "puppit1pfmetMuEnUp/D");
-      tree->Branch("puppit1pfmetMuEnDown"     , &puppit1pfmetMuEnDown     , "puppit1pfmetMuEnDown/D");
-      tree->Branch("puppit1pfmetElEnUp"       , &puppit1pfmetElEnUp       , "puppit1pfmetElEnUp/D");
-      tree->Branch("puppit1pfmetElEnDown"     , &puppit1pfmetElEnDown     , "puppit1pfmetElEnDown/D");
-      tree->Branch("puppit1pfmetPhoEnUp"      , &puppit1pfmetPhoEnUp      , "puppit1pfmetPhoEnUp/D");
-      tree->Branch("puppit1pfmetPhoEnDown"    , &puppit1pfmetPhoEnDown    , "puppit1pfmetPhoEnDown/D");
-      tree->Branch("puppit1pfmetTauEnUp"      , &puppit1pfmetTauEnUp      , "puppit1pfmetTauEnUp/D");
-      tree->Branch("puppit1pfmetTauEnDown"    , &puppit1pfmetTauEnDown    , "puppit1pfmetTauEnDown/D");
-      tree->Branch("puppit1pfmetJetEnUp"      , &puppit1pfmetJetEnUp      , "puppit1pfmetJetEnUp/D");
-      tree->Branch("puppit1pfmetJetEnDown"    , &puppit1pfmetJetEnDown    , "puppit1pfmetJetEnDown/D");
-      tree->Branch("puppit1pfmetJetResUp"     , &puppit1pfmetJetResUp     , "puppit1pfmetJetResUp/D");
-      tree->Branch("puppit1pfmetJetResDown"   , &puppit1pfmetJetResDown   , "puppit1pfmetJetResDown/D");
-      tree->Branch("puppit1pfmetUncEnUp"      , &puppit1pfmetUncEnUp      , "puppit1pfmetUncEnUp/D");
-      tree->Branch("puppit1pfmetUncEnDown"    , &puppit1pfmetUncEnDown    , "puppit1pfmetUncEnDown/D");
+      tree->Branch("puppit1pfmetMuEnUp"       , &puppit1pfmetMuEnUp       , "puppit1pfmetMuEnUp/F");
+      tree->Branch("puppit1pfmetMuEnDown"     , &puppit1pfmetMuEnDown     , "puppit1pfmetMuEnDown/F");
+      tree->Branch("puppit1pfmetElEnUp"       , &puppit1pfmetElEnUp       , "puppit1pfmetElEnUp/F");
+      tree->Branch("puppit1pfmetElEnDown"     , &puppit1pfmetElEnDown     , "puppit1pfmetElEnDown/F");
+      tree->Branch("puppit1pfmetPhoEnUp"      , &puppit1pfmetPhoEnUp      , "puppit1pfmetPhoEnUp/F");
+      tree->Branch("puppit1pfmetPhoEnDown"    , &puppit1pfmetPhoEnDown    , "puppit1pfmetPhoEnDown/F");
+      tree->Branch("puppit1pfmetTauEnUp"      , &puppit1pfmetTauEnUp      , "puppit1pfmetTauEnUp/F");
+      tree->Branch("puppit1pfmetTauEnDown"    , &puppit1pfmetTauEnDown    , "puppit1pfmetTauEnDown/F");
+      tree->Branch("puppit1pfmetJetEnUp"      , &puppit1pfmetJetEnUp      , "puppit1pfmetJetEnUp/F");
+      tree->Branch("puppit1pfmetJetEnDown"    , &puppit1pfmetJetEnDown    , "puppit1pfmetJetEnDown/F");
+      tree->Branch("puppit1pfmetJetResUp"     , &puppit1pfmetJetResUp     , "puppit1pfmetJetResUp/F");
+      tree->Branch("puppit1pfmetJetResDown"   , &puppit1pfmetJetResDown   , "puppit1pfmetJetResDown/F");
+      tree->Branch("puppit1pfmetUncEnUp"      , &puppit1pfmetUncEnUp      , "puppit1pfmetUncEnUp/F");
+      tree->Branch("puppit1pfmetUncEnDown"    , &puppit1pfmetUncEnDown    , "puppit1pfmetUncEnDown/F");
 
-      tree->Branch("puppit1pfmetMuEnUpPhi"       , &puppit1pfmetMuEnUpPhi       , "puppit1pfmetMuEnUpPhi/D");
-      tree->Branch("puppit1pfmetMuEnDownPhi"     , &puppit1pfmetMuEnDownPhi     , "puppit1pfmetMuEnDownPhi/D");
-      tree->Branch("puppit1pfmetElEnUpPhi"       , &puppit1pfmetElEnUpPhi       , "puppit1pfmetElEnUpPhi/D");
-      tree->Branch("puppit1pfmetElEnDownPhi"     , &puppit1pfmetElEnDownPhi     , "puppit1pfmetElEnDownPhi/D");
-      tree->Branch("puppit1pfmetPhoEnUpPhi"      , &puppit1pfmetPhoEnUpPhi      , "puppit1pfmetPhoEnUpPhi/D");
-      tree->Branch("puppit1pfmetPhoEnDownPhi"    , &puppit1pfmetPhoEnDownPhi    , "puppit1pfmetPhoEnDownPhi/D");
-      tree->Branch("puppit1pfmetTauEnUpPhi"      , &puppit1pfmetTauEnUpPhi      , "puppit1pfmetTauEnUpPhi/D");
-      tree->Branch("puppit1pfmetTauEnDownPhi"    , &puppit1pfmetTauEnDownPhi    , "puppit1pfmetTauEnDownPhi/D");
-      tree->Branch("puppit1pfmetJetEnUpPhi"      , &puppit1pfmetJetEnUpPhi      , "puppit1pfmetJetEnUpPhi/D");
-      tree->Branch("puppit1pfmetJetEnDownPhi"    , &puppit1pfmetJetEnDownPhi    , "puppit1pfmetJetEnDownPhi/D");
-      tree->Branch("puppit1pfmetJetResUpPhi"     , &puppit1pfmetJetResUpPhi     , "puppit1pfmetJetResUpPhi/D");
-      tree->Branch("puppit1pfmetJetResDownPhi"   , &puppit1pfmetJetResDownPhi   , "puppit1pfmetJetResDownPhi/D");
-      tree->Branch("puppit1pfmetUncEnUpPhi"      , &puppit1pfmetUncEnUpPhi      , "puppit1pfmetUncEnUpPhi/D");
-      tree->Branch("puppit1pfmetUncEnDownPhi"    , &puppit1pfmetUncEnDownPhi    , "puppit1pfmetUncEnDownPhi/D");
+      tree->Branch("puppit1pfmetMuEnUpPhi"       , &puppit1pfmetMuEnUpPhi       , "puppit1pfmetMuEnUpPhi/F");
+      tree->Branch("puppit1pfmetMuEnDownPhi"     , &puppit1pfmetMuEnDownPhi     , "puppit1pfmetMuEnDownPhi/F");
+      tree->Branch("puppit1pfmetElEnUpPhi"       , &puppit1pfmetElEnUpPhi       , "puppit1pfmetElEnUpPhi/F");
+      tree->Branch("puppit1pfmetElEnDownPhi"     , &puppit1pfmetElEnDownPhi     , "puppit1pfmetElEnDownPhi/F");
+      tree->Branch("puppit1pfmetPhoEnUpPhi"      , &puppit1pfmetPhoEnUpPhi      , "puppit1pfmetPhoEnUpPhi/F");
+      tree->Branch("puppit1pfmetPhoEnDownPhi"    , &puppit1pfmetPhoEnDownPhi    , "puppit1pfmetPhoEnDownPhi/F");
+      tree->Branch("puppit1pfmetTauEnUpPhi"      , &puppit1pfmetTauEnUpPhi      , "puppit1pfmetTauEnUpPhi/F");
+      tree->Branch("puppit1pfmetTauEnDownPhi"    , &puppit1pfmetTauEnDownPhi    , "puppit1pfmetTauEnDownPhi/F");
+      tree->Branch("puppit1pfmetJetEnUpPhi"      , &puppit1pfmetJetEnUpPhi      , "puppit1pfmetJetEnUpPhi/F");
+      tree->Branch("puppit1pfmetJetEnDownPhi"    , &puppit1pfmetJetEnDownPhi    , "puppit1pfmetJetEnDownPhi/F");
+      tree->Branch("puppit1pfmetJetResUpPhi"     , &puppit1pfmetJetResUpPhi     , "puppit1pfmetJetResUpPhi/F");
+      tree->Branch("puppit1pfmetJetResDownPhi"   , &puppit1pfmetJetResDownPhi   , "puppit1pfmetJetResDownPhi/F");
+      tree->Branch("puppit1pfmetUncEnUpPhi"      , &puppit1pfmetUncEnUpPhi      , "puppit1pfmetUncEnUpPhi/F");
+      tree->Branch("puppit1pfmetUncEnDownPhi"    , &puppit1pfmetUncEnDownPhi    , "puppit1pfmetUncEnDownPhi/F");
 
 
     }
@@ -3946,658 +3964,660 @@ void MonoJetTreeMaker::beginJob() {
   }
   
   // Jet info
-  tree->Branch("combinejetpt",      "std::vector<double>", &combinejetpt);
-  tree->Branch("combinejeteta",     "std::vector<double>", &combinejeteta);
-  tree->Branch("combinejetphi",     "std::vector<double>", &combinejetphi);
-  tree->Branch("combinejetm",       "std::vector<double>", &combinejetm);
+  tree->Branch("combinejetpt",      "std::vector<float>", &combinejetpt);
+  tree->Branch("combinejeteta",     "std::vector<float>", &combinejeteta);
+  tree->Branch("combinejetphi",     "std::vector<float>", &combinejetphi);
+  tree->Branch("combinejetm",       "std::vector<float>", &combinejetm);
   if(not isTriggerTree){
-    tree->Branch("combinejetbtag",    "std::vector<double>", &combinejetbtag);
-    tree->Branch("combinejetbtagMVA", "std::vector<double>", &combinejetbtagMVA);
+    tree->Branch("combinejetbtag",    "std::vector<float>", &combinejetbtag);
+    tree->Branch("combinejetbtagMVA", "std::vector<float>", &combinejetbtagMVA);
   }
-  tree->Branch("combinejetCHfrac",  "std::vector<double>", &combinejetCHfrac);
-  tree->Branch("combinejetNHfrac",  "std::vector<double>", &combinejetNHfrac);
+  tree->Branch("combinejetCHfrac",  "std::vector<float>", &combinejetCHfrac);
+  tree->Branch("combinejetNHfrac",  "std::vector<float>", &combinejetNHfrac);
   if(not isTriggerTree){
-    tree->Branch("combinejetEMfrac",  "std::vector<double>", &combinejetEMfrac);
-    tree->Branch("combinejetCEMfrac", "std::vector<double>", &combinejetCEMfrac);
-    tree->Branch("combinejetmetdphi", "std::vector<double>", &combinejetmetdphi);
-    tree->Branch("combinejetHFlav",   "std::vector<double>", &combinejetHFlav);
-    tree->Branch("combinejetPFlav",   "std::vector<double>", &combinejetPFlav);
-    tree->Branch("combinejetQGL",     "std::vector<double>", &combinejetQGL);
-    tree->Branch("combinejetPUIF",    "std::vector<double>", &combinejetPUID);
-    tree->Branch("combinejetPassPUIF",    "std::vector<double>", &combinejetPassPUID);
-    tree->Branch("combinejetGenpt",   "std::vector<double>", &combinejetGenpt);
-    tree->Branch("combinejetGeneta",  "std::vector<double>", &combinejetGeneta);
-    tree->Branch("combinejetGenphi",  "std::vector<double>", &combinejetGenphi);
-    tree->Branch("combinejetGenm",    "std::vector<double>", &combinejetGenm);
-    tree->Branch("combinejetBtagSF",  "std::vector<double>", &combinejetBtagSF);
-    tree->Branch("combinejetBtagSFUp", "std::vector<double>", &combinejetBtagSFUp);
-    tree->Branch("combinejetBtagSFDown",    "std::vector<double>", &combinejetBtagSFDown);
-    tree->Branch("combinejetBtagMVASF",     "std::vector<double>", &combinejetBtagMVASF);
-    tree->Branch("combinejetBtagMVASFUp",   "std::vector<double>", &combinejetBtagMVASFUp);
-    tree->Branch("combinejetBtagMVASFDown", "std::vector<double>", &combinejetBtagMVASFDown);    
-    tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/D");
+    tree->Branch("combinejetEMfrac",  "std::vector<float>", &combinejetEMfrac);
+    tree->Branch("combinejetCEMfrac", "std::vector<float>", &combinejetCEMfrac);
+    tree->Branch("combinejetmetdphi", "std::vector<float>", &combinejetmetdphi);
+    tree->Branch("combinejetHFlav",   "std::vector<float>", &combinejetHFlav);
+    tree->Branch("combinejetPFlav",   "std::vector<float>", &combinejetPFlav);
+    tree->Branch("combinejetQGL",     "std::vector<float>", &combinejetQGL);
+    tree->Branch("combinejetPUIF",    "std::vector<float>", &combinejetPUID);
+    tree->Branch("combinejetPassPUIF",    "std::vector<float>", &combinejetPassPUID);
+    tree->Branch("combinejetGenpt",   "std::vector<float>", &combinejetGenpt);
+    tree->Branch("combinejetGeneta",  "std::vector<float>", &combinejetGeneta);
+    tree->Branch("combinejetGenphi",  "std::vector<float>", &combinejetGenphi);
+    tree->Branch("combinejetGenm",    "std::vector<float>", &combinejetGenm);
+    tree->Branch("combinejetBtagSF",  "std::vector<float>", &combinejetBtagSF);
+    tree->Branch("combinejetBtagSFUp", "std::vector<float>", &combinejetBtagSFUp);
+    tree->Branch("combinejetBtagSFDown",    "std::vector<float>", &combinejetBtagSFDown);
+    tree->Branch("combinejetBtagMVASF",     "std::vector<float>", &combinejetBtagMVASF);
+    tree->Branch("combinejetBtagMVASFUp",   "std::vector<float>", &combinejetBtagMVASFUp);
+    tree->Branch("combinejetBtagMVASFDown", "std::vector<float>", &combinejetBtagMVASFDown);    
+    tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/F");
   
 
-    tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/D");
-    tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/D");
-    tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/D");
-    tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/D");
+    tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/F");
+    tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/F");
+    tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/F");
+    tree->Branch("incjetphmetdphimin"   , &incjetphmetdphimin   , "incjetphmetdphimin/F");
     
-    tree->Branch("alljetmetdphimin"     , &alljetmetdphimin     , "alljetmetdphimin/D");
-    tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/D");
-    tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/D");
-    tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/D");
+    tree->Branch("alljetmetdphimin"     , &alljetmetdphimin     , "alljetmetdphimin/F");
+    tree->Branch("alljetmumetdphimin"   , &alljetmumetdphimin   , "alljetmumetdphimin/F");
+    tree->Branch("alljetelmetdphimin"   , &alljetelmetdphimin   , "alljetelmetdphimin/F");
+    tree->Branch("alljetphmetdphimin"   , &alljetphmetdphimin   , "alljetphmetdphimin/F");
   }
 
-  tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/D");
-  tree->Branch("incjetmumetdphimin4"  , &incjetmumetdphimin4  , "incjetmumetdphimin4/D");
-  tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/D");
-  tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/D");
+  tree->Branch("incjetmetdphimin4"    , &incjetmetdphimin4    , "incjetmetdphimin4/F");
+  tree->Branch("incjetmumetdphimin4"  , &incjetmumetdphimin4  , "incjetmumetdphimin4/F");
+  tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/F");
+  tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/F");
 
   if(not isTriggerTree){
-    tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/D");
-    tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/D");
-    tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/D");
-    tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/D");    
-    tree->Branch("ht"                   , &ht                   , "ht/D");
-    tree->Branch("htinc"                , &htinc                , "htinc/D");
-    tree->Branch("ht30"                 , &ht30                 , "ht30/D");
+    tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/F");
+    tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/F");
+    tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/F");
+    tree->Branch("alljetphmetdphimin4"  , &alljetphmetdphimin4  , "alljetphmetdphimin4/F");    
+    tree->Branch("ht"                   , &ht                   , "ht/F");
+    tree->Branch("htinc"                , &htinc                , "htinc/F");
+    tree->Branch("ht30"                 , &ht30                 , "ht30/F");
   }
 
   if(addPuppiJets and not isTriggerTree){
 
-    tree->Branch("combinePuppijetpt",  "std::vector<double>", &combinePuppijetpt);
-    tree->Branch("combinePuppijeteta", "std::vector<double>", &combinePuppijeteta);
-    tree->Branch("combinePuppijetphi", "std::vector<double>", &combinePuppijetphi);
-    tree->Branch("combinePuppijetm",   "std::vector<double>", &combinePuppijetm);
-    tree->Branch("combinePuppijetbtag", "std::vector<double>", &combinePuppijetbtag);
-    tree->Branch("combinePuppijetbtagMVA", "std::vector<double>", &combinePuppijetbtagMVA);
-    tree->Branch("combinePuppijetCHfrac", "std::vector<double>", &combinePuppijetCHfrac);
-    tree->Branch("combinePuppijetNHfrac", "std::vector<double>", &combinePuppijetNHfrac);
-    tree->Branch("combinePuppijetEMfrac", "std::vector<double>", &combinePuppijetEMfrac);
-    tree->Branch("combinePuppijetCEMfrac", "std::vector<double>", &combinePuppijetCEMfrac);
-    tree->Branch("combinePuppijetmetdphi", "std::vector<double>", &combinePuppijetmetdphi);
-    tree->Branch("combinePuppijetHFlav", "std::vector<double>", &combinePuppijetHFlav);
-    tree->Branch("combinePuppijetPFlav", "std::vector<double>", &combinePuppijetPFlav);
-    tree->Branch("combinePuppijetQGL",   "std::vector<double>", &combinePuppijetQGL);
-    tree->Branch("combinePuppijetGenpt", "std::vector<double>", &combinePuppijetGenpt);
-    tree->Branch("combinePuppijetGeneta", "std::vector<double>", &combinePuppijetGeneta);
-    tree->Branch("combinePuppijetGenphi", "std::vector<double>", &combinePuppijetGenphi);
-    tree->Branch("combinePuppijetGenm",   "std::vector<double>", &combinePuppijetGenm);
-    tree->Branch("combinePuppijetBtagSF", "std::vector<double>", &combinePuppijetBtagSF);
-    tree->Branch("combinePuppijetBtagSFUp", "std::vector<double>", &combinePuppijetBtagSFUp);
-    tree->Branch("combinePuppijetBtagSFDown", "std::vector<double>", &combinePuppijetBtagSFDown);
-    tree->Branch("combinePuppijetBtagMVASF", "std::vector<double>", &combinePuppijetBtagMVASF);
-    tree->Branch("combinePuppijetBtagMVASFUp", "std::vector<double>", &combinePuppijetBtagMVASFUp);
-    tree->Branch("combinePuppijetBtagMVASFDown", "std::vector<double>", &combinePuppijetBtagMVASFDown);
+    tree->Branch("combinePuppijetpt",  "std::vector<float>", &combinePuppijetpt);
+    tree->Branch("combinePuppijeteta", "std::vector<float>", &combinePuppijeteta);
+    tree->Branch("combinePuppijetphi", "std::vector<float>", &combinePuppijetphi);
+    tree->Branch("combinePuppijetm",   "std::vector<float>", &combinePuppijetm);
+    tree->Branch("combinePuppijetbtag", "std::vector<float>", &combinePuppijetbtag);
+    tree->Branch("combinePuppijetbtagMVA", "std::vector<float>", &combinePuppijetbtagMVA);
+    tree->Branch("combinePuppijetCHfrac", "std::vector<float>", &combinePuppijetCHfrac);
+    tree->Branch("combinePuppijetNHfrac", "std::vector<float>", &combinePuppijetNHfrac);
+    tree->Branch("combinePuppijetEMfrac", "std::vector<float>", &combinePuppijetEMfrac);
+    tree->Branch("combinePuppijetCEMfrac", "std::vector<float>", &combinePuppijetCEMfrac);
+    tree->Branch("combinePuppijetmetdphi", "std::vector<float>", &combinePuppijetmetdphi);
+    tree->Branch("combinePuppijetHFlav", "std::vector<float>", &combinePuppijetHFlav);
+    tree->Branch("combinePuppijetPFlav", "std::vector<float>", &combinePuppijetPFlav);
+    tree->Branch("combinePuppijetQGL",   "std::vector<float>", &combinePuppijetQGL);
+    tree->Branch("combinePuppijetGenpt", "std::vector<float>", &combinePuppijetGenpt);
+    tree->Branch("combinePuppijetGeneta", "std::vector<float>", &combinePuppijetGeneta);
+    tree->Branch("combinePuppijetGenphi", "std::vector<float>", &combinePuppijetGenphi);
+    tree->Branch("combinePuppijetGenm",   "std::vector<float>", &combinePuppijetGenm);
+    tree->Branch("combinePuppijetBtagSF", "std::vector<float>", &combinePuppijetBtagSF);
+    tree->Branch("combinePuppijetBtagSFUp", "std::vector<float>", &combinePuppijetBtagSFUp);
+    tree->Branch("combinePuppijetBtagSFDown", "std::vector<float>", &combinePuppijetBtagSFDown);
+    tree->Branch("combinePuppijetBtagMVASF", "std::vector<float>", &combinePuppijetBtagMVASF);
+    tree->Branch("combinePuppijetBtagMVASFUp", "std::vector<float>", &combinePuppijetBtagMVASFUp);
+    tree->Branch("combinePuppijetBtagMVASFDown", "std::vector<float>", &combinePuppijetBtagMVASFDown);
 
-    tree->Branch("PuppijetPuppijetdphi"      , &PuppijetPuppijetdphi      , "PuppijetPuppijetdphi/D");
+    tree->Branch("PuppijetPuppijetdphi"      , &PuppijetPuppijetdphi      , "PuppijetPuppijetdphi/F");
 
-    tree->Branch("Puppijetmetdphimin"        , &Puppijetmetdphimin        , "Puppijetmetdphimin/D");
-    tree->Branch("Puppijetmumetdphimin"        , &Puppijetmumetdphimin        , "Puppijetmumetdphimin/D");
-    tree->Branch("Puppijetelmetdphimin"      , &Puppijetelmetdphimin      , "Puppijetelmetdphimin/D");
-    tree->Branch("Puppijetphmetdphimin"      , &Puppijetphmetdphimin      , "Puppijetphmetdphimin/D");
+    tree->Branch("Puppijetmetdphimin"        , &Puppijetmetdphimin        , "Puppijetmetdphimin/F");
+    tree->Branch("Puppijetmumetdphimin"        , &Puppijetmumetdphimin        , "Puppijetmumetdphimin/F");
+    tree->Branch("Puppijetelmetdphimin"      , &Puppijetelmetdphimin      , "Puppijetelmetdphimin/F");
+    tree->Branch("Puppijetphmetdphimin"      , &Puppijetphmetdphimin      , "Puppijetphmetdphimin/F");
 
-    tree->Branch("incPuppijetmetdphimin"     , &incPuppijetmetdphimin     , "incPuppijetmetdphimin/D");
-    tree->Branch("incPuppijetmumetdphimin"     , &incPuppijetmumetdphimin     , "incPuppijetmumetdphimin/D");
-    tree->Branch("incPuppijetelmetdphimin"   , &incPuppijetelmetdphimin   , "incPuppijetelmetdphimin/D");
-    tree->Branch("incPuppijetphmetdphimin"   , &incPuppijetphmetdphimin   , "incPuppijetphmetdphimin/D");
+    tree->Branch("incPuppijetmetdphimin"     , &incPuppijetmetdphimin     , "incPuppijetmetdphimin/F");
+    tree->Branch("incPuppijetmumetdphimin"     , &incPuppijetmumetdphimin     , "incPuppijetmumetdphimin/F");
+    tree->Branch("incPuppijetelmetdphimin"   , &incPuppijetelmetdphimin   , "incPuppijetelmetdphimin/F");
+    tree->Branch("incPuppijetphmetdphimin"   , &incPuppijetphmetdphimin   , "incPuppijetphmetdphimin/F");
 
-    tree->Branch("Puppijetmetdphimin4"       , &Puppijetmetdphimin4       , "Puppijetmetdphimin4/D");
-    tree->Branch("Puppijetmumetdphimin4"       , &Puppijetmumetdphimin4       , "Puppijetmumetdphimin4/D");
-    tree->Branch("Puppijetelmetdphimin4"     , &Puppijetelmetdphimin4     , "Puppijetelmetdphimin4/D");
-    tree->Branch("Puppijetphmetdphimin4"     , &Puppijetphmetdphimin4     , "Puppijetphmetdphimin4/D");
+    tree->Branch("Puppijetmetdphimin4"       , &Puppijetmetdphimin4       , "Puppijetmetdphimin4/F");
+    tree->Branch("Puppijetmumetdphimin4"       , &Puppijetmumetdphimin4       , "Puppijetmumetdphimin4/F");
+    tree->Branch("Puppijetelmetdphimin4"     , &Puppijetelmetdphimin4     , "Puppijetelmetdphimin4/F");
+    tree->Branch("Puppijetphmetdphimin4"     , &Puppijetphmetdphimin4     , "Puppijetphmetdphimin4/F");
 
-    tree->Branch("incPuppijetmetdphimin4"    , &incPuppijetmetdphimin4    , "incPuppijetmetdphimin4/D");
-    tree->Branch("incPuppijetmumetdphimin4"    , &incPuppijetmumetdphimin4    , "incPuppijetmumetdphimin4/D");
-    tree->Branch("incPuppijetelmetdphimin4"  , &incPuppijetelmetdphimin4  , "incPuppijetelmetdphimin4/D");
-    tree->Branch("incPuppijetphmetdphimin4"  , &incPuppijetphmetdphimin4  , "incPuppijetphmetdphimin4/D");
+    tree->Branch("incPuppijetmetdphimin4"    , &incPuppijetmetdphimin4    , "incPuppijetmetdphimin4/F");
+    tree->Branch("incPuppijetmumetdphimin4"    , &incPuppijetmumetdphimin4    , "incPuppijetmumetdphimin4/F");
+    tree->Branch("incPuppijetelmetdphimin4"  , &incPuppijetelmetdphimin4  , "incPuppijetelmetdphimin4/F");
+    tree->Branch("incPuppijetphmetdphimin4"  , &incPuppijetphmetdphimin4  , "incPuppijetphmetdphimin4/F");
 
-    tree->Branch("Puppiht"                   , &Puppiht                   , "Puppiht/D");
+    tree->Branch("Puppiht"                   , &Puppiht                   , "Puppiht/F");
     
   }
   
   // Lepton info
   tree->Branch("mu1pid"               , &mu1pid               , "mu1pid/I");
-  tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/D");
-  tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/D");
-  tree->Branch("mu1phi"               , &mu1phi               , "mu1phi/D");
+  tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/F");
+  tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/F");
+  tree->Branch("mu1phi"               , &mu1phi               , "mu1phi/F");
   if(not isTriggerTree){
-    tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/D");
-    tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/D");
-    tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/D");
+    tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/F");
+    tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/F");
+    tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/F");
   }
   tree->Branch("mu1id"                , &mu1id                , "mu1id/I");
   tree->Branch("mu1idm"               , &mu1idm               , "mu1idm/I");
   tree->Branch("mu1idt"               , &mu1idt               , "mu1idt/I");
-  tree->Branch("mu1iso"               , &mu1iso               , "mu1iso/D");
+  tree->Branch("mu1iso"               , &mu1iso               , "mu1iso/F");
 
   tree->Branch("mu2pid"               , &mu2pid               , "mu2pid/I");
-  tree->Branch("mu2pt"                , &mu2pt                , "mu2pt/D");
-  tree->Branch("mu2eta"               , &mu2eta               , "mu2eta/D");
-  tree->Branch("mu2phi"               , &mu2phi               , "mu2phi/D");
+  tree->Branch("mu2pt"                , &mu2pt                , "mu2pt/F");
+  tree->Branch("mu2eta"               , &mu2eta               , "mu2eta/F");
+  tree->Branch("mu2phi"               , &mu2phi               , "mu2phi/F");
   if(not isTriggerTree){
-    tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/D");
-    tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/D");
-    tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/D");
+    tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/F");
+    tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/F");
+    tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/F");
   }
   tree->Branch("mu2id"                , &mu2id                , "mu2id/I");
   tree->Branch("mu2idm"               , &mu2idm               , "mu2idm/I");
   tree->Branch("mu2idt"               , &mu2idt               , "mu2idt/I");
-  tree->Branch("mu2iso"               , &mu2iso               , "mu2iso/D");
+  tree->Branch("mu2iso"               , &mu2iso               , "mu2iso/F");
 
   tree->Branch("el1pid"               , &el1pid               , "el1pid/I");
-  tree->Branch("el1pt"                , &el1pt                , "el1pt/D");
-  tree->Branch("el1eta"               , &el1eta               , "el1eta/D");
-  tree->Branch("el1phi"               , &el1phi               , "el1phi/D");
+  tree->Branch("el1pt"                , &el1pt                , "el1pt/F");
+  tree->Branch("el1eta"               , &el1eta               , "el1eta/F");
+  tree->Branch("el1phi"               , &el1phi               , "el1phi/F");
   tree->Branch("el1id"                , &el1id                , "el1id/I");
   tree->Branch("el1idl"               , &el1idl               , "el1idl/I");
+  tree->Branch("el1idt"               , &el1idt               , "el1idt/I");
 
   tree->Branch("el2pid"               , &el2pid               , "el2pid/I");
-  tree->Branch("el2pt"                , &el2pt                , "el2pt/D");
-  tree->Branch("el2eta"               , &el2eta               , "el2eta/D");
-  tree->Branch("el2phi"               , &el2phi               , "el2phi/D");
+  tree->Branch("el2pt"                , &el2pt                , "el2pt/F");
+  tree->Branch("el2eta"               , &el2eta               , "el2eta/F");
+  tree->Branch("el2phi"               , &el2phi               , "el2phi/F");
   tree->Branch("el2id"                , &el2id                , "el2id/I");
   tree->Branch("el2idl"               , &el2idl               , "el2idl/I");
+  tree->Branch("el2idt"               , &el2idt               , "el2idt/I");
 
   if(not isTriggerTree){
     tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
-    tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/D");
-    tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/D");
-    tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/D");
-    tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/D");
-    tree->Branch("tau1m"               , &tau1m               , "tau1m/D");
+    tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/F");
+    tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/F");
+    tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/F");
+    tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/F");
+    tree->Branch("tau1m"               , &tau1m               , "tau1m/F");
     
     tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
-    tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/D");
-    tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/D");
-    tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/D");
-    tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/D");
-    tree->Branch("tau2m"               , &tau2m               , "tau2m/D");
+    tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/F");
+    tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/F");
+    tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/F");
+    tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/F");
+    tree->Branch("tau2m"               , &tau2m               , "tau2m/F");
   }
 
     // Dilepton info
   if(not isTriggerTree){
-    tree->Branch("zmass"                , &zmass                , "zmass/D");
-    tree->Branch("zpt"                  , &zpt                  , "zpt/D");
-    tree->Branch("zeta"                 , &zeta                 , "zeta/D");
-    tree->Branch("zphi"                 , &zphi                 , "zphi/D");
-    tree->Branch("wmt"                  , &wmt                  , "wmt/D");
-    tree->Branch("emumass"              , &emumass              , "emumass/D");
-    tree->Branch("emupt"                , &emupt                , "emupt/D");
-    tree->Branch("emueta"               , &emueta               , "emueta/D");
-    tree->Branch("emuphi"               , &emuphi               , "emuphi/D");
-    tree->Branch("zeemass"              , &zeemass              , "zeemass/D");
-    tree->Branch("zeept"                , &zeept                , "zeept/D");
-    tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/D");
-    tree->Branch("zeephi"               , &zeephi               , "zeephi/D");
-    tree->Branch("wemt"                 , &wemt                 , "wemt/D");
-    tree->Branch("zttmass"              , &zttmass              , "zttmass/D");
-    tree->Branch("zttpt"                , &zttpt                , "zttept/D");
-    tree->Branch("ztteta"               , &ztteta               , "ztteta/D");
-    tree->Branch("zttphi"               , &zttphi               , "zttphi/D");
-    tree->Branch("wtmt"                 , &wtmt                 , "wtmt/D");
-    tree->Branch("taumumass"              , &taumumass              , "taumumass/D");
-    tree->Branch("taumupt"                , &taumupt                , "taumupt/D");
-    tree->Branch("taumueta"               , &taumueta               , "taumueta/D");
-    tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/D");
-    tree->Branch("tauemass"              , &tauemass              , "tauemass/D");
-    tree->Branch("tauept"                , &tauept                , "tauept/D");
-    tree->Branch("taueeta"               , &taueeta               , "taueeta/D");
-    tree->Branch("tauephi"               , &tauephi               , "tauephi/D");
+    tree->Branch("zmass"                , &zmass                , "zmass/F");
+    tree->Branch("zpt"                  , &zpt                  , "zpt/F");
+    tree->Branch("zeta"                 , &zeta                 , "zeta/F");
+    tree->Branch("zphi"                 , &zphi                 , "zphi/F");
+    tree->Branch("wmt"                  , &wmt                  , "wmt/F");
+    tree->Branch("emumass"              , &emumass              , "emumass/F");
+    tree->Branch("emupt"                , &emupt                , "emupt/F");
+    tree->Branch("emueta"               , &emueta               , "emueta/F");
+    tree->Branch("emuphi"               , &emuphi               , "emuphi/F");
+    tree->Branch("zeemass"              , &zeemass              , "zeemass/F");
+    tree->Branch("zeept"                , &zeept                , "zeept/F");
+    tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/F");
+    tree->Branch("zeephi"               , &zeephi               , "zeephi/F");
+    tree->Branch("wemt"                 , &wemt                 , "wemt/F");
+    tree->Branch("zttmass"              , &zttmass              , "zttmass/F");
+    tree->Branch("zttpt"                , &zttpt                , "zttept/F");
+    tree->Branch("ztteta"               , &ztteta               , "ztteta/F");
+    tree->Branch("zttphi"               , &zttphi               , "zttphi/F");
+    tree->Branch("wtmt"                 , &wtmt                 , "wtmt/F");
+    tree->Branch("taumumass"              , &taumumass              , "taumumass/F");
+    tree->Branch("taumupt"                , &taumupt                , "taumupt/F");
+    tree->Branch("taumueta"               , &taumueta               , "taumueta/F");
+    tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/F");
+    tree->Branch("tauemass"              , &tauemass              , "tauemass/F");
+    tree->Branch("tauept"                , &tauept                , "tauept/F");
+    tree->Branch("taueeta"               , &taueeta               , "taueeta/F");
+    tree->Branch("tauephi"               , &tauephi               , "tauephi/F");
   }
   // Photon info
   tree->Branch("phidl"                , &phidl                , "phidl/I");
   tree->Branch("phidm"                , &phidm                , "phidm/I");
   tree->Branch("phidt"                , &phidt                , "phidt/I");
   tree->Branch("phidh"                , &phidh                , "phidh/I");
-  tree->Branch("phpt"                 , &phpt                 , "phpt/D");
-  tree->Branch("pheta"                , &pheta                , "pheta/D");
-  tree->Branch("phphi"                , &phphi                , "phphi/D");
+  tree->Branch("phpt"                 , &phpt                 , "phpt/F");
+  tree->Branch("pheta"                , &pheta                , "pheta/F");
+  tree->Branch("phphi"                , &phphi                , "phphi/F");
 
   if(addPhotonPurity and not isTriggerTree){
 
     tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/I");
-    tree->Branch("rho"             , &rho             , "rho/D");
-    tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/D");
-    tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/D");
-    tree->Branch("phPuritypt"      , &phPuritypt      , "phPuritypt/D");
-    tree->Branch("pPurityheta"     , &phPurityeta     , "phPurityeta/D");
-    tree->Branch("phPurityphi"     , &phPurityphi     , "phPurityphi/D");
-    tree->Branch("phPurityPHiso"   , &phPurityPHiso   , "phPurityPHiso/D");
-    tree->Branch("phPurityRND04PHiso"   , &phPurityRND04PHiso    , "phPurityRND04PHiso/D");
-    tree->Branch("phPurityRND08PHiso"   , &phPurityRND08PHiso    , "phPurityRND08PHiso/D");
-    tree->Branch("phPurityCHiso"        , &phPurityCHiso         , "phPurityCHiso/D");
-    tree->Branch("phPurityRND04CHiso"        , &phPurityRND04CHiso         , "phPurityRND04CHiso/D");
-    tree->Branch("phPurityRND08CHiso"        , &phPurityRND08CHiso         , "phPurityRND08CHiso/D");
-    tree->Branch("phNHiso"        , &phNHiso         , "phNHiso/D");
-    tree->Branch("phPurityNHiso"        , &phPurityNHiso         , "phPurityNHiso/D");
-    tree->Branch("phPuritysieie"        , &phPuritysieie         , "phPuritysieie/D");
-    tree->Branch("phPurityhoe"          , &phPurityhoe           , "phPurityhoe/D");
-    tree->Branch("phPurityEA"           , &phPurityEA            , "phPurityEA/D");
-    tree->Branch("phPurityEAEGamma"     , &phPurityEAEGamma      , "phPurityEAEGamma/D");
-    tree->Branch("phPurityElectronVeto" , &phPurityElectronVeto  , "phPurityElectronVeto/D");
+    tree->Branch("rho"             , &rho             , "rho/F");
+    tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/F");
+    tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/F");
+    tree->Branch("phPuritypt"      , &phPuritypt      , "phPuritypt/F");
+    tree->Branch("pPurityheta"     , &phPurityeta     , "phPurityeta/F");
+    tree->Branch("phPurityphi"     , &phPurityphi     , "phPurityphi/F");
+    tree->Branch("phPurityPHiso"   , &phPurityPHiso   , "phPurityPHiso/F");
+    tree->Branch("phPurityRND04PHiso"   , &phPurityRND04PHiso    , "phPurityRND04PHiso/F");
+    tree->Branch("phPurityRND08PHiso"   , &phPurityRND08PHiso    , "phPurityRND08PHiso/F");
+    tree->Branch("phPurityCHiso"        , &phPurityCHiso         , "phPurityCHiso/F");
+    tree->Branch("phPurityRND04CHiso"        , &phPurityRND04CHiso         , "phPurityRND04CHiso/F");
+    tree->Branch("phPurityRND08CHiso"        , &phPurityRND08CHiso         , "phPurityRND08CHiso/F");
+    tree->Branch("phNHiso"        , &phNHiso         , "phNHiso/F");
+    tree->Branch("phPurityNHiso"        , &phPurityNHiso         , "phPurityNHiso/F");
+    tree->Branch("phPuritysieie"        , &phPuritysieie         , "phPuritysieie/F");
+    tree->Branch("phPurityhoe"          , &phPurityhoe           , "phPurityhoe/F");
+    tree->Branch("phPurityEA"           , &phPurityEA            , "phPurityEA/F");
+    tree->Branch("phPurityEAEGamma"     , &phPurityEAEGamma      , "phPurityEAEGamma/F");
+    tree->Branch("phPurityElectronVeto" , &phPurityElectronVeto  , "phPurityElectronVeto/F");
 
   }
   
   // W/Z gen-level info: leptonic and hadronic
   if(not isTriggerTree){
     tree->Branch("wzid"                 , &wzid                 , "wzid/I");
-    tree->Branch("wzmass"               , &wzmass               , "wzmass/D");
-    tree->Branch("wzmt"                 , &wzmt                 , "wzmt/D");
-    tree->Branch("wzpt"                 , &wzpt                 , "wzpt/D");
-    tree->Branch("wzeta"                , &wzeta                , "wzeta/D");
-    tree->Branch("wzphi"                , &wzphi                , "wzphi/D");
-    tree->Branch("wzmothid"             , &wzmothid             , "wzmothid/D");
+    tree->Branch("wzmass"               , &wzmass               , "wzmass/F");
+    tree->Branch("wzmt"                 , &wzmt                 , "wzmt/F");
+    tree->Branch("wzpt"                 , &wzpt                 , "wzpt/F");
+    tree->Branch("wzeta"                , &wzeta                , "wzeta/F");
+    tree->Branch("wzphi"                , &wzphi                , "wzphi/F");
+    tree->Branch("wzmothid"             , &wzmothid             , "wzmothid/F");
     tree->Branch("ismatch"              , &ismatch              , "ismatch/I");
     tree->Branch("isdirect"             , &isdirect             , "isdirect/I");
     
     tree->Branch("l1id"                 , &l1id                 , "l1id/I");
-    tree->Branch("l1pt"                 , &l1pt                 , "l1pt/D");
-    tree->Branch("l1eta"                , &l1eta                , "l1eta/D");
-    tree->Branch("l1phi"                , &l1phi                , "l1phi/D");
+    tree->Branch("l1pt"                 , &l1pt                 , "l1pt/F");
+    tree->Branch("l1eta"                , &l1eta                , "l1eta/F");
+    tree->Branch("l1phi"                , &l1phi                , "l1phi/F");
     tree->Branch("l2id"                 , &l2id                 , "l2id/I");
-    tree->Branch("l2pt"                 , &l2pt                 , "l2pt/D");
-    tree->Branch("l2eta"                , &l2eta                , "l2eta/D");
-    tree->Branch("l2phi"                , &l2phi                , "l2phi/D");
+    tree->Branch("l2pt"                 , &l2pt                 , "l2pt/F");
+    tree->Branch("l2eta"                , &l2eta                , "l2eta/F");
+    tree->Branch("l2phi"                , &l2phi                , "l2phi/F");
     
     tree->Branch("wzid_h"                 , &wzid_h                 , "wzid_h/I");
-    tree->Branch("wzmass_h"               , &wzmass_h               , "wzmass_h/D");
-    tree->Branch("wzmt_h"                 , &wzmt_h                 , "wzmt_h/D");
-    tree->Branch("wzpt_h"                 , &wzpt_h                 , "wzpt_h/D");
-    tree->Branch("wzeta_h"                , &wzeta_h                , "wzeta_h/D");
-    tree->Branch("wzphi_h"                , &wzphi_h                , "wzphi_h/D");
+    tree->Branch("wzmass_h"               , &wzmass_h               , "wzmass_h/F");
+    tree->Branch("wzmt_h"                 , &wzmt_h                 , "wzmt_h/F");
+    tree->Branch("wzpt_h"                 , &wzpt_h                 , "wzpt_h/F");
+    tree->Branch("wzeta_h"                , &wzeta_h                , "wzeta_h/F");
+    tree->Branch("wzphi_h"                , &wzphi_h                , "wzphi_h/F");
     tree->Branch("q1id"                 , &q1id                 , "q1id/I");
-    tree->Branch("q1pt"                 , &q1pt                 , "q1pt/D");
-    tree->Branch("q1eta"                , &q1eta                , "q1eta/D");
-    tree->Branch("q1phi"                , &q1phi                , "q1phi/D");
+    tree->Branch("q1pt"                 , &q1pt                 , "q1pt/F");
+    tree->Branch("q1eta"                , &q1eta                , "q1eta/F");
+    tree->Branch("q1phi"                , &q1phi                , "q1phi/F");
     tree->Branch("q2id"                 , &q2id                 , "q2id/I");
-    tree->Branch("q2pt"                 , &q2pt                 , "q2pt/D");
-    tree->Branch("q2eta"                , &q2eta                , "q2eta/D");
-    tree->Branch("q2phi"                , &q2phi                , "q2phi/D");
+    tree->Branch("q2pt"                 , &q2pt                 , "q2pt/F");
+    tree->Branch("q2eta"                , &q2eta                , "q2eta/F");
+    tree->Branch("q2phi"                , &q2phi                , "q2phi/F");
     
     // Top info
-    tree->Branch("topmass"               , &topmass               , "topmass/D");
-    tree->Branch("toppt"                 , &toppt                 , "toppt/D");
-    tree->Branch("topeta"                , &topeta                , "topeta/D");
-    tree->Branch("topphi"                , &topphi                , "topphi/D");
-    tree->Branch("atopmass"               , &atopmass               , "atopmass/D");
-    tree->Branch("atoppt"                 , &atoppt                 , "atoppt/D");
-    tree->Branch("atopeta"                , &atopeta                , "atopeta/D");
-    tree->Branch("atopphi"                , &atopphi                , "atopphi/D");
+    tree->Branch("topmass"               , &topmass               , "topmass/F");
+    tree->Branch("toppt"                 , &toppt                 , "toppt/F");
+    tree->Branch("topeta"                , &topeta                , "topeta/F");
+    tree->Branch("topphi"                , &topphi                , "topphi/F");
+    tree->Branch("atopmass"               , &atopmass               , "atopmass/F");
+    tree->Branch("atoppt"                 , &atoppt                 , "atoppt/F");
+    tree->Branch("atopeta"                , &atopeta                , "atopeta/F");
+    tree->Branch("atopphi"                , &atopphi                , "atopphi/F");
     
     // photon gen info
     tree->Branch("parid"                , &parid                , "parid/I");
-    tree->Branch("parpt"                , &parpt                , "parpt/D");
-    tree->Branch("pareta"               , &pareta               , "pareta/D");
-    tree->Branch("parphi"               , &parphi               , "parphi/D");
+    tree->Branch("parpt"                , &parpt                , "parpt/F");
+    tree->Branch("pareta"               , &pareta               , "pareta/F");
+    tree->Branch("parphi"               , &parphi               , "parphi/F");
     tree->Branch("ancid"                , &ancid                , "ancid/I");
-    tree->Branch("ancpt"                , &ancpt                , "ancpt/D");
-    tree->Branch("anceta"               , &anceta               , "anceta/D");
-    tree->Branch("ancphi"               , &ancphi               , "ancphi/D");
+    tree->Branch("ancpt"                , &ancpt                , "ancpt/F");
+    tree->Branch("anceta"               , &anceta               , "anceta/F");
+    tree->Branch("ancphi"               , &ancphi               , "ancphi/F");
     
     // DM mediator
-    tree->Branch("dmmass",&dmmass,"dmmass/D");
-    tree->Branch("dmpt",&dmpt,"dmpt/D");
-    tree->Branch("dmeta",&dmeta,"dmeta/D");
-    tree->Branch("dmphi",&dmphi,"dmphi/D");
+    tree->Branch("dmmass",&dmmass,"dmmass/F");
+    tree->Branch("dmpt",&dmpt,"dmpt/F");
+    tree->Branch("dmeta",&dmeta,"dmeta/F");
+    tree->Branch("dmphi",&dmphi,"dmphi/F");
     tree->Branch("dmid",&dmid,"dmid/I");
     
     // DM particles
     tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
-    tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/D");
-    tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/D");
-    tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/D");
-    tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/D");
+    tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/F");
+    tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/F");
+    tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/F");
+    tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/F");
     
     tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
-    tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/D");
-    tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/D");
-    tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/D");
-    tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/D");
+    tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/F");
+    tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
+    tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
+    tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
     
     // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
-    tree->Branch("samplemedM",   &samplemedM, "samplemedM/D");
-    tree->Branch("sampledmM",    &sampledmM, "sampledmM/D");
+    tree->Branch("samplemedM",   &samplemedM, "samplemedM/F");
+    tree->Branch("sampledmM",    &sampledmM, "sampledmM/F");
   }
   // AK8 Puppi jets                                                                                                                                                             
   if(addSubstructureCHS and not isTriggerTree){
 
-    tree->Branch("boostedJetpt",  "std::vector<double>", &boostedJetpt);
-    tree->Branch("boostedJeteta", "std::vector<double>", &boostedJeteta);
-    tree->Branch("boostedJetphi", "std::vector<double>", &boostedJetphi);
-    tree->Branch("boostedJetm",   "std::vector<double>", &boostedJetm);
+    tree->Branch("boostedJetpt",  "std::vector<float>", &boostedJetpt);
+    tree->Branch("boostedJeteta", "std::vector<float>", &boostedJeteta);
+    tree->Branch("boostedJetphi", "std::vector<float>", &boostedJetphi);
+    tree->Branch("boostedJetm",   "std::vector<float>", &boostedJetm);
 
-    tree->Branch("boostedJetGenpt",  "std::vector<double>", &boostedJetGenpt);
-    tree->Branch("boostedJetGeneta", "std::vector<double>", &boostedJetGeneta);
-    tree->Branch("boostedJetGenphi", "std::vector<double>", &boostedJetGenphi);
-    tree->Branch("boostedJetGenm",   "std::vector<double>", &boostedJetGenm);
+    tree->Branch("boostedJetGenpt",  "std::vector<float>", &boostedJetGenpt);
+    tree->Branch("boostedJetGeneta", "std::vector<float>", &boostedJetGeneta);
+    tree->Branch("boostedJetGenphi", "std::vector<float>", &boostedJetGenphi);
+    tree->Branch("boostedJetGenm",   "std::vector<float>", &boostedJetGenm);
 
-    tree->Branch("boostedJetHFlav", "std::vector<double>", &boostedJetHFlav);
-    tree->Branch("boostedJetPFlav", "std::vector<double>", &boostedJetPFlav);
-    tree->Branch("boostedJetQGL",   "std::vector<double>", &boostedJetQGL);
-    tree->Branch("boostedJetBtag",  "std::vector<double>", &boostedJetBtag);
-    tree->Branch("boostedJetDoubleBtag", "std::vector<double>", &boostedJetDoubleBtag);
+    tree->Branch("boostedJetHFlav", "std::vector<float>", &boostedJetHFlav);
+    tree->Branch("boostedJetPFlav", "std::vector<float>", &boostedJetPFlav);
+    tree->Branch("boostedJetQGL",   "std::vector<float>", &boostedJetQGL);
+    tree->Branch("boostedJetBtag",  "std::vector<float>", &boostedJetBtag);
+    tree->Branch("boostedJetDoubleBtag", "std::vector<float>", &boostedJetDoubleBtag);
 
-    tree->Branch("boostedJettau1", "std::vector<double>", &boostedJettau1);
-    tree->Branch("boostedJettau2", "std::vector<double>", &boostedJettau2);
-    tree->Branch("boostedJettau3", "std::vector<double>", &boostedJettau3);
-    tree->Branch("boostedJettau4", "std::vector<double>", &boostedJettau4);
+    tree->Branch("boostedJettau1", "std::vector<float>", &boostedJettau1);
+    tree->Branch("boostedJettau2", "std::vector<float>", &boostedJettau2);
+    tree->Branch("boostedJettau3", "std::vector<float>", &boostedJettau3);
+    tree->Branch("boostedJettau4", "std::vector<float>", &boostedJettau4);
 
-    tree->Branch("boostedJetGentau1", "std::vector<double>", &boostedJetGentau1);
-    tree->Branch("boostedJetGentau2", "std::vector<double>", &boostedJetGentau2);
-    tree->Branch("boostedJetGentau3", "std::vector<double>", &boostedJetGentau3);
-    tree->Branch("boostedJetGentau4", "std::vector<double>", &boostedJetGentau4);
+    tree->Branch("boostedJetGentau1", "std::vector<float>", &boostedJetGentau1);
+    tree->Branch("boostedJetGentau2", "std::vector<float>", &boostedJetGentau2);
+    tree->Branch("boostedJetGentau3", "std::vector<float>", &boostedJetGentau3);
+    tree->Branch("boostedJetGentau4", "std::vector<float>", &boostedJetGentau4);
 
-    tree->Branch("prunedJetpt",    "std::vector<double>", &prunedJetpt);
-    tree->Branch("prunedJeteta",   "std::vector<double>", &prunedJeteta);
-    tree->Branch("prunedJetphi",   "std::vector<double>", &prunedJetphi);
-    tree->Branch("prunedJetm",     "std::vector<double>", &prunedJetm);
-    tree->Branch("prunedJetm_v2",   "std::vector<double>", &prunedJetm_v2);
-    tree->Branch("prunedJetpt_v2",  "std::vector<double>", &prunedJetpt_v2);
-    tree->Branch("prunedJeteta_v2", "std::vector<double>", &prunedJeteta_v2);
-    tree->Branch("prunedJetphi_v2", "std::vector<double>", &prunedJetphi_v2);
-    tree->Branch("prunedJetptraw", "std::vector<double>", &prunedJetptraw);
-    tree->Branch("prunedJetmraw",  "std::vector<double>", &prunedJetmraw);
+    tree->Branch("prunedJetpt",    "std::vector<float>", &prunedJetpt);
+    tree->Branch("prunedJeteta",   "std::vector<float>", &prunedJeteta);
+    tree->Branch("prunedJetphi",   "std::vector<float>", &prunedJetphi);
+    tree->Branch("prunedJetm",     "std::vector<float>", &prunedJetm);
+    tree->Branch("prunedJetm_v2",   "std::vector<float>", &prunedJetm_v2);
+    tree->Branch("prunedJetpt_v2",  "std::vector<float>", &prunedJetpt_v2);
+    tree->Branch("prunedJeteta_v2", "std::vector<float>", &prunedJeteta_v2);
+    tree->Branch("prunedJetphi_v2", "std::vector<float>", &prunedJetphi_v2);
+    tree->Branch("prunedJetptraw", "std::vector<float>", &prunedJetptraw);
+    tree->Branch("prunedJetmraw",  "std::vector<float>", &prunedJetmraw);
 
-    tree->Branch("prunedJetGenpt",  "std::vector<double>", &prunedJetGenpt);
-    tree->Branch("prunedJetGeneta", "std::vector<double>", &prunedJetGeneta);
-    tree->Branch("prunedJetGenphi", "std::vector<double>", &prunedJetGenphi);
-    tree->Branch("prunedJetGenm",   "std::vector<double>", &prunedJetGenm);
+    tree->Branch("prunedJetGenpt",  "std::vector<float>", &prunedJetGenpt);
+    tree->Branch("prunedJetGeneta", "std::vector<float>", &prunedJetGeneta);
+    tree->Branch("prunedJetGenphi", "std::vector<float>", &prunedJetGenphi);
+    tree->Branch("prunedJetGenm",   "std::vector<float>", &prunedJetGenm);
 
-    tree->Branch("prunedJetHFlav", "std::vector<double>", &prunedJetHFlav);
-    tree->Branch("prunedJetPFlav", "std::vector<double>", &prunedJetPFlav);
-    tree->Branch("prunedJetQGL",   "std::vector<double>", &prunedJetQGL);
-    tree->Branch("prunedJetBtag",  "std::vector<double>", &prunedJetBtag);
-    tree->Branch("prunedJetDoubleBtag", "std::vector<double>", &prunedJetDoubleBtag);
-
-
-    tree->Branch("softDropJetpt",    "std::vector<double>", &softDropJetpt);
-    tree->Branch("softDropJeteta",   "std::vector<double>", &softDropJeteta);
-    tree->Branch("softDropJetphi",   "std::vector<double>", &softDropJetphi);
-    tree->Branch("softDropJetm",     "std::vector<double>", &softDropJetm);
-    tree->Branch("softDropJetm_v2",  "std::vector<double>", &softDropJetm_v2);
-    tree->Branch("softDropJetpt_v2",  "std::vector<double>", &softDropJetpt_v2);
-    tree->Branch("softDropJeteta_v2",  "std::vector<double>", &softDropJeteta_v2);
-    tree->Branch("softDropJetphi_v2",  "std::vector<double>", &softDropJetphi_v2);
-    tree->Branch("softDropJetptraw", "std::vector<double>", &softDropJetptraw);
-    tree->Branch("softDropJetmraw",  "std::vector<double>", &softDropJetmraw);
-
-    tree->Branch("softDropJetGenpt",  "std::vector<double>", &softDropJetGenpt);
-    tree->Branch("softDropJetGeneta", "std::vector<double>", &softDropJetGeneta);
-    tree->Branch("softDropJetGenphi", "std::vector<double>", &softDropJetGenphi);
-    tree->Branch("softDropJetGenm",   "std::vector<double>", &softDropJetGenm);
-
-    tree->Branch("softDropJetHFlav", "std::vector<double>", &softDropJetHFlav);
-    tree->Branch("softDropJetPFlav", "std::vector<double>", &softDropJetPFlav);
-    tree->Branch("softDropJetQGL",   "std::vector<double>", &softDropJetQGL);
-    tree->Branch("softDropJetBtag",  "std::vector<double>", &softDropJetBtag);
-    tree->Branch("softDropJetDoubleBtag", "std::vector<double>", &softDropJetDoubleBtag);
-
-    tree->Branch("prunedSubJetpt_1",  "std::vector<double>",  &prunedSubJetpt_1);
-    tree->Branch("prunedSubJeteta_1", "std::vector<double>",  &prunedSubJeteta_1);
-    tree->Branch("prunedSubJetphi_1", "std::vector<double>",  &prunedSubJetphi_1);
-    tree->Branch("prunedSubJetm_1",   "std::vector<double>", &prunedSubJetm_1);
-    tree->Branch("prunedSubJetGenpt_1","std::vector<double>",  &prunedSubJetGenpt_1);
-    tree->Branch("prunedSubJetGenm_1", "std::vector<double>", &prunedSubJetGenm_1);
-    tree->Branch("prunedSubJetGeneta_1", "std::vector<double>", &prunedSubJetGeneta_1);
-    tree->Branch("prunedSubJetGenphi_1", "std::vector<double>", &prunedSubJetGenphi_1);
-    tree->Branch("prunedSubJetHFlav_1",  "std::vector<double>", &prunedSubJetHFlav_1);
-    tree->Branch("prunedSubJetPFlav_1",  "std::vector<double>", &prunedSubJetPFlav_1);
-    tree->Branch("prunedSubJetQGL_1",    "std::vector<double>", &prunedSubJetQGL_1);
-    tree->Branch("prunedSubJetBtag_1",   "std::vector<double>", &prunedSubJetBtag_1);
-    tree->Branch("prunedSubJetptraw_1",  "std::vector<double>", &prunedSubJetptraw_1);
-    tree->Branch("prunedSubJetmraw_1",   "std::vector<double>", &prunedSubJetmraw_1);
-    tree->Branch("prunedSubJetBtagSF_1",   "std::vector<double>", &prunedSubJetBtagSF_1);
-    tree->Branch("prunedSubJetBtagSFUp_1",   "std::vector<double>", &prunedSubJetBtagSFUp_1);
-    tree->Branch("prunedSubJetBtagSFDown_1",   "std::vector<double>", &prunedSubJetBtagSFDown_1);
-
-    tree->Branch("prunedSubJetpt_2",  "std::vector<double>",  &prunedSubJetpt_2);
-    tree->Branch("prunedSubJeteta_2", "std::vector<double>",  &prunedSubJeteta_2);
-    tree->Branch("prunedSubJetphi_2", "std::vector<double>",  &prunedSubJetphi_2);
-    tree->Branch("prunedSubJetm_2",   "std::vector<double>", &prunedSubJetm_2);
-    tree->Branch("prunedSubJetGenpt_2","std::vector<double>",  &prunedSubJetGenpt_2);
-    tree->Branch("prunedSubJetGenm_2", "std::vector<double>", &prunedSubJetGenm_2);
-    tree->Branch("prunedSubJetGeneta_2", "std::vector<double>", &prunedSubJetGeneta_2);
-    tree->Branch("prunedSubJetGenphi_2", "std::vector<double>", &prunedSubJetGenphi_2);
-    tree->Branch("prunedSubJetHFlav_2",  "std::vector<double>", &prunedSubJetHFlav_2);
-    tree->Branch("prunedSubJetPFlav_2", "std::vector<double>", &prunedSubJetPFlav_2);
-    tree->Branch("prunedSubJetQGL_2",   "std::vector<double>", &prunedSubJetQGL_2);
-    tree->Branch("prunedSubJetBtag_2",  "std::vector<double>", &prunedSubJetBtag_2);
-    tree->Branch("prunedSubJetptraw_2", "std::vector<double>", &prunedSubJetptraw_2);
-    tree->Branch("prunedSubJetmraw_2",  "std::vector<double>", &prunedSubJetmraw_2);
-    tree->Branch("prunedSubJetBtagSF_2",   "std::vector<double>", &prunedSubJetBtagSF_2);
-    tree->Branch("prunedSubJetBtagSFUp_2",   "std::vector<double>", &prunedSubJetBtagSFUp_2);
-    tree->Branch("prunedSubJetBtagSFDown_2",   "std::vector<double>", &prunedSubJetBtagSFDown_2);
+    tree->Branch("prunedJetHFlav", "std::vector<float>", &prunedJetHFlav);
+    tree->Branch("prunedJetPFlav", "std::vector<float>", &prunedJetPFlav);
+    tree->Branch("prunedJetQGL",   "std::vector<float>", &prunedJetQGL);
+    tree->Branch("prunedJetBtag",  "std::vector<float>", &prunedJetBtag);
+    tree->Branch("prunedJetDoubleBtag", "std::vector<float>", &prunedJetDoubleBtag);
 
 
-    tree->Branch("softDropSubJetpt_1","std::vector<double>",  &softDropSubJetpt_1);
-    tree->Branch("softDropSubJeteta_1","std::vector<double>",  &softDropSubJeteta_1);
-    tree->Branch("softDropSubJetphi_1","std::vector<double>",  &softDropSubJetphi_1);
-    tree->Branch("softDropSubJetm_1", "std::vector<double>", &softDropSubJetm_1);
-    tree->Branch("softDropSubJetGenpt_1","std::vector<double>",  &softDropSubJetGenpt_1);
-    tree->Branch("softDropSubJetGenm_1", "std::vector<double>", &softDropSubJetGenm_1);
-    tree->Branch("softDropSubJetGeneta_1", "std::vector<double>", &softDropSubJetGeneta_1);
-    tree->Branch("softDropSubJetGenphi_1", "std::vector<double>", &softDropSubJetGenphi_1);
-    tree->Branch("softDropSubJetHFlav_1", "std::vector<double>", &softDropSubJetHFlav_1);
-    tree->Branch("softDropSubJetPFlav_1", "std::vector<double>", &softDropSubJetPFlav_1);
-    tree->Branch("softDropSubJetQGL_1", "std::vector<double>", &softDropSubJetQGL_1);
-    tree->Branch("softDropSubJetBtag_1", "std::vector<double>", &softDropSubJetBtag_1);
-    tree->Branch("softDropSubJetptraw_1", "std::vector<double>", &softDropSubJetptraw_1);
-    tree->Branch("softDropSubJetmraw_1", "std::vector<double>", &softDropSubJetmraw_1);
-    tree->Branch("softDropSubJetBtagSF_1",   "std::vector<double>", &softDropSubJetBtagSF_1);
-    tree->Branch("softDropSubJetBtagSFUp_1",   "std::vector<double>", &softDropSubJetBtagSFUp_1);
-    tree->Branch("softDropSubJetBtagSFDown_1",   "std::vector<double>", &softDropSubJetBtagSFDown_1);
+    tree->Branch("softDropJetpt",    "std::vector<float>", &softDropJetpt);
+    tree->Branch("softDropJeteta",   "std::vector<float>", &softDropJeteta);
+    tree->Branch("softDropJetphi",   "std::vector<float>", &softDropJetphi);
+    tree->Branch("softDropJetm",     "std::vector<float>", &softDropJetm);
+    tree->Branch("softDropJetm_v2",  "std::vector<float>", &softDropJetm_v2);
+    tree->Branch("softDropJetpt_v2",  "std::vector<float>", &softDropJetpt_v2);
+    tree->Branch("softDropJeteta_v2",  "std::vector<float>", &softDropJeteta_v2);
+    tree->Branch("softDropJetphi_v2",  "std::vector<float>", &softDropJetphi_v2);
+    tree->Branch("softDropJetptraw", "std::vector<float>", &softDropJetptraw);
+    tree->Branch("softDropJetmraw",  "std::vector<float>", &softDropJetmraw);
 
-    tree->Branch("softDropSubJetpt_2","std::vector<double>",  &softDropSubJetpt_2);
-    tree->Branch("softDropSubJeteta_2","std::vector<double>",  &softDropSubJeteta_2);
-    tree->Branch("softDropSubJetphi_2","std::vector<double>",  &softDropSubJetphi_2);
-    tree->Branch("softDropSubJetm_2", "std::vector<double>", &softDropSubJetm_2);
-    tree->Branch("softDropSubJetGenpt_2","std::vector<double>",  &softDropSubJetGenpt_2);
-    tree->Branch("softDropSubJetGenm_2", "std::vector<double>", &softDropSubJetGenm_2);
-    tree->Branch("softDropSubJetGeneta_2", "std::vector<double>", &softDropSubJetGeneta_2);
-    tree->Branch("softDropSubJetGenphi_2", "std::vector<double>", &softDropSubJetGenphi_2);
-    tree->Branch("softDropSubJetHFlav_2", "std::vector<double>", &softDropSubJetHFlav_2);
-    tree->Branch("softDropSubJetPFlav_2", "std::vector<double>", &softDropSubJetPFlav_2);
-    tree->Branch("softDropSubJetQGL_2", "std::vector<double>", &softDropSubJetQGL_2);
-    tree->Branch("softDropSubJetBtag_2", "std::vector<double>", &softDropSubJetBtag_2);
-    tree->Branch("softDropSubJetptraw_2", "std::vector<double>", &softDropSubJetptraw_2);
-    tree->Branch("softDropSubJetmraw_2", "std::vector<double>", &softDropSubJetmraw_2);
-    tree->Branch("softDropSubJetBtagSF_2",   "std::vector<double>", &softDropSubJetBtagSF_2);
-    tree->Branch("softDropSubJetBtagSFUp_2",   "std::vector<double>", &softDropSubJetBtagSFUp_2);
-    tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<double>", &softDropSubJetBtagSFDown_2);
+    tree->Branch("softDropJetGenpt",  "std::vector<float>", &softDropJetGenpt);
+    tree->Branch("softDropJetGeneta", "std::vector<float>", &softDropJetGeneta);
+    tree->Branch("softDropJetGenphi", "std::vector<float>", &softDropJetGenphi);
+    tree->Branch("softDropJetGenm",   "std::vector<float>", &softDropJetGenm);
+
+    tree->Branch("softDropJetHFlav", "std::vector<float>", &softDropJetHFlav);
+    tree->Branch("softDropJetPFlav", "std::vector<float>", &softDropJetPFlav);
+    tree->Branch("softDropJetQGL",   "std::vector<float>", &softDropJetQGL);
+    tree->Branch("softDropJetBtag",  "std::vector<float>", &softDropJetBtag);
+    tree->Branch("softDropJetDoubleBtag", "std::vector<float>", &softDropJetDoubleBtag);
+
+    tree->Branch("prunedSubJetpt_1",  "std::vector<float>",  &prunedSubJetpt_1);
+    tree->Branch("prunedSubJeteta_1", "std::vector<float>",  &prunedSubJeteta_1);
+    tree->Branch("prunedSubJetphi_1", "std::vector<float>",  &prunedSubJetphi_1);
+    tree->Branch("prunedSubJetm_1",   "std::vector<float>", &prunedSubJetm_1);
+    tree->Branch("prunedSubJetGenpt_1","std::vector<float>",  &prunedSubJetGenpt_1);
+    tree->Branch("prunedSubJetGenm_1", "std::vector<float>", &prunedSubJetGenm_1);
+    tree->Branch("prunedSubJetGeneta_1", "std::vector<float>", &prunedSubJetGeneta_1);
+    tree->Branch("prunedSubJetGenphi_1", "std::vector<float>", &prunedSubJetGenphi_1);
+    tree->Branch("prunedSubJetHFlav_1",  "std::vector<float>", &prunedSubJetHFlav_1);
+    tree->Branch("prunedSubJetPFlav_1",  "std::vector<float>", &prunedSubJetPFlav_1);
+    tree->Branch("prunedSubJetQGL_1",    "std::vector<float>", &prunedSubJetQGL_1);
+    tree->Branch("prunedSubJetBtag_1",   "std::vector<float>", &prunedSubJetBtag_1);
+    tree->Branch("prunedSubJetptraw_1",  "std::vector<float>", &prunedSubJetptraw_1);
+    tree->Branch("prunedSubJetmraw_1",   "std::vector<float>", &prunedSubJetmraw_1);
+    tree->Branch("prunedSubJetBtagSF_1",   "std::vector<float>", &prunedSubJetBtagSF_1);
+    tree->Branch("prunedSubJetBtagSFUp_1",   "std::vector<float>", &prunedSubJetBtagSFUp_1);
+    tree->Branch("prunedSubJetBtagSFDown_1",   "std::vector<float>", &prunedSubJetBtagSFDown_1);
+
+    tree->Branch("prunedSubJetpt_2",  "std::vector<float>",  &prunedSubJetpt_2);
+    tree->Branch("prunedSubJeteta_2", "std::vector<float>",  &prunedSubJeteta_2);
+    tree->Branch("prunedSubJetphi_2", "std::vector<float>",  &prunedSubJetphi_2);
+    tree->Branch("prunedSubJetm_2",   "std::vector<float>", &prunedSubJetm_2);
+    tree->Branch("prunedSubJetGenpt_2","std::vector<float>",  &prunedSubJetGenpt_2);
+    tree->Branch("prunedSubJetGenm_2", "std::vector<float>", &prunedSubJetGenm_2);
+    tree->Branch("prunedSubJetGeneta_2", "std::vector<float>", &prunedSubJetGeneta_2);
+    tree->Branch("prunedSubJetGenphi_2", "std::vector<float>", &prunedSubJetGenphi_2);
+    tree->Branch("prunedSubJetHFlav_2",  "std::vector<float>", &prunedSubJetHFlav_2);
+    tree->Branch("prunedSubJetPFlav_2", "std::vector<float>", &prunedSubJetPFlav_2);
+    tree->Branch("prunedSubJetQGL_2",   "std::vector<float>", &prunedSubJetQGL_2);
+    tree->Branch("prunedSubJetBtag_2",  "std::vector<float>", &prunedSubJetBtag_2);
+    tree->Branch("prunedSubJetptraw_2", "std::vector<float>", &prunedSubJetptraw_2);
+    tree->Branch("prunedSubJetmraw_2",  "std::vector<float>", &prunedSubJetmraw_2);
+    tree->Branch("prunedSubJetBtagSF_2",   "std::vector<float>", &prunedSubJetBtagSF_2);
+    tree->Branch("prunedSubJetBtagSFUp_2",   "std::vector<float>", &prunedSubJetBtagSFUp_2);
+    tree->Branch("prunedSubJetBtagSFDown_2",   "std::vector<float>", &prunedSubJetBtagSFDown_2);
+
+
+    tree->Branch("softDropSubJetpt_1","std::vector<float>",  &softDropSubJetpt_1);
+    tree->Branch("softDropSubJeteta_1","std::vector<float>",  &softDropSubJeteta_1);
+    tree->Branch("softDropSubJetphi_1","std::vector<float>",  &softDropSubJetphi_1);
+    tree->Branch("softDropSubJetm_1", "std::vector<float>", &softDropSubJetm_1);
+    tree->Branch("softDropSubJetGenpt_1","std::vector<float>",  &softDropSubJetGenpt_1);
+    tree->Branch("softDropSubJetGenm_1", "std::vector<float>", &softDropSubJetGenm_1);
+    tree->Branch("softDropSubJetGeneta_1", "std::vector<float>", &softDropSubJetGeneta_1);
+    tree->Branch("softDropSubJetGenphi_1", "std::vector<float>", &softDropSubJetGenphi_1);
+    tree->Branch("softDropSubJetHFlav_1", "std::vector<float>", &softDropSubJetHFlav_1);
+    tree->Branch("softDropSubJetPFlav_1", "std::vector<float>", &softDropSubJetPFlav_1);
+    tree->Branch("softDropSubJetQGL_1", "std::vector<float>", &softDropSubJetQGL_1);
+    tree->Branch("softDropSubJetBtag_1", "std::vector<float>", &softDropSubJetBtag_1);
+    tree->Branch("softDropSubJetptraw_1", "std::vector<float>", &softDropSubJetptraw_1);
+    tree->Branch("softDropSubJetmraw_1", "std::vector<float>", &softDropSubJetmraw_1);
+    tree->Branch("softDropSubJetBtagSF_1",   "std::vector<float>", &softDropSubJetBtagSF_1);
+    tree->Branch("softDropSubJetBtagSFUp_1",   "std::vector<float>", &softDropSubJetBtagSFUp_1);
+    tree->Branch("softDropSubJetBtagSFDown_1",   "std::vector<float>", &softDropSubJetBtagSFDown_1);
+
+    tree->Branch("softDropSubJetpt_2","std::vector<float>",  &softDropSubJetpt_2);
+    tree->Branch("softDropSubJeteta_2","std::vector<float>",  &softDropSubJeteta_2);
+    tree->Branch("softDropSubJetphi_2","std::vector<float>",  &softDropSubJetphi_2);
+    tree->Branch("softDropSubJetm_2", "std::vector<float>", &softDropSubJetm_2);
+    tree->Branch("softDropSubJetGenpt_2","std::vector<float>",  &softDropSubJetGenpt_2);
+    tree->Branch("softDropSubJetGenm_2", "std::vector<float>", &softDropSubJetGenm_2);
+    tree->Branch("softDropSubJetGeneta_2", "std::vector<float>", &softDropSubJetGeneta_2);
+    tree->Branch("softDropSubJetGenphi_2", "std::vector<float>", &softDropSubJetGenphi_2);
+    tree->Branch("softDropSubJetHFlav_2", "std::vector<float>", &softDropSubJetHFlav_2);
+    tree->Branch("softDropSubJetPFlav_2", "std::vector<float>", &softDropSubJetPFlav_2);
+    tree->Branch("softDropSubJetQGL_2", "std::vector<float>", &softDropSubJetQGL_2);
+    tree->Branch("softDropSubJetBtag_2", "std::vector<float>", &softDropSubJetBtag_2);
+    tree->Branch("softDropSubJetptraw_2", "std::vector<float>", &softDropSubJetptraw_2);
+    tree->Branch("softDropSubJetmraw_2", "std::vector<float>", &softDropSubJetmraw_2);
+    tree->Branch("softDropSubJetBtagSF_2",   "std::vector<float>", &softDropSubJetBtagSF_2);
+    tree->Branch("softDropSubJetBtagSFUp_2",   "std::vector<float>", &softDropSubJetBtagSFUp_2);
+    tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<float>", &softDropSubJetBtagSFDown_2);
   }
 
   if(addSubstructurePuppi and not isTriggerTree){
 
-    tree->Branch("boostedPuppiJetpt", "std::vector<double>", &boostedPuppiJetpt);
-    tree->Branch("boostedPuppiJeteta", "std::vector<double>", &boostedPuppiJeteta);
-    tree->Branch("boostedPuppiJetphi", "std::vector<double>", &boostedPuppiJetphi);
-    tree->Branch("boostedPuppiJetm", "std::vector<double>", &boostedPuppiJetm);
+    tree->Branch("boostedPuppiJetpt", "std::vector<float>", &boostedPuppiJetpt);
+    tree->Branch("boostedPuppiJeteta", "std::vector<float>", &boostedPuppiJeteta);
+    tree->Branch("boostedPuppiJetphi", "std::vector<float>", &boostedPuppiJetphi);
+    tree->Branch("boostedPuppiJetm", "std::vector<float>", &boostedPuppiJetm);
 
-    tree->Branch("boostedPuppiJetGenpt", "std::vector<double>", &boostedPuppiJetGenpt);
-    tree->Branch("boostedPuppiJetGeneta", "std::vector<double>", &boostedPuppiJetGeneta);
-    tree->Branch("boostedPuppiJetGenphi", "std::vector<double>", &boostedPuppiJetGenphi);
-    tree->Branch("boostedPuppiJetGenm", "std::vector<double>", &boostedPuppiJetGenm);
+    tree->Branch("boostedPuppiJetGenpt", "std::vector<float>", &boostedPuppiJetGenpt);
+    tree->Branch("boostedPuppiJetGeneta", "std::vector<float>", &boostedPuppiJetGeneta);
+    tree->Branch("boostedPuppiJetGenphi", "std::vector<float>", &boostedPuppiJetGenphi);
+    tree->Branch("boostedPuppiJetGenm", "std::vector<float>", &boostedPuppiJetGenm);
 
-    tree->Branch("boostedPuppiJetHFlav", "std::vector<double>", &boostedPuppiJetHFlav);
-    tree->Branch("boostedPuppiJetPFlav", "std::vector<double>", &boostedPuppiJetPFlav);
-    tree->Branch("boostedPuppiJetQGL", "std::vector<double>", &boostedPuppiJetQGL);
-    tree->Branch("boostedPuppiJetBtag", "std::vector<double>", &boostedPuppiJetBtag);
-    tree->Branch("boostedPuppiJetDoubleBtag", "std::vector<double>", &boostedPuppiJetDoubleBtag);
+    tree->Branch("boostedPuppiJetHFlav", "std::vector<float>", &boostedPuppiJetHFlav);
+    tree->Branch("boostedPuppiJetPFlav", "std::vector<float>", &boostedPuppiJetPFlav);
+    tree->Branch("boostedPuppiJetQGL", "std::vector<float>", &boostedPuppiJetQGL);
+    tree->Branch("boostedPuppiJetBtag", "std::vector<float>", &boostedPuppiJetBtag);
+    tree->Branch("boostedPuppiJetDoubleBtag", "std::vector<float>", &boostedPuppiJetDoubleBtag);
 
-    tree->Branch("boostedPuppiJettau1", "std::vector<double>", &boostedPuppiJettau1);
-    tree->Branch("boostedPuppiJettau2", "std::vector<double>", &boostedPuppiJettau2);
-    tree->Branch("boostedPuppiJettau3", "std::vector<double>", &boostedPuppiJettau3);
-    tree->Branch("boostedPuppiJettau4", "std::vector<double>", &boostedPuppiJettau4);
+    tree->Branch("boostedPuppiJettau1", "std::vector<float>", &boostedPuppiJettau1);
+    tree->Branch("boostedPuppiJettau2", "std::vector<float>", &boostedPuppiJettau2);
+    tree->Branch("boostedPuppiJettau3", "std::vector<float>", &boostedPuppiJettau3);
+    tree->Branch("boostedPuppiJettau4", "std::vector<float>", &boostedPuppiJettau4);
 
-    tree->Branch("boostedPuppiJetGentau1", "std::vector<double>", &boostedPuppiJetGentau1);
-    tree->Branch("boostedPuppiJetGentau2", "std::vector<double>", &boostedPuppiJetGentau2);
-    tree->Branch("boostedPuppiJetGentau3", "std::vector<double>", &boostedPuppiJetGentau3);
-    tree->Branch("boostedPuppiJetGentau4", "std::vector<double>", &boostedPuppiJetGentau4);
+    tree->Branch("boostedPuppiJetGentau1", "std::vector<float>", &boostedPuppiJetGentau1);
+    tree->Branch("boostedPuppiJetGentau2", "std::vector<float>", &boostedPuppiJetGentau2);
+    tree->Branch("boostedPuppiJetGentau3", "std::vector<float>", &boostedPuppiJetGentau3);
+    tree->Branch("boostedPuppiJetGentau4", "std::vector<float>", &boostedPuppiJetGentau4);
 
-    tree->Branch("prunedPuppiJetpt", "std::vector<double>", &prunedPuppiJetpt);
-    tree->Branch("prunedPuppiJeteta", "std::vector<double>", &prunedPuppiJeteta);
-    tree->Branch("prunedPuppiJetphi", "std::vector<double>", &prunedPuppiJetphi);
-    tree->Branch("prunedPuppiJetm", "std::vector<double>", &prunedPuppiJetm);
-    tree->Branch("prunedPuppiJetm_v2", "std::vector<double>", &prunedPuppiJetm_v2);
-    tree->Branch("prunedPuppiJetpt_v2", "std::vector<double>", &prunedPuppiJetpt_v2);
-    tree->Branch("prunedPuppiJeteta_v2", "std::vector<double>", &prunedPuppiJeteta_v2);
-    tree->Branch("prunedPuppiJetphi_v2", "std::vector<double>", &prunedPuppiJetphi_v2);
-    tree->Branch("prunedPuppiJetptraw", "std::vector<double>", &prunedPuppiJetptraw);
-    tree->Branch("prunedPuppiJetmraw", "std::vector<double>", &prunedPuppiJetmraw);
+    tree->Branch("prunedPuppiJetpt", "std::vector<float>", &prunedPuppiJetpt);
+    tree->Branch("prunedPuppiJeteta", "std::vector<float>", &prunedPuppiJeteta);
+    tree->Branch("prunedPuppiJetphi", "std::vector<float>", &prunedPuppiJetphi);
+    tree->Branch("prunedPuppiJetm", "std::vector<float>", &prunedPuppiJetm);
+    tree->Branch("prunedPuppiJetm_v2", "std::vector<float>", &prunedPuppiJetm_v2);
+    tree->Branch("prunedPuppiJetpt_v2", "std::vector<float>", &prunedPuppiJetpt_v2);
+    tree->Branch("prunedPuppiJeteta_v2", "std::vector<float>", &prunedPuppiJeteta_v2);
+    tree->Branch("prunedPuppiJetphi_v2", "std::vector<float>", &prunedPuppiJetphi_v2);
+    tree->Branch("prunedPuppiJetptraw", "std::vector<float>", &prunedPuppiJetptraw);
+    tree->Branch("prunedPuppiJetmraw", "std::vector<float>", &prunedPuppiJetmraw);
 
-    tree->Branch("prunedPuppiJetGenpt", "std::vector<double>", &prunedPuppiJetGenpt);
-    tree->Branch("prunedPuppiJetGeneta", "std::vector<double>", &prunedPuppiJetGeneta);
-    tree->Branch("prunedPuppiJetGenphi", "std::vector<double>", &prunedPuppiJetGenphi);
-    tree->Branch("prunedPuppiJetGenm", "std::vector<double>", &prunedPuppiJetGenm);
+    tree->Branch("prunedPuppiJetGenpt", "std::vector<float>", &prunedPuppiJetGenpt);
+    tree->Branch("prunedPuppiJetGeneta", "std::vector<float>", &prunedPuppiJetGeneta);
+    tree->Branch("prunedPuppiJetGenphi", "std::vector<float>", &prunedPuppiJetGenphi);
+    tree->Branch("prunedPuppiJetGenm", "std::vector<float>", &prunedPuppiJetGenm);
 
-    tree->Branch("prunedPuppiJetHFlav", "std::vector<double>", &prunedPuppiJetHFlav);
-    tree->Branch("prunedPuppiJetPFlav", "std::vector<double>", &prunedPuppiJetPFlav);
-    tree->Branch("prunedPuppiJetQGL", "std::vector<double>", &prunedPuppiJetQGL);
-    tree->Branch("prunedPuppiJetBtag", "std::vector<double>", &prunedPuppiJetBtag);
-    tree->Branch("prunedPuppiJetDoubleBtag", "std::vector<double>", &prunedPuppiJetDoubleBtag);
-
-
-    tree->Branch("softDropPuppiJetpt", "std::vector<double>", &softDropPuppiJetpt);
-    tree->Branch("softDropPuppiJeteta", "std::vector<double>", &softDropPuppiJeteta);
-    tree->Branch("softDropPuppiJetphi", "std::vector<double>", &softDropPuppiJetphi);
-    tree->Branch("softDropPuppiJetm", "std::vector<double>", &softDropPuppiJetm);
-    tree->Branch("softDropPuppiJetm_v2", "std::vector<double>", &softDropPuppiJetm_v2);
-    tree->Branch("softDropPuppiJetpt_v2", "std::vector<double>", &softDropPuppiJetpt_v2);
-    tree->Branch("softDropPuppiJeteta_v2", "std::vector<double>", &softDropPuppiJeteta_v2);
-    tree->Branch("softDropPuppiJetphi_v2", "std::vector<double>", &softDropPuppiJetphi_v2);
-    tree->Branch("softDropPuppiJetptraw", "std::vector<double>", &softDropPuppiJetptraw);
-    tree->Branch("softDropPuppiJetmraw", "std::vector<double>", &softDropPuppiJetmraw);
-
-    tree->Branch("softDropPuppiJetGenpt", "std::vector<double>", &softDropPuppiJetGenpt);
-    tree->Branch("softDropPuppiJetGeneta", "std::vector<double>", &softDropPuppiJetGeneta);
-    tree->Branch("softDropPuppiJetGenphi", "std::vector<double>", &softDropPuppiJetGenphi);
-    tree->Branch("softDropPuppiJetGenm", "std::vector<double>", &softDropPuppiJetGenm);
-
-    tree->Branch("softDropPuppiJetHFlav", "std::vector<double>", &softDropPuppiJetHFlav);
-    tree->Branch("softDropPuppiJetPFlav", "std::vector<double>", &softDropPuppiJetPFlav);
-    tree->Branch("softDropPuppiJetQGL", "std::vector<double>", &softDropPuppiJetQGL);
-    tree->Branch("softDropPuppiJetBtag", "std::vector<double>", &softDropPuppiJetBtag);
-    tree->Branch("softDropPuppiJetDoubleBtag", "std::vector<double>", &softDropPuppiJetDoubleBtag);
-
-    tree->Branch("prunedPuppiSubJetpt_1","std::vector<double>",  &prunedPuppiSubJetpt_1);
-    tree->Branch("prunedPuppiSubJeteta_1","std::vector<double>",  &prunedPuppiSubJeteta_1);
-    tree->Branch("prunedPuppiSubJetphi_1","std::vector<double>",  &prunedPuppiSubJetphi_1);
-    tree->Branch("prunedPuppiSubJetm_1", "std::vector<double>", &prunedPuppiSubJetm_1);
-    tree->Branch("prunedPuppiSubJetGenpt_1","std::vector<double>",  &prunedPuppiSubJetGenpt_1);
-    tree->Branch("prunedPuppiSubJetGenm_1", "std::vector<double>", &prunedPuppiSubJetGenm_1);
-    tree->Branch("prunedPuppiSubJetGeneta_1", "std::vector<double>", &prunedPuppiSubJetGeneta_1);
-    tree->Branch("prunedPuppiSubJetGenphi_1", "std::vector<double>", &prunedPuppiSubJetGenphi_1);
-    tree->Branch("prunedPuppiSubJetHFlav_1", "std::vector<double>", &prunedPuppiSubJetHFlav_1);
-    tree->Branch("prunedPuppiSubJetPFlav_1", "std::vector<double>", &prunedPuppiSubJetPFlav_1);
-    tree->Branch("prunedPuppiSubJetQGL_1", "std::vector<double>", &prunedPuppiSubJetQGL_1);
-    tree->Branch("prunedPuppiSubJetBtag_1", "std::vector<double>", &prunedPuppiSubJetBtag_1);
-    tree->Branch("prunedPuppiSubJetptraw_1", "std::vector<double>", &prunedPuppiSubJetptraw_1);
-    tree->Branch("prunedPuppiSubJetmraw_1", "std::vector<double>", &prunedPuppiSubJetmraw_1);
-    tree->Branch("prunedPuppiSubJetBtagSF_1", "std::vector<double>", &prunedPuppiSubJetBtagSF_1);
-    tree->Branch("prunedPuppiSubJetBtagSFUp_1", "std::vector<double>", &prunedPuppiSubJetBtagSFUp_1);
-    tree->Branch("prunedPuppiSubJetBtagSFDown_1", "std::vector<double>", &prunedPuppiSubJetBtagSFDown_1);
-
-    tree->Branch("prunedPuppiSubJetpt_2","std::vector<double>",  &prunedPuppiSubJetpt_2);
-    tree->Branch("prunedPuppiSubJeteta_2","std::vector<double>",  &prunedPuppiSubJeteta_2);
-    tree->Branch("prunedPuppiSubJetphi_2","std::vector<double>",  &prunedPuppiSubJetphi_2);
-    tree->Branch("prunedPuppiSubJetm_2", "std::vector<double>", &prunedPuppiSubJetm_2);
-    tree->Branch("prunedPuppiSubJetGenpt_2","std::vector<double>",  &prunedPuppiSubJetGenpt_2);
-    tree->Branch("prunedPuppiSubJetGenm_2", "std::vector<double>", &prunedPuppiSubJetGenm_2);
-    tree->Branch("prunedPuppiSubJetGeneta_2", "std::vector<double>", &prunedPuppiSubJetGeneta_2);
-    tree->Branch("prunedPuppiSubJetGenphi_2", "std::vector<double>", &prunedPuppiSubJetGenphi_2);
-    tree->Branch("prunedPuppiSubJetHFlav_2", "std::vector<double>", &prunedPuppiSubJetHFlav_2);
-    tree->Branch("prunedPuppiSubJetPFlav_2", "std::vector<double>", &prunedPuppiSubJetPFlav_2);
-    tree->Branch("prunedPuppiSubJetQGL_2", "std::vector<double>", &prunedPuppiSubJetQGL_2);
-    tree->Branch("prunedPuppiSubJetBtag_2", "std::vector<double>", &prunedPuppiSubJetBtag_2);
-    tree->Branch("prunedPuppiSubJetptraw_2", "std::vector<double>", &prunedPuppiSubJetptraw_2);
-    tree->Branch("prunedPuppiSubJetmraw_2", "std::vector<double>", &prunedPuppiSubJetmraw_2);
-    tree->Branch("prunedPuppiSubJetBtagSF_2", "std::vector<double>", &prunedPuppiSubJetBtagSF_2);
-    tree->Branch("prunedPuppiSubJetBtagSFUp_2", "std::vector<double>", &prunedPuppiSubJetBtagSFUp_2);
-    tree->Branch("prunedPuppiSubJetBtagSFDown_2", "std::vector<double>", &prunedPuppiSubJetBtagSFDown_2);
+    tree->Branch("prunedPuppiJetHFlav", "std::vector<float>", &prunedPuppiJetHFlav);
+    tree->Branch("prunedPuppiJetPFlav", "std::vector<float>", &prunedPuppiJetPFlav);
+    tree->Branch("prunedPuppiJetQGL", "std::vector<float>", &prunedPuppiJetQGL);
+    tree->Branch("prunedPuppiJetBtag", "std::vector<float>", &prunedPuppiJetBtag);
+    tree->Branch("prunedPuppiJetDoubleBtag", "std::vector<float>", &prunedPuppiJetDoubleBtag);
 
 
-    tree->Branch("softDropPuppiSubJetpt_1","std::vector<double>",  &softDropPuppiSubJetpt_1);
-    tree->Branch("softDropPuppiSubJeteta_1","std::vector<double>",  &softDropPuppiSubJeteta_1);
-    tree->Branch("softDropPuppiSubJetphi_1","std::vector<double>",  &softDropPuppiSubJetphi_1);
-    tree->Branch("softDropPuppiSubJetm_1", "std::vector<double>", &softDropPuppiSubJetm_1);
-    tree->Branch("softDropPuppiSubJetGenpt_1","std::vector<double>",  &softDropPuppiSubJetGenpt_1);
-    tree->Branch("softDropPuppiSubJetGenm_1", "std::vector<double>", &softDropPuppiSubJetGenm_1);
-    tree->Branch("softDropPuppiSubJetGeneta_1", "std::vector<double>", &softDropPuppiSubJetGeneta_1);
-    tree->Branch("softDropPuppiSubJetGenphi_1", "std::vector<double>", &softDropPuppiSubJetGenphi_1);
-    tree->Branch("softDropPuppiSubJetHFlav_1", "std::vector<double>", &softDropPuppiSubJetHFlav_1);
-    tree->Branch("softDropPuppiSubJetPFlav_1", "std::vector<double>", &softDropPuppiSubJetPFlav_1);
-    tree->Branch("softDropPuppiSubJetQGL_1", "std::vector<double>", &softDropPuppiSubJetQGL_1);
-    tree->Branch("softDropPuppiSubJetBtag_1", "std::vector<double>", &softDropPuppiSubJetBtag_1);
-    tree->Branch("softDropPuppiSubJetptraw_1", "std::vector<double>", &softDropPuppiSubJetptraw_1);
-    tree->Branch("softDropPuppiSubJetmraw_1", "std::vector<double>", &softDropPuppiSubJetmraw_1);
-    tree->Branch("softDropPuppiSubJetBtagSF_1", "std::vector<double>", &softDropPuppiSubJetBtagSF_1);
-    tree->Branch("softDropPuppiSubJetBtagSFUp_1", "std::vector<double>", &softDropPuppiSubJetBtagSFUp_1);
-    tree->Branch("softDropPuppiSubJetBtagSFDown_1", "std::vector<double>", &softDropPuppiSubJetBtagSFDown_1);
+    tree->Branch("softDropPuppiJetpt", "std::vector<float>", &softDropPuppiJetpt);
+    tree->Branch("softDropPuppiJeteta", "std::vector<float>", &softDropPuppiJeteta);
+    tree->Branch("softDropPuppiJetphi", "std::vector<float>", &softDropPuppiJetphi);
+    tree->Branch("softDropPuppiJetm", "std::vector<float>", &softDropPuppiJetm);
+    tree->Branch("softDropPuppiJetm_v2", "std::vector<float>", &softDropPuppiJetm_v2);
+    tree->Branch("softDropPuppiJetpt_v2", "std::vector<float>", &softDropPuppiJetpt_v2);
+    tree->Branch("softDropPuppiJeteta_v2", "std::vector<float>", &softDropPuppiJeteta_v2);
+    tree->Branch("softDropPuppiJetphi_v2", "std::vector<float>", &softDropPuppiJetphi_v2);
+    tree->Branch("softDropPuppiJetptraw", "std::vector<float>", &softDropPuppiJetptraw);
+    tree->Branch("softDropPuppiJetmraw", "std::vector<float>", &softDropPuppiJetmraw);
 
-    tree->Branch("softDropPuppiSubJetpt_2","std::vector<double>",  &softDropPuppiSubJetpt_2);
-    tree->Branch("softDropPuppiSubJeteta_2","std::vector<double>",  &softDropPuppiSubJeteta_2);
-    tree->Branch("softDropPuppiSubJetphi_2","std::vector<double>",  &softDropPuppiSubJetphi_2);
-    tree->Branch("softDropPuppiSubJetm_2", "std::vector<double>", &softDropPuppiSubJetm_2);
-    tree->Branch("softDropPuppiSubJetGenpt_2","std::vector<double>",  &softDropPuppiSubJetGenpt_2);
-    tree->Branch("softDropPuppiSubJetGenm_2", "std::vector<double>", &softDropPuppiSubJetGenm_2);
-    tree->Branch("softDropPuppiSubJetGeneta_2", "std::vector<double>", &softDropPuppiSubJetGeneta_2);
-    tree->Branch("softDropPuppiSubJetGenphi_2", "std::vector<double>", &softDropPuppiSubJetGenphi_2);
-    tree->Branch("softDropPuppiSubJetHFlav_2", "std::vector<double>", &softDropPuppiSubJetHFlav_2);
-    tree->Branch("softDropPuppiSubJetPFlav_2", "std::vector<double>", &softDropPuppiSubJetPFlav_2);
-    tree->Branch("softDropPuppiSubJetQGL_2", "std::vector<double>", &softDropPuppiSubJetQGL_2);
-    tree->Branch("softDropPuppiSubJetBtag_2", "std::vector<double>", &softDropPuppiSubJetBtag_2);
-    tree->Branch("softDropPuppiSubJetptraw_2", "std::vector<double>", &softDropPuppiSubJetptraw_2);
-    tree->Branch("softDropPuppiSubJetmraw_2", "std::vector<double>", &softDropPuppiSubJetmraw_2);
-    tree->Branch("softDropPuppiSubJetBtagSF_2", "std::vector<double>", &softDropPuppiSubJetBtagSF_2);
-    tree->Branch("softDropPuppiSubJetBtagSFUp_2", "std::vector<double>", &softDropPuppiSubJetBtagSFUp_2);
-    tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<double>", &softDropPuppiSubJetBtagSFDown_2);
+    tree->Branch("softDropPuppiJetGenpt", "std::vector<float>", &softDropPuppiJetGenpt);
+    tree->Branch("softDropPuppiJetGeneta", "std::vector<float>", &softDropPuppiJetGeneta);
+    tree->Branch("softDropPuppiJetGenphi", "std::vector<float>", &softDropPuppiJetGenphi);
+    tree->Branch("softDropPuppiJetGenm", "std::vector<float>", &softDropPuppiJetGenm);
+
+    tree->Branch("softDropPuppiJetHFlav", "std::vector<float>", &softDropPuppiJetHFlav);
+    tree->Branch("softDropPuppiJetPFlav", "std::vector<float>", &softDropPuppiJetPFlav);
+    tree->Branch("softDropPuppiJetQGL", "std::vector<float>", &softDropPuppiJetQGL);
+    tree->Branch("softDropPuppiJetBtag", "std::vector<float>", &softDropPuppiJetBtag);
+    tree->Branch("softDropPuppiJetDoubleBtag", "std::vector<float>", &softDropPuppiJetDoubleBtag);
+
+    tree->Branch("prunedPuppiSubJetpt_1","std::vector<float>",  &prunedPuppiSubJetpt_1);
+    tree->Branch("prunedPuppiSubJeteta_1","std::vector<float>",  &prunedPuppiSubJeteta_1);
+    tree->Branch("prunedPuppiSubJetphi_1","std::vector<float>",  &prunedPuppiSubJetphi_1);
+    tree->Branch("prunedPuppiSubJetm_1", "std::vector<float>", &prunedPuppiSubJetm_1);
+    tree->Branch("prunedPuppiSubJetGenpt_1","std::vector<float>",  &prunedPuppiSubJetGenpt_1);
+    tree->Branch("prunedPuppiSubJetGenm_1", "std::vector<float>", &prunedPuppiSubJetGenm_1);
+    tree->Branch("prunedPuppiSubJetGeneta_1", "std::vector<float>", &prunedPuppiSubJetGeneta_1);
+    tree->Branch("prunedPuppiSubJetGenphi_1", "std::vector<float>", &prunedPuppiSubJetGenphi_1);
+    tree->Branch("prunedPuppiSubJetHFlav_1", "std::vector<float>", &prunedPuppiSubJetHFlav_1);
+    tree->Branch("prunedPuppiSubJetPFlav_1", "std::vector<float>", &prunedPuppiSubJetPFlav_1);
+    tree->Branch("prunedPuppiSubJetQGL_1", "std::vector<float>", &prunedPuppiSubJetQGL_1);
+    tree->Branch("prunedPuppiSubJetBtag_1", "std::vector<float>", &prunedPuppiSubJetBtag_1);
+    tree->Branch("prunedPuppiSubJetptraw_1", "std::vector<float>", &prunedPuppiSubJetptraw_1);
+    tree->Branch("prunedPuppiSubJetmraw_1", "std::vector<float>", &prunedPuppiSubJetmraw_1);
+    tree->Branch("prunedPuppiSubJetBtagSF_1", "std::vector<float>", &prunedPuppiSubJetBtagSF_1);
+    tree->Branch("prunedPuppiSubJetBtagSFUp_1", "std::vector<float>", &prunedPuppiSubJetBtagSFUp_1);
+    tree->Branch("prunedPuppiSubJetBtagSFDown_1", "std::vector<float>", &prunedPuppiSubJetBtagSFDown_1);
+
+    tree->Branch("prunedPuppiSubJetpt_2","std::vector<float>",  &prunedPuppiSubJetpt_2);
+    tree->Branch("prunedPuppiSubJeteta_2","std::vector<float>",  &prunedPuppiSubJeteta_2);
+    tree->Branch("prunedPuppiSubJetphi_2","std::vector<float>",  &prunedPuppiSubJetphi_2);
+    tree->Branch("prunedPuppiSubJetm_2", "std::vector<float>", &prunedPuppiSubJetm_2);
+    tree->Branch("prunedPuppiSubJetGenpt_2","std::vector<float>",  &prunedPuppiSubJetGenpt_2);
+    tree->Branch("prunedPuppiSubJetGenm_2", "std::vector<float>", &prunedPuppiSubJetGenm_2);
+    tree->Branch("prunedPuppiSubJetGeneta_2", "std::vector<float>", &prunedPuppiSubJetGeneta_2);
+    tree->Branch("prunedPuppiSubJetGenphi_2", "std::vector<float>", &prunedPuppiSubJetGenphi_2);
+    tree->Branch("prunedPuppiSubJetHFlav_2", "std::vector<float>", &prunedPuppiSubJetHFlav_2);
+    tree->Branch("prunedPuppiSubJetPFlav_2", "std::vector<float>", &prunedPuppiSubJetPFlav_2);
+    tree->Branch("prunedPuppiSubJetQGL_2", "std::vector<float>", &prunedPuppiSubJetQGL_2);
+    tree->Branch("prunedPuppiSubJetBtag_2", "std::vector<float>", &prunedPuppiSubJetBtag_2);
+    tree->Branch("prunedPuppiSubJetptraw_2", "std::vector<float>", &prunedPuppiSubJetptraw_2);
+    tree->Branch("prunedPuppiSubJetmraw_2", "std::vector<float>", &prunedPuppiSubJetmraw_2);
+    tree->Branch("prunedPuppiSubJetBtagSF_2", "std::vector<float>", &prunedPuppiSubJetBtagSF_2);
+    tree->Branch("prunedPuppiSubJetBtagSFUp_2", "std::vector<float>", &prunedPuppiSubJetBtagSFUp_2);
+    tree->Branch("prunedPuppiSubJetBtagSFDown_2", "std::vector<float>", &prunedPuppiSubJetBtagSFDown_2);
+
+
+    tree->Branch("softDropPuppiSubJetpt_1","std::vector<float>",  &softDropPuppiSubJetpt_1);
+    tree->Branch("softDropPuppiSubJeteta_1","std::vector<float>",  &softDropPuppiSubJeteta_1);
+    tree->Branch("softDropPuppiSubJetphi_1","std::vector<float>",  &softDropPuppiSubJetphi_1);
+    tree->Branch("softDropPuppiSubJetm_1", "std::vector<float>", &softDropPuppiSubJetm_1);
+    tree->Branch("softDropPuppiSubJetGenpt_1","std::vector<float>",  &softDropPuppiSubJetGenpt_1);
+    tree->Branch("softDropPuppiSubJetGenm_1", "std::vector<float>", &softDropPuppiSubJetGenm_1);
+    tree->Branch("softDropPuppiSubJetGeneta_1", "std::vector<float>", &softDropPuppiSubJetGeneta_1);
+    tree->Branch("softDropPuppiSubJetGenphi_1", "std::vector<float>", &softDropPuppiSubJetGenphi_1);
+    tree->Branch("softDropPuppiSubJetHFlav_1", "std::vector<float>", &softDropPuppiSubJetHFlav_1);
+    tree->Branch("softDropPuppiSubJetPFlav_1", "std::vector<float>", &softDropPuppiSubJetPFlav_1);
+    tree->Branch("softDropPuppiSubJetQGL_1", "std::vector<float>", &softDropPuppiSubJetQGL_1);
+    tree->Branch("softDropPuppiSubJetBtag_1", "std::vector<float>", &softDropPuppiSubJetBtag_1);
+    tree->Branch("softDropPuppiSubJetptraw_1", "std::vector<float>", &softDropPuppiSubJetptraw_1);
+    tree->Branch("softDropPuppiSubJetmraw_1", "std::vector<float>", &softDropPuppiSubJetmraw_1);
+    tree->Branch("softDropPuppiSubJetBtagSF_1", "std::vector<float>", &softDropPuppiSubJetBtagSF_1);
+    tree->Branch("softDropPuppiSubJetBtagSFUp_1", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_1);
+    tree->Branch("softDropPuppiSubJetBtagSFDown_1", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_1);
+
+    tree->Branch("softDropPuppiSubJetpt_2","std::vector<float>",  &softDropPuppiSubJetpt_2);
+    tree->Branch("softDropPuppiSubJeteta_2","std::vector<float>",  &softDropPuppiSubJeteta_2);
+    tree->Branch("softDropPuppiSubJetphi_2","std::vector<float>",  &softDropPuppiSubJetphi_2);
+    tree->Branch("softDropPuppiSubJetm_2", "std::vector<float>", &softDropPuppiSubJetm_2);
+    tree->Branch("softDropPuppiSubJetGenpt_2","std::vector<float>",  &softDropPuppiSubJetGenpt_2);
+    tree->Branch("softDropPuppiSubJetGenm_2", "std::vector<float>", &softDropPuppiSubJetGenm_2);
+    tree->Branch("softDropPuppiSubJetGeneta_2", "std::vector<float>", &softDropPuppiSubJetGeneta_2);
+    tree->Branch("softDropPuppiSubJetGenphi_2", "std::vector<float>", &softDropPuppiSubJetGenphi_2);
+    tree->Branch("softDropPuppiSubJetHFlav_2", "std::vector<float>", &softDropPuppiSubJetHFlav_2);
+    tree->Branch("softDropPuppiSubJetPFlav_2", "std::vector<float>", &softDropPuppiSubJetPFlav_2);
+    tree->Branch("softDropPuppiSubJetQGL_2", "std::vector<float>", &softDropPuppiSubJetQGL_2);
+    tree->Branch("softDropPuppiSubJetBtag_2", "std::vector<float>", &softDropPuppiSubJetBtag_2);
+    tree->Branch("softDropPuppiSubJetptraw_2", "std::vector<float>", &softDropPuppiSubJetptraw_2);
+    tree->Branch("softDropPuppiSubJetmraw_2", "std::vector<float>", &softDropPuppiSubJetmraw_2);
+    tree->Branch("softDropPuppiSubJetBtagSF_2", "std::vector<float>", &softDropPuppiSubJetBtagSF_2);
+    tree->Branch("softDropPuppiSubJetBtagSFUp_2", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_2);
+    tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_2);
 
   }
 
   if(addPhotonIDVariables and not isTriggerTree){
     if(not addPhotonPurity)
-      tree->Branch("rho"             , &rho             , "rho/D");
-    tree->Branch("photonPt", "std::vector<double>", &photonPt);
-    tree->Branch("photonEta", "std::vector<double>", &photonEta);
-    tree->Branch("photonPhi", "std::vector<double>", &photonPhi);
-    tree->Branch("photonE", "std::vector<double>", &photonE);
-    tree->Branch("photonSCEta", "std::vector<double>", &photonSCEta);
-    tree->Branch("photonSCPhi", "std::vector<double>", &photonSCPhi);
-    tree->Branch("photonSCEnergy", "std::vector<double>", &photonSCEnergy);
-    tree->Branch("photonSCRawEnergy", "std::vector<double>", &photonSCRawEnergy);
-    tree->Branch("photonHOverE", "std::vector<double>", &photonHOverE);
-    tree->Branch("photonSigmaIetaIeta", "std::vector<double>", &photonSigmaIetaIeta);
-    tree->Branch("photonChargedIso", "std::vector<double>", &photonChargedIso);
-    tree->Branch("photonNeutralIso", "std::vector<double>", &photonNeutralIso);
-    tree->Branch("photonEMIso", "std::vector<double>", &photonEMIso);
-    tree->Branch("photonElectronVeto", "std::vector<double>", &photonElectronVeto);
+      tree->Branch("rho"             , &rho             , "rho/F");
+    tree->Branch("photonPt", "std::vector<float>", &photonPt);
+    tree->Branch("photonEta", "std::vector<float>", &photonEta);
+    tree->Branch("photonPhi", "std::vector<float>", &photonPhi);
+    tree->Branch("photonE", "std::vector<float>", &photonE);
+    tree->Branch("photonSCEta", "std::vector<float>", &photonSCEta);
+    tree->Branch("photonSCPhi", "std::vector<float>", &photonSCPhi);
+    tree->Branch("photonSCEnergy", "std::vector<float>", &photonSCEnergy);
+    tree->Branch("photonSCRawEnergy", "std::vector<float>", &photonSCRawEnergy);
+    tree->Branch("photonHOverE", "std::vector<float>", &photonHOverE);
+    tree->Branch("photonSigmaIetaIeta", "std::vector<float>", &photonSigmaIetaIeta);
+    tree->Branch("photonChargedIso", "std::vector<float>", &photonChargedIso);
+    tree->Branch("photonNeutralIso", "std::vector<float>", &photonNeutralIso);
+    tree->Branch("photonEMIso", "std::vector<float>", &photonEMIso);
+    tree->Branch("photonElectronVeto", "std::vector<float>", &photonElectronVeto);
   }
   if(addElectronIDVariables and not isTriggerTree){
     if(not addPhotonPurity)
-      tree->Branch("rho"             , &rho             , "rho/D");
-    tree->Branch("electronPt", "std::vector<double>", &electronPt);
-    tree->Branch("electronEta", "std::vector<double>", &electronEta);
-    tree->Branch("electronPhi", "std::vector<double>", &electronPhi);
-    tree->Branch("electronE", "std::vector<double>", &electronE);
-    tree->Branch("electronSCEta", "std::vector<double>", &electronSCEta);
-    tree->Branch("electronSCPhi", "std::vector<double>", &electronSCPhi);
-    tree->Branch("electronSCEnergy", "std::vector<double>", &electronSCEnergy);
-    tree->Branch("electronSCRawEnergy", "std::vector<double>", &electronSCRawEnergy);
-    tree->Branch("electronHOverE", "std::vector<double>", &electronHOverE);
-    tree->Branch("electronSigmaIetaIeta", "std::vector<double>", &electronSigmaIetaIeta);
-    tree->Branch("electronChargedIso", "std::vector<double>", &electronChargedIso);
-    tree->Branch("electronNeutralIso", "std::vector<double>", &electronNeutralIso);
-    tree->Branch("electronEMIso", "std::vector<double>", &electronEMIso);
-    tree->Branch("electronGsfPt", "std::vector<double>", &electronGsfPt);
-    tree->Branch("electronDphi", "std::vector<double>", &electronDphi);
-    tree->Branch("electronDeta", "std::vector<double>", &electronDeta);
-    tree->Branch("electronEOP", "std::vector<double>", &electronEOP);
-    tree->Branch("electronMissHit", "std::vector<double>", &electronMissHit);
-    tree->Branch("electronConversion", "std::vector<double>", &electronConversion);
-    tree->Branch("electronDz", "std::vector<double>", &electronDz);
-    tree->Branch("electronDxy", "std::vector<double>", &electronDxy);
+      tree->Branch("rho"             , &rho             , "rho/F");
+    tree->Branch("electronPt", "std::vector<float>", &electronPt);
+    tree->Branch("electronEta", "std::vector<float>", &electronEta);
+    tree->Branch("electronPhi", "std::vector<float>", &electronPhi);
+    tree->Branch("electronE", "std::vector<float>", &electronE);
+    tree->Branch("electronSCEta", "std::vector<float>", &electronSCEta);
+    tree->Branch("electronSCPhi", "std::vector<float>", &electronSCPhi);
+    tree->Branch("electronSCEnergy", "std::vector<float>", &electronSCEnergy);
+    tree->Branch("electronSCRawEnergy", "std::vector<float>", &electronSCRawEnergy);
+    tree->Branch("electronHOverE", "std::vector<float>", &electronHOverE);
+    tree->Branch("electronSigmaIetaIeta", "std::vector<float>", &electronSigmaIetaIeta);
+    tree->Branch("electronChargedIso", "std::vector<float>", &electronChargedIso);
+    tree->Branch("electronNeutralIso", "std::vector<float>", &electronNeutralIso);
+    tree->Branch("electronEMIso", "std::vector<float>", &electronEMIso);
+    tree->Branch("electronGsfPt", "std::vector<float>", &electronGsfPt);
+    tree->Branch("electronDphi", "std::vector<float>", &electronDphi);
+    tree->Branch("electronDeta", "std::vector<float>", &electronDeta);
+    tree->Branch("electronEOP", "std::vector<float>", &electronEOP);
+    tree->Branch("electronMissHit", "std::vector<float>", &electronMissHit);
+    tree->Branch("electronConversion", "std::vector<float>", &electronConversion);
+    tree->Branch("electronDz", "std::vector<float>", &electronDz);
+    tree->Branch("electronDxy", "std::vector<float>", &electronDxy);
   }
 }
 
@@ -4766,12 +4786,12 @@ void MonoJetTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {}
 
 // to fill b-tag SF
 void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string & algorithm, 
-				       std::vector<double> & scalefactor, std::vector<double> & scalefactorUp, std::vector<double> & scalefactorDown){
+				       std::vector<float> & scalefactor, std::vector<float> & scalefactorUp, std::vector<float> & scalefactorDown){
 
   if(algorithm != "CSV" and algorithm != "MVA" and algorithm != "SubCSV") return;
   // bounds for CSVv2 and MVAv2
-  double jetPt = jet.pt();
-  double jetEta = jet.eta();
+  float jetPt = jet.pt();
+  float jetEta = jet.eta();
 
   if(algorithm == "CSV"){
 
@@ -4830,7 +4850,7 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 
 
 //This code is ripped off from https://github.com/krav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
-void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
+void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi) {
 
   if (particle == 0)
     return;
@@ -4847,7 +4867,7 @@ void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle,
 }
 
 // for photons
-void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, double& ancestorpt, double& ancestoreta, double& ancestorphi) {
+void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi) {
   
   if (particle == 0) 
     return;
@@ -4862,9 +4882,9 @@ void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestor
 }
 
 // compute muon isolation
-double MonoJetTreeMaker::computeMuonIso(const reco::Muon& mu) {
+float MonoJetTreeMaker::computeMuonIso(const reco::Muon& mu) {
 
-    double isoval = mu.pfIsolationR04().sumNeutralHadronEt;
+    float isoval = mu.pfIsolationR04().sumNeutralHadronEt;
     isoval += mu.pfIsolationR04().sumPhotonEt;
     isoval -= 0.5*mu.pfIsolationR04().sumPUPt;
     if (isoval < 0.) isoval = 0.;
@@ -4962,9 +4982,9 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string & level, const bool & isPuppi){
 
   bool passpuid    = false;
-  double puidval   = 0;
-  double jetabseta = fabs(jet.eta());
-  double jetpt     = jet.pt();
+  float puidval   = 0;
+  float jetabseta = fabs(jet.eta());
+  float jetpt     = jet.pt();
 
   if(jet.hasUserFloat("puid:fullDiscriminant"))
     puidval = jet.userFloat("puid:fullDiscriminant");
@@ -5059,8 +5079,8 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
   return passpuid;
 }
 
-double MonoJetTreeMaker::computeDR(const reco::Candidate *genPart,pat::PhotonRef phot){
-  double dR = 999.;
+float MonoJetTreeMaker::computeDR(const reco::Candidate *genPart,pat::PhotonRef phot){
+  float dR = 999.;
   TLorentzVector phop4;
   phop4.SetPtEtaPhiM(phot->pt(),phot->eta(), phot->phi(),0);
   TLorentzVector p4;
@@ -5075,7 +5095,7 @@ void MonoJetTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descript
     descriptions.addDefault(desc);
 }
 
-double MonoJetTreeMaker::getChargedHadronEAForPhotonIso(double eta) {
+float MonoJetTreeMaker::getChargedHadronEAForPhotonIso(float eta) {
   if (fabs(eta) < 1.0) return 0.000000000001;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return  0.000000000001;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return  0.000000000001;
@@ -5086,7 +5106,7 @@ double MonoJetTreeMaker::getChargedHadronEAForPhotonIso(double eta) {
   else return 0.;
 }
 
-double MonoJetTreeMaker::getNeutralHadronEAForPhotonIso(double eta) {
+float MonoJetTreeMaker::getNeutralHadronEAForPhotonIso(float eta) {
   if (fabs(eta) < 1.0) return 0.0599;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.0819;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0696;
@@ -5097,7 +5117,7 @@ double MonoJetTreeMaker::getNeutralHadronEAForPhotonIso(double eta) {
   else return 0.;
 }
 
-double MonoJetTreeMaker::getGammaEAForPhotonIso(double eta) {
+float MonoJetTreeMaker::getGammaEAForPhotonIso(float eta) {
   if (fabs(eta) < 1.0) return 0.1271;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.1101;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0756;
@@ -5107,7 +5127,7 @@ double MonoJetTreeMaker::getGammaEAForPhotonIso(double eta) {
   else if (fabs(eta) >= 2.4) return 0.2183;
   else return 0.;
 }
-double MonoJetTreeMaker::getGammaNewEAForPhotonIso(double eta) {
+float MonoJetTreeMaker::getGammaNewEAForPhotonIso(float eta) {
   if (fabs(eta) < 0.9) return 0.17;
   else if (fabs(eta) >= 0.9   && fabs(eta) < 1.4442) return 0.14;
   else if (fabs(eta) >= 1.4442 && fabs(eta) < 2.0  ) return 0.0320;
@@ -5214,9 +5234,9 @@ void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> 
   trig_L1ETT_pt = trig_L1ETT_phi = trig_L1HTT_pt  = trig_L1HTT_phi = 0; 
 
   int sumType   = -1;
-  double minL1EG  = 20;
-  double minL1Jet = 50;
-  double minL1Mu  = 15;
+  float minL1EG  = 20;
+  float minL1Jet = 50;
+  float minL1Mu  = 15;
 
   // L1 EG    
   if(H_L1EG.isValid()) {
