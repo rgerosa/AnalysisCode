@@ -33,30 +33,26 @@ void makezmmcorhist( const string &   signalRegionFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk_";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
       cout<<"No binning for this observable --> please define it"<<endl;      
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zmm_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_zmm_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zmm_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_zmm_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zmm_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zmm_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zmm_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zmm_"+ext+"_"+obs).c_str());
-        dhist_temp->SetName(("dhist_ewk_zmm_"+ext+"_"+obs).c_str());
-      }
     }
   }
   
@@ -66,22 +62,14 @@ void makezmmcorhist( const string &   signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_zmm_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zmm_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zmm_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_zmm_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zmm_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zmm_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_zmm_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zmm_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zmm_"+ext+"_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_zmm_"+ext+"_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zmm_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zmm_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
@@ -241,30 +229,26 @@ void makezeecorhist( const string &   signalRegionFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
     if(bins.empty())
       cout<<"No binning for this observable --> please define it"<<endl;      
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_zee_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zee_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zee_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_zee_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zee_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zee_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_zee_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zee_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zee_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zee_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zee_"+ext+"_"+obs).c_str());
-        dhist_temp->SetName(("dhist_ewk_zee_"+ext+"_"+obs).c_str());
-      }
     }
   }
   
@@ -274,22 +258,14 @@ void makezeecorhist( const string &   signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_zee_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zee_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zee_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_zee_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zee_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zee_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_zee_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zee_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zee_"+ext+"_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_zee_"+ext+"_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zee_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zee_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
@@ -452,6 +428,10 @@ void makewmncorhist( const string &  signalRegionFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
@@ -459,22 +439,14 @@ void makewmncorhist( const string &  signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
       
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_wmn_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wmn_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wmn_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_wmn_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wmn_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wmn_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_wmn_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wmn_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wmn_"+ext+"_"+obs).c_str());
-        dhist_temp->SetName(("dhist_ewk_wmn_"+ext+"_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wmn_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wmn_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -487,24 +459,16 @@ void makewmncorhist( const string &  signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_wmn_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wmn_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wmn_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wmn_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wmn_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wmn_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_wmn_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wmn_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wmn_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wmn_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wmn_"+ext+"_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wmn_"+ext+"_"+obs+"_2D").c_str());
-      }
     }
   }
 
@@ -642,6 +606,10 @@ void makewencorhist( const string &  signalRegionFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
@@ -649,22 +617,14 @@ void makewencorhist( const string &  signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
       
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_wen_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wen_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wen_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_wen_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wen_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wen_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_wen_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wen_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wen_"+ext+"_"+obs).c_str());
-        dhist_temp->SetName(("dhist_ewk_wen_"+ext+"_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wen_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wen_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -677,24 +637,16 @@ void makewencorhist( const string &  signalRegionFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_wen_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wen_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wen_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wen_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wen_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wen_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_wen_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wen_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wen_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wen_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wen_"+ext+"_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wen_"+ext+"_"+obs+"_2D").c_str());
-      }
     }
   }
 
@@ -836,6 +788,10 @@ void  makezwjcorhist(const string & znunuFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
@@ -843,22 +799,14 @@ void  makezwjcorhist(const string & znunuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
       
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_zwj_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zwj_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zwj_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_zwj_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zwj_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zwj_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_zwj_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_zwj_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zwj_"+ext+"_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_zwj_"+ext+"_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"zwj_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"zwj_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -871,22 +819,14 @@ void  makezwjcorhist(const string & znunuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_zwj_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zwj_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zwj_"+obs+"_2D").c_str());
-	dhist_temp->SetName(("dhist_ewk_zwj_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zwj_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zwj_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_zwj_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_zwj_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_zwj_"+ext+"_"+obs+"_2D").c_str());
-	dhist_temp->SetName(("dhist_ewk_zwj_"+ext+"_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"zwj_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"zwj_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
@@ -1104,6 +1044,10 @@ void makegamcorhist( const string & znunuFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
@@ -1111,22 +1055,14 @@ void makegamcorhist( const string & znunuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_gam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_gam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_gam_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_gam_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"gam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"gam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_gam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_gam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_gam_"+ext+"_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_gam_"+ext+"_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"gam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"gam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -1138,22 +1074,14 @@ void makegamcorhist( const string & znunuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_gam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_gam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_gam_"+obs+"_2D").c_str());
-	dhist_temp->SetName(("dhist_ewk_gam_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"gam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"gam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_gam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_gam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_gam_"+ext+"_"+obs+"_2D").c_str());
-	dhist_temp->SetName(("dhist_ewk_gam_"+ext+"_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"gam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"gam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
@@ -1379,6 +1307,10 @@ void makewgamcorhist( const string & wlnuFile,
   vector<TH2*> tfhist_2D;
   vector<TH1*> unrolled;
 
+  string postfix = "_";
+  if(isEWK)
+    postfix = "_ewk";
+
   vector<double> bins;
   for(auto obs : observables){
     bins = selectBinning(obs,category);
@@ -1386,22 +1318,14 @@ void makewgamcorhist( const string & wlnuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH1F* nhist_temp = new TH1F(("nhist_wgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wgam_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_wgam_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wgam_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
     else{
-      TH1F* nhist_temp = new TH1F(("nhist_wgam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      TH1F* dhist_temp = new TH1F(("dhist_wgam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
-      if(isEWK){
-	nhist_temp->SetName(("nhist_ewk_wgam_"+ext+"_"+obs).c_str());
-	dhist_temp->SetName(("dhist_ewk_wgam_"+ext+"_"+obs).c_str());
-      }
+      TH1F* nhist_temp = new TH1F(("nhist"+postfix+"wgam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
+      TH1F* dhist_temp = new TH1F(("dhist"+postfix+"wgam_"+ext+"_"+obs).c_str(), "", int(bins.size()-1), &bins[0]);
       nhist.push_back(dynamic_cast<TH1*>(nhist_temp));
       dhist.push_back(dynamic_cast<TH1*>(dhist_temp));
     }
@@ -1413,22 +1337,14 @@ void makewgamcorhist( const string & wlnuFile,
       cout<<"No binning for this observable --> please define it"<<endl;
 
     if(ext == ""){
-      TH2F* nhist_temp = new TH2F(("nhist_wgam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wgam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-        nhist_temp->SetName(("nhist_ewk_wgam_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wgam_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wgam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wgam_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }
     else{
-      TH2F* nhist_temp = new TH2F(("nhist_wgam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      TH2F* dhist_temp = new TH2F(("dhist_wgam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
-      if(isEWK){
-        nhist_temp->SetName(("nhist_ewk_wgam_"+ext+"_"+obs+"_2D").c_str());
-        dhist_temp->SetName(("dhist_ewk_wgam_"+ext+"_"+obs+"_2D").c_str());
-      }
+      TH2F* nhist_temp = new TH2F(("nhist"+postfix+"wgam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
+      TH2F* dhist_temp = new TH2F(("dhist"+postfix+"wgam_"+ext+"_"+obs+"_2D").c_str(), "", int(bins.binX.size()-1), &bins.binX[0],int(bins.binY.size()-1), &bins.binY[0]);
       nhist_2D.push_back(dynamic_cast<TH2*>(nhist_temp));
       dhist_2D.push_back(dynamic_cast<TH2*>(dhist_temp));
     }

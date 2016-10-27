@@ -3670,9 +3670,9 @@ void MonoJetTreeMaker::beginJob() {
   tree = fs->make<TTree>("tree"       , "tree");
 
   // Run, Lumi, Event info
-  tree->Branch("event"                , &event                , "event/I");
-  tree->Branch("run"                  , &run                  , "run/I");
-  tree->Branch("lumi"                 , &lumi                 , "lumi/I");
+  tree->Branch("event"                , &event                , "event/i");
+  tree->Branch("run"                  , &run                  , "run/i");
+  tree->Branch("lumi"                 , &lumi                 , "lumi/i");
   // Event weights
   // Pileup info
   if(not isTriggerTree){
@@ -3683,41 +3683,41 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   tree->Branch("putrue"               , &putrue               , "putrue/I");
-  tree->Branch("nvtx"                 , &nvtx                 , "nvtx/I");
+  tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
   
   // Triggers
-  tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/B");
-  tree->Branch("hltmet100"            , &hltmet100            , "hltmet100/B");
-  tree->Branch("hltmet110"            , &hltmet110            , "hltmet110/B");
-  tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/B");
-  tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/B");
-  tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/B");
-  tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/B");
-  tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/B");
-  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/B");
-  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/B");
-  tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/B");
-  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/B");
-  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/B");
-  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/B");
-  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/B");
-  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/B");
+  tree->Branch("hltmet90"             , &hltmet90             , "hltmet90/b");
+  tree->Branch("hltmet100"            , &hltmet100            , "hltmet100/b");
+  tree->Branch("hltmet110"            , &hltmet110            , "hltmet110/b");
+  tree->Branch("hltmet120"            , &hltmet120            , "hltmet120/b");
+  tree->Branch("hltmetwithmu90"       , &hltmetwithmu90       , "hltmetwithmu90/b");
+  tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/b");
+  tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/b");
+  tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
+  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
+  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
+  tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/b");
+  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
+  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
+  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
 
-  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/B");
-  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/B");
-  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/B");
-  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/B");
-  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/B");
-  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/B");
+  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
+  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
+  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
+  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
+  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
+  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
 
-  tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/B");
-  tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/B");
-  tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/B");
-  tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/B");
-  tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/B");
-  tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/B");
-  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/B");
-  tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/B");
+  tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
+  tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
+  tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
+  tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
+  tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
+  tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
+  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
+  tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
 
   tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
   tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
@@ -3732,15 +3732,15 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   // MET filters
-  tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/B");
-  tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/B");
-  tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/B");
-  tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/B");
-  tree->Branch("flagecaltp"           , &flagecaltp           , "flagecaltp/B");
-  tree->Branch("flaggoodvertices"     , &flaggoodvertices     , "flaggoodvertices/B");
-  tree->Branch("flagglobaltighthalo"  , &flagglobaltighthalo  , "flagglobaltighthalo/B");
-  tree->Branch("flagbadchpf"          , &flagbadchpf          , "flagbadchpf/B");
-  tree->Branch("flagbadpfmu"          , &flagbadpfmu          , "flagbadpfmu/B");
+  tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
+  tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
+  tree->Branch("flaghbheiso"          , &flaghbheiso          , "flaghbheiso/b");
+  tree->Branch("flageebadsc"          , &flageebadsc          , "flageebadsc/b");
+  tree->Branch("flagecaltp"           , &flagecaltp           , "flagecaltp/b");
+  tree->Branch("flaggoodvertices"     , &flaggoodvertices     , "flaggoodvertices/b");
+  tree->Branch("flagglobaltighthalo"  , &flagglobaltighthalo  , "flagglobaltighthalo/b");
+  tree->Branch("flagbadchpf"          , &flagbadchpf          , "flagbadchpf/b");
+  tree->Branch("flagbadpfmu"          , &flagbadpfmu          , "flagbadpfmu/b");
 
   if(isTriggerTree and addTriggerObjects){
 
@@ -3782,35 +3782,35 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   // Object counts
-  tree->Branch("nmuons"               , &nmuons               , "nmuons/I");
-  tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/I");
-  tree->Branch("nlooseelectrons"      , &nlooseelectrons      , "nlooseelectrons/I");
-  tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/I");
-  tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/I");
-  tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/I");
-  tree->Branch("ntriggerelectrons"      , &ntriggerelectrons      , "ntriggerelectrons/I");
-  tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/I");
-  tree->Branch("ntaus"                , &ntaus                , "ntaus/I");
-  tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/I");
-  tree->Branch("ntausold"             , &ntausold             , "ntausold/I");
-  tree->Branch("ntausrawold"          , &ntausrawold          , "ntausrawold/I");
-  tree->Branch("nphotons"             , &nphotons             , "nphotons/I");
-  tree->Branch("njets"                , &njets                , "njets/I");
-  tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/I");
-  tree->Branch("nbjets"               , &nbjets               , "nbjets/I");
-  tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/I");
+  tree->Branch("nmuons"               , &nmuons               , "nmuons/i");
+  tree->Branch("nelectrons"           , &nelectrons           , "nelectrons/i");
+  tree->Branch("nlooseelectrons"      , &nlooseelectrons      , "nlooseelectrons/i");
+  tree->Branch("ntightmuons"          , &ntightmuons          , "ntightmuons/i");
+  tree->Branch("nhighptmuons"         , &nhighptmuons         , "nhighptmuons/i");
+  tree->Branch("ntightelectrons"      , &ntightelectrons      , "ntightelectrons/i");
+  tree->Branch("ntriggerelectrons"      , &ntriggerelectrons      , "ntriggerelectrons/i");
+  tree->Branch("nheepelectrons"       , &nheepelectrons       , "nheepelectrons/i");
+  tree->Branch("ntaus"                , &ntaus                , "ntaus/i");
+  tree->Branch("ntausraw"             , &ntausraw             , "ntausraw/i");
+  tree->Branch("ntausold"             , &ntausold             , "ntausold/i");
+  tree->Branch("ntausrawold"          , &ntausrawold          , "ntausrawold/i");
+  tree->Branch("nphotons"             , &nphotons             , "nphotons/i");
+  tree->Branch("njets"                , &njets                , "njets/i");
+  tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
+  tree->Branch("nbjets"               , &nbjets               , "nbjets/i");
+  tree->Branch("nbjetslowpt"          , &nbjetslowpt          , "nbjetslowpt/i");
   if(not isTriggerTree){
-    tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/I");
-    tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/I");
+    tree->Branch("nbjetsMVA"            , &nbjetsMVA            , "nbjetsMVA/i");
+    tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/i");
   }
 
   if(addPuppiJets and not isTriggerTree){
-    tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/I");
-    tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/I");
-    tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/I");
-    tree->Branch("npuppibjetslowpt"          , &npuppibjetslowpt          , "npuppibjetslowpt/I");
-    tree->Branch("npuppibjetsMVA"            , &npuppibjetsMVA            , "npuppibjetsMVA/I");
-    tree->Branch("npuppibjetsMVAlowpt"       , &npuppibjetsMVAlowpt       , "npuppibjetsMVAlowpt/I");
+    tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/i");
+    tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/i");
+    tree->Branch("npuppibjets"               , &npuppibjets               , "npuppibjets/i");
+    tree->Branch("npuppibjetslowpt"          , &npuppibjetslowpt          , "npuppibjetslowpt/i");
+    tree->Branch("npuppibjetsMVA"            , &npuppibjetsMVA            , "npuppibjetsMVA/i");
+    tree->Branch("npuppibjetsMVAlowpt"       , &npuppibjetsMVAlowpt       , "npuppibjetsMVAlowpt/i");
   }
 
   // MET
@@ -4177,7 +4177,7 @@ void MonoJetTreeMaker::beginJob() {
 
   if(addPhotonPurity and not isTriggerTree){
 
-    tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/I");
+    tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/i");
     tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/F");
     tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/F");

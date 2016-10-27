@@ -70,12 +70,13 @@ private:
   
   uint32_t event, run, lumi;
   int      puobs, putrue;
-  double   wgtsign, wgtxsec, wgtpdf1, wgtpdf2, wgtpdf3, wgtpdf4, wgtpdf5;
-  double   lheXSEC;
-  double   samplemedM, sampledmM;
+  float    wgt;
+  float    wgtoriginal;
+  float    lheXSEC;
+  float    samplemedM, sampledmM;
   bool     readDMFromGenParticles;
-  std::auto_ptr<double>  wgtpdf;
-  std::auto_ptr<double>  wgtqcd;
+  std::vector<float>  wgtpdf; //have id larger than 2000 for madgraph                                                                                                                                
+  std::vector<float>  wgtqcd; //have id [1000-2000] for madgraph                                                                                                                                        
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
@@ -96,12 +97,6 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
 
   gensToken = consumes<edm::View<reco::GenParticle> > (gensInfoTag);
 
-  wgtqcd = std::auto_ptr<double> (new double[8]);
-  wgtpdf = std::auto_ptr<double> (new double[100]);
-
-  for (size_t i = 0; i < 8  ; i++) wgtqcd.get()[i] = 0.;
-  for (size_t i = 0; i < 100; i++) wgtpdf.get()[i] = 0.;
-  
   // state that TFileService is used
   usesResource();
   usesResource("TFileService");
@@ -152,44 +147,38 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   
 
   // Weights info
-  wgtsign = 1.0;
-  wgtxsec = 1.0;
+  wgt = 1.0;
+  wgtoriginal = 1.0;
   if (uselheweights) {
-    wgtsign = genInfoH->weight();
-    wgtxsec = lheInfoH->originalXWGTUP();
+    wgt = genInfoH->weight();
+    wgtoriginal = lheInfoH->originalXWGTUP();
   }
-  wgtpdf1 = 0.0;
-  wgtpdf2 = 0.0;
-  wgtpdf3 = 0.0;
-  wgtpdf4 = 0.0;
-  wgtpdf5 = 0.0;
   
   if (addqcdpdfweights) {
+    wgtpdf.clear();
+    wgtqcd.clear();
 
-      vector<gen::WeightsInfo> weights = lheInfoH->weights();
-      for (size_t i = 0; i < weights.size(); i++) {
-	
-	if (weights[i].id == "315")      wgtpdf1 = weights[i].wgt; // cteq6l1
-	else if (weights[i].id == "316") wgtpdf2 = weights[i].wgt; // MMHT2014lo68cl
-	else if (weights[i].id == "370") wgtpdf3 = weights[i].wgt; // HERAPDF15LO
-	else if (weights[i].id == "393") wgtpdf4 = weights[i].wgt; // CT10nlo
-	else if (weights[i].id == "446") wgtpdf5 = weights[i].wgt; // MMHT2014nlo68cl
-
-	else if(std::stoi(weights[i].id) >= 2 and std::stoi(weights[i].id) <=9)
-	  wgtqcd.get()[std::stoi(weights[i].id)-2] = weights[i].wgt;
-	else if(std::stoi(weights[i].id) >= 11 and std::stoi(weights[i].id) <=110)
-	  wgtpdf.get()[std::stoi(weights[i].id)-11] = weights[i].wgt;
-	else
-	  continue;
-      }
+    vector<gen::WeightsInfo> weights = lheInfoH->weights();
+    for (size_t i = 0; i < weights.size(); i++) {
+      if(std::stoi(weights[i].id) >= 1001 and std::stoi(weights[i].id) <= 1009) // scale varions                                                                                                   
+	wgtqcd.push_back(weights[i].wgt);
+      else if(std::stoi(weights[i].id) >= 2001 and std::stoi(weights[i].id) < 3000) // variations of NNPDF LO or NLO                                                                               
+	wgtpdf.push_back(weights[i].wgt);
+      //else if(std::stoi(weights[i].id) >= 3001 and std::stoi(weights[i].id) < 4000) // variations of CT10                                                                                         
+      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
+      //else if(std::stoi(weights[i].id) >= 4001 and std::stoi(weights[i].id) < 5000) // variations of MMHT                                                                                        
+      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
+      //else if(std::stoi(weights[i].id) >= 5001 and std::stoi(weights[i].id) < 6000) // variations of HERAPDF                                                                                    
+      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
+      else
+	continue;
+    }
   }
 
   if(readDMFromGenParticles and gensH.isValid()){
 
     bool foundfirst = false;
- 
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-      
       bool goodParticle = false;
       if (abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
 	goodParticle = true;
@@ -220,27 +209,22 @@ void LHEWeightsTreeMaker::beginJob() {
   tree->Branch("run"                  , &run                  , "run/i");
   tree->Branch("lumi"                 , &lumi                 , "lumi/i");
   // Event weights
-  tree->Branch("wgtsign"              , &wgtsign              , "wgtsign/D");
-  tree->Branch("wgtxsec"              , &wgtxsec              , "wgtxsec/D");
+  tree->Branch("wgt"                  , &wgt                  , "wgt/F");
+  tree->Branch("wgtoriginal"          , &wgtoriginal          , "wgtoriginal/F");
   // pileup info
   tree->Branch("puobs"                , &puobs                , "puobs/I");
   tree->Branch("putrue"               , &putrue               , "putrue/I");
 
   if (addqcdpdfweights) {
-    tree->Branch("wgtpdf1"              , &wgtpdf1              , "wgtpdf1/D");
-    tree->Branch("wgtpdf2"              , &wgtpdf2              , "wgtpdf2/D");
-    tree->Branch("wgtpdf3"              , &wgtpdf3              , "wgtpdf3/D");
-    tree->Branch("wgtpdf4"              , &wgtpdf4              , "wgtpdf4/D");
-    tree->Branch("wgtpdf5"              , &wgtpdf5              , "wgtpdf5/D");
-    tree->Branch("wgtpdf"               ,  wgtpdf.get()         , "wgtpdf[100]/D");
-    tree->Branch("wgtqcd"               ,  wgtqcd.get()         , "wgtqcd[8]/D");
+    tree->Branch("wgtpdf"               , "std::vector<float>",  &wgtpdf);
+    tree->Branch("wgtqcd"               , "std::vector<float>",  &wgtqcd);
   }
 
   // LHE xs
-  tree->Branch("lheXSEC",    &lheXSEC,    "lheXSEC/D");
+  tree->Branch("lheXSEC",    &lheXSEC,    "lheXSEC/F");
   // sample info: mediator and DM mass, useful for fast sim
-  tree->Branch("samplemedM", &samplemedM, "samplemedM/D");
-  tree->Branch("sampledmM",  &sampledmM,  "sampledmM/D");
+  tree->Branch("samplemedM", &samplemedM, "samplemedM/F");
+  tree->Branch("sampledmM",  &sampledmM,  "sampledmM/F");
 
 }
 

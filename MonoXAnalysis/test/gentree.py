@@ -1,3 +1,27 @@
+### CMSSW command line parameter parser                                                                                                                                                               
+from FWCore.ParameterSet.VarParsing import VarParsing
+import os
+options = VarParsing ('python')
+
+## data or MC options                                                                                                                                                                                 
+options.register (
+        'outputName',"gentree.root",VarParsing.multiplicity.singleton,VarParsing.varType.string,
+        'name for the outputfile');
+
+options.register(
+        'crossSection',-1.,VarParsing.multiplicity.singleton, VarParsing.varType.float,
+        'external value for sample cross section, in case of data it is fixed to 0.001');
+
+options.register(
+        'sample',23,VarParsing.multiplicity.singleton, VarParsing.varType.int,
+        'to identify which kind of sample');
+
+options.register(
+        'isMiniAOD',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+        'flag to tell if one is running on miniAOD or GEN files');
+   
+options.parseArguments()
+
 # Define the CMSSW process
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("KFAC")
@@ -9,12 +33,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 
 # Define the input source
 process.source = cms.Source("PoolSource", 
-    fileNames = cms.untracked.vstring('/store/mc/RunIIFall15MiniAODv2/ZJetsToNuNu_HT-100To200_13TeV-madgraph/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/70000/060FC9A4-C8BD-E511-B138-000F530E46D0.root')
-)
+                            fileNames = cms.untracked.vstring(
+        #'/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/20468541-B52B-E611-B7F9-009C029F5D64.root'
+        'root://cms-xrd-global.cern.ch//store/mc/RunIISummer15wmLHEGS/G1Jet_Pt-100To250_TuneCUETP8M1_13TeV-amcatnlo-pythia8/GEN-SIM/MCRUN2_71_V1-v1/00000/0672093C-6F4A-E611-85F5-0CC47A009E26.root'
+        )
+                            )
 
 # Output file
 process.TFileService = cms.Service("TFileService", 
-    fileName = cms.string("gentree.root")
+    fileName = cms.string(options.outputName)
 )
 
 # Processing setup
@@ -24,17 +51,29 @@ process.options = cms.untracked.PSet(
 )
 
 process.maxEvents = cms.untracked.PSet( 
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(options.maxEvents)
 )
 
 # Make the tree 
 process.gentree = cms.EDAnalyzer("GenTreeMaker",
+                                 lherun = cms.InputTag("externalLHEProducer"),
+                                 lheevt = cms.InputTag("externalLHEProducer"),
                                  genevt = cms.InputTag("generator"),
                                  gens   = cms.InputTag("prunedGenParticles"),
-                                 xsec   = cms.double(55.38*3.0),   
+                                 xsec   = cms.double(options.crossSection),   
                                  jets   = cms.InputTag("slimmedGenJets"),
-                                 met    = cms.InputTag("genMetTrue"),
-                                 sample = cms.int32(23)
-                                 )
+                                 met    = cms.InputTag("slimmedMETs"),
+                                 sample = cms.int32(options.sample),
+                                 isMiniAOD = cms.bool(options.isMiniAOD)
+                              )
+
+if not options.isMiniAOD:
+    process.gentree.gens   = cms.InputTag("genParticles");
+    process.gentree.jets   = cms.InputTag("ak4GenJets");
+    process.gentree.met    = cms.InputTag("genMetTrue");
+    
 
 process.gentreePath = cms.Path(process.gentree)
+
+processDumpFile = open('processDump.py', 'w')
+print >> processDumpFile, process.dumpPython()
