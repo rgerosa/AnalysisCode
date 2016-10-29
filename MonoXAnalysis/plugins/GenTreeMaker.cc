@@ -184,6 +184,12 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   vector<gen::WeightsInfo> weights = lheInfoH->weights();
   for (size_t i = 0; i < weights.size(); i++) {
+    bool isNumber = true;
+    for(size_t j = 0; j < weights[i].id.size(); j++){
+      if(not isdigit(weights[i].id[j]))
+	isNumber = false;
+    }
+    if(not isNumber) continue;
     if(std::stoi(weights[i].id) >= 1001 and std::stoi(weights[i].id) <= 1009) // scale varions
       wgtqcd.push_back(weights[i].wgt);
     else if(std::stoi(weights[i].id) >= 2001 and std::stoi(weights[i].id) < 3000) // variations of NNPDF LO or NLO

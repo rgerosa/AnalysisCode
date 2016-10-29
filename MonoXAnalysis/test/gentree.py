@@ -32,13 +32,14 @@ process.MessageLogger.destinations = ['cout', 'cerr']
 process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 
 # Define the input source
-process.source = cms.Source("PoolSource", 
-                            fileNames = cms.untracked.vstring(
-        #'/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-250To400_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/20468541-B52B-E611-B7F9-009C029F5D64.root'
-        'root://cms-xrd-global.cern.ch//store/mc/RunIISummer15wmLHEGS/G1Jet_Pt-100To250_TuneCUETP8M1_13TeV-amcatnlo-pythia8/GEN-SIM/MCRUN2_71_V1-v1/00000/0672093C-6F4A-E611-85F5-0CC47A009E26.root'
-        )
-                            )
-
+if options.inputFiles == []:
+    process.source = cms.Source("PoolSource", 
+                                fileNames = cms.untracked.vstring(
+            'root://cms-xrd-global.cern.ch//store/mc/RunIISummer15wmLHEGS/G1Jet_Pt-100To250_TuneCUETP8M1_13TeV-amcatnlo-pythia8/GEN-SIM/MCRUN2_71_V1-v1/00000/0672093C-6F4A-E611-85F5-0CC47A009E26.root'))
+else:
+    process.source = cms.Source("PoolSource", 
+                                fileNames = cms.untracked.vstring(options.inputFiles))
+    
 # Output file
 process.TFileService = cms.Service("TFileService", 
     fileName = cms.string(options.outputName)
@@ -69,9 +70,9 @@ process.gentree = cms.EDAnalyzer("GenTreeMaker",
 
 if not options.isMiniAOD:
     process.gentree.gens   = cms.InputTag("genParticles");
-    process.gentree.jets   = cms.InputTag("ak4GenJets");
+    process.gentree.jets   = cms.InputTag("ak4GenJetsNoNu");
     process.gentree.met    = cms.InputTag("genMetTrue");
-    
+    process.gentree.lheevt = cms.InputTag("source");
 
 process.gentreePath = cms.Path(process.gentree)
 

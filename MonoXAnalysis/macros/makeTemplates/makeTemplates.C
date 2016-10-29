@@ -21,8 +21,8 @@ static bool addTop                = false;
 static bool addQCD                = false;
 static bool addWgamma             = false; 
 static bool skipTFsystematics     = false;
-static bool skipDataAnalysis      = true;
-static SamplesNLO nloSamples (false,false,false,false);
+static bool skipDataAnalysis      = false;
+static SamplesNLO nloSamples (true,true,false,false);
 
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
@@ -350,8 +350,8 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   }
   
   // signal region templates
-  cout<<"start signal region shapes for signal"<<endl;
   if(not skipDataAnalysis){
+    cout<<"start signal region shapes for signal"<<endl;
     if(not runHiggsInvisible and not runOnlyBackground){
       signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Vector",lumi,doShapeSystematics);
       signalmchist(&outfile,category,observables,observables_2D,signalMassPoint,"Axial",lumi,doShapeSystematics);
@@ -374,16 +374,16 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,true,applyPostFitWeights);
+    //gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,true,applyPostFitWeights);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights); 
+    //    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights); 
     cout<<"start wmunu region data"<<endl;
-    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights); 
+    //    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights); 
     cout<<"start zee region data"<<endl;
-    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights); 
+    //    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights); 
     cout<<"start wenu region data"<<endl;
-    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights);     
+    //    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights);     
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;

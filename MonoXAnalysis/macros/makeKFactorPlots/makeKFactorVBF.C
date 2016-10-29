@@ -2,6 +2,7 @@
 
 vector<float> bosonPt      {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
 vector<float> bosonPt_vbf  {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
+vector<float> bosonPt_vbf_gam  {150.,250.,350.,450.,550.,750.,1000.,1300.};
 
 static float mjj            = 450;
 static float detajj         = 2.5;
@@ -93,10 +94,11 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     while(reader.Next()){
 
       // filter away bad events with no matching
+      /*
       if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23) continue;
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
-
+      */
       sumwgt += *wgt;
     }
     cout<<"Tree NLO with entries "<<tree->GetEntries()<<" sumwgt "<<sumwgt<<endl;
@@ -109,8 +111,16 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   TH1F* bosonPt_NLO_monojet = new TH1F("bosonPt_NLO_monojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_LO_twojet = new TH1F("bosonPt_LO_twojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_NLO_twojet = new TH1F("bosonPt_NLO_twojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_LO_vbf = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
-  TH1F* bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+  TH1F* bosonPt_LO_vbf = NULL;
+  TH1F* bosonPt_NLO_vbf = NULL;
+  if(sample != Sample::gam){
+    bosonPt_LO_vbf = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+    bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);    
+  }
+  else{
+    bosonPt_LO_vbf = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);
+    bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);    
+  }
 
   bosonPt_LO_monojet->Sumw2();
   bosonPt_NLO_monojet->Sumw2();
@@ -153,10 +163,12 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     while(reader.Next()){
       
       // filter away bad events with no matching
+      /*
       if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23) continue;
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
-      
+      */
+
       float mindphi = 100;
       for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
@@ -180,7 +192,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
 	if((jet1+jet2).M() < mjj) continue;
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	if(mindphi < 0.5) continue;
+	if(mindphi < 1.0) continue;
 	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
       }
     }
@@ -218,7 +230,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   
     cout<<"Loop on NLO file "<<file_NLO.at(ifile)->GetName()<<endl;
 
-    if(TString(file_NLO.at(ifile)->GetName()).Contains("600ToInf"))
+    if(TString(file_NLO.at(ifile)->GetName()).Contains("600ToInf") and sample == Sample::wjet)
       scale_nlo = 0.924314;
 
     while(reader.Next()){
@@ -253,7 +265,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
 	if((jet1+jet2).M() < mjj) continue;
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	if(mindphi < 0.5) continue;
+	if(mindphi < 1.0) continue;
 	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
       }
     }
