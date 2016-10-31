@@ -22,6 +22,7 @@ Recipe for 80X:
        git clone -b ICHEP2016_v2 https://github.com/ECALELFS/ScalesSmearings.git
        cd -
        git cms-merge-topic -u cms-met:CMSSW_8_0_X-METFilterUpdate
+       git cms-merge-topic cms-met:METRecipe_8020
        git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_8020_X
 	   
 How to Run the ntuple production (for analysis):

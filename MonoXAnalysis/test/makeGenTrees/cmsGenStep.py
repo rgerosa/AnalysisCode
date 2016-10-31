@@ -82,6 +82,8 @@ process.output = cms.OutputModule("PoolOutputModule",
                                            "keep *_source_*_*",
                                            "keep *GenMET*_genMetTrue_*_*",
                                            "keep *GenJet*_ak4GenJetsNoNu_*_*",
+                                           "keep *GenLumiInfoProduct*_*_*_*",
+                                           "keep *GenFilterInfo*_*_*_*",
                                            )
                                   )
 
