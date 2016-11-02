@@ -17,8 +17,15 @@ options.register (
     'partonMultiplicity',0,VarParsing.multiplicity.singleton,VarParsing.varType.int,
     'if > 0 load the MLM matching for LO or FXFX for NLO');
 
+options.register (
+    'partonInBorn',0,VarParsing.multiplicity.singleton,VarParsing.varType.int,
+    'number of partons at Born Level');
+
 ## parsing command line arguments                                                                                                                                                                     
 options.parseArguments()
+
+if options.partonInBorn > 0 and options.partonMultiplicity:
+    sys.exit("partonMultiplicity and partonInBorn cannot be > 0 at the same time: oen is used for MLM or FxFx matching, the other for fixed order NLO shower --> exit");
 
 if not options.outputFileName.find(".root"):
     sys.exit("outputFileName should have .root extension --> exit");
@@ -104,14 +111,15 @@ elif options.isAMCNLO and options.partonMultiplicity <= 0:
     process.load('Configuration.Generator.Pythia8aMCatNLOSettings_cfi');
     from Configuration.Generator.Hadronizer_TuneCUETP8M1_13TeV_generic_LHE_pythia8_cff import generator, pythia8CommonSettingsBlock, pythia8CUEP8M1SettingsBlock
     process.generator = generator.clone( PythiaParameters = cms.PSet(
-                pythia8CommonSettingsBlock,
-                pythia8CUEP8M1SettingsBlock,
-                process.pythia8aMCatNLOSettingsBlock,
-                 parameterSets = cms.vstring('pythia8CommonSettings',
-                                             'pythia8CUEP8M1Settings',
-                                             'Pythia8aMCatNLOSettings')
-                ))    
-
+            pythia8CommonSettingsBlock,
+            pythia8CUEP8M1SettingsBlock,
+            process.pythia8aMCatNLOSettingsBlock,
+            parameterSets = cms.vstring('pythia8CommonSettings',
+                                        'pythia8CUEP8M1Settings',
+                                        'Pythia8aMCatNLOSettings',
+                                        'TimeShower:nPartonsInBorn = '+str(options.partonInBorn))
+            )
+                                         )
 elif options.isAMCNLO and options.partonMultiplicity > 0:    
     process.load("Configuration.Generator.Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8_cff");
     process.generator.PythiaParameters.processParameters.remove('JetMatching:nJetMax = 2');

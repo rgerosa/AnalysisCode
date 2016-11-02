@@ -25,9 +25,10 @@ parser.add_option('--pythonScript',  action="store", type="string", dest="python
 parser.add_option('--isAMCNLO',      action="store_true", dest="isAMCNLO",  help="isAMCNLO")
 parser.add_option('--outputFileName', action="store", type="string", dest="outputFileName", default="gentree", help="outputFileName : name of the output root file")
 parser.add_option('--partonMultiplicity', action="store", type=int,      dest="partonMultiplicity", default=0, help="partonMultiplicity: to match with parton shower")
-parser.add_option('--jobDIR',        action="store", type="string", dest="jobDIR",           default="",   help="directory for creating jobs")
-parser.add_option('--queque',        action="store", type="string", dest="queque",           default="",   help="queque for LSF")
-parser.add_option('--submit',        action="store_true",           dest="submit",                         help="submit")
+parser.add_option('--partonInBorn',  action="store", type=int,      dest="partonInBorn",    default=0,   help="partonInBorn: to match with parton shower")
+parser.add_option('--jobDIR',        action="store", type="string", dest="jobDIR",          default="",  help="directory for creating jobs")
+parser.add_option('--queque',        action="store", type="string", dest="queque",          default="",  help="queque for LSF")
+parser.add_option('--submit',        action="store_true",           dest="submit",                       help="submit")
 
 (options, args) = parser.parse_args()
 
@@ -76,7 +77,7 @@ if __name__ == '__main__':
         jobscript.write("scp "+currentDIR+"/"+options.pythonScript+"  ./ \n");
         jobscript.write("xrdcp root://eoscms.cern.ch//eos/cms/"+ifile+" ./ \n");
         jobscript.write("sed -i -- 's/<custom_folder>/custom_folder/g' "+lheFile+" \n"); 
-        jobscript.write("cmsRun %s partonMultiplicity=%d isAMCNLO=%d outputFileName=%s_%d.root inputFiles=file:%s \n"%(cmsswConfig,options.partonMultiplicity,isAMCNLO,options.outputFileName,ijob,lheFile));
+        jobscript.write("cmsRun %s partonMultiplicity=%d isAMCNLO=%d outputFileName=%s_%d.root inputFiles=file:%s partonInBorn=%d \n"%(cmsswConfig,options.partonMultiplicity,isAMCNLO,options.outputFileName,ijob,lheFile,options.partonInBorn));
         jobscript.write("xrdcp -f %s_%d.root root://eoscms.cern.ch//eos/cms/%s"%(options.outputFileName,ijob,options.outputDIR));        
         os.system("chmod a+x %s/job_%d.sh"%(options.jobDIR,ijob));
         ijob = ijob+1;
