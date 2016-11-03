@@ -234,9 +234,9 @@ void prepostSigPull_COMB_withSignals(string fitFilename,
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*350);
+    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*1500);
   else
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*1500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -276,7 +276,7 @@ void prepostSigPull_COMB_withSignals(string fitFilename,
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
   
-  TLegend* leg = new TLegend(0.50, 0.59, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.50, 0.53, 0.92, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);  

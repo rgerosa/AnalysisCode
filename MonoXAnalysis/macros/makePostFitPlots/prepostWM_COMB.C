@@ -195,7 +195,6 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   
   CMS_lumi(canvas,"12.9");
 
-  /*
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
   categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
@@ -206,7 +205,6 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   else if(category == Category::monoV)
     categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
   categoryLabel->Draw("same");
-  */
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
@@ -217,7 +215,7 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.55, 0.62, 0.92, 0.90);
+  TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
@@ -320,7 +318,7 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
 
-  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.27,NULL,"brNDC");
+  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
   leg2->SetFillColor(0);
   leg2->SetFillStyle(1);
   leg2->SetBorderSize(0);
