@@ -17,7 +17,7 @@ observation -1
 ------------------------------------------------------------------------------------------------
 bin                                 oneel_VBF    oneel_VBF    oneel_VBF    oneel_VBF     oneel_VBF       oneel_VBF   oneel_VBF
 process                             WJets        WJets_EWK    ZJets_WE     ZJets_EWK_WE  Dibosons        Top           QCD_WE
-process                             3            4            10           11            4               5             12
+process                             3            4            20           21            6               7             22
 rate                                1            1            -1           -1           -1              -1             -1
 ------------------------------------------------------------------------------------------------
 lumi_13TeV                lnN       -            -            1.050        1.050         1.050           1.050         1.050

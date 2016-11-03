@@ -16,7 +16,7 @@ observation -1
 ---------------------------------------------------------------------------------------------------------------
 bin                                 dimuon_VBF  dimuon_VBF  dimuon_VBF  dimuon_VBF    dimuon_VBF  dimuon_VBF
 process                             Znunu       Znunu_EWK   WJets_ZM    Dibosons      Top         WJetsEWK_ZM
-process                             1           2           8           4             5           9  
+process                             1           2           10          6             7          11  
 rate                                1           1          -1          -1            -1          -1
 ---------------------------------------------------------------------------------------------------------------
 lumi_13TeV                lnN       -           -           1.050       1.050         1.050      1.050

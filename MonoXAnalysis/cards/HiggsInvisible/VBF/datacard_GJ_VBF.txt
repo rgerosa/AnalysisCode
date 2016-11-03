@@ -15,7 +15,7 @@ observation -1
 ---------------------------------------------------------
 bin                                 gamma_VBF   gamma_VBF   gamma_VBF   gamma_VBF  gamma_VBF
 process                             Znunu       Znunu_EWK   QCD_GJ      VGamma_GJ  WJets_GJ
-process                             1           2           11          12         13
+process                             1           2           15          16         17
 rate                                1           1           -1          -1         -1
 ---------------------------------------------------------
 QCD_GJ_Norm13TeV          lnN       -           -           1.400       -         -
