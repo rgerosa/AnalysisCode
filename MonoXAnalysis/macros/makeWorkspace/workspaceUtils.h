@@ -148,6 +148,19 @@ void generateStatTemplate(string procname,
   }
 }
 
+// cloneAndRescale
+TH1* cloneAndRescale(TH1* input, const float & rescale, const string & postfix){
+  if(postfix == ""){
+    input->Scale(rescale);
+    return input;
+  }
+  else{
+    TH1* output = (TH1*) input->Clone(postfix.c_str());
+    output->Scale(rescale);
+    return output;
+  }
+}
+
 
 // to add shapeVariation to a given process
 void addShapeVariations(const string & inputName, 

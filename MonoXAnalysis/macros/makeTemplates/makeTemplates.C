@@ -70,7 +70,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   ////////////////////////////
 
   if(doCorrectionHistograms){    
-    /*
+
     cout<<"make correction histogram for Zmm to Znn"<<endl;      
     makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
@@ -254,7 +254,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fpc",8);
       }
     }  
-    */
+
     if(addTop){
       cout<<"make TOP+MU ratio"<<endl;
       maketopmucorhist(baseInputTreePath+"/Top/sigfilter/",
