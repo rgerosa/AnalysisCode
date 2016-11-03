@@ -17,7 +17,7 @@ pyCfgParams = ['isMC=True',
                'addPuppiJets=False',
                'addPuppiMET=False',
                'addEGMSmear=False',
-               'addMETSystematics=False',
+               'addMETSystematics=True',
                'useOfficialMETSystematics=False',
                'addMETBreakDown=False',
                'addSubstructureCHS=True',
@@ -46,7 +46,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_sync/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_sync_zeynep/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

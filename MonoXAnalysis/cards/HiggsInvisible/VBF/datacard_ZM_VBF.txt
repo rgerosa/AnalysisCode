@@ -5,28 +5,32 @@ kmax * number of nuisance parameters
 ----------------------------------------------------------------------------------
 shapes data_obs      dimuon_VBF   workspace_VBF.root ZM_VBF:data_obs_ZM_VBF
 shapes Znunu         dimuon_VBF   workspace_VBF.root ZM_VBF:Znunu_ZM_VBF
-shapes WJets_ZM      dimuon_VBF   workspace_VBF.root ZM_VBF:WJets_ZM_VBF    ZM_VBF:WJets_ZM_VBF_$SYSTEMATIC
-shapes Dibosons      dimuon_VBF   workspace_VBF.root ZM_VBF:Dibosons_ZM_VBF ZM_VBF:Dibosons_ZM_VBF_$SYSTEMATIC
-shapes Top           dimuon_VBF   workspace_VBF.root ZM_VBF:Top_ZM_VBF      ZM_VBF:Top_ZM_VBF_$SYSTEMATIC
+shapes Znunu_EWK     dimuon_VBF   workspace_VBF.root ZM_VBF:Znunu_EWK_ZM_VBF
+shapes WJets_ZM      dimuon_VBF   workspace_VBF.root ZM_VBF:WJets_ZM_VBF     ZM_VBF:WJets_ZM_VBF_$SYSTEMATIC
+shapes WJetsEWK_ZM   dimuon_VBF   workspace_VBF.root ZM_VBF:WJets_EWK_ZM_VBF ZM_VBF:WJets_EWK_ZM_VBF_$SYSTEMATIC
+shapes Dibosons      dimuon_VBF   workspace_VBF.root ZM_VBF:Dibosons_ZM_VBF  ZM_VBF:Dibosons_ZM_VBF_$SYSTEMATIC
+shapes Top           dimuon_VBF   workspace_VBF.root ZM_VBF:Top_ZM_VBF       ZM_VBF:Top_ZM_VBF_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         dimuon_VBF
 observation -1
-----------------------------------------------------------------------------------
-bin                                 dimuon_VBF   dimuon_VBF dimuon_VBF      dimuon_VBF
-process                             Znunu        WJets_ZM  Dibosons         Top       
-process                             1            8           4               5        
-rate                                1           -1          -1              -1       
-----------------------------------------------------------------------------------
-lumi_13TeV                lnN       -           1.050       1.050           1.050
-CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
-WJets_ZM_Norm13TeV        lnN       -           1.200       -               -
-Dibosons_Norm13TeV        lnN       -           -           1.150           -
-Top_Norm13TeV             lnN       -           -           -               1.100
-Top_Reweight13TeV         lnN       -           -           -               1.100
-CMS_met_13TeV             lnN       -           1.040       1.040           1.040
-CMS_btag_13TeV            lnN       -           1.020       1.020           1.060
-CMS_eff_Vtag_stat         lnN       -           -           1.065/0.935  1.065/0.935
-CMS_eff_Vtag_PS           lnN       -           -           1.065/0.935  1.065/0.935
+---------------------------------------------------------------------------------------------------------------
+bin                                 dimuon_VBF  dimuon_VBF  dimuon_VBF  dimuon_VBF    dimuon_VBF  dimuon_VBF
+process                             Znunu       Znunu_EWK   WJets_ZM    Dibosons      Top         WJetsEWK_ZM
+process                             1           2           8           4             5           9  
+rate                                1           1          -1          -1            -1          -1
+---------------------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       -           -           1.050       1.050         1.050      1.050
+CMS_eff_m                 lnN       1.040       1.040       1.040       1.040         1.040      1.040
+CMS_reco_m                lnN       1.020       1.020       1.020       1.020         1.020      1.020
+WJets_ZM_Norm13TeV        lnN       -           -           1.200       -               -          -
+WJets_EWK_ZM_Norm13TeV    lnN       -           -           -           -               -        1.200
+Dibosons_Norm13TeV        lnN       -           -           -           1.150           -          -
+Top_Norm13TeV             lnN       -           -           -           -               1.100      -
+Top_Reweight13TeV         lnN       -           -           -           -               1.100      -
+CMS_met_13TeV             lnN       -           -           1.040       1.040           1.040      1.040
+CMS_btag_13TeV            lnN       -           -           1.020       1.020           1.060      1.020
+CMS_eff_Vtag_stat         lnN       -           -           -           1.01/0.99     1.01/0.99    -
+CMS_eff_Vtag_PS           lnN       -           -           -           1.01/0.99     1.01/0.99    -
 Znunu_ZM_VBF_bin1_Runc     param     0     1
 Znunu_ZM_VBF_bin2_Runc     param     0     1
 Znunu_ZM_VBF_bin3_Runc     param     0     1
@@ -34,5 +38,11 @@ Znunu_ZM_VBF_bin4_Runc     param     0     1
 Znunu_ZM_VBF_bin5_Runc     param     0     1
 Znunu_ZM_VBF_bin6_Runc     param     0     1
 Znunu_ZM_VBF_bin7_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin1_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin2_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin3_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin4_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin5_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin6_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin7_Runc     param     0     1
 ----------------------------------------------------------------------------------
-

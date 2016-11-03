@@ -4,9 +4,9 @@
 using namespace std;
 
 void signalHiggshist(TFile* outfile,
-		     const Category &category,
-		     vector<string>  observables,
-		     vector<string>  observables_2D,
+		     const Category & category,
+		     const vector<string> & observables,
+		     const vector<string> & observables_2D,
 		     const double & lumi        = 2.30,
 		     const bool   & doShapeSystematics  = false,
 		     const string & mH                  = "125",

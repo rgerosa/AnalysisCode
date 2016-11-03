@@ -27,15 +27,15 @@ const float leadingJetPtCut = 100.;
 const float leadingJetPtCutVBF  = 70.;
 const float trailingJetPtCutVBF = 50.;
 const float detajj          = 2.5;
-const float mjj             = 450;
-const float jetmetdphiVBF   = 1.0;
+const float mjj             = 500;
+const float jetmetdphiVBF   = 0.75;
 const float ptJetMinAK8     = 250.;
 const float jetEtaAK8       = 2.4;
 const float pfMetMonoVLower = 250.;
 const float pfMetMonoVUpper = 8000.;
 const float pfMetMonoJUpper = 8000.;
 const float pfMetMonoJLower = 200.;
-const float pfMetVBFLower   = 150.;
+const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -505,7 +505,7 @@ void makehist4(TTree* tree, /*input tree*/
     //    if(not isMC and *run > 274240) continue;
     //    if(not isMC and *run > 275125) continue;
     if(not isMC and *run > 276811) continue;
-    if(sample == Sample::sig and not isMC and (category == Category::VBF or category == Category::twojet) and (*run <  275657 or *run > 276283)) continue;
+    //if(sample == Sample::sig and not isMC and (category == Category::VBF or category == Category::twojet) and (*run <  275657 or *run > 276283)) continue;
     // Run E
     //    if(not isMC and *run < 276831) continue;
     //    if(not isMC and *run > 277420) continue;

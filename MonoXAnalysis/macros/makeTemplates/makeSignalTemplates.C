@@ -42,7 +42,13 @@ void makeSignalTemplates(
     }
   }
 
-  TFile outfile((outDir+"/templates_signal_"+interactionType+"_"+templateSuffix+".root").c_str(), "RECREATE");
+  string filename;
+  if(interactionType == "")
+    filename = outDir+"/templates_signal_"+templateSuffix+".root";
+  else
+    outDir+"/templates_signal_"+interactionType+"_"+templateSuffix+".root";
+
+  TFile outfile(filename.c_str(), "RECREATE");
   
   // signal region templates
   cout<<"start signal region shapes for signal"<<endl;
@@ -58,7 +64,7 @@ void makeSignalTemplates(
   }
   else if(runHiggsInvisible){
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03},1);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,1.373E+03,7.612E+02,1.227E+02},1);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,1.373E+03,8.839E+02,1.227E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02},1);
     //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01},1);

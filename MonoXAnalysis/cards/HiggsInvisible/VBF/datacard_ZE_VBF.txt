@@ -3,31 +3,35 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ----------------------------------------------------------------------------------
-shapes data_obs      dielectron_VBF  workspace_VBF.root ZE_VBF:data_obs_ZE_VBF
-shapes Znunu         dielectron_VBF  workspace_VBF.root ZE_VBF:Znunu_ZE_VBF
-shapes WJets_ZE      dielectron_VBF  workspace_VBF.root ZE_VBF:WJets_ZE_VBF    ZE_VBF:WJets_ZE_VBF_$SYSTEMATIC
-shapes Dibosons      dielectron_VBF  workspace_VBF.root ZE_VBF:Dibosons_ZE_VBF ZE_VBF:Dibosons_ZE_VBF_$SYSTEMATIC
-shapes Top           dielectron_VBF  workspace_VBF.root ZE_VBF:Top_ZE_VBF      ZE_VBF:Top_ZE_VBF_$SYSTEMATIC
+shapes data_obs      dielectron_VBF   workspace_VBF.root ZE_VBF:data_obs_ZE_VBF
+shapes Znunu         dielectron_VBF   workspace_VBF.root ZE_VBF:Znunu_ZE_VBF
+shapes Znunu_EWK     dielectron_VBF   workspace_VBF.root ZE_VBF:Znunu_EWK_ZE_VBF
+shapes WJets_ZE      dielectron_VBF   workspace_VBF.root ZE_VBF:WJets_ZE_VBF     ZE_VBF:WJets_ZE_VBF_$SYSTEMATIC
+shapes WJetsEWK_ZE   dielectron_VBF   workspace_VBF.root ZE_VBF:WJets_EWK_ZE_VBF ZE_VBF:WJets_EWK_ZE_VBF_$SYSTEMATIC
+shapes Dibosons      dielectron_VBF   workspace_VBF.root ZE_VBF:Dibosons_ZE_VBF  ZE_VBF:Dibosons_ZE_VBF_$SYSTEMATIC
+shapes Top           dielectron_VBF   workspace_VBF.root ZE_VBF:Top_ZE_VBF       ZE_VBF:Top_ZE_VBF_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         dielectron_VBF
 observation -1
-----------------------------------------------------------------------------------
-bin                                 dielectron_VBF  dielectron_VBF  dielectron_VBF      dielectron_VBF
-process                             Znunu       WJets_ZE    Dibosons        Top
-process                             1           12           4               5
-rate                                1          -1           -1              -1
-----------------------------------------------------------------------------------
-lumi_13TeV                lnN       -           1.050       1.050           1.050
-CMS_eff_e                 lnN       1.040       1.040       1.040           1.040
-CMS_met_trig              lnN       1.010       -           -               -      
-WJets_ZE_Norm13TeV        lnN       -           1.200       -               -
-Dibosons_Norm13TeV        lnN       -           -           1.200           -
-Top_Norm13TeV             lnN       -           -           -               1.100
-Top_Reweight13TeV         lnN       -           -           -               1.100
-CMS_met_13TeV             lnN       -           1.040       1.040           1.040 
-CMS_btag_13TeV            lnN       -           1.020       1.020           1.060 
-CMS_eff_Vtag_stat         lnN       -           -           1.065/0.935  1.065/0.935    
-CMS_eff_Vtag_PS           lnN       -           -           1.065/0.935  1.065/0.935   
+---------------------------------------------------------------------------------------------------------------
+bin                                 dielectron_VBF  dielectron_VBF  dielectron_VBF  dielectron_VBF    dielectron_VBF  dielectron_VBF
+process                             Znunu       Znunu_EWK   WJets_ZE    Dibosons      Top         WJetsEWK_ZE
+process                             1           2           12           4             5          13  
+rate                                1           1          -1          -1             -1          -1
+---------------------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       -           -           1.050       1.050         1.050      1.050
+CMS_eff_e                 lnN       1.040       1.040       1.040       1.040         1.040      1.040
+CMS_reco_e                lnN       1.020       1.020       1.020       1.020         1.020      1.020
+CMS_met_trig              lnN       1.010       1.010       -           -               -          -
+WJets_ZE_Norm13TeV        lnN       -           -           1.200       -               -          -
+WJets_EWK_ZE_Norm13TeV    lnN       -           -           -           -               -        1.200
+Dibosons_Norm13TeV        lnN       -           -           -           1.150           -          -
+Top_Norm13TeV             lnN       -           -           -           -               1.100      -
+Top_Reweight13TeV         lnN       -           -           -           -               1.100      -
+CMS_met_13TeV             lnN       -           -           1.040       1.040           1.040      1.040
+CMS_btag_13TeV            lnN       -           -           1.020       1.020           1.060      1.020
+CMS_eff_Vtag_stat         lnN       -           -           -           1.01/0.99     1.01/0.99    -
+CMS_eff_Vtag_PS           lnN       -           -           -           1.01/0.99     1.01/0.99    -
 Znunu_ZE_VBF_bin1_Runc     param     0     1
 Znunu_ZE_VBF_bin2_Runc     param     0     1
 Znunu_ZE_VBF_bin3_Runc     param     0     1
@@ -35,4 +39,11 @@ Znunu_ZE_VBF_bin4_Runc     param     0     1
 Znunu_ZE_VBF_bin5_Runc     param     0     1
 Znunu_ZE_VBF_bin6_Runc     param     0     1
 Znunu_ZE_VBF_bin7_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin1_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin2_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin3_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin4_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin5_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin6_Runc     param     0     1
+Znunu_EWK_ZE_VBF_bin7_Runc     param     0     1
 ----------------------------------------------------------------------------------

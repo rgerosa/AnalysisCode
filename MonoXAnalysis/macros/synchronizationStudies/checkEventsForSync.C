@@ -46,34 +46,34 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   TTreeReaderValue<int> nbjetslowpt (myReader,"nbjetslowpt");
 
   // AK4 jets
-  TTreeReaderValue<vector<double> > jetpt   (myReader,"combinejetpt");
-  TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
-  TTreeReaderValue<vector<double> > jetphi  (myReader,"combinejetphi");
-  TTreeReaderValue<vector<double> > jetm    (myReader,"combinejetm");
-  TTreeReaderValue<vector<double> > jetbtag (myReader,"combinejetbtag");
-  TTreeReaderValue<vector<double> > chfrac  (myReader,"combinejetCHfrac");
-  TTreeReaderValue<vector<double> > nhfrac  (myReader,"combinejetNHfrac");
-  TTreeReaderValue<vector<double> > emfrac  (myReader,"combinejetEMfrac");
+  TTreeReaderValue<vector<float> > jetpt   (myReader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jeteta  (myReader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetphi  (myReader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jetm    (myReader,"combinejetm");
+  TTreeReaderValue<vector<float> > jetbtag (myReader,"combinejetbtag");
+  TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (myReader,"combinejetNHfrac");
+  TTreeReaderValue<vector<float> > emfrac  (myReader,"combinejetEMfrac");
 
   // Boosted jets
-  TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
-  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
-  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedJetm");
-  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm");
-  TTreeReaderValue<vector<double> > prunedJetm_v2   (myReader,"prunedJetm_v2");
-  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
-  TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
+  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");
+  TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
+  TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
+  TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm");
+  TTreeReaderValue<vector<float> > prunedJetm_v2   (myReader,"prunedJetm_v2");
+  TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
+  TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
 
   // MET
-  TTreeReaderValue<double> met (myReader,"t1pfmet");
-  TTreeReaderValue<double> mmet        (myReader,"t1mumet");
-  TTreeReaderValue<double> emet        (myReader,"t1elmet");
-  TTreeReaderValue<double> pmet        (myReader,"t1phmet");
+  TTreeReaderValue<float> met (myReader,"t1pfmet");
+  TTreeReaderValue<float> mmet        (myReader,"t1mumet");
+  TTreeReaderValue<float> emet        (myReader,"t1elmet");
+  TTreeReaderValue<float> pmet        (myReader,"t1phmet");
 
   // Dphi
-  TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
-  TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
-  TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
+  TTreeReaderValue<float> jmmdphi (myReader,"incjetmumetdphimin4");
+  TTreeReaderValue<float> jemdphi (myReader,"incjetelmetdphimin4");
+  TTreeReaderValue<float> jpmdphi (myReader,"incjetphmetdphimin4");
   TTreeReaderValue<int> nmuons     (myReader,"nmuons");
   TTreeReaderValue<int> nelectrons (myReader,"nelectrons");
   TTreeReaderValue<int> ntaus      (myReader,"ntausrawold");
@@ -84,42 +84,42 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   TTreeReaderValue<int> mu2pid (myReader,"mu2pid");
   TTreeReaderValue<int> mu1id (myReader,"mu1id");
   TTreeReaderValue<int> mu2id (myReader,"mu2id");
-  TTreeReaderValue<double> mu1pt (myReader,"mu1pt");
-  TTreeReaderValue<double> mu2pt (myReader,"mu2pt");
-  TTreeReaderValue<double> mu1eta (myReader,"mu1eta");
-  TTreeReaderValue<double> mu2eta (myReader,"mu2eta");
-  TTreeReaderValue<double> mu1phi (myReader,"mu1phi");
-  TTreeReaderValue<double> mu2phi (myReader,"mu2phi");
+  TTreeReaderValue<float> mu1pt (myReader,"mu1pt");
+  TTreeReaderValue<float> mu2pt (myReader,"mu2pt");
+  TTreeReaderValue<float> mu1eta (myReader,"mu1eta");
+  TTreeReaderValue<float> mu2eta (myReader,"mu2eta");
+  TTreeReaderValue<float> mu1phi (myReader,"mu1phi");
+  TTreeReaderValue<float> mu2phi (myReader,"mu2phi");
 
   // Electron information
   TTreeReaderValue<int> el1pid (myReader,"el1pid");
   TTreeReaderValue<int> el2pid (myReader,"el2pid");
   TTreeReaderValue<int> el1id (myReader,"el1id");
   TTreeReaderValue<int> el2id (myReader,"el2id");
-  TTreeReaderValue<double> el1pt (myReader,"el1pt");
-  TTreeReaderValue<double> el2pt (myReader,"el2pt");
-  TTreeReaderValue<double> el1eta (myReader,"el1eta");
-  TTreeReaderValue<double> el2eta (myReader,"el2eta");
-  TTreeReaderValue<double> el1phi (myReader,"el1phi");
-  TTreeReaderValue<double> el2phi (myReader,"el2phi");
+  TTreeReaderValue<float> el1pt (myReader,"el1pt");
+  TTreeReaderValue<float> el2pt (myReader,"el2pt");
+  TTreeReaderValue<float> el1eta (myReader,"el1eta");
+  TTreeReaderValue<float> el2eta (myReader,"el2eta");
+  TTreeReaderValue<float> el1phi (myReader,"el1phi");
+  TTreeReaderValue<float> el2phi (myReader,"el2phi");
 
   // Photon information
   TTreeReaderValue<int> phidm (myReader,"phidm");
-  TTreeReaderValue<double> phpt (myReader,"phpt");
-  TTreeReaderValue<double> pheta (myReader,"pheta");
-  TTreeReaderValue<double> phphi (myReader,"phphi");
+  TTreeReaderValue<float> phpt (myReader,"phpt");
+  TTreeReaderValue<float> pheta (myReader,"pheta");
+  TTreeReaderValue<float> phphi (myReader,"phphi");
 
-  TTreeReaderValue<double> zmass (myReader,"zmass");
-  TTreeReaderValue<double> zeemass (myReader,"zeemass");
-  TTreeReaderValue<double> zmmpt (myReader,"zpt");
-  TTreeReaderValue<double> zeept (myReader,"zeept");
-  TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
-  TTreeReaderValue<double> zmmeta (myReader,"zeta");
+  TTreeReaderValue<float> zmass (myReader,"zmass");
+  TTreeReaderValue<float> zeemass (myReader,"zeemass");
+  TTreeReaderValue<float> zmmpt (myReader,"zpt");
+  TTreeReaderValue<float> zeept (myReader,"zeept");
+  TTreeReaderValue<float> zeeeta (myReader,"zeeeta");
+  TTreeReaderValue<float> zmmeta (myReader,"zeta");
 
-  TTreeReaderValue<double> wmt (myReader,"wmt");
-  TTreeReaderValue<double> wemt (myReader,"wemt");
+  TTreeReaderValue<float> wmt (myReader,"wmt");
+  TTreeReaderValue<float> wemt (myReader,"wemt");
 
-  TTreeReaderValue<double> wgt (myReader,"wgt");
+  TTreeReaderValue<float> wgt (myReader,"wgt");
 
   // output text files for the comparison
   string control = "";
@@ -197,13 +197,14 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       if (*mu1pid == *mu2pid) continue;
       if (not ((*mu1pt > 20 and *mu1id == 1) or (*mu2pt > 20 and *mu2id == 1))) continue;
       if (*zmass < 60 or *zmass > 120) continue;
+      cout<<"muon1pt "<<*mu1pt<<" id "<<*mu1id<<" mun2pt "<<*mu2pt<<" id "<<*mu2id <<endl;
     }
     n_muonSelection++;
     nwgt_muonSelection += *wgt;
 
     // electron selection
     if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm or controlRegion == Sample::gam) and *nelectrons != 0) continue;
-    else if(controlRegion == Sample::wen){
+    if(controlRegion == Sample::wen){
       if (*nelectrons != 1 ) continue;
       if(*el1pt < 40) continue;
       if(fabs(*el1eta) > 2.5) continue;

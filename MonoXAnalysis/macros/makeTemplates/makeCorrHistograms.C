@@ -231,7 +231,7 @@ void makezeecorhist( const string &   signalRegionFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
@@ -430,7 +430,7 @@ void makewmncorhist( const string &  signalRegionFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
@@ -608,7 +608,7 @@ void makewencorhist( const string &  signalRegionFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
@@ -790,7 +790,7 @@ void  makezwjcorhist(const string & znunuFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
@@ -1046,7 +1046,7 @@ void makegamcorhist( const string & znunuFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
@@ -1309,7 +1309,7 @@ void makewgamcorhist( const string & wlnuFile,
 
   string postfix = "_";
   if(isEWK)
-    postfix = "_ewk";
+    postfix = "_ewk_";
 
   vector<double> bins;
   for(auto obs : observables){
