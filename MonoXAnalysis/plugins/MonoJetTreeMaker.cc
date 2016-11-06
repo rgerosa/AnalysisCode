@@ -239,11 +239,15 @@ private:
   const edm::InputTag tausOldTag;
   const edm::InputTag tausNewRawTag;
   const edm::InputTag tausOldRawTag;
+  const edm::InputTag tausTightNewTag;
+  const edm::InputTag tausTightOldTag;
 
   edm::EDGetTokenT<pat::TauRefVector>  tausNewToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausOldToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausNewRawToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausOldRawToken;
+  edm::EDGetTokenT<pat::TauRefVector>  tausTightNewToken;
+  edm::EDGetTokenT<pat::TauRefVector>  tausTightOldToken;
 
   //Jets AK4
   const edm::InputTag jetsTag;
@@ -388,7 +392,7 @@ private:
   // muon, ele, dilepton info
   float mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
   float el1pt,el1eta,el1phi,ele1e,el2pt,ele2e,el2eta,el2phi,phpt,pheta,phphi,phe;
-  float tau1pt,tau1eta,tau1phi,tau1m,tau1iso,tau2pt,tau2eta,tau2phi,tau2m,tau2iso;
+  float tau1pt,tau1eta,tau1phi,tau1m,tau1id,tau1idold,tau2pt,tau2eta,tau2phi,tau2m,tau2id,tau2idold;
   float zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
   float emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
 
@@ -657,6 +661,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   tausOldTag(iConfig.getParameter<edm::InputTag>("tausOld")),
   tausNewRawTag(iConfig.getParameter<edm::InputTag>("tausRaw")),
   tausOldRawTag(iConfig.getParameter<edm::InputTag>("tausOldRaw")),
+  tausTightNewTag(iConfig.getParameter<edm::InputTag>("tausTight")),
+  tausTightOldTag(iConfig.getParameter<edm::InputTag>("tausTightOld")),
   // jets AK4
   jetsTag(iConfig.getParameter<edm::InputTag>("jets")),
   addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
@@ -757,6 +763,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   tausOldToken = consumes<pat::TauRefVector> (tausOldTag);
   tausNewRawToken = consumes<pat::TauRefVector> (tausNewRawTag);
   tausOldRawToken = consumes<pat::TauRefVector> (tausOldRawTag);
+  tausTightNewToken = consumes<pat::TauRefVector> (tausTightNewTag);
+  tausTightOldToken = consumes<pat::TauRefVector> (tausTightOldTag);
 
   // jets AK4
   jetsToken = consumes<std::vector<pat::Jet> > (jetsTag);
@@ -1041,6 +1049,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<pat::TauRefVector > tausOldRawH;
     iEvent.getByToken(tausOldRawToken, tausOldRawH);
     pat::TauRefVector tausOldRaw = *tausOldRawH;
+
+    Handle<pat::TauRefVector > tausTightNewH;
+    iEvent.getByToken(tausTightNewToken, tausTightNewH);
+    pat::TauRefVector tausTightNew = *tausTightNewH;
+
+    Handle<pat::TauRefVector > tausTightOldH;
+    iEvent.getByToken(tausTightOldToken, tausTightOldH);
+    pat::TauRefVector tausTightOld = *tausTightOldH;
+
 
     // AK4 Jets
     Handle<vector<pat::Jet> > jetsH;
@@ -1715,11 +1732,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       if (jets[i]->pt() > minJetPtCountAK4) njets++;
       // btagging
-      if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjets++;
-      if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjetslowpt++;
+      if (jets[i]->pt() > minJetPtCountAK4 && fabs(jets[i]->eta()) < 2.4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjets++;
+      if (jets[i]->pt() > minJetPtBveto    && fabs(jets[i]->eta()) < 2.4 && jets[i]->bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags") > btaggingCSVWP) nbjetslowpt++;
       
-      if (jets[i]->pt() > minJetPtCountAK4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
-      if (jets[i]->pt() > minJetPtBveto && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
+      if (jets[i]->pt() > minJetPtCountAK4 && fabs(jets[i]->eta()) < 2.4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVA++;
+      if (jets[i]->pt() > minJetPtBveto && fabs(jets[i]->eta()) < 2.4 && jets[i]->bDiscriminator("pfCombinedMVAV2BJetTags") > btaggingMVAWP) nbjetsMVAlowpt++;
     }
     
     // fill collections
@@ -2040,29 +2057,34 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }        
     }
     
-    // Lepton part
+    // muon counters
     vector<pat::MuonRef> muonvector;
-    if(muonsH.isValid() and tightmuonsH.isValid() and highptmuonsH.isValid()){
+    if(muonsH.isValid()){
       nmuons          = muonsH->size();
-      ntightmuons     = tightmuonsH->size();
-      nhighptmuons    = highptmuonsH->size();
-      
       for (size_t i = 0; i < muons.size(); i++) 
 	muonvector.push_back(muons[i]);
     }
+    if(tightmuonsH.isValid())
+      ntightmuons     = tightmuonsH->size();
+    if(highptmuonsH.isValid())
+      nhighptmuons    = highptmuonsH->size();      
 
+    // electron counters
     vector<pat::ElectronRef> electronvector;
-    if(electronsH.isValid() and looseelectronsH.isValid() and tightelectronsH.isValid() and heepelectronsH.isValid() and triggerelectronsH.isValid()){
-      
+    if(electronsH.isValid()){
       nelectrons      = electronsH->size();
-      nlooseelectrons = looseelectronsH->size();
-      ntightelectrons = tightelectronsH->size();
-      nheepelectrons  = heepelectronsH->size();
-      ntriggerelectrons = triggerelectronsH->size();      
       for (size_t i = 0; i < electrons.size(); i++) 
 	electronvector.push_back(electrons[i]);
     }
-    
+    if(looseelectronsH.isValid())
+      nlooseelectrons = looseelectronsH->size();
+    if(tightelectronsH.isValid())
+      ntightelectrons = tightelectronsH->size();
+    if(heepelectronsH.isValid())
+      nheepelectrons  = heepelectronsH->size();
+    if(triggerelectronsH.isValid())
+      ntriggerelectrons = triggerelectronsH->size();      
+          
     // re-apply the cleaning to be sure
     vector<pat::TauRef> tauvector;
     ntaus = 0;
@@ -2148,8 +2170,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     el1pid      = 0; el1pt       = 0.0; el1eta      = 0.0; el1phi      = 0.0; el1id       = 0; el1idl       = 0; el1idt       = 0;
     el2pid      = 0; el2pt       = 0.0; el2eta      = 0.0; el2phi      = 0.0; el2id       = 0; el2idl       = 0; el2idt       = 0;
 
-    tau1pid     = 0;   tau1pt    = 0.0; tau1eta     = 0.0; tau1phi     = 0.0; tau1m       = 0.0; tau1iso = 0.0;
-    tau2pid     = 0;   tau2pt    = 0.0; tau2eta     = 0.0; tau2phi     = 0.0; tau2m       = 0.0; tau2iso = 0.0;
+    tau1pid     = 0;   tau1pt    = 0.0; tau1eta     = 0.0; tau1phi     = 0.0; tau1m       = 0.0; tau1id = 0; tau1idold = 0;
+    tau2pid     = 0;   tau2pt    = 0.0; tau2eta     = 0.0; tau2phi     = 0.0; tau2m       = 0.0; tau2id = 0; tau2idold = 0;
 
 
     // sort electrons and muons
@@ -2173,11 +2195,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (verticesH->size() > 0) 
 	mu1idt = (muon::isTightMuon(*muon, *(verticesH->begin())) ? 1 : 0);
       
+      // tight muon
       for (std::size_t i = 0; i < tightmuons.size(); i++) {
 	if (muon == tightmuons[i]) 
-	  mu1id = 1; // tight muon
+	  mu1id = 1; 
       }
-            
+      
       // store high-pt muons that are not tight ones
       for (std::size_t i = 0; i < highptmuons.size(); i++) {
 	if (muon == highptmuons[i] and mu1id != 1) 
@@ -2203,6 +2226,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       mu2idm   = (muon::isMediumMuon(*muon) ? 1 : 0);
       if (verticesH->size() > 0) 
 	mu2idt = (muon::isTightMuon(*muon, *(verticesH->begin())) ? 1 : 0);
+
       // check if belong to the tight / high pt collection
       for (std::size_t i = 0; i < tightmuons.size(); i++) {
 	if (muon == tightmuons[i]) 
@@ -2307,10 +2331,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       tau1eta   = tau->eta(); 
       tau1phi   = tau->phi();
       tau1m     = tau->mass();
-      tau1iso   = tau->tauID("byVLooseIsolationMVArun2v1DBnewDMwLT");
+
+      // new decay mode
+      for(std::size_t itau = 0; itau < tausTightNew.size(); itau++)
+	if(tau == tausTightNew[itau]) tau1id = 1;
+
+      // old decay decay mode
+      for(std::size_t itau = 0; itau < tausTightOld.size(); itau++)
+	if(tau == tausTightOld[itau]) tau1idold = 1;
 
       if (ntaus == 1) 
 	wtmt = sqrt(2.0 * tau1pt * t1pfmet * (1.0 - cos(deltaPhi(tau1phi, t1pfmetphi))));
+            
     }
    
     // two loose muons
@@ -2322,7 +2354,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       tau2eta   = tau->eta(); 
       tau2phi   = tau->phi();
       tau2m     = tau->mass();
-      tau2iso   = tau->tauID("byVLooseIsolationMVArun2v1DBnewDMwLT");
+      // new decay mode
+      for(std::size_t itau = 0; itau < tausTightNew.size(); itau++)
+	if(tau == tausTightNew[itau]) tau2id = 1;
+
+      // old decay decay mode
+      for(std::size_t itau = 0; itau < tausTightOld.size(); itau++)
+	if(tau == tausTightOld[itau]) tau2idold = 1;
       
       TLorentzVector tau1vec; 
       tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
@@ -4125,15 +4163,17 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/F");
     tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/F");
     tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/F");
-    tree->Branch("tau1iso"               , &tau1iso               , "tau1iso/F");
-    tree->Branch("tau1m"               , &tau1m               , "tau1m/F");
-    
+    tree->Branch("tau1m"                 , &tau1m                 , "tau1m/F");
+    tree->Branch("tau1id"                , &tau1id                , "tau1id/F");
+    tree->Branch("tau1idold"             , &tau1idold             , "tau1idold/F");
+    /////
     tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
     tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/F");
     tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/F");
     tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/F");
-    tree->Branch("tau2iso"               , &tau2iso               , "tau2iso/F");
-    tree->Branch("tau2m"               , &tau2m               , "tau2m/F");
+    tree->Branch("tau2m"                 , &tau2m                 , "tau2m/F");
+    tree->Branch("tau2id"                , &tau2id                , "tau2id/F");
+    tree->Branch("tau2idold"             , &tau2idold             , "tau2idold/F");
   }
 
     // Dilepton info
