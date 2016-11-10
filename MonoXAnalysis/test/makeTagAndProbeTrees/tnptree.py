@@ -143,24 +143,42 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   triggerobjects = cms.InputTag("selectedPatTrigger"),
 				   triggerResults = cms.InputTag("TriggerResults", "", "HLT"),				   
 				   #### Muon information for identification --> pt cut and matching with trigger info				   
-				   loosemuisocut  = cms.double(0.25),
-				   tightmuisocut  = cms.double(0.15),
-				   tagmuonptcut   = cms.double(22),
-				   tagmuonetacut  = cms.double(2.4),
-				   tagmuontrigmatchdR = cms.double(0.3),
-				   requiremuonhlt  = cms.bool(True),
-				   tagmuontriggers = tagmuontriggernames,
+				   tagloosemuons = cms.PSet(
+		isocut  = cms.double(0.25),
+		ptcut   = cms.double(22),
+		etacut  = cms.double(2.4)
+		),
+				   tagtightmuons = cms.PSet(
+		isocut  = cms.double(0.15),
+		ptcut   = cms.double(22),
+		etacut  = cms.double(2.4)
+		),
+				   tagmuontriggermatch = cms.PSet(
+		tagmuontrigmatchdR = cms.double(0.3),
+		requiremuonhlt  = cms.bool(True),
+		tagmuontriggers = tagmuontriggernames
+		),
 				   #### Electron information for identification --> pt cut and matching with trigger info
-				   tagelectronptcut   = cms.double(35),
-				   tagelectronetacut  = cms.double(2.5),
-				   tagelectrontrigmatchdR = cms.double(0.3),
-				   requireelectronhlt  = cms.bool(True),
-				   tagelectrontriggers = tagelectrontriggernames,
+				   tagelectrons = cms.PSet(
+		tagelectronptcut   = cms.double(35),
+		tagelectronetacut  = cms.double(2.5),
+		applyPVSelection   = cms.bool(True),
+		d0Barrel = cms.double(0.05),
+                d0Endcap = cms.double(0.10),
+                dzBarrel = cms.double(0.10),
+                dzEndcap = cms.double(0.20),   		
+		),
+				   tagelectrontriggermatch = cms.PSet(
+		tagelectrontrigmatchdR = cms.double(0.3),
+		requireelectronhlt  = cms.bool(True),
+		tagelectrontriggers = tagelectrontriggernames,
+		),
 				   ### electorn ID
-				   electronvetoid   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-veto"),
-				   electronlooseid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-loose"),
-				   electronmediumid = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-medium"),
-				   electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
+				   electronvetoid   = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
+				   electronlooseid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),
+				   electronmediumid = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium"),
+				   electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight"),
+				   electronhltsafeid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronHLTPreselection-Summer16-V1"),
 				   ### photon id
 				   photonlooseid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
 				   photonmediumid = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
@@ -289,6 +307,7 @@ process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		looseid   = cms.InputTag("probeinfo", "looseelectronrefs"),
 		mediumid  = cms.InputTag("probeinfo", "mediumelectronrefs"),
 		tightid   = cms.InputTag("probeinfo", "tightelectronrefs"),
+		hltsafeid = cms.InputTag("probeinfo", "hltsafeelectronrefs"),   
 		),
 					 isMC = cms.bool(options.isMC)
 					 )

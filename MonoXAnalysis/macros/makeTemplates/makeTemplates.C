@@ -98,58 +98,60 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false);
     
     
-    cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
-    makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+    if(category != Category::VBF){
+      cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
+      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"qcd",1);
+      
+      cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
+      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"qcd",1);
-    
-    cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
-    makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"ewk",2);
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"ewk",2);
 
-    if(not skipTFsystematics){
-      
-      cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"re1",3);
-      
-      cout<<"systematics on Z/gamma ratio --> FA 1 "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fa1",4);
-      
-      
-      cout<<"systematics on Z/gamma ratio --> RE 2 "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"re2",5);
+      if(not skipTFsystematics){
 	
-      cout<<"systematics on Z/gamma ratio --> FA 2 "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fa2",6);
-      
-      cout<<"systematics on Z/gamma ratio --> PDF "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"pdf",7);
-	
-      cout<<"systematics on Z/gamma ratio --> FP "<<endl;
-      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+	cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fpc",8);
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"re1",3);
+	
+	cout<<"systematics on Z/gamma ratio --> FA 1 "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fa1",4);
+      
+	
+	cout<<"systematics on Z/gamma ratio --> RE 2 "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"re2",5);
+	
+	cout<<"systematics on Z/gamma ratio --> FA 2 "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fa2",6);
+	
+	cout<<"systematics on Z/gamma ratio --> PDF "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"pdf",7);
+	
+	cout<<"systematics on Z/gamma ratio --> FP "<<endl;
+	makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		       baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
+		       "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"fpc",8);
+      }
     }
-    
+
     cout<<"make Z/W ratio"<<endl;
     makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
@@ -197,7 +199,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
     }
     
-    if(addWgamma){
+    if(addWgamma and category != Category::VBF){
       cout<<"make W/gamma ratio "<<endl;
       makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 		      baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -341,13 +343,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
   
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,addWgamma,addTop,"",addHistoForCutAndCount);
+    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addWgamma,addTop,"",addHistoForCutAndCount);
     if(not observables_2D.empty())
-      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,addWgamma,addTop,"",addHistoForCutAndCount);
+      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addWgamma,addTop,"",addHistoForCutAndCount);
     if(category == Category::VBF){
-      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,false,false,"",addHistoForCutAndCount);
+      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,false,false,"",addHistoForCutAndCount);
       if(not observables_2D.empty())
-	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,false,false,"",addHistoForCutAndCount);
+	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,false,false,"",addHistoForCutAndCount);
     }
   }
   

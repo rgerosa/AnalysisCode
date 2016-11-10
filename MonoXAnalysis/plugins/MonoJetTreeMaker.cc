@@ -108,8 +108,8 @@ private:
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   
   // find photon info
-  void findMother(const reco::Candidate*, int &, float &, float &, float &);
-  void findFirstNonPhotonMother(const reco::Candidate*, int &, float &, float &, float &);
+  void findMother(const reco::Candidate*, int &, float &, float &, float &, float &);
+  void findFirstNonPhotonMother(const reco::Candidate*, int &, float &, float &, float &, float &);
   // compute isolation
   float computeMuonIso(const reco::Muon &);  
   // to apply jet ID
@@ -224,15 +224,15 @@ private:
   edm::EDGetTokenT<pat::PhotonRefVector>    tightphotonsPurityToken;  
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonLooseIdToken;
   edm::EDGetTokenT<edm::ValueMap<bool> >    photonHighPtIdToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   photonsieieToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   photonPHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   photonCHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   photonNHisoToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   rndgammaiso04Token;
-  edm::EDGetTokenT<edm::ValueMap<double> >   rndgammaiso08Token;
-  edm::EDGetTokenT<edm::ValueMap<double> >   gammaisoToken;
-  edm::EDGetTokenT<edm::ValueMap<double> >   rndchhadiso04Token;
-  edm::EDGetTokenT<edm::ValueMap<double> >   rndchhadiso08Token;
+  edm::EDGetTokenT<edm::ValueMap<float> >   photonsieieToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   photonPHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   photonCHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   photonNHisoToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   rndgammaiso04Token;
+  edm::EDGetTokenT<edm::ValueMap<float> >   rndgammaiso08Token;
+  edm::EDGetTokenT<edm::ValueMap<float> >   gammaisoToken;
+  edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso04Token;
+  edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso08Token;
 
   // Taus
   const edm::InputTag tausNewTag;
@@ -556,7 +556,7 @@ private:
   // gen info leptoni W/Z boson (1 per event)
   float wzmass,wzmt,wzpt,wzeta,wzphi,wzmothid,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
   // photon info
-  float parpt,pareta,parphi,ancpt,anceta,ancphi,ancmass;
+  float parpt,pareta,parphi,parmass,ancpt,anceta,ancphi,ancmass;
   int32_t ismatch, isdirect;
   // hadronic V and related quarks (1 per event)
   float wzmass_h,wzmt_h,wzpt_h,wzeta_h,wzphi_h,q1pt,q1eta,q1phi,q2pt,q2eta,q2phi;
@@ -747,15 +747,15 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if(addPhotonPurity){
     photonsPurityToken      = consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("photonsPurity"));
     tightphotonsPurityToken = consumes<pat::PhotonRefVector> (iConfig.getParameter<edm::InputTag>("tightphotonsPurity")); 
-    photonsieieToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonsieie")); 
-    photonPHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonPHiso")); 
-    photonCHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonCHiso")); 
-    photonNHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonNHiso")); 
-    rndgammaiso04Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndgammaiso04")); 
-    rndgammaiso08Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndgammaiso08")); 
-    gammaisoToken           = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("gammaiso"));
-    rndchhadiso04Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndchhadiso04"));  
-    rndchhadiso08Token      = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("rndchhadiso08"));  
+    photonsieieToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie")); 
+    photonPHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonPHiso")); 
+    photonCHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonCHiso")); 
+    photonNHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonNHiso")); 
+    rndgammaiso04Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndgammaiso04")); 
+    rndgammaiso08Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndgammaiso08")); 
+    gammaisoToken           = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("gammaiso"));
+    rndchhadiso04Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndchhadiso04"));  
+    rndchhadiso08Token      = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("rndchhadiso08"));  
   }
 
   // taus
@@ -868,10 +868,10 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if(addPhotonIDVariables){
     photonIDCollectionToken =  consumes<std::vector<pat::Photon> >(iConfig.getParameter<edm::InputTag>("photonIDCollection"));
     if(not addPhotonPurity){
-      photonsieieToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonsieie"));
-      photonPHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonPHiso"));
-      photonCHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonCHiso"));
-      photonNHisoToken        = consumes<edm::ValueMap<double> > (iConfig.getParameter<edm::InputTag>("photonNHiso"));
+      photonsieieToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"));
+      photonPHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonPHiso"));
+      photonCHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonCHiso"));
+      photonNHisoToken        = consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonNHiso"));
     }
   }
   if(addElectronIDVariables){
@@ -1006,15 +1006,15 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pat::PhotonRefVector photonsPurity;
     Handle<pat::PhotonRefVector> tightphotonsPurityH;
     pat::PhotonRefVector tightphotonsPurity;
-    Handle<edm::ValueMap<double> > photonsieieH;
-    Handle<edm::ValueMap<double> > photonPHisoH;
-    Handle<edm::ValueMap<double> > photonCHisoH;
-    Handle<edm::ValueMap<double> > photonNHisoH;
-    Handle<edm::ValueMap<double> > rndgammaiso04H;
-    Handle<edm::ValueMap<double> > rndgammaiso08H;
-    Handle<edm::ValueMap<double> > gammaisoH;
-    Handle<edm::ValueMap<double> > rndchhadiso04H;
-    Handle<edm::ValueMap<double> > rndchhadiso08H;
+    Handle<edm::ValueMap<float> > photonsieieH;
+    Handle<edm::ValueMap<float> > photonPHisoH;
+    Handle<edm::ValueMap<float> > photonCHisoH;
+    Handle<edm::ValueMap<float> > photonNHisoH;
+    Handle<edm::ValueMap<float> > rndgammaiso04H;
+    Handle<edm::ValueMap<float> > rndgammaiso08H;
+    Handle<edm::ValueMap<float> > gammaisoH;
+    Handle<edm::ValueMap<float> > rndchhadiso04H;
+    Handle<edm::ValueMap<float> > rndchhadiso08H;
 
     if(addPhotonPurity){
       iEvent.getByToken(photonsPurityToken, photonsPurityH);    
@@ -2470,16 +2470,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phPuritypt     = 0.0;
       phPurityeta    = 0.0;
       phPurityphi    = 0.0;
-      phPurityPHiso    = 0.0;
-      phPurityRND04PHiso    = 0.0;
-      phPurityRND08PHiso    = 0.0;
-      phPurityCHiso    = 0.0;
-      phPurityRND08CHiso    = 0.0;
-      phPurityRND04CHiso    = 0.0;
+      phPurityPHiso  = 0.0;
+      phPurityRND04PHiso  = 0.0;
+      phPurityRND08PHiso  = 0.0;
+      phPurityCHiso       = 0.0;
+      phPurityRND08CHiso  = 0.0;
+      phPurityRND04CHiso  = 0.0;
       phNHiso          = 0.0;
       phPurityNHiso    = 0.0;
       phPuritysieie    = 0.0;
-      phPurityhoe    = 0.0;
+      phPurityhoe      = 0.0;
       phPurityElectronVeto = 0;
       nphotonsPurity = photonsPurityH->size();
       phPurityEA = 0.;
@@ -2518,7 +2518,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	if(abs(tightphotonsPurity[hardestPhotonPurityIndex]->eta()) > 0.9 && abs(tightphotonsPurity[hardestPhotonPurityIndex]->eta()) < 1.4442 ) phPurityEA = 0.1101;
       }
     }
-
+    
     // Substructure CHS
     if(addSubstructureCHS and not isTriggerTree){      
       //sort collection to make sure it is ordered
@@ -3455,7 +3455,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     atopmass      = 0; atoppt        = 0.0; atopeta       = 0.0; atopphi       = 0.0;
     q1id          = 0; q1pt          = 0.0; q1eta         = 0.0; q1phi         = 0.0;
     q2id          = 0; q2pt          = 0.0; q2eta         = 0.0; q2phi         = 0.0;
-    parid         = 0; parpt         = 0.0; pareta        = 0.0; parphi        = 0.0;
+    parid         = 0; parpt         = 0.0; pareta        = 0.0; parphi        = 0.0; parmass       = 0;
     ancid         = 0; ancpt         = 0.0; anceta        = 0.0; ancphi        = 0.0; ancmass       = 0;
     wzmothid      = 0.0;
     isdirect      = 0;
@@ -3614,8 +3614,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  atopphi  = gens_iter->eta();	  
 	}	
       }
-    
-    
+      
       // if a Z/W is not found look for a pair of lepton .. this way with the pdgId is not guaranteed that you catch a Z/W boson and also recover DY production
       if (wzid == 0) {
 	for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
@@ -3650,7 +3649,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  else                wzid = 24;
 	}
       }
-      
+
       // no W or Z decay leptonically
       if (wzid == 0) {
 
@@ -3664,9 +3663,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    wzpt   = gens_iter->pt();
 	    wzeta  = gens_iter->eta();
 	    wzphi  = gens_iter->phi();
-	      
-	    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
-	    findMother(&(*gens_iter), parid, parpt, pareta, parphi);	    	    
+	    wzmass = gens_iter->mass();
+	    findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi, ancmass);
+	    findMother(&(*gens_iter), parid, parpt, pareta, parphi, parmass);	    	    
 	  }
 	  
 	  if(addPhotonPurity){
@@ -3675,30 +3674,34 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		gens_iter->isPromptFinalState() &&
 		gens_iter->pt() >= wzpt) {
 	      
-	      findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi);
-	      findMother(&(*gens_iter), parid, parpt, pareta, parphi);
-	      if( abs(ancid) <= 5 || abs(ancid)==2212){ 
+	      findFirstNonPhotonMother(&(*gens_iter), ancid, ancpt, anceta, ancphi,ancmass);
+	      findMother(&(*gens_iter), parid, parpt, pareta, parphi, parmass);
+
+	      if( (abs(ancid) <= 5 || abs(ancid) == 2212) and hardestPhotonPurityIndex >= 0){ 
 		float dR = computeDR(&(*gens_iter),tightphotonsPurity[hardestPhotonPurityIndex] );
 		wzid   = gens_iter->pdgId();
 		wzpt   = gens_iter->pt();
 		wzeta  = gens_iter->eta();
 		wzphi  = gens_iter->phi();
+		wzmass = gens_iter->mass();
 		wzmothid = gens_iter->mother(0)->pdgId();
-		if(dR<0.3 && fabs((tightphotonsPurity[hardestPhotonPurityIndex]->pt()-gens_iter->pt())/tightphotonsPurity[hardestPhotonPurityIndex]->pt()) < 0.5){
+		if(dR < 0.3 && fabs((tightphotonsPurity[hardestPhotonPurityIndex]->pt()-gens_iter->pt())/tightphotonsPurity[hardestPhotonPurityIndex]->pt()) < 0.5){
 		  ismatch=1;
 		  TLorentzVector genpho;
-		  genpho.SetPtEtaPhiM(wzpt, wzeta,wzphi,0);
+		  genpho.SetPtEtaPhiM(wzpt, wzeta,wzphi,wzmass);
 		  TLorentzVector genpart;
 		  genpart.SetPtEtaPhiM(ancpt, anceta,ancphi,ancmass);
-		  float dRFrag = genpho.DeltaR(genpart);
-		  if(dRFrag>0.4)isdirect=1;
+		  if(wzpt != 0 and ancpt != 0){
+		    float dRFrag = genpho.DeltaR(genpart);
+		    if(dRFrag > 0.4) isdirect = 1;
+		  }
 		}
 	      }
 	    }          
 	  }
 	}
       }
-	}
+    }
     tree->Fill();    
 }    
 
@@ -4291,10 +4294,12 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("parpt"                , &parpt                , "parpt/F");
     tree->Branch("pareta"               , &pareta               , "pareta/F");
     tree->Branch("parphi"               , &parphi               , "parphi/F");
+    tree->Branch("parmass"              , &parmass              , "parmass/F");
     tree->Branch("ancid"                , &ancid                , "ancid/I");
     tree->Branch("ancpt"                , &ancpt                , "ancpt/F");
     tree->Branch("anceta"               , &anceta               , "anceta/F");
     tree->Branch("ancphi"               , &ancphi               , "ancphi/F");
+    tree->Branch("ancmass"              , &ancmass              , "ancmass/F");
     
     // DM mediator
     tree->Branch("dmmass",&dmmass,"dmmass/F");
@@ -4890,24 +4895,25 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 
 
 //This code is ripped off from https://github.com/krav/ElectronWork/blob/master/ElectronNtupler/plugins/PhotonNtuplerMiniAOD.cc
-void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi) {
-
+void MonoJetTreeMaker::findFirstNonPhotonMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi, float & ancestormass) {
+  
   if (particle == 0)
     return;
   
   if (abs(particle->pdgId()) == 22) 
-    findFirstNonPhotonMother(particle->mother(0), ancestorid, ancestorpt, ancestoreta, ancestorphi);
+    findFirstNonPhotonMother(particle->mother(0), ancestorid, ancestorpt, ancestoreta, ancestorphi,ancestormass);
   else {
     ancestorid  = particle->pdgId();
     ancestorpt  = particle->pt();
     ancestoreta = particle->eta();
     ancestorphi = particle->phi();
+    ancestormass = particle->mass();
   }
   return;
 }
 
 // for photons
-void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi) {
+void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestorid, float& ancestorpt, float& ancestoreta, float& ancestorphi, float & ancestormass) {
   
   if (particle == 0) 
     return;
@@ -4917,6 +4923,7 @@ void MonoJetTreeMaker::findMother(const reco::Candidate *particle, int& ancestor
     ancestorpt  = particle->pt();
     ancestoreta = particle->eta();
     ancestorphi = particle->phi();
+    ancestormass = particle->mass();
   }
   return;
 }
@@ -5122,10 +5129,11 @@ bool MonoJetTreeMaker::applyPileupJetID(const pat::Jet & jet, const std::string 
 float MonoJetTreeMaker::computeDR(const reco::Candidate *genPart,pat::PhotonRef phot){
   float dR = 999.;
   TLorentzVector phop4;
-  phop4.SetPtEtaPhiM(phot->pt(),phot->eta(), phot->phi(),0);
+  phop4.SetPtEtaPhiM(phot->pt(),phot->eta(), phot->phi(),phot->mass());
   TLorentzVector p4;
-  p4.SetPtEtaPhiM(genPart->pt(),genPart->eta(),genPart->phi(),0);
-  dR = phop4.DeltaR(p4);
+  p4.SetPtEtaPhiM(genPart->pt(),genPart->eta(),genPart->phi(),genPart->mass());
+  if(phot->pt() != 0 and genPart->pt() != 0)
+    dR = phop4.DeltaR(p4);
   return dR;
 }
 

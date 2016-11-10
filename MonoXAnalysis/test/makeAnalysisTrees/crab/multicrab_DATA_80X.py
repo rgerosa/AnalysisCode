@@ -9,7 +9,7 @@ config = Configuration()
 pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
                'filterHighMETEvents=True',
-               'metCut=125',
+               'metCut=150',
                'usePrivateSQliteJEC=False',
                'applyL2L3Residuals=True',
                'addQGLikelihood=True',
@@ -23,7 +23,7 @@ pyCfgParams = ['isMC=False',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=RECO',
-               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
+#               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
                'outputFileName=tree.root',
                'nThreads=3',
                'isCrab=True']
@@ -44,9 +44,9 @@ config.JobType.maxMemoryMB      = 2500
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 50000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_01_10_2016_27fb/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'
+config.Data.unitsPerJob   = 75000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_ReReco_36fb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #config.Data.runRange
 config.Data.publication   = False
 

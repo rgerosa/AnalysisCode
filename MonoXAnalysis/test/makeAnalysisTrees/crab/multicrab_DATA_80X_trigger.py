@@ -24,7 +24,7 @@ pyCfgParams = ['isMC=False',
                'addSubstructureCHS=False',
                'addSubstructurePuppi=False',
                'miniAODProcess=RECO',
-               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
+#               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
                'outputFileName=tree.root',
                'isTriggerTree=True',
                'addTriggerObjects=False',
@@ -47,9 +47,9 @@ config.JobType.maxMemoryMB      = 2500
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 65000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_30_09_2016_24p8fb_trigger/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-280385_13TeV_PromptReco_Collisions16_JSON_NoL1T_v2.txt'  
+config.Data.unitsPerJob   = 100000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_07_11_2016_36fb-1_trigger/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'  
 #config.Data.runRange
 config.Data.publication   = False
 

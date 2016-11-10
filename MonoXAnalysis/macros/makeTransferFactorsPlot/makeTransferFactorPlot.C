@@ -33,20 +33,35 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
     TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");
-    frame->GetXaxis()->SetTitle("Recoil [GeV]");
     if(category == Category::VBF){
-      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
-	frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 2.0, bins.back(), 25., "");
+	frame->GetXaxis()->SetTitle("Recoil [GeV]");
+      }
       else if(TString(observable).Contains("mjj")){
-	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 30., "");
+
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
-	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 30., "");
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
       else if(TString(observable).Contains("detajj")){
-	frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 30., "");
+
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
@@ -135,18 +150,33 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
-      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
-        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
+
+	frame->GetXaxis()->SetTitle("Recoil [GeV]");
+      }
       else if(TString(observable).Contains("mjj")){
-        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
-        frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
       else if(TString(observable).Contains("detajj")){
-        frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 20., "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 22., "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
@@ -194,7 +224,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
-    if(isEWK)
+    if(not isEWK)
       leg->AddEntry(hist  , "R(Z(ee)) Stat. Unc.","pl");
     else
       leg->AddEntry(hist  , "R(Z(ee)-EWK) Stat. Unc.","pl");
@@ -202,7 +232,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     leg->AddEntry(ehist , "Stat. + Syst. Uncertainty", "F");
     leg->Draw("SAME");
 
-    if(isEWK){
+    if(not isEWK){
       canvas->SaveAs("rzee.pdf");
       canvas->SaveAs("rzee.png");
     }
@@ -234,23 +264,25 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
-      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 1.5, "");
+	frame->GetXaxis()->SetTitle("Recoil [GeV]");
+      }
       else if(TString(observable).Contains("mjj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
       else if(TString(observable).Contains("detajj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 1.5, "");
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
 
-    if(isEWK)
+    if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
     else
       frame->GetYaxis()->SetTitle("R_{W(#mu#nu)-EWK}");
@@ -292,14 +324,14 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
-    if(isEWK)
+    if(not isEWK)
       leg->AddEntry(hist  , "R(W(#mu#nu)) Stat. Unc.","pl");
     else
       leg->AddEntry(hist  , "R(W(#mu#nu)-EWK) Stat. Unc.","pl");
     leg->AddEntry(ehist , "Stat. + Syst. Uncertainty", "F");
     leg->Draw("SAME");
     
-    if(isEWK){
+    if(not isEWK){
       canvas->SaveAs("rwmn.pdf");
       canvas->SaveAs("rwmn.png");
     }
@@ -332,8 +364,10 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
-      if(TString(observable).Contains("met") and TString(observable).Contains("jetmetdphi"))
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
+        frame = canvas->DrawFrame(bins.front(), 0., bins.back(), 2.5, "");
+	frame->GetXaxis()->SetTitle("Recoil [GeV]");
+      }
       else if(TString(observable).Contains("mjj")){
         frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 2.5, "");
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
@@ -348,7 +382,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
       }
     }
 
-    if(isEWK)
+    if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
     else
       frame->GetYaxis()->SetTitle("R_{W(e#nu)}-EWK");
@@ -394,14 +428,14 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
-    if(isEWK)
+    if(not isEWK)
       leg->AddEntry(hist  , "R(W(e#nu)) Stat. Unc.","pl");
     else
       leg->AddEntry(hist  , "R(W(e#nu)-EWK) Stat. Unc.","pl");
     leg->AddEntry(ehist , "Stat. + Syst. Uncertainty", "F");
     leg->Draw("SAME");
 
-    if(isEWK){
+    if(not isEWK){
       canvas->SaveAs("rwen.pdf");
       canvas->SaveAs("rwen.png");
     }
@@ -459,7 +493,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
       }
     }
 
-    if(isEWK)
+    if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{#gamma}");
     else
       frame->GetYaxis()->SetTitle("R_{#gamma}-EWK");
@@ -531,7 +565,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
 
     leg->Draw("SAME");
 
-    if(isEWK){
+    if(not isEWK){
       canvas->SaveAs("rgam.pdf");
       canvas->SaveAs("rgam.png");
     }
@@ -573,18 +607,36 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
-      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi"))
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 15.0, "");
+      if(TString(observable).Contains("met") and not TString(observable).Contains("jetmetdphi")){
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+
+	frame->GetXaxis()->SetTitle("Recoil [GeV]");
+      }
       else if(TString(observable).Contains("mjj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
       else if(TString(observable).Contains("detajj")){
-        frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	if(not isEWK)
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
+	else
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
@@ -607,29 +659,21 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerSize(1.2);
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
-    if(not isEWK){
-      ehist->SetFillColor(kGreen+1);
-      ehist->SetLineColor(kBlack);
-      ehistEWK->SetFillColor(kOrange+1);
-      ehistEWK->SetLineColor(kBlack);
-    }
-    else{
-      ehist->SetFillColor(kOrange+1);
-      ehist->SetLineColor(kBlack);
-    }
+    ehist->SetFillColor(kGreen+1);
+    ehist->SetLineColor(kBlack);
+    ehistEWK->SetFillColor(kOrange+1);
+    ehistEWK->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-	if(not isEWK){
-	  err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  ehistEWK->SetBinError(i, sqrt(err));
-	  err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	}
+	err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	ehistEWK->SetBinError(i, sqrt(err));
+	err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
         err += pow(hist->GetBinContent(i)*lepveto, 2);
         ehist->SetBinError(i, sqrt(err));
     }
@@ -638,8 +682,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     CMS_lumi(canvas,"12.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
-    if(not isEWK)
-      ehistEWK->Draw("E2 SAME");
+    ehistEWK->Draw("E2 SAME");
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
@@ -653,11 +696,12 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     }
     else{
       leg->AddEntry(hist  , "R(Z/W)-EWK Stat. Unc.","pl");
+      leg->AddEntry(ehistEWK, "Stat. + Syst. (QCD+EWK+PDF)", "F");
       leg->AddEntry(ehist, "Stat. + Syst.", "F");
     }
     leg->Draw("SAME");
 
-    if(isEWK){
+    if(not isEWK){
       canvas->SaveAs("rzwj.pdf");
       canvas->SaveAs("rzwj.png");
     }
@@ -718,7 +762,7 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
 
-    if(isEWK)
+    if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W#gamma}");
     else
       frame->GetYaxis()->SetTitle("R_{W#gamma}-EWK");
@@ -947,15 +991,17 @@ void makeTransferFactorPlot(string fileName, Category category, string observabl
   rzee(fileName,category,observable,isEWK);
   rwmn(fileName,category,observable,isEWK);
   rwen(fileName,category,observable,isEWK);
-  rgam(fileName,category,observable,false);
   rzwj(fileName,category,observable,isEWK);
+
+  if(category != Category::VBF)
+    rgam(fileName,category,observable,false);
   
   if(addtop){
     rtopmu(fileName,category,observable);
     rtopel(fileName,category,observable);
   }
   
-  if(addwgamma)
+  if(addwgamma and category != Category::VBF)
     rwgam(fileName,category,observable,false);
 }
 
