@@ -11,7 +11,7 @@ float mettrig = 0.01;
 float eltrig = 0.02;
 float phtrig = 0.02;
 float lepveto = 0.03;
-
+float inflateWZ_ewk = sqrt(2);
 
 
 void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const int & rebinFactor){
@@ -152,6 +152,8 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
     frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
   else if(category == Category::monoV)
     frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+  else if(category == Category::VBF)
+    frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
   
 
   frame2->GetXaxis()->SetLabelSize(0.10);
@@ -269,19 +271,33 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   vlbkg_wmn->Add(ewkwbkg_wmn);
   vlbkg_wmn->Add(ewkzbkg_wmn);
 
+
   // GAM  control region
-  TH1* gbkg_gam   = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
-  TH1* qbkg_gam   = (TH1*) inputFile->FindObjectAny(("qbkghistgam_"+observable).c_str());
-  gbkg_gam->Add(qbkg_gam);
+  TH1* gbkg_gam   = NULL;
+  TH1* qbkg_gam   = NULL;
+  if(category != Category::VBF){
+    gbkg_gam  = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
+    qbkg_gam = (TH1*) inputFile->FindObjectAny(("qbkghistgam_"+observable).c_str());
+    gbkg_gam->Add(qbkg_gam);
+  }
 
   //SYS Unc on ratios
-  TH1*  ZG_ewk = (TH1*)inputFile->FindObjectAny(("ZG_EWK_"+observable).c_str());
-  TH1*  ZG_re1 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
-  TH1*  ZG_re2 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
-  TH1*  ZG_fa1 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
-  TH1*  ZG_fa2 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
-  TH1*  ZG_pdf = (TH1*)inputFile->FindObjectAny(("ZG_PDF_"+observable).c_str());
-  TH1*  ZG_fp  = (TH1*)inputFile->FindObjectAny(("ZG_Footprint_"+observable).c_str());
+  TH1*  ZG_ewk = NULL;
+  TH1*  ZG_re1 = NULL;
+  TH1*  ZG_re2 = NULL;
+  TH1*  ZG_fa1 = NULL;
+  TH1*  ZG_fa2 = NULL;
+  TH1*  ZG_pdf = NULL;
+  TH1*  ZG_fp  = NULL;
+  if(category != Category::VBF){
+    ZG_ewk = (TH1*)inputFile->FindObjectAny(("ZG_EWK_"+observable).c_str());
+    ZG_re1 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
+    ZG_re2 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
+    ZG_fa1 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
+    ZG_fa2 = (TH1*)inputFile->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
+    ZG_pdf = (TH1*)inputFile->FindObjectAny(("ZG_PDF_"+observable).c_str());
+    ZG_fp  = (TH1*)inputFile->FindObjectAny(("ZG_Footprint_"+observable).c_str());
+  }
 
   TH1*  ZW_ewk = (TH1*)inputFile->FindObjectAny(("ZW_EWK_"+observable).c_str());
   TH1*  ZW_re1 = (TH1*)inputFile->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
@@ -290,23 +306,23 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  ZW_fa2 = (TH1*)inputFile->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
   TH1*  ZW_pdf = (TH1*)inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
 
-  TH1*  WG_ewk = (TH1*)inputFile->FindObjectAny(("WG_EWK_"+observable).c_str());
-  TH1*  WG_re1 = (TH1*)inputFile->FindObjectAny(("WG_RenScale1_"+observable).c_str());
-  TH1*  WG_re2 = (TH1*)inputFile->FindObjectAny(("WG_RenScale2_"+observable).c_str());
-  TH1*  WG_fa1 = (TH1*)inputFile->FindObjectAny(("WG_FactScale1_"+observable).c_str());
-  TH1*  WG_fa2 = (TH1*)inputFile->FindObjectAny(("WG_FactScale2_"+observable).c_str());
-  TH1*  WG_pdf = (TH1*)inputFile->FindObjectAny(("WG_PDF_"+observable).c_str());
-  TH1*  WG_fp  = (TH1*)inputFile->FindObjectAny(("WG_Footprint_"+observable).c_str());
+  TH1*  WG_ewk = NULL;
+  TH1*  WG_re1 = NULL;
+  TH1*  WG_re2 = NULL;
+  TH1*  WG_fa1 = NULL;
+  TH1*  WG_fa2 = NULL;
+  TH1*  WG_pdf = NULL;
+  TH1*  WG_fp  = NULL;
+  if(category != Category::VBF){
+    WG_ewk = (TH1*)inputFile->FindObjectAny(("WG_EWK_"+observable).c_str());
+    WG_re1 = (TH1*)inputFile->FindObjectAny(("WG_RenScale1_"+observable).c_str());
+    WG_re2 = (TH1*)inputFile->FindObjectAny(("WG_RenScale2_"+observable).c_str());
+    WG_fa1 = (TH1*)inputFile->FindObjectAny(("WG_FactScale1_"+observable).c_str());
+    WG_fa2 = (TH1*)inputFile->FindObjectAny(("WG_FactScale2_"+observable).c_str());
+    WG_pdf = (TH1*)inputFile->FindObjectAny(("WG_PDF_"+observable).c_str());
+    WG_fp = (TH1*)inputFile->FindObjectAny(("WG_Footprint_"+observable).c_str());
+  }
 
-  //Ratios Data
-  TH1* ZGData_mm = (TH1*) data_zmm->Clone("ZGData_mm");
-  ZGData_mm->Divide(data_gam);
-  TH1* ZGData_ee = (TH1*) data_zee->Clone("ZGData_ee");
-  ZGData_ee->Divide(data_gam);
-  TH1* ZGData_ll = (TH1*) data_zmm->Clone("ZGData_ll");
-  ZGData_ll->Add(data_zee);
-  ZGData_ll->Divide(data_gam);
-  
   TH1* ZWData_ee = (TH1*) data_zee->Clone("ZWData_e");
   ZWData_ee->Divide(data_wen);
   TH1* ZWData_mm = (TH1*) data_zmm->Clone("ZWData_m");
@@ -316,23 +332,6 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* temp = (TH1*) data_wmn->Clone("temp"); 
   temp->Add(data_wen);
   ZWData_ll->Divide(temp);
-
-  TH1* WGData_m = (TH1*) data_wmn->Clone("WGData_m");
-  WGData_m->Divide(data_gam);
-  TH1* WGData_e = (TH1*) data_wen->Clone("WGData_e");
-  WGData_e->Divide(data_gam);
-  TH1* WGData_l = (TH1*) data_wmn->Clone("WGData_l");
-  WGData_l->Add(data_wen);
-  WGData_l->Divide(data_gam);
-
-  //Ratios MC
-  TH1* ZGMC_mm = (TH1*) vllbkg_zmm->Clone("ZGMC_mm");
-  ZGMC_mm->Divide(gbkg_gam);
-  TH1* ZGMC_ee = (TH1*) vllbkg_zee->Clone("ZGMC_ee");
-  ZGMC_ee->Divide(gbkg_gam);
-  TH1* ZGMC_ll = (TH1*) vllbkg_zmm->Clone("ZGMC_ll");
-  ZGMC_ll->Add(vllbkg_zee);
-  ZGMC_ll->Divide(gbkg_gam);
   
   TH1* ZWMC_ee = (TH1*) vllbkg_zee->Clone("ZWMC_e");
   ZWMC_ee->Divide(vlbkg_wen);
@@ -343,70 +342,6 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   temp = (TH1*) vlbkg_wmn->Clone("temp"); 
   temp->Add(vlbkg_wen);
   ZWMC_ll->Divide(temp);
-
-  TH1* WGMC_m = (TH1*) vlbkg_wmn->Clone("WGMC_m");
-  WGMC_m->Divide(gbkg_gam);
-  TH1* WGMC_e = (TH1*) vlbkg_wen->Clone("WGMC_e");
-  WGMC_e->Divide(gbkg_gam);
-  TH1* WGMC_l = (TH1*) vlbkg_wmn->Clone("WGMC_l");
-  WGMC_l->Add(vlbkg_wen);
-  WGMC_l->Divide(gbkg_gam);
-  
-  //Add systematic uncertainties
-  for(int iBin = 0; iBin < ZGMC_mm->GetNbinsX(); iBin++){
-    double err = 0.;
-    err += ZGMC_mm->GetBinError(iBin+1)*ZGMC_mm->GetBinError(iBin+1);
-    err += pow(ZGMC_mm->GetBinContent(iBin+1)*musf*2,2);
-    err += pow(ZGMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
-    err += pow(ZGMC_mm->GetBinContent(iBin+1)*mettrig,2);
-    err += pow(ZGMC_mm->GetBinContent(iBin+1)*phtrig,2);
-    err += pow(ZGMC_mm->GetBinContent(iBin+1)*phsf,2);
-    err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-    ZGMC_mm->SetBinError(iBin+1,sqrt(err));
-  }
-  
-  for(int iBin = 0; iBin < ZGMC_ee->GetNbinsX(); iBin++){
-    double err = 0.;
-    err += ZGMC_ee->GetBinError(iBin+1)*ZGMC_ee->GetBinError(iBin+1);
-    err += pow(ZGMC_ee->GetBinContent(iBin+1)*elsf*2,2);
-    err += pow(ZGMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
-    err += pow(ZGMC_ee->GetBinContent(iBin+1)*phtrig,2);
-    err += pow(ZGMC_ee->GetBinContent(iBin+1)*phsf,2);
-    err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-    ZGMC_ee->SetBinError(iBin+1,sqrt(err));
-  }
-
-  for(int iBin = 0; iBin < ZGMC_ll->GetNbinsX(); iBin++){
-    double err = 0.;
-    err += ZGMC_ll->GetBinError(iBin+1)*ZGMC_ll->GetBinError(iBin+1);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*musf*2,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*mutrack*2,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*mettrig,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*elsf*2,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*eltrack*2,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*phtrig,2);
-    err += pow(ZGMC_ll->GetBinContent(iBin+1)*phsf,2);
-    err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-    ZGMC_ll->SetBinError(iBin+1,sqrt(err));
-  }
 
   for(int iBin = 0; iBin < ZWMC_mm->GetNbinsX(); iBin++){
     double err = 0.;
@@ -419,7 +354,11 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZW_fa1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZW_fa2->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-    ZWMC_mm->SetBinError(iBin+1,sqrt(err));
+    if(category == Category::VBF)
+      ZWMC_mm->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
+    else
+      ZWMC_mm->SetBinError(iBin+1,sqrt(err));
+
   }
   
   for(int iBin = 0; iBin < ZWMC_ee->GetNbinsX(); iBin++){
@@ -433,7 +372,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZW_fa1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZW_fa2->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
-    ZWMC_ee->SetBinError(iBin+1,sqrt(err));
+    if(category == Category::VBF)
+      ZWMC_ee->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
+    else
+      ZWMC_ee->SetBinError(iBin+1,sqrt(err));
   }
 
   for(int iBin = 0; iBin < ZWMC_ll->GetNbinsX(); iBin++){
@@ -443,84 +385,198 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrack,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*musf,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*mutrack,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*lepveto,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*mettrig,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrig,2);
     err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_re2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_fa1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_fa2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
-    ZWMC_ll->SetBinError(iBin+1,sqrt(err));
+    if(category == Category::VBF)
+      ZWMC_ll->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
+    else
+      ZWMC_ll->SetBinError(iBin+1,sqrt(err));
   }
 
-  if(addWgamma){
+  TH1* ZGData_mm = NULL;
+  TH1* ZGData_ee = NULL;
+  TH1* ZGData_ll = NULL;
+  TH1* WGData_m  = NULL;
+  TH1* WGData_e  = NULL;
+  TH1* WGData_l  = NULL;
 
-    for(int iBin = 0; iBin < WGMC_m->GetNbinsX(); iBin++){
-      double err = 0.;
-      err += WGMC_m->GetBinError(iBin+1)*WGMC_m->GetBinError(iBin+1);
-      err += pow(WGMC_m->GetBinContent(iBin+1)*musf,2);
-      err += pow(WGMC_m->GetBinContent(iBin+1)*mutrack,2);
-      err += pow(WGMC_m->GetBinContent(iBin+1)*phtrig,2);
-      err += pow(WGMC_m->GetBinContent(iBin+1)*phsf,2);
-      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-      WGMC_m->SetBinError(iBin+1,0,sqrt(err));
-    }
-  
-    for(int iBin = 0; iBin < WGMC_e->GetNbinsX(); iBin++){
-      double err = 0.;
-      err += WGMC_e->GetBinError(iBin+1)*WGMC_e->GetBinError(iBin+1);
-      err += pow(WGMC_e->GetBinContent(iBin+1)*elsf,2);
-      err += pow(WGMC_e->GetBinContent(iBin+1)*eltrack,2);
-      err += pow(WGMC_e->GetBinContent(iBin+1)*phtrig,2);
-      err += pow(WGMC_e->GetBinContent(iBin+1)*phsf,2);
-      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-      WGMC_e->SetBinError(iBin+1,sqrt(err));
-    }
+  TH1* ZGMC_mm = NULL;
+  TH1* ZGMC_ee = NULL;
+  TH1* ZGMC_ll = NULL;
+  TH1* WGMC_m = NULL;
+  TH1* WGMC_e = NULL;
+  TH1* WGMC_l = NULL;
 
-    for(int iBin = 0; iBin < WGMC_l->GetNbinsX(); iBin++){
+  if(category != Category::VBF){
+    //Ratios Data
+    ZGData_mm = (TH1*) data_zmm->Clone("ZGData_mm");
+    ZGData_mm->Divide(data_gam);
+    ZGData_ee = (TH1*) data_zee->Clone("ZGData_ee");
+    ZGData_ee->Divide(data_gam);
+    ZGData_ll = (TH1*) data_zmm->Clone("ZGData_ll");
+    ZGData_ll->Add(data_zee);
+    ZGData_ll->Divide(data_gam);
+    
+    WGData_m = (TH1*) data_wmn->Clone("WGData_m");
+    WGData_m->Divide(data_gam);
+    WGData_e = (TH1*) data_wen->Clone("WGData_e");
+    WGData_e->Divide(data_gam);
+    WGData_l = (TH1*) data_wmn->Clone("WGData_l");
+    WGData_l->Add(data_wen);
+    WGData_l->Divide(data_gam);
+    
+    //Ratios MC
+    ZGMC_mm = (TH1*) vllbkg_zmm->Clone("ZGMC_mm");
+    ZGMC_mm->Divide(gbkg_gam);
+    ZGMC_ee = (TH1*) vllbkg_zee->Clone("ZGMC_ee");
+    ZGMC_ee->Divide(gbkg_gam);
+    ZGMC_ll = (TH1*) vllbkg_zmm->Clone("ZGMC_ll");
+    ZGMC_ll->Add(vllbkg_zee);
+    ZGMC_ll->Divide(gbkg_gam);
+    
+    WGMC_m = (TH1*) vlbkg_wmn->Clone("WGMC_m");
+    WGMC_m->Divide(gbkg_gam);
+    WGMC_e = (TH1*) vlbkg_wen->Clone("WGMC_e");
+    WGMC_e->Divide(gbkg_gam);
+    WGMC_l = (TH1*) vlbkg_wmn->Clone("WGMC_l");
+    WGMC_l->Add(vlbkg_wen);
+    WGMC_l->Divide(gbkg_gam);
+    
+    //Add systematic uncertainties
+    for(int iBin = 0; iBin < ZGMC_mm->GetNbinsX(); iBin++){
       double err = 0.;
-      err += WGMC_l->GetBinError(iBin+1)*WGMC_l->GetBinError(iBin+1);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*elsf,2);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*eltrack,2);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*musf,2);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*mutrack,2);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*phtrig,2);
-      err += pow(WGMC_l->GetBinContent(iBin+1)*phsf,2);
-      err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-      WGMC_l->SetBinError(iBin+1,sqrt(err));
+      err += ZGMC_mm->GetBinError(iBin+1)*ZGMC_mm->GetBinError(iBin+1);
+      err += pow(ZGMC_mm->GetBinContent(iBin+1)*musf*2,2);
+      err += pow(ZGMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
+      err += pow(ZGMC_mm->GetBinContent(iBin+1)*mettrig,2);
+      err += pow(ZGMC_mm->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(ZGMC_mm->GetBinContent(iBin+1)*phsf,2);
+      err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+      ZGMC_mm->SetBinError(iBin+1,sqrt(err));
+    }
+    
+    for(int iBin = 0; iBin < ZGMC_ee->GetNbinsX(); iBin++){
+      double err = 0.;
+      err += ZGMC_ee->GetBinError(iBin+1)*ZGMC_ee->GetBinError(iBin+1);
+      err += pow(ZGMC_ee->GetBinContent(iBin+1)*elsf*2,2);
+      err += pow(ZGMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
+      err += pow(ZGMC_ee->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(ZGMC_ee->GetBinContent(iBin+1)*phsf,2);
+      err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+      ZGMC_ee->SetBinError(iBin+1,sqrt(err));
+    }
+    
+    for(int iBin = 0; iBin < ZGMC_ll->GetNbinsX(); iBin++){
+      double err = 0.;
+      err += ZGMC_ll->GetBinError(iBin+1)*ZGMC_ll->GetBinError(iBin+1);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*musf*2,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*mutrack*2,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*mettrig,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*elsf*2,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*eltrack*2,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*phtrig,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*phsf,2);
+      err += pow(ZG_ewk->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_re2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fa2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+      ZGMC_ll->SetBinError(iBin+1,sqrt(err));
+    }
+    
+    
+    if(addWgamma){
+      
+      for(int iBin = 0; iBin < WGMC_m->GetNbinsX(); iBin++){
+	double err = 0.;
+	err += WGMC_m->GetBinError(iBin+1)*WGMC_m->GetBinError(iBin+1);
+	err += pow(WGMC_m->GetBinContent(iBin+1)*musf,2);
+	err += pow(WGMC_m->GetBinContent(iBin+1)*mutrack,2);
+	err += pow(WGMC_m->GetBinContent(iBin+1)*phtrig,2);
+	err += pow(WGMC_m->GetBinContent(iBin+1)*phsf,2);
+	err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	WGMC_m->SetBinError(iBin+1,0,sqrt(err));
+      }
+      
+      for(int iBin = 0; iBin < WGMC_e->GetNbinsX(); iBin++){
+	double err = 0.;
+	err += WGMC_e->GetBinError(iBin+1)*WGMC_e->GetBinError(iBin+1);
+	err += pow(WGMC_e->GetBinContent(iBin+1)*elsf,2);
+	err += pow(WGMC_e->GetBinContent(iBin+1)*eltrack,2);
+	err += pow(WGMC_e->GetBinContent(iBin+1)*phtrig,2);
+	err += pow(WGMC_e->GetBinContent(iBin+1)*phsf,2);
+	err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	WGMC_e->SetBinError(iBin+1,sqrt(err));
+      }
+      
+      for(int iBin = 0; iBin < WGMC_l->GetNbinsX(); iBin++){
+	double err = 0.;
+	err += WGMC_l->GetBinError(iBin+1)*WGMC_l->GetBinError(iBin+1);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*elsf,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*eltrack,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*musf,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*mutrack,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*phtrig,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*phsf,2);
+	err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_re1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_re2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_fa2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	WGMC_l->SetBinError(iBin+1,sqrt(err));
+      }
     }
   }
-
   // make plots
   
-  makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm",rebinFactor);  
-  makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee",rebinFactor);
-  makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll",rebinFactor);
   makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm",rebinFactor);
   makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee",rebinFactor);
   makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll",rebinFactor);  
 
-  if(addWgamma){
-    makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m",rebinFactor);
-    makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e",rebinFactor);
-    makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l",rebinFactor);    
+  if(category != Category::VBF){
+    makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm",rebinFactor);  
+    makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee",rebinFactor);
+    makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll",rebinFactor);
+    
+    if(addWgamma){
+      makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m",rebinFactor);
+      makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e",rebinFactor);
+      makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l",rebinFactor);    
+    }
   }
-
 }
