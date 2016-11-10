@@ -1,4 +1,4 @@
-B1;95;0cimport os, sys
+import os, sys
 from multiprocessing import Process
 from WMCore.Configuration import Configuration
 
@@ -8,7 +8,7 @@ config = Configuration()
 
 pyCfgParams = ['isMC=False',
                'filterOnHLT=True',
-               'filterHighMETEvents=False',
+               'filterHighMETEvents=True',
                'metCut=100',
                'applyL2L3Residuals=True',
                'addQGLikelihood=True',
@@ -23,7 +23,7 @@ pyCfgParams = ['isMC=False',
                'addSubstructurePuppi=False',
                'addPhotonPurity=True',
                'miniAODProcess=RECO',
-               'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
+               #'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
                'outputFileName=tree.root',
                'nThreads=3',
                'isCrab=True']
@@ -44,9 +44,9 @@ config.JobType.maxMemoryMB      = 2500
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-20-07-2016_80X_Data12p9fb-1_PhotonPurity/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-276811_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
+config.Data.unitsPerJob   = 80000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-7-11-2016_PhotonPurity_36fb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
 #config.Data.runRange
 config.Data.publication   = False
 

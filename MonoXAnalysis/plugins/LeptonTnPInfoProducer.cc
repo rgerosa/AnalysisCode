@@ -37,67 +37,66 @@ private:
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+  // Gen info
   const edm::EDGetTokenT<GenEventInfoProduct>         geninfoToken;
+  // Vertices
   const edm::EDGetTokenT<std::vector<reco::Vertex> >  verticesToken;
+  //Leptons
   const edm::EDGetTokenT<pat::MuonCollection>     muonsToken;
   const edm::EDGetTokenT<pat::ElectronCollection> electronsToken;
   const edm::EDGetTokenT<pat::ElectronCollection> electronsFullCollectionToken;
   const edm::EDGetTokenT<pat::PhotonCollection>   photonsToken;
 
+  // Triggers
   const edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken;
   const edm::EDGetTokenT<edm::TriggerResults>  triggerResultsToken;
 
+  // ID value maps
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronVetoIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronLooseIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
-
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronHLTSafeIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonTightIdMapToken;
 
-  const double loosemuisocut;
-  const double tightmuisocut;
-  const double tagmuonptcut;
-  const double tagmuonetacut;
-  const double tagmuontrigmatchdR;  
-  const bool   requiremuonhlt;
-  const std::vector<std::string> tagmuontriggers;
-  const double tagelectronptcut;
-  const double tagelectronetacut;
-  const double tagelectrontrigmatchdR;
-  const bool   requireelectronhlt;
-  const std::vector<std::string> tagelectrontriggers;
+  // Additional selections for muons
+  const edm::ParameterSet tagloosemuons;
+  const edm::ParameterSet tagtightmuons;
+  const edm::ParameterSet tagmuontriggermatch;
+  // Additional electron selections
+  const edm::ParameterSet tagelectrons;
+  const edm::ParameterSet tagelectrontriggermatch;
 };
 
 LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig): 
-    geninfoToken(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("geninfo"))),
-    verticesToken(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
-    muonsToken(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    electronsToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    geninfoToken   (consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("geninfo"))),
+    verticesToken  (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertices"))),
+    // leptons
+    muonsToken     (consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    electronsToken (consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
     electronsFullCollectionToken(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronsFullCollection"))),
-    photonsToken(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-    triggerObjectsToken(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerobjects"))),
-    triggerResultsToken(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
-    electronVetoIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronvetoid"))),
-    electronLooseIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronlooseid"))),
-    electronMediumIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmediumid"))),
-    electronTightIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electrontightid"))),
-    photonLooseIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonlooseid"))),
-    photonMediumIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmediumid"))),
-    photonTightIdMapToken(consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photontightid"))),
-    loosemuisocut(iConfig.getParameter<double>("loosemuisocut")),
-    tightmuisocut(iConfig.getParameter<double>("tightmuisocut")),
-    tagmuonptcut(iConfig.getParameter<double>("tagmuonptcut")),
-    tagmuonetacut(iConfig.getParameter<double>("tagmuonetacut")),
-    tagmuontrigmatchdR(iConfig.getParameter<double>("tagmuontrigmatchdR")),
-    requiremuonhlt(iConfig.getParameter<bool>("requiremuonhlt")),
-    tagmuontriggers(iConfig.getParameter<std::vector<std::string> >("tagmuontriggers")),
-    tagelectronptcut(iConfig.getParameter<double>("tagelectronptcut")),
-    tagelectronetacut(iConfig.getParameter<double>("tagelectronetacut")),
-    tagelectrontrigmatchdR(iConfig.getParameter<double>("tagelectrontrigmatchdR")),
-    requireelectronhlt(iConfig.getParameter<bool>("requireelectronhlt")),
-    tagelectrontriggers(iConfig.getParameter<std::vector<std::string> >("tagelectrontriggers"))
+    photonsToken   (consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    // triggers
+    triggerObjectsToken (consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerobjects"))),
+    triggerResultsToken (consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
+    // id and isolation maps
+    electronVetoIdMapToken    (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronvetoid"))),
+    electronLooseIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronlooseid"))),
+    electronMediumIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmediumid"))),
+    electronTightIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electrontightid"))),
+    electronHLTSafeIdMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronhltsafeid"))),
+    photonLooseIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonlooseid"))),
+    photonMediumIdMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmediumid"))),
+    photonTightIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photontightid"))),
+    // addition
+    tagloosemuons (iConfig.getParameter<edm::ParameterSet>("tagloosemuons")),
+    tagtightmuons (iConfig.getParameter<edm::ParameterSet>("tagtightmuons")),
+    tagmuontriggermatch (iConfig.getParameter<edm::ParameterSet>("tagmuontriggermatch")),
+    tagelectrons  (iConfig.getParameter<edm::ParameterSet>("tagelectrons")),
+    tagelectrontriggermatch  (iConfig.getParameter<edm::ParameterSet>("tagelectrontriggermatch"))
+    
 {
   // produce a map with nvtx for a given muon
   produces<edm::ValueMap<float> >("munvtxmap");
@@ -150,6 +149,7 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::ElectronRefVector>("looseelectronrefs");
   produces<pat::ElectronRefVector>("mediumelectronrefs");
   produces<pat::ElectronRefVector>("tightelectronrefs");
+  produces<pat::ElectronRefVector>("hltsafeelectronrefs");
   produces<pat::ElectronCollection>("tightelectrons");
 
   produces<pat::PhotonRefVector>("loosephotonrefs");
@@ -158,7 +158,6 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::PhotonRefVector>("recoelectronmatch");
 
 }
-
 
 LeptonTnPInfoProducer::~LeptonTnPInfoProducer() {
 }
@@ -205,6 +204,9 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   
   Handle<edm::ValueMap<bool> > electronTightIdH;
   iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
+
+  Handle<edm::ValueMap<bool> > electronHLTSafeIdH;
+  iEvent.getByToken(electronHLTSafeIdMapToken, electronHLTSafeIdH);
 
   Handle<edm::ValueMap<bool> > photonLooseIdH;
   iEvent.getByToken(photonLooseIdMapToken, photonLooseIdH);
@@ -258,6 +260,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<pat::ElectronRefVector> outputlooseelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputmediumelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputtightelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputhltsafeelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronCollection> outputtightelectrons(new pat::ElectronCollection);
   //photon id
   std::auto_ptr<pat::PhotonRefVector> outputloosephotonrefs(new pat::PhotonRefVector);
@@ -305,9 +308,9 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // loop on the whole trigger object collection
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames); // un-pack names
-      if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontrigmatchdR)) continue; //check dR matching
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), muons_iter->eta(), muons_iter->phi()) < tagmuontriggermatch.getParameter<double>("tagmuontrigmatchdR"))) continue; //check dR matching
 
-      for (std::string trigpath : tagmuontriggers) { 
+      for (std::string trigpath : tagmuontriggermatch.getParameter<std::vector<std::string> >("tagmuontriggers")) { 
 	// loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
 	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true) ) triggermatched = true; 
       }
@@ -322,53 +325,62 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (trgobj.hasPathName("HLT_IsoTkMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true)) hltisotkmu24matched = true; 
     }
 
-    if(hltisomu20matched || hltisomu22matched || hltisomu24matched) hltisomumatched = true;
-    if(hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched) hltisotkmumatched = true;            
-    if (!requiremuonhlt) triggermatched = true;    
+    if(hltisomu20matched and hltisomu22matched and hltisomu24matched) hltisomumatched = true;
+    if(hltisotkmu20matched and hltisotkmu22matched and hltisotkmu24matched) hltisotkmumatched = true;            
+    if(not tagmuontriggermatch.getParameter<bool>("requiremuonhlt")) triggermatched = true;    
 
     if(not triggermatched and (hltisomu20matched || hltisomu22matched || hltisomu24matched || hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched))
       std::cout<<"Problem with the trigger matching for muons --> triggermathc should be always >= than the big or "<<std::endl;
     
     // matched to mu20
-    if (verticesH->size() != 0 && hltisomu20matched) 
+    if (verticesH->size() != 0 and hltisomu20matched) 
       outputhltmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu20
-    if (verticesH->size() != 0 && hltisotkmu20matched) 
+    if (verticesH->size() != 0 and hltisotkmu20matched) 
       outputhlttkmu20muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to mu22
-    if (verticesH->size() != 0 && hltisomu22matched) 
+    if (verticesH->size() != 0 and hltisomu22matched) 
       outputhltmu22muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu22
-    if (verticesH->size() != 0 && hltisotkmu22matched) 
+    if (verticesH->size() != 0 and hltisotkmu22matched) 
       outputhlttkmu22muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to mu24
-    if (verticesH->size() != 0 && hltisomu24matched) 
+    if (verticesH->size() != 0 and hltisomu24matched) 
       outputhltmu24muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu24
-    if (verticesH->size() != 0 && hltisotkmu24matched) 
+    if (verticesH->size() != 0 and hltisotkmu24matched) 
       outputhlttkmu24muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to mu20 || mu22 || mu24
-    if (verticesH->size() != 0 && hltisomumatched) 
+    if (verticesH->size() != 0 and hltisomumatched) 
       outputhltmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu20 || IsoMu22 || IsoMu24
-    if (verticesH->size() != 0 && hltisotkmumatched) 
+    if (verticesH->size() != 0 and hltisotkmumatched) 
       outputhlttkmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-    
+				
     // Loose muons
-    if (verticesH->size() != 0 && muon::isLooseMuon(*muons_iter) && isoval <= loosemuisocut) 
+    if (verticesH->size() != 0 and 
+	muon::isLooseMuon(*muons_iter) and 
+	isoval <= tagloosemuons.getParameter<double>("isocut")) 
       outputloosemuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // Tight muons
-    if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) 
+    if (verticesH->size() != 0 and 
+	muon::isTightMuon(*muons_iter, *(verticesH->begin())) and
+	isoval <= tagtightmuons.getParameter<double>("isocut")) 
       outputtightmuonrefs    ->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-    // real tught matched with trigger and passing eta and pt cuts
-    if (verticesH->size() != 0 && muon::isTightMuon(*muons_iter, *(verticesH->begin())) && isoval <= tightmuisocut) {
-      if (triggermatched && muons_iter->pt() > tagmuonptcut && fabs(muons_iter->eta()) < tagmuonetacut) 
+
+    // real tight matched with trigger and passing eta and pt cuts
+    if (verticesH->size() != 0 and 
+	muon::isTightMuon(*muons_iter, *(verticesH->begin())) and 
+	isoval <= tagtightmuons.getParameter<double>("isocut")) {
+      if (triggermatched and
+	  muons_iter->pt() > tagtightmuons.getParameter<double>("ptcut") and
+	  fabs(muons_iter->eta()) < tagtightmuons.getParameter<double>("etacut")) 
 	outputtightmuons->push_back(*muons_iter);            
     }
     munvtxvector.push_back(float(verticesH->size()));
     muwgtvector.push_back(wgt);
         
-    if(muons_iter->isPFMuon() || muons_iter->isGlobalMuon()){
+    if(muons_iter->isPFMuon() or muons_iter->isGlobalMuon()){
       if(muons_iter->isGlobalMuon() and muons_iter->globalTrack().isNonnull() and muons_iter->globalTrack().isAvailable()){		
 	muchi2vector.push_back(muons_iter->globalTrack()->normalizedChi2());
 	munvalidhitvector.push_back(muons_iter->globalTrack()->hitPattern().numberOfValidMuonHits());
@@ -424,11 +436,11 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // loop on the trigger result objects and upack single objects
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
       trgobj.unpackPathNames(trigNames);
-      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontrigmatchdR)) continue; //check dR matching
+      if(not (deltaR(trgobj.eta(), trgobj.phi(), electrons_iter->eta(), electrons_iter->phi()) < tagelectrontriggermatch.getParameter<double>("tagelectrontrigmatchdR"))) continue; //check dR matching
       
-      for (std::string trigpath : tagelectrontriggers) {
+      for (std::string trigpath : tagelectrontriggermatch.getParameter<std::vector<std::string> >("tagelectrontriggers")) {
 	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true)) triggermatched = true;
-      }
+    }
       
       if (trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, true))
 	hltele24eta2p1wploosematched = true;
@@ -453,48 +465,73 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
        
 
-    if(hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched) hltelematched = true;
+    if(hltele24eta2p1wploosematched or
+       hltele25eta2p1wptightmatched or
+       hltele27eta2p1wploosematched or
+       hltele27eta2p1wptightmatched or
+       hltele27wptightmatched or
+       hltele105matched or
+       hltele115matched) hltelematched = true;
     
-    if (!requireelectronhlt) triggermatched = true;    
+    if (not tagelectrontriggermatch.getParameter<bool>("requireelectronhlt")) 
+      triggermatched = true;    
     
-    if(not triggermatched and (hltele24eta2p1wploosematched || hltele25eta2p1wptightmatched || hltele27eta2p1wploosematched || hltele27eta2p1wptightmatched || hltele27wptightmatched || hltele105matched || hltele115matched))
+    if(not triggermatched and 
+       (hltele24eta2p1wploosematched or hltele25eta2p1wptightmatched or
+	hltele27eta2p1wploosematched or hltele27eta2p1wptightmatched or
+	hltele27wptightmatched or hltele105matched or hltele115matched))
       std::cout<<"Problem with the trigger matching for electrons --> triggermathcing should be always >= than the big or "<<std::endl;
 
-    if(fabs(electrons_iter->eta()) < 1 && hltele27wptightmatched and not hltele27eta2p1wploosematched)
+    if(fabs(electrons_iter->eta()) < 1 and hltele27wptightmatched and not hltele27eta2p1wploosematched)
       std::cout<<"Problem with electorns "<<endl;
     
-    if (verticesH->size() != 0 && hltele24eta2p1wploosematched) 
+    if (verticesH->size() != 0 and hltele24eta2p1wploosematched) 
       outputhltele24eta2p1wplooseelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele25eta2p1wptightmatched) 
+    if (verticesH->size() != 0 and hltele25eta2p1wptightmatched) 
       outputhltele25eta2p1wptightelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele27eta2p1wploosematched) 
+    if (verticesH->size() != 0 and hltele27eta2p1wploosematched) 
       outputhltele27eta2p1wplooseelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele27eta2p1wptightmatched) 
+    if (verticesH->size() != 0 and hltele27eta2p1wptightmatched) 
       outputhltele27eta2p1wptightelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele27wptightmatched) 
+    if (verticesH->size() != 0 and hltele27wptightmatched) 
       outputhltele27wptightelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele105matched) 
+    if (verticesH->size() != 0 and hltele105matched) 
       outputhltele105electronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltele115matched) 
+    if (verticesH->size() != 0 and hltele115matched) 
       outputhltele115electronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
-    if (verticesH->size() != 0 && hltelematched) 
+    if (verticesH->size() != 0 and hltelematched) 
       outputhlthltelelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin())); 
 
+    // 
+    bool passPVconstraints = true;
+    if(tagelectrons.getParameter<bool>("applyPVSelection") and verticesH->size() != 0){
+      if(fabs(electrons_iter->eta() < 1.479) and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Barrel")) passPVconstraints = false;
+      else if(fabs(electrons_iter->eta() > 1.479) and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Endcap")) passPVconstraints = false;
+      if(fabs(electrons_iter->eta() < 1.479) and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzBarrel")) passPVconstraints = false;
+      else if(fabs(electrons_iter->eta() > 1.479) and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzEndcap")) passPVconstraints = false;
+    }
+      
+      
     // veto electrons
-    if (verticesH->size() != 0 && (*electronVetoIdH)  [electronPtr]) 
+    if (verticesH->size() != 0 and (*electronVetoIdH)  [electronPtr] and passPVconstraints) 
       outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // loose electrons
-    if (verticesH->size() != 0 && (*electronLooseIdH) [electronPtr]) 
+    if (verticesH->size() != 0 and (*electronLooseIdH) [electronPtr] and passPVconstraints) 
       outputlooseelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // medium electrons
-    if (verticesH->size() != 0 && (*electronMediumIdH)[electronPtr]) 
+    if (verticesH->size() != 0 and (*electronMediumIdH)[electronPtr] and passPVconstraints) 
       outputmediumelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // tight electrons
-    if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) 
+    if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) 
+      outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    // HLT safe electrons
+    if (verticesH->size() != 0 and (*electronHLTSafeIdH) [electronPtr] and passPVconstraints) 
       outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     //
-    if (verticesH->size() != 0 && (*electronTightIdH) [electronPtr]) {
-      if (triggermatched && electrons_iter->pt() > tagelectronptcut && fabs(electrons_iter->eta()) < tagelectronetacut) 
+    if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) {
+      if (triggermatched and 
+	  electrons_iter->pt() > tagelectrons.getParameter<double>("tagelectronptcut") and 
+	  fabs(electrons_iter->eta()) < tagelectrons.getParameter<double>("tagelectronetacut")) 
 	outputtightelectrons->push_back(*electrons_iter);
     }
 
@@ -528,23 +565,23 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     float minDR = 100.;
     for(vector<pat::Electron>::const_iterator itEle = electronsFullCollectionH->begin(); itEle != electronsFullCollectionH->end(); ++itEle) {
       float DR = deltaR(photons_iter->eta(), photons_iter->phi(),itEle->eta(),itEle->phi());
-      if(DR < tagelectrontrigmatchdR and DR < minDR){	
+      if(DR < tagelectrontriggermatch.getParameter<double>("tagelectrontrigmatchdR") and DR < minDR){	
 	DR = deltaR(photons_iter->eta(), photons_iter->phi(),itEle->eta(),itEle->phi());
 	recoelectronmatch = true;
       }
     }
     
     // loose photons
-    if (verticesH->size() != 0 && (*photonLooseIdH) [photonPtr]) 
+    if (verticesH->size() != 0 and (*photonLooseIdH) [photonPtr]) 
       outputloosephotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
     // medium photons
-    if (verticesH->size() != 0 && (*photonMediumIdH)[photonPtr]) 
+    if (verticesH->size() != 0 and (*photonMediumIdH)[photonPtr]) 
       outputmediumphotonrefs->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
     // tight photons
-    if (verticesH->size() != 0 && (*photonTightIdH) [photonPtr]) 
+    if (verticesH->size() != 0 and (*photonTightIdH) [photonPtr]) 
       outputtightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
     // mathcing with reco electrons
-    if (verticesH->size() != 0 && recoelectronmatch) 
+    if (verticesH->size() != 0 and recoelectronmatch) 
       outputrecoelectronmatchrefs->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
 
   }
@@ -649,6 +686,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(outputlooseelectronrefs, "looseelectronrefs");
   iEvent.put(outputmediumelectronrefs,"mediumelectronrefs");
   iEvent.put(outputtightelectronrefs, "tightelectronrefs");
+  iEvent.put(outputhltsafeelectronrefs, "hltsafeelectronrefs");
   iEvent.put(outputtightelectrons,    "tightelectrons");
 
   //photon id                                                                                                                                                                

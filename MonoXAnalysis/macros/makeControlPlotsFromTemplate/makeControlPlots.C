@@ -446,12 +446,12 @@ void makeControlPlots(string templateFileName,
   }
 
   if(ewkwhist){
-    ewkwhist->SetFillColor(kBlack);
+    ewkwhist->SetFillColor(kCyan+1);
     ewkwhist->SetLineColor(kBlack);
   }
 
   if(ewkzhist){
-    ewkzhist->SetLineColor(kBlack);
+    ewkzhist->SetLineColor(kCyan+1);
     ewkzhist->SetFillColor(kBlack);
   }
 
@@ -621,7 +621,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::boosted and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::VBF and isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+    frame->GetYaxis()->SetRangeUser(1e-4,datahist->GetMaximum()*500);  
   else
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*2.5);  
     
@@ -838,8 +838,10 @@ void makeControlPlots(string templateFileName,
     frame2->GetYaxis()->SetRangeUser(0.8,1.2);
   else if(category == Category::monoV and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
-  else if(category == Category::VBF and controlRegion != "qcd")
+  else if(category == Category::twojet and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+  else if(category == Category::VBF and controlRegion != "qcd")
+    frame2->GetYaxis()->SetRangeUser(0,2.0);
   else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(controlRegion == "qcd")

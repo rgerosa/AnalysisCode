@@ -9,7 +9,7 @@ config = Configuration()
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
-               'filterHighMETEvents=False',
+               'filterHighMETEvents=True',
                'metCut=100',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
@@ -45,8 +45,8 @@ config.JobType.numCores         = 3
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 30000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-07-06-2016-80X-MC_PhotonPurity/'
+config.Data.unitsPerJob   = 50000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/ProductionMC-7-11-2016_PhotonPurity/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

@@ -544,7 +544,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       bool passeslooseidPurity = testPhotonIsolationLoose(photons_iter, photons_iter->chargedHadronIso(), photons_iter->neutralHadronIso(), rho, photons_iter->hadTowOverEm());
       if (passeslooseidPurity) {
 	outputphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
-	if (photons_iter->pt() > 150) outputtightphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+	if (photons_iter->pt() > 100) outputtightphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
       }
     }
 
