@@ -343,7 +343,8 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
                           vector<pair<RooRealVar*, TH1*> > syst, // set of systematics to be considered
 			  const RooArgList& srbinlist,  // Binning into the signal region
                           RooArgList* crbinlist = NULL, // constrol region bins
-                          string observable = "met"     // observable name
+                          string observable     = "met", // observable name
+			  bool   addStatUncertainty = true
 			  ) {
 
 
@@ -375,6 +376,9 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
     // Nuisance for the Final fit for each bin (bin-by-bin unc) --> avoid negative values                                                                                     
     float extreme = min(5.,0.9*rhist->GetBinContent(i)/rhist->GetBinError(i));
     RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
+    if(addStatUncertainty == false)
+      rerrbinvar->setConstant(kTRUE);
+    
     stringstream binss;
     binss << procname << "_bin" << i ;
     // list of bins                                                                                                                                                          
@@ -446,7 +450,8 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
 				     vector<pair<RooRealVar*, systematicCutAndCount> > syst, // set of systematics to be considered
 				     const RooArgList& srbinlist,  // Binning into the signal region
 				     RooArgList* crbinlist = NULL, // constrol region bins
-				     string observable = "met"     // observable name
+				     string observable = "met",     // observable name
+				     bool   addStatUncertainty = true
 				     ) {
 
 
@@ -483,13 +488,14 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   // z = Int(n)/Int(d) --> error propagation --> sigmaZ = sqrt((1/Int(d))^2*error(Int(n))^2+(Int(n)/Int(d)^2)^2*error(Int(d)^2)
   double ratio_err = sqrt((1/(pow(integral_den,2)))*pow(integral_num_err,2)+(pow(integral_num,2)/pow(integral_den,4))*pow(integral_den_err,2));
   RooRealVar* rbinvar = new RooRealVar(rbinss.str().c_str(), "",integral_num/integral_den);
-
   // stat uncertainty 
   stringstream rerrbinss;
   rerrbinss << procname << "_Runc";
   double extreme = min(5.,0.9*rbinvar->getVal()/ratio_err);
   RooRealVar* rerrbinvar = new RooRealVar(rerrbinss.str().c_str(), "", 0., -extreme, extreme);
-
+  if(not addStatUncertainty)
+    rerrbinvar->setConstant(kTRUE);
+  
   stringstream binss;
   binss << procname+"_bin";
   // list of bins                                                                                                                                                          
