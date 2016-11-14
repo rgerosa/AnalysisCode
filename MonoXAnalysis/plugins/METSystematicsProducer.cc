@@ -216,7 +216,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label()));
 
   if (skipMuon_ == false){
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       produces<pat::MuonCollection>(std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
@@ -225,7 +225,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
 
   if(not skipElectron_){
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       produces<pat::ElectronCollection>(std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
@@ -234,7 +234,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
   
   if(not skipPhoton_){
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
@@ -243,7 +243,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
 
   if(not skipTau_){
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       produces<pat::TauCollection>(std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
@@ -252,7 +252,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   }
 
   if(not skipJet_){
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");    
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
@@ -464,7 +464,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metMuonEnDown->push_back(metMuonDown);
     }
 
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(muonEnUp->begin(),muonEnUp->end(),muonSorter);
       iEvent.put(muonEnUp,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(muonEnDown->begin(),muonEnDown->end(),muonSorter);
@@ -564,7 +564,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metElectronEnDown->push_back(metElectronDown);
     }
 
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(electronEnUp->begin(),electronEnUp->end(),electronSorter);
       iEvent.put(electronEnUp,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(electronEnDown->begin(),electronEnDown->end(),electronSorter);
@@ -659,7 +659,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metPhotonEnDown->push_back(metPhotonDown);
     }
 
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(photonEnUp->begin(),photonEnUp->end(),photonSorter);
       iEvent.put(photonEnUp,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(photonEnDown->begin(),photonEnDown->end(),photonSorter);
@@ -741,7 +741,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metTauEnDown->push_back(metTauDown);
     }
 
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(tauEnUp->begin(),tauEnUp->end(),tauSorter);
       iEvent.put(tauEnUp,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(tauEnDown->begin(),tauEnDown->end(),tauSorter);
@@ -1132,7 +1132,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     }
 
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(jetEnUp->begin(),jetEnUp->end(),jetSorter); // sort again collections
       iEvent.put(jetEnUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(jetEnDown->begin(),jetEnDown->end(),jetSorter); // sort again collections
@@ -1141,7 +1141,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     iEvent.put(metJetEnUp,std::string(inputMET_.label())+"JetEnUp");
     iEvent.put(metJetEnDown,std::string(inputMET_.label())+"JetEnDown");    
    
-    if(storeSmearedShiftedCollections_ == false){
+    if(storeSmearedShiftedCollections_){
       std::sort(jetSmear->begin(),jetSmear->end(),jetSorter);
       iEvent.put(jetSmear,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
       std::sort(jetSmearResUp->begin(),jetSmearResUp->end(),jetSorter);

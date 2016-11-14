@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=125',
+               'metCut=175',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
@@ -18,6 +18,7 @@ pyCfgParams = ['isMC=True',
                'addPuppiMET=True',
                'addEGMSmear=True',
                'addMETSystematics=True',
+               'addPuppiMETSystematics=False',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=False',
                'addSubstructureCHS=True',
@@ -26,7 +27,6 @@ pyCfgParams = ['isMC=True',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
                'nThreads=3',
-               'triggerName=HLT2',
                'isCrab=True']
 
 config.section_('General')
@@ -38,15 +38,15 @@ config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxMemoryMB      = 2450
+config.JobType.maxMemoryMB      = 2480
 config.JobType.numCores         = 3
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 45000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_01_10_2016/'
+config.Data.unitsPerJob   = 40000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_11_11_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

@@ -16,7 +16,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		postfix = ""
 
 	if postfix == "Puppi" and not hasattr(process,"puppi"):
-		setattr( process, 'puppiNoLep',
+		setattr( process, 'puppiForMET',
 			 cms.EDFilter('CandPtrSelector',
 				      src = cms.InputTag("packedPFCandidates"),
 				      cut = cms.string('puppiWeightNoLep > 0')))
@@ -28,9 +28,10 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		## re-run for standard met
 		if postfix == "Puppi" :
 			if isMC:
-				runMetCorAndUncFromMiniAOD(process,isData=False,pfCandColl=cms.InputTag("puppiNoLep"),postfix=postfix)								
+				runMetCorAndUncFromMiniAOD(process,isData=False,pfCandColl=cms.InputTag("puppiForMET"),metType=postfix,postfix=postfix,jetFlavor="AK4PFPuppi")		 
 			else:
-				runMetCorAndUncFromMiniAOD(process,isData=True,pfCandColl=cms.InputTag("puppiNoLep"),postfix=postfix)				
+				runMetCorAndUncFromMiniAOD(process,isData=True,pfCandColl=cms.InputTag("puppiForMET"),metType=postfix,postfix=postfix,jetFlavor="AK4PFPuppi")		       
+	
 				
 			if applyL2L3Residuals == False and not isMC:
 				process.patPFMetT1T2CorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
@@ -68,7 +69,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 					src = cms.InputTag("packedPFCandidates"),
 					alias = cms.string('pfMet'+postfix)))
 		if postfix == "Puppi":
-			getattr(process,"pfMet"+postfix).src = cms.InputTag('puppiNoLep')
+			getattr(process,"pfMet"+postfix).src = cms.InputTag('puppiForMET')
 
   	         ## re-cast PFMets into PAT objects
 		addMETCollection(process, labelName='patPFMet'+postfix, metSource='pfMet'+postfix)
@@ -108,7 +109,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 					       rho         = cms.InputTag("fixedGridRhoFastjetAll"),
 					       pfCandidate = cms.InputTag("packedPFCandidates"),
 					       ## skip candidates
-					       storeSmearedShiftedCollections = cms.bool(False),
+					       storeSmearedShiftedCollections = cms.bool(True),
 					       skipMuon    = cms.bool(False),
 					       skipElectron    = cms.bool(False),
 					       skipTau     = cms.bool(False),

@@ -19,9 +19,9 @@ def JetCorrector(process,jetCollection,payloadName,isMC,applyL2L3Residuals):
 
     if "Puppi" in jetCollection or "PUPPI" in jetCollection: ## fix corrections for puppi jets removing L1                                                           
         puppiJEC = copy.deepcopy(process.JECLevels.labels)
-        puppiJEC.remove('L1FastJet')
+        #puppiJEC.remove('L1FastJet')
         getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).levels = puppiJEC
-        getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).useRho = False
+        getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).useRho = True
 
     if not hasattr(process,"slimmedJetsRecorrected"+payloadName):
         setattr(process,"slimmedJetsRecorrected"+payloadName,

@@ -336,8 +336,8 @@ def JetSubstructure(process,
 
     ## JEC
     JECLevel = copy.deepcopy(process.JECLevels.labels)
-    if pileupMethod == "Puppi" and 'L1FastJet' in JECLevel:
-        JECLevel.remove('L1FastJet')
+    #if pileupMethod == "Puppi" and 'L1FastJet' in JECLevel:
+    #    JECLevel.remove('L1FastJet')
         
     payloadName       = ""
     payloadNameSubJet = ""
@@ -560,8 +560,8 @@ def JetSubstructure(process,
     Tags   = [];
     Labels = [];
     JECLevelTemp = copy.deepcopy(JECLevel)
-    if 'L1FastJet' in JECLevelTemp:
-        JECLevelTemp.remove('L1FastJet') ## in any case groomers are removing already pileup
+    #if 'L1FastJet' in JECLevelTemp:
+    #    JECLevelTemp.remove('L1FastJet') ## in any case groomers are removing already pileup
 
     if addPruning:        
         runGroomedMethod(process, 

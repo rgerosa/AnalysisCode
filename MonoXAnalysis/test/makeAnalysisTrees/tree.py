@@ -80,6 +80,10 @@ options.register (
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
 options.register (
+	'addPuppiMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'recompute Puppi MET propagating JEC from Jet + systematics');
+
+options.register (
 	'useOfficialMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
 
@@ -285,7 +289,7 @@ else:
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('275782:193:361769559')
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:8101:19372740');
 
 
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
@@ -353,11 +357,10 @@ if options.addQGLikelihood:
 from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
 if not options.useMiniAODMet:
 	metCollection = "slimmedMETs"
-	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);
-	
+	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);	
 	if options.addPuppiMET:
 		metCollectionPuppi = "slimmedMETsPuppi"
-		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addPuppiMETSystematics,options.useOfficialMETSystematics);
 		
 
 ## in case run the MVA met producer
@@ -608,6 +611,23 @@ if options.useMiniAODMet:
 	process.tree.t1met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 
+if options.addMETSystematics : 
+	if options.useOfficialMETSystematics :
+		process.tree.jetsJESUp = cms.InputTag("shiftedPatJetEnUp")
+		process.tree.jetsJESDw = cms.InputTag("shiftedPatJetEnDown")
+		process.tree.jetsJER   = cms.InputTag("patSmearedJets")
+		if options.addPuppiJets and options.addPuppiMET:
+			process.tree.puppijetsJESUp = cms.InputTag("shiftedPatJetEnUpPuppi")
+			process.tree.puppijetsJESDw = cms.InputTag("shiftedPatJetEnDownPuppi")
+			process.tree.puppijetsJER   = cms.InputTag("patSmearedJetsPuppi")
+	else:
+		process.tree.jetsJESUp = cms.InputTag("metSysProducer",jetCollName+"EnUp")
+		process.tree.jetsJESDw = cms.InputTag("metSysProducer",jetCollName+"EnDown")
+		process.tree.jetsJER   = cms.InputTag("metSysProducer",jetCollName+"Smear")
+		if options.addPuppiJets and options.addPuppiMET:
+			 process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
+			 process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
+			 process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
