@@ -160,8 +160,8 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit #gamma+jets C.R.","L");
-  leg->AddEntry(prhist, "Pre-fit #gamma+jets C.R.","L");
+  leg->AddEntry(pohist, "Post-fit #gamma+jets","L");
+  leg->AddEntry(prhist, "Pre-fit #gamma+jets","L");
   leg->AddEntry(qchist, "Other Backgrounds", "F");
   leg->Draw("SAME");
 

@@ -207,8 +207,8 @@ void prepostWM_COMB(string fitFilename, string templateFileName, string observab
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit single-muon C.R.","L");
-  leg->AddEntry(prhist, "Pre-fit single-muon C.R.","L");
+  leg->AddEntry(pohist, "Post-fit W #rightarrow #mu#nu","L");
+  leg->AddEntry(prhist, "Pre-fit W #rightarrow #mu#nu","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   

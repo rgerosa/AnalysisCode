@@ -211,8 +211,8 @@ void prepostZM_COMB(string fitFilename, string templateFileName, string observab
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit di-muon C.R.","L");
-  leg->AddEntry(prhist, "Pre-fit di-muon C.R.","L");
+  leg->AddEntry(pohist, "Post-fit Z/#gamma #rightarrow #mu#mu","L");
+  leg->AddEntry(prhist, "Pre-fit Z/#gamma #rightarrow #mu#mu","L");
   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
