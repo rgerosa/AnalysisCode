@@ -1,31 +1,32 @@
-
 #include <iostream>
 #include <sstream>
 #include <cmath>
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-vector<float> bins_singlePhoton     = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250};
-vector<float> bins_singlePhoton_vbf = {160,163,166,169,172,175,178,181,184,190,200,210,220,230,240,250};
-vector<float> bins_jetHT            = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
-vector<float> bins_jetHT_vbf        = {160,163,166,169,172,175,178,183,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
-
+// boson pt and recoil when using single photon
+vector<float> bins_singlePhoton            = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250,300};
+vector<float> bins_singlePhoton_vbf        = {160,165,170,175,180,190,200,225,250,300};
 vector<float> bins_singlePhoton_recoil     = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_jetHT_recoil            = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_singlePhoton_vbf_recoil = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
-vector<float> bins_jetHT_vbf_recoil        = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_singlePhoton_vbf_recoil = {100,125,150,175,200,225,250,350,450,650,1000,1450};
 
-vector<string> RunEra = {"Run2016B","Run2016C","Run2016D"};
+// boson pt and recoil when using jetHT data
+vector<float> bins_jetHT            = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,250,300,350,400,450,500,550,600,650,700,800,1000,1200,1400};
+vector<float> bins_jetHT_vbf        = {160,165,170,175,180,190,200,225,250,300};
+vector<float> bins_jetHT_recoil     = {100,110,120,130,140,150,160,170,180,190,200,210,220,230,250,300,350,450,550,650,850,1000,1200,1450};
+vector<float> bins_jetHT_vbf_recoil = {100,125,150,175,200,225,250,350,450,650,1000,1450};
 
-static float leadingJetVBF     = 60;
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
+
+static float leadingJetVBF     = 80;
 static float trailingJetVBF    = 50;
-static float detajj            = 2.5;
-static float mjj               = 450;
-static float jetmetdphi        = 1.0;
+static float detajj            = 3.5;
+static float mjj               = 1000;
+static float jetmetdphi        = 2.0;
 static float recoilSelection   = 150;
 static float photonPtSelection = 120;
 static bool  drawFitFunctions_ = false;
-static float lumi_ = 12.9;
+static float lumi_             = 12.9;
 
 void makePlot(TCanvas* canvas, TEfficiency* efficiency, TF1* funz, TEfficiency* efficiency_recover, TF1* funz_recover, string labelX, string ouputDIR, string postfix){
 
@@ -73,6 +74,8 @@ void makePlot(TCanvas* canvas, TEfficiency* efficiency, TF1* funz, TEfficiency* 
   canvas->SaveAs((ouputDIR+"/photonTriggerEfficiency_"+postfix+".pdf").c_str(),"pdf");
 }
 
+
+/////
 void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float lumi = 12.9, bool useJetHT = false, bool drawFitFunctions =  false, int runCut = 999999999) {
   
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
@@ -122,44 +125,46 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   }
   system("rm list_dir.txt");
 
-  
+  // select the binning depending on the sample
   vector<float> bins_photonpt;
   vector<float> bins_vbf_photonpt;
   vector<float> bins_recoil;
   vector<float> bins_vbf_recoil;
   if(useJetHT){
-    bins_photonpt = bins_jetHT;
+    bins_photonpt     = bins_jetHT;
     bins_vbf_photonpt = bins_jetHT_vbf;
-    bins_recoil = bins_jetHT_recoil;
-    bins_vbf_recoil = bins_jetHT_vbf_recoil;
+    bins_recoil       = bins_jetHT_recoil;
+    bins_vbf_recoil   = bins_jetHT_vbf_recoil;
   }
   else{
-    bins_photonpt = bins_singlePhoton;
+    bins_photonpt     = bins_singlePhoton;
     bins_vbf_photonpt = bins_singlePhoton_vbf;
-    bins_recoil = bins_singlePhoton_recoil;
-    bins_vbf_recoil = bins_singlePhoton_vbf_recoil;
+    bins_recoil       = bins_singlePhoton_recoil;
+    bins_vbf_recoil   = bins_singlePhoton_vbf_recoil;
   }
  
-
+  
+  /// makeing turn-on functions
   TF1 *fitfunc_photonpt = new TF1("fitfunc_photonpt", ErfCB, bins_photonpt.front(), bins_photonpt.back(), 5);
-  fitfunc_photonpt->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_recover_photonpt = new TF1("fitfunc_recover_photonpt", ErfCB, bins_photonpt.front(), bins_photonpt.back(), 5);
-  fitfunc_recover_photonpt->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_vbf_photonpt     = new TF1("fitfunc_vbf_photonpt", ErfCB, bins_vbf_photonpt.front(), bins_vbf_photonpt.back(), 5);
-  fitfunc_vbf_photonpt->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_recover_vbf_photonpt = new TF1("fitfunc_recover_vbf_photonpt", ErfCB, bins_vbf_photonpt.front(), bins_vbf_photonpt.back(), 5);
+  fitfunc_photonpt->SetParameters(165., 5., 5., 4., 1.);
+  fitfunc_recover_photonpt->SetParameters(165., 5., 5., 4., 1.);
+  fitfunc_vbf_photonpt->SetParameters(165., 5., 5., 4., 1.);
   fitfunc_recover_vbf_photonpt->SetParameters(165., 5., 5., 4., 1.);
 
   TF1 *fitfunc_recoil  = new TF1("fitfunc_recoil", ErfCB, bins_recoil.front(), bins_recoil.back(), 5);
-  fitfunc_recoil->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_recover_recoil = new TF1("fitfunc_recover_recoil", ErfCB, bins_recoil.front(), bins_recoil.back(), 5);
-  fitfunc_recover_recoil->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_vbf_recoil     = new TF1("fitfunc_vbf_recoil", ErfCB, bins_vbf_recoil.front(), bins_vbf_recoil.back(), 5);
-  fitfunc_vbf_recoil->SetParameters(165., 5., 5., 4., 1.);
   TF1 *fitfunc_recover_vbf_recoil = new TF1("fitfunc_recover_vbf_recoil", ErfCB, bins_vbf_recoil.front(), bins_vbf_recoil.back(), 5);
+  fitfunc_recoil->SetParameters(165., 5., 5., 4., 1.);
+  fitfunc_recover_recoil->SetParameters(165., 5., 5., 4., 1.);
+  fitfunc_vbf_recoil->SetParameters(165., 5., 5., 4., 1.);
   fitfunc_recover_vbf_recoil->SetParameters(165., 5., 5., 4., 1.);
   
    
+  // efficiency vs photon pt
   TH1F* hnum_photonpt   = new TH1F("hnum_photonpt", "",   bins_photonpt.size()-1, &bins_photonpt[0]);
   TH1F* hden_photonpt   = new TH1F("hden_photonpt", "",   bins_photonpt.size()-1, &bins_photonpt[0]);
   TH1F* hnum_recover_photonpt = new TH1F("hnum_recover_photonpt", "", bins_photonpt.size()-1, &bins_photonpt[0]);
@@ -178,6 +183,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   hnum_recover_vbf_photonpt->Sumw2();
   hden_recover_vbf_photonpt->Sumw2();
 
+  // efficiency vs recoil
   TH1F* hnum_recoil   = new TH1F("hnum_recoil", "",   bins_recoil.size()-1, &bins_recoil[0]);
   TH1F* hden_recoil   = new TH1F("hden_recoil", "",   bins_recoil.size()-1, &bins_recoil[0]);
   TH1F* hnum_recover_recoil = new TH1F("hnum_recover_recoil", "", bins_recoil.size()-1, &bins_recoil[0]);
@@ -199,7 +205,9 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReader reader(tree);
   // basic triggers
   TTreeReaderValue<UChar_t> hltp90    (reader,"hltphoton90");
+  TTreeReaderValue<UChar_t> hltp90PFHT(reader,"hltphoton90PFHT");
   TTreeReaderValue<UChar_t> hltp120   (reader,"hltphoton120");
+  TTreeReaderValue<UChar_t> hltp120vbf(reader,"hltphoton120vbf");
   TTreeReaderValue<UChar_t> hltp165   (reader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175   (reader,"hltphoton175");
   TTreeReaderValue<UChar_t> hltht400  (reader,"hltPFHT400");
@@ -224,24 +232,24 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
   TTreeReaderValue<unsigned int> nincjets    (reader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets      (reader,"nbjetslowpt");
-  TTreeReaderValue<vector<double> > jetpt   (reader,"combinejetpt");
-  TTreeReaderValue<vector<double> > jetphi  (reader,"combinejetphi");
-  TTreeReaderValue<vector<double> > jeteta  (reader,"combinejeteta");
-  TTreeReaderValue<vector<double> > jetm    (reader,"combinejetm");
-  TTreeReaderValue<vector<double> > jetchfrac  (reader,"combinejetCHfrac");
-  TTreeReaderValue<vector<double> > jetnhfrac  (reader,"combinejetNHfrac");
+  TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > jetchfrac  (reader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > jetnhfrac  (reader,"combinejetNHfrac");
 
-  TTreeReaderValue<double>  phpt   (reader,"phpt");
-  TTreeReaderValue<double>  pheta  (reader,"pheta");
-  TTreeReaderValue<int>  phidm     (reader,"phidm");
+  TTreeReaderValue<float> phpt   (reader,"phpt");
+  TTreeReaderValue<float> pheta  (reader,"pheta");
+  TTreeReaderValue<int>   phidm  (reader,"phidm");
 
-  TTreeReaderValue<double> met       (reader,"t1pfmet");
-  TTreeReaderValue<double> metphi    (reader,"t1pfmetphi");
-  TTreeReaderValue<double> pmet      (reader,"t1phmet");
-  TTreeReaderValue<double> pmetphi   (reader,"t1phmetphi");
-  TTreeReaderValue<double> metpf     (reader,"pfmet");
-  TTreeReaderValue<double> metcalo   (reader,"calomet");
-  TTreeReaderValue<double> jpmdphi   (reader,"incjetphmetdphimin4");
+  TTreeReaderValue<float> met       (reader,"t1pfmet");
+  TTreeReaderValue<float> metphi    (reader,"t1pfmetphi");
+  TTreeReaderValue<float> pmet      (reader,"t1phmet");
+  TTreeReaderValue<float> pmetphi   (reader,"t1phmetphi");
+  TTreeReaderValue<float> metpf     (reader,"pfmet");
+  TTreeReaderValue<float> metcalo   (reader,"calomet");
+  TTreeReaderValue<float> jpmdphi   (reader,"incjetphmetdphimin4");
 
   
   cout<<"Total number of events: "<<tree->GetEntries()<<endl;
@@ -271,7 +279,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
     if(jetpt->size() <=0) continue;
     /// single photon
     if(not useJetHT){      
-      if(*hltp90 or *hltp120){
+      if(*hltp90 or *hltp120 or *hltp90PFHT){
 
 	if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and *jpmdphi > 0.5){
 	  if(*pmet > recoilSelection)
@@ -290,8 +298,9 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	  if(jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and *jpmdphi > jetmetdphi){
 	    
 	    if(fabs(jetpt->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
-	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) < 0.8) continue;
-	    TLorentzVector jet1, jet2;
+	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
+	    if(fabs(jetpt->at(0)) < 3.2 and fabs(jetpt->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue;
+ 	    TLorentzVector jet1, jet2;
 	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
 	    if((jet1+jet2).M() < mjj) continue;
@@ -301,7 +310,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(*phpt > photonPtSelection)
 	      hden_vbf_recoil->Fill(*pmet);
 	    
-	    if(*hltp165 or *hltp175){
+	    if(*hltp165 or *hltp175 or *hltp120vbf){
 	      if(*pmet > recoilSelection)
 		hnum_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)
@@ -343,7 +352,8 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	  if(jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)-jeteta->at(1)) > detajj and *jpmdphi > jetmetdphi){
 	    
 	    if(fabs(jetpt->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
-	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) < 0.8) continue;
+	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
+	    if(fabs(jetpt->at(0)) < 3.2 and fabs(jetpt->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue;
 	    TLorentzVector jet1, jet2;
 	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
@@ -358,14 +368,14 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(*phpt > photonPtSelection)
 	      hden_recover_vbf_recoil->Fill(*pmet);
 	    
-	    if(*hltp165 or *hltp175){
+	    if(*hltp165 or *hltp175 or *hltp120vbf){
 	      if(*pmet > recoilSelection)
 		hnum_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)
 		hnum_vbf_recoil->Fill(*pmet);   
 	    }
 	    
-	    if(*hltp165 or *hltp175 or *hltht800){
+	    if(*hltp165 or *hltp175 or *hltht800 or *hltp120vbf){
 	      if(*pmet > recoilSelection)
 		hnum_recover_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)
