@@ -181,7 +181,7 @@ void prepostZM_COMB(string fitFilename, string templateFileName, string observab
   if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*200);
   else
-    frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*150);
+    frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*250);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -253,7 +253,7 @@ void prepostZM_COMB(string fitFilename, string templateFileName, string observab
   frame2->GetYaxis()->SetNdivisions(5);
   
 
-  frame2->GetXaxis()->SetTitle("Recoil [GeV]");
+  frame2->GetXaxis()->SetTitle("Hadronic Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);

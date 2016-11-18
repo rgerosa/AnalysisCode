@@ -201,7 +201,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   frame2->GetYaxis()->SetNdivisions(5);
 
 
-  frame2->GetXaxis()->SetTitle("Recoil [GeV]");
+  frame2->GetXaxis()->SetTitle("Hadronic Recoil [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
