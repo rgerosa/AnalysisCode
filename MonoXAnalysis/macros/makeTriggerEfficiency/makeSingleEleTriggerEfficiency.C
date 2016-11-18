@@ -5,7 +5,7 @@
 #include "../CMS_lumi.h"
 
 // calculation from the jetHT dataset
-void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, float lumi = 0.86, bool doFit = false) {
+void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, float lumi = 12.9, bool doFit = false) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -19,7 +19,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 20, 1200, 5);
   fitfunc->SetParameters(30., 5., 5., 4., 1.);
 
-  vector<float> binsPt  = {100,125,150,200,250,300,350,400,450,500,550,600,700,800,1200};
+  vector<float> binsPt  = {100,125,150,175,200,225,250,275,300,350,400,450,500,550,600,650,700,800,1000,1200,1500};
   vector<float> binsEta = {0,1.5,2.5};  
   fitfunc->SetRange(binsPt.front(),binsPt.back());
   
@@ -37,15 +37,85 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   hnum_recover->Sumw2();
   hden_recover->Sumw2();
 
-  // define numerator as event with a medium photon + trigger requirement
-  tree->Draw("el1pt:abs(el1eta) >> hnum",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && (hltsingleel || hltelnoiso) && t1pfmet > 50"));
-  tree->Draw("el1pt:abs(el1eta) >> hden",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650 || hltPFHT800) && t1pfmet > 50"));
-  tree->Draw("el1pt:abs(el1eta) >> hnum_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && (hltsingleel || hltelnoiso || hltPFHT800) && t1pfmet > 50"));
-  tree->Draw("el1pt:abs(el1eta) >> hden_recover",Form("el1id == 1 && nelectrons == 1 && abs(el1eta) < 2.5 && (hltPFHT400 || hltPFHT650) && t1pfmet > 50"));
-  
-  TEfficiency* efficiency = new TEfficiency(*hnum,*hden);
+  TTreeReader reader(tree);
+  TTreeReaderValue<unsigned int> run    (reader,"run");
+  TTreeReaderValue<unsigned int> event  (reader,"event");
+  TTreeReaderValue<UChar_t> hlte        (reader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltenoiso   (reader,"hltelnoiso");
+  TTreeReaderValue<UChar_t> hltPFHT400  (reader,"hltPFHT400");
+  TTreeReaderValue<UChar_t> hltPFHT650  (reader,"hltPFHT650");
+  TTreeReaderValue<UChar_t> hltPFHT800  (reader,"hltPFHT800");
+  TTreeReaderValue<float>   el1pt    (reader,"el1pt");
+  TTreeReaderValue<float>   el1eta   (reader,"el1eta");
+  TTreeReaderValue<float>   el1phi   (reader,"el1phi");
+  TTreeReaderValue<int>     el1id    (reader,"el1id");
+  TTreeReaderValue<int>     el1idt   (reader,"el1idt");
+  TTreeReaderValue<UChar_t> fhbhe    (reader,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso   (reader,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsc   (reader,"flagglobaltighthalo");
+  TTreeReaderValue<UChar_t> fcsct  (reader,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (reader,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (reader,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
+  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausrawold");
+  TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
+  TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
+  TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
+  TTreeReaderValue<unsigned int> nincjets    (reader,"njetsinc");
+  TTreeReaderValue<unsigned int> nbjets      (reader,"nbjetslowpt");
+  TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > jetchfrac  (reader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > jetnhfrac  (reader,"combinejetNHfrac");
+  TTreeReaderValue<float> met         (reader,"t1pfmet");
+  TTreeReaderValue<float> metphi      (reader,"t1pfmetphi");
+  TTreeReaderValue<float> emet        (reader,"t1elmet");
+  TTreeReaderValue<float> emetphi     (reader,"t1elmetphi");
+  TTreeReaderValue<float> metpf       (reader,"pfmet");
+  TTreeReaderValue<float> metcalo     (reader,"calomet");
+  TTreeReaderValue<float> jemdphi (reader,"incjetelmetdphimin4");
+
+  long int nTotal = tree->GetEntries();
+  cout<<"Total number of events: "<<nTotal<<endl;
+  long int nEvents = 0;
+
+  long int nPart = 100000;
+  while(reader.Next()){
+    cout.flush();
+    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+    if(*nmuons   != 0) continue;
+    if(*ntausraw != 0) continue;
+    if(*nphotons != 0) continue;
+    if(*nbjets   != 0) continue;
+    if(*nelectrons != 1) continue;
+    // to kill QCD in a sample of Wen events
+    if(*met < 50) continue;
+    if(fabs(*el1eta) > 2.5) continue;
+    if(*el1id != 1) continue;
+    if(*el1idt != 1) continue;
+    if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
+
+    if(*hltPFHT400 or *hltPFHT650 or *hltPFHT800){
+      hden->Fill(fabs(*el1eta),*el1pt);
+      if(*hlte or *hltenoiso){
+	hnum->Fill(fabs(*el1eta),*el1pt);
+      }
+    }
+    if(*hltPFHT400 or *hltPFHT650){
+      hden_recover->Fill(fabs(*el1eta),*el1pt);
+      if(*hlte or *hltenoiso or *hltPFHT800)
+	hnum_recover->Fill(fabs(*el1eta),*el1pt);
+    }    
+  }
+    
+  TEfficiency* efficiency         = new TEfficiency(*hnum,*hden);
   TEfficiency* efficiency_recover = new TEfficiency(*hnum_recover,*hden_recover);
-  TH2* histoEff = efficiency->CreateHistogram();
+  TH2* histoEff         = efficiency->CreateHistogram();
   TH2* histoEff_recover = efficiency_recover->CreateHistogram();
   // in order to plot the 2D histo
   fitfunc->SetLineColor(kBlue);
@@ -136,8 +206,9 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
 										 histoEff->GetXaxis()->GetBinLowEdge(iBinX+2)))).c_str(),"pdf");
   }
   
-  TFile* outputFile = new TFile((outputDIR+"/triggerEfficiencyHisto_DATA_SingleElectron.root").c_str(),"RECREATE");
+  TFile* outputFile = new TFile((outputDIR+"/triggerEfficiency_SingleElectron_jetHT.root").c_str(),"RECREATE");
   outputFile->cd();
   efficiency->Write("efficiency");
+  efficiency_recover->Write("efficiency_recover");
 }
 

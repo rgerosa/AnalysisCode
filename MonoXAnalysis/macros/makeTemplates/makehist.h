@@ -18,40 +18,53 @@
 
 using namespace std;
 
-// some basic cut values
+// some basic cut values --> Monojet category
+const float leadingJetPtCut = 100.;
+const float pfMetMonoJUpper = 8000.;
+const float pfMetMonoJLower = 200.;
+const float btagCSVLoose     = 0.460;
+const float btagCSVMedium    = 0.800;
+
+// some basic cut values --> MonoV category
 const float tau2tau1        = 0.6;
 const float tau2tau1LP      = 0.75;
 const float prunedMassMin   = 65.;
 const float prunedMassMax   = 105.;
-const float leadingJetPtCut = 100.;
+const float ptJetMinAK8     = 250.;
+const float jetEtaAK8       = 2.4;
+const float pfMetMonoVLower = 250.;
+const float pfMetMonoVUpper = 8000.;
+
+// some basic cut values --> VBF category
 const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 50.;
 const float detajj          = 3.5;
 const float mjj             = 1000;
 const float jetmetdphiVBF   = 2.0;
-const float ptJetMinAK8     = 250.;
-const float jetEtaAK8       = 2.4;
-const float pfMetMonoVLower = 250.;
-const float pfMetMonoVUpper = 8000.;
-const float pfMetMonoJUpper = 8000.;
-const float pfMetMonoJLower = 200.;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
+
+// Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
-const int   nBjets          = 1;
-const bool  reweightNVTX    = true;
-const bool  reweightPhton   = false;
-const bool  applyPhotonScale = true;
-const float photonScaleUnc  = 0.020;
-const bool  doSmoothing     = false;
-const float btagCSVLoose    = 0.460;
-const float btagCSVMedium   = 0.800;
-const float recoilThresholdTrigger = 350;
+const int   nBjets          = 1; // for top-tagged region
 
+// Re-weight and smoothing
+const bool  reweightNVTX     = true;
+/// photon scale
+const bool  applyPhotonScale = false;
+const float photonScaleUnc   = 0.020;
+const bool  doSmoothing      = false;
+// trigger
+const float recoilThresholdTrigger = 350; // for photon trigger application
+const bool  useMoriondSetup = true;
+const bool  useSingleMuon   = true;
+
+// k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-string kfactorFileGJ     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/photonjets_kfact.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
+
+/// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/";
 
 VectorSorter jetSorter;
@@ -63,6 +76,7 @@ float deltaPhi (float phi1, float phi2){
     return 2*TMath::Pi()-fabs(phi1-phi2);
 }
 
+// top-pt re-weight
 double reweightTopQuarkPt (double topQuarkPt, double atopQuarkPt){
 
   double weight_top  = -1.;
@@ -77,6 +91,7 @@ double reweightTopQuarkPt (double topQuarkPt, double atopQuarkPt){
   else return 1.;
 }
 
+// v-tagging scale factor
 double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
 
   double sfwgt = 1;
@@ -101,6 +116,7 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
   return sfwgt;
 }
 
+// main function
 void makehist4(TTree* tree, /*input tree*/ 
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
 	       vector<TH2*> hist2D, /* set of 2D histogram */ 
@@ -127,99 +143,187 @@ void makehist4(TTree* tree, /*input tree*/
     return;
   }
 
-  // in case you want to weight the NVTX distribution
+  // Pileup Weights
   TFile* pufile = NULL;
   TH1*   puhist = NULL;
-  if(reweightNVTX){
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
-    puhist = (TH1*) pufile->Get("puhist");
+  if(useMoriondSetup){
+    if(reweightNVTX){
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
+      puhist = (TH1*) pufile->Get("puhist");
+    }
+    else {
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
+      puhist = (TH1*) pufile->Get("puhist");
+    }
   }
-  else {
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
-    puhist = (TH1*) pufile->Get("puhist");
+  else{
+    if(reweightNVTX){
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
+      puhist = (TH1*) pufile->Get("puhist");
+    }
+    else {
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
+      puhist = (TH1*) pufile->Get("puhist");
+    }
   }
   
-  // in case one wants to correct the photon pt by the data-to-mc disagreement
-  TFile gamPtFile ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/extraNuisance/photon_nuisance.root");
-  TH1*  gamPtWeight = (TH1*) gamPtFile.Get("gamma_jets_ratio");
-     
-  // electron and muon ID scale factor files                                                                                                                                    
-  TFile sffile_eleTight ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
-  TFile sffile_eleVeto  ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
-  TFile sffile_muTight  ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
-  TFile sffile_muLoose  ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+  // Lepton ID scale factors
+  TFile* sffile_eleTight = NULL;
+  TFile* sffile_eleVeto  = NULL;
+  TFile* sffile_muTight  = NULL;
+  TFile* sffile_muLoose  = NULL;
+  
+  if(useMoriondSetup){
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+  }
+  else{
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+  }
 
-  TH2*  msfloose = (TH2*) sffile_muLoose.Get("scaleFactor_muon_looseid_RooCMSShape");
-  TH2*  msftight = (TH2*) sffile_muTight.Get("scaleFactor_muon_tightid_RooCMSShape");
-  TH2*  esfveto  = (TH2*) sffile_eleVeto.Get("scaleFactor_electron_vetoid_RooCMSShape");
-  TH2*  esftight = (TH2*) sffile_eleTight.Get("scaleFactor_electron_tightid_RooCMSShape");
+  TH2*  msfloose = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
+  TH2*  msftight = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
+  TH2*  esfveto  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
+  TH2*  esftight = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
 
   // Photon ID scale factor                                                                                                                                                     
-  TFile sffile_phoMedium ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
-  TH2*  psfmedium = (TH2*) sffile_phoMedium.Get("scaleFactor_photon_mediumid_RooCMSShape");
+  TFile* sffile_phoMedium = NULL;
+  if(useMoriondSetup)
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
+  else
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
+  TH2*  psfmedium = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
 
   // Photon Purity                                                                                                                                                              
-  TFile purityfile_photon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
-  TH2*  purhist = (TH2*) purityfile_photon.Get("purity");
+  TFile* purityfile_photon = NULL;
+  if(useMoriondSetup)
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
+  else
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
+  TH2*  purhist = (TH2*) purityfile_photon->Get("purity");
 
-  // Muon track efficiency
-  TFile trackingefficiency_muon ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
-  TH2F* trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon.Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
-  TH2F* trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon.Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
+  // Lepton track efficiency
+  TFile* trackingefficiency_muon = NULL;
+  if(useMoriondSetup)
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
+  else
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
+  TH2F* trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
+  TH2F* trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
 
-  TFile  trackingefficiency_electron ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");
-  TH2F* trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron.Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
-  TH2F* trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron.Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
+  
+  TFile* trackingefficiency_electron = NULL;
+  if(useMoriondSetup)
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");
+  else
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");  
+  TH2F* trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
+  TH2F* trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
 
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
-  TFile triggerfile_SinglEle ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
-  TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle.Get("trgeff_ele");
-  TH2* triggerelhist         = triggerel_eff->CreateHistogram();
+  ////////////////////////////////////////
+  TFile* triggerfile_SinglEle = NULL;
+  if(useMoriondSetup)
+    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
+  else
+    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
+  TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+  TH2*         triggerelhist = triggerel_eff->CreateHistogram();
   triggerelhist->SetName("triggerelhist");
 
-  TFile triggerfile_SinglEle_jetHT ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
-  TEfficiency* triggerel_eff_jetHT = (TEfficiency*) triggerfile_SinglEle_jetHT.Get("efficiency");
+  TFile* triggerfile_SinglEle_jetHT = NULL;
+  if(useMoriondSetup)
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
+  else
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");  
+  TEfficiency* triggerel_eff_jetHT = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
   TH2* triggerelhist_ht            = triggerel_eff_jetHT->CreateHistogram();
   triggerelhist_ht->SetName("triggerelhist_ht");
-
+  
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
-  if(category != Category::VBF and category != Category::twojet)
-    triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/metTriggerEfficiency_12p9.root");
-  else
-    triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/metTriggerEfficiency_electron.root");
-  //triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/metTriggerEfficiency_muon.root");
+  vector<TFile*> triggerfile_MET_binned;
 
-  TEfficiency*  triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
-  if(triggermet == 0 or triggermet == NULL)
-    triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency_vbf_loose");
-  TGraphAsymmErrors* triggermet_graph = triggermet->CreateGraph();
-  
-  // Photon trigger efficiency measured in jetHT
-  TFile triggerfile_SinglePhoton_jetHT ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
-  TFile triggerfile_SinglePhoton       ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120.root");
-  TFile triggerfile_SinglePhoton_VBF   ("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/VBF/photonTriggerEfficiency_photonpt120_VBF.root");
-  TEfficiency*  triggerphoton       = NULL;
-  TEfficiency*  triggerphoton_jetHT = NULL;
-
-  if(category == Category::twojet){
-    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_vbf_recoil");
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
-  }
-  else if(category == Category::VBF){
-    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton_VBF.Get("eff_vbf_recoil");  
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
+  if(useMoriondSetup){
+    if(category != Category::VBF and category != Category::twojet){ // monojet
+      if(useSingleMuon)
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
+      else
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
+    }
+    else{
+      if(useSingleMuon){
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_0.0_800.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_800.0_1200.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1200.0_1700.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1700.0_3000.0.root"));
+      }
+      else{
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_0.0_800.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_800.0_1200.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1200.0_1700.0.root"));
+	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1700.0_3000.0.root"));
+      }
+    }
   }
   else{
-    triggerphoton = (TEfficiency*) triggerfile_SinglePhoton.Get("eff_recoil");  
-    triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT.Get("eff_recover_vbf_recoil");
+    if(category != Category::VBF and category != Category::twojet){ // monojet
+      if(useSingleMuon)
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");
+      else
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");
+    }
+    else{ // VBF
+      if(useSingleMuon)
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/metTriggerEfficiency_muon.root");      
+      else
+	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/metTriggerEfficiency_electron.root");
+    }
   }
   
+  // single turn on
+  TEfficiency*  triggermet = NULL;
+  TGraphAsymmErrors* triggermet_graph = NULL;    
+  if(triggerfile_MET != NULL){
+    triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
+    if(triggermet == 0 or triggermet == NULL)
+      triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency_vbf_loose");
+    if(triggermet == 0 or triggermet == NULL)
+      triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency");
+    triggermet_graph = triggermet->CreateGraph();
+  }
+
+  vector<TF1*> triggermet_func_binned;
+  if(triggerfile_MET_binned.size() != 0){
+    for(auto ifile : triggerfile_MET_binned)
+      triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));    
+  }
+
+  // Photon trigger efficiency measured in jetHT
+  TFile* triggerfile_SinglePhoton_jetHT = NULL;
+  TFile* triggerfile_SinglePhoton       = NULL;
+  if(useMoriondSetup){
+    triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_jetHT.root");
+    triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
+  }
+  else{
+    triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
+    triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120.root");
+  }
+  TEfficiency*  triggerphoton       = NULL;
+  TEfficiency*  triggerphoton_jetHT = NULL;
+  triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
+  triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");  
   TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
-  /////////////////////////////////////////
 
+  /////////////////////////////////////////
   // Post-fit weights
   TFile* postFitFile = NULL;
   if(sample == Sample::sig and applyPostFitWeight and (category == Category::monojet or category == Category::inclusive))
@@ -271,13 +375,13 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReader myReader(tree);
 
   // general info
-  TTreeReaderValue<unsigned int> run    (myReader,"run");
-  TTreeReaderValue<unsigned int> lumisection    (myReader,"lumi");
-  TTreeReaderValue<unsigned int> event  (myReader,"event");
-  TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
-  TTreeReaderValue<int>          putrue (myReader,"putrue");
-  TTreeReaderValue<double> xsec         (myReader,"xsec");
-  TTreeReaderValue<double> wgt          (myReader,"wgt");
+  TTreeReaderValue<unsigned int> run         (myReader,"run");
+  TTreeReaderValue<unsigned int> lumisection (myReader,"lumi");
+  TTreeReaderValue<unsigned int> event       (myReader,"event");
+  TTreeReaderValue<unsigned int> nvtx        (myReader,"nvtx");
+  TTreeReaderValue<int>          putrue      (myReader,"putrue");
+  TTreeReaderValue<double> xsec              (myReader,"xsec");
+  TTreeReaderValue<double> wgt               (myReader,"wgt");
 
   // take some wgt for MC events
   string wgtname;
@@ -309,51 +413,44 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> wgtbtag      (myReader,btagname.c_str());
   
   // trigger
-  TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
-  TTreeReaderValue<UChar_t> hltm100    (myReader,"hltmet100");
-  TTreeReaderValue<UChar_t> hltm110    (myReader,"hltmet110");
-  TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
-  TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
-  TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
-  TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
-  TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
-  TTreeReaderValue<UChar_t> hlte       (myReader,"hltsingleel");
-  TTreeReaderValue<UChar_t> hltenoiso  (myReader,"hltelnoiso");
-  TTreeReaderValue<UChar_t> hltm       (myReader,"hltsinglemu");
-  TTreeReaderValue<UChar_t> hltp120    (myReader,"hltphoton120");
-  TTreeReaderValue<double>  pswgt_ph120    (myReader,"pswgt_ph120");
-  TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
-  TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
-  
-  string pfhtname ;
-  if(not isMC)
-    pfhtname = "hltPFHT800";
-  else
-    pfhtname = "hltPFHT800";
+  TTreeReaderValue<UChar_t> hltm90      (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm100     (myReader,"hltmet100");
+  TTreeReaderValue<UChar_t> hltm110     (myReader,"hltmet110");
+  TTreeReaderValue<UChar_t> hltm120     (myReader,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120   (myReader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170   (myReader,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300   (myReader,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90    (myReader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hlte        (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
+  TTreeReaderValue<UChar_t> hltm        (myReader,"hltsinglemu");
+  TTreeReaderValue<UChar_t> hltp120     (myReader,"hltphoton120");
+  TTreeReaderValue<double>  pswgt_ph120 (myReader,"pswgt_ph120");
+  TTreeReaderValue<UChar_t> hltp165     (myReader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175     (myReader,"hltphoton175");
+  TTreeReaderValue<UChar_t> hltpPFHT800    (myReader,"hltPFHT800");
 
-  TTreeReaderValue<UChar_t> hltpPFHT800    (myReader,pfhtname.c_str());
 
+  /// met filters
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-
-  string cscfilter = "flagglobaltighthalo";
-  if(isMC) cscfilter = "flagcsctight";
-   
-  TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
   TTreeReaderValue<UChar_t> fcsct  (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
+  string cscfilter = "flagglobaltighthalo";
+  if(isMC) cscfilter = "flagcsctight";   
+  TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
 
-  TTreeReaderValue<unsigned int> njets    (myReader,"njets");
-  TTreeReaderValue<unsigned int> ntaus    (myReader,"ntaus");
-  TTreeReaderValue<unsigned int> ntausraw    (myReader,"ntausraw");
-  TTreeReaderValue<unsigned int> nincjets (myReader,"njetsinc");
-  TTreeReaderValue<unsigned int> nbjets   (myReader,"nbjetslowpt");
-  TTreeReaderValue<unsigned int> nbjetshigh   (myReader,"nbjets");
-  TTreeReaderValue<double> ht   (myReader,"ht");
+  TTreeReaderValue<unsigned int> njets      (myReader,"njets");
+  TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
+  TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausraw");
+  TTreeReaderValue<unsigned int> nincjets   (myReader,"njetsinc");
+  TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> nbjetshigh (myReader,"nbjets");
+  TTreeReaderValue<double> ht               (myReader,"ht");
 
   TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
   TTreeReaderValue<vector<double> > jetpt   (myReader,"combinejetpt");
@@ -433,7 +530,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> pmetphi     (myReader,"t1phmetphi");
   TTreeReaderValue<double> metpf       (myReader,"pfmet");
   TTreeReaderValue<double> metcalo     (myReader,"calomet");
-  // dphi
+ 
+ // dphi
   TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
   TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
   TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
@@ -460,18 +558,18 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> el1phi (myReader,"el1phi");
   TTreeReaderValue<double> el2phi (myReader,"el2phi");
   
-  TTreeReaderValue<int>   phidm  (myReader,"phidm");
+  TTreeReaderValue<int>    phidm (myReader,"phidm");
   TTreeReaderValue<double> phpt  (myReader,"phpt");
   TTreeReaderValue<double> pheta (myReader,"pheta");
   TTreeReaderValue<double> phphi (myReader,"phphi");
   
-  TTreeReaderValue<double> wmt   (myReader,"wmt");
+  TTreeReaderValue<double> wmt    (myReader,"wmt");
   TTreeReaderValue<double> wemt   (myReader,"wemt");
   TTreeReaderValue<double> wzpt   (myReader,"wzpt");
   TTreeReaderValue<double> wzpt_h (myReader,"wzpt_h");
   TTreeReaderValue<double> wzeta  (myReader,"wzeta");
   TTreeReaderValue<double> zmass  (myReader,"zmass");
-  TTreeReaderValue<double> zeemass  (myReader,"zeemass");
+  TTreeReaderValue<double> zeemass (myReader,"zeemass");
   TTreeReaderValue<double> zmmpt  (myReader,"zpt");
   TTreeReaderValue<double> zeept  (myReader,"zeept");
   TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
@@ -496,42 +594,28 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> toppt  (myReader,topptname.c_str());
   TTreeReaderValue<double> atoppt (myReader,atopptname.c_str());
 
-  //  ofstream dump("dumpGAM.txt");
   // loop on events
   while(myReader.Next()){
 
     //ICHEP dataset
-    //    if(not isMC and *run > 274443) continue;
-    //    if(not isMC and *run > 274240) continue;
-    //    if(not isMC and *run > 275125) continue;
     if(not isMC and *run > 276811) continue;
-    //if(sample == Sample::sig and not isMC and (category == Category::VBF or category == Category::twojet) and (*run <  275657 or *run > 276283)) continue;
-    // Run E
-    //    if(not isMC and *run < 276831) continue;
-    //    if(not isMC and *run > 277420) continue;
-    // Run F
-    //    if(not isMC and *run < 277981) continue;
-    //    if(not isMC and *run > 278808) continue;
-    //Run G
-    //if(not isMC and *run < 278820) continue;
-    //if(not isMC and *run > 279116) continue;
 
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
     Double_t hltw  = 1.0;
-
+    
     if (sample == Sample::sig || sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu || sample == Sample::qcd)// single and double muon
       hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
-      hlt = *hltp165+*hltp175+*hltpPFHT800;
-      hltw = 1;
+      hlt  = *hltp165+*hltp175+*hltpPFHT800;
       //if(*hltp120 and hlt == 0){
       // hltw = *pswgt_ph120;
       // hlt  = *hltp165+*hltp175+*hltpPFHT800+*hltp120;
       //}
     }
+
     // Trigger Selection
     if (hlt  == 0) continue; // trigger
     
@@ -745,7 +829,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
        
     Double_t sfwgt = 1.0;
-
+    // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
       if(pt1 > 0. and *nvtx < 15)
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
@@ -757,6 +841,7 @@ void makehist4(TTree* tree, /*input tree*/
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
     }
    
+    // apply lepton id scale factors
     if (isMC && sflhist && sfthist) {
       if (pt1 > 0.) {
 	if (id1 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(fabs(eta1),min(pt1,sfthist->GetYaxis()->GetBinLowEdge(sfthist->GetNbinsY()+1)-1))); 
@@ -813,8 +898,25 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // met trigger scale factor
-    if (isMC && triggermet && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
-      sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+    if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
+      if(triggermet_graph)
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+      else if(triggermet_func_binned.size() != 0 and category == Category::VBF){
+	if(centralJets.size()+forwardJets.size() >= 2){
+	  TLorentzVector jet1 ;
+	  TLorentzVector jet2 ;
+	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	  if((jet1+jet2).M() < 800)
+	    sfwgt *= triggermet_func_binned.at(0)->Eval(min(pfmet,triggermet_func_binned.at(0)->GetXaxis()->GetXmax()));
+	  else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
+	    sfwgt *= triggermet_func_binned.at(1)->Eval(min(pfmet,triggermet_func_binned.at(1)->GetXaxis()->GetXmax()));
+	  else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
+	    sfwgt *= triggermet_func_binned.at(2)->Eval(min(pfmet,triggermet_func_binned.at(2)->GetXaxis()->GetXmax()));
+	  else if((jet1+jet2).M() >= 1700)
+	    sfwgt *= triggermet_func_binned.at(3)->Eval(min(pfmet,triggermet_func_binned.at(3)->GetXaxis()->GetXmax()));	  
+	}
+      }
     }
     
     // photon trigger scale factor
@@ -866,12 +968,6 @@ void makehist4(TTree* tree, /*input tree*/
       else if(met > postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1))
 	met = postFitWeight->GetBinLowEdge(postFitWeight->GetNbinsX()+1)-1;
       pfwgt =  postFitWeight->GetBinContent(postFitWeight->FindBin(met));
-    }
-
-    // data based re-weight for gamma+jets
-    Double_t gamwgt = 1.0;
-    if(sample == Sample::gam and isMC and category == Category::monojet and reweightPhton){
-      gamwgt = gamPtWeight->GetBinContent(gamPtWeight->GetXaxis()->FindBin(*phpt));
     }
 
     // Top quark pt re-weight
@@ -1410,17 +1506,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*gamwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*gamwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
       }
       
       if (!isMC && sample == Sample::qcdgam) 
@@ -1581,17 +1677,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
           puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
         if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt*gamwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*gamwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
       }
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
@@ -1601,21 +1697,39 @@ void makehist4(TTree* tree, /*input tree*/
 	hist->Fill(fillvarX,fillvarY,evtwgt);            
      }
   }
-
-  //  dump.close();
-
-  sffile_eleTight.Close();
-  sffile_eleVeto.Close();
-  sffile_muTight.Close();
-  sffile_muLoose.Close();
-  sffile_phoMedium.Close();
-  purityfile_photon.Close();
-  triggerfile_SinglEle.Close();
-  triggerfile_MET->Close();
-  triggerfile_SinglePhoton.Close();
-  trackingefficiency_muon.Close();
-  trackingefficiency_electron.Close();
-  gamPtFile.Close();
+  
+  if(pufile != NULL)
+    pufile->Close();
+  if(sffile_eleTight != NULL)
+    sffile_eleTight->Close();
+  if(sffile_eleVeto != NULL)
+    sffile_eleVeto->Close();
+  if(sffile_muTight != NULL)
+  sffile_muTight->Close();
+  if(sffile_muLoose != NULL)
+    sffile_muLoose->Close();
+  if(sffile_phoMedium != NULL)
+    sffile_phoMedium->Close();
+  if(purityfile_photon != NULL)
+    purityfile_photon->Close();
+  if(triggerfile_SinglEle != NULL)
+    triggerfile_SinglEle->Close();
+  if(triggerfile_SinglEle_jetHT != NULL)
+    triggerfile_SinglEle_jetHT->Close();
+  if(triggerfile_MET != NULL)
+    triggerfile_MET->Close();
+  if(triggerfile_SinglePhoton != NULL)
+    triggerfile_SinglePhoton->Close();
+  if(triggerfile_SinglePhoton_jetHT != NULL)
+    triggerfile_SinglePhoton_jetHT->Close();
+  if(trackingefficiency_muon != NULL)
+    trackingefficiency_muon->Close();
+  if(trackingefficiency_electron != NULL)
+    trackingefficiency_electron->Close();
+  if(postFitFile != NULL)
+    postFitFile->Close();
+  for(auto file : triggerfile_MET_binned)
+    file->Close();
 }
 
 #endif
