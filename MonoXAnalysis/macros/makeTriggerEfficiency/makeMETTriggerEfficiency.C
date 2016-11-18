@@ -5,9 +5,9 @@
 #include "../CMS_lumi.h"
 
 // recoil binning
-vector <float> bins_monojet_recoil = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
-vector <float> bins_vbf_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
-vector <float> bins_monoV_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 225, 250., 275., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
+vector <float> bins_monojet_recoil = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
+vector <float> bins_vbf_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
+vector <float> bins_monoV_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
 // mjj
 vector <float> bins_vbf_recoilvsmjj = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
 vector <float> bins_vbf_mjj         = {0.,800.,1200.,1700.,3000.};
@@ -24,8 +24,11 @@ static float detajj      = 3.5;
 static float mjj         = 1000; 
 static float jetmetdphi  = 2.0; 
 static float recoil      = 200;
+static bool  drawUncertaintyBand = false;
 
-void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, const bool & singleMuon, const TString & banner = "");
+void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
+		const bool & singleMuon, const TString & banner = "");
+void GetConfidenceIntervals(TF1* funz, TH1F* obj, Double_t cl, const TFitResultPtr & fitResult);
 
 void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool singleMuon = true) {
 
@@ -74,7 +77,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   system("rm list_dir.txt");
 
   // fitting function for the turn-on  as a function of recoil
-  TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil", ErfCB, bins_monojet_recoil.front(), bins_monojet_recoil.back(), 5);
+  //  TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil","[0]/(1+(2^[3]-1)*TMath::Exp(-[1]*(x-[2])))^(1/[3])",bins_monojet_recoil.front(), bins_monojet_recoil.back());
+  TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
   fitfunc_monojet_recoil->SetParameters(120., 25., 30., 4., 1.);
   TF1 *fitfunc_monoV_recoil   = new TF1("fitfunc_monoV_recoil", ErfCB, bins_monoV_recoil.front(), bins_monoV_recoil.back(), 5);
   fitfunc_monoV_recoil->SetParameters(120., 25., 30., 4., 1.);
@@ -160,7 +164,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");                                                                                                                                       
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");                                                                                                                                       
-  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausraw");
+  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausrawold");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
@@ -544,7 +548,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
   
   TEfficiency* eff_monojet_recoil = new TEfficiency(*hnum_monojet_recoil,*hden_monojet_recoil);
-  eff_monojet_recoil->Fit(fitfunc_monojet_recoil);
   eff_monojet_recoil->SetMarkerColor(kBlack);
   eff_monojet_recoil->SetLineColor(kBlack);
   eff_monojet_recoil->SetMarkerStyle(20);
@@ -554,7 +557,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
   
   //TEfficiency* eff_monoV_recoil = new TEfficiency(*hnum_monoV_recoil,*hden_monoV_recoil);
-  //eff_monoV_recoil->Fit(fitfunc_monoV_recoil);
   //eff_monoV_recoil->SetMarkerColor(kBlack);
   //eff_monoV_recoil->SetLineColor(kBlack);
   //eff_monoV_recoil->SetMarkerStyle(20);
@@ -563,7 +565,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   //fitfunc_monoV_recoil->SetLineWidth(2);
   
   TEfficiency* eff_vbf_recoil = new TEfficiency(*hnum_vbf_recoil,*hden_vbf_recoil);
-  eff_vbf_recoil->Fit(fitfunc_vbf_recoil);
   eff_vbf_recoil->SetMarkerColor(kBlack);
   eff_vbf_recoil->SetLineColor(kBlack);
   eff_vbf_recoil->SetMarkerStyle(20);
@@ -575,7 +576,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   vector<TEfficiency*> eff_vbf_mjj;
   for(size_t ibin = 0; ibin <  hnum_vbf_mjj.size(); ibin++){
     eff_vbf_mjj.push_back(new TEfficiency(*hnum_vbf_mjj.at(ibin),*hden_vbf_mjj.at(ibin)));
-    eff_vbf_mjj.back()->Fit(fitfunc_vbf_mjj.at(ibin));
     eff_vbf_mjj.back()->SetMarkerColor(kBlack);
     eff_vbf_mjj.back()->SetLineColor(kBlack);
     eff_vbf_mjj.back()->SetMarkerStyle(20);
@@ -587,7 +587,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   vector<TEfficiency*> eff_vbf_detajj;
   for(size_t ibin = 0; ibin <  hnum_vbf_detajj.size(); ibin++){
     eff_vbf_detajj.push_back(new TEfficiency(*hnum_vbf_detajj.at(ibin),*hden_vbf_detajj.at(ibin)));
-    eff_vbf_detajj.back()->Fit(fitfunc_vbf_detajj.at(ibin));
     eff_vbf_detajj.back()->SetMarkerColor(kBlack);
     eff_vbf_detajj.back()->SetLineColor(kBlack);
     eff_vbf_detajj.back()->SetMarkerStyle(20);
@@ -602,7 +601,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
   //plotTurnOn(canvas,eff_monoV_recoil,fitfunc_monoV_recoil,"Recoil [GeV]","recoil_monoV",ouputDIR,luminosity,singleMuon);
   //plotTurnOn(canvas,eff_monoV_met,fitfunc_monoV_met,"Met [GeV]","met_monoV",ouputDIR,luminosity,singleMuon);
-
+  
   for(size_t ibin = 0; ibin < eff_vbf_mjj.size(); ibin++){
     plotTurnOn(canvas,eff_vbf_mjj.at(ibin),fitfunc_vbf_mjj.at(ibin),"Recoil [GeV]",
 	       Form("mjj_vbf_%.1f_%.1f",bins_vbf_mjj.at(ibin),bins_vbf_mjj.at(ibin+1)),
@@ -613,7 +612,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	       Form("detajj_vbf_%.1f_%.1f",bins_vbf_detajj.at(ibin),bins_vbf_detajj.at(ibin+1)),
 	       ouputDIR,luminosity,singleMuon,Form("%.1f < #Delta#eta_{jj} < %.1f",bins_vbf_detajj.at(ibin),bins_vbf_detajj.at(ibin+1)));
   }
-
+  
 }
 
 void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, const bool & singleMuon, const TString & banner){
@@ -627,14 +626,28 @@ void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & 
   frame->GetYaxis()->SetTitleSize(0.8*frame->GetYaxis()->GetTitleSize());
   frame->GetXaxis()->SetTitleSize(0.8*frame->GetXaxis()->GetTitleSize());
   frame->GetXaxis()->SetTitleOffset(1.0);
+
+  // make the fit
+  TGraphAsymmErrors* graph = eff->CreateGraph();
+  TFitResultPtr fitResult = graph->Fit(fitfunc,"RS");
+  int npoints       = 350;                                                                                                                                                                   
+  TH1F* error_band  = new TH1F(Form("%s_error_band",fitfunc->GetName()),"",npoints,fitfunc->GetXaxis()->GetXmin(),fitfunc->GetXaxis()->GetXmax());
+  if(drawUncertaintyBand)
+    (TVirtualFitter::GetFitter())->GetConfidenceIntervals(error_band,0.68);
   
   canvas->SetRightMargin(0.075);
   canvas->SetTopMargin(0.06);
   canvas->Draw();
   canvas->cd();
   frame->Draw();
+  if(drawUncertaintyBand){    
+    error_band->SetFillColor(kBlue);
+    error_band->SetFillStyle(3001);
+    error_band->Draw("e4 same");  
+  }
   eff->Draw("E1PSAME");
   fitfunc->Draw("SAME");
+  
   canvas->RedrawAxis();
   CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
 
@@ -666,3 +679,4 @@ void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & 
   }
 
 }
+

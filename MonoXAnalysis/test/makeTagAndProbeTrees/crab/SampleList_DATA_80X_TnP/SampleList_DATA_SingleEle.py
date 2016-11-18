@@ -12,4 +12,3 @@ samples['SingleEle-Run2016E-23Sep2016-v1'] = ['/SingleElectron/Run2016E-23Sep201
 samples['SingleEle-Run2016F-23Sep2016-v1'] = ['/SingleElectron/Run2016F-23Sep2016-v1/MINIAOD',[]]
 samples['SingleEle-Run2016G-23Sep2016-v1'] = ['/SingleElectron/Run2016G-23Sep2016-v1/MINIAOD',[]]
 samples['SingleEle-Run2016H-PromptReco-v2'] = ['/SingleElectron/Run2016H-PromptReco-v2/MINIAOD',[]]
-samples['SingleEle-Run2016H-PromptReco-v3'] = ['/SingleElectron/Run2016H-PromptReco-v3/MINIAOD',[]]

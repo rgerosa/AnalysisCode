@@ -526,7 +526,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // HLT safe electrons
     if (verticesH->size() != 0 and (*electronHLTSafeIdH) [electronPtr] and passPVconstraints) 
-      outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+      outputhltsafeelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     //
     if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) {
       if (triggermatched and 

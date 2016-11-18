@@ -226,7 +226,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
 
-  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausraw");
+  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausrawold");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");

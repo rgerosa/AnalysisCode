@@ -3,7 +3,7 @@
 #include "../CMS_lumi.h"
 #include "triggerUtils.h"
 
-
+/// loop on the events to build the efficiency for each pt-eta bin
 void makeTrigger(TTree* tree, // tree 
 		 TH2F*  histoNum,
 		 TH2F*  histoDen,
@@ -15,10 +15,10 @@ void makeTrigger(TTree* tree, // tree
 		 const float & ptMax,
 		 const float & etaMin,
 		 const float & etaMax,
-		 string  triggerFlag_2 = "",
-		 int   nbins = 60,
-		 float xmin  = 65,
-		 float xmax  = 115){
+		 string triggerFlag_2 = "",
+		 int    nbins = 60,
+		 float  xmin  = 60,
+		 float  xmax  = 120){
 
   // passing, fail and all probes
   TH1F hpass("hpass",  "", nbins, xmin, xmax);
@@ -37,8 +37,8 @@ void makeTrigger(TTree* tree, // tree
   ha.Sumw2();
 
   // pileup-re-weight from external file                                                                                                                                        
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
-  TH1* puhist = (TH1*)pufile->Get("puhist");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
+  TH1* puhist   = (TH1*) pufile->Get("puhist");
 
   TTreeReader reader(tree);
   TTreeReaderValue<float> mass (reader, "mass");
@@ -48,7 +48,11 @@ void makeTrigger(TTree* tree, // tree
   TTreeReaderValue<float> nvtx (reader, "nvtx");
   TTreeReaderValue<float> wgt  (reader, "wgt");
   TTreeReaderValue<int>   id   (reader, "tightid");  // single electorn and muon trigger efficiency are useful in the single and double lepton CR were we ask at least one tight lepton
-  TTreeReaderValue<int>   hlt (reader,triggerFlag.c_str());
+  TTreeReaderValue<int>   hlt  (reader,triggerFlag.c_str());
+  string hltsafe = "wgt";
+  if(not isSingleMuon)
+    hltsafe = "hltsafeid";
+  TTreeReaderValue<int>   hltsafeid (reader,hltsafe.c_str());
 
   if(triggerFlag_2 == "")
     triggerFlag_2 = triggerFlag;
@@ -81,14 +85,14 @@ void makeTrigger(TTree* tree, // tree
   // loop on the event                                                                                                                                                          
   while(reader.Next()){
     Float_t puwgt = 0.;
-    if (*nvtx <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-
+    if (*nvtx <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));    
     // check the probe lepton information --> if it falls inside the bins                                                                                                       
     if(*pt < ptMin or *pt > ptMax) continue;
     if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;    
     // if not matched to a genLepton skip --> we want to extract the true templateds                                                                                            
     if(isMC and not *mcTrue) continue;
     if(*id <= 0) continue;
+    if(not isSingleMuon and *hltsafeid <= 0) continue;
     if((*hlt == 0 and *hlt2 == 0) and isMC)      
       hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);
     else if((*hlt == 0 and *hlt2 == 0) and not isMC)
@@ -116,10 +120,11 @@ void makeTrigger(TTree* tree, // tree
   for (int j = 1; j <= nbins; j++) {
     if (hpass.GetBinContent(j) < 0.) hpass.SetBinContent(j, 0.0);
     if (hfail.GetBinContent(j) < 0.) hfail.SetBinContent(j, 0.0);
-    if (hp.GetBinContent(j) < 0.) hpass.SetBinContent(j, 0.0);
-    if (ha.GetBinContent(j) < 0.) hfail.SetBinContent(j, 0.0);
+    if (hp.GetBinContent(j)    < 0.) hpass.SetBinContent(j, 0.0);
+    if (ha.GetBinContent(j)    < 0.) hfail.SetBinContent(j, 0.0);
     if (hall.GetBinContent(j)  < 0.) hall.SetBinContent(j, 0.0);
   }
+
   histoNum->SetBinContent(histoNum->GetXaxis()->FindBin((etaMax+etaMin)/2),histoNum->GetYaxis()->FindBin((ptMax+ptMin)/2),hp.GetBinContent(1));
   histoNum->SetBinError(histoNum->GetXaxis()->FindBin((etaMax+etaMin)/2),histoNum->GetYaxis()->FindBin((ptMax+ptMin)/2),hp.GetBinError(1));
   histoDen->SetBinContent(histoDen->GetXaxis()->FindBin((etaMax+etaMin)/2),histoDen->GetYaxis()->FindBin((ptMax+ptMin)/2),ha.GetBinContent(1));
@@ -134,6 +139,7 @@ void makeTrigger(TTree* tree, // tree
   
 }
 
+// plotting the 2D map and 1D projections
 void plotTriggerEfficiency(TCanvas*      canvas,
 			   TEfficiency*  efficiency,
 			   bool     isMuon,
@@ -211,7 +217,7 @@ void plotTriggerEfficiency(TCanvas*      canvas,
   }
 }
   
-
+// Main function
 void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are located
 				       string outputDIR, // to store plots and files
 				       bool   isMC,
@@ -240,12 +246,12 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   vector<float> binningHighPt;
   vector<float> binningEta;
   if(isSingleMuon){
-    binningPt      = {6,8,10,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30,32.5,35,37.5,40,45,50,60,70,85,100,125,150,175,200,250};
+    binningPt      = {20.,25,30,40,45,50,60,70,85,100,125,150,175,200,250,300};
     binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
     binningEta     = {-2.4,-1.2,1.2,2.4};
   }
   else{
-    binningPt      = {20.,25,30,40,45,50,60,70,85,100,125,150,200,250};
+    binningPt      = {20.,25,30,40,45,50,60,70,85,115,130,150,175,200,250,300};
     binningHighPt  = {90,100,105,110,115,120,125,150,175,200,250};
     binningEta     = {0,0.5,1,1.444,1.56,2.1,2.5};
   }
@@ -294,25 +300,16 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
 	makeTrigger(tree,Passing_muIsoTk,Total_muIsoTk,isMC,isSingleMuon,outputDIR,"hlttkmu",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
       }
       else{
-	//	makeTrigger(tree,Passing_ele242p1wploose,Total_ele242p1wploose,isMC,isSingleMuon,outputDIR,"hltele24eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,Passing_ele252p1wptight,Total_ele252p1wptight,isMC,isSingleMuon,outputDIR,"hltele25eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,Passing_ele272p1wploose,Total_ele272p1wploose,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-	//	makeTrigger(tree,Passing_ele272p1wptight,Total_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	//makeTrigger(tree,Passing_ele242p1wploose,Total_ele242p1wploose,isMC,isSingleMuon,outputDIR,"hltele24eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	//makeTrigger(tree,Passing_ele252p1wptight,Total_ele252p1wptight,isMC,isSingleMuon,outputDIR,"hltele25eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	//makeTrigger(tree,Passing_ele272p1wploose,Total_ele272p1wploose,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpl",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
+	//makeTrigger(tree,Passing_ele272p1wptight,Total_ele272p1wptight,isMC,isSingleMuon,outputDIR,"hltele27eta2p1wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,Passing_ele27wptight,Total_ele27wptight,isMC,isSingleMuon,outputDIR,"hltele27wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
 	makeTrigger(tree,Passing_ele,Total_ele,isMC,isSingleMuon,outputDIR,"hltele27wpt",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1),"hltele105");
       }
     }
   }
 
-  /*  
-  if(not isSingleMuon){
-    for(size_t ipt = 0; ipt < binningHighPt.size()-1; ipt++){
-      for(size_t ieta = 0; ieta < binningEta.size()-1; ieta++){ 
-	makeTrigger(tree,Passing_ele105,Total_ele105isMC,isSingleMuon,outputDIR,"hltele105",binningHighPt.at(ipt),binningHighPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1));
-      }
-    }
-  }
-  */
 
   TEfficiency* trgeff_mu20      = NULL;
   TEfficiency* trgeff_muIsoTk20 = NULL;
@@ -345,18 +342,18 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
     trgeff_muIsoTk->SetName("trgeff_muIsoTk");
   }
   else{
-    //    trgeff_ele242p1wploose = new TEfficiency(*Passing_ele242p1wploose,*Total_ele242p1wploose);
-    //    trgeff_ele242p1wploose->SetName("trgeff_ele242p1wploose");
-    //    trgeff_ele272p1wploose = new TEfficiency(*Passing_ele272p1wploose,*Total_ele272p1wploose);
-    //    trgeff_ele272p1wploose->SetName("trgeff_ele272p1wploose");
-    //    trgeff_ele252p1wptight = new TEfficiency(*Passing_ele252p1wptight,*Total_ele252p1wptight);
-    //    trgeff_ele252p1wptight->SetName("trgeff_ele252p1wptight");
-    //    trgeff_ele272p1wptight = new TEfficiency(*Passing_ele272p1wptight,*Total_ele272p1wptight);
-    //    trgeff_ele272p1wptight->SetName("trgeff_ele272p1wptight");
+    trgeff_ele242p1wploose = new TEfficiency(*Passing_ele242p1wploose,*Total_ele242p1wploose);
+    trgeff_ele242p1wploose->SetName("trgeff_ele242p1wploose");
+    trgeff_ele272p1wploose = new TEfficiency(*Passing_ele272p1wploose,*Total_ele272p1wploose);
+    trgeff_ele272p1wploose->SetName("trgeff_ele272p1wploose");
+    trgeff_ele252p1wptight = new TEfficiency(*Passing_ele252p1wptight,*Total_ele252p1wptight);
+    trgeff_ele252p1wptight->SetName("trgeff_ele252p1wptight");
+    trgeff_ele272p1wptight = new TEfficiency(*Passing_ele272p1wptight,*Total_ele272p1wptight);
+    trgeff_ele272p1wptight->SetName("trgeff_ele272p1wptight");
     trgeff_ele27wptight = new TEfficiency(*Passing_ele27wptight,*Total_ele27wptight);
     trgeff_ele27wptight->SetName("trgeff_ele27wptight");
-    //    trgeff_ele105       =  new TEfficiency(*Passing_ele105,*Total_ele105);
-    //    trgeff_ele105->SetName("trgeff_ele105");
+    trgeff_ele105       =  new TEfficiency(*Passing_ele105,*Total_ele105);
+    trgeff_ele105->SetName("trgeff_ele105");
     trgeff_ele          =  new TEfficiency(*Passing_ele,*Total_ele);
     trgeff_ele->SetName("trgeff_ele");
   }
@@ -389,8 +386,8 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
     //    plotTriggerEfficiency(canvas,trgeff_ele252p1wptight,isSingleMuon,outputDIR,false,lumi,doFit);
     //    plotTriggerEfficiency(canvas,trgeff_ele272p1wploose,isSingleMuon,outputDIR,false,lumi,doFit);
     //    plotTriggerEfficiency(canvas,trgeff_ele272p1wptight,isSingleMuon,outputDIR,false,lumi,doFit);
-    plotTriggerEfficiency(canvas,trgeff_ele27wptight,isSingleMuon,outputDIR,false,lumi,doFit);
     //    plotTriggerEfficiency(canvas,trgeff_ele105,isSingleMuon,outputDIR,true,lumi,doFit);
+    plotTriggerEfficiency(canvas,trgeff_ele27wptight,isSingleMuon,outputDIR,false,lumi,doFit);
     plotTriggerEfficiency(canvas,trgeff_ele,isSingleMuon,outputDIR,false,lumi,doFit);
   }
 
@@ -412,18 +409,18 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
       trgeff_muIsoTk->Write();
   }
   else{
-    if(trgeff_ele242p1wploose)
-      trgeff_ele242p1wploose->Write();
-    if(trgeff_ele252p1wptight)
-      trgeff_ele252p1wptight->Write();
-    if(trgeff_ele272p1wploose)
-      trgeff_ele272p1wploose->Write();
-    if(trgeff_ele272p1wptight)
-      trgeff_ele272p1wptight->Write();
+    //    if(trgeff_ele242p1wploose)
+    //      trgeff_ele242p1wploose->Write();
+    //    if(trgeff_ele252p1wptight)
+    //      trgeff_ele252p1wptight->Write();
+    //    if(trgeff_ele272p1wploose)
+    //      trgeff_ele272p1wploose->Write();
+    //    if(trgeff_ele272p1wptight)
+    //      trgeff_ele272p1wptight->Write();
     if(trgeff_ele27wptight)
       trgeff_ele27wptight->Write();
-    if(trgeff_ele105)
-      trgeff_ele105->Write();
+    //    if(trgeff_ele105)
+    //      trgeff_ele105->Write();
     if(trgeff_ele)
       trgeff_ele->Write();
   }
