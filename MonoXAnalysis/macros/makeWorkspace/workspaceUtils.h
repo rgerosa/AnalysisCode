@@ -395,7 +395,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
     formss << "@0/";
     formss << "(";
     formss << "@1";
-    formss << "*(abs(1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2))";
+    formss << "*(TMath::Max(0,1+" << rhist->GetBinError(i)/rhist->GetBinContent(i) << "*@2))";
       
     // systemaitc uncertainty                                                                                                                                               
     for (size_t j = 0; j < syst.size(); j++) {
@@ -420,7 +420,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 	fobinlist.add(*syst[j].first);
       }
       
-      formss << "*(abs(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << "))";
+      formss << "*(TMath::Max(0,(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << ")))";
     }
     formss << ")";
     // create a single RooFormulaVar                                                                                                                                         
@@ -517,7 +517,7 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
   formss << "@0/";
   formss << "(";
   formss << "@1";
-  formss << "*(abs(1+" << ratio_err/rbinvar->getVal() << "*@2))";
+  formss << "*(TMath::Max(0,1+" << ratio_err/rbinvar->getVal() << "*@2))";
 
   float extreme_tmp = 5;
 
@@ -550,7 +550,7 @@ void makeConnectedBinListCutAndCount(string procname,  // name to be used to fil
       }
 
       fobinlist.add(*syst[j].first);
-      formss << "*(abs(1+" << sys_value << "*@" << j+3 << "))";      
+      formss << "*(TMath::Max(0,1+" << sys_value << "*@" << j+3 << "))";      
     }
   }
   formss << ")";
