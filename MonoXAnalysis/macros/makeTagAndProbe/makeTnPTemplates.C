@@ -1,30 +1,10 @@
 #include "../CMS_lumi.h"
+#include "TnPBinning.h"
 #include "PDFs/RooErfExpPdf.h"
-
-/////////////////////
-vector<float> ptBinMuon      = {10.,20.,30.,40.,50.,60.,80.,100.,500.};
-vector<float> ptBinElectron  = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
-vector<float> ptBinPhoton    = {10.,20.,30.,40.,50.,60.,80.,100.,125.,500.};
-vector<float> etaBinMuon     = {0.,0.9,1.2,2.1,2.4};
-vector<float> etaBinElectron = {0.,0.75,1.5,2.,2.5};
-vector<float> etaBinPhoton   = {0.,0.75,1.5,2.,2.5};
-vector<float> nvtxBinMuon     = {0.,16,50.};
-vector<float> nvtxBinElectron = {0.,16,50.};
-vector<float> nvtxBinPhoton   = {0.,16,50.};
-/////////////////////
-vector<float> ptBinMuonReco      = {10.,20.,30.,40.,150};
-vector<float> ptBinElectronReco  = {10.,20.,30.,50.,150};
-vector<float> ptBinPhotonReco    = {10.,20.,30.,50.,150};
-vector<float> etaBinMuonReco     = {0.,0.45,0.9,1.2,1.8,2.4};
-vector<float> etaBinElectronReco = {0.,0.35,0.75,1.5,2.0,2.5};
-vector<float> etaBinPhotonReco   = {0.,0.35,0.75,1.5,2.0,2.5};
-vector<float> nvtxBinMuonReco     = {0.,16,50.};
-vector<float> nvtxBinElectronReco = {0.,16,50.};
-vector<float> nvtxBinPhotonReco   = {0.,16,50.};
 
 // bin in abs eta instead of eta
 static bool  isabseta     = true;
-static float luminosity   = 12.9;
+static float luminosity   = 35.9;
 // reco efficiency or id
 static bool  isRecoEff    = false;
 // normalize plots to a.u.
@@ -32,7 +12,7 @@ static bool  plotRescaled = true;
 // perform a continous fit as well
 static bool  simFit       = true;
 // which kind of PDF you want to use
-static bool  usePolynomial = false;
+static bool  usePolynomial  = false;
 static bool  useCBShape     = false;
 static bool  useRooCMSShape = false;
 static bool  useErfExpPdf   = false;
@@ -73,7 +53,7 @@ void maketemplate(const string & inputDIR,
   crossSection["600toInf"] = 2.19;
 
   // pileup-re-weight from external file
-  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
+  TFile* pufile = new TFile("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
   TH1* puhist = (TH1*)pufile->Get("puhist");
   
   TTreeReader reader(inputMC);
@@ -85,24 +65,32 @@ void maketemplate(const string & inputDIR,
   TTreeReaderValue<float> wgt  (reader, "wgt");
   TTreeReaderValue<int>   mcTrue (reader, "mcTrue");
   TTreeReaderValue<int>   id   (reader, idName.c_str());
-
+  string idtrigger = "";
   string trackerid = "";
   string standaloneid = "";
   if(leptonType == "muon"){
     trackerid    = "trackerid";
     standaloneid = "standaloneid";
+    idtrigger    = idName;
   }
   else if((leptonType == "electron" and isRecoEff) or leptonType == "photon"){
     standaloneid = "recoelectronmatch";
     trackerid = "recoelectronmatch";
+    idtrigger = idName;
   }
   else{
-    trackerid = idName  ;
+    trackerid = idName ;
     standaloneid = idName;
+    if(leptonType == "electron")
+      idtrigger = "hltsafeid";
+    else
+      idtrigger = idName;
+	
   }
 
   TTreeReaderValue<int>   isStandAloneMuon (reader, standaloneid.c_str());
   TTreeReaderValue<int>   isTrackerMuon    (reader, trackerid.c_str());
+  TTreeReaderValue<int>   idtrig           (reader,idtrigger.c_str());    
   TTreeReaderValue<float> mcMass (reader, "mcMass");
   
   TH1F hpass("hpass", "", nbins, xmin, xmax);
@@ -157,13 +145,14 @@ void maketemplate(const string & inputDIR,
     if(*pt < ptMin or *pt > ptMax) continue;
     if(isabseta and (fabs(*eta) < etaMin or fabs(*eta) > etaMax)) continue;
     else if(not isabseta and (*eta < etaMin or *eta > etaMax)) continue;
-    if(*nvtx < nvtxMin or *nvtx > nvtxMax) continue;
-
+    if(*nvtx <= nvtxMin or *nvtx > nvtxMax) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds
+
     if(not *mcTrue) continue;
-    if (*id == 0) hfail.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
-    if (*id >  0) hpass.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
-    if (*id >  0) hp.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+
+    if (*id == 0 or *idtrig == 0) hfail.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+    if (*id >  0 and *idtrig > 0) hpass.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
+    if (*id >  0 and *idtrig > 0) hp.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
     ha.Fill(*mass, lumiwgt*puwgt*(*wgt)/wgtsum);
   }
 
@@ -413,10 +402,8 @@ void makeTnPTemplates(string inputDIR, string leptonType, string outputDIR, bool
       for(size_t ipt = 0; ipt < ptBinPhoton.size()-1; ipt++){
 	for(size_t ieta = 0; ieta < etaBinPhoton.size()-1; ieta++){
 	  for(size_t invtx = 0; invtx < nvtxBinPhoton.size()-1; invtx++){
-	    string idName = "looseid";
-	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinPhoton.at(ipt),ptBinPhoton.at(ipt+1),etaBinPhoton.at(ieta),etaBinPhoton.at(ieta+1),nvtxBinPhoton.at(invtx),etaBinPhoton.at(invtx+1));
-	    idName = "mediumid";
-	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinPhoton.at(ipt),ptBinPhoton.at(ipt+1),etaBinPhoton.at(ieta),etaBinPhoton.at(ieta+1),nvtxBinPhoton.at(invtx),etaBinPhoton.at(invtx+1));
+	    string idName = "mediumid";
+	    maketemplate(inputDIR,leptonType,outputDIR,idName,ptBinPhoton.at(ipt),ptBinPhoton.at(ipt+1),etaBinPhoton.at(ieta),etaBinPhoton.at(ieta+1),nvtxBinPhoton.at(invtx),nvtxBinPhoton.at(invtx+1));
 	  }
 	}     
       }

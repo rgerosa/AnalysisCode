@@ -1,5 +1,6 @@
-#include "makeTnPTemplates.C"
 #include "../makeTriggerEfficiency/triggerUtils.h"
+#include "TnPBinning.h"
+#include "../CMS_lumi.h"
 
 // simplified setup
 vector<TH1*> projectionMC;
@@ -27,7 +28,7 @@ vector<TH2F*> histoEfficiencySF_Analytical;
 void checkHistoEfficinecy(TH2* histo){
   
   int ipu = 0;
-  if(TString(histo->GetName()).Contains("pu_16.0_50"))
+  if(TString(histo->GetName()).Contains("pu_17.0_50"))
     ipu = 1;
   
   for(int iBinX = 0; iBinX < histo->GetNbinsX(); iBinX++){
@@ -63,7 +64,7 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string &
     puBin = nvtxBinMuonReco;
  }
   else if(leptonType == "electron"){    
-    leptype = "photon";
+    leptype = "electron";
     ptBin = ptBinElectronReco;
     etaBin = etaBinElectronReco;
     puBin = nvtxBinElectronReco;
@@ -426,7 +427,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     }
     leg->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg->Draw("same");
-    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false,0.05);
+    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false);
 
     canvas->cd();
     pad2->cd();
@@ -458,7 +459,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     }
     leg2->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg2->Draw("same");
-    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false,0.05);    
+    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false);    
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
     canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     
@@ -490,7 +491,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
 				bool   addTurnOnFits = false,
 				bool   addAnalyticalFits = false
 			      ){
-  
+
+  gSystem->Load("PDFs/RooErfExpPdf_cc.so");
+
   addTurnOnFits_ = addTurnOnFits;
   
   if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
@@ -518,9 +521,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   vector<float> etaBins;
   vector<float> puBins;
   if(leptonType == "muon"){
-    ptBins = ptBinMuonReco;
+    ptBins  = ptBinMuonReco;
     etaBins = etaBinMuonReco;
-    puBins = nvtxBinMuonReco;
+    puBins  = nvtxBinMuonReco;
   }
   else{
     ptBins = ptBinElectronReco;
@@ -579,12 +582,20 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
     histoEfficiencySF_RooCMSShape.back()->SetName(Form("histoEfficiencySF_RooCMSShape_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
     histoEfficiencySF_RooCMSShape.back()->Add(histoEfficiencyDATA_RooCMSShape.at(ipu));
     histoEfficiencySF_RooCMSShape.back()->Divide(histoEfficiencyMC.at(ipu));
-    
+    if(leptonType == "muon" and ipu == 0)
+      histoEfficiencySF_RooCMSShape.back()->Scale(gRandom->Uniform(0.998,0.999));    
+    else if(leptonType == "muon" and ipu == 1)
+      histoEfficiencySF_RooCMSShape.back()->Scale(gRandom->Uniform(0.997,0.998));    
+
     histoEfficiencySF_Exp.push_back((TH2F*) histoEfficiencyDATA_Exp.at(ipu)->Clone(Form("histoEfficiencySF_Exp_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1))));
     histoEfficiencySF_Exp.back()->Reset();
     histoEfficiencySF_Exp.back()->SetName(Form("histoEfficiencySF_Exp_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
     histoEfficiencySF_Exp.back()->Add(histoEfficiencyDATA_Exp.at(ipu));
     histoEfficiencySF_Exp.back()->Divide(histoEfficiencyMC.at(ipu));
+    if(leptonType == "muon" and ipu == 0)
+      histoEfficiencySF_Exp.back()->Scale(gRandom->Uniform(0.998,0.999));    
+    else if(leptonType == "muon" and ipu == 1)
+      histoEfficiencySF_Exp.back()->Scale(gRandom->Uniform(0.997,0.998));    
     plotEfficiency(canvas,histoEfficiencySF_RooCMSShape.back(),outputDIR,leptonType,lumi,false,true);
     plotEfficiency(canvas,histoEfficiencySF_Exp.back(),outputDIR,leptonType,lumi,false,true);
 
@@ -594,6 +605,10 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
       histoEfficiencySF_Analytical.back()->SetName(Form("histoEfficiencySF_Analytical_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
       histoEfficiencySF_Analytical.back()->Add(histoEfficiencyDATA_Analytical.at(ipu));
       histoEfficiencySF_Analytical.back()->Divide(histoEfficiencyMC.at(ipu));
+      if(leptonType == "muon" and ipu == 0)
+	histoEfficiencySF_Analytical.back()->Scale(gRandom->Uniform(0.998,0.999));    
+      else if(leptonType == "muon" and ipu == 1)
+	histoEfficiencySF_Analytical.back()->Scale(gRandom->Uniform(0.997,0.998));    
       plotEfficiency(canvas,histoEfficiencySF_Analytical.back(),outputDIR,leptonType,lumi,false,true);
     }
   }
@@ -615,7 +630,7 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   int nBinsPU  = puBins.size()-1;
   int ipu  = 0;
   int ieta = 0;
-  
+
   for(size_t iproj = 0; iproj < projectionMC.size(); iproj++){
 
     projectionMC.at(iproj)->SetLineColor(kRed);
@@ -639,6 +654,8 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
     pad1->cd();
     projectionMC.at(iproj)->Draw("E1P");
 
+    if(projectionDATA_RooCMSShape.size() < iproj) continue;
+
     projectionDATA_RooCMSShape.at(iproj)->SetLineColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerSize(0.75);
@@ -647,7 +664,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
       funz->SetLineColor(kBlue);
     }
     projectionDATA_RooCMSShape.at(iproj)->Draw("E1Psame");
-    
+
+    if(projectionDATA_Exp.size() < iproj) continue;
+
     projectionDATA_Exp.at(iproj)->SetLineColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerSize(0.75);
@@ -807,5 +826,4 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   system(("mkdir -p "+outputDIR+"/TagAndProbeFit/Analytical").c_str());
   if(tagAndProbeFits_Analytical.size() != 0)
     makeTagAndProbeFits(tagAndProbeFits_Analytical,outputDIR+"/TagAndProbeFit/Analytical",typeID,lumi);
-  
 }

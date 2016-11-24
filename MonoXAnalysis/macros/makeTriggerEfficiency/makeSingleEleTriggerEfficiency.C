@@ -4,6 +4,9 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016H"};
+
+
 // calculation from the jetHT dataset
 void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, float lumi = 12.9, bool doFit = false) {
 
@@ -24,9 +27,36 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   fitfunc->SetRange(binsPt.front(),binsPt.back());
   
   TChain* tree = new TChain("tree/tree");
-  // should use the wmnu events triggered by single muon
-  tree->Add((inputDIR+"/*root").c_str());
 
+  system(("ls "+inputDIR+"  | grep root > list_dir.txt").c_str());
+  ifstream dirlist ("list_dir.txt");
+  string dirname;
+  if(dirlist.is_open()){
+    while(not dirlist.eof()){
+      getline(dirlist,dirname);
+      bool found = false;
+      for(auto era : RunEra){
+        if(dirname.find(era) != string::npos)
+          found = true;
+      }
+      if(found == false) continue;
+      system(("find "+inputDIR+"/"+dirname+" -name  \"*.root\" > list.txt").c_str());
+      ifstream file("list.txt");
+      if(file.is_open()){
+        string line;
+        while(!file.eof()){
+          getline(file,line);
+          if(TString(line).Contains("failed")) continue;
+          if(line == "" or not TString(line).Contains("root")) continue;
+          cout<<"adding following file: "<<line<<endl;
+          tree->Add(line.c_str());
+        }
+      }
+      system("rm list.txt");
+    }
+  }
+  system("rm list_dir.txt");
+  
   TH2F* hnum = new TH2F("hnum", "", binsEta.size()-1, &binsEta[0],binsPt.size()-1, &binsPt[0]);
   TH2F* hden = new TH2F("hden", "", binsEta.size()-1, &binsEta[0],binsPt.size()-1, &binsPt[0]);
   hnum->Sumw2();
@@ -96,7 +126,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     // to kill QCD in a sample of Wen events
     if(*met < 50) continue;
     if(fabs(*el1eta) > 2.5) continue;
-    if(*el1id != 1) continue;
+    if(*el1id != 1)  continue;
     if(*el1idt != 1) continue;
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
 
@@ -177,7 +207,8 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
 
     projection_pt->GetXaxis()->SetTitle("Electron p_{T} [GeV]");
     projection_pt->GetXaxis()->SetRangeUser(binsPt.front(),binsPt.back());
-    projection_pt->GetYaxis()->SetTitle("Trigger EfficiencyHisto");
+    projection_pt->GetYaxis()->SetTitle("Trigger Efficiency");
+    projection_pt->GetYaxis()->SetRangeUser(0.8,1.1);
     projection_pt->SetMarkerSize(1);
     projection_pt->SetMarkerStyle(20);
     projection_pt->SetMarkerColor(kRed);
@@ -195,7 +226,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     leg->SetBorderSize(0);
     leg->AddEntry(projection_pt,"HLT_Ele27 || HLT_Ele_105","PE");
     leg->AddEntry(projection_pt_recover,"HLT_Ele27 || HLT_Ele_105 || HLT_PFHT800","PE");
-      
+    leg->Draw("same");
     
     if(doFit)
       projection_pt->Fit(fitfunc);

@@ -335,7 +335,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   // accept signal region event if loose muons, electrons, taus and phototns == 0 and triggered by hltmet90
   string cut = "nmuons == 0 && nelectrons == 0 && nphotons == 0 && t1pfmet > "+metCut;
   if (not dropHLTFilter)
-    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu90 > 0 ||  hltmetwithmu100 > 0 || hltmetwithmu110 || hltmetwithmu120 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 )";
+    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu90 > 0 ||  hltmetwithmu100 > 0 || hltmetwithmu110 || hltmetwithmu120 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltjetmet > 0 )";
       
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -566,7 +566,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   // Selections 2 loose muons, 0 loose ele, taus and photons, m(mumu) = m(z) [60,120], mupt > 20, one of the two tight
   string cut = "nmuons == 2 && nelectrons == 0 && nphotons == 0 && zmass > 60 && zmass < 120 && ((mu1pt > 20 && mu1id >= 1) || (mu2pt > 20 && mu2id >= 1)) && t1mumet > "+metCut+" && (mu1pid != mu2pid)";
   if(not dropHLTFilter)
-    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu90 || hltmetwithmu100 || hltmetwithmu110 ||  hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltsinglemu > 0)";
+    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu90 || hltmetwithmu100 || hltmetwithmu110 ||  hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltsinglemu > 0 || hltjetmet > 0)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -1031,7 +1031,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
 
   string cut = "nmuons == 1 && nelectrons == 0  && nphotons == 0 && mu1pt > 20 && mu1id >= 1 && t1mumet > "+metCut;
   if(not dropHLTFilter)
-    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltmetwithmu100 > 0 || hltmetwithmu110 > 0 || hltsinglemu > 0)";
+    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltmetwithmu100 > 0 || hltmetwithmu110 > 0 || hltsinglemu > 0 || hltjetmet > 0)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
@@ -1259,7 +1259,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   string cut = "nmuons == 0 && nelectrons == 1  && nphotons == 0 && el1pt > 40 && el1id >= 1 && t1elmet > "+metCut;
 
   if(not isMC and not isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
-      cut += " && (hltsingleel >0 || hltelnoiso)";  
+      cut += " && (hltsingleel >0 || hltelnoiso > 0)";  
   else if(not isMC and isSinglePhoton and not isJetHT and not isDoubleEG and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltphoton165 > 0 || hltphoton175 > 0)";
   else if(not isMC and isJetHT and not isSinglePhoton and not isDoubleEG and not dropHLTFilter)
@@ -1267,7 +1267,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   else if(not isMC and not isJetHT and not isSinglePhoton and isDoubleEG and not dropHLTFilter)
     cut += " && (hltsingleel == 0 && hltelnoiso == 0) && (hltEcalHT800 > 0 || hltPFHT800 > 0)";
   else if(isMC and not dropHLTFilter)
-    cut += " && (hltsingleel > 0 || hltelnoiso || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
+    cut += " && (hltsingleel > 0 || hltelnoiso > 0 || hltphoton165 > 0 || hltphoton175 > 0 || hltEcalHT800 > 0 || hltPFHT800 > 0)";
 
   
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
@@ -1726,7 +1726,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   // one tight muon + b-jet --> semi-leptonic ttbar events
   string cut = "nmuons == 1 && nelectrons == 0  && nphotons == 0 && nbjets > 0 && mu1id >=1 && mu1pt > 20 && t1mumet > "+metCut;
   if(not dropHLTFilter)
-    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltmetwithmu100 > 0 || hltmetwithmu110 > 0 || hltsinglemu > 0)";
+    cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu120 > 0 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltmetwithmu90 > 0 || hltmetwithmu100 > 0 || hltmetwithmu110 > 0 || hltsinglemu > 0 || hltjetmet > 0)";
 
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();

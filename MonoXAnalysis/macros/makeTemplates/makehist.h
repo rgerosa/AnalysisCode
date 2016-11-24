@@ -40,10 +40,10 @@ const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 50.;
 const float detajj          = 3.5;
 const float mjj             = 1000;
-const float jetmetdphiVBF   = 2.0;
+const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-
+const float dphijj          = 1.0;
 // Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -1123,6 +1123,8 @@ void makehist4(TTree* tree, /*input tree*/
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
 	if((jet1+jet2).M() < mjj) continue;
+	if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+
       }
       else if(category == Category::twojet){
 	if(centralJets.size()+forwardJets.size() < 2) continue;
