@@ -30,7 +30,7 @@
 #include "RooMath.h"
 
 class RooCMSShape : public RooAbsPdf {
-public:
+ public:
   RooCMSShape() {};
   RooCMSShape(const char *name, const char *title,
 	      RooAbsReal& _x,

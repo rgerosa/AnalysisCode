@@ -101,7 +101,7 @@ options.register(
 )
 
 options.register(
-    'saveWorkspace',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+    'saveWorkspace',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
     'store a workspace with the full model in the output file'
 );
 
@@ -301,6 +301,8 @@ elif options.typeID == "trackerid":
     process.leptonIdTnP.Categories.trackerid = cms.vstring("Tracker ID", "dummy[pass=1,fail=0]");
 elif options.typeID == "recoelectronmatch":
     process.leptonIdTnP.Categories.recoelectronmatch = cms.vstring("Reco Electron Match ID", "dummy[pass=1,fail=0]");
+elif options.typeID == "mediumid":
+    process.leptonIdTnP.Categoris.mediumid = cms.vstring("Medium ID", "dummy[pass=1,fail=0]");
     
 
 ######### Not analytical fit but template + convolution for the signal
