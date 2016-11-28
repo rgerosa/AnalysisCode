@@ -18,6 +18,7 @@ static bool  useRooCMSShape = false;
 static bool  useErfExpPdf   = false;
 // RooCMSShape for 10-20 pt, or high pt, RooErfExp in the middle pt range
 static bool  useMixedModel  = true;
+static float ptThrehsoldForRebin = 70.;
 
 /// make the templates
 void maketemplate(const string & inputDIR, 
@@ -165,7 +166,7 @@ void maketemplate(const string & inputDIR,
   hr.Divide(&hp, &ha, 1.0, 1.0, "B");
   // smooth templates two times
   if(smooth){// amcnlo as lower stat
-    if(ptMin >= 50){
+    if(ptMin >= ptThrehsoldForRebin){
       hpass.Rebin(2);
       hfail.Rebin(2);
     }

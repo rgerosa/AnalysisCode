@@ -16,12 +16,12 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		postfix = ""
 
 	if postfix == "Puppi" and not hasattr(process,"puppi"):
-		setattr( process, 'puppiForMET',
-			 cms.EDFilter('CandPtrSelector',
-				      src = cms.InputTag("packedPFCandidates"),
-				      cut = cms.string('puppiWeightNoLep > 0')))
-
-
+		from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+		makePuppiesFromMiniAOD( process, False);
+		process.puppi.useExistingWeights = cms.bool(False)
+		process.puppiNoLep.useExistingWeights = cms.bool(False)
+		
+		
 	######################
 	if useOfficialMETSystematics and addMETSystematics:
 		## use the official jet-MET tool

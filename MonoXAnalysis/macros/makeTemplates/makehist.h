@@ -215,7 +215,7 @@ void makehist4(TTree* tree, /*input tree*/
     esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
     esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
   }
-  
+
   // Photon ID scale factor                                                                                                                                                     
   TFile* sffile_phoMedium = NULL;
   TH2*  psfmedium_lowpu   = NULL;
@@ -223,8 +223,8 @@ void makehist4(TTree* tree, /*input tree*/
 
   if(useMoriondSetup){
     sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/scaleFactor_photon_mediumid.root");
-    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_0_17");
-    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_17_50");
+    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_0_17");
+    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_17_50");
   }
   else{
     sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/scaleFactor_photon_mediumid_12p9.root");
@@ -243,7 +243,7 @@ void makehist4(TTree* tree, /*input tree*/
     purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
     purhist = (TH2*) purityfile_photon->Get("purity");
   }
-
+  
   // Lepton track efficiency
   TFile* trackingefficiency_muon        = NULL;
   TH2F*  trackingefficiency_muon_lowpu  = NULL;
@@ -259,7 +259,6 @@ void makehist4(TTree* tree, /*input tree*/
     trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
   }
   
-  
   TFile* trackingefficiency_electron       = NULL;
   TH2F* trackingefficiency_electron_lowpu  = NULL;
   TH2F* trackingefficiency_electron_highpu = NULL;
@@ -273,27 +272,33 @@ void makehist4(TTree* tree, /*input tree*/
     trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
     trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
   } 
-  
+
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
   ////////////////////////////////////////
   TFile* triggerfile_SinglEle       = NULL;
   TFile* triggerfile_SinglEle_jetHT = NULL;
+  TEfficiency* triggerel_eff        = NULL;
+  TEfficiency* triggerel_eff_jetHT  = NULL;
+
   if(useMoriondSetup){
     triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
     triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
   }
   else{
-    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
+    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
     triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
+    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
   }
 
-  TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
   TH2*         triggerelhist = triggerel_eff->CreateHistogram();
-  TEfficiency* triggerel_eff_jetHT = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
-  TH2* triggerelhist_ht            = triggerel_eff_jetHT->CreateHistogram();
+  TH2* triggerelhist_ht      = triggerel_eff_jetHT->CreateHistogram();
   triggerelhist->SetName("triggerelhist");
   triggerelhist_ht->SetName("triggerelhist_ht");
+
   
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
@@ -353,7 +358,7 @@ void makehist4(TTree* tree, /*input tree*/
     for(auto ifile : triggerfile_MET_binned)
       triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));    
   }
-  
+
   // Photon trigger efficiency measured in jetHT
   TFile* triggerfile_SinglePhoton_jetHT = NULL;
   TFile* triggerfile_SinglePhoton       = NULL;
@@ -583,6 +588,13 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
   TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
 
+  string hltsafe1 = "el1idt";
+  if(not useMoriondSetup)
+    hltsafe1 = "el1id";
+  string hltsafe2 = "el2idt";
+  if(not useMoriondSetup)
+    hltsafe2 = "el2id";
+
   TTreeReaderValue<int>    mu1pid (myReader,"mu1pid");
   TTreeReaderValue<int>    mu2pid (myReader,"mu2pid");
   TTreeReaderValue<int>    mu1id  (myReader,"mu1id");
@@ -593,11 +605,12 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<double> mu2eta (myReader,"mu2eta");
   TTreeReaderValue<double> mu1phi (myReader,"mu1phi");
   TTreeReaderValue<double> mu2phi (myReader,"mu2phi");
-
   TTreeReaderValue<int>    el1pid (myReader,"el1pid");
   TTreeReaderValue<int>    el2pid (myReader,"el2pid");
   TTreeReaderValue<int>    el1id  (myReader,"el1id");
+  TTreeReaderValue<int>    el1idt (myReader,hltsafe1.c_str());
   TTreeReaderValue<int>    el2id  (myReader,"el2id");
+  TTreeReaderValue<int>    el2idt (myReader,hltsafe2.c_str());
   TTreeReaderValue<double> el1pt  (myReader,"el1pt");
   TTreeReaderValue<double> el2pt  (myReader,"el2pt");
   TTreeReaderValue<double> el1eta (myReader,"el1eta");
@@ -692,6 +705,8 @@ void makehist4(TTree* tree, /*input tree*/
     // set lepton info
     Int_t    id1   = 0;
     Int_t    id2   = 0;
+    Int_t    id1t  = 0;
+    Int_t    id2t  = 0;
     Double_t pt1   = 0.0;
     Double_t pt2   = 0.0;
     Double_t eta1  = 0.0;
@@ -704,6 +719,8 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
       id1  = *mu1id;
       id2  = *mu2id;
+      id1t = 1;
+      id2t = 1;
       pt1  = *mu1pt;
       pt2  = *mu2pt;
       pid1 = *mu1pid;
@@ -716,6 +733,8 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
       id1  = *el1id;
       id2  = *el2id;
+      id1t = *el1idt;
+      id2t = *el2idt;
       pt1  = *el1pt;
       pt2  = *el2pt;
       eta1 = *el1eta;
@@ -785,7 +804,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;
       }
       else if(sample == Sample::zee){
-	if(not ((pt1 > 40 and id1 == 1) or (pt2 > 40 and id2 == 1))) continue;
+	if(not ((pt1 > 40 and id1 == 1 and id1t == 1) or (pt2 > 40 and id2 == 1 and id2t == 1))) continue;
       }
     }
     
@@ -794,7 +813,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if((category == Category::VBF or category == Category::twojet) and *nincjets < 2) continue;
 
     // control regions wit one lepton --> tight requirement 
-    if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
+    if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){

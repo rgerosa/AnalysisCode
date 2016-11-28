@@ -104,8 +104,8 @@ def runGroomedMethod(process, isMC,
             genParticles     = cms.InputTag("prunedGenParticles")
             )
 
-        if  "Puppi" in payloadName:
-            getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
+#        if  "Puppi" in payloadName:
+#            getattr(process,"patJetCorrFactors"+jetCollection+postfix).useRho = cms.bool(False)
 
 
     ## matched fat jet with groomed one adding info as user float                                                                                                            
@@ -232,8 +232,8 @@ def runGroomedMethod(process, isMC,
                 groomedFatJets=cms.InputTag(jetCollection+postfix), # needed for subjet flavor clustering
                 ) 
 
-            if  "Puppi" in payloadName:
-                getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
+#            if  "Puppi" in payloadName:
+#                getattr(process,"patJetCorrFactors"+jetCollection+postfix+"SubJets").useRho = cms.bool(False)
 
         ## adding sub-jet QGL
         if addQGLikelihood:
@@ -337,7 +337,7 @@ def JetSubstructure(process,
     ## JEC
     JECLevel = copy.deepcopy(process.JECLevels.labels)
     #if pileupMethod == "Puppi" and 'L1FastJet' in JECLevel:
-    #    JECLevel.remove('L1FastJet')
+    #JECLevel.remove('L1FastJet')
         
     payloadName       = ""
     payloadNameSubJet = ""
@@ -365,11 +365,11 @@ def JetSubstructure(process,
     ## for puppi jets
     elif pileupMethod == "Puppi":
         if not hasattr(process,"puppi"):
-            setattr( process, 'puppi', 
-                     cms.EDFilter('CandPtrSelector', 
-                                  src = cms.InputTag("packedPFCandidates"), 
-                                  cut = cms.string('puppiWeight > 0')))
-        
+            from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
+            makePuppiesFromMiniAOD( process, False);
+            process.puppi.useExistingWeights = cms.bool(False)
+            process.puppiNoLep.useExistingWeights = cms.bool(False)
+                
             
         if not hasattr(process,jetAlgo+'PFJets'+pileupMethod):
             setattr(process,jetAlgo+'PFJets'+pileupMethod,
@@ -423,8 +423,8 @@ def JetSubstructure(process,
             genParticles       = cms.InputTag("prunedGenParticles"),
             ) 
 
-        if "Puppi" in pfCand or "puppi" in pfCand:
-            getattr(process,"patJetCorrFactors"+jetCollection).useRho = cms.bool(False)
+#        if "Puppi" in pfCand or "puppi" in pfCand:
+#            getattr(process,"patJetCorrFactors"+jetCollection).useRho = cms.bool(False)
 
         ### special jec set for pruned/sof-drop mass correction
         if hasattr(process,"patJetCorrFactors"+jetCollection):
