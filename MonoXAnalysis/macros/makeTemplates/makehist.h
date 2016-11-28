@@ -24,7 +24,7 @@ const float pfMetMonoJUpper = 8000.;
 const float pfMetMonoJLower = 200.;
 const float btagCSVLoose     = 0.460;
 const float btagCSVMedium    = 0.800;
-
+const float numberOfVtxCorrection = 17;
 // some basic cut values --> MonoV category
 const float tau2tau1        = 0.6;
 const float tau2tau1LP      = 0.75;
@@ -37,13 +37,13 @@ const float pfMetMonoVUpper = 8000.;
 
 // some basic cut values --> VBF category
 const float leadingJetPtCutVBF  = 80.;
-const float trailingJetPtCutVBF = 50.;
+const float trailingJetPtCutVBF = 70.;
 const float detajj          = 3.5;
 const float mjj             = 1000;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 1.0;
+const float dphijj          = 1.5;
 // Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -148,7 +148,7 @@ void makehist4(TTree* tree, /*input tree*/
   TH1*   puhist = NULL;
   if(useMoriondSetup){
     if(reweightNVTX){
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");    
       puhist = (TH1*) pufile->Get("puhist");
     }
     else {
@@ -174,76 +174,125 @@ void makehist4(TTree* tree, /*input tree*/
   TFile* sffile_muLoose  = NULL;
   
   if(useMoriondSetup){
-    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
-    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
-    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
-    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_tightid.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_looseid.root");
   }
   else{
-    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
-    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
-    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
-    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_tightid_12p9.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_vetoid_12p9.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_tightid_12p9.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_looseid_12p9.root");
   }
 
-  TH2*  msfloose = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
-  TH2*  msftight = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
-  TH2*  esfveto  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
-  TH2*  esftight = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
-
+  TH2*  msfloose_lowpu  = NULL;
+  TH2*  msftight_lowpu  = NULL;
+  TH2*  esfveto_lowpu   = NULL;
+  TH2*  esftight_lowpu  = NULL;
+  TH2*  msfloose_highpu = NULL;
+  TH2*  msftight_highpu = NULL;
+  TH2*  esfveto_highpu  = NULL;
+  TH2*  esftight_highpu = NULL;
+  
+  if(useMoriondSetup){
+    msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_0_17");
+    msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
+    esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_17");
+    esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_17");
+    msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
+    msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
+    esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_17_50");
+    esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_17_50");
+  }
+  else{
+    msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
+    msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
+    esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
+    esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
+    msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
+    msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
+    esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
+    esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
+  }
+  
   // Photon ID scale factor                                                                                                                                                     
   TFile* sffile_phoMedium = NULL;
-  if(useMoriondSetup)
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
-  else
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
-  TH2*  psfmedium = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+  TH2*  psfmedium_lowpu   = NULL;
+  TH2*  psfmedium_highpu  = NULL;
+
+  if(useMoriondSetup){
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/scaleFactor_photon_mediumid.root");
+    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_0_17");
+    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_17_50");
+  }
+  else{
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/scaleFactor_photon_mediumid_12p9.root");
+    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+  }
 
   // Photon Purity                                                                                                                                                              
   TFile* purityfile_photon = NULL;
-  if(useMoriondSetup)
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
-  else
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
-  TH2*  purhist = (TH2*) purityfile_photon->Get("purity");
+  TH2*   purhist           = NULL; 
+  if(useMoriondSetup){
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
+    purhist = (TH2*) purityfile_photon->Get("purity");
+  }
+  else{
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
+    purhist = (TH2*) purityfile_photon->Get("purity");
+  }
 
   // Lepton track efficiency
-  TFile* trackingefficiency_muon = NULL;
-  if(useMoriondSetup)
-    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
-  else
-    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
-  TH2F* trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
-  TH2F* trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
-
+  TFile* trackingefficiency_muon        = NULL;
+  TH2F*  trackingefficiency_muon_lowpu  = NULL;
+  TH2F*  trackingefficiency_muon_highpu = NULL;
+  if(useMoriondSetup){
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_Moriond/scaleFactor_muon_trackerid.root");
+    trackingefficiency_muon_lowpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_0_17");
+    trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_17_50");
+  }
+  else{
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_ICHEP/scaleFactor_muon_trackerid.root");
+    trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
+    trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
+  }
   
-  TFile* trackingefficiency_electron = NULL;
-  if(useMoriondSetup)
-    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");
-  else
-    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");  
-  TH2F* trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
-  TH2F* trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
-
+  
+  TFile* trackingefficiency_electron       = NULL;
+  TH2F* trackingefficiency_electron_lowpu  = NULL;
+  TH2F* trackingefficiency_electron_highpu = NULL;
+  if(useMoriondSetup){
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_Moriond/scaleFactor_electron_recoelectronmatch.root");
+    trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_17");
+    trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_17_50");
+  }
+  else{
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_ICHEP/scaleFactor_electron_recoelectronmatch.root");  
+    trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
+    trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
+  } 
+  
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
   ////////////////////////////////////////
-  TFile* triggerfile_SinglEle = NULL;
-  if(useMoriondSetup)
+  TFile* triggerfile_SinglEle       = NULL;
+  TFile* triggerfile_SinglEle_jetHT = NULL;
+  if(useMoriondSetup){
+    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+  }
+  else{
     triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
-  else
-    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
+  }
+
   TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
   TH2*         triggerelhist = triggerel_eff->CreateHistogram();
-  triggerelhist->SetName("triggerelhist");
-
-  TFile* triggerfile_SinglEle_jetHT = NULL;
-  if(useMoriondSetup)
-    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
-  else
-    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");  
   TEfficiency* triggerel_eff_jetHT = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
   TH2* triggerelhist_ht            = triggerel_eff_jetHT->CreateHistogram();
+  triggerelhist->SetName("triggerelhist");
   triggerelhist_ht->SetName("triggerelhist_ht");
   
   // Met trigger efficiency
@@ -288,7 +337,7 @@ void makehist4(TTree* tree, /*input tree*/
   }
   
   // single turn on
-  TEfficiency*  triggermet = NULL;
+  TEfficiency*       triggermet       = NULL;
   TGraphAsymmErrors* triggermet_graph = NULL;    
   if(triggerfile_MET != NULL){
     triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
@@ -304,7 +353,7 @@ void makehist4(TTree* tree, /*input tree*/
     for(auto ifile : triggerfile_MET_binned)
       triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));    
   }
-
+  
   // Photon trigger efficiency measured in jetHT
   TFile* triggerfile_SinglePhoton_jetHT = NULL;
   TFile* triggerfile_SinglePhoton       = NULL;
@@ -316,11 +365,9 @@ void makehist4(TTree* tree, /*input tree*/
     triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
     triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120.root");
   }
-  TEfficiency*  triggerphoton       = NULL;
-  TEfficiency*  triggerphoton_jetHT = NULL;
-  triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
-  triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");  
-  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
+  TEfficiency* triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
+  TEfficiency* triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");  
+  TGraphAsymmErrors* triggerphoton_graph       = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
 
   /////////////////////////////////////////
@@ -815,56 +862,75 @@ void makehist4(TTree* tree, /*input tree*/
     if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
 
-    // scale factor for leptons
-    TH2* sflhist = NULL;
-    TH2* sfthist = NULL;
-    
-    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
-	sflhist = msfloose;
-	sfthist = msftight;
-    }
-    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
-	sflhist = msfloose;
-	sfthist = esftight;
-    }
        
     Double_t sfwgt = 1.0;
     // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(pt1 > 0. and *nvtx < 15)
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx < 15)
+      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt1 > 0. and *nvtx >= 15)
+      if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx >= 15)
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
-    }
-   
-    // apply lepton id scale factors
-    if (isMC && sflhist && sfthist) {
-      if (pt1 > 0.) {
-	if (id1 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(fabs(eta1),min(pt1,sfthist->GetYaxis()->GetBinLowEdge(sfthist->GetNbinsY()+1)-1))); 
-	else sfwgt *= sflhist->GetBinContent(sflhist->FindBin(fabs(eta1),min(pt1,sflhist->GetYaxis()->GetBinLowEdge(sflhist->GetNbinsY()+1)-1))); 
-      }
-      if (pt2 > 0.) {
-	if (id2 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(fabs(eta2),min(pt2,sfthist->GetYaxis()->GetBinLowEdge(sfthist->GetNbinsY()+1)-1))); 
-	else sfwgt *= sflhist->GetBinContent(sflhist->FindBin(fabs(eta2),min(pt2,sflhist->GetYaxis()->GetBinLowEdge(sflhist->GetNbinsY()+1)-1))); 
-      }
     }
 
     // reco-muon scale factor    
     if(isMC && (sample == Sample::zmm or sample == Sample::wmn or sample == Sample::topmu)){
       double trackwgt = 1;
-      if(pt1 > 0. and *nvtx < 15)
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx < 15)
+      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-      if(pt1 > 0. and *nvtx >= 15)
+      if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx >= 15)
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));      
       sfwgt *= trackwgt;
+    }
+
+    // scale factor for leptons
+    TH2* sflhist_lowpu = NULL;
+    TH2* sfthist_lowpu = NULL;
+    TH2* sflhist_highpu = NULL;
+    TH2* sfthist_highpu = NULL;
+    
+    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
+	sflhist_lowpu  = msfloose_lowpu;
+	sfthist_lowpu  = msftight_lowpu;
+	sflhist_highpu = msfloose_highpu;
+	sfthist_highpu = msftight_highpu;
+    }
+    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
+	sflhist_lowpu  = esfveto_lowpu;
+	sfthist_lowpu  = esftight_lowpu;
+	sflhist_highpu = esfveto_highpu;
+	sfthist_highpu = esftight_highpu;
+    }
+   
+    // apply lepton id scale factors
+    if (isMC && sflhist_lowpu && sfthist_lowpu && sflhist_highpu && sfthist_highpu) {
+      if (pt1 > 0.) {
+	if(*nvtx <= numberOfVtxCorrection){
+	  if (id1 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta1),min(pt1,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta1),min(pt1,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	}
+	else{
+	  if (id1 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta1),min(pt1,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta1),min(pt1,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	}
+      }
+      if (pt2 > 0.) {
+	if(*nvtx <= numberOfVtxCorrection){
+	  if (id2 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta2),min(pt2,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta2),min(pt2,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	}
+	else{
+	  if (id2 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta2),min(pt2,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta2),min(pt2,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	}
+      }
     }
 
     // trigger scale factor for electrons
@@ -883,9 +949,12 @@ void makehist4(TTree* tree, /*input tree*/
     
 
     // photon id scale factor
-    if (isMC && psfmedium && sample == Sample::gam) {
+    if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+	if(*nvtx <= numberOfVtxCorrection)
+	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
+	else
+	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
       }
     }
     
@@ -1387,6 +1456,8 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = *nbjets;
       else if(name.Contains("bosonpt"))
 	fillvar = bosonPt;    	
+      else if(name.Contains("bosoneta"))
+	fillvar = bosonEta;    	
       else if(name.Contains("jetQGL"))
 	fillvar = jetQGL->at(0);
       else if(name.Contains("jet2QGL") and jetQGL->size() > 1)
