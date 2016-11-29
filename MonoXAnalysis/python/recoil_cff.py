@@ -4,14 +4,11 @@ import FWCore.ParameterSet.Config as cms
 def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi):
 
     if not isPuppi:
-        metName = "slimmedMETs"
+        metName = "slimmedMETs";
+        postfix = "";
     else:
-        metName = "slimmedMETsPuppi"
-
-    if(isPuppi):
-        postfix = "puppi"
-    else:
-        postfix = ""
+        metName = "slimmedMETsPuppi";
+        postfix = "puppi";
     
     if not hasattr(process,postfix+"t1mumet"):
         setattr(process, postfix+"t1mumet",cms.EDProducer("MuonCorrectedMETProducer",

@@ -15,7 +15,8 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 	else:
 		postfix = ""
 
-	if postfix == "Puppi" and not hasattr(process,"puppi"):
+	#### run the right recipe for puppi candidates for MET (as well taking last for jets)
+	if postfix == "Puppi" and not hasattr(process,"puppi") and not hasattr(process,"puppiForMET"):
 		from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
 		makePuppiesFromMiniAOD( process, False);
 		process.puppi.useExistingWeights = cms.bool(False)
@@ -28,11 +29,22 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		## re-run for standard met
 		if postfix == "Puppi" :
 			if isMC:
-				runMetCorAndUncFromMiniAOD(process,isData=False,pfCandColl=cms.InputTag("puppiForMET"),metType=postfix,postfix=postfix,jetFlavor="AK4PFPuppi")		 
+				runMetCorAndUncFromMiniAOD(process,
+							   isData=False,
+							   pfCandColl=cms.InputTag("puppiForMET"),
+							   recoMetFromPFCs=True,
+							   metType=postfix,
+							   postfix=postfix,
+							   jetFlavor="AK4PFPuppi")		 
 			else:
-				runMetCorAndUncFromMiniAOD(process,isData=True,pfCandColl=cms.InputTag("puppiForMET"),metType=postfix,postfix=postfix,jetFlavor="AK4PFPuppi")		       
-	
-				
+				runMetCorAndUncFromMiniAOD(process,
+							   isData=True,
+							   pfCandColl=cms.InputTag("puppiForMET"),
+							   recoMetFromPFCs=True,
+							   metType=postfix,
+							   postfix=postfix,
+							   jetFlavor="AK4PFPuppi")		       
+					
 			if applyL2L3Residuals == False and not isMC:
 				process.patPFMetT1T2CorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
 				process.patPFMetT1T2SmearCorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")

@@ -208,7 +208,7 @@ if options.filterHighMETEvents:
 	print "Running with metCut              = ",options.metCut
 print "Running with filterOnHLT         = ",options.filterOnHLT	
 print "Running with setHLTFilterFlag    = ",options.setHLTFilterFlag
-print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
+print "Running with useaddPileupJetIDPrivateSQliteJEC = ",options.usePrivateSQliteJEC	
 print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
 print "Running with addPuppiJets        = ",options.addPuppiJets
@@ -271,7 +271,8 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/0015A622-AA2B-E611-A12D-0023AEFDE888.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/00455E99-5021-E611-998E-003048CF5C10.root')
-		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
+#		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
+		process.source.fileNames.append('/store/relval/CMSSW_8_0_20/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/A8C282AE-D37A-E611-8603-0CC47A4C8ECE.root')
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -290,9 +291,7 @@ else:
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('1:8101:19372740');
-
-
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:4:303');
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #					ignoreTotal = cms.untracked.int32(1),
 #					moduleMemorySummary = cms.untracked.bool(True)
@@ -431,20 +430,34 @@ boostedPuppiJetCollection = "";
 if options.addSubstructureCHS:
 	boostedJetCollection = JetSubstructure(process,
 					       options.isMC,
-					       coneSize = 0.8, algo = "AK",
-					       pileupMethod = "chs", selection = "pt > 190 && abs(eta) < 2.5",
-					       addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-					       addNsubjettiness = True, addEnergyCorrelation = False, addQJets = False,
-					       addQGLikelihood = True);
+					       coneSize = 0.8, 
+					       algo = "AK",
+					       pileupMethod = "chs", 
+					       selection = "pt > 190 && abs(eta) < 2.5",
+					       addPruning   = True, 
+					       addSoftDrop  = True, 
+					       addTrimming  = False, 
+					       addFiltering = False,
+					       addNsubjettiness = True, 
+					       addEnergyCorrelation = False, 
+					       addQJets        = False,
+					       addQGLikelihood = False);
 
 if options.addSubstructurePuppi:
 	boostedPuppiJetCollection = JetSubstructure(process,
 						    options.isMC,
-						    coneSize = 0.8, algo = "AK",
-						    pileupMethod = "Puppi", selection = "pt > 190 && abs(eta) < 2.5",
-						    addPruning = True, addSoftDrop = True, addTrimming = False, addFiltering = False,
-						    addNsubjettiness = True, addEnergyCorrelation = False, addQJets = False,
-						    addQGLikelihood = True);
+						    coneSize = 0.8, 
+						    algo = "AK",
+						    pileupMethod = "Puppi", 
+						    selection = "pt > 190 && abs(eta) < 2.5",
+						    addPruning  = True, 
+						    addSoftDrop = True, 
+						    addTrimming = False,
+						    addFiltering = False,
+						    addNsubjettiness = True, 
+						    addEnergyCorrelation = False, 
+						    addQJets = False,
+						    addQGLikelihood = False);
 
 # MET filter --> making the or of different met
 process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
@@ -458,10 +471,10 @@ process.filterHighRecoil = cms.EDFilter("PATMETFilter",
 		cms.PSet(srcMet = cms.InputTag("t1phmet","",options.processName),
 			 metCut = cms.double(options.metCut)),
 		),
-    filterEvents = cms.bool(options.filterHighMETEvents),
-    graterThan = cms.bool(True),
-    applyAndInsteadOfOr = cms.bool(False)
-)
+					filterEvents = cms.bool(options.filterHighMETEvents),
+					graterThan = cms.bool(True),
+					applyAndInsteadOfOr = cms.bool(False)
+					)
 
 if options.useMiniAODMet:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)

@@ -5215,7 +5215,7 @@ void MonoJetTreeMaker::fillAK8JetCollections(const edm::Handle<std::vector<pat::
   
   
   for (auto jets_iter = boostedJetsH->begin(); jets_iter != boostedJetsH->end(); ++jets_iter) {
-    //clean from leptons                                                                                                                                                  
+    //clean from leptons 
     bool skipjet = false;
     for (std::size_t j = 0; j < muons.size(); j++) {
       if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
@@ -5230,15 +5230,13 @@ void MonoJetTreeMaker::fillAK8JetCollections(const edm::Handle<std::vector<pat::
     for (std::size_t j = 0; j < photons.size(); j++) {
       if (cleanPhotonJet && deltaR(photons[j]->eta(), photons[j]->phi(), jets_iter->eta(), jets_iter->phi()) < dRCleaningAK8) 
 	skipjet = true;
-    }
-    
+    }    
+
     if (skipjet) continue;
-    
     // apply jet id                                                                                                                                                 
     bool passjetid = applyJetID(*jets_iter,jetidwp);
     if (!passjetid)
       continue;
-    
     pat::JetRef jetref(boostedJetsH, jets_iter - boostedJetsH->begin());
     if(jetref.isAvailable() and jetref.isNonnull())
       jetsBoosted.push_back(jetref);
