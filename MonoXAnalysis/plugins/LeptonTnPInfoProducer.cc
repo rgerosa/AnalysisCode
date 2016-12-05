@@ -440,31 +440,32 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       
       for (std::string trigpath : tagelectrontriggermatch.getParameter<std::vector<std::string> >("tagelectrontriggers")) {
 	if (trgobj.hasPathName(trigpath, true, false) or trgobj.hasPathName(trigpath, true, true)) triggermatched = true;
-    }
+      }
       
       if (trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele24_eta2p1_WPLoose_Gsf_v*", true, true))
 	hltele24eta2p1wploosematched = true;
-      
+	
       if (trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele25_eta2p1_WPTight_Gsf_v*", true, true))
 	hltele25eta2p1wptightmatched = true;
-
+      
       if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPLoose_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_eta2p1_WPLoose_Gsf_v*", true, true))
 	hltele27eta2p1wploosematched = true;
-
+      
       if (trgobj.hasPathName("HLT_Ele27_eta2p1_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_eta2p1_WPTight_Gsf_v*", true, true))
 	hltele27eta2p1wptightmatched = true;
-
+      
       if (trgobj.hasPathName("HLT_Ele27_WPTight_Gsf_v*", true, false) or trgobj.hasPathName("HLT_Ele27_WPTight_Gsf_v*", true, true))
 	hltele27wptightmatched = true;
-
+      
       if (trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele105_CaloIdVT_GsfTrkIdT_v*", true, true))
 	hltele105matched = true;
       
       if (trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, false) or trgobj.hasPathName("HLT_Ele115_CaloIdVT_GsfTrkIdT_v*", true, true))
 	hltele115matched = true;
     }
-       
 
+    if(triggermatched)
+       
     if(hltele24eta2p1wploosematched or
        hltele25eta2p1wptightmatched or
        hltele27eta2p1wploosematched or
@@ -473,8 +474,11 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        hltele105matched or
        hltele115matched) hltelematched = true;
     
-    if (not tagelectrontriggermatch.getParameter<bool>("requireelectronhlt")) 
+    if (not tagelectrontriggermatch.getParameter<bool>("requireelectronhlt")) {
+      std::cout<<"not consider matching since running on MC "<<std::endl;
       triggermatched = true;    
+    }
+    
     
     if(not triggermatched and 
        (hltele24eta2p1wploosematched or hltele25eta2p1wptightmatched or
@@ -505,16 +509,22 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // 
     bool passPVconstraints = true;
     if(tagelectrons.getParameter<bool>("applyPVSelection") and verticesH->size() != 0){
-      if(fabs(electrons_iter->eta() < 1.479) and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Barrel")) passPVconstraints = false;
-      else if(fabs(electrons_iter->eta() > 1.479) and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Endcap")) passPVconstraints = false;
-      if(fabs(electrons_iter->eta() < 1.479) and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzBarrel")) passPVconstraints = false;
-      else if(fabs(electrons_iter->eta() > 1.479) and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzEndcap")) passPVconstraints = false;
+      if(fabs(electrons_iter->superCluster()->eta()) < 1.479 and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Barrel")) 
+	passPVconstraints = false;
+      else if(fabs(electrons_iter->superCluster()->eta()) > 1.479 and fabs(electrons_iter->gsfTrack()->dxy(verticesH->at(0).position())) > tagelectrons.getParameter<double>("d0Endcap")) 
+	passPVconstraints = false;
+      if(fabs(electrons_iter->superCluster()->eta()) < 1.479 and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzBarrel")) 
+	passPVconstraints = false;
+      else if(fabs(electrons_iter->superCluster()->eta()) > 1.479 and fabs(electrons_iter->gsfTrack()->dz(verticesH->at(0).position())) > tagelectrons.getParameter<double>("dzEndcap")) 
+	passPVconstraints = false;
     }
       
-      
+    std::cout<<"passPVconstraints "<<passPVconstraints<<std::endl;
     // veto electrons
-    if (verticesH->size() != 0 and (*electronVetoIdH)  [electronPtr] and passPVconstraints) 
+    if (verticesH->size() != 0 and (*electronVetoIdH)  [electronPtr] and passPVconstraints) {
+      std::cout<<"passing electron veto id "<<std::endl;
       outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    }
     // loose electrons
     if (verticesH->size() != 0 and (*electronLooseIdH) [electronPtr] and passPVconstraints) 
       outputlooseelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
@@ -522,17 +532,23 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     if (verticesH->size() != 0 and (*electronMediumIdH)[electronPtr] and passPVconstraints) 
       outputmediumelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // tight electrons
-    if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) 
+    if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) {
+      std::cout<<"passing electron tight id "<<std::endl;
       outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    }
     // HLT safe electrons
-    if (verticesH->size() != 0 and (*electronHLTSafeIdH) [electronPtr] and passPVconstraints) 
+    if (verticesH->size() != 0 and (*electronHLTSafeIdH) [electronPtr] and passPVconstraints) {
+      std::cout<<"passing electron hlt safe id "<<std::endl;
       outputhltsafeelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    }
     //
     if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) {
       if (triggermatched and 
 	  electrons_iter->pt() > tagelectrons.getParameter<double>("tagelectronptcut") and 
-	  fabs(electrons_iter->eta()) < tagelectrons.getParameter<double>("tagelectronetacut")) 
+	  fabs(electrons_iter->superCluster()->eta()) < tagelectrons.getParameter<double>("tagelectronetacut")) {
+	std::cout<<"fill tight electrons "<<std::endl;
 	outputtightelectrons->push_back(*electrons_iter);
+      }
     }
 
     elnvtxvector.push_back(float(verticesH->size()));
@@ -570,8 +586,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	recoelectronmatch = true;
       }
     }
-    
-    // loose photons
+    // loose photons --> NOT ADDING ELECTRON VETO otherwise Zee events cannot be used for photon id
     if (verticesH->size() != 0 and (*photonLooseIdH) [photonPtr]) 
       outputloosephotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
     // medium photons

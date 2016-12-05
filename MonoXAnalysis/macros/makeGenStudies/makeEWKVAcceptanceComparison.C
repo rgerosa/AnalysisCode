@@ -2,11 +2,11 @@
 
 static float bosonPt        = 200;
 static float bosonPtMax     = 80000;
-static float mjj            = 450;
+static float mjj            = 500;
 static float detajj         = 2.5;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float minDeltaPhiVBF = 1.0;
+static float minDeltaPhiVBF = 0.5;
 static bool  removetaus     = true;
 enum class Sample {znn, zll, wjet};
 float lumi_ = 12.9;
@@ -482,4 +482,61 @@ void makeEWKVAcceptanceComparison(string inputDIR_QCD, string inputDIR_EWK, Samp
     plotResults(leptonPt_2_EWK,leptonPt_2_QCD,"leptonpt_2","p_{T}^{lep} [GeV]",outputDIR,sample);
     plotResults(leptonEta_2_EWK,leptonEta_2_QCD,"leptoneta_2","#eta_{lep}",outputDIR,sample);    
   }
+  
+  
+  // acceptance:
+  double integralInAcceptance  = 0;
+  double integralOutAcceptance = 0;
+
+  for(int iBin = 0; iBin < leptonEta_QCD->GetNbinsX()+1; iBin++){
+    if(fabs(leptonEta_QCD->GetBinLowEdge(iBin+1)) > 3.2)
+      integralOutAcceptance += leptonEta_QCD->GetBinContent(iBin+1);
+    else
+      integralInAcceptance += leptonEta_QCD->GetBinContent(iBin+1);
+  }
+  
+  cout<<"Integral in acceptance for Lepton 1  V-QCD "<<integralInAcceptance/leptonEta_QCD->Integral()<<endl;
+  cout<<"Integral out acceptance for Lepton 1 V-QCD "<<integralOutAcceptance/leptonEta_QCD->Integral()<<endl;
+
+  integralInAcceptance  = 0;
+  integralOutAcceptance = 0;
+
+  for(int iBin = 0; iBin < leptonEta_EWK->GetNbinsX()+1; iBin++){
+    if(fabs(leptonEta_EWK->GetBinLowEdge(iBin+1)) > 3.2)
+      integralOutAcceptance += leptonEta_EWK->GetBinContent(iBin+1);
+    else
+      integralInAcceptance += leptonEta_EWK->GetBinContent(iBin+1);
+  }
+  
+  cout<<"Integral in acceptance for Lepton 1  V-EWK "<<integralInAcceptance/leptonEta_EWK->Integral()<<endl;
+  cout<<"Integral out acceptance for Lepton 1 V-EWK "<<integralOutAcceptance/leptonEta_EWK->Integral()<<endl;
+
+
+  integralInAcceptance  = 0;
+  integralOutAcceptance = 0;
+
+  for(int iBin = 0; iBin < leptonEta_2_QCD->GetNbinsX()+1; iBin++){
+    if(fabs(leptonEta_2_QCD->GetBinLowEdge(iBin+1)) > 3.2)
+      integralOutAcceptance += leptonEta_2_QCD->GetBinContent(iBin+1);
+    else
+      integralInAcceptance += leptonEta_2_QCD->GetBinContent(iBin+1);
+  }
+  
+  cout<<"Integral in acceptance for Lepton 2  V-QCD "<<integralInAcceptance/leptonEta_2_QCD->Integral()<<endl;
+  cout<<"Integral out acceptance for Lepton 2 V-QCD "<<integralOutAcceptance/leptonEta_2_QCD->Integral()<<endl;
+
+  integralInAcceptance  = 0;
+  integralOutAcceptance = 0;
+
+  for(int iBin = 0; iBin < leptonEta_2_EWK->GetNbinsX()+1; iBin++){
+    if(fabs(leptonEta_2_EWK->GetBinLowEdge(iBin+1)) > 3.2)
+      integralOutAcceptance += leptonEta_2_EWK->GetBinContent(iBin+1);
+    else
+      integralInAcceptance += leptonEta_2_EWK->GetBinContent(iBin+1);
+  }
+  
+  cout<<"Integral in acceptance for Lepton 2  V-EWK "<<integralInAcceptance/leptonEta_2_EWK->Integral()<<endl;
+  cout<<"Integral out acceptance for Lepton 2 V-EWK "<<integralOutAcceptance/leptonEta_2_EWK->Integral()<<endl;
+
+
 }  

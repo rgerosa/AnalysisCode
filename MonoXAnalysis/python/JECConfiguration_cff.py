@@ -8,46 +8,54 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals,isC
 
 	## if true look to a local SQLite file instead of GT entry
 	if usePrivateSQlite:
-		era = JECEra
+		era_file    = JECEra;
+		era_payload = JECEra;
 		if isMC : 
-   		 	era += "_MC"
+   		 	era_file += "_MC";
+			era_payload += "_MC";
   		else :
-			era += "_DATA"    
-  		dBFile = os.path.expandvars(era+".db")
+			era_file += "_DATA";
+			if JECEra == "Spring16_25nsV10":
+				era_payload += "All_DATA";
+			else:
+				era_payload += "_DATA";
+			
+  		dBFile = os.path.expandvars(era_file+".db")
+
 
 		## connect to local SQLite file
 		process.jec = cms.ESSource("PoolDBESSource",
 					   CondDBSetup,
-					   connect = cms.string("sqlite_file:../data/JEC/"+dBFile),
+					   connect = cms.string("sqlite_file:../../data/JEC/"+dBFile),
 					   toGet =  cms.VPSet(
 				## AK4PF corrections
 				cms.PSet(
 					record = cms.string("JetCorrectionsRecord"),
-					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PF"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era_payload+"_AK4PF"),
 					label= cms.untracked.string("AK4PF")
 					),
 				## AK4PFchs corrections
 				cms.PSet(
 					record = cms.string("JetCorrectionsRecord"),
-					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFchs"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era_payload+"_AK4PFchs"),
 					label= cms.untracked.string("AK4PFchs")
 					),
 				## AK4PFPUPPI corrections
 				cms.PSet(
 					record = cms.string("JetCorrectionsRecord"),
-					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK4PFPuppi"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era_payload+"_AK4PFPuppi"),
 					label= cms.untracked.string("AK4PFPuppi")
 					),		
 				## AK8PFchs corrections            
 				cms.PSet(
 					record = cms.string("JetCorrectionsRecord"),
-					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFchs"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era_payload+"_AK8PFchs"),
 					label= cms.untracked.string("AK8PFchs")
 					),	
 				## AK8PFPuppi corrections            
 				cms.PSet(
 					record = cms.string("JetCorrectionsRecord"),
-					tag = cms.string("JetCorrectorParametersCollection_"+era+"_AK8PFPuppi"),
+					tag = cms.string("JetCorrectorParametersCollection_"+era_payload+"_AK8PFPuppi"),
 					label= cms.untracked.string("AK8PFPuppi")
 					),	
 				)

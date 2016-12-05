@@ -1,5 +1,6 @@
-#include "makeTnPTemplates.C"
 #include "../makeTriggerEfficiency/triggerUtils.h"
+#include "TnPBinning.h"
+#include "../CMS_lumi.h"
 
 vector<TH1*> projectionMC;
 vector<TH1*> projectionMC_Alternative;
@@ -17,87 +18,95 @@ map<string,TFile*> tagAndProbeFits_Alternative;
 map<string,TFile*> tagAndProbeFits_Analytical;
 bool addTurnOnFits_;
 
-void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID){
+void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID, const int & ipu){
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
   TFile* inputFile = NULL;
   vector<float> ptBin;
   vector<float> etaBin;
+  vector<float> puBin;
   
   if(leptonType == "muon"){
     ptBin  = ptBinMuon;
     etaBin = etaBinMuon;
+    puBin  = nvtxBinMuon;
   }
   else if(leptonType == "electron"){
-    ptBin = ptBinElectron;
+    ptBin  = ptBinElectron;
     etaBin = etaBinElectron;
+    puBin  = nvtxBinElectron;
   }
   else if(leptonType == "photon"){
     ptBin = ptBinPhoton;
     etaBin = etaBinPhoton;
+    puBin = nvtxBinPhoton;
   }
-   
+  
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
-        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" > file"+leptonType).c_str());
-        ifstream file;
-        file.open(("file"+leptonType).c_str());
-	int nFiles = 0;
-	string name;
-	if(file.is_open()){
-          while(!file.eof()){
-	    string line;
-            getline(file,line);	    
-	    if(line == "" or line =="\n") continue;
-            nFiles++;
-	    name = line;
-	  }
+      system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f_%.1f",puBin.at(ipu),puBin.at(ipu+1)))+" > file"+leptonType).c_str());
+      ifstream file;
+      file.open(("file"+leptonType).c_str());
+      int nFiles = 0;
+      string name;
+      if(file.is_open()){
+	while(!file.eof()){
+	  string line;
+	  getline(file,line);	    
+	  if(line == "" or line =="\n") continue;
+	  nFiles++;
+	  name = line;
 	}
-	file.close();
-	system(("rm file"+leptonType).c_str());
-	if(nFiles != 1){
-          cerr<<"find not found -->check please "<<endl;
-	}
-	//	cout<<"Opening: "<<directory+"/"+name<<endl;
-	inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
-	if(inputFile->TestBit(TFile::kRecovered)) continue;
-	TH1F* eff = (TH1F*) inputFile->Get("efficiency");
-	efficiency->SetBinContent(ieta+1,ipt+1,eff->GetBinContent(1));
-	efficiency->SetBinError(ieta+1,ipt+1,eff->GetBinError(1));
-    }
+      }
+      file.close();
+      system(("rm file"+leptonType).c_str());
+      if(nFiles != 1){
+	cerr<<"file not found -->check please "<<endl;
+      }
+      //	cout<<"Opening: "<<directory+"/"+name<<endl;
+      inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
+      if(inputFile->TestBit(TFile::kRecovered)) continue;
+      TH1F* eff = (TH1F*) inputFile->Get("efficiency");
+      efficiency->SetBinContent(ieta+1,ipt+1,eff->GetBinContent(1));
+      efficiency->SetBinError(ieta+1,ipt+1,eff->GetBinError(1));
+      }
   }
   return;
 }
 
 // Fill efficiency from Data
-void fillEfficiencyData(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID, const string & postfix = "RooCMSShape"){
+void fillEfficiencyData(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID, const int & ipu, const string & postfix = "RooCMSShape"){
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
   TFile* inputFile = NULL;
   vector<float> ptBin;
   vector<float> etaBin;
+  vector<float> puBin;
   
   if(leptonType == "muon"){
     ptBin  = ptBinMuon;
     etaBin = etaBinMuon;
+    puBin  = nvtxBinMuon;
   }
   else if(leptonType == "electron"){
     ptBin = ptBinElectron;
     etaBin = etaBinElectron;
+    puBin  = nvtxBinElectron;
   }
   else if(leptonType == "photon"){
     ptBin = ptBinPhoton;
     etaBin = etaBinPhoton;
+    puBin  = nvtxBinPhoton;
   }
    
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
       if(postfix != "Alternative" and postfix != "Analytical")
-        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" | grep "+postfix+" | grep -v Alternative | grep -v Analytical > file"+leptonType).c_str());
+        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+Form("%.1f_%.1f",puBin.at(ipu),puBin.at(ipu+1))+" | grep "+postfix+" | grep -v Alternative | grep -v Analytical > file"+leptonType).c_str());
       else
-        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+" | grep "+postfix+" > file"+leptonType).c_str());
+        system(("ls "+directory+" | grep root | grep "+leptonType+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+Form("%.1f_%.1f",puBin.at(ipu),puBin.at(ipu+1))+" | grep "+postfix+" > file"+leptonType).c_str());
       
       ifstream file;
       file.open(("file"+leptonType).c_str());
@@ -121,16 +130,16 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
       inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
       if(inputFile->TestBit(TFile::kRecovered)) continue;
       if(postfix == "RooCMSShape" and not TString(inputFile->GetName()).Contains("Alternative"))
-	tagAndProbeFits_RooCMSShape["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
+	tagAndProbeFits_RooCMSShape["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
       else if(postfix == "Exp" and not TString(inputFile->GetName()).Contains("Alternative"))
-	tagAndProbeFits_Exp["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
+	tagAndProbeFits_Exp["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
 	else if(postfix == "Alternative")
-	  tagAndProbeFits_Alternative["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
+	  tagAndProbeFits_Alternative["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
 	else if(postfix == "Analytical")
-	  tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))] = inputFile;
+	  tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
       
-      RooFitResult* fitResult = (RooFitResult*) inputFile->FindObjectAny("fitresults");
-      cout<<fitResult<<endl;
+      RooWorkspace* workspace = (RooWorkspace*) inputFile->FindObjectAny("w");      
+      RooFitResult* fitResult = (RooFitResult*) workspace->obj("fitresults");
       if(fitResult){
 	RooArgList parameter    = fitResult->floatParsFinal();
 	RooRealVar* eff         = dynamic_cast<RooRealVar*>(parameter.find("efficiency"));	
@@ -143,7 +152,16 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
 }
 
 // plot efficiency
-void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & outputDIR, const string & leptonType, const float & lumi, const bool & isMC, const bool & isScaleFactor){
+void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & outputDIR, const string & leptonType, const float & lumi, const bool & isMC, const bool & isScaleFactor, const int & ipu){
+
+  vector<float> puBin;
+  
+  if(leptonType == "muon")
+    puBin  = nvtxBinMuon;
+  else if(leptonType == "electron")
+    puBin  = nvtxBinElectron;
+  else if(leptonType == "photon")
+    puBin  = nvtxBinPhoton;
 
   canvas->Clear();
   canvas->SetRightMargin(0.20);
@@ -200,8 +218,8 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
     postfix = "Data";
 
   for(int iBinX = 0; iBinX < histoEfficiency->GetNbinsX(); iBinX++){
-    TH1F* projection_pt = new TH1F((string(histoEfficiency->GetName())+"pt_projection_eta_"+to_string(iBinX)).c_str(),"",histoEfficiency->GetYaxis()->GetXbins()->GetSize()-1,histoEfficiency->GetYaxis()->GetXbins()->GetArray());
-
+    TH1F* projection_pt = new TH1F((string(histoEfficiency->GetName())+"pt_projection_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))).c_str(),"",histoEfficiency->GetYaxis()->GetXbins()->GetSize()-1,histoEfficiency->GetYaxis()->GetXbins()->GetArray());
+    
     for(int iBinY = 0; iBinY < histoEfficiency->GetNbinsY(); iBinY++){
       projection_pt->SetBinContent(iBinY+1,histoEfficiency->GetBinContent(iBinX+1,iBinY+1));
       projection_pt->SetBinError(iBinY+1,histoEfficiency->GetBinError(iBinX+1,iBinY+1));
@@ -261,7 +279,7 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
 	  projectionMC.push_back(projection_pt);
       }
       else{
-	if(TString(histoEfficiency->GetName()).Contains("RooCMSShape") and not TString(histoEfficiency->GetName()).Contains("Alternative") and not TString(histoEfficiency->GetName()).Contains("Analytical")  )
+	if(TString(histoEfficiency->GetName()).Contains("RooCMSShape") and not TString(histoEfficiency->GetName()).Contains("Alternative") and not TString(histoEfficiency->GetName()).Contains("Analytical"))
 	  projectionDATA_RooCMSShape.push_back(projection_pt);
 	else if(TString(histoEfficiency->GetName()).Contains("Exp"))
 	  projectionDATA_Exp.push_back(projection_pt);
@@ -308,38 +326,34 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     iFile++;    
     RooWorkspace* workspace = (RooWorkspace*) imap.second->FindObjectAny("w");
     if(workspace == NULL or not workspace) continue;
-    RooDataSet* data = (RooDataSet*) workspace->obj("data");
-    RooDataSet* dataPass = (RooDataSet*) data->reduce((typeID+" > 0").c_str());
-    RooDataSet* dataFail = (RooDataSet*) data->reduce((typeID+" <= 0").c_str());
     RooRealVar* mass = (RooRealVar*) workspace->obj("mass");
-    // for better plotting
     mass->setBins(40);
-    RooDataHist histPass (Form("histPass_%d",iFile),"",RooArgSet(*mass),*dataPass);
-    RooDataHist histFail (Form("histFail_%d",iFile),"",RooArgSet(*mass),*dataFail);
+    // for better plotting
+    RooDataHist* histPass = (RooDataHist*) workspace->data("passDataHist");
+    RooDataHist* histFail = (RooDataHist*) workspace->data("failDataHist");
     // total pdf pass and fail
     RooAddPdf* pdfPass = (RooAddPdf*) workspace->obj("pdfPass");
     RooAddPdf* pdfFail = (RooAddPdf*) workspace->obj("pdfFail");
     RooAbsPdf* backgroundFail = (RooAddPdf*) workspace->obj("backgroundFail");
     RooAbsPdf* backgroundPass = (RooAddPdf*) workspace->obj("backgroundPass");    
     RooFormulaVar* nBkgFail = (RooFormulaVar*) workspace->obj("nBkgFail");
-    RooFormulaVar* nSignalFail = (RooFormulaVar*) workspace->obj("nSignalFail");
+    RooFormulaVar* nSignalFail = (RooFormulaVar*) workspace->obj("nSigFail");
     RooFormulaVar* nBkgPass = (RooFormulaVar*) workspace->obj("nBkgPass");
-    RooFormulaVar* nSignalPass = (RooFormulaVar*) workspace->obj("nSignalPass");
+    RooFormulaVar* nSignalPass = (RooFormulaVar*) workspace->obj("nSigPass");
 
     canvas->cd();
     pad1->cd();
     RooPlot* framePass = mass->frame();
-    RooFitResult* fitResult = (RooFitResult*) imap.second->FindObjectAny("fitresults");
+    RooFitResult* fitResult = (RooFitResult*) workspace->obj("fitresults");
     RooArgList parlist = fitResult->floatParsFinal();
     framePass->SetTitle("");
     framePass->GetXaxis()->SetTitle("mass (GeV)");
     framePass->GetYaxis()->SetTitle("Events / GeV");
     framePass->GetYaxis()->SetTitleOffset(1.1);
-    dataPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(dataPass->GetName()));
-    //    pdfPass->plotOn(framePass,RooFit::VisualizeError(*fitResult,1),RooFit::FillColor(kBlue-2),RooFit::FillStyle(3001),RooFit::Normalization(nBkgPass->getVal()+nSignalPass->getVal(),RooAbsReal::NumEvent),RooFit::DrawOption("L"));
+    histPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(histPass->GetName()));
     backgroundPass->plotOn(framePass,RooFit::LineColor(kRed),RooFit::DrawOption("L"),RooFit::Normalization(nBkgPass->getVal(),RooAbsReal::NumEvent),RooFit::Name(backgroundPass->GetName()));
     pdfPass->plotOn(framePass,RooFit::LineColor(kBlue),RooFit::DrawOption("L"),RooFit::Normalization(nBkgPass->getVal()+nSignalPass->getVal(),RooAbsReal::NumEvent),RooFit::Name(pdfPass->GetName()));
-    dataPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
+    histPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
     float chi2 = framePass->chiSquare(parlist.getSize());
     framePass->Draw();
     TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
@@ -354,12 +368,12 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
 	leg->AddEntry(theObj,"Background Pdf","L");
       else if(name == string(pdfPass->GetName()))
 	leg->AddEntry(theObj,"Total S+B Pdf","L");
-      else if(name == string(dataPass->GetName()))
+      else if(name == string(histPass->GetName()))
 	leg->AddEntry(theObj,"Data","PE");
     }
     leg->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg->Draw("same");
-    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false,0.05);
+    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false);
 
     canvas->cd();
     pad2->cd();
@@ -368,11 +382,10 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     frameFail->GetXaxis()->SetTitle("mass (GeV)");
     frameFail->GetYaxis()->SetTitle("Events / GeV");
     frameFail->GetYaxis()->SetTitleOffset(1.1);
-    dataFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(dataFail->GetName()));
-    //    pdfFail->plotOn(frameFail,RooFit::VisualizeError(*fitResult,1),RooFit::FillColor(kBlue-2),RooFit::FillStyle(3001),RooFit::Normalization(nBkgFail->getVal()+nSignalFail->getVal(),RooAbsReal::NumEvent),RooFit::DrawOption("L"));
+    histFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(histFail->GetName()));
     backgroundFail->plotOn(frameFail,RooFit::LineColor(kRed),RooFit::DrawOption("L"),RooFit::Normalization(nBkgFail->getVal(),RooAbsReal::NumEvent),RooFit::Name(backgroundFail->GetName()));
     pdfFail->plotOn(frameFail,RooFit::LineColor(kBlue),RooFit::DrawOption("L"),RooFit::Normalization(nBkgFail->getVal()+nSignalFail->getVal(),RooAbsReal::NumEvent),RooFit::Name(pdfFail->GetName()));
-    dataFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
+    histFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
     chi2 = frameFail->chiSquare(parlist.getSize());
     frameFail->Draw();
     TLegend* leg2 = new TLegend(0.6,0.7,0.9,0.9);
@@ -387,17 +400,17 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
 	leg2->AddEntry(theObj,"Background Pdf","L");
       else if(name == string(pdfFail->GetName()))
 	leg2->AddEntry(theObj,"Total S+B Pdf","L");
-      else if(name == string(dataFail->GetName()))
+      else if(name == string(histFail->GetName()))
 	leg2->AddEntry(theObj,"Data","PE");
     }
     leg2->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg2->Draw("same");
-    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false,0.05);    
+    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false);    
     //    canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
     
-    delete dataPass;
-    delete dataFail;
+    delete histPass;
+    delete histFail;
     delete framePass;
     delete frameFail;
     delete nBkgFail;
@@ -409,7 +422,6 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     delete pdfPass;
     delete pdfFail;
     delete mass;
-    delete data;
   }    
 }
 
@@ -426,6 +438,10 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
 			      bool   addAnalyticalFits = false
 			      ){
 
+
+  gSystem->Load("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/PDFs/RooErfExpPdf_cc.so");
+  gSystem->Load("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/PDFs/RooCMSShape_cc.so");
+ 
   addTurnOnFits_ = addTurnOnFits;
 
   if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
@@ -445,133 +461,174 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
     cerr<<"typeID is not valid --> please check --> return"<<endl;
     return;
   }
-  
+
+  vector<float> puBins;
+  if(leptonType == "muon")
+    puBins = nvtxBinMuon;
+  else if(leptonType == "electron")
+    puBins = nvtxBinElectron;
+  else if(leptonType == "photon")
+    puBins = nvtxBinPhoton;
+
   /// fill the vector for tag and probe templates
   cout<<"Run MC efficiency "<<endl;
-  TH2F* histoEfficiencyMC = NULL;  
-  if(leptonType == "muon")
-    histoEfficiencyMC = new TH2F(("efficiencyMC_muon_"+typeID).c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]); 
-  else if(leptonType == "electron")
-    histoEfficiencyMC = new TH2F(("efficiencyMC_electron_"+typeID).c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]); 
-  else if(leptonType == "photon")
-    histoEfficiencyMC = new TH2F(("efficiencyMC_photon_"+typeID).c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]); 
-  // fill histo
-  histoEfficiencyMC->Sumw2();
-  fillEfficiencyMC(histoEfficiencyMC,inputTagAndProbeTemplateDIR,leptonType,typeID);
+  vector<TH2F*> histoEfficiencyMC;
   TCanvas* canvas = new TCanvas("canvas","",625,600);
   canvas->cd();
-  plotEfficiency(canvas,histoEfficiencyMC,outputDIR,leptonType,lumi,true,false);
-
-  TH2F* histoEfficiencyMC_Alternative = NULL;
-  if(inputTagAndProbeTemplateDIR_Alternative != ""){ //means that there is also an alternative set of templates
+  for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
     if(leptonType == "muon")
-      histoEfficiencyMC_Alternative = new TH2F(("efficiencyMC_Alternative_muon_"+typeID).c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]);
+      histoEfficiencyMC.push_back(new TH2F(("efficiencyMC_muon_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+					   etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0])); 
     else if(leptonType == "electron")
-      histoEfficiencyMC_Alternative = new TH2F(("efficiencyMC_Alternative_electron_"+typeID).c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]);
+      histoEfficiencyMC.push_back(new TH2F(("efficiencyMC_electron_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+					   etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0])); 
     else if(leptonType == "photon")
-      histoEfficiencyMC_Alternative = new TH2F(("efficiencyMC_Alternative_photon_"+typeID).c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]);
-
-    histoEfficiencyMC_Alternative->Sumw2();
-    fillEfficiencyMC(histoEfficiencyMC_Alternative,inputTagAndProbeTemplateDIR_Alternative,leptonType,typeID);
-    plotEfficiency(canvas,histoEfficiencyMC_Alternative,outputDIR,leptonType,lumi,true,false);  
+      histoEfficiencyMC.push_back(new TH2F(("efficiencyMC_photon_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+					   etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0])); 
+    // fill histo
+    histoEfficiencyMC.back()->Sumw2();
+    fillEfficiencyMC(histoEfficiencyMC.back(),inputTagAndProbeTemplateDIR,leptonType,typeID,ipu);
+    plotEfficiency(canvas,histoEfficiencyMC.back(),outputDIR,leptonType,lumi,true,false,ipu);
   }
- 
 
+  vector<TH2F*> histoEfficiencyMC_Alternative;
+  if(inputTagAndProbeTemplateDIR_Alternative != ""){ //means that there is also an alternative set of templates
+    for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
+      if(leptonType == "muon")
+	histoEfficiencyMC_Alternative.push_back(new TH2F(("efficiencyMC_Alternative_muon_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							 etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]));
+    else if(leptonType == "electron")
+      histoEfficiencyMC_Alternative.push_back(new TH2F(("efficiencyMC_Alternative_electron_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+						       etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]));
+    else if(leptonType == "photon")
+      histoEfficiencyMC_Alternative.push_back(new TH2F(("efficiencyMC_Alternative_photon_"+typeID+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+						       etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]));
+
+      histoEfficiencyMC_Alternative.back()->Sumw2();
+      fillEfficiencyMC(histoEfficiencyMC_Alternative.back(),inputTagAndProbeTemplateDIR_Alternative,leptonType,typeID,ipu);
+      plotEfficiency(canvas,histoEfficiencyMC_Alternative.back(),outputDIR,leptonType,lumi,true,false,ipu);  
+    }
+  }
+  
   cout<<"End MC efficiency "<<endl;
   
   // switch to data --> make also the passing and failing plots
   cout<<"Run Data efficiency "<<endl;
-  TH2F* histoEfficiencyDATA_RooCMSShape = NULL;
-  TH2F* histoEfficiencyDATA_Exp        = NULL;
-  TH2F* histoEfficiencyDATA_Alternative = NULL;
-  TH2F* histoEfficiencyDATA_Analytical = NULL;
+  vector<TH2F*> histoEfficiencyDATA_RooCMSShape;
+  vector<TH2F*> histoEfficiencyDATA_Exp;
+  vector<TH2F*> histoEfficiencyDATA_Alternative;
+  vector<TH2F*> histoEfficiencyDATA_Analytical;
 
-  if(leptonType == "muon"){
-    histoEfficiencyDATA_RooCMSShape = new TH2F(("efficiencyDATA_muon_"+typeID+"_RooCMSShape").c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]);
-    histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_muon_"+typeID+"_Exp").c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]);
+  for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
+    if(leptonType == "muon"){
+      histoEfficiencyDATA_RooCMSShape.push_back( new TH2F(("efficiencyDATA_muon_"+typeID+"_RooCMSShape"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							  etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]));
+      histoEfficiencyDATA_Exp.push_back( new TH2F(("efficiencyDATA_muon_"+typeID+"_Exp"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+						  etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]));
+    }
+    else if(leptonType == "electron"){
+      histoEfficiencyDATA_RooCMSShape .push_back( new TH2F(("efficiencyDATA_electron_"+typeID+"_RooCMSShape"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							   etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]));
+      histoEfficiencyDATA_Exp .push_back( new TH2F(("efficiencyDATA_electron_"+typeID+"_Exp"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+						   etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]));
+    }
+    else if(leptonType == "photon"){
+      histoEfficiencyDATA_RooCMSShape .push_back( new TH2F(("efficiencyDATA_photon_"+typeID+"_RooCMSShape"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							   etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]));
+      histoEfficiencyDATA_Exp .push_back( new TH2F(("efficiencyDATA_photon_"+typeID+"_Exp"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+						   etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]));
+    }
+    
+  
+    histoEfficiencyDATA_RooCMSShape.back()->Sumw2();
+    histoEfficiencyDATA_Exp.back()->Sumw2();
+    // fill histos
+    fillEfficiencyData(histoEfficiencyDATA_RooCMSShape.back(),inputTagAndProbeFitDIR,leptonType,typeID,ipu,"RooCMSShape");  
+    fillEfficiencyData(histoEfficiencyDATA_Exp.back(),inputTagAndProbeFitDIR,leptonType,typeID,ipu,"Exp");
+    //plot histos
+    plotEfficiency(canvas,histoEfficiencyDATA_RooCMSShape.back(),outputDIR,leptonType,lumi,false,false,ipu);
+    plotEfficiency(canvas,histoEfficiencyDATA_Exp.back(),outputDIR,leptonType,lumi,false,false,ipu);
   }
-  else if(leptonType == "electron"){
-    histoEfficiencyDATA_RooCMSShape = new TH2F(("efficiencyDATA_electron_"+typeID+"_RooCMSShape").c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]);
-    histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_electron_"+typeID+"_Exp").c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]);
-  }
-  else if(leptonType == "photon"){
-    histoEfficiencyDATA_RooCMSShape = new TH2F(("efficiencyDATA_photon_"+typeID+"_RooCMSShape").c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]);
-    histoEfficiencyDATA_Exp = new TH2F(("efficiencyDATA_photon_"+typeID+"_Exp").c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]);
-  }
-
-  histoEfficiencyDATA_RooCMSShape->Sumw2();
-  histoEfficiencyDATA_Exp->Sumw2();
-  // fill histos
-  fillEfficiencyData(histoEfficiencyDATA_RooCMSShape,inputTagAndProbeFitDIR,leptonType,typeID,"RooCMSShape");  
-  fillEfficiencyData(histoEfficiencyDATA_Exp,inputTagAndProbeFitDIR,leptonType,typeID,"Exp");
-  //plot histos
-  plotEfficiency(canvas,histoEfficiencyDATA_RooCMSShape,outputDIR,leptonType,lumi,false,false);
-  plotEfficiency(canvas,histoEfficiencyDATA_Exp,outputDIR,leptonType,lumi,false,false);
 
   if(inputTagAndProbeTemplateDIR_Alternative != ""){    
-    if(leptonType == "muon")
-    histoEfficiencyDATA_Alternative = new TH2F(("efficiencyDATA_muon_"+typeID+"_Alternative").c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]);
-    else if(leptonType == "electron")
-      histoEfficiencyDATA_Alternative = new TH2F(("efficiencyDATA_electron_"+typeID+"_Alternative").c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]);
-    else if(leptonType == "photon")
-      histoEfficiencyDATA_Alternative = new TH2F(("efficiencyDATA_photon_"+typeID+"_Alternative").c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]);
+    for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
+      if(leptonType == "muon")
+	histoEfficiencyDATA_Alternative.push_back( new TH2F(("efficiencyDATA_muon_"+typeID+"_Alternative"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							    etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]));
+      else if(leptonType == "electron")
+	histoEfficiencyDATA_Alternative.push_back( new TH2F(("efficiencyDATA_electron_"+typeID+"_Alternative"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							    etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]));
+      else if(leptonType == "photon")
+	histoEfficiencyDATA_Alternative.push_back( new TH2F(("efficiencyDATA_photon_"+typeID+"_Alternative"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							    etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]));
     
-    histoEfficiencyDATA_Alternative->Sumw2();
-    // fill histos
-    fillEfficiencyData(histoEfficiencyDATA_Alternative,inputTagAndProbeFitDIR,leptonType,typeID,"Alternative");
-    plotEfficiency(canvas,histoEfficiencyDATA_Alternative,outputDIR,leptonType,lumi,false,false);
+      histoEfficiencyDATA_Alternative.back()->Sumw2();
+      // fill histos
+      fillEfficiencyData(histoEfficiencyDATA_Alternative.back(),inputTagAndProbeFitDIR,leptonType,typeID,ipu,"Alternative");
+      plotEfficiency(canvas,histoEfficiencyDATA_Alternative.back(),outputDIR,leptonType,lumi,false,false,ipu);
+    }
   }
-
+  
   if(addAnalyticalFits){
-    if(leptonType == "muon")
-      histoEfficiencyDATA_Analytical = new TH2F(("efficiencyDATA_muon_"+typeID+"_Analytical").c_str(),"",etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]);
-    else if(leptonType == "electron")
-      histoEfficiencyDATA_Analytical = new TH2F(("efficiencyDATA_electron_"+typeID+"_Analytical").c_str(),"",etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]);
-    else if(leptonType == "photon")
-      histoEfficiencyDATA_Analytical = new TH2F(("efficiencyDATA_photon_"+typeID+"_Analytical").c_str(),"",etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]);
-    
-    histoEfficiencyDATA_Analytical->Sumw2();
-    // fill histos
-    fillEfficiencyData(histoEfficiencyDATA_Analytical,inputTagAndProbeFitDIR,leptonType,typeID,"Analytical");
-    plotEfficiency(canvas,histoEfficiencyDATA_Analytical,outputDIR,leptonType,lumi,false,false);
+    for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
+      if(leptonType == "muon")
+	histoEfficiencyDATA_Analytical.push_back(new TH2F(("efficiencyDATA_muon_"+typeID+"_Analytical"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							  etaBinMuon.size()-1,&etaBinMuon[0],ptBinMuon.size()-1,&ptBinMuon[0]));
+      else if(leptonType == "electron")
+	histoEfficiencyDATA_Analytical.push_back(new TH2F(("efficiencyDATA_electron_"+typeID+"_Analytical"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							  etaBinElectron.size()-1,&etaBinElectron[0],ptBinElectron.size()-1,&ptBinElectron[0]));
+      else if(leptonType == "photon")
+	histoEfficiencyDATA_Analytical.push_back(new TH2F(("efficiencyDATA_photon_"+typeID+"_Analytical"+"_pu_"+Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))).c_str(),"",
+							  etaBinPhoton.size()-1,&etaBinPhoton[0],ptBinPhoton.size()-1,&ptBinPhoton[0]));
+      
+      histoEfficiencyDATA_Analytical.back()->Sumw2();
+      // fill histos
+      fillEfficiencyData(histoEfficiencyDATA_Analytical.back(),inputTagAndProbeFitDIR,leptonType,typeID,ipu,"Analytical");
+      plotEfficiency(canvas,histoEfficiencyDATA_Analytical.back(),outputDIR,leptonType,lumi,false,false,ipu);
+    }
   }
 
   cout<<"End Data efficiency "<<endl;
   
   // calculate the scale factor and store it
   cout<<"Calculate SF "<<endl;
-  TH2F* histoEfficiencySF_RooCMSShape = (TH2F*) histoEfficiencyDATA_RooCMSShape->Clone("histoEfficiencySF_RooCMSShape");
-  histoEfficiencySF_RooCMSShape->Reset();
-  histoEfficiencySF_RooCMSShape->SetName("histoEfficiencySF_RooCMSShape");
-  histoEfficiencySF_RooCMSShape->Add(histoEfficiencyDATA_RooCMSShape);
-  histoEfficiencySF_RooCMSShape->Divide(histoEfficiencyMC);
-  TH2F* histoEfficiencySF_Exp = (TH2F*) histoEfficiencyDATA_Exp->Clone("histoEfficiencySF_Exp");
-  histoEfficiencySF_Exp->Reset();
-  histoEfficiencySF_Exp->SetName("histoEfficiencySF_Exp");
-  histoEfficiencySF_Exp->Add(histoEfficiencyDATA_Exp);
-  histoEfficiencySF_Exp->Divide(histoEfficiencyMC);
+  vector<TH2F*> histoEfficiencySF_RooCMSShape;
+  vector<TH2F*> histoEfficiencySF_Exp;
+  vector<TH2F*> histoEfficiencySF_Alternative;
+  vector<TH2F*> histoEfficiencySF_Analytical;
 
-  plotEfficiency(canvas,histoEfficiencySF_RooCMSShape,outputDIR,leptonType,lumi,false,true);
-  plotEfficiency(canvas,histoEfficiencySF_Exp,outputDIR,leptonType,lumi,false,true);
+  for(size_t ipu = 0; ipu < puBins.size()-1; ipu++){
+    histoEfficiencySF_RooCMSShape.push_back((TH2F*) histoEfficiencyDATA_RooCMSShape.at(ipu)->Clone(Form("histoEfficiencySF_RooCMSShape_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))));
+    histoEfficiencySF_RooCMSShape.back()->Reset();
+    histoEfficiencySF_RooCMSShape.back()->SetName(Form("histoEfficiencySF_RooCMSShape_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)));
+    histoEfficiencySF_RooCMSShape.back()->Add(histoEfficiencyDATA_RooCMSShape.at(ipu));
+    histoEfficiencySF_RooCMSShape.back()->Divide(histoEfficiencyMC.at(ipu));
+    histoEfficiencySF_Exp.push_back((TH2F*) histoEfficiencyDATA_Exp.at(ipu)->Clone(Form("histoEfficiencySF_Exp_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))));
+    histoEfficiencySF_Exp.back()->Reset();
+    histoEfficiencySF_Exp.back()->SetName(Form("histoEfficiencySF_Exp_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)));
+    histoEfficiencySF_Exp.back()->Add(histoEfficiencyDATA_Exp.at(ipu));
+    histoEfficiencySF_Exp.back()->Divide(histoEfficiencyMC.at(ipu));
+    
+    plotEfficiency(canvas,histoEfficiencySF_RooCMSShape.back(),outputDIR,leptonType,lumi,false,true,ipu);
+    plotEfficiency(canvas,histoEfficiencySF_Exp.back(),outputDIR,leptonType,lumi,false,true,ipu);
   
-  TH2F* histoEfficiencySF_Alternative =  NULL;
-  if(histoEfficiencyDATA_Alternative != NULL and histoEfficiencyMC_Alternative != NULL){
-    histoEfficiencySF_Alternative = (TH2F*) histoEfficiencyDATA_Alternative->Clone("histoEfficiencySF_Alternative");
-    histoEfficiencySF_Alternative->Reset();
-    histoEfficiencySF_Alternative->SetName("histoEfficiencySF_Alternative");
-    histoEfficiencySF_Alternative->Add(histoEfficiencyDATA_Alternative);
-    histoEfficiencySF_Alternative->Divide(histoEfficiencyMC_Alternative);
-    plotEfficiency(canvas,histoEfficiencySF_Alternative,outputDIR,leptonType,lumi,false,true);
-  }
+    if(histoEfficiencyDATA_Alternative.size() != 0 and histoEfficiencyMC_Alternative.size() != 0){
+      histoEfficiencySF_Alternative.push_back((TH2F*) histoEfficiencyDATA_Alternative.at(ipu)->Clone(Form("histoEfficiencySF_Alternative_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))));
+      histoEfficiencySF_Alternative.back()->Reset();
+      histoEfficiencySF_Alternative.back()->SetName(Form("histoEfficiencySF_Alternative_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)));
+      histoEfficiencySF_Alternative.back()->Add(histoEfficiencyDATA_Alternative.at(ipu));
+      histoEfficiencySF_Alternative.back()->Divide(histoEfficiencyMC_Alternative.at(ipu));
+      plotEfficiency(canvas,histoEfficiencySF_Alternative.back(),outputDIR,leptonType,lumi,false,true,ipu);
+    }
 
-  TH2F* histoEfficiencySF_Analytical =  NULL;
-  if(addAnalyticalFits){
-    histoEfficiencySF_Analytical = (TH2F*) histoEfficiencyDATA_Analytical->Clone("histoEfficiencySF_Analytical");
-    histoEfficiencySF_Analytical->Reset();
-    histoEfficiencySF_Analytical->SetName("histoEfficiencySF_Analytical");
-    histoEfficiencySF_Analytical->Add(histoEfficiencyDATA_Analytical);
-    histoEfficiencySF_Analytical->Divide(histoEfficiencyMC);
-    plotEfficiency(canvas,histoEfficiencySF_Analytical,outputDIR,leptonType,lumi,false,true);
+    if(addAnalyticalFits){
+      histoEfficiencySF_Analytical.push_back((TH2F*) histoEfficiencyDATA_Analytical.at(ipu)->Clone(Form("histoEfficiencySF_Analytical_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1))));
+      histoEfficiencySF_Analytical.back()->Reset();
+      histoEfficiencySF_Analytical.back()->SetName(Form("histoEfficiencySF_Analytical_pu_%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)));
+      histoEfficiencySF_Analytical.back()->Add(histoEfficiencyDATA_Analytical.at(ipu));
+      histoEfficiencySF_Analytical.back()->Divide(histoEfficiencyMC.at(ipu));
+      plotEfficiency(canvas,histoEfficiencySF_Analytical.back(),outputDIR,leptonType,lumi,false,true,ipu);
+    }
   }
 
   TCanvas* can = new TCanvas("can","",600,650);
@@ -614,6 +671,8 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
       projectionMC_Alternative.at(iproj)->Draw("E1Psame");
     }
 
+    if(projectionDATA_RooCMSShape.size() < iproj) continue;
+
     projectionDATA_RooCMSShape.at(iproj)->SetLineColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerSize(0.75);
@@ -622,6 +681,8 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
       funz->SetLineColor(kBlue);
     }
     projectionDATA_RooCMSShape.at(iproj)->Draw("E1Psame");
+
+    if(projectionDATA_Exp.size() < iproj) continue;
 
     projectionDATA_Exp.at(iproj)->SetLineColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerColor(kBlack);
@@ -776,49 +837,59 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
   
   // use RooCMSShape as central value + uncertaint from alternative background description --> total 2D hist SF stored in root file.
   cout<<"Scale factor Nominal "<<endl;
-  for(int iBinX = 0; iBinX < histoEfficiencySF_RooCMSShape->GetNbinsX(); iBinX++){
-    for(int iBinY = 0; iBinY < histoEfficiencySF_RooCMSShape->GetNbinsY(); iBinY++){      
-      histoEfficiencySF_RooCMSShape->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_RooCMSShape->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_RooCMSShape->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX)->GetBinError(iBinY+1)*sysUnc.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX)->GetBinError(iBinY+1+sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1))));    
-      cout<<"Scale Factor etaBin ["<<histoEfficiencySF_RooCMSShape->GetYaxis()->GetBinLowEdge(iBinY+1)<<" - "<<histoEfficiencySF_RooCMSShape->GetYaxis()->GetBinLowEdge(iBinY+2)<<"]"<<" ptBin ["<<histoEfficiencySF_RooCMSShape->GetXaxis()->GetBinLowEdge(iBinX+1)<<" - "<<histoEfficiencySF_RooCMSShape->GetXaxis()->GetBinLowEdge(iBinX+2)<<"]"<<" : "<<histoEfficiencySF_RooCMSShape->GetBinContent(iBinX+1,iBinY+1)<<" err "<<histoEfficiencySF_RooCMSShape->GetBinError(iBinX+1,iBinY+1)<<endl;
+  for(size_t ipu = 0; ipu < histoEfficiencySF_RooCMSShape.size(); ipu++){
+    for(int iBinX = 0; iBinX < histoEfficiencySF_RooCMSShape.at(ipu)->GetNbinsX(); iBinX++){
+      for(int iBinY = 0; iBinY < histoEfficiencySF_RooCMSShape.at(ipu)->GetNbinsY(); iBinY++){      
+	histoEfficiencySF_RooCMSShape.at(ipu)->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_RooCMSShape.at(ipu)->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_RooCMSShape.at(ipu)->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1+sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1))));    
+	cout<<"Scale Factor etaBin ["<<histoEfficiencySF_RooCMSShape.at(ipu)->GetYaxis()->GetBinLowEdge(iBinY+1)<<" - "<<histoEfficiencySF_RooCMSShape.at(ipu)->GetYaxis()->GetBinLowEdge(iBinY+2)<<"]"<<" ptBin ["<<histoEfficiencySF_RooCMSShape.at(ipu)->GetXaxis()->GetBinLowEdge(iBinX+1)<<" - "<<histoEfficiencySF_RooCMSShape.at(ipu)->GetXaxis()->GetBinLowEdge(iBinX+2)<<"]"<<" : "<<histoEfficiencySF_RooCMSShape.at(ipu)->GetBinContent(iBinX+1,iBinY+1)<<" err "<<histoEfficiencySF_RooCMSShape.at(ipu)->GetBinError(iBinX+1,iBinY+1)<<endl;
+      }
     }
   }
 
   cout<<"Scale factor Exp "<<endl;
-  for(int iBinX = 0; iBinX < histoEfficiencySF_Exp->GetNbinsX(); iBinX++){
-    for(int iBinY = 0; iBinY < histoEfficiencySF_Exp->GetNbinsY(); iBinY++){      
-      histoEfficiencySF_Exp->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Exp->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Exp->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX)->GetBinError(iBinY+1)*sysUnc.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)));      
+  for(size_t ipu = 0; ipu < histoEfficiencySF_Exp.size(); ipu++){    
+    for(int iBinX = 0; iBinX < histoEfficiencySF_Exp.at(ipu)->GetNbinsX(); iBinX++){
+      for(int iBinY = 0; iBinY < histoEfficiencySF_Exp.at(ipu)->GetNbinsY(); iBinY++){      
+	histoEfficiencySF_Exp.at(ipu)->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Exp.at(ipu)->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Exp.at(ipu)->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)));      
+      }
     }
   }
-  
+
   cout<<"Scale factor Alternative "<<endl;
-  if(histoEfficiencySF_Alternative != NULL){
-    for(int iBinX = 0; iBinX < histoEfficiencySF_Alternative->GetNbinsX(); iBinX++){
-      for(int iBinY = 0; iBinY < histoEfficiencySF_Alternative->GetNbinsY(); iBinY++){      
-	histoEfficiencySF_Alternative->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Alternative->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Alternative->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX)->GetBinError(iBinY+1)*sysUnc.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)));      
+  if(histoEfficiencySF_Alternative.size() != 0){
+    for(size_t ipu = 0; ipu < histoEfficiencySF_Alternative.size(); ipu++){
+      for(int iBinX = 0; iBinX < histoEfficiencySF_Alternative.at(ipu)->GetNbinsX(); iBinX++){
+	for(int iBinY = 0; iBinY < histoEfficiencySF_Alternative.at(ipu)->GetNbinsY(); iBinY++){      
+	  histoEfficiencySF_Alternative.at(ipu)->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Alternative.at(ipu)->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Alternative.at(ipu)->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)));      
+	}
       }
     }
   }
 
   cout<<"Scale factor Analytical "<<endl;
-  if(histoEfficiencySF_Analytical !=NULL){
-    for(int iBinX = 0; iBinX < histoEfficiencySF_Analytical->GetNbinsX(); iBinX++){
-      for(int iBinY = 0; iBinY < histoEfficiencySF_Analytical->GetNbinsY(); iBinY++){      
-	histoEfficiencySF_Analytical->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Analytical->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Analytical->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX)->GetBinError(iBinY+1)*sysUnc.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX)->GetBinError(iBinY+1)));      
+  if(histoEfficiencySF_Analytical.size()!=0){
+    for(size_t ipu = 0; ipu < histoEfficiencySF_Analytical.size(); ipu++){
+      for(int iBinX = 0; iBinX < histoEfficiencySF_Analytical.at(ipu)->GetNbinsX(); iBinX++){
+	for(int iBinY = 0; iBinY < histoEfficiencySF_Analytical.at(ipu)->GetNbinsY(); iBinY++){      
+	  histoEfficiencySF_Analytical.at(ipu)->SetBinError(iBinX+1,iBinY+1,sqrt(histoEfficiencySF_Analytical.at(ipu)->GetBinError(iBinX+1,iBinY+1)*histoEfficiencySF_Analytical.at(ipu)->GetBinError(iBinX+1,iBinY+1)+sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt.at(iBinX+ipu)->GetBinError(iBinY+1)+sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)*sysUnc_alt2.at(iBinX+ipu)->GetBinError(iBinY+1)));      
+	}
       }
     }
   }
- 
-  cout<<"Output plots "<<endl;
+  
+  cout<<"Output plots "<<endl;  
   TFile* outputScaleFactor = new TFile((outputDIR+"/scaleFactor_"+leptonType+"_"+typeID+".root").c_str(),"RECREATE");
   outputScaleFactor->cd();
-  histoEfficiencySF_RooCMSShape->Write(("scaleFactor_"+leptonType+"_"+typeID+"_RooCMSShape").c_str());
-  histoEfficiencySF_Exp->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Exp").c_str());
-  if(histoEfficiencySF_Alternative != NULL)
-    histoEfficiencySF_Alternative->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Alternative").c_str());
-  if(histoEfficiencySF_Analytical != NULL)
-    histoEfficiencySF_Analytical->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Analytical").c_str());
+
+  for(int ipu = 0; ipu < puBins.size()-1; ipu++){
+    histoEfficiencySF_RooCMSShape.at(ipu)->Write(("scaleFactor_"+leptonType+"_"+typeID+"_RooCMSShape"+string(Form("_pu_%d_%d",int(puBins.at(ipu)),int(puBins.at(ipu+1))))).c_str());
+    histoEfficiencySF_Exp.at(ipu)->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Exp"+string(Form("_pu_%d_%d",int(puBins.at(ipu)),int(puBins.at(ipu+1))))).c_str());
+    if(histoEfficiencySF_Alternative.size() != 0)
+      histoEfficiencySF_Alternative.at(ipu)->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Alternative"+string(Form("_pu_%d_%d",int(puBins.at(ipu)),int(puBins.at(ipu+1))))).c_str());
+    if(histoEfficiencySF_Analytical.size() != 0)
+      histoEfficiencySF_Analytical.at(ipu)->Write(("scaleFactor_"+leptonType+"_"+typeID+"_Analytical"+string(Form("_pu_%d_%d",int(puBins.at(ipu)),int(puBins.at(ipu+1))))).c_str());
+  }
   outputScaleFactor->Close();
-  
   // store fits  
   system(("mkdir -p "+outputDIR+"/RooCMSShape").c_str());
   makeTagAndProbeFits(tagAndProbeFits_RooCMSShape,outputDIR+"/RooCMSShape",typeID,lumi);
@@ -829,6 +900,5 @@ void makeLeptonIDScaleFactors(string inputTagAndProbeFitDIR, // direcory with ro
     makeTagAndProbeFits(tagAndProbeFits_Alternative,outputDIR+"/Alternative",typeID,lumi);
   system(("mkdir -p "+outputDIR+"/Analytical").c_str());
   if(tagAndProbeFits_Analytical.size() != 0)
-    makeTagAndProbeFits(tagAndProbeFits_Analytical,outputDIR+"/Analytical",typeID,lumi);
-  
+    makeTagAndProbeFits(tagAndProbeFits_Analytical,outputDIR+"/Analytical",typeID,lumi);  
 }

@@ -19,7 +19,6 @@ def JetCorrector(process,jetCollection,payloadName,isMC,applyL2L3Residuals):
 
     if "Puppi" in jetCollection or "PUPPI" in jetCollection: ## fix corrections for puppi jets removing L1                                                           
         puppiJEC = copy.deepcopy(process.JECLevels.labels)
-        #puppiJEC.remove('L1FastJet')
         getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).levels = puppiJEC
         getattr(process,"patJetCorrFactorsReapplyJEC"+payloadName).useRho = True
 
@@ -64,26 +63,6 @@ def addPileupJetID(process,jetCollection,postfix,isMC):
 
 ### QGLikelihood adder
 def addQGLikelihood(process,jetCollection,postfix):
-
-    CMSSW_VERSION = os.environ['CMSSW_VERSION'];
-
-    ## connect to the DB --> not necessary anymore .. is inside the GT
-    #if not hasattr(process,"QGPoolDBESSource"):
-        #process.QGPoolDBESSource = cms.ESSource("PoolDBESSource",
-        #                                        CondDBSetup,
-        #                                        toGet = cms.VPSet(),
-        #                                        connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'))
-        #qgDatabaseVersion = 'v1'
-
-          #for type in ['AK4PFchs']:
-        #    process.QGPoolDBESSource.toGet.extend(cms.VPSet(cms.PSet(
-        #                record = cms.string('QGLikelihoodRcd'),
-        #                tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_'+type),
-        #                label  = cms.untracked.string('QGL_'+type)
-        #                )))
-        
-        #if re.match("CMSSW_7_6_.*",CMSSW_VERSION) and not hasattr(process,"es_prefer_QGL"):
-        #    process.es_prefer_QGL = cms.ESPrefer("PoolDBESSource",'QGPoolDBESSource')   
 
     ## run evaluator
     from RecoJets.JetProducers.QGTagger_cfi import QGTagger

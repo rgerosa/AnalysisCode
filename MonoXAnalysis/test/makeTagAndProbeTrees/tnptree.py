@@ -61,9 +61,9 @@ if options.inputFiles == []:
                 )
         else:
             process.source.fileNames.append(
-		    'root://xrootd-cms.infn.it:1194//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/274/094/00000/5C319205-6425-E611-BBF4-02163E011F60.root',
+#		    'root://xrootd-cms.infn.it:1194//store/data/Run2016B/SingleMuon/MINIAOD/PromptReco-v2/000/274/094/00000/5C319205-6425-E611-BBF4-02163E011F60.root',
 #		    '/store/data/Run2016B/DoubleMuon/MINIAOD/PromptReco-v2/000/273/554/00000/AA246637-E61F-E611-A971-02163E01187E.root'
-#		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
+		    '/store/data/Run2016B/SingleElectron/MINIAOD/PromptReco-v2/000/273/728/00000/221C84FC-F620-E611-8A0A-02163E013752.root'
                 )
             
 else:
@@ -186,8 +186,8 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   )
 
 if options.isMC:
-	process.probeinfo.requiremuonhlt = cms.bool(False)
-	process.probeinfo.requireelectronhlt = cms.bool(False)
+	process.probeinfo.tagmuontriggermatch.requiremuonhlt = cms.bool(False)
+	process.probeinfo.tagelectrontriggermatch.requireelectronhlt = cms.bool(False)
 
 # Tag muons --> filter on the collection content --> at least one
 process.tagmuons = cms.EDFilter("PATMuonSelector", 
@@ -416,9 +416,17 @@ if options.isMC :
     process.photontnptree.checkMotherInUnbiasEff = cms.bool(True)
     process.photontnptree.allProbes = cms.InputTag("slimmedPhotons")
 
-process.muonPath = cms.Path(process.muontnp*process.muontnptree)
-process.electronPath = cms.Path(process.electrontnp*process.electrontnptree)
-process.photonPath = cms.Path(process.photontnp*process.photontnptree)
+process.muonPath     = cms.Path(
+	process.muontnp*
+	process.muontnptree)
+
+process.electronPath     = cms.Path(
+	process.electrontnp*
+	process.electrontnptree)
+
+process.photonPath = cms.Path(
+        process.photontnp*
+        process.photontnptree)
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

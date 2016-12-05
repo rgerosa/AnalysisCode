@@ -26,6 +26,7 @@ pyCfgParams = ['isMC=True',
                'miniAODProcess=PAT',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
+               'usePrivateSQliteJEC=True',
                'nThreads=3',
                'isCrab=True']
 
@@ -46,7 +47,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_11_11_2016/'
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_02_12_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

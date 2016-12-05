@@ -24,7 +24,7 @@ const float pfMetMonoJUpper = 8000.;
 const float pfMetMonoJLower = 200.;
 const float btagCSVLoose     = 0.460;
 const float btagCSVMedium    = 0.800;
-
+const float numberOfVtxCorrection = 17;
 // some basic cut values --> MonoV category
 const float tau2tau1        = 0.6;
 const float tau2tau1LP      = 0.75;
@@ -37,18 +37,17 @@ const float pfMetMonoVUpper = 8000.;
 
 // some basic cut values --> VBF category
 const float leadingJetPtCutVBF  = 80.;
-const float trailingJetPtCutVBF = 50.;
+const float trailingJetPtCutVBF = 40.;
 const float detajj          = 3.5;
 const float mjj             = 1000;
-const float jetmetdphiVBF   = 2.0;
+const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-
+const float dphijj          = 1.5;
 // Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1; // for top-tagged region
-
 // Re-weight and smoothing
 const bool  reweightNVTX     = true;
 /// photon scale
@@ -59,13 +58,15 @@ const bool  doSmoothing      = false;
 const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useMoriondSetup = true;
 const bool  useSingleMuon   = true;
+// other general options
+const bool  runOnlyData     = false;
 
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/scalefactors_v4.root";
 
 /// basic trees
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_30_09_2016/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/";
 
 VectorSorter jetSorter;
 
@@ -143,12 +144,14 @@ void makehist4(TTree* tree, /*input tree*/
     return;
   }
 
+  if(runOnlyData and isMC) return;
+
   // Pileup Weights
   TFile* pufile = NULL;
   TH1*   puhist = NULL;
   if(useMoriondSetup){
     if(reweightNVTX){
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");    
       puhist = (TH1*) pufile->Get("puhist");
     }
     else {
@@ -174,77 +177,131 @@ void makehist4(TTree* tree, /*input tree*/
   TFile* sffile_muLoose  = NULL;
   
   if(useMoriondSetup){
-    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
-    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
-    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
-    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_tightid.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_looseid.root");
   }
   else{
-    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_tightid_12p9.root");
-    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_electron_vetoid_12p9.root");
-    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_tightid_12p9.root");
-    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/scaleFactor_muon_looseid_12p9.root");
+    sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_tightid_12p9.root");
+    sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_electron_vetoid_12p9.root");
+    sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_tightid_12p9.root");
+    sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_ICHEP/scaleFactor_muon_looseid_12p9.root");
   }
 
-  TH2*  msfloose = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
-  TH2*  msftight = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
-  TH2*  esfveto  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
-  TH2*  esftight = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
+  TH2*  msfloose_lowpu  = NULL;
+  TH2*  msftight_lowpu  = NULL;
+  TH2*  esfveto_lowpu   = NULL;
+  TH2*  esftight_lowpu  = NULL;
+  TH2*  msfloose_highpu = NULL;
+  TH2*  msftight_highpu = NULL;
+  TH2*  esfveto_highpu  = NULL;
+  TH2*  esftight_highpu = NULL;
+  
+  if(useMoriondSetup){
+    msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_0_17");
+    msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
+    esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_17");
+    esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_17");
+    msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
+    msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
+    esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_17_50");
+    esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_17_50");
+  }
+  else{
+    msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
+    msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
+    esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
+    esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
+    msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
+    msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape");
+    esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape");
+    esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
+  }
 
   // Photon ID scale factor                                                                                                                                                     
   TFile* sffile_phoMedium = NULL;
-  if(useMoriondSetup)
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
-  else
-    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/scaleFactor_photon_mediumid_12p9.root");
-  TH2*  psfmedium = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+  TH2*  psfmedium_lowpu   = NULL;
+  TH2*  psfmedium_highpu  = NULL;
+
+  if(useMoriondSetup){
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/scaleFactor_photon_mediumid.root");
+    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_0_17");
+    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_17_50");
+  }
+  else{
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/scaleFactor_photon_mediumid_12p9.root");
+    psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+    psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape");
+  }
 
   // Photon Purity                                                                                                                                                              
   TFile* purityfile_photon = NULL;
-  if(useMoriondSetup)
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
-  else
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
-  TH2*  purhist = (TH2*) purityfile_photon->Get("purity");
-
-  // Lepton track efficiency
-  TFile* trackingefficiency_muon = NULL;
-  if(useMoriondSetup)
-    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
-  else
-    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_muon_trackerid.root");
-  TH2F* trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
-  TH2F* trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
-
+  TH2*   purhist           = NULL; 
+  if(useMoriondSetup){
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
+    purhist = (TH2*) purityfile_photon->Get("purity");
+  }
+  else{
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
+    purhist = (TH2*) purityfile_photon->Get("purity");
+  }
   
-  TFile* trackingefficiency_electron = NULL;
-  if(useMoriondSetup)
-    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");
-  else
-    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/scaleFactor_electron_recoelectronmatch.root");  
-  TH2F* trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
-  TH2F* trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
+  // Lepton track efficiency
+  TFile* trackingefficiency_muon        = NULL;
+  TH2F*  trackingefficiency_muon_lowpu  = NULL;
+  TH2F*  trackingefficiency_muon_highpu = NULL;
+  if(useMoriondSetup){
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_Moriond/scaleFactor_muon_trackerid.root");
+    trackingefficiency_muon_lowpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_0_17");
+    trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_RooCMSShape_pu_17_50");
+  }
+  else{
+    trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_ICHEP/scaleFactor_muon_trackerid.root");
+    trackingefficiency_muon_lowpu  = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_0_16");
+    trackingefficiency_muon_highpu = (TH2F*) trackingefficiency_muon->Get("scaleFactor_muon_trackerid_Exp_pu_16_50");
+  }
+  
+  TFile* trackingefficiency_electron       = NULL;
+  TH2F* trackingefficiency_electron_lowpu  = NULL;
+  TH2F* trackingefficiency_electron_highpu = NULL;
+  if(useMoriondSetup){
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_Moriond/scaleFactor_electron_recoelectronmatch.root");
+    trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_17");
+    trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_17_50");
+  }
+  else{
+    trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_ICHEP/scaleFactor_electron_recoelectronmatch.root");  
+    trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_16");
+    trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_16_50");
+  } 
 
   /////////////////////////////////////////
   // trigger files used for 2016                                                                                                                                                
   ////////////////////////////////////////
-  TFile* triggerfile_SinglEle = NULL;
-  if(useMoriondSetup)
-    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
-  else
-    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
-  TEfficiency* triggerel_eff = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
-  TH2*         triggerelhist = triggerel_eff->CreateHistogram();
-  triggerelhist->SetName("triggerelhist");
-
+  TFile* triggerfile_SinglEle       = NULL;
   TFile* triggerfile_SinglEle_jetHT = NULL;
-  if(useMoriondSetup)
+  TEfficiency* triggerel_eff        = NULL;
+  TEfficiency* triggerel_eff_jetHT  = NULL;
+
+  if(useMoriondSetup){
+    triggerfile_SinglEle = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
+  }
+  else{
+    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
     triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");
-  else
-    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_jetHT_12p9.root");  
-  TEfficiency* triggerel_eff_jetHT = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
-  TH2* triggerelhist_ht            = triggerel_eff_jetHT->CreateHistogram();
+    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
+  }
+
+  TH2*         triggerelhist = triggerel_eff->CreateHistogram();
+  TH2* triggerelhist_ht      = triggerel_eff_jetHT->CreateHistogram();
+  triggerelhist->SetName("triggerelhist");
   triggerelhist_ht->SetName("triggerelhist_ht");
+
   
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
@@ -288,7 +345,7 @@ void makehist4(TTree* tree, /*input tree*/
   }
   
   // single turn on
-  TEfficiency*  triggermet = NULL;
+  TEfficiency*       triggermet       = NULL;
   TGraphAsymmErrors* triggermet_graph = NULL;    
   if(triggerfile_MET != NULL){
     triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
@@ -316,11 +373,9 @@ void makehist4(TTree* tree, /*input tree*/
     triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120_jetHT.root");
     triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/VBF/photonTriggerEfficiency_photonpt120.root");
   }
-  TEfficiency*  triggerphoton       = NULL;
-  TEfficiency*  triggerphoton_jetHT = NULL;
-  triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
-  triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");  
-  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
+  TEfficiency* triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
+  TEfficiency* triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");  
+  TGraphAsymmErrors* triggerphoton_graph       = triggerphoton->CreateGraph();
   TGraphAsymmErrors* triggerphoton_graph_jetHT = triggerphoton_jetHT->CreateGraph();
 
   /////////////////////////////////////////
@@ -380,37 +435,29 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> event       (myReader,"event");
   TTreeReaderValue<unsigned int> nvtx        (myReader,"nvtx");
   TTreeReaderValue<int>          putrue      (myReader,"putrue");
-  TTreeReaderValue<double> xsec              (myReader,"xsec");
-  TTreeReaderValue<double> wgt               (myReader,"wgt");
+  TTreeReaderValue<float> xsec              (myReader,"xsec");
+  TTreeReaderValue<float> wgt               (myReader,"wgt");
 
   // take some wgt for MC events
-  string wgtname;
-  string wgtpileupname;
-  string btagname;
   string prescalename;
   string hltphotonname;
 
+  TTreeReaderValue<double>* wgtsum = NULL;
+  TTreeReaderValue<float>* wgtbtag = NULL;
+
   if(isMC){
     // defined branches for re-weigthing only in MC
-    wgtname       = "wgtsum";
-    wgtpileupname = "wgtpileup";    
+    wgtsum    = new TTreeReaderValue<double>(myReader,"wgtsum");
     // set b-tag
+    string btagname;
     if(sysName == "btagUp" or sysName == "bUp")
       btagname =  "wgtbtagUp";
     else if(sysName == "btagDown" or sysName == "btagDw" or sysName == "bDown" or sysName == "bDw")
       btagname =  "wgtbtagDown";
     else
       btagname    = "wgtbtag";
+    wgtbtag = new TTreeReaderValue<float>(myReader,btagname.c_str());
   }
-  else if(!isMC){ // in case of data
-    wgtname       = "wgt";
-    btagname      = "wgt";
-    wgtpileupname = "wgt";
-  }
-
-  TTreeReaderValue<double> wgtsum       (myReader,wgtname.c_str());
-  TTreeReaderValue<double> wgtpileup    (myReader,wgtpileupname.c_str());
-  TTreeReaderValue<double> wgtbtag      (myReader,btagname.c_str());
   
   // trigger
   TTreeReaderValue<UChar_t> hltm90      (myReader,"hltmet90");
@@ -425,7 +472,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltm        (myReader,"hltsinglemu");
   TTreeReaderValue<UChar_t> hltp120     (myReader,"hltphoton120");
-  TTreeReaderValue<double>  pswgt_ph120 (myReader,"pswgt_ph120");
+  TTreeReaderValue<float>  pswgt_ph120 (myReader,"pswgt_ph120");
   TTreeReaderValue<UChar_t> hltp165     (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (myReader,"hltphoton175");
   TTreeReaderValue<UChar_t> hltpPFHT800    (myReader,"hltPFHT800");
@@ -446,47 +493,46 @@ void makehist4(TTree* tree, /*input tree*/
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
   TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
-  TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausraw");
+  TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausrawold");
   TTreeReaderValue<unsigned int> nincjets   (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
   TTreeReaderValue<unsigned int> nbjetshigh (myReader,"nbjets");
-  TTreeReaderValue<double> ht               (myReader,"ht");
+  TTreeReaderValue<float> ht                (myReader,"ht");
 
-  TTreeReaderValue<vector<double> > jeteta  (myReader,"combinejeteta");
-  TTreeReaderValue<vector<double> > jetpt   (myReader,"combinejetpt");
-  TTreeReaderValue<vector<double> > jetphi  (myReader,"combinejetphi");
-  TTreeReaderValue<vector<double> > jetbtag (myReader,"combinejetbtag");
-  TTreeReaderValue<vector<double> > jetm    (myReader,"combinejetm");
-  TTreeReaderValue<vector<double> > jetQGL  (myReader,"combinejetQGL");
-  TTreeReaderValue<vector<double> > chfrac  (myReader,"combinejetCHfrac");
-  TTreeReaderValue<vector<double> > nhfrac  (myReader,"combinejetNHfrac");
-  TTreeReaderValue<vector<double> > emfrac  (myReader,"combinejetEMfrac");
-  TTreeReaderValue<vector<double> > jetpuid (myReader,"combinejetPUID");
-  TTreeReaderValue<vector<double> > pFlav   (myReader,"combinejetPFlav");
+  TTreeReaderValue<vector<float> > jeteta  (myReader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetpt   (myReader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jetphi  (myReader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jetbtag (myReader,"combinejetbtag");
+  TTreeReaderValue<vector<float> > jetm    (myReader,"combinejetm");
+  TTreeReaderValue<vector<float> > jetQGL  (myReader,"combinejetQGL");
+  TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (myReader,"combinejetNHfrac");
+  TTreeReaderValue<vector<float> > emfrac  (myReader,"combinejetEMfrac");
+  TTreeReaderValue<vector<float> > pFlav   (myReader,"combinejetPFlav");
 
   // AK8 jet
-  TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedJetpt");
-  TTreeReaderValue<vector<double> > boostedJetQGL   (myReader,"boostedJetQGL");
-  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedJeteta");
-  TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedJetphi");
-  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedJetm");
-  TTreeReaderValue<vector<double> > prunedJetm      (myReader,"prunedJetm_v2");
-  TTreeReaderValue<vector<double> > prunedJetpt     (myReader,"prunedJetpt_v2");
-  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedJettau2");
-  TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedJettau1");
-  //  TTreeReaderValue<vector<double> > boostedJetpt    (myReader,"boostedPuppiJetpt");
-  //  TTreeReaderValue<vector<double> > boostedJetQGL   (myReader,"boostedPuppiJetQGL");
-  //  TTreeReaderValue<vector<double> > boostedJeteta   (myReader,"boostedPuppiJeteta");
-  //  TTreeReaderValue<vector<double> > boostedJetphi   (myReader,"boostedPuppiJetphi");
-  //  TTreeReaderValue<vector<double> > boostedJetm     (myReader,"boostedPuppiJetm");
-  //  TTreeReaderValue<vector<double> > prunedJetm   (myReader,"softDropPuppiJetm");
-  //  TTreeReaderValue<vector<double> > prunedJetpt   (myReader,"softDropPuppiJetpt");
-  //  TTreeReaderValue<vector<double> > boostedJettau2  (myReader,"boostedPuppiJettau2");
-  //  TTreeReaderValue<vector<double> > boostedJettau1  (myReader,"boostedPuppiJettau1");
-  TTreeReaderValue<double > hadBosoneta  (myReader,"wzeta_h");
-  TTreeReaderValue<double > hadBosonphi  (myReader,"wzphi_h");
-  TTreeReaderValue<double > hadBosonpt   (myReader,"wzpt_h");
-  TTreeReaderValue<double > hadBosonm    (myReader,"wzmass_h");
+  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");
+  TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedJetQGL");
+  TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
+  TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedJetphi");
+  TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
+  TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm_v2");
+  TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"prunedJetpt_v2");
+  TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
+  TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
+  //  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedPuppiJetpt");
+  //  TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedPuppiJetQGL");
+  //  TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedPuppiJeteta");
+  //  TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedPuppiJetphi");
+  //  TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedPuppiJetm");
+  //  TTreeReaderValue<vector<float> > prunedJetm   (myReader,"softDropPuppiJetm");
+  //  TTreeReaderValue<vector<float> > prunedJetpt   (myReader,"softDropPuppiJetpt");
+  //  TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedPuppiJettau2");
+  //  TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedPuppiJettau1");
+  TTreeReaderValue<float> hadBosoneta  (myReader,"wzeta_h");
+  TTreeReaderValue<float> hadBosonphi  (myReader,"wzphi_h");
+  TTreeReaderValue<float> hadBosonpt   (myReader,"wzpt_h");
+  TTreeReaderValue<float> hadBosonm    (myReader,"wzmass_h");
 
   // met systematics
   string metSuffix = "";
@@ -519,65 +565,73 @@ void makehist4(TTree* tree, /*input tree*/
   else if(sysName == "uncDown" or sysName == "uncDw")
     metSuffix = "UncEnDown";
 
-  TTreeReaderValue<double> met         (myReader,("t1pfmet"+metSuffix).c_str());
-  TTreeReaderValue<double> metOriginal (myReader,"t1pfmet");
-  TTreeReaderValue<double> metphi      (myReader,"t1pfmetphi");
-  TTreeReaderValue<double> mmet        (myReader,"t1mumet");
-  TTreeReaderValue<double> mmetphi     (myReader,"t1mumetphi");
-  TTreeReaderValue<double> emet        (myReader,"t1elmet");
-  TTreeReaderValue<double> emetphi     (myReader,"t1elmetphi"); 
-  TTreeReaderValue<double> pmet        (myReader,"t1phmet");
-  TTreeReaderValue<double> pmetphi     (myReader,"t1phmetphi");
-  TTreeReaderValue<double> metpf       (myReader,"pfmet");
-  TTreeReaderValue<double> metcalo     (myReader,"calomet");
+  TTreeReaderValue<float> met         (myReader,("t1pfmet"+metSuffix).c_str());
+  TTreeReaderValue<float> metOriginal (myReader,"t1pfmet");
+  TTreeReaderValue<float> metphi      (myReader,"t1pfmetphi");
+  TTreeReaderValue<float> mmet        (myReader,"t1mumet");
+  TTreeReaderValue<float> mmetphi     (myReader,"t1mumetphi");
+  TTreeReaderValue<float> emet        (myReader,"t1elmet");
+  TTreeReaderValue<float> emetphi     (myReader,"t1elmetphi"); 
+  TTreeReaderValue<float> pmet        (myReader,"t1phmet");
+  TTreeReaderValue<float> pmetphi     (myReader,"t1phmetphi");
+  TTreeReaderValue<float> metpf       (myReader,"pfmet");
+  TTreeReaderValue<float> metcalo     (myReader,"calomet");
  
  // dphi
-  TTreeReaderValue<double> jmmdphi (myReader,"incjetmumetdphimin4");
-  TTreeReaderValue<double> jemdphi (myReader,"incjetelmetdphimin4");
-  TTreeReaderValue<double> jpmdphi (myReader,"incjetphmetdphimin4");
+  TTreeReaderValue<float> jmmdphi (myReader,"incjetmumetdphimin4");
+  TTreeReaderValue<float> jemdphi (myReader,"incjetelmetdphimin4");
+  TTreeReaderValue<float> jpmdphi (myReader,"incjetphmetdphimin4");
+
+  string hltsafe1 = "el1idt";
+  if(not useMoriondSetup)
+    hltsafe1 = "el1id";
+  string hltsafe2 = "el2idt";
+  if(not useMoriondSetup)
+    hltsafe2 = "el2id";
 
   TTreeReaderValue<int>    mu1pid (myReader,"mu1pid");
   TTreeReaderValue<int>    mu2pid (myReader,"mu2pid");
   TTreeReaderValue<int>    mu1id  (myReader,"mu1id");
   TTreeReaderValue<int>    mu2id  (myReader,"mu2id");
-  TTreeReaderValue<double> mu1pt  (myReader,"mu1pt");
-  TTreeReaderValue<double> mu2pt  (myReader,"mu2pt");
-  TTreeReaderValue<double> mu1eta (myReader,"mu1eta");
-  TTreeReaderValue<double> mu2eta (myReader,"mu2eta");
-  TTreeReaderValue<double> mu1phi (myReader,"mu1phi");
-  TTreeReaderValue<double> mu2phi (myReader,"mu2phi");
-
+  TTreeReaderValue<float> mu1pt  (myReader,"mu1pt");
+  TTreeReaderValue<float> mu2pt  (myReader,"mu2pt");
+  TTreeReaderValue<float> mu1eta (myReader,"mu1eta");
+  TTreeReaderValue<float> mu2eta (myReader,"mu2eta");
+  TTreeReaderValue<float> mu1phi (myReader,"mu1phi");
+  TTreeReaderValue<float> mu2phi (myReader,"mu2phi");
   TTreeReaderValue<int>    el1pid (myReader,"el1pid");
   TTreeReaderValue<int>    el2pid (myReader,"el2pid");
   TTreeReaderValue<int>    el1id  (myReader,"el1id");
+  TTreeReaderValue<int>    el1idt (myReader,hltsafe1.c_str());
   TTreeReaderValue<int>    el2id  (myReader,"el2id");
-  TTreeReaderValue<double> el1pt  (myReader,"el1pt");
-  TTreeReaderValue<double> el2pt  (myReader,"el2pt");
-  TTreeReaderValue<double> el1eta (myReader,"el1eta");
-  TTreeReaderValue<double> el2eta (myReader,"el2eta");
-  TTreeReaderValue<double> el1phi (myReader,"el1phi");
-  TTreeReaderValue<double> el2phi (myReader,"el2phi");
+  TTreeReaderValue<int>    el2idt (myReader,hltsafe2.c_str());
+  TTreeReaderValue<float> el1pt  (myReader,"el1pt");
+  TTreeReaderValue<float> el2pt  (myReader,"el2pt");
+  TTreeReaderValue<float> el1eta (myReader,"el1eta");
+  TTreeReaderValue<float> el2eta (myReader,"el2eta");
+  TTreeReaderValue<float> el1phi (myReader,"el1phi");
+  TTreeReaderValue<float> el2phi (myReader,"el2phi");
   
   TTreeReaderValue<int>    phidm (myReader,"phidm");
-  TTreeReaderValue<double> phpt  (myReader,"phpt");
-  TTreeReaderValue<double> pheta (myReader,"pheta");
-  TTreeReaderValue<double> phphi (myReader,"phphi");
+  TTreeReaderValue<float> phpt  (myReader,"phpt");
+  TTreeReaderValue<float> pheta (myReader,"pheta");
+  TTreeReaderValue<float> phphi (myReader,"phphi");
   
-  TTreeReaderValue<double> wmt    (myReader,"wmt");
-  TTreeReaderValue<double> wemt   (myReader,"wemt");
-  TTreeReaderValue<double> wzpt   (myReader,"wzpt");
-  TTreeReaderValue<double> wzpt_h (myReader,"wzpt_h");
-  TTreeReaderValue<double> wzeta  (myReader,"wzeta");
-  TTreeReaderValue<double> zmass  (myReader,"zmass");
-  TTreeReaderValue<double> zeemass (myReader,"zeemass");
-  TTreeReaderValue<double> zmmpt  (myReader,"zpt");
-  TTreeReaderValue<double> zeept  (myReader,"zeept");
-  TTreeReaderValue<double> zeeeta (myReader,"zeeeta");
-  TTreeReaderValue<double> zeephi (myReader,"zeephi");
-  TTreeReaderValue<double> zmmeta (myReader,"zeta");
-  TTreeReaderValue<double> zmmphi (myReader,"zphi");
+  TTreeReaderValue<float> wmt    (myReader,"wmt");
+  TTreeReaderValue<float> wemt   (myReader,"wemt");
+  TTreeReaderValue<float> wzpt   (myReader,"wzpt");
+  TTreeReaderValue<float> wzpt_h (myReader,"wzpt_h");
+  TTreeReaderValue<float> wzeta  (myReader,"wzeta");
+  TTreeReaderValue<float> zmass  (myReader,"zmass");
+  TTreeReaderValue<float> zeemass (myReader,"zeemass");
+  TTreeReaderValue<float> zmmpt  (myReader,"zpt");
+  TTreeReaderValue<float> zeept  (myReader,"zeept");
+  TTreeReaderValue<float> zeeeta (myReader,"zeeeta");
+  TTreeReaderValue<float> zeephi (myReader,"zeephi");
+  TTreeReaderValue<float> zmmeta (myReader,"zeta");
+  TTreeReaderValue<float> zmmphi (myReader,"zphi");
 
-  TTreeReaderValue<double> dmpt (myReader,"dmpt");
+  TTreeReaderValue<float> dmpt (myReader,"dmpt");
 
   // other trick to handle the fact that this info is actually only stored for top/s-top samples
   string topptname;
@@ -591,14 +645,14 @@ void makehist4(TTree* tree, /*input tree*/
     atopptname = "wgt";
   }
 
-  TTreeReaderValue<double> toppt  (myReader,topptname.c_str());
-  TTreeReaderValue<double> atoppt (myReader,atopptname.c_str());
+  TTreeReaderValue<float> toppt  (myReader,topptname.c_str());
+  TTreeReaderValue<float> atoppt (myReader,atopptname.c_str());
 
   // loop on events
   while(myReader.Next()){
 
     //ICHEP dataset
-    if(not isMC and *run > 276811) continue;
+    if(not useMoriondSetup and not isMC and *run > 276811) continue;
 
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
@@ -645,6 +699,8 @@ void makehist4(TTree* tree, /*input tree*/
     // set lepton info
     Int_t    id1   = 0;
     Int_t    id2   = 0;
+    Int_t    id1t  = 0;
+    Int_t    id2t  = 0;
     Double_t pt1   = 0.0;
     Double_t pt2   = 0.0;
     Double_t eta1  = 0.0;
@@ -657,6 +713,8 @@ void makehist4(TTree* tree, /*input tree*/
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
       id1  = *mu1id;
       id2  = *mu2id;
+      id1t = 1;
+      id2t = 1;
       pt1  = *mu1pt;
       pt2  = *mu2pt;
       pid1 = *mu1pid;
@@ -669,6 +727,8 @@ void makehist4(TTree* tree, /*input tree*/
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
       id1  = *el1id;
       id2  = *el2id;
+      id1t = *el1idt;
+      id2t = *el2idt;
       pt1  = *el1pt;
       pt2  = *el2pt;
       eta1 = *el1eta;
@@ -738,7 +798,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;
       }
       else if(sample == Sample::zee){
-	if(not ((pt1 > 40 and id1 == 1) or (pt2 > 40 and id2 == 1))) continue;
+	if(not ((pt1 > 40 and id1 == 1 and id1t == 1) or (pt2 > 40 and id2 == 1 and id2t == 1))) continue;
       }
     }
     
@@ -747,7 +807,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if((category == Category::VBF or category == Category::twojet) and *nincjets < 2) continue;
 
     // control regions wit one lepton --> tight requirement 
-    if ((sample == Sample::wen || sample == Sample::wmn) && id1 != 1) continue;
+    if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){
@@ -815,56 +875,75 @@ void makehist4(TTree* tree, /*input tree*/
     if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
 
-    // scale factor for leptons
-    TH2* sflhist = NULL;
-    TH2* sfthist = NULL;
-    
-    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
-	sflhist = msfloose;
-	sfthist = msftight;
-    }
-    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
-	sflhist = msfloose;
-	sfthist = esftight;
-    }
        
     Double_t sfwgt = 1.0;
     // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(pt1 > 0. and *nvtx < 15)
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx < 15)
+      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt1 > 0. and *nvtx >= 15)
+      if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx >= 15)
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
-    }
-   
-    // apply lepton id scale factors
-    if (isMC && sflhist && sfthist) {
-      if (pt1 > 0.) {
-	if (id1 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(fabs(eta1),min(pt1,sfthist->GetYaxis()->GetBinLowEdge(sfthist->GetNbinsY()+1)-1))); 
-	else sfwgt *= sflhist->GetBinContent(sflhist->FindBin(fabs(eta1),min(pt1,sflhist->GetYaxis()->GetBinLowEdge(sflhist->GetNbinsY()+1)-1))); 
-      }
-      if (pt2 > 0.) {
-	if (id2 == 1) sfwgt *= sfthist->GetBinContent(sfthist->FindBin(fabs(eta2),min(pt2,sfthist->GetYaxis()->GetBinLowEdge(sfthist->GetNbinsY()+1)-1))); 
-	else sfwgt *= sflhist->GetBinContent(sflhist->FindBin(fabs(eta2),min(pt2,sflhist->GetYaxis()->GetBinLowEdge(sflhist->GetNbinsY()+1)-1))); 
-      }
     }
 
     // reco-muon scale factor    
     if(isMC && (sample == Sample::zmm or sample == Sample::wmn or sample == Sample::topmu)){
       double trackwgt = 1;
-      if(pt1 > 0. and *nvtx < 15)
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx < 15)
+      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_lowpu->GetBinContent(trackingefficiency_muon_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_lowpu->GetNbinsY()+1)-1)));
-      if(pt1 > 0. and *nvtx >= 15)
+      if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx >= 15)
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
 	trackwgt *= trackingefficiency_muon_highpu->GetBinContent(trackingefficiency_muon_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_muon_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_muon_highpu->GetNbinsY()+1)-1)));      
       sfwgt *= trackwgt;
+    }
+
+    // scale factor for leptons
+    TH2* sflhist_lowpu = NULL;
+    TH2* sfthist_lowpu = NULL;
+    TH2* sflhist_highpu = NULL;
+    TH2* sfthist_highpu = NULL;
+    
+    if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
+	sflhist_lowpu  = msfloose_lowpu;
+	sfthist_lowpu  = msftight_lowpu;
+	sflhist_highpu = msfloose_highpu;
+	sfthist_highpu = msftight_highpu;
+    }
+    if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
+	sflhist_lowpu  = esfveto_lowpu;
+	sfthist_lowpu  = esftight_lowpu;
+	sflhist_highpu = esfveto_highpu;
+	sfthist_highpu = esftight_highpu;
+    }
+   
+    // apply lepton id scale factors
+    if (isMC && sflhist_lowpu && sfthist_lowpu && sflhist_highpu && sfthist_highpu) {
+      if (pt1 > 0.) {
+	if(*nvtx <= numberOfVtxCorrection){
+	  if (id1 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta1),min(pt1,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta1),min(pt1,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	}
+	else{
+	  if (id1 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta1),min(pt1,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta1),min(pt1,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	}
+      }
+      if (pt2 > 0.) {
+	if(*nvtx <= numberOfVtxCorrection){
+	  if (id2 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta2),min(pt2,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta2),min(pt2,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	}
+	else{
+	  if (id2 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta2),min(pt2,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta2),min(pt2,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	}
+      }
     }
 
     // trigger scale factor for electrons
@@ -883,9 +962,12 @@ void makehist4(TTree* tree, /*input tree*/
     
 
     // photon id scale factor
-    if (isMC && psfmedium && sample == Sample::gam) {
+    if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	sfwgt *= psfmedium->GetBinContent(psfmedium->FindBin(fabs(eta1),min(pt1,psfmedium->GetYaxis()->GetBinLowEdge(psfmedium->GetNbinsY()+1)-1)));
+	if(*nvtx <= numberOfVtxCorrection)
+	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
+	else
+	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
       }
     }
     
@@ -901,7 +983,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
       if(triggermet_graph)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
-      else if(triggermet_func_binned.size() != 0 and category == Category::VBF){
+      else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet)){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
 	  TLorentzVector jet2 ;
@@ -922,18 +1004,22 @@ void makehist4(TTree* tree, /*input tree*/
     // photon trigger scale factor
     if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT && (sample == Sample::qcdgam || sample == Sample::gam)){ // linear interpolation between graph points            
       if(*pmet < recoilThresholdTrigger)	
-	sfwgt *= triggerphoton_graph->Eval(min(*pmet,triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
       else
-	sfwgt *= triggerphoton_graph_jetHT->Eval(min(*pmet,triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
     
     // B10-4 -tag weight
-    double btagw = *wgtbtag;    
-    if(sample == Sample::topmu or sample == Sample::topel)
-      btagw = 0.9;
-    else
-      btagw = 0.99;
     
+    double btagw = 1.;
+    if(isMC){
+      btagw = **wgtbtag;    
+      if(sample == Sample::topmu or sample == Sample::topel)
+	btagw = 0.9;
+      else
+	btagw = 0.99;
+    }
+
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
       sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
@@ -1123,6 +1209,8 @@ void makehist4(TTree* tree, /*input tree*/
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
 	if((jet1+jet2).M() < mjj) continue;
+	if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+
       }
       else if(category == Category::twojet){
 	if(centralJets.size()+forwardJets.size() < 2) continue;
@@ -1139,19 +1227,24 @@ void makehist4(TTree* tree, /*input tree*/
     }
 
     // fill 1D histogram
-    double fillvar = 0;
+    double fillvar = -99;
     // fill the histograms --> with the right observable
     for(auto hist : hist1D){
       TString name(hist->GetName());      
-      if(name.Contains("nvtx")) // number of vertices
+      // number of vertices
+      if(name.Contains("nvtx")) 
 	fillvar = *nvtx;
-      else if(name.Contains("zmass")) // Z-mass peak to mumu
+      // Z-mass peak to mumu
+      else if(name.Contains("zmass")) 
 	fillvar = *zmass;
-      else if(name.Contains("zeemass")) // Z-mass peak to ee
+      // Z-mass peak to ee
+      else if(name.Contains("zeemass")) 
 	fillvar = *zeemass;
-      else if(name.Contains("t1pfmetphi")) // met-phi with type-I correction	
+      // met-phi with type-I correction 
+      else if(name.Contains("t1pfmetphi"))
 	fillvar = *metphi;      
-      else if(name.Contains("t1pfmet")) // met with type-I correction
+      // met with type-I correction 
+      else if(name.Contains("t1pfmet")) 
 	fillvar = *met;      
       //Delta phi met leptons: mu1, el1 or ph
       else if(name.Contains("dphi_t1met_lep1"))
@@ -1162,6 +1255,16 @@ void makehist4(TTree* tree, /*input tree*/
       //Delta phi met leptons and boson
       else if(name.Contains("dphi_t1met_boson"))
 	fillvar = deltaPhi(*metphi,bosonPhi);
+      //Delta phi met leptons and boson
+      else if(name.Contains("dphi_jet_boson")){
+	float mindphi = TMath::Pi();
+	for(int ijet = 0; ijet < jetpt->size(); ijet++){
+	  if(fabs(jetpt->at(ijet)) < 30) continue;
+	  if(deltaPhi(bosonPhi,jetphi->at(ijet)) < mindphi)
+	    mindphi = deltaPhi(bosonPhi,jetphi->at(ijet));
+	}	
+	fillvar = mindphi;
+      }
       // Lepton Pt and Eta
       else if(name.Contains("elp1pt") and pid1 > 0) // leading e+ pt
 	fillvar = pt1;      
@@ -1187,59 +1290,35 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = pt2;
       else if(name.Contains("el2pt"))
 	fillvar = pt2;
-      else if(name.Contains("mup1eta")){
-	if(pid1 > 0)
-	  fillvar = eta1;      
-	else 
-	  fillvar = -99.;
+      else if(name.Contains("mup1eta") and pid1 > 0){
+	fillvar = eta1;      
       }
-      else if(name.Contains("mum1eta")){
-	if(pid1 < 0)
+      else if(name.Contains("mum1eta") and pid1 < 0){
           fillvar = eta1;
-	else
-          fillvar = -99.;
       }
       else if(name.Contains("mu1eta"))
 	fillvar = eta1;      
-      else if(name.Contains("mup2eta")){
-	if(pid2 > 0)
+      else if(name.Contains("mup2eta") and pid2 > 0){
 	  fillvar = eta2;
-	else
-	  fillvar = -99.;
       } 
-      else if(name.Contains("mum2eta")){
-	if(pid2 < 0)
+      else if(name.Contains("mum2eta") and pid2 < 0){
 	  fillvar = eta2;
-	else
-	  fillvar = -99.;
       } 
       else if(name.Contains("mu2eta"))
 	fillvar = eta2;
-      else if(name.Contains("elp1eta")){
-	if(pid1 > 0)
+      else if(name.Contains("elp1eta") and pid1 > 0){
 	  fillvar = eta1;      
-	else 
-	  fillvar = -99.;
       }
-      else if(name.Contains("elm1eta")){
-	if(pid1 < 0)	  
+      else if(name.Contains("elm1eta") and pid1 < 0){
 	  fillvar = eta1;      
-	else
-	  fillvar = -99.;
       }
       else if(name.Contains("el1eta"))
 	fillvar = eta1;
-      else if(name.Contains("elp2eta")){
-	if(pid1 > 0)
+      else if(name.Contains("elp2eta") and pid1 > 0){
 	  fillvar = eta2;
-	else
-	  fillvar = -99.;
       }
-      else if(name.Contains("elm2eta")){
-	if(pid2 > 0)
+      else if(name.Contains("elm2eta") and pid2 < 0){
 	  fillvar = eta2;
-	else
-	  fillvar = -99.;
       }
       else if(name.Contains("el2eta"))
 	fillvar = eta2;
@@ -1249,74 +1328,41 @@ void makehist4(TTree* tree, /*input tree*/
       else if(name.Contains("wemt"))
 	fillvar = *wemt;
       // jet fractions
-      else if(name.Contains("nhfrac_v2")){
-	if(fabs(jeteta->at(0)) >= 3)
-	  fillvar = nhfrac->at(0);
-	else 
-	  fillvar = -1;
-      }
-      else if(name.Contains("nhfrac_v3")){
-	if(fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
-	  fillvar = nhfrac->at(0);
-	else 
-	  fillvar = -1;
-      }
-      else if(name.Contains("nhfracj2_v2") and jetpt->size() >= 2){
-	if(fabs(jeteta->at(1)) >= 3)
-	  fillvar = nhfrac->at(1);
-	else 
-	  fillvar = -1;
-      }
-      else if(name.Contains("nhfracj2_v3") and jetpt->size() >= 2){
-	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) <= 3)
-	  fillvar = nhfrac->at(1);
-	else 
-	  fillvar = -1;
-      }
-      else if(name.Contains("emfrac_v2")){
-	if(fabs(jeteta->at(0)) >= 3)
-	   fillvar = emfrac->at(0);
-	else 
-	  fillvar = -1;
-      }
-
-      else if(name.Contains("chfrac_v2")){
-	if(fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
+      else if(name.Contains("nhfrac_v2") and fabs(jeteta->at(0)) >= 3)
+	fillvar = nhfrac->at(0);	  
+      else if(name.Contains("nhfrac_v3") and fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
+	fillvar = nhfrac->at(0);
+      else if(name.Contains("nhfracj2_v2") and jetpt->size() >= 2 and fabs(jeteta->at(1)) >= 3)
+	fillvar = nhfrac->at(1);      
+      else if(name.Contains("nhfracj2_v3") and jetpt->size() >= 2 and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) <= 3)
+	fillvar = nhfrac->at(1);
+      else if(name.Contains("emfrac_v2") and fabs(jeteta->at(0)) >= 3)
+	fillvar = emfrac->at(0);
+      else if(name.Contains("chfrac_v2") and fabs(jeteta->at(0)) >= 2.5 and fabs(jeteta->at(0)) <= 3)
+	fillvar = chfrac->at(0);
+      else if(name.Contains("chfracj2_v2") and jetpt->size() >= 2 and fabs(jeteta->at(1)) <= 3)
+	fillvar = chfrac->at(1);
+      else if(name.Contains("chfracj2") and jetpt->size() >= 2 and (category == Category::VBF or category == Category::twojet))
+	fillvar = chfrac->at(1);
+      else if(name.Contains("chfracj2") and jetpt->size() >= 2 and not (category == Category::VBF or category == Category::twojet))
+	fillvar = chfrac->at(leadingCentralJetPos);
+      else if(name.Contains("nhfrac") and (category == Category::VBF or category == Category::twojet))
+	fillvar = nhfrac->at(0);
+      else if(name.Contains("nhfrac") and not (category == Category::VBF or category == Category::twojet))
+	fillvar = nhfrac->at(leadingCentralJetPos);
+      else if(name.Contains("chfrac") and (category == Category::VBF or category == Category::twojet))
 	  fillvar = chfrac->at(0);
-      }
-      else if(name.Contains("chfracj2_v2") and jetpt->size() >= 2){
-	if(fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) <= 3)
-	  fillvar = chfrac->at(1);
-      }
-      else if(name.Contains("chfracj2") and jetpt->size() >= 2){
-	if(category == Category::VBF or category == Category::twojet)
-	  fillvar = chfrac->at(1);
-	else
-	  fillvar = chfrac->at(leadingCentralJetPos);
-      }      
-      else if(name.Contains("nhfrac")){
-	if(category == Category::VBF or category == Category::twojet)
-	  fillvar = nhfrac->at(0);
-	else
-	  fillvar = nhfrac->at(leadingCentralJetPos);
-      }
-      else if(name.Contains("chfrac")){
-	if(category == Category::VBF or category == Category::twojet)
-	  fillvar = chfrac->at(0);
-	else
-	  fillvar = chfrac->at(leadingCentralJetPos);
-      }
-      else if(name.Contains("emfrac")){
-	if(category == Category::VBF or category == Category::twojet)
-	  fillvar = emfrac->at(0);
-	else
-	  fillvar = emfrac->at(leadingCentralJetPos);
-      } 
+      else if(name.Contains("chfrac") and not (category == Category::VBF or category == Category::twojet))
+	fillvar = chfrac->at(leadingCentralJetPos);
+      else if(name.Contains("emfrac") and (category == Category::VBF or category == Category::twojet))
+	fillvar = emfrac->at(0);
+      else if(name.Contains("emfrac") and not (category == Category::VBF or category == Category::twojet))
+	fillvar = emfrac->at(leadingCentralJetPos);
       // AK8 jet kinematics
       else if(name.Contains("boostedjetpt") and boostedJetpt->size() > 0)
-	  fillvar = boostedJetpt->at(0);
+	fillvar = boostedJetpt->at(0);
       else if(name.Contains("boostedjeteta") and boostedJeteta->size() > 0)
-	  fillvar = boostedJeteta->at(0);
+	fillvar = boostedJeteta->at(0);
       // Jet met Dphi used for selection
       else if(name.Contains("jetmetdphi"))
 	fillvar = jmdphi;
@@ -1329,25 +1375,14 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = jetpt->at(1);
       else if(name.Contains("jeteta2") and jetpt->size() >= 2)
 	fillvar = jeteta->at(1);
-      else if(name.Contains("jetpt")){
-	if(category == Category::VBF or category == Category::twojet)
+      else if(name.Contains("jetpt") and (category == Category::VBF or category == Category::twojet))
 	  fillvar = jetpt->at(0);
-	else
+      else if(name.Contains("jetpt") and not (category == Category::VBF or category == Category::twojet))      
 	  fillvar = jetpt->at(leadingCentralJetPos);
-      }
-      else if(name.Contains("jetpuid")){
-	if(fabs(jeteta->at(0)) >= 3)
-	  fillvar = jetpuid->at(0);
-	else
-	  fillvar = -1;
-      }
-	  
-      else if(name.Contains("jeteta")){
-	if(category == Category::VBF or category == Category::twojet)
+      else if(name.Contains("jeteta") and (category == Category::VBF or category == Category::twojet))
 	  fillvar = jeteta->at(0);
-	else
+      else if(name.Contains("jeteta") and not (category == Category::VBF or category == Category::twojet))
 	  fillvar = jeteta->at(leadingCentralJetPos);
-      }
       else if(name.Contains("detajj") and jetpt->size() >= 2)
 	fillvar = fabs(jeteta->at(0)-jeteta->at(1));
       else if(name.Contains("mjj") and jetpt->size() >= 2){
@@ -1359,51 +1394,30 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if(name.Contains("mT")){
 	float deltaphi = deltaPhi(jetphi->at(0),pfmetphi);
-	fillvar    = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaphi)));
+	fillvar = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaphi)));
       }   
       else if(name.Contains("ncjet"))
 	fillvar = *njets;      
       else if(name.Contains("njet"))
 	fillvar = *nincjets;      
-      else if(name.Contains("nbjet_hpt_loose")){
-	int nbjet = 0;
-	for(size_t iJet = 0; iJet < jetbtag->size(); iJet++){
-	  if(jetbtag->at(iJet) > btagCSVLoose and jetpt->at(iJet) > 30)
-	    nbjet++;
-	}
-	fillvar = nbjet;
-      }      
-      else if(name.Contains("nbjet_hpt")){
-	int nbjet = 0;
-	for(size_t iJet = 0; iJet < jetbtag->size(); iJet++){
-	  if(jetbtag->at(iJet) > btagCSVMedium and jetpt->at(iJet) > 30)
-	    nbjet++;
-	}
-	fillvar = nbjet;
-      }      
       else if(name.Contains("nbjet"))
 	fillvar = *nbjets;
       else if(name.Contains("bosonpt"))
 	fillvar = bosonPt;    	
+      else if(name.Contains("bosoneta"))
+	fillvar = bosonEta;    	
       else if(name.Contains("jetQGL"))
 	fillvar = jetQGL->at(0);
       else if(name.Contains("jet2QGL") and jetQGL->size() > 1)
 	fillvar = jetQGL->at(1);
       else if(name.Contains("jetPFlav") and pFlav->size() > 0)
 	fillvar = fabs(pFlav->at(0));
-      else if(name.Contains("jetQGL_AK8")){
-	if(boostedJetpt->size() > 0)
-	  fillvar = boostedJetQGL->at(0);
-	else
-	  fillvar = -1.;
-      }
+      else if(name.Contains("jetQGL_AK8") and boostedJetpt->size() > 0)
+	fillvar = boostedJetQGL->at(0);
       
       // substructure
-      else if(name.Contains("mpruned")){
-	if( prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8 )
-	  fillvar = prunedJetm->at(0);	
-	else fillvar = -1.;
-      }
+      else if(name.Contains("mpruned") and prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8)
+	fillvar = prunedJetm->at(0);	
       else if(name.Contains("HT"))
 	fillvar = *ht;      
       else if(name.Contains("tau2tau1") and boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8)
@@ -1464,7 +1478,7 @@ void makehist4(TTree* tree, /*input tree*/
 	    fillvar = hist->GetXaxis()->GetBinCenter(1);
 	}
       }
-
+      
       else if(name.Contains("minDphiJ1J")){
 	float minDphi = 2*TMath::Pi();
 	bool  isfound = false;
@@ -1487,8 +1501,6 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if(name.Contains("dphiJJ")){
 	if(jetphi->size() < 2){				
-	  cout<<"problem with VBF category "<<endl;
-	  cout<<jetpt->at(0)<<" "<<jetpt->at(1)<<endl;
 	  fillvar = hist->GetXaxis()->GetBinCenter(1);
 	}
 	else 
@@ -1506,17 +1518,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(*wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
       }
       
       if (!isMC && sample == Sample::qcdgam) 
@@ -1677,17 +1689,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
           puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
         if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(*wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
       }
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;

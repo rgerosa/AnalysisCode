@@ -445,7 +445,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // loop on the photon colection
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
 
-    float gaisoval = computePhotonIso(pfcandsH,photons_iter->eta(),  photons_iter->phi(),0.3);     
+    float gaisoval = computePhotonIso(pfcandsH,photons_iter->eta(),photons_iter->phi(),0.3);     
     gammaiso.push_back(gaisoval);
     float chisoval = 0;
     for(size_t i = 0; i < pfcandsH->size(); i++) {

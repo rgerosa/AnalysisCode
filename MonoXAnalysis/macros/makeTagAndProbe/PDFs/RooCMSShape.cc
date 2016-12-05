@@ -20,7 +20,7 @@
  *
  *****************************************************************************/
 
-#include "PhysicsTools/TagAndProbe/interface/RooCMSShape.h"
+#include "RooCMSShape.h"
 
 ClassImp(RooCMSShape) 
 

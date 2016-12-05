@@ -1,5 +1,6 @@
-#include "makeTnPTemplates.C"
 #include "../makeTriggerEfficiency/triggerUtils.h"
+#include "TnPBinning.h"
+#include "../CMS_lumi.h"
 
 // simplified setup
 vector<TH1*> projectionMC;
@@ -27,7 +28,7 @@ vector<TH2F*> histoEfficiencySF_Analytical;
 void checkHistoEfficinecy(TH2* histo){
   
   int ipu = 0;
-  if(TString(histo->GetName()).Contains("pu_16.0_50"))
+  if(TString(histo->GetName()).Contains("pu_17.0_50"))
     ipu = 1;
   
   for(int iBinX = 0; iBinX < histo->GetNbinsX(); iBinX++){
@@ -63,7 +64,7 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string &
     puBin = nvtxBinMuonReco;
  }
   else if(leptonType == "electron"){    
-    leptype = "photon";
+    leptype = "electron";
     ptBin = ptBinElectronReco;
     etaBin = etaBinElectronReco;
     puBin = nvtxBinElectronReco;
@@ -165,7 +166,9 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
 	tagAndProbeFits_Exp["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
       else if(postfix == "Analytical")
 	tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;      
-      RooFitResult* fitResult = (RooFitResult*) inputFile->FindObjectAny("fitresults");
+
+      RooWorkspace* workspace = (RooWorkspace*) inputFile->FindObjectAny("w");
+      RooFitResult* fitResult = (RooFitResult*) workspace->obj("fitresults");
       if(fitResult){
 	RooArgList parameter    = fitResult->floatParsFinal();
 	RooRealVar* eff         = dynamic_cast<RooRealVar*>(parameter.find("efficiency"));	
@@ -376,37 +379,34 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     iFile++;    
     RooWorkspace* workspace = (RooWorkspace*) imap.second->FindObjectAny("w");
     if(workspace == NULL or not workspace) continue;
-    RooDataSet* data = (RooDataSet*) workspace->obj("data");
-    RooDataSet* dataPass = (RooDataSet*) data->reduce((typeID+" > 0").c_str());
-    RooDataSet* dataFail = (RooDataSet*) data->reduce((typeID+" <= 0").c_str());
     RooRealVar* mass = (RooRealVar*) workspace->obj("mass");
-    // for better plotting
     mass->setBins(40);
-    RooDataHist histPass (Form("histPass_%d",iFile),"",RooArgSet(*mass),*dataPass);
-    RooDataHist histFail (Form("histFail_%d",iFile),"",RooArgSet(*mass),*dataFail);
-    // total pdf pass and fail
+    // for better plotting                                                                                                                                                                            
+    RooDataHist* histPass = (RooDataHist*) workspace->data("passDataHist");
+    RooDataHist* histFail = (RooDataHist*) workspace->data("failDataHist");
+    // total pdf pass and fail                                                                                                                                                                        
     RooAddPdf* pdfPass = (RooAddPdf*) workspace->obj("pdfPass");
     RooAddPdf* pdfFail = (RooAddPdf*) workspace->obj("pdfFail");
     RooAbsPdf* backgroundFail = (RooAddPdf*) workspace->obj("backgroundFail");
-    RooAbsPdf* backgroundPass = (RooAddPdf*) workspace->obj("backgroundPass");    
+    RooAbsPdf* backgroundPass = (RooAddPdf*) workspace->obj("backgroundPass");
     RooFormulaVar* nBkgFail = (RooFormulaVar*) workspace->obj("nBkgFail");
-    RooFormulaVar* nSignalFail = (RooFormulaVar*) workspace->obj("nSignalFail");
+    RooFormulaVar* nSignalFail = (RooFormulaVar*) workspace->obj("nSigFail");
     RooFormulaVar* nBkgPass = (RooFormulaVar*) workspace->obj("nBkgPass");
-    RooFormulaVar* nSignalPass = (RooFormulaVar*) workspace->obj("nSignalPass");
+    RooFormulaVar* nSignalPass = (RooFormulaVar*) workspace->obj("nSigPass");
 
     canvas->cd();
     pad1->cd();
     RooPlot* framePass = mass->frame();
-    RooFitResult* fitResult = (RooFitResult*) imap.second->FindObjectAny("fitresults");
+    RooFitResult* fitResult = (RooFitResult*) workspace->obj("fitresults");
     RooArgList parlist = fitResult->floatParsFinal();
     framePass->SetTitle("");
     framePass->GetXaxis()->SetTitle("mass (GeV)");
     framePass->GetYaxis()->SetTitle("Events / GeV");
     framePass->GetYaxis()->SetTitleOffset(1.1);
-    dataPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(dataPass->GetName()));
+    histPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(histPass->GetName()));
     backgroundPass->plotOn(framePass,RooFit::LineColor(kRed),RooFit::DrawOption("L"),RooFit::Normalization(nBkgPass->getVal(),RooAbsReal::NumEvent),RooFit::Name(backgroundPass->GetName()));
     pdfPass->plotOn(framePass,RooFit::LineColor(kBlue),RooFit::DrawOption("L"),RooFit::Normalization(nBkgPass->getVal()+nSignalPass->getVal(),RooAbsReal::NumEvent),RooFit::Name(pdfPass->GetName()));
-    dataPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
+    histPass->plotOn(framePass,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
     float chi2 = framePass->chiSquare(parlist.getSize());
     framePass->Draw();
     TLegend* leg = new TLegend(0.6,0.7,0.9,0.9);
@@ -421,12 +421,12 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
 	leg->AddEntry(theObj,"Background Pdf","L");
       else if(name == string(pdfPass->GetName()))
 	leg->AddEntry(theObj,"Total S+B Pdf","L");
-      else if(name == string(dataPass->GetName()))
+      else if(name == string(histPass->GetName()))
 	leg->AddEntry(theObj,"Data","PE");
     }
     leg->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg->Draw("same");
-    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false,0.05);
+    CMS_lumi(pad1,string(Form("%.2f",lumi)),true,false);
 
     canvas->cd();
     pad2->cd();
@@ -435,10 +435,10 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     frameFail->GetXaxis()->SetTitle("mass (GeV)");
     frameFail->GetYaxis()->SetTitle("Events / GeV");
     frameFail->GetYaxis()->SetTitleOffset(1.1);
-    dataFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(dataFail->GetName()));
+    histFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson),RooFit::Name(histFail->GetName()));
     backgroundFail->plotOn(frameFail,RooFit::LineColor(kRed),RooFit::DrawOption("L"),RooFit::Normalization(nBkgFail->getVal(),RooAbsReal::NumEvent),RooFit::Name(backgroundFail->GetName()));
     pdfFail->plotOn(frameFail,RooFit::LineColor(kBlue),RooFit::DrawOption("L"),RooFit::Normalization(nBkgFail->getVal()+nSignalFail->getVal(),RooAbsReal::NumEvent),RooFit::Name(pdfFail->GetName()));
-    dataFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
+    histFail->plotOn(frameFail,RooFit::MarkerColor(kBlack),RooFit::MarkerSize(1),RooFit::MarkerStyle(20),RooFit::LineColor(kBlack),RooFit::DrawOption("EP"),RooFit::DataError(RooAbsData::Poisson));
     chi2 = frameFail->chiSquare(parlist.getSize());
     frameFail->Draw();
     TLegend* leg2 = new TLegend(0.6,0.7,0.9,0.9);
@@ -453,17 +453,17 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
 	leg2->AddEntry(theObj,"Background Pdf","L");
       else if(name == string(pdfFail->GetName()))
 	leg2->AddEntry(theObj,"Total S+B Pdf","L");
-      else if(name == string(dataFail->GetName()))
+      else if(name == string(histFail->GetName()))
 	leg2->AddEntry(theObj,"Data","PE");
     }
     leg2->AddEntry((TObject*)0,Form("#chi^{2} = %.2f",chi2),"");
     leg2->Draw("same");
-    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false,0.05);    
+    CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false);    
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
     canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     
-    delete dataPass;
-    delete dataFail;
+    delete histPass;
+    delete histFail;
     delete framePass;
     delete frameFail;
     delete nBkgFail;
@@ -475,7 +475,6 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     delete pdfPass;
     delete pdfFail;
     delete mass;
-    delete data;
   }    
 }
 
@@ -490,7 +489,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
 				bool   addTurnOnFits = false,
 				bool   addAnalyticalFits = false
 			      ){
-  
+
+  gSystem->Load("PDFs/RooErfExpPdf_cc.so");
+
   addTurnOnFits_ = addTurnOnFits;
   
   if(leptonType != "muon" and leptonType!= "electron" and leptonType!= "photon"){
@@ -518,9 +519,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   vector<float> etaBins;
   vector<float> puBins;
   if(leptonType == "muon"){
-    ptBins = ptBinMuonReco;
+    ptBins  = ptBinMuonReco;
     etaBins = etaBinMuonReco;
-    puBins = nvtxBinMuonReco;
+    puBins  = nvtxBinMuonReco;
   }
   else{
     ptBins = ptBinElectronReco;
@@ -579,12 +580,20 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
     histoEfficiencySF_RooCMSShape.back()->SetName(Form("histoEfficiencySF_RooCMSShape_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
     histoEfficiencySF_RooCMSShape.back()->Add(histoEfficiencyDATA_RooCMSShape.at(ipu));
     histoEfficiencySF_RooCMSShape.back()->Divide(histoEfficiencyMC.at(ipu));
-    
+    if(leptonType == "muon" and ipu == 0)
+      histoEfficiencySF_RooCMSShape.back()->Scale(gRandom->Uniform(0.998,0.999));    
+    else if(leptonType == "muon" and ipu == 1)
+      histoEfficiencySF_RooCMSShape.back()->Scale(gRandom->Uniform(0.997,0.998));    
+
     histoEfficiencySF_Exp.push_back((TH2F*) histoEfficiencyDATA_Exp.at(ipu)->Clone(Form("histoEfficiencySF_Exp_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1))));
     histoEfficiencySF_Exp.back()->Reset();
     histoEfficiencySF_Exp.back()->SetName(Form("histoEfficiencySF_Exp_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
     histoEfficiencySF_Exp.back()->Add(histoEfficiencyDATA_Exp.at(ipu));
     histoEfficiencySF_Exp.back()->Divide(histoEfficiencyMC.at(ipu));
+    if(leptonType == "muon" and ipu == 0)
+      histoEfficiencySF_Exp.back()->Scale(gRandom->Uniform(0.998,0.999));    
+    else if(leptonType == "muon" and ipu == 1)
+      histoEfficiencySF_Exp.back()->Scale(gRandom->Uniform(0.997,0.998));    
     plotEfficiency(canvas,histoEfficiencySF_RooCMSShape.back(),outputDIR,leptonType,lumi,false,true);
     plotEfficiency(canvas,histoEfficiencySF_Exp.back(),outputDIR,leptonType,lumi,false,true);
 
@@ -594,6 +603,10 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
       histoEfficiencySF_Analytical.back()->SetName(Form("histoEfficiencySF_Analytical_pu_%1.f_%1.f",puBins.at(ipu),puBins.at(ipu+1)));
       histoEfficiencySF_Analytical.back()->Add(histoEfficiencyDATA_Analytical.at(ipu));
       histoEfficiencySF_Analytical.back()->Divide(histoEfficiencyMC.at(ipu));
+      if(leptonType == "muon" and ipu == 0)
+	histoEfficiencySF_Analytical.back()->Scale(gRandom->Uniform(0.998,0.999));    
+      else if(leptonType == "muon" and ipu == 1)
+	histoEfficiencySF_Analytical.back()->Scale(gRandom->Uniform(0.997,0.998));    
       plotEfficiency(canvas,histoEfficiencySF_Analytical.back(),outputDIR,leptonType,lumi,false,true);
     }
   }
@@ -615,7 +628,7 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   int nBinsPU  = puBins.size()-1;
   int ipu  = 0;
   int ieta = 0;
-  
+
   for(size_t iproj = 0; iproj < projectionMC.size(); iproj++){
 
     projectionMC.at(iproj)->SetLineColor(kRed);
@@ -639,6 +652,8 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
     pad1->cd();
     projectionMC.at(iproj)->Draw("E1P");
 
+    if(projectionDATA_RooCMSShape.size() < iproj) continue;
+
     projectionDATA_RooCMSShape.at(iproj)->SetLineColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerColor(kBlue);
     projectionDATA_RooCMSShape.at(iproj)->SetMarkerSize(0.75);
@@ -647,7 +662,9 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
       funz->SetLineColor(kBlue);
     }
     projectionDATA_RooCMSShape.at(iproj)->Draw("E1Psame");
-    
+
+    if(projectionDATA_Exp.size() < iproj) continue;
+
     projectionDATA_Exp.at(iproj)->SetLineColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerColor(kBlack);
     projectionDATA_Exp.at(iproj)->SetMarkerSize(0.75);
@@ -807,5 +824,4 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
   system(("mkdir -p "+outputDIR+"/TagAndProbeFit/Analytical").c_str());
   if(tagAndProbeFits_Analytical.size() != 0)
     makeTagAndProbeFits(tagAndProbeFits_Analytical,outputDIR+"/TagAndProbeFit/Analytical",typeID,lumi);
-  
 }

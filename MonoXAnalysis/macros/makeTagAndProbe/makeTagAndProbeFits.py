@@ -16,23 +16,23 @@ from subprocess import Popen
 ############################################                                                                                                                                   
 
 ##################
-muonPtBinning   = [10.,20.,30.,40.,50.,60.,80.,100.,500.];
-muonEtaBinning  = [0.,0.9,1.2,2.1,2.4];
-muonNvtxBinning = [0.,16.,50.];
+muonPtBinning       = [10.,20.,30.,40.,50.,60.,80.,100.,500.];
+muonEtaBinning      = [0.,0.9,1.2,2.1,2.4];
+muonNvtxBinning     = [0.,17.,50.];
 muonPtBinningReco   = [10.,20.,30.,40.,150.];
 muonEtaBinningReco  = [0.,0.4,0.9,1.2,1.8,2.4];
-muonNvtxBinningReco = [0.,16.,50.];
+muonNvtxBinningReco = [0.,17.,50.];
 
-electronPtBinning   = [10.,20.,30.,40.,50.,60.,80.,100.,125.,500.];
-electronEtaBinning  = [0.,0.8,1.5,2.,2.5];
-electronNvtxBinning = [0.,16.,50.];
+electronPtBinning       = [10.,20.,30.,40.,50.,60.,80.,100.,125.,500.];
+electronEtaBinning      = [0.,0.8,1.5,2.,2.5];
+electronNvtxBinning     = [0.,17.,50.];
 electronPtBinningReco   = [10.,20.,30.,50.,150.];
 electronEtaBinningReco  = [0.,0.3,0.8,1.5,2.0,2.5];
-electronNvtxBinningReco = [0.,16.,50.];
+electronNvtxBinningReco = [0.,17.,50.];
 
-photonPtBinning   = [10.,20.,30.,40.,50.,60.,80.,100.,125.,500.];
-photonEtaBinning  = [0.,0.75,1.5,2.,2.5];
-photonNvtxBinning = [0.,16.,50.];
+photonPtBinning   = [10.,20.,30.,40.,50.,60.,80.,100.,125.,150.,500.];
+photonEtaBinning  = [0.,0.5,1.0,1.5];
+photonNvtxBinning = [0.,17.,50.];
 
 ##################
 
@@ -77,15 +77,15 @@ if __name__ == '__main__':
     os.system("mkdir -p "+options.outputDIR);
     currentDIR = os.getcwd();
 
-    add_option = "";
+    absetaBin = False;
     if options.absetaBin:
-        add_option = "absEta=True";
-
+        absetaBin = True
+    
 
     #### select the right binning
     leptonPtBinning = [];
     leptonEtaBinning = [];
-    leptonNvtxBinnin = [];
+    leptonNvtxBinning = [];
 
     if options.leptonType == "muon" and not isRecoEff:
         leptonPtBinning = muonPtBinning;
@@ -126,13 +126,12 @@ if __name__ == '__main__':
             for nvtx in range(len(leptonNvtxBinning)-1):
                 #### do the fit interactively
                 if not options.batchMode:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" outputDIR="+options.outputDIR+" typeID="+options.typeID+" leptonPID="+str(leptonPID)+" ptMin="+str(leptonPtBinning[pt])+" ptMax="+str(leptonPtBinning[pt+1])+" etaMin="+str(leptonEtaBinning[eta])+" etaMax="+str(leptonEtaBinning[eta+1])+" nvtxMin="+str(leptonNvtxBinning[nvtx])+" nvtxMax="+str(leptonNvtxBinning[nvtx+1])+" "+add_option+" "+" isRecoEff="+str(options.isRecoEff);
                     ### look for the template file
                     if not options.isRecoEff :
                         templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominal/')
                     else:
                         templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominalReco/')
-                        
+
                     os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(leptonPtBinning[pt])+"_"+str(leptonPtBinning[pt+1])+"_eta_"+str(leptonEtaBinning[eta])+"_"+str(leptonEtaBinning[eta+1])+"_pu_"+str(leptonNvtxBinning[nvtx])+"_"+str(leptonNvtxBinning[nvtx+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
@@ -141,28 +140,32 @@ if __name__ == '__main__':
                         listOffile.append(line.replace("\n",""));
                         if len(listOffile) > 1:
                             sys.exit('Problem more than one template file for a single configuration --> return');
-                        command += " templateFile="+templatePath+"/"+listOffile[0];
-                        ## nominal background in data
-                        os.system(command+" backgroundType=RooCMSShape");
-                        ## do alternative background
-                        if options.doAlternativeBkg:
-                            os.system(command+" backgroundType=Exponential");
+
+                    command = "root -l -b -q makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(options.inputDIR,options.outputDIR,templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","",False,isRecoEff,absetaBin,False);
+                    os.system(command);
+
+                    if options.doAlternativeBkg:
+                        command = "root -l -b -q makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(options.inputDIR,options.outputDIR,templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"Exponential","",False,isRecoEff,absetaBin,False);
+                        os.system(command);
                         #### do the analytical fit
-                        if options.doAnalyticalFit:
-                            os.system(command+" backgroundType=RooCMSShape doAnalyticalFit=True");
-                        ## do alternative signal template
-                        if options.doAlternativeSig:
-                            if options.isRecoEff:
-                                templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateAlternative/')
-                            else:
-                                templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateAlternativeReco/')
+                    if options.doAnalyticalFit:
+                        command = "root -l -b -q makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(options.inputDIR,options.outputDIR,templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","",False,isRecoEff,absetaBin,True);
+                        os.system(command);
+
+                    ## do alternative signal template
+                    if options.doAlternativeSig:
+                        if not options.isRecoEff:
+                            templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateAlternative/')
+                        else:
+                            templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateAlternativeReco/')
+
+                            command = "root -l -b -q makeTagAndProbeFits.C(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(options.inputDIR,options.outputDIR,templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","Alternative",False,isRecoEff,absetaBin,False);
                             command = command.replace(templatePath,templatePathAlt);
-                            os.system(command+" backgroundType=RooCMSShape signalType=Alternative");
+                            os.system(command);
 
                 ##### batch mode
                 else:
-                    command = "cmsRun tnpanalysis.py isMC="+str(isMC)+" inputDIR="+options.inputDIR+" isEOSDIR=True outputDIR=./ typeID="+options.typeID+" leptonPID="+str(leptonPID)+" ptMin="+str(leptonPtBinning[pt])+" ptMax="+str(leptonPtBinning[pt+1])+" etaMin="+str(leptonEtaBinning[eta])+" etaMax="+str(leptonEtaBinning[eta+1])+" nvtxMin="+str(leptonNvtxBinning[nvtx])+" nvtxMax="+str(leptonNvtxBinning[nvtx+1])+" "+add_option+" isRecoEff="+str(options.isRecoEff);
-                    ### look for the template file
+
                     if not options.isRecoEff:
                         templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominal/')
                     else:
@@ -177,37 +180,40 @@ if __name__ == '__main__':
                         listOffile.append(line.replace("\n",""));
                         if len(listOffile) > 1:
                             sys.exit('Problem more than one template file for a single configuration --> return');
-                        command += " templateFile="+templatePath+"/"+listOffile[0];
-                        ### submit jobs
-                        os.system("mkdir -p "+options.jobDIR);                    
-                        jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f_pu_%.1f_%.1f'%(options.leptonType,options.typeID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1])
+                            
+                    command = "root -l -b -q %s/makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(currentDIR,options.inputDIR,"./",templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","",True,isRecoEff,absetaBin,False);
 
-                        jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
+
+                    ### submit jobs
+                    os.system("mkdir -p "+options.jobDIR);                    
+                    jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f_pu_%.1f_%.1f'%(options.leptonType,options.typeID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1])
+
+                    jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
+                    jobscript.write('cd %s \n'%currentDIR)
+                    jobscript.write('eval ` scramv1 runtime -sh ` \n')
+                    jobscript.write('cd - \n')
+                    jobscript.write(command+'\n');
+                    jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*pu*root "+currentDIR+'/'+options.outputDIR+' \n')                    
+                    os.system('chmod a+x %s/%s_RooCMSShape.sh'%(options.jobDIR,jobName))
+
+                    if options.submit:
+                        os.system('bsub -q %s -o %s/%s_RooCMSShape.log -e %s/%s_RooCMSShape.err %s/%s_RooCMSShape.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+
+                    ### alternative background
+                    if options.doAlternativeBkg:
+                        
+                        jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
                         jobscript.write('cd %s \n'%currentDIR)
                         jobscript.write('eval ` scramv1 runtime -sh ` \n')
                         jobscript.write('cd - \n')
-                        jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')                    
-                        jobscript.write(command+' backgroundType=RooCMSShape\n');
-                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*pu*root "+currentDIR+'/'+options.outputDIR+' \n')                    
-                        os.system('chmod a+x %s/%s_RooCMSShape.sh'%(options.jobDIR,jobName))
 
+                        command = "root -l -b -q %s/makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(currentDIR,options.inputDIR,"./",templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"Exponential","",True,isRecoEff,absetaBin,False);
+                        jobscript.write(command+'\n');
+                        jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
+                        os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
+                        
                         if options.submit:
-                            os.system('bsub -q %s -o %s/%s_RooCMSShape.log -e %s/%s_RooCMSShape.err %s/%s_RooCMSShape.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
-
-                        ### alternative background
-                        if options.doAlternativeBkg:
-
-                            jobscript = open('%s/%s_Exp.sh'%(options.jobDIR,jobName),'w');
-                            jobscript.write('cd %s \n'%currentDIR)
-                            jobscript.write('eval ` scramv1 runtime -sh ` \n')
-                            jobscript.write('cd - \n')
-                            jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')                    
-                            jobscript.write(command+' backgroundType=Exponential\n');
-                            jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')                    
-                            os.system('chmod a+x %s/%s_Exp.sh'%(options.jobDIR,jobName))
-
-                            if options.submit:
-                                os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
+                            os.system('bsub -q %s -o %s/%s_Exp.log -e %s/%s_Exp.err %s/%s_Exp.sh'%(options.queque,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName,currentDIR+"/"+options.jobDIR,jobName));
 
                         ### analytical fit
                         if options.doAnalyticalFit:
@@ -215,8 +221,8 @@ if __name__ == '__main__':
                             jobscript.write('cd %s \n'%currentDIR)
                             jobscript.write('eval ` scramv1 runtime -sh ` \n')
                             jobscript.write('cd - \n')
-                            jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
-                            jobscript.write(command+' backgroundType=RooCMSShape doAnalyticalFit=True\n');
+                            command = "root -l -b -q %s/makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(currentDIR,options.inputDIR,"./",templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","",True,isRecoEff,absetaBin,True);
+                            jobscript.write(command+'\n');
                             jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*pu*Analytical*root "+currentDIR+'/'+options.outputDIR+' \n')
                             os.system('chmod a+x %s/%s_Analytical.sh'%(options.jobDIR,jobName))
 
@@ -231,13 +237,14 @@ if __name__ == '__main__':
                             else:
                                 templatePathAlt = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateAlternativeReco/')
 
+
+                            command = "root -l -b -q %s/makeTagAndProbeFits.C\(\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",\\\"%s\\\",%d,TagAndProbeBin\(%f,%f,%f,%f,%f,%f\),\\\"%s\\\",\\\"%s\\\",%d,%d,%d,%d\)"%(currentDIR,options.inputDIR,"./",templatePath+"/"+listOffile[0],options.typeID,leptonPID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1],"RooCMSShape","Alternative",True,isRecoEff,absetaBin,True);
                             command = command.replace(templatePath,templatePathAlt);
                             jobscript = open('%s/%s_Alternative.sh'%(options.jobDIR,jobName),'w');
                             jobscript.write('cd %s \n'%currentDIR)
                             jobscript.write('eval ` scramv1 runtime -sh ` \n')
                             jobscript.write('cd - \n')
-                            jobscript.write('scp '+currentDIR+'/tnpanalysis.py ./ \n')
-                            jobscript.write(command+' backgroundType=RooCMSShape signalType=Alternative\n');
+                            jobscript.write(command+'\n');
                             jobscript.write('scp efficiency*'+options.leptonType+"*pt*eta*root "+currentDIR+'/'+options.outputDIR+' \n')
                             os.system('chmod a+x %s/%s_Alternative.sh'%(options.jobDIR,jobName))
 
