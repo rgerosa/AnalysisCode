@@ -20,9 +20,9 @@ static float scaleWZEWKUncertainty = 1.0; // scale down the size of theory uncer
 static bool  mergeLeptons  = false;   // merge mm and ee final sates
 static bool  isCombination = false;   // naming convention for HIG-16-016 invisible combination paper
 static float normalizeSignal = -99;    // to scale signal templates to a fixed rate
-static bool  runOnlySignal = false;
-static bool  runOnlyBackground = true;
-static bool  addFlatWZUncertainty = false;
+static bool  runOnlySignal = true;
+static bool  runOnlyBackground = false;
+static bool  addFlatWZUncertainty = true;
 static float flatWZUncertainty = 0.3;
 
 // function to create workspace, to be run from a release which has the combine package
