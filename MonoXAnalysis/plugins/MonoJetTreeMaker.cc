@@ -3995,7 +3995,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("combinejetHFlav",   "std::vector<float>", &combinejetHFlav);
     tree->Branch("combinejetPFlav",   "std::vector<float>", &combinejetPFlav);
     tree->Branch("combinejetQGL",     "std::vector<float>", &combinejetQGL);
-    tree->Branch("combinejetPUIF",    "std::vector<float>", &combinejetPUID);
+    tree->Branch("combinejetPUID",    "std::vector<float>", &combinejetPUID);
     tree->Branch("combinejetPassPUIF",    "std::vector<float>", &combinejetPassPUID);
     tree->Branch("combinejetGenpt",   "std::vector<float>", &combinejetGenpt);
     tree->Branch("combinejetGeneta",  "std::vector<float>", &combinejetGeneta);
@@ -5002,7 +5002,7 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 	      jet.chargedEmEnergyFraction()     < 0.99 and 
 	      jet.chargedMultiplicity()         > 0) 
        passjetid = true;
-   }
+    }
     else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
 	     jet.neutralEmEnergyFraction() < 0.9 and
 	     jet.neutralMultiplicity()     > 2) 

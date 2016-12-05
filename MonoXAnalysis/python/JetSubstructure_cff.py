@@ -658,7 +658,4 @@ def JetSubstructure(process,
         getattr(process,"packedPatJets"+jetCollection).algoLabels = Labels;
 
 
-    if not isMC:
-        removeMCMatching(process, names=['Jets'], outputModules=[])
-
     return "packedPatJets"+jetCollection

@@ -51,7 +51,7 @@ double sumxsec(TChain* tree){
   std::cout<<"sumxsec function --> loop on gentree: nEvents = "<<tree->GetEntries()<<std::endl;
 
   TTreeReader treeReader(tree);
-  TTreeReaderValue<double> wgtsign (treeReader,"lheXSEC");
+  TTreeReaderValue<float> wgtsign (treeReader,"lheXSEC");
 
   double xsecsum = 0.;
   double nEvents   = 0.;
@@ -82,7 +82,7 @@ double sumwgt(TChain* tree) {
   std::cout<<"sumwgt function --> loop on gentree: nEntries "<<tree->GetEntries()<<std::endl;
 
   TTreeReader treeReader(tree);
-  TTreeReaderValue<double> wgtsign (treeReader,"wgtsign");
+  TTreeReaderValue<float> wgt (treeReader,"wgt");
   double weightsum = 0.;
   double nEvents   = 0.;
 
@@ -91,7 +91,7 @@ double sumwgt(TChain* tree) {
       std::cout.flush();
       std::cout<<"\r "<<"Events "<<nEvents/tree->GetEntries()*100<<"%";
     }
-    weightsum += (*wgtsign);
+    weightsum += (*wgt);
     nEvents++;
   }
 
@@ -162,31 +162,31 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   
   // decleare reader
   TTreeReader myReader(tree);
-  TTreeReaderValue<std::vector<double> > combinejetpt         (myReader,"combinejetpt");
-  TTreeReaderValue<std::vector<double> > combinejeteta        (myReader,"combinejeteta");
-  TTreeReaderValue<std::vector<double> > combinejetHFlav      (myReader,"combinejetHFlav");
-  TTreeReaderValue<std::vector<double> > combinejetbtag       (myReader,"combinejetbtag");
-  TTreeReaderValue<std::vector<double> > combinejetBtagSF     (myReader,"combinejetBtagSF");
-  TTreeReaderValue<std::vector<double> > combinejetBtagSFUp   (myReader,"combinejetBtagSFUp");
-  TTreeReaderValue<std::vector<double> > combinejetBtagSFDown (myReader,"combinejetBtagSFDown");
+  TTreeReaderValue<std::vector<float> > combinejetpt         (myReader,"combinejetpt");
+  TTreeReaderValue<std::vector<float> > combinejeteta        (myReader,"combinejeteta");
+  TTreeReaderValue<std::vector<float> > combinejetHFlav      (myReader,"combinejetHFlav");
+  TTreeReaderValue<std::vector<float> > combinejetbtag       (myReader,"combinejetbtag");
+  TTreeReaderValue<std::vector<float> > combinejetBtagSF     (myReader,"combinejetBtagSF");
+  TTreeReaderValue<std::vector<float> > combinejetBtagSFUp   (myReader,"combinejetBtagSFUp");
+  TTreeReaderValue<std::vector<float> > combinejetBtagSFDown (myReader,"combinejetBtagSFDown");
 
 
   // add a b-tag weight branch for medium wp
-  double wgtbtag, wgtbtagUp, wgtbtagDown;
-  TBranch* bwgtbtag     = tree->Branch("wgtbtag", &wgtbtag, "wgtbtag/D");  
-  TBranch* bwgtbtagUp   = tree->Branch("wgtbtagUp", &wgtbtagUp, "wgtbtagUp/D");  
-  TBranch* bwgtbtagDown = tree->Branch("wgtbtagDown", &wgtbtagDown, "wgtbtagDown/D");  
+  float wgtbtag, wgtbtagUp, wgtbtagDown;
+  TBranch* bwgtbtag     = tree->Branch("wgtbtag", &wgtbtag, "wgtbtag/F");  
+  TBranch* bwgtbtagUp   = tree->Branch("wgtbtagUp", &wgtbtagUp, "wgtbtagUp/F");  
+  TBranch* bwgtbtagDown = tree->Branch("wgtbtagDown", &wgtbtagDown, "wgtbtagDown/F");  
 
   long int nEvents = 0;
 
   while(myReader.Next()){
 
     // recipe for b-tag weight on https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
-    vector<double> PMC;
-    vector<double> PDATA ;
-    vector<double> PDATAErrUp ;
-    vector<double> PDATAErrDw ;
-    double efficiency = 1.;
+    vector<float> PMC;
+    vector<float> PDATA ;
+    vector<float> PDATAErrUp ;
+    vector<float> PDATAErrDw ;
+    float efficiency = 1.;
 
     if(nEvents %100000 == 0){
       std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
@@ -224,8 +224,8 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     }
 
     // Fill branch
-    double Num = 1.;
-    double Den = 1.;
+    float Num = 1.;
+    float Den = 1.;
 
     for(size_t iJet = 0; iJet < PMC.size(); iJet++){
       Num *= PDATA.at(iJet);
@@ -237,9 +237,9 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     else
       wgtbtag = 1.;
 
-    vector<double> wbtagErr;
-    double NumMax = 1.;
-    double NumMin = 1.;
+    vector<float> wbtagErr;
+    float NumMax = 1.;
+    float NumMin = 1.;
     for(size_t iErr = 0; iErr < PDATAErrUp.size(); iErr++){
       if(PDATAErrUp.at(iErr) > PDATAErrDw.at(iErr)){
 	NumMax *= PDATAErrUp.at(iErr);
@@ -382,11 +382,10 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     xsec = (sumxsec(intree)/intree->GetEntries())*1000;
   
   if(isMC){
-
     bwgtsum    = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");      
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");      
     if(xsType > 0 and isMC)
-      bxsec = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -613,9 +612,9 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   if(isMC){
 
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -852,9 +851,9 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -1078,9 +1077,9 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   if(isMC){
 
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);    
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -1313,9 +1312,9 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 
   if(isMC){
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -1545,9 +1544,9 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   if(isMC){
 
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -1771,9 +1770,9 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   if(isMC){
 
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");
@@ -2010,9 +2009,9 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   if(isMC){
 
     bwgtsum = outtree->Branch("wgtsum", &wgtsum, "wgtsum/D");
-    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/D");  
+    bwgtpileup = outtree->Branch("wgtpileup", &wgtpileup, "wgtpileup/F");  
     if(xsType > 0 and isMC)
-      bxsec      = outtree->Branch("xsec", &xsec, "xsec/D");
+      bxsec      = outtree->Branch("xsec", &xsec, "xsec/F");
 
     TTreeReader myReader(outtree);
     TTreeReaderValue<int> putrue(myReader,"putrue");

@@ -18,7 +18,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   frame->GetYaxis()->SetTitleOffset(1.35);
   frame->GetYaxis()->SetTitle("Events");
   if(histo_1->GetMinimum() != 0 and logScale)
-    frame->GetYaxis()->SetRangeUser(histo_1->GetMinimum()*0.5,histo_1->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(histo_1->GetMinimum(),histo_1->GetMaximum()*100);
   else if(logScale)
     frame->GetYaxis()->SetRangeUser(0.001,histo_1->GetMaximum()*100);
   else
@@ -26,7 +26,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
 
   frame ->Draw();  
 
-  CMS_lumi(pad1,"2.61");
+  CMS_lumi(pad1,"12.9");
   
   histo_1->SetLineColor(kBlack);
   histo_1->SetLineWidth(2);  
@@ -42,7 +42,7 @@ void drawUpperPlot(TPad* pad1, TH1* histo_1, TH1* histo_2, string label1, string
   histo_1->Draw("HIST SAME");
   histo_2->Draw("EP SAME");
 
-  TLegend* leg = new TLegend(0.6,0.72,0.93,0.85);
+  TLegend* leg = new TLegend(0.5,0.65,0.93,0.85);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
@@ -75,7 +75,7 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
   frame->GetYaxis()->SetTitle("Ratio");
   frame->GetXaxis()->SetTitle(xAxisTitle.c_str());
   frame->GetYaxis()->SetNdivisions(504);
-  frame->GetYaxis()->SetRangeUser(0.8,1.2);
+  frame->GetYaxis()->SetRangeUser(0.7,1.3);
   frame->Draw();
 
   TH1* ratio = (TH1*) histo_1->Clone("ratio");
