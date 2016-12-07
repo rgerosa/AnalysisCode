@@ -99,19 +99,19 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
 
   if(tau2tau1 == 0.45){
     if(sysName == "VtagUp")
-      sfwgt *= (0.97+0.109);
+      sfwgt *= (0.96+0.109);
     else if(sysName == "VtagDown")
-      sfwgt *= (0.97-0.109);
+      sfwgt *= (0.96-0.109);
     else
-      sfwgt *= 0.97;
+      sfwgt *= 0.96;
   }
   else if(tau2tau1 == 0.6){
     if(sysName == "VtagUp")
-      sfwgt *= (0.97+0.109);
+      sfwgt *= (0.96+0.109);
     else if(sysName == "VtagDown")
-      sfwgt *= (0.97-0.109);
+      sfwgt *= (0.96-0.109);
     else
-      sfwgt *= 0.97;
+      sfwgt *= 0.96;
   }
   
   return sfwgt;
@@ -516,8 +516,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
   TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedJetphi");
   TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
-  TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm_v2");
-  TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"prunedJetpt_v2");
+  TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm");
+  TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"prunedJetpt");
   TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
   //  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedPuppiJetpt");
@@ -659,7 +659,7 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t hltw  = 1.0;
     
     if (sample == Sample::sig || sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu || sample == Sample::qcd)// single and double muon
-      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170;
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170+*hltmwm300+*hltmwm90;
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) // single and double electron
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
@@ -728,7 +728,6 @@ void makehist4(TTree* tree, /*input tree*/
       id1  = *el1id;
       id2  = *el2id;
       id1t = *el1idt;
-      id2t = *el2idt;
       pt1  = *el1pt;
       pt2  = *el2pt;
       eta1 = *el1eta;
@@ -775,7 +774,7 @@ void makehist4(TTree* tree, /*input tree*/
       bosonEta = 0;
       bosonPhi = pfmetphi;
     }
-    else if (sample == Sample::wen or sample == Sample::zee){ // single muon or single ele
+    else if (sample == Sample::wen or sample == Sample::wmn){ // single muon or single ele
       TLorentzVector lep4V, met4V;
       lep4V.SetPtEtaPhiM(pt1,eta1,phi1,0.);
       met4V.SetPtEtaPhiM(*met,0.,*metphi,0.);
@@ -798,7 +797,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;
       }
       else if(sample == Sample::zee){
-	if(not ((pt1 > 40 and id1 == 1 and id1t == 1) or (pt2 > 40 and id2 == 1 and id2t == 1))) continue;
+	if(not ((pt1 > 40 and id1 == 1) or (pt2 > 40 and id2 == 1))) continue;
       }
     }
     
@@ -809,10 +808,10 @@ void makehist4(TTree* tree, /*input tree*/
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
-    if (sample == Sample::wmn and *wmt > 160) continue;
+    if (sample == Sample::wmn and *wmt  > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){
-      if(pfMetVBFLower < 200 and *wmt > 100) continue;
-      else if(pfMetVBFLower > 200 and *wmt > 160) continue;
+      if(pfMetVBFLower     <   200 and *wmt > 100) continue;
+      else if(pfMetVBFLower >= 200 and *wmt > 160) continue;
     }
     // photon control sample
     if ((sample == Sample::qcdgam || sample == Sample::gam) && pt1 < photonPt) continue;
@@ -950,24 +949,25 @@ void makehist4(TTree* tree, /*input tree*/
     if (isMC && triggerelhist && triggerelhist_ht && ( sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
       if (pt1 > 40. && id1 == 1 and id2 == 1)
 	sfwgt *= 1;
-      else if(id1 == 1 and id2 != 1 and pt1 >= 125)
+      else if(id1 == 1 and id2 != 1 and pt1 >= 200)
 	sfwgt *= triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
-      else if(id1 == 1 and id2 != 1 and pt1 < 125)
+      else if(id1 == 1 and id2 != 1 and pt1 <  200)
 	sfwgt *= triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));            
-      else if(id2 == 1 and id1 != 1 and pt2 >= 125)
+      else if(id2 == 1 and id1 != 1 and pt2 >= 200)
 	sfwgt *= triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
-      else if(id2 == 1 and id1 != 1 and pt2 < 125)
+      else if(id2 == 1 and id1 != 1 and pt2 <  200)
 	sfwgt *= triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
     }
     
-
+    
     // photon id scale factor
     if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	if(*nvtx <= numberOfVtxCorrection)
+	if(*nvtx <= numberOfVtxCorrection){
 	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
+	}
 	else
-	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
+	  sfwgt *= psfmedium_highpu->GetBinContent(psfmedium_highpu->FindBin(fabs(eta1),min(pt1,psfmedium_highpu->GetYaxis()->GetBinLowEdge(psfmedium_highpu->GetNbinsY()+1)-1)));
       }
     }
     
@@ -1010,16 +1010,15 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // B10-4 -tag weight
-    
     double btagw = 1.;
     if(isMC){
       btagw = **wgtbtag;    
       if(sample == Sample::topmu or sample == Sample::topel)
 	btagw = 0.9;
       else
-	btagw = 0.99;
+	btagw = 1.;
     }
-
+    
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
       sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
@@ -1081,7 +1080,11 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     /// Start specific analysis selections
-    // inclusive mono-jet analysis 
+    // boosted category and monojet
+    bool goodMonoJet = false;
+    bool goodMonoV   = false;
+    bool goodVBF     = false;
+    
     if(category == Category::inclusive){ 
       if (centralJets.size() == 0) continue;
       if (fabs(jeteta->at(leadingCentralJetPos)) > 2.5) continue;
@@ -1091,140 +1094,157 @@ void makehist4(TTree* tree, /*input tree*/
       if (sample != Sample::qcd and jmdphi < 0.5) continue; // deltaPhi cut
       else if (sample == Sample::qcd and jmdphi > 0.5) continue; // deltaPhi cut
     }
-    else{
 
-      // boosted category and monojet
-      bool goodMonoJet = false;
-      bool goodMonoV   = false;
+    else if(category == Category::monojet){ // mono jet + V-jet veto
       
-      if(category == Category::monojet){ // mono jet + V-jet veto
+      if (centralJets.size() == 0) continue;
+      if (fabs(jeteta->at(leadingCentralJetPos)) > 2.5) continue;
+      if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                   
+      if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                   
+      if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                          
+      if (sample != Sample::qcd and jmdphi < 0.5) continue; 
+      else if(sample == Sample::qcd and jmdphi > 0.5) continue;
 
-	if (centralJets.size() == 0) continue;
-	if (fabs(jeteta->at(leadingCentralJetPos)) > 2.5) continue;
-	if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                   
-	if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                   
-	if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                          
-	if (sample != Sample::qcd and jmdphi < 0.5) continue; 
-	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
+      goodMonoJet = true;
 
-	if(boostedJetpt->size()  == 0) goodMonoJet = true;
-	if(boostedJetpt->size() > 0){ // in case one boosted jet	  
-	  if(fabs(boostedJeteta->at(0)) > jetEtaAK8) 
-	    goodMonoJet = true;	  
-
-	  if(boostedJetpt->at(0) < ptJetMinAK8) // check pT
-	    goodMonoJet = true;	 	  
-	  else{ 
-	    // pruned mass selection
-	    if(prunedJetm->at(0) < prunedMassMin  or prunedJetm->at(0) > prunedMassMax)
-	      goodMonoJet= true;
-	    // tau2tau1 selection
-	    //	    if((boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0))) > tau2tau1)
-	    if(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1)
-	      goodMonoJet= true;
-	  }
-	}
-      	
-	if(not goodMonoJet) continue;
-	//	if(pfmet > 800 and not isMC) dump<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<" met "<<pfmet<<" \n";
-      }
-
-      else if(category == Category::monoV or category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1){
+      // VBF selection
+      if(goodMonoJet and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and 
+	 jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
+	 jmdphi > jetmetdphiVBF and jeteta->at(0)*jeteta->at(1) < 0 and
+	 fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
 	
-	if (centralJets.size() == 0) continue;
-	if (boostedJetpt->size() == 0) continue;
-	if (boostedJetpt->at(0) < ptJetMinAK8) continue;
-	if (fabs(boostedJeteta->at(0)) > jetEtaAK8) continue;
-	if (fabs(jeteta->at(leadingCentralJetPos)) > 2.5) continue;	
-	//after match apply jetid on leading ak4
-	if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                     
-	if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                  
-	if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                           
-	if (sample != Sample::qcd and jmdphi < 0.5) continue;
-	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
-
-	TLorentzVector jetak4, jetak8;
-	jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-	jetak8.SetPtEtaPhiM(boostedJetpt->at(0),boostedJeteta->at(0),boostedJetphi->at(0),boostedJetm->at(0));	
-
-	// no overlap between b-jet and v-jet
-	if (sample == Sample::topel || sample == Sample::topmu){ 
-	  int nbjets = 0;
-	  for(size_t ijet = 0 ; ijet < jetbtag->size(); ijet++){
-	    jetak4.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
-	    if(jetak4.DeltaR(jetak8) < 0.8) continue;
-	    if(jetbtag->at(ijet) > 0.8){
-	      nbjets++;
-	    }
-	  }
-	  if(nbjets < 1) continue;
-	}
-
-	// split among resonant and non resonant wrt gen level
-	if(resonantSelection != 0 and isMC){
-	  TLorentzVector Wboson4V;
-	  Wboson4V.SetPtEtaPhiM(*hadBosonpt,*hadBosoneta,*hadBosonphi,*hadBosonm);
-	  if(jetak8.DeltaR(Wboson4V) > 0.4 and resonantSelection == 1)
-	    continue;
-	  else if(jetak8.DeltaR(Wboson4V) < 0.4 and resonantSelection == 2)
-	    continue;
-	}
-
-	// category 2 means HP mono-V
-	if(category == Category::monoV and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
-	//	if(category == Category::monoV and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and (boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0))) < tau2tau1)
-	  goodMonoV   = true;
-	// category 3 means LP mono-V
-	else if(category == Category::prunedMass and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and 
-		(boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1LP))
-	  goodMonoV   = true;
-	// apply no pruned mass cut --> show full shapes
-	else if(category == Category::boosted and (prunedJetm->at(0) > 0 and prunedJetm->at(0) < 200))
-	  goodMonoV   = true;
-	// apply only n-subjettiness
-	else if(category == Category::tau2tau1  and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
-	  goodMonoV   = true;
-	
-	if(not goodMonoV) continue;	
-	//	if(pfmet > 750. and not isMC) dump<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<" met "<<pfmet<<" \n";
-
-      }
-      else if(category == Category::VBF){
-	if(centralJets.size()+forwardJets.size() < 2) continue;
-	if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
-	if(jetpt->at(0) < leadingJetPtCutVBF) continue;
-	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
-
-	if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
-	else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
-
-	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-	if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
-	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() < mjj) continue;
-	if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+	if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj)
+	  goodMonoJet = false;
+      }
 
-      }
-      else if(category == Category::twojet){
-	if(centralJets.size()+forwardJets.size() < 2) continue;
-	if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
-	if(jetpt->at(0) < leadingJetPtCutVBF) continue;
-	if(jetpt->at(1) < trailingJetPtCutVBF) continue;
-	if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-	if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-	if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
-	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
-	if (sample != Sample::qcd and jmdphi < 0.5) continue;
-	else if(sample == Sample::qcd and jmdphi > 0.5) continue;
-      }
+      // V-tagging
+      if(goodMonoJet and boostedJetpt->size() != 0 and 
+	 fabs(boostedJeteta->at(0)) < jetEtaAK8 and
+	 boostedJetpt->at(0) > ptJetMinAK8 and
+	 prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax and
+	 boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	goodMonoJet = false;
+       
     }
+    
+    else if(category == Category::monoV or category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1){
+      
+      if (centralJets.size() == 0) continue;
+      if (boostedJetpt->size() == 0) continue;
+      if (boostedJetpt->at(0) < ptJetMinAK8) continue;
+      if (fabs(boostedJeteta->at(0)) > jetEtaAK8) continue;
+      if (fabs(jeteta->at(leadingCentralJetPos)) > 2.5) continue;	
+      //after match apply jetid on leading ak4
+      if (chfrac->at(leadingCentralJetPos) < 0.1) continue;   // jet id                                                                                                     
+      if (nhfrac->at(leadingCentralJetPos) > 0.8) continue;   // jet id                                                                                                  
+      if (jetpt->at(leadingCentralJetPos)  < leadingJetPtCut) continue;  // jet1 > 100 GeV                                                                                           
+      if (sample != Sample::qcd and jmdphi < 0.5) continue;
+      else if(sample == Sample::qcd and jmdphi > 0.5) continue;
+      
+      TLorentzVector jetak4, jetak8;
+      jetak4.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+      jetak8.SetPtEtaPhiM(boostedJetpt->at(0),boostedJeteta->at(0),boostedJetphi->at(0),boostedJetm->at(0));	
+      
+      // no overlap between b-jet and v-jet
+      if (sample == Sample::topel || sample == Sample::topmu){ 
+	int nbjets = 0;
+	for(size_t ijet = 0 ; ijet < jetbtag->size(); ijet++){
+	  jetak4.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetm->at(ijet));
+	  if(jetak4.DeltaR(jetak8) < 0.8) continue;
+	  if(jetbtag->at(ijet) > 0.8){
+	    nbjets++;
+	  }
+	}
+	if(nbjets < 1) continue;
+      }
+      
+      // split among resonant and non resonant wrt gen level
+      if(resonantSelection != 0 and isMC){
+	TLorentzVector Wboson4V;
+	Wboson4V.SetPtEtaPhiM(*hadBosonpt,*hadBosoneta,*hadBosonphi,*hadBosonm);
+	if(jetak8.DeltaR(Wboson4V) > 0.4 and resonantSelection == 1)
+	  continue;
+	else if(jetak8.DeltaR(Wboson4V) < 0.4 and resonantSelection == 2)
+	  continue;
+      }
+      
+      // category 2 means HP mono-V
+      if(category == Category::monoV and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	goodMonoV   = true;
+      // category 3 means LP mono-V
+      else if(category == Category::prunedMass and (prunedJetm->at(0) > prunedMassMin and prunedJetm->at(0) < prunedMassMax) and 
+	      (boostedJettau2->at(0)/boostedJettau1->at(0) > tau2tau1 and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1LP))
+	goodMonoV   = true;
+      // apply no pruned mass cut --> show full shapes
+      else if(category == Category::boosted and (prunedJetm->at(0) > 0 and prunedJetm->at(0) < 200))
+	goodMonoV   = true;
+      // apply only n-subjettiness
+      else if(category == Category::tau2tau1  and boostedJettau2->at(0)/boostedJettau1->at(0) < tau2tau1)
+	goodMonoV   = true;
+
+
+      // remove VBF overlap
+      if(goodMonoV and category == Category::monoV and centralJets.size()+forwardJets.size() > 2 and fabs(jeteta->at(0)) < 4.7 and fabs(jeteta->at(1)) < 4.7 and
+         jetpt->at(0) > leadingJetPtCutVBF and jetpt->at(1) > trailingJetPtCutVBF and
+         jmdphi > jetmetdphiVBF and jeteta->at(0)*jeteta->at(1) < 0 and
+         fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
+	
+        TLorentzVector jet1 ;
+        TLorentzVector jet2 ;
+        jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+        jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+        if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj)
+          goodMonoV = false;
+	
+      }
+             
+    }
+    else if(category == Category::VBF){
+      if(centralJets.size()+forwardJets.size() < 2) continue;
+      if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
+      if(jetpt->at(0) < leadingJetPtCutVBF) continue;
+      if(jetpt->at(1) < trailingJetPtCutVBF) continue;
+      
+      if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
+      else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
+      
+      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
+      if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
+      if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+      //if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
+      TLorentzVector jet1 ;
+      TLorentzVector jet2 ;
+      jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+      jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+      if((jet1+jet2).M() < mjj) continue;
+      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+      goodVBF = true;
+    }
+    else if(category == Category::twojet){
+      if(centralJets.size()+forwardJets.size() < 2) continue;
+      if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
+      if(jetpt->at(0) < leadingJetPtCutVBF) continue;
+      if(jetpt->at(1) < trailingJetPtCutVBF) continue;
+      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+      //	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
+      if (sample != Sample::qcd and jmdphi < 0.5) continue;
+      else if(sample == Sample::qcd and jmdphi > 0.5) continue;	
+      
+    }
+  
+    
+    //////// Remove Category Overlaps    
+    if(category == Category::VBF and goodVBF == false) continue;
+    if(category == Category::monoV and goodMonoV == false) continue;
+    if(category == Category::monojet and goodMonoJet == false) continue;
 
     // fill 1D histogram
     double fillvar = -99;
@@ -1375,6 +1395,8 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = jetpt->at(1);
       else if(name.Contains("jeteta2") and jetpt->size() >= 2)
 	fillvar = jeteta->at(1);
+      else if(name.Contains("jeteta2jeteta1") and jetpt->size() >= 2)
+	fillvar = jeteta->at(1)*jeteta->at(0);
       else if(name.Contains("jetpt") and (category == Category::VBF or category == Category::twojet))
 	  fillvar = jetpt->at(0);
       else if(name.Contains("jetpt") and not (category == Category::VBF or category == Category::twojet))      
@@ -1406,6 +1428,8 @@ void makehist4(TTree* tree, /*input tree*/
 	fillvar = bosonPt;    	
       else if(name.Contains("bosoneta"))
 	fillvar = bosonEta;    	
+      else if(name.Contains("bosonphi"))
+	fillvar = bosonPhi;    	
       else if(name.Contains("jetQGL"))
 	fillvar = jetQGL->at(0);
       else if(name.Contains("jet2QGL") and jetQGL->size() > 1)
