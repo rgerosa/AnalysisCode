@@ -566,16 +566,22 @@ void makeControlPlots(string templateFileName,
     stack->Add(tophist_matched);    
   }
   else if(controlRegion == "qcd"){
-    vllhist->Add(gamhist);
-    stack->Add(vllhist);
-    stack->Add(dbhist);
+    if(not isnan(float(gamhist->Integral())))
+      vllhist->Add(gamhist);
+    if(not isnan(float(vllhist->Integral())))    
+      stack->Add(vllhist);
+    //if(not isnan(float(dbhist->Integral())))    
+    //stack->Add(dbhist);
     if(category == Category::VBF){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
-    stack->Add(vlhist);
-    stack->Add(vnnhist);
-    stack->Add(qcdhist);
+    if(not isnan(float(vlhist->Integral())))    
+      stack->Add(vlhist);
+    if(not isnan(float(vnnhist->Integral())))    
+      stack->Add(vnnhist);
+    if(not isnan(float(qcdhist->Integral())))    
+      stack->Add(qcdhist);
   }
   else if(controlRegion == "SR"){
     stack->Add(qcdhist);
@@ -841,7 +847,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::twojet and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0,2.0);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(controlRegion == "qcd")

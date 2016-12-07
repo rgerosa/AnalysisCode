@@ -65,6 +65,9 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
     frame->GetXaxis()->SetTitleSize(0.045);
     frame->GetXaxis()->SetLabelSize(0.040);
     
@@ -98,7 +101,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -146,7 +149,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
       hist = (TH1F*)file->FindObjectAny(("zewkeecorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 15., "");
+    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 17., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
@@ -180,7 +183,9 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
-
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
+    
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{Z(ee)}");
     else
@@ -214,7 +219,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -281,6 +286,8 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W(#mu#nu)}");
@@ -314,7 +321,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -381,6 +388,8 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
+    else 
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W(e#nu)}");
@@ -418,7 +427,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -492,6 +501,8 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{#gamma}");
@@ -541,7 +552,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     if(not isEWK)
@@ -640,6 +651,9 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
+
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{Z/W}");
     else
@@ -679,7 +693,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -760,7 +774,8 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
     }
-
+    else
+      frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(not isEWK)
       frame->GetYaxis()->SetTitle("R_{W#gamma}");
@@ -813,7 +828,7 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     if(not isEWK)
@@ -896,7 +911,7 @@ void rtopmu(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -963,7 +978,7 @@ void rtopel(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"12.9",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");

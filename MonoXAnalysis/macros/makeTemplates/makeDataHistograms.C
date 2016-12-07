@@ -3094,7 +3094,7 @@ void qcddatamchist(TFile* outfile,
   }
 
   qcdtree->Add((baseInputTreePath+"/QCD/sigfilter/*root").c_str());
-  dbtree->Add((baseInputTreePath+"/DiBoson/sigfilter/sig*root").c_str());
+  dbtree->Add((baseInputTreePath+"/DiBoson/sigfilter/*root").c_str());
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());

@@ -60,7 +60,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   frame->GetYaxis()->SetTitleSize(0.050);
 
   frame->Draw();
-  CMS_lumi(pad1,"12.9",true);
+  CMS_lumi(pad1,"35.9",true);
 
   float maxdata  = -1;
   float mindata  = 1000000;
@@ -103,36 +103,36 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
     leg->AddEntry(histoData,"Z(#mu#mu)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"Z(#mu#mu)/#gamma MC","FL");
   }
-  if(TString(postfix).Contains("ZG_ee")){
+  else if(TString(postfix).Contains("ZG_ee")){
     leg->AddEntry(histoData,"Z(ee)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"Z(ee)/#gamma MC","FL");
   }
-  if(TString(postfix).Contains("ZG_ll")){
+  else if(TString(postfix).Contains("ZG_ll")){
     leg->AddEntry(histoData,"Z(ll)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"Z(ll)/#gamma MC","FL");
   }
-  if(TString(postfix).Contains("ZW_mm")){
+  else if(TString(postfix).Contains("ZW_mm")){
     leg->AddEntry(histoData,"Z(#mu#mu)/W(#mu#nu) Data","PL");    
     leg->AddEntry(histoMCband,"Z(#mu#mu)/W(#mu#nu) MC","FL");
   }
-  if(TString(postfix).Contains("ZW_ee")){
+  else if(TString(postfix).Contains("ZW_ee")){
     leg->AddEntry(histoMCband,"Z(ee)/W(e#nu) MC","FL");
     leg->AddEntry(histoData,"Z(ee)/W(e#nu) Data","PL");    
     leg->AddEntry(histoMCband,"Z(ee)/W(e#nu) MC","FL");
   }
-  if(TString(postfix).Contains("ZW_ll")){
+  else if(TString(postfix).Contains("ZW_ll")){
     leg->AddEntry(histoData,"Z(ll)/W(l#nu) Data","PL");    
     leg->AddEntry(histoMCband,"Z(ll)/W(l#nu) MC","FL");
   }
-  if(TString(postfix).Contains("WG_m")){
+  else if(TString(postfix).Contains("WG_m")){
     leg->AddEntry(histoData,"W(#mu#nu)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"W(#mu#nu)/#gamma MC","FL");
   }
-  if(TString(postfix).Contains("WG_e")){
+  else if(TString(postfix).Contains("WG_e")){
     leg->AddEntry(histoData,"W(e#nu)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"W(e#nu)/#gamma MC","FL");
   }
-  if(TString(postfix).Contains("WG_l")){
+  else if(TString(postfix).Contains("WG_l")){
     leg->AddEntry(histoData,"W(l#nu)/#gamma Data","PL");    
     leg->AddEntry(histoMCband,"W(l#nu)/#gamma MC","FL");
   }
