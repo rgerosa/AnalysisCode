@@ -3,27 +3,28 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      oneel_VBF   workspace_VBF.root WE_VBF:data_obs_WE_VBF
-shapes WJets         oneel_VBF   workspace_VBF.root WE_VBF:WJets_WE_VBF
-shapes WJets_EWK     oneel_VBF   workspace_VBF.root WE_VBF:WJets_EWK_WE_VBF
-shapes ZJets_WE      oneel_VBF   workspace_VBF.root WE_VBF:ZJets_WE_VBF     WE_VBF:ZJets_WE_VBF_$SYSTEMATIC
-shapes ZJets_EWK_WE  oneel_VBF   workspace_VBF.root WE_VBF:ZJets_EWK_WE_VBF WE_VBF:ZJets_EWK_WE_VBF_$SYSTEMATIC
-shapes Dibosons      oneel_VBF   workspace_VBF.root WE_VBF:Dibosons_WE_VBF  WE_VBF:Dibosons_WE_VBF_$SYSTEMATIC
-shapes Top           oneel_VBF   workspace_VBF.root WE_VBF:Top_WE_VBF       WE_VBF:Top_WE_VBF_$SYSTEMATIC
-shapes QCD_WE        oneel_VBF   workspace_VBF.root WE_VBF:QCD_WE_VBF       WE_VBF:QCD_WE_VBF_$SYSTEMATIC
+shapes data_obs      WE_VBF   workspace_VBF.root WE_VBF:data_obs_WE_VBF
+shapes WJets         WE_VBF   workspace_VBF.root WE_VBF:WJets_WE_VBF
+shapes WJets_EWK     WE_VBF   workspace_VBF.root WE_VBF:WJets_EWK_WE_VBF
+shapes ZJets_WE      WE_VBF   workspace_VBF.root WE_VBF:ZJets_WE_VBF     WE_VBF:ZJets_WE_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WE  WE_VBF   workspace_VBF.root WE_VBF:ZJets_EWK_WE_VBF WE_VBF:ZJets_EWK_WE_VBF_$SYSTEMATIC
+shapes Dibosons      WE_VBF   workspace_VBF.root WE_VBF:Dibosons_WE_VBF  WE_VBF:Dibosons_WE_VBF_$SYSTEMATIC
+shapes Top           WE_VBF   workspace_VBF.root WE_VBF:Top_WE_VBF       WE_VBF:Top_WE_VBF_$SYSTEMATIC
+shapes QCD_WE        WE_VBF   workspace_VBF.root WE_VBF:QCD_WE_VBF       WE_VBF:QCD_WE_VBF_$SYSTEMATIC
 ------------------------------------------------------------------------------------------------
-bin         oneel_VBF
+bin         WE_VBF
 observation -1
 ------------------------------------------------------------------------------------------------
-bin                                 oneel_VBF    oneel_VBF    oneel_VBF    oneel_VBF     oneel_VBF       oneel_VBF   oneel_VBF
+bin                                 WE_VBF       WE_VBF       WE_VBF       WE_VBF        WE_VBF          WE_VBF        WE_VBF
 process                             WJets        WJets_EWK    ZJets_WE     ZJets_EWK_WE  Dibosons        Top           QCD_WE
 process                             3            4            20           21            6               7             22
 rate                                1            1            -1           -1           -1              -1             -1
 ------------------------------------------------------------------------------------------------
-lumi_13TeV                lnN       -            -            1.050        1.050         1.050           1.050         1.050
-CMS_eff_e                 lnN       1.020       1.020         1.020        1.020         1.020           1.020         1.020
-CMS_reco_e                lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010
+lumi_13TeV                lnN       -            -            1.062        1.062         1.062           1.062         1.062
+CMS_eff_e                 lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010
+CMS_reco_e                lnN       1.005       1.005         1.005        1.005         1.005           1.005         1.005
 CMS_met_trig              lnN       1.010       1.010         -             -             -              -             -
+CMS_eff_trig_e            lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010
 CMS_eff_lepVeto_13TeV     lnN       1.030       1.030         -             -             -              -             -
 ZJets_WE_Norm13TeV        lnN       -           -             1.200         -             -              -             - 
 ZJets_EWK_WE_Norm13TeV    lnN       -           -             -            1.200          -              -             - 
@@ -33,15 +34,13 @@ Top_Reweight13TeV         lnN       -           -             -             -   
 QCD_WE_Norm13TeV          lnN       -           -             -             -             -              -             1.500
 CMS_met_13TeV             lnN       -           -            1.040       1.040           1.040         1.040           1.040
 CMS_btag_13TeV            lnN       -           -            1.020       1.020           1.060         1.020           1.020
-CMS_eff_Vtag_stat         lnN       -           -             -             -            1.01/0.99     1.01/0.99       -        
-CMS_eff_Vtag_PS           lnN       -           -             -             -            1.01/0.99     1.01/0.99       -        
-WJets_WE_VBF_bin1_Runc     param     0     1
-WJets_WE_VBF_bin2_Runc     param     0     1
-WJets_WE_VBF_bin3_Runc     param     0     1
-WJets_WE_VBF_bin4_Runc     param     0     1
-WJets_WE_VBF_bin5_Runc     param     0     1
-WJets_WE_VBF_bin6_Runc     param     0     1
-WJets_WE_VBF_bin7_Runc     param     0     1
+WJets_WE_VBF_bin1_Runc         param     0     1
+WJets_WE_VBF_bin2_Runc         param     0     1
+WJets_WE_VBF_bin3_Runc         param     0     1
+WJets_WE_VBF_bin4_Runc         param     0     1
+WJets_WE_VBF_bin5_Runc         param     0     1
+WJets_WE_VBF_bin6_Runc         param     0     1
+WJets_WE_VBF_bin7_Runc         param     0     1
 WJets_EWK_WE_VBF_bin1_Runc     param     0     1
 WJets_EWK_WE_VBF_bin2_Runc     param     0     1
 WJets_EWK_WE_VBF_bin3_Runc     param     0     1
