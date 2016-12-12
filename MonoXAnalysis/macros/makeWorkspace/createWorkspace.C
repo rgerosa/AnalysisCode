@@ -22,7 +22,7 @@ static bool  isCombination = false;   // naming convention for HIG-16-016 invisi
 static float normalizeSignal = -99;    // to scale signal templates to a fixed rate
 static bool  runOnlySignal = true;
 static bool  runOnlyBackground = false;
-static bool  addFlatWZUncertainty = true;
+static bool  addFlatWZUncertainty = false;
 static float flatWZUncertainty = 0.3;
 
 // function to create workspace, to be run from a release which has the combine package
@@ -35,11 +35,16 @@ void createWorkspace(string   inputName,                      // input template 
 		     string   interaction   = "Vector", // DM interaction 
 		     string   mediatorMass  = "1000",   // Med mass
 		     string   DMMass        = "50",     // DM mass
+		     bool     RunOnlySignal = false,
+		     bool     RunOnlyBackground = false,
 		     bool     isCutAndCount = false,    // to produce a workspace for a cut and count analysis
 		     std::pair<float,float> xAxisSelection = {-10000,10000}, // define bins for cut and count
 		     std::pair<float,float> yAxisSelection = {-10000,10000}  // define bins for cut and count --> only when 2D templates are considered
 		     ){
-  
+
+  runOnlySignal = RunOnlySignal;
+  runOnlyBackground = RunOnlyBackground;
+
   gSystem->Load("libHiggsAnalysisCombinedLimit.so");
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;

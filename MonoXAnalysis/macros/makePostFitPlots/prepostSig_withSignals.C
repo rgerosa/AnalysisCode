@@ -434,8 +434,8 @@ void prepostSig(string fitFilename,
 
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  dphist->Draw("PE1 SAME");
-  dahist->Draw("PE1 SAME");
+  dphist->Draw("P0E1 SAME");
+  dahist->Draw("P0E1 SAME");
 
   TLegend* leg2 = new TLegend(0.14,0.14,0.65,0.21,NULL,"brNDC");
   leg2->SetFillColor(0);

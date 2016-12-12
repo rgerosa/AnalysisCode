@@ -118,9 +118,9 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.003,prhist->GetMaximum()*150);
   else
-    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*100);
+    frame->GetYaxis()->SetRangeUser(0.001,prhist->GetMaximum()*150);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -136,7 +136,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
   
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
@@ -167,6 +167,19 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   TH1* frame2 =  (TH1*) dthist->Clone("frame");
   frame2->Reset("ICES");
 
+  TLatex* categoryLabel = new TLatex();
+  categoryLabel->SetNDC();
+  categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
+  categoryLabel->SetTextFont(42);
+  categoryLabel->SetTextAlign(11);
+  if(category == Category::monojet)
+    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+  else if(category == Category::monoV)
+    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+  else if(category == Category::VBF)
+    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+  categoryLabel->Draw("same");
+
   if(category ==  Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else
@@ -179,7 +192,11 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   frame2->GetYaxis()->SetNdivisions(5);
 
 
+  
   frame2->GetXaxis()->SetTitle("Recoil [GeV]");
+  if(TString(observable).Contains("mjj") and category == Category::VBF)
+    frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
+
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
@@ -238,8 +255,8 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE SAME");
-  d2hist->Draw("PE SAME");
+  d1hist->Draw("P0E1 SAME");
+  d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 

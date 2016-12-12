@@ -1,7 +1,10 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostGJ_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false,  bool dumpInfo = false) {
+static bool saveTextFile = false;
+static bool dumpInfo = false;
+
+void prepostGJ_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -62,7 +65,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   }
   dthist->Scale(1.0, "width");
 
-  if(dumpInfo){
+  if(saveTextFile){
 
     ofstream  outputfile;
     outputfile.open("prepostGJ.txt");
@@ -144,7 +147,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -260,8 +263,8 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE SAME");
-  d2hist->Draw("PE SAME");
+  d1hist->Draw("P0E1 SAME");
+  d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 

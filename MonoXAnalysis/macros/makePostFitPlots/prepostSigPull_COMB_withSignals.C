@@ -250,7 +250,7 @@ void prepostSigPull_COMB_withSignals(string fitFilename,
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -377,8 +377,8 @@ void prepostSigPull_COMB_withSignals(string fitFilename,
   
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  //  dphist->Draw("PE1 SAME");
-  dahist->Draw("PE1 SAME");
+  //dphist->Draw("PE1 SAME");
+  dahist->Draw("P0E1 SAME");
   
   pad3->Draw();
   pad3->cd();

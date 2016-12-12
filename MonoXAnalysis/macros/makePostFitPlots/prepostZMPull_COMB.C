@@ -305,8 +305,8 @@ void prepostZMPull_COMB(string fitFilename, string templateFileName, string obse
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE10 SAME");
-  d2hist->Draw("PE10 SAME");
+  d1hist->Draw("P0E1 SAME");
+  d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 

@@ -1,7 +1,10 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostZE_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false, bool dumpHisto = false) {
+static bool saveTextFile = false;
+static bool dumpHisto = false;
+
+void prepostZE_COMB(string fitFilename, string templateFileName, string observable, Category category,bool plotSBFit = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -39,6 +42,10 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
     dir = "ch2_ch5";
     postfix = "_MV";
   }
+  else if(category == Category::VBF){
+    dir = "ch3_ch4";
+    postfix = "_VBF";
+  }
 
 
   if(!plotSBFit){
@@ -49,8 +56,8 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
     tthist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Top").c_str());
     dihist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Dibosons").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKW").c_str());
-      ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/EWKZ").c_str());
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/WJets_EWK_ZE").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/Znunu_EWK").c_str());
     }
     pohist = (TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str());
     prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
@@ -63,8 +70,8 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
     wlhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets_ZE").c_str());
     tthist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Top").c_str());
     if(category == Category::VBF){
-      ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKW").c_str());
-      ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/EWKZ").c_str());
+      ewkwhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/WJets_EWK_ZE").c_str());
+      ewkzhist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Znunu_EWK").c_str());
     }
     dihist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/Dibosons").c_str());
     pohist = (TH1*)pfile->Get(("shapes_fit_s/"+dir+"/total_background").c_str());
@@ -72,99 +79,100 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
 
   }
   dthist->Scale(1.0, "width");
- 
-  ofstream  outputfile;
-  outputfile.open("prepostZE.txt");
-  stringstream TopRate;
-  TopRate << "Process: Top";
-  stringstream VVRate;
-  VVRate << "Process: DiBoson";
-  stringstream EWKWRate;
-  EWKWRate << "Process: EWKW";
-  stringstream EWKZRate;
-  EWKZRate << "Process: EWKZ";
-  stringstream WJetRate;
-  WJetRate << "Process: WJet";
-  stringstream ZJetRate;
-  ZJetRate << "Process: ZJet";
-  stringstream PreRate;
-  PreRate << "Process: Pre-fit (total)";
-  stringstream PostRate;
-  PostRate << "Process: Post-fit (total)";
-  stringstream DataRate;
-  DataRate << "Process: Data";
 
-  for(int iBin = 1; iBin <= tthist->GetNbinsX(); iBin++){
-    TopRate << "   ";
-    TopRate << tthist->GetBinContent(iBin) <<" pm "<<tthist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= dihist->GetNbinsX(); iBin++){
-    VVRate <<"   ";
-    VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
-  }
-
-  if(category == Category::VBF){
+  if(saveTextFile){
+    ofstream  outputfile;
+    outputfile.open("prepostZE.txt");
+    stringstream TopRate;
+    TopRate << "Process: Top";
+    stringstream VVRate;
+    VVRate << "Process: DiBoson";
+    stringstream EWKWRate;
+    EWKWRate << "Process: EWKW";
+    stringstream EWKZRate;
+    EWKZRate << "Process: EWKZ";
+    stringstream WJetRate;
+    WJetRate << "Process: WJet";
+    stringstream ZJetRate;
+    ZJetRate << "Process: ZJet";
+    stringstream PreRate;
+    PreRate << "Process: Pre-fit (total)";
+    stringstream PostRate;
+    PostRate << "Process: Post-fit (total)";
+    stringstream DataRate;
+    DataRate << "Process: Data";
     
-    for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
+    for(int iBin = 1; iBin <= tthist->GetNbinsX(); iBin++){
+      TopRate << "   ";
+      TopRate << tthist->GetBinContent(iBin) <<" pm "<<tthist->GetBinError(iBin);
+    }
+    
+    for(int iBin = 1; iBin <= dihist->GetNbinsX(); iBin++){
+      VVRate <<"   ";
+      VVRate <<dihist->GetBinContent(iBin) << " pm "<<dihist->GetBinError(iBin);
+    }
+    
+    if(category == Category::VBF){
+      
+      for(int iBin = 1; iBin <= ewkwhist->GetNbinsX(); iBin++){
       EWKWRate <<"   ";
       EWKWRate <<ewkwhist->GetBinContent(iBin) << " pm "<<ewkwhist->GetBinError(iBin);
+      }
+      
+      for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
+	EWKZRate <<"   ";
+	EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
+      }
+    }
+    
+    for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
+      WJetRate << "   ";
+      WJetRate << wlhist->GetBinContent(iBin)<< " pm "<<wlhist->GetBinError(iBin);
+    }
+    
+    for(int iBin = 1; iBin <= zllhist->GetNbinsX(); iBin++){
+      ZJetRate << "   ";
+      ZJetRate << zllhist->GetBinContent(iBin)<< " pm "<<zllhist->GetBinError(iBin);
+    }
+    
+    for(int iBin = 1; iBin <= prhist->GetNbinsX(); iBin++){
+      PreRate << "   ";
+      PreRate << prhist->GetBinContent(iBin) << " pm "<<prhist->GetBinError(iBin);
     }
 
-    for(int iBin = 1; iBin <= ewkzhist->GetNbinsX(); iBin++){
-      EWKZRate <<"   ";
-      EWKZRate <<ewkzhist->GetBinContent(iBin) << " pm "<<ewkzhist->GetBinError(iBin);
-    }
-  }
-
-  for(int iBin = 1; iBin <= wlhist->GetNbinsX(); iBin++){
-    WJetRate << "   ";
-    WJetRate << wlhist->GetBinContent(iBin)<< " pm "<<wlhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= zllhist->GetNbinsX(); iBin++){
-    ZJetRate << "   ";
-    ZJetRate << zllhist->GetBinContent(iBin)<< " pm "<<zllhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= prhist->GetNbinsX(); iBin++){
-    PreRate << "   ";
-    PreRate << prhist->GetBinContent(iBin) << " pm "<<prhist->GetBinError(iBin);
-  }
-
-  for(int iBin = 1; iBin <= pohist->GetNbinsX(); iBin++){
-    PostRate << "   ";
-    PostRate << pohist->GetBinContent(iBin) <<" pm "<<pohist->GetBinError(iBin);
-  }  
-
-  for(int iBin = 1; iBin <= dthist->GetNbinsX(); iBin++){
-    DataRate << "   ";
+    for(int iBin = 1; iBin <= pohist->GetNbinsX(); iBin++){
+      PostRate << "   ";
+      PostRate << pohist->GetBinContent(iBin) <<" pm "<<pohist->GetBinError(iBin);
+    }  
+    
+    for(int iBin = 1; iBin <= dthist->GetNbinsX(); iBin++){
+      DataRate << "   ";
     DataRate << dthist->GetBinContent(iBin) << " pm "<<dthist->GetBinError(iBin);
-  }
-
-  outputfile<<"######################"<<endl;
-  outputfile<<TopRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<VVRate.str()<<endl;
-  if(category == Category::VBF){
+    }
+    
     outputfile<<"######################"<<endl;
-    outputfile<<EWKWRate.str()<<endl;
+    outputfile<<TopRate.str()<<endl;
     outputfile<<"######################"<<endl;
-    outputfile<<EWKZRate.str()<<endl;
+    outputfile<<VVRate.str()<<endl;
+    if(category == Category::VBF){
+      outputfile<<"######################"<<endl;
+      outputfile<<EWKWRate.str()<<endl;
+      outputfile<<"######################"<<endl;
+      outputfile<<EWKZRate.str()<<endl;
+    }
+    outputfile<<"######################"<<endl;
+    outputfile<<WJetRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<ZJetRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PreRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<PostRate.str()<<endl;
+    outputfile<<"######################"<<endl;
+    outputfile<<DataRate.str()<<endl;
+    
+    outputfile.close();
   }
-  outputfile<<"######################"<<endl;
-  outputfile<<WJetRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<ZJetRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PreRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<PostRate.str()<<endl;
-  outputfile<<"######################"<<endl;
-  outputfile<<DataRate.str()<<endl;
-  
-  outputfile.close();
-  
   
   prhist->SetLineColor(kRed);
   prhist->SetLineWidth(2);
@@ -179,15 +187,19 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
   wlhist->Add(tthist);
   wlhist->Add(dihist);
   if(category == Category::VBF){
-    wlhist->Add(ewkwhist);
-    wlhist->Add(ewkzhist);
+    wlhist->Add(ewkwhist);    
+    ewkzhist->SetFillColor(kCyan+1);
+    ewkzhist->SetLineColor(kBlack);
+  
   }
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.001,wlhist->GetMaximum()*200);
-  else
-    frame->GetYaxis()->SetRangeUser(0.0007,wlhist->GetMaximum()*250);
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*250);
+  else if(category == Category::monoV)
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*250);
+  else if(category == Category::VBF)
+    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*250);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -203,7 +215,7 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
 
   frame ->Draw();
   
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -220,7 +232,9 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
-  wlhist->Draw("HIST SAME");
+  if(category ==  Category::VBF)
+    ewkzhist->Draw("HIST SAME");
+   wlhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1.2);
   dthist->SetMarkerStyle(20);
@@ -233,7 +247,9 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit Z/#gamma #rightarrow ee","L");
   leg->AddEntry(prhist, "Pre-fit Z/#gamma #rightarrow ee","L");
-  leg->AddEntry(wlhist, "Other Backgrounds", "F");
+  if(category == Category::VBF)
+    leg->AddEntry(ewkzhist, "Z-EWK","F");
+   leg->AddEntry(wlhist, "Other Backgrounds", "F");
   leg->Draw("SAME");
   
   canvas->RedrawAxis("sameaxis");
@@ -318,8 +334,8 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
   erhist->Draw("E2 SAME");
   d1hist->Draw("E1 SAME");
   d2hist->Draw("E1 SAME");
-  d1hist->Draw("PE1 SAME");
-  d2hist->Draw("PE1 SAME");
+  d1hist->Draw("P0E1 SAME");
+  d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 

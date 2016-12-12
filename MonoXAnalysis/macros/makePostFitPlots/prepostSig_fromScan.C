@@ -408,9 +408,9 @@ void prepostSig_fromScan(string fitFilename,
 
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  dahist->Draw("PE SAME");
+  dahist->Draw("P0E1 SAME");
   if(!blind)
-    dphist->Draw("PE SAME");
+    dphist->Draw("P0E1 SAME");
   
   pad2->RedrawAxis("sameaxis");
 

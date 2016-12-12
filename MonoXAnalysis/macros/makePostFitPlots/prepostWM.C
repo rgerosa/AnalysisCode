@@ -43,7 +43,7 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
   if(plotSBFit)
     dir_fit = "shapes_fit_s";
 
-  string postfix = "_VBF";
+  string postfix = "_MJ";
   if(category == Category::monoV)
     postfix = "_MV";
   else if(category == Category::VBF)
@@ -173,9 +173,9 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
   frame->Reset();
   if(isLog){
     if(category == Category::monojet)
-      frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*50);
+      frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*200);
     else if(category == Category::monoV)
-      frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*100);
+      frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*200);
     else if(category == Category::VBF){
       if(TString(observable).Contains("detajj"))
 	frame->GetYaxis()->SetRangeUser(0.1,wlhist->GetMaximum()*300);
@@ -202,7 +202,7 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
   frame->Draw();
 
   ///
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -330,8 +330,8 @@ void prepostWM(string fitFilename, string templateFileName, string observable, C
   d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("PE SAME");
-  d2hist->Draw("PE SAME");
+  d1hist->Draw("P0E1 SAME");
+  d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 

@@ -531,9 +531,9 @@ void prepostSig2D(string fitFilename, // from combine, mlfit
 
     tohist.at(ihist)->Draw("E2 SAME");
     unhist->Draw("SAME");
-    dahist->Draw("PE1 SAME");
+    dahist->Draw("P0E1 SAME");
     if(!blind)
-      dphist->Draw("PE1 SAME");
+      dphist->Draw("P0E1 SAME");
 
     TLegend* leg2 = new TLegend(0.14,0.14,0.65,0.21,NULL,"brNDC");
     leg2->SetFillColor(0);

@@ -64,6 +64,7 @@ void addTemplate(string procname,
     cerr<<"addTemplate: found an null pointer --> check "<<endl;
     return;
   }
+
   if(hist->Integral() == 0)
     addDummyBinContent(hist); // avoind empty histograms in the workspace                                                                                                     
 
@@ -99,9 +100,8 @@ void generateStatTemplate(string procname,
     cerr<<"generateStatTemplate: found an null pointer --> check "<<endl;
     return;
   }
-  if(histo->Integral() == 0){
+  if(histo->Integral() == 0)
     addDummyBinContent(histo);
-  }
 
   if(not isCutAndCount){    
     for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
@@ -420,7 +420,7 @@ void makeConnectedBinList(string procname,  // name to be used to fill the works
 	fobinlist.add(*syst[j].first);
       }
       
-      formss << "*(TMath::Max(0,(1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << ")))";
+      formss << "*(TMath::Max(0,1+" << syst[j].second->GetBinContent(i) << "*@" << j+3 << "))";
     }
     formss << ")";
     // create a single RooFormulaVar                                                                                                                                         

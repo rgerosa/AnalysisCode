@@ -75,7 +75,7 @@ void prepostSig(string   fitFilename,
   TH1* tphist = NULL;
   TH1* sighist = NULL;
 
-  string postfix = "_VBF";
+  string postfix = "_MJ";
   if(category == Category::monoV)
     postfix = "_MV";
   else if(category == Category::VBF)
@@ -169,16 +169,18 @@ void prepostSig(string   fitFilename,
       TopRate << tthist->GetBinContent(iBin+1)*tthist->GetBinWidth(iBin+1) << " \\pm "<<tthist->GetBinError(iBin+1)*tthist->GetBinWidth(iBin+1);
     }
   
-    for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
-      EWKWRate << "   ";
-      EWKWRate << ewkwhist->GetBinContent(iBin+1);
+    if(category == Category::VBF){
+      for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
+	EWKWRate << "   ";
+	EWKWRate << ewkwhist->GetBinContent(iBin+1);
+      }
+      
+      for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
+	EWKZRate << "   ";
+	EWKZRate << ewkzhist->GetBinContent(iBin+1);
+      }
     }
-    
-    for(int iBin = 0; iBin < ewkzhist->GetNbinsX(); iBin++){
-      EWKZRate << "   ";
-      EWKZRate << ewkzhist->GetBinContent(iBin+1);
-    }
-    
+
     for(int iBin = 0; iBin < zlhist->GetNbinsX(); iBin++){
       ZJetsRate << "   ";
       ZJetsRate << zlhist->GetBinContent(iBin+1)*zlhist->GetBinWidth(iBin+1) << " \\pm "<<zlhist->GetBinError(iBin+1)*zlhist->GetBinWidth(iBin+1);
@@ -218,10 +220,13 @@ void prepostSig(string   fitFilename,
     outputfile<<DiBosonRate.str()<<endl;
     outputfile<<"######################"<<endl;
     outputfile<<TopRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<EWKWRate.str()<<endl;
-    outputfile<<"######################"<<endl;
-    outputfile<<EWKZRate.str()<<endl;
+    
+    if(category == Category::VBF){
+      outputfile<<"######################"<<endl;
+      outputfile<<EWKWRate.str()<<endl;
+      outputfile<<"######################"<<endl;
+      outputfile<<EWKZRate.str()<<endl;
+    }
     outputfile<<"######################"<<endl;
     outputfile<<ZJetsRate.str()<<endl;
     outputfile<<"######################"<<endl;
@@ -322,8 +327,10 @@ void prepostSig(string   fitFilename,
   if(wHhist and ggZHhist)
     wHhist->Add(ggZHhist);
 
-  qchist->SetFillColor(TColor::GetColor("#F1F1F2"));
-  qchist->SetLineColor(kBlack);
+  if(qchist){
+    qchist->SetFillColor(TColor::GetColor("#F1F1F2"));
+    qchist->SetLineColor(kBlack);
+  }
 
   gmhist->SetFillColor(TColor::GetColor("#9A9EAB"));
   gmhist->SetLineColor(TColor::GetColor("#9A9EAB"));
@@ -358,10 +365,12 @@ void prepostSig(string   fitFilename,
     sighist->SetLineColor(kBlack);
     sighist->SetFillStyle(3001);
   }
-  
+
+
   // make the stack
   THStack* stack = new THStack("stack", "stack");
-  stack->Add(qchist);
+  if(qchist)
+    stack->Add(qchist);
   stack->Add(zlhist); 
   stack->Add(tthist);
   stack->Add(dihist);  
@@ -373,7 +382,6 @@ void prepostSig(string   fitFilename,
   stack->Add(znhist);
   if(plotSBFit && sighist)
     stack->Add(sighist);
-
 
   TH1* frame = (TH1*) dthist->Clone("frame");
   frame->Reset();
@@ -407,7 +415,7 @@ void prepostSig(string   fitFilename,
   frame ->Draw();
 
   /////
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -478,7 +486,6 @@ void prepostSig(string   fitFilename,
   else if(TString(observable).Contains("detajj"))
     frame2->GetXaxis()->SetTitle("#Delta#eta_{jj}");
 
-  frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);
@@ -570,8 +577,8 @@ void prepostSig(string   fitFilename,
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
   if(!blind)
-    dphist->Draw("PE1 SAME");
-  dahist->Draw("PE1 SAME");
+    dphist->Draw("P0E1 SAME");
+  dahist->Draw("P0E1 SAME");
 
   pad2->RedrawAxis("G sameaxis");
 
@@ -599,11 +606,14 @@ void prepostSig(string   fitFilename,
 
   leg->AddEntry(znhist,  "Z #rightarrow #nu#nu", "F");
   leg->AddEntry(wlhist,  "W #rightarrow l#nu", "F");
-  leg->AddEntry(ewkzhist,"Z-EWK #rightarrow #nu#nu", "F");
-  leg->AddEntry(ewkwhist,"W-EWK #rightarrow l#nu", "F");
+  if(category == Category::VBF){
+    leg->AddEntry(ewkzhist,"Z-EWK #rightarrow #nu#nu", "F");
+    leg->AddEntry(ewkwhist,"W-EWK #rightarrow l#nu", "F");
+  }
   leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
   leg->AddEntry(tthist,  "Top Quark", "F");
   leg->AddEntry(zlhist,  "Z/#gamma #rightarrow ll, #gamma+jets", "F");
+  if(qchist)
   leg->AddEntry(qchist,  "QCD", "F");
 
   if(mjhist && !plotSBFit)
