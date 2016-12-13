@@ -11,15 +11,16 @@ Recipe for 80X:
        cmsenv
        git cms-init
        git fetch --all		   
-       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_19_patchX:refs/heads/CMSSW_8_0_20_patchX
-       git checkout CMSSW_8_0_20_patchX
-       git merge official-cmssw/CMSSW_8_0_20_patchX
+       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_X:refs/heads/CMSSW_8_0_X
+       git checkout CMSSW_8_0_X
+       git merge official-cmssw/CMSSW_8_0_X
        git cms-addpkg FWCore/Framework
        git revert ccdf67f9dc7ee3968bc489b773561af6025e2115   
        git cms-merge-topic ikrav:egm_id_80X_v1
-       git cms-merge-topic emanueledimarco:ecal_smear_fix_80X
+       git cms-merge-topic ikrav:egm_id_80X_v3_photons
+       git cms-merge-topic shervin86:Moriond2017_JEC_energyScales
        cd EgammaAnalysis/ElectronTools/data
-       git clone -b ICHEP2016_v2 https://github.com/ECALELFS/ScalesSmearings.git
+       git clone git@github.com:ECALELFS/ScalesSmearings.git
        cd -
        git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
        git cms-merge-topic cms-met:METRecipe_8020
