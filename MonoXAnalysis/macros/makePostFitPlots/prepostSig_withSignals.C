@@ -314,7 +314,7 @@ void prepostSig(string fitFilename,
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"36.2");
 
   stack ->Draw("HIST SAME");
   mjhist_v->Draw("hist same");

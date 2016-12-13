@@ -224,7 +224,7 @@ void prepostSig_COMB_withSignals(string fitFilename,
     frame->GetXaxis()->SetNdivisions(504);
   frame ->Draw();
 
-  CMS_lumi(canvas,"35.9");
+  CMS_lumi(canvas,"36.2");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();

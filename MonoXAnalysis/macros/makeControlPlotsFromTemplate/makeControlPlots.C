@@ -650,7 +650,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"35.9");
+  CMS_lumi(canvas,"36.2");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");
@@ -843,7 +843,7 @@ void makeControlPlots(string templateFileName,
   if((category == Category::monojet or category == Category::inclusive) and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::monoV and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
   else if(category == Category::twojet and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF and controlRegion != "qcd")

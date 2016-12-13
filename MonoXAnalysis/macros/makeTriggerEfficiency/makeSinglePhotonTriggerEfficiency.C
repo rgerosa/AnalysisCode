@@ -19,10 +19,11 @@ vector<float> bins_jetHT_vbf_recoil = {100,125,150,175,200,225,250,350,450,650,1
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 
 static float leadingJetVBF     = 80;
-static float trailingJetVBF    = 50;
+static float trailingJetVBF    = 40;
 static float detajj            = 3.5;
 static float mjj               = 1000;
-static float jetmetdphi        = 2.0;
+static float jetmetdphi        = 0.5;
+static float dphijj            = 1.5;
 static float recoilSelection   = 150;
 static float photonPtSelection = 120;
 static bool  drawFitFunctions_ = false;
@@ -300,6 +301,11 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(fabs(jetpt->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
 	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
 	    if(fabs(jetpt->at(0)) < 3.2 and fabs(jetpt->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue;
+
+	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	    if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	    if(deltaPhi > dphijj) continue;
+
  	    TLorentzVector jet1, jet2;
 	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
@@ -310,7 +316,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(*phpt > photonPtSelection)
 	      hden_vbf_recoil->Fill(*pmet);
 	    
-	    if(*hltp165 or *hltp175 or *hltp120vbf){
+	    if(*hltp165 or *hltp175){
 	      if(*pmet > recoilSelection)
 		hnum_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)
@@ -354,6 +360,11 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(fabs(jetpt->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
 	    if(fabs(jetpt->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
 	    if(fabs(jetpt->at(0)) < 3.2 and fabs(jetpt->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue;
+
+	    float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	    if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	    if(deltaPhi > dphijj) continue;
+
 	    TLorentzVector jet1, jet2;
 	    jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	    jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
@@ -368,14 +379,14 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
 	    if(*phpt > photonPtSelection)
 	      hden_recover_vbf_recoil->Fill(*pmet);
 	    
-	    if(*hltp165 or *hltp175 or *hltp120vbf){
+	    if(*hltp165 or *hltp175){
 	      if(*pmet > recoilSelection)
 		hnum_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)
 		hnum_vbf_recoil->Fill(*pmet);   
 	    }
 	    
-	    if(*hltp165 or *hltp175 or *hltht800 or *hltp120vbf){
+	    if(*hltp165 or *hltp175 or *hltht800){
 	      if(*pmet > recoilSelection)
 		hnum_recover_vbf_photonpt->Fill(*phpt);
 	      if(*phpt > photonPtSelection)

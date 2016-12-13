@@ -1,13 +1,19 @@
+
 #include "../CMS_lumi.h"
 
-vector<float> bosonPt      {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
-vector<float> bosonPt_vbf  {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
-vector<float> bosonPt_vbf_gam  {150.,250.,350.,450.,550.,750.,1000.,1300.};
+//vector<float> bosonPt      {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
+//vector<float> bosonPt_vbf  {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
+//vector<float> bosonPt_vbf_gam  {150.,250.,350.,450.,550.,750.,1000.,1300.};
 
-static float mjj            = 450;
-static float detajj         = 2.5;
-static float leadingJetVBF  = 70;
-static float trailingJetVBF = 50;
+vector<float> bosonPt          {150.,225.,350,550.,1000};
+vector<float> bosonPt_vbf      {150.,225.,350,550.,1000};
+vector<float> bosonPt_vbf_gam  {150.,225.,350,550.,1000};
+
+static float mjj            = 1000;
+static float detajj         = 3.5;
+static float leadingJetVBF  = 80;
+static float trailingJetVBF = 40;
+static float dphijj         = 3.2;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -186,13 +192,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	bosonPt_LO_monojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 
       if(*njetsinc >= 2 and jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)) < 4.7 and  fabs(jeteta->at(1)) < 4.7 and mindphi > 0.5){      
+	
 	bosonPt_LO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 	TLorentzVector jet1, jet2;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
 	if((jet1+jet2).M() < mjj) continue;
+	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	if(mindphi < 1.0) continue;
+	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	if(deltaPhi > dphijj) continue;
 	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
       }
     }
@@ -264,8 +274,11 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
 	if((jet1+jet2).M() < mjj) continue;
+	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
 	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	if(mindphi < 1.0) continue;
+	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	if(deltaPhi > dphijj) continue;
 	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
       }
     }
@@ -282,8 +295,16 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   bosonPt_LO_vbf->Write();
 
   TCanvas* canvas = new TCanvas("canvas","canvas",600,625);
-  canvas->cd();
 
+  TPad* pad1 = new TPad("pad1","",0.,0.3,1,1);
+  pad1->Draw();
+  canvas->cd();
+  TPad* pad2 = new TPad("pad2","",0.,0.,1,0.3);
+  pad2->Draw();
+  canvas->cd();
+  
+  canvas->cd();
+  pad1->cd();
   TH1F* kfactor_monojet = (TH1F*) bosonPt_NLO_monojet->Clone("kfactor_monojet");
   kfactor_monojet->Divide(bosonPt_LO_monojet);
   TH1F* kfactor_twojet = (TH1F*) bosonPt_NLO_twojet->Clone("kfactor_twojet");
@@ -356,6 +377,24 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     latex->DrawLatex(0.25,0.95,"W+jets");
   else if(sample == Sample::gam)
     latex->DrawLatex(0.25,0.95,"#gamma+jets");
+
+  pad2->cd();
+  //ratio plot
+  TH1* ratio_1 = (TH1*) kfactor_vbf->Clone("ratio_1");
+  ratio_1->Divide(kfactor_monojet);
+  TH1* ratio_2 = (TH1*) kfactor_vbf->Clone("ratio_2");
+  ratio_2->Divide(kfactor_twojet);
+
+  ratio_1->SetLineColor(kBlack);
+  ratio_1->SetMarkerColor(kBlack);
+  ratio_1->SetMarkerStyle(20);
+  ratio_1->GetYaxis()->SetTitle("Ratio");
+  ratio_1->Draw("EPsame");
+  ratio_2->SetLineColor(kBlue);
+  ratio_2->SetMarkerColor(kBlue);
+  ratio_2->SetMarkerStyle(20);
+  ratio_2->GetYaxis()->SetTitle("Ratio");
+  ratio_2->Draw("hist same");
 
   if(sample == Sample::znn){
     canvas->SaveAs((outputDIR+"/kfactor_znn.png").c_str(),"png");

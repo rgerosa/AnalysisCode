@@ -148,7 +148,7 @@ void prepostGJPull_COMB(string fitFilename, string templateFileName, string obse
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"12.9");
+  CMS_lumi(canvas,"36.2");
   
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");

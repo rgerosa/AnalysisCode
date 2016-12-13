@@ -19,10 +19,11 @@ vector <float> bins_vbf_detajj  = {0.,1.5,3.0,5.0,9};
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 
 static float leadingVBF  = 80;
-static float trailingVBF = 50;
+static float trailingVBF = 40;
 static float detajj      = 3.5; 
 static float mjj         = 1000; 
-static float jetmetdphi  = 2.0; 
+static float jetmetdphi  = 0.5; 
+static float dphijj      = 1.5;
 static float recoil      = 200;
 static bool  drawUncertaintyBand = false;
 
@@ -349,6 +350,10 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.997) continue;
 	if(fabs(jeteta->at(0)) < 3.2 and fabs(jeteta->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue; 
 
+	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	if(deltaPhi > dphijj) continue;
+
 	efficiencyVBFSelections->SetBinContent(12,efficiencyVBFSelections->GetBinContent(12)+1);
 
 	TLorentzVector jet1, jet2;
@@ -481,6 +486,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
         if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
         if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.997) continue;
         if(fabs(jeteta->at(0)) < 3.2 and fabs(jeteta->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue;
+	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
+	if(deltaPhi > dphijj) continue;
 
         efficiencyVBFSelections->SetBinContent(12,efficiencyVBFSelections->GetBinContent(12)+1);
 

@@ -20,6 +20,7 @@ static bool runHiggsInvisible     = false; // run Higgs invisible analysis
 static bool addTop                = false;
 static bool addQCD                = false;
 static bool addWgamma             = false; 
+static bool addZgamma             = true;
 static bool skipTFsystematics     = false;
 static bool skipDataAnalysis      = false;
 static SamplesNLO nloSamples (false,false,false,false);
@@ -91,14 +92,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wenfilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false); 
 
-    cout<<"make correction histogram for Gam+jets to Znn"<<endl;
-    makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/", 		   
-		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false);
-    
-    
-    if(category != Category::VBF){
+    if(category != Category::VBF or (category == Category::VBF and addZgamma)){
+      
+      cout<<"make correction histogram for Gam+jets to Znn"<<endl;
+      makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/", 		   
+		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false);
+          
       cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
       makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
@@ -343,9 +344,9 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");
   
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addWgamma,addTop,"",addHistoForCutAndCount);
+    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount);
     if(not observables_2D.empty())
-      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addWgamma,addTop,"",addHistoForCutAndCount);
+      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount);
     if(category == Category::VBF){
       fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,false,false,"",addHistoForCutAndCount);
       if(not observables_2D.empty())

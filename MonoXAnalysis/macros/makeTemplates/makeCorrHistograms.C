@@ -107,6 +107,22 @@ void makezmmcorhist( const string &   signalRegionFile,
     dyhists.push_back(znlohist);
   }
 
+
+  TFile* kfactzjet_vbf = NULL;
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                               
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);
+    if(not nloSamples.useDYJetsNLO)
+      dyhists.push_back(zjet_nlo_vbf);    
+  }
+
+
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
@@ -188,6 +204,8 @@ void makezmmcorhist( const string &   signalRegionFile,
   outfile.cd();
   outfile.Close();
   kffile.Close();
+  if(kfactzjet_vbf)
+    kfactzjet_vbf->Close();
 
   nhist.clear();
   dhist.clear();
@@ -303,6 +321,21 @@ void makezeecorhist( const string &   signalRegionFile,
     dyhists.push_back(znlohist);
   }
 
+  TFile* kfactzjet_vbf = NULL;
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                               
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);
+    if(not nloSamples.useDYJetsNLO)
+      dyhists.push_back(zjet_nlo_vbf);
+  }
+
+
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
@@ -384,7 +417,9 @@ void makezeecorhist( const string &   signalRegionFile,
   outfile.cd();
   outfile.Close();
   kffile.Close();
-
+  if(kfactzjet_vbf)
+    kfactzjet_vbf->Close();
+  
   nhist.clear();
   dhist.clear();
   tfhist.clear();
@@ -492,7 +527,19 @@ void makewmncorhist( const string &  signalRegionFile,
     whists.push_back(wnlohist);
     whists.push_back(wewkhist);
   }
-  
+
+  TFile* kfactwjet_vbf = NULL;
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                               
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+  }
+
   if(not isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
     makehist4(dtree, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
@@ -568,6 +615,8 @@ void makewmncorhist( const string &  signalRegionFile,
 
   outfile.Close();
   kffile.Close();
+  if(kfactwjet_vbf)
+    kfactwjet_vbf->Close();
 
   nhist.clear();
   dhist.clear();
@@ -670,6 +719,18 @@ void makewencorhist( const string &  signalRegionFile,
     whists.push_back(wnlohist);
     whists.push_back(wewkhist);
   }
+
+  TFile* kfactwjet_vbf = NULL;
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                               
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+  }
   
   if(not isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
@@ -746,6 +807,8 @@ void makewencorhist( const string &  signalRegionFile,
 
   outfile.Close();
   kffile.Close();
+  if(kfactwjet_vbf)
+    kfactwjet_vbf->Close();
 
   nhist.clear();
   dhist.clear();
@@ -919,7 +982,34 @@ void  makezwjcorhist(const string & znunuFile,
 
   if (kfact == 7 and not nloSamples.useWJetsNLO)  {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
   else if (kfact == 7 and nloSamples.useWJetsNLO) {whists.push_back(wpdfhist);}
-  
+
+  TFile* kfactzjet_vbf = NULL;
+  TFile* kfactwjet_vbf = NULL;
+
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                                
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);
+
+
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+  }
+
+
+
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon,   
   if(not isEWK){
     if(nloSamples.useZJetsNLO)
@@ -1000,7 +1090,11 @@ void  makezwjcorhist(const string & znunuFile,
   outfile.Close();
   kffile.Close();
   kffileUnc.Close();
-
+  if(kfactzjet_vbf)
+    kfactzjet_vbf->Close();
+  if(kfactwjet_vbf)
+    kfactwjet_vbf->Close();
+  
   nhist.clear();
   dhist.clear();
   tfhist.clear();
@@ -1183,6 +1277,33 @@ void makegamcorhist( const string & znunuFile,
   if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
   else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
 
+
+  TFile* kfactzjet_vbf = NULL;
+  TFile* kfactgjet_vbf = NULL;
+
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                           
+  
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);
+    
+    TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+    gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+    gjet_nlo_vbf->Divide(gjet_nlo_mj);
+    if(not nloSamples.usePhotonJetsNLO)
+      ahists.push_back(gjet_nlo_vbf);
+  }
+
+
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(not isEWK){
     if(not nloSamples.useZJetsNLO)
@@ -1264,6 +1385,10 @@ void makegamcorhist( const string & znunuFile,
   kffile.Close();
   kffileUnc.Close();
   fpfile.Close();
+  if(kfactzjet_vbf)
+    kfactzjet_vbf->Close();
+  if(kfactgjet_vbf)
+    kfactgjet_vbf->Close();
 
   nhist.clear();
   dhist.clear();
@@ -1462,6 +1587,32 @@ void makewgamcorhist( const string & wlnuFile,
   else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
   
 
+  TFile* kfactwjet_vbf = NULL;
+  TFile* kfactgjet_vbf = NULL;
+
+  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                                
+
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+
+    TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+    gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+    gjet_nlo_vbf->Divide(gjet_nlo_mj);
+    if(not nloSamples.usePhotonJetsNLO)
+      ahists.push_back(gjet_nlo_vbf);
+  }
+
+
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);  
@@ -1547,6 +1698,11 @@ void makewgamcorhist( const string & wlnuFile,
   dhist_2D.clear();
   tfhist_2D.clear();
   unrolled.clear();
+
+  if(kfactwjet_vbf)
+    kfactwjet_vbf->Close();
+  if(kfactgjet_vbf)
+    kfactgjet_vbf->Close();
 
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }

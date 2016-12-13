@@ -3,6 +3,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 				  TFile & outputFile, // output file
 				  const string & outDir,  // output directory
 				  const Category & category,
+				  const bool & addZgamma,
 				  const bool & addWgamma, 
 				  const bool & addTop, 
 				  const string & ext,
@@ -16,7 +17,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   TFile* zwjcorfile = TFile::Open((outDir+"/zwjcor"+ext+".root").c_str());
   TFile* gamcorfile  = NULL; TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
   TFile* wgamcorfile = NULL;
-  if(category != Category::VBF){
+  if(category != Category::VBF or (category == Category::VBF and addZgamma)){
     gamcorfile = TFile::Open((outDir+"/gamcor"+ext+".root").c_str());
     if(addWgamma)
       wgamcorfile = TFile::Open((outDir+"/wgamcor"+ext+".root").c_str());
@@ -38,7 +39,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   TFile* gamcorpdffile = NULL;
   TFile* gamcorfpcfile = NULL;
 
-  if(category != Category::VBF){
+  if(category != Category::VBF or (category == Category::VBF and addZgamma)){
     gamcorqcdfile = TFile::Open((outDir+"/gamcorqcd"+ext+".root").c_str());
     gamcorewkfile = TFile::Open((outDir+"/gamcorewk"+ext+".root").c_str());
     gamcorre1file = TFile::Open((outDir+"/gamcorre1"+ext+".root").c_str());
@@ -259,7 +260,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_zwj"+ext+"_"+obs).c_str()));
     zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_zwj"+ext+"_"+obs).c_str()));
 
-    if(category != Category::VBF){
+    if(category != Category::VBF or (category == Category::VBF and addZgamma)){
       gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamcor"+ext+"hist_"+obs).c_str()));
       gamcorhist_num.push_back( (TH1*)gamcorfile->FindObjectAny(("nhist_gam"+ext+"_"+obs).c_str()));
       gamcorhist_den.push_back( (TH1*)gamcorfile->FindObjectAny(("dhist_gam"+ext+"_"+obs).c_str()));
@@ -289,7 +290,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     TH1* gamuncfa2hist = NULL;
     TH1* gamuncpdfhist = NULL;
     TH1* gamuncfpchist = NULL;
-    if(category != Category::VBF){
+    if(category != Category::VBF or (category == Category::VBF and addZgamma)){
       cout<<"Make Z/gamma sys histograms"<<endl;    
       gamcorewkhist.push_back( (TH1*)gamcorewkfile->FindObjectAny(("gamcor"+ext+"ewkhist_"+obs).c_str()));
       gamcorewkhist_num.push_back( (TH1*)gamcorewkfile->FindObjectAny(("nhist_gam_ewk"+ext+"_"+obs).c_str()));
@@ -665,7 +666,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     zwjuncpdfhist->Write();
     
     outputFile.cd();
-    if(category != Category::VBF){
+    if(category != Category::VBF or (category == Category::VBF and addZgamma)){
       if(not outputFile.GetDirectory("TF_GJ"))
 	outputFile.mkdir("TF_GJ");
       outputFile.cd("TF_GJ");

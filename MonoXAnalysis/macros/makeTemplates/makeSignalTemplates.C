@@ -63,13 +63,13 @@ void makeSignalTemplates(
     }
   }
   else if(runHiggsInvisible){
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.507E+04,4.434E+03,2.194E+03,1.309E+03},1);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,1.373E+03,8.839E+02,1.227E+02},1);
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.210E+04,3.239E+03,8.154E+02,5.279E+02},1);
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.812E+04,2.282E+03,3.023E+02,2.054E+02},1);
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{9.823E+03,1.256E+03,6.724E+01,4.132E+01},1);
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{9.516E+04,7.580E+02,2.163E+01,1.273E+01},1);
-    //    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{4.538E+03,4.872E+02,8.621E+00,5.256E+00},1);
+    //signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.579E+04,4.434E+03,1.335E+03,8.587E+02,1.309E+03,0.},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,8.400E+02,5.328E+02,8.839E+02,1.227E+02},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.129E+04,3.239E+03,5.037E+02,3.117E+02,5.279E+02},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.694E+04,2.282E+03,1.899E+02,1.124E+02,2.054E+02},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{6.590E+03,1.256E+03,4.348E+01,2.376E+01,4.132E+01},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"400",{3.160E+04,7.580E+02,1.432E+01,7.309E+00,1.273E+01},typeOfDMSignal);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"500",{1.709E+03,4.872E+02,5.825E+00,2.796E+00,5.256E+00},typeOfDMSignal);
   }
   
   outfile.Close();

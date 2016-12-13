@@ -147,7 +147,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"35.9");
+  CMS_lumi(canvas,"36.2");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
