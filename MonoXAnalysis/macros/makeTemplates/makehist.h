@@ -83,12 +83,12 @@ double reweightTopQuarkPt (double topQuarkPt, double atopQuarkPt){
   double weight_top  = -1.;
   double weight_atop = -1.;
   if(topQuarkPt  != 0)
-    weight_top = exp(0.156-0.00137*min(400.,topQuarkPt));
+    weight_top = exp(0.0615-0.0005*topQuarkPt);
   if(atopQuarkPt != 0)
-    weight_atop = exp(0.156-0.00137*min(400.,atopQuarkPt));
-
+    weight_atop = exp(0.0615-0.0005*atopQuarkPt);
+  
   if(weight_top != -1. and weight_atop != -1.)
-    return 1.001*sqrt(weight_top*weight_atop);
+    return sqrt(weight_top*weight_atop);
   else return 1.;
 }
 
@@ -448,8 +448,8 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> event       (myReader,"event");
   TTreeReaderValue<unsigned int> nvtx        (myReader,"nvtx");
   TTreeReaderValue<int>          putrue      (myReader,"putrue");
-  TTreeReaderValue<float> xsec              (myReader,"xsec");
-  TTreeReaderValue<float> wgt               (myReader,"wgt");
+  TTreeReaderValue<float> xsec               (myReader,"xsec");
+  TTreeReaderValue<float> wgt                (myReader,"wgt");
 
   // take some wgt for MC events
   string prescalename;
@@ -460,16 +460,8 @@ void makehist4(TTree* tree, /*input tree*/
 
   if(isMC){
     // defined branches for re-weigthing only in MC
-    wgtsum    = new TTreeReaderValue<double>(myReader,"wgtsum");
-    // set b-tag
-    string btagname;
-    if(sysName == "btagUp" or sysName == "bUp")
-      btagname =  "wgtbtagUp";
-    else if(sysName == "btagDown" or sysName == "btagDw" or sysName == "bDown" or sysName == "bDw")
-      btagname =  "wgtbtagDown";
-    else
-      btagname    = "wgtbtag";
-    wgtbtag = new TTreeReaderValue<float>(myReader,btagname.c_str());
+    wgtsum  = new TTreeReaderValue<double>(myReader,"wgtsum");
+    wgtbtag = new TTreeReaderValue<float>(myReader,"wgtbtag");
   }
   
   // trigger
@@ -485,10 +477,10 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltm        (myReader,"hltsinglemu");
   TTreeReaderValue<UChar_t> hltp120     (myReader,"hltphoton120");
-  TTreeReaderValue<float>  pswgt_ph120 (myReader,"pswgt_ph120");
+  TTreeReaderValue<float>  pswgt_ph120  (myReader,"pswgt_ph120");
   TTreeReaderValue<UChar_t> hltp165     (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (myReader,"hltphoton175");
-  TTreeReaderValue<UChar_t> hltpPFHT800    (myReader,"hltPFHT800");
+  TTreeReaderValue<UChar_t> hltpPFHT800 (myReader,"hltPFHT800");
 
 
   /// met filters
@@ -501,27 +493,14 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
   string cscfilter = "flagglobaltighthalo";
-  if(isMC) cscfilter = "flagcsctight";   
+  if(isMC) cscfilter = "flagcsctight";    
   TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
   TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
   TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausrawold");
-  TTreeReaderValue<unsigned int> nincjets   (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
-  TTreeReaderValue<unsigned int> nbjetshigh (myReader,"nbjets");
   TTreeReaderValue<float> ht                (myReader,"ht");
-
-  TTreeReaderValue<vector<float> > jeteta  (myReader,"combinejeteta");
-  TTreeReaderValue<vector<float> > jetpt   (myReader,"combinejetpt");
-  TTreeReaderValue<vector<float> > jetphi  (myReader,"combinejetphi");
-  TTreeReaderValue<vector<float> > jetbtag (myReader,"combinejetbtag");
-  TTreeReaderValue<vector<float> > jetm    (myReader,"combinejetm");
-  TTreeReaderValue<vector<float> > jetQGL  (myReader,"combinejetQGL");
-  TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
-  TTreeReaderValue<vector<float> > nhfrac  (myReader,"combinejetNHfrac");
-  TTreeReaderValue<vector<float> > emfrac  (myReader,"combinejetEMfrac");
-  TTreeReaderValue<vector<float> > pFlav   (myReader,"combinejetPFlav");
 
   // AK8 jet
   TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");
@@ -547,39 +526,65 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<float> hadBosonpt   (myReader,"wzpt_h");
   TTreeReaderValue<float> hadBosonm    (myReader,"wzmass_h");
 
-  // met systematics
+  // met and jet systematics
   string metSuffix = "";
+  string jetSuffix = "";
+  // muon energy scale --> small effect
   if(sysName == "muUp")
     metSuffix = "MuEnUp";
   else if(sysName == "muDown" or sysName == "muDw")
     metSuffix = "MuEnDown";
+  // electron energy scale --> small effect
   else if(sysName == "elUp")
     metSuffix = "ElEnUp";
   else if(sysName == "elDown" or sysName == "elDw")
     metSuffix = "ElEnDown";
+  // photon energy scale --> small effect
   else if(sysName == "phoUp")
     metSuffix = "PhoEnUp";
   else if(sysName == "phoDown" or sysName == "phoDw")
     metSuffix = "PhoEnDown";
+  // tau energy scale --> small effect
   else if(sysName == "tauUp")
     metSuffix = "TauEnUp";
   else if(sysName == "tauDown" or sysName == "tauDw")
     metSuffix = "TauEnDown";
- else if(sysName == "jesUp")
+  // jet energy scale
+  else if(sysName == "jesUp"){
     metSuffix = "JetEnUp";
-  else if(sysName == "jesDown" or sysName == "jesDw")
+    jetSuffix = "up";
+  }
+  else if(sysName == "jesDown" or sysName == "jesDw"){
     metSuffix = "JetEnDown";
- else if(sysName == "jerUp")
+    jetSuffix = "dw";
+  }
+  else if(sysName == "jerUp"){
     metSuffix = "JetResUp";
-  else if(sysName == "jerDown" or sysName == "jerDw")
+    jetSuffix = "jer";
+  }
+  else if(sysName == "jerDown" or sysName == "jerDw"){
     metSuffix = "JetResDown";
- else if(sysName == "uncUp")
+    jetSuffix = "jer";
+  }
+  else if(sysName == "uncUp")
     metSuffix = "UncEnUp";
   else if(sysName == "uncDown" or sysName == "uncDw")
     metSuffix = "UncEnDown";
-
+  
+  TTreeReaderValue<vector<float> > jeteta  (myReader,("combinejeteta"+jetSuffix).c_str());
+  TTreeReaderValue<vector<float> > jetpt   (myReader,("combinejetpt"+jetSuffix).c_str());
+  TTreeReaderValue<vector<float> > jetphi  (myReader,("combinejetphi"+jetSuffix).c_str());
+  TTreeReaderValue<vector<float> > jetm    (myReader,("combinejetm"+jetSuffix).c_str());
+  TTreeReaderValue<vector<float> > jetbtag (myReader,"combinejetbtag");
+  TTreeReaderValue<vector<float> > jetQGL  (myReader,"combinejetQGL");
+  TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (myReader,"combinejetNHfrac");
+  TTreeReaderValue<vector<float> > emfrac  (myReader,"combinejetEMfrac");
+  TTreeReaderValue<vector<float> > pFlav   (myReader,"combinejetPFlav");
+  TTreeReaderValue<unsigned int> nincjets  (myReader,("njetsinc"+jetSuffix).c_str());
+  
   TTreeReaderValue<float> met         (myReader,("t1pfmet"+metSuffix).c_str());
-  TTreeReaderValue<float> metOriginal (myReader,"t1pfmet");
+  TTreeReaderValue<float> met_orig    (myReader,"t1pfmet");
   TTreeReaderValue<float> metphi      (myReader,"t1pfmetphi");
   TTreeReaderValue<float> mmet        (myReader,"t1mumet");
   TTreeReaderValue<float> mmetphi     (myReader,"t1mumetphi");
@@ -590,10 +595,10 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<float> metpf       (myReader,"pfmet");
   TTreeReaderValue<float> metcalo     (myReader,"calomet");
  
- // dphi
-  TTreeReaderValue<float> jmmdphi (myReader,"incjetmumetdphimin4");
-  TTreeReaderValue<float> jemdphi (myReader,"incjetelmetdphimin4");
-  TTreeReaderValue<float> jpmdphi (myReader,"incjetphmetdphimin4");
+  // dphi
+  TTreeReaderValue<float> jmmdphi (myReader,("incjetmumetdphimin4"+jetSuffix).c_str());
+  TTreeReaderValue<float> jemdphi (myReader,("incjetelmetdphimin4"+jetSuffix).c_str());
+  TTreeReaderValue<float> jpmdphi (myReader,("incjetphmetdphimin4"+jetSuffix).c_str());
 
   string hltsafe1 = "el1idt";
   if(not useMoriondSetup)
@@ -677,10 +682,6 @@ void makehist4(TTree* tree, /*input tree*/
       hlt = *hlte+*hltenoiso;      
     else if (sample == Sample::qcdgam || sample == Sample::gam){ // single photon
       hlt  = *hltp165+*hltp175+*hltpPFHT800;
-      //if(*hltp120 and hlt == 0){
-      // hltw = *pswgt_ph120;
-      // hlt  = *hltp165+*hltp175+*hltpPFHT800+*hltp120;
-      //}
     }
 
     // Trigger Selection
@@ -698,16 +699,18 @@ void makehist4(TTree* tree, /*input tree*/
     //set met
     Double_t pfmet = 0.0;
     Double_t pfmetphi = 0.0;
-    if (sample == Sample::sig || sample == Sample::qcd) {pfmet = *mmet; pfmetphi = *mmetphi;}
+    if (sample == Sample::sig || sample == Sample::qcd) {pfmet = *met; pfmetphi = *metphi;}
     else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ pfmet = *mmet; pfmetphi = *mmetphi;}
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ pfmet = *emet; pfmetphi = *emetphi;}
     else if (sample == Sample::qcdgam || sample == Sample::gam)  { pfmet = *pmet; pfmetphi = *pmetphi;}
 
+    // calculate correction on recoil by hand
+    if(metSuffix != "" and sample != Sample::sig){
+      pfmet += (*met-*met_orig)/2;
+    }
+
     // noise cleaner
     if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
-
-    // propagate met systeamtics on the recoil
-    if(metSuffix != "") pfmet += (*met-*metOriginal);
 
     // set lepton info
     Int_t    id1   = 0;
@@ -1023,14 +1026,9 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // B10-4 -tag weight
-    double btagw = 1.;
-    if(isMC){
-      btagw = **wgtbtag;    
-      if(sample == Sample::topmu or sample == Sample::topel)
-	btagw = 0.9;
-      else
-	btagw = 1.;
-    }
+    double btagw = 1;
+    if(isMC and (sample == Sample::topmu or sample == Sample::topel))
+      btagw = **wgtbtag;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -1264,6 +1262,10 @@ void makehist4(TTree* tree, /*input tree*/
     // fill the histograms --> with the right observable
     for(auto hist : hist1D){
       TString name(hist->GetName());      
+      name.ReplaceAll("metJet","");
+      name.ReplaceAll("metRes","");
+      name.ReplaceAll("metUnc","");
+
       // number of vertices
       if(name.Contains("nvtx")) 
 	fillvar = *nvtx;
@@ -1581,6 +1583,10 @@ void makehist4(TTree* tree, /*input tree*/
 
     for(auto hist: hist2D){
       TString name(hist->GetName());
+      name.ReplaceAll("metJet","");
+      name.ReplaceAll("metRes","");
+      name.ReplaceAll("metUnc","");
+
       if(name.Contains("met_jetpt")){ 
 	fillvarX = pfmet;
 	fillvarY = jetpt->at(0);

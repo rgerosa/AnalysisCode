@@ -61,11 +61,11 @@ void signalHiggshist(TFile* outfile,
   vector<TH1*>  zHhist;  
   vector<TH1*>  ggZHhist;
   vector<TH1*>  ggHhist_renUp, ggHhist_renDw, ggHhist_facUp,    ggHhist_facDw;
-  vector<TH1*>  ggHhist_bUp,   ggHhist_bDw,   ggHhist_metJetUp, ggHhist_metJetDw, ggHhist_metResUp, ggHhist_metResDw, ggHhist_metUncUp, ggHhist_metUncDw;
-  vector<TH1*>  vbfHhist_bUp, vbfHhist_bDw, vbfHhist_metJetUp, vbfHhist_metJetDw, vbfHhist_metResUp, vbfHhist_metResDw, vbfHhist_metUncUp, vbfHhist_metUncDw;
-  vector<TH1*>  wHhist_bUp, wHhist_bDw, wHhist_metJetUp, wHhist_metJetDw, wHhist_metResUp, wHhist_metResDw, wHhist_metUncUp, wHhist_metUncDw;
-  vector<TH1*>  zHhist_bUp, zHhist_bDw, zHhist_metJetUp, zHhist_metJetDw, zHhist_metResUp, zHhist_metResDw, zHhist_metUncUp, zHhist_metUncDw;
-  vector<TH1*>  ggZHhist_bUp, ggZHhist_bDw, ggZHhist_metJetUp, ggZHhist_metJetDw, ggZHhist_metResUp, ggZHhist_metResDw, ggZHhist_metUncUp, ggZHhist_metUncDw;
+  vector<TH1*>  ggHhist_metJetUp, ggHhist_metJetDw, ggHhist_metResUp, ggHhist_metResDw, ggHhist_metUncUp, ggHhist_metUncDw;
+  vector<TH1*>  vbfHhist_metJetUp, vbfHhist_metJetDw, vbfHhist_metResUp, vbfHhist_metResDw, vbfHhist_metUncUp, vbfHhist_metUncDw;
+  vector<TH1*>  wHhist_metJetUp, wHhist_metJetDw, wHhist_metResUp, wHhist_metResDw, wHhist_metUncUp, wHhist_metUncDw;
+  vector<TH1*>  zHhist_metJetUp, zHhist_metJetDw, zHhist_metResUp, zHhist_metResDw, zHhist_metUncUp, zHhist_metUncDw;
+  vector<TH1*>  ggZHhist_metJetUp, ggZHhist_metJetDw, ggZHhist_metResUp, ggZHhist_metResDw, ggZHhist_metUncUp, ggZHhist_metUncDw;
   vector<double> bins;
 
   for(auto obs : observables){
@@ -101,16 +101,6 @@ void signalHiggshist(TFile* outfile,
 	ggHhist_facUp.push_back(dynamic_cast<TH1*>(ggHhist_facUp_temp));
 	ggHhist_facDw.push_back(dynamic_cast<TH1*>(ggHhist_facDw_temp));
 
-	TH1F* ggHhist_bUp_temp  = new TH1F(("ggHhist_bUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* vbfHhist_bUp_temp = new TH1F(("vbfHhist_bUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	ggHhist_bUp.push_back(dynamic_cast<TH1*>(ggHhist_bUp_temp));
-	vbfHhist_bUp.push_back(dynamic_cast<TH1*>(vbfHhist_bUp_temp));
-      
-	TH1F* ggHhist_bDw_temp  = new TH1F(("ggHhist_bDw_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* vbfHhist_bDw_temp = new TH1F(("vbfHhist_bDw_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	ggHhist_bDw.push_back(dynamic_cast<TH1*>(ggHhist_bDw_temp));
-	vbfHhist_bDw.push_back(dynamic_cast<TH1*>(vbfHhist_bDw_temp));
-
 	TH1F* ggHhist_metJetUp_temp  = new TH1F(("ggHhist_metJetUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
 	TH1F* vbfHhist_metJetUp_temp = new TH1F(("vbfHhist_metJetUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
 	ggHhist_metJetUp.push_back(dynamic_cast<TH1*>(ggHhist_metJetUp_temp));
@@ -143,20 +133,6 @@ void signalHiggshist(TFile* outfile,
       }
 
       if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >=2){
-	
-	TH1F* wHhist_bUp_temp   = new TH1F(("wHhist_bUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* zHhist_bUp_temp   = new TH1F(("zHhist_bUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* ggZHhist_bUp_temp = new TH1F(("ggZHhist_bUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	wHhist_bUp.push_back(dynamic_cast<TH1*>(wHhist_bUp_temp));
-	zHhist_bUp.push_back(dynamic_cast<TH1*>(zHhist_bUp_temp));
-	ggZHhist_bUp.push_back(dynamic_cast<TH1*>(ggZHhist_bUp_temp));
-
-	TH1F* wHhist_bDw_temp   = new TH1F(("wHhist_bDw_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* zHhist_bDw_temp   = new TH1F(("zHhist_bDw_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* ggZHhist_bDw_temp = new TH1F(("ggZHhist_bDw_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	wHhist_bDw.push_back(dynamic_cast<TH1*>(wHhist_bDw_temp));
-	zHhist_bDw.push_back(dynamic_cast<TH1*>(zHhist_bDw_temp));
-	ggZHhist_bDw.push_back(dynamic_cast<TH1*>(ggZHhist_bDw_temp));
 	
 	TH1F* wHhist_metJetUp_temp   = new TH1F(("wHhist_metJetUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
 	TH1F* zHhist_metJetUp_temp   = new TH1F(("zHhist_metJetUp_"+mH+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -211,11 +187,11 @@ void signalHiggshist(TFile* outfile,
   vector<TH2*> ggZHhist_2D;
 
   vector<TH2*> ggHhist_renUp_2D, ggHhist_renDw_2D, ggHhist_facUp_2D, ggHhist_facDw_2D;
-  vector<TH2*> ggHhist_bUp_2D, ggHhist_bDw_2D, ggHhist_metJetUp_2D, ggHhist_metJetDw_2D, ggHhist_metResUp_2D, ggHhist_metResDw_2D, ggHhist_metUncUp_2D, ggHhist_metUncDw_2D;
-  vector<TH2*> vbfHhist_bUp_2D, vbfHhist_bDw_2D, vbfHhist_metJetUp_2D, vbfHhist_metJetDw_2D, vbfHhist_metResUp_2D, vbfHhist_metResDw_2D, vbfHhist_metUncUp_2D, vbfHhist_metUncDw_2D;
-  vector<TH2*> wHhist_bUp_2D, wHhist_bDw_2D, wHhist_metJetUp_2D, wHhist_metJetDw_2D, wHhist_metResUp_2D, wHhist_metResDw_2D, wHhist_metUncUp_2D, wHhist_metUncDw_2D;
-  vector<TH2*> zHhist_bUp_2D, zHhist_bDw_2D, zHhist_metJetUp_2D, zHhist_metJetDw_2D, zHhist_metResUp_2D, zHhist_metResDw_2D, zHhist_metUncUp_2D, zHhist_metUncDw_2D;
-  vector<TH2*> ggZHhist_bUp_2D, ggZHhist_bDw_2D, ggZHhist_metJetUp_2D, ggZHhist_metJetDw_2D, ggZHhist_metResUp_2D, ggZHhist_metResDw_2D, ggZHhist_metUncUp_2D, ggZHhist_metUncDw_2D;
+  vector<TH2*> ggHhist_metJetUp_2D, ggHhist_metJetDw_2D, ggHhist_metResUp_2D, ggHhist_metResDw_2D, ggHhist_metUncUp_2D, ggHhist_metUncDw_2D;
+  vector<TH2*> vbfHhist_metJetUp_2D, vbfHhist_metJetDw_2D, vbfHhist_metResUp_2D, vbfHhist_metResDw_2D, vbfHhist_metUncUp_2D, vbfHhist_metUncDw_2D;
+  vector<TH2*> wHhist_metJetUp_2D, wHhist_metJetDw_2D, wHhist_metResUp_2D, wHhist_metResDw_2D, wHhist_metUncUp_2D, wHhist_metUncDw_2D;
+  vector<TH2*> zHhist_metJetUp_2D, zHhist_metJetDw_2D, zHhist_metResUp_2D, zHhist_metResDw_2D, zHhist_metUncUp_2D, zHhist_metUncDw_2D;
+  vector<TH2*> ggZHhist_metJetUp_2D, ggZHhist_metJetDw_2D, ggZHhist_metResUp_2D, ggZHhist_metResDw_2D, ggZHhist_metUncUp_2D, ggZHhist_metUncDw_2D;
 
   for(auto obs : observables_2D){
 
@@ -251,16 +227,6 @@ void signalHiggshist(TFile* outfile,
 	ggHhist_facUp_2D.push_back(dynamic_cast<TH2*>(ggHhist_facUp_temp));
 	ggHhist_facDw_2D.push_back(dynamic_cast<TH2*>(ggHhist_facDw_temp));
       
-	TH2F* ggHhist_bUp_temp  = new TH2F(("ggHhist_bUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* vbfHhist_bUp_temp = new TH2F(("vbfHhist_bUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	ggHhist_bUp_2D.push_back(dynamic_cast<TH2*>(ggHhist_bUp_temp));
-	vbfHhist_bUp_2D.push_back(dynamic_cast<TH2*>(vbfHhist_bUp_temp));
-
-	TH2F* ggHhist_bDw_temp  = new TH2F(("ggHhist_bDw_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* vbfHhist_bDw_temp = new TH2F(("vbfHhist_bDw_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	ggHhist_bDw_2D.push_back(dynamic_cast<TH2*>(ggHhist_bDw_temp));
-	vbfHhist_bDw_2D.push_back(dynamic_cast<TH2*>(vbfHhist_bDw_temp));
-
 	TH2F* ggHhist_metJetUp_temp  = new TH2F(("ggHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
 	TH2F* vbfHhist_metJetUp_temp = new TH2F(("vbfHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
 	ggHhist_metJetUp_2D.push_back(dynamic_cast<TH2*>(ggHhist_metJetUp_temp));
@@ -293,20 +259,6 @@ void signalHiggshist(TFile* outfile,
       }
 
       if(typeOfHiggsSignal == 0 or typeOfHiggsSignal>= 2){
-
-	TH2F* wHhist_bUp_temp   = new TH2F(("wHhist_bUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* zHhist_bUp_temp   = new TH2F(("zHhist_bUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* ggZHhist_bUp_temp = new TH2F(("ggZHhist_bUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	wHhist_bUp_2D.push_back(dynamic_cast<TH2*>(wHhist_bUp_temp));
-	zHhist_bUp_2D.push_back(dynamic_cast<TH2*>(zHhist_bUp_temp));
-	ggZHhist_bUp_2D.push_back(dynamic_cast<TH2*>(ggZHhist_bUp_temp));
-	
-	TH2F* wHhist_bDw_temp   = new TH2F(("wHhist_bDw_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* zHhist_bDw_temp   = new TH2F(("zHhist_bDw_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* ggZHhist_bDw_temp = new TH2F(("ggZHhist_bDw_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	wHhist_bDw_2D.push_back(dynamic_cast<TH2*>(wHhist_bDw_temp));
-	zHhist_bDw_2D.push_back(dynamic_cast<TH2*>(zHhist_bDw_temp));
-	ggZHhist_bDw_2D.push_back(dynamic_cast<TH2*>(ggZHhist_bDw_temp));
 
 	TH2F* wHhist_metJetUp_temp   = new TH2F(("wHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
 	TH2F* zHhist_metJetUp_temp   = new TH2F(("zHhist_metJetUp_"+mH+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
@@ -398,10 +350,6 @@ void signalHiggshist(TFile* outfile,
       makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp);
       makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw);
     
-      makehist4(ggHTree,ggHhist_bUp,ggHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_bUp,vbfHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_bDw,ggHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(0));
-      makehist4(vbfHTree,vbfHhist_bDw,vbfHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(1));
       makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(1));
       makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0));
@@ -416,14 +364,6 @@ void signalHiggshist(TFile* outfile,
       makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(1));
     }
     if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >= 2){
-
-      makehist4(wHplusTree,wHhist_bUp,wHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(wHminusTree,wHhist_bUp,wHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(3));   
-      makehist4(zHTree,zHhist_bUp,zHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX,0,true,false,xs.at(4));      
-
-      makehist4(wHplusTree,wHhist_bDw,wHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(2));
-      makehist4(wHminusTree,wHhist_bDw,wHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(3));
-      makehist4(zHTree,zHhist_bDw,zHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX,0,true,false,xs.at(4));   
 
       makehist4(wHplusTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(2));
       makehist4(wHminusTree,wHhist_metJetUp,wHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(3));
@@ -450,8 +390,6 @@ void signalHiggshist(TFile* outfile,
       makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(4));
 
       if(xs.size() > 5){ // re-weight qqZH to get ggZH contribution                                                                                                           
-        makehist4(zHTree,ggZHhist_bUp,ggZHhist_bUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_bDw,ggZHhist_bDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
         makehist4(zHTree,ggZHhist_metJetUp,ggZHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
         makehist4(zHTree,ggZHhist_metJetDw,ggZHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
         makehist4(zHTree,ggZHhist_metResUp,ggZHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
@@ -495,12 +433,6 @@ void signalHiggshist(TFile* outfile,
       for(auto hist: ggHhist_facDw){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: ggHhist_facDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
-      for(auto hist: ggHhist_bUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: ggHhist_bUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
-      for(auto hist: ggHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: ggHhist_bDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-    
       for(auto hist: ggHhist_metJetUp){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: ggHhist_metJetUp_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
@@ -520,12 +452,6 @@ void signalHiggshist(TFile* outfile,
       for(auto hist: ggHhist_metUncDw_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
       ////
-      for(auto hist: vbfHhist_bUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: vbfHhist_bUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
-      for(auto hist: vbfHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: vbfHhist_bDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
       for(auto hist: vbfHhist_metJetUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: vbfHhist_metJetUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
@@ -545,12 +471,6 @@ void signalHiggshist(TFile* outfile,
       for(auto hist: vbfHhist_metUncDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
       ////
-      for(auto hist: wHhist_bUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: wHhist_bUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
-      for(auto hist: wHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: wHhist_bDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
       for(auto hist: wHhist_metJetUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: wHhist_metJetUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
@@ -570,12 +490,6 @@ void signalHiggshist(TFile* outfile,
       for(auto hist: wHhist_metUncDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
       ////
-      for(auto hist: zHhist_bUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: zHhist_bUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
-      for(auto hist: zHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: zHhist_bDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
       for(auto hist: zHhist_metJetUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: zHhist_metJetUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
@@ -595,12 +509,6 @@ void signalHiggshist(TFile* outfile,
       for(auto hist: zHhist_metUncDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
       //                                                                                                                                                                           
-      for(auto hist: ggZHhist_bUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: ggZHhist_bUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
-      for(auto hist: ggZHhist_bDw){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      for(auto hist: ggZHhist_bDw_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
-      
       for(auto hist: ggZHhist_metJetUp){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       for(auto hist: ggZHhist_metJetUp_2D){if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
       
@@ -671,8 +579,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : ggHhist_facUp) hist->Write();
     for(auto hist : ggHhist_facDw) hist->Write();
 
-    for(auto hist : ggHhist_bUp) hist->Write();
-    for(auto hist : ggHhist_bDw) hist->Write();
     for(auto hist : ggHhist_metJetUp) hist->Write();
     for(auto hist : ggHhist_metJetDw) hist->Write();
     for(auto hist : ggHhist_metResUp) hist->Write();
@@ -684,8 +590,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : ggHhist_renDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_facUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_facDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : ggHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : ggHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist);temp->Write();}
     for(auto hist : ggHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -698,8 +602,6 @@ void signalHiggshist(TFile* outfile,
       outfile->mkdir("vbfH/sysShape");
     outfile->cd("vbfH/sysShape");
 
-    for(auto hist : vbfHhist_bUp) hist->Write();
-    for(auto hist : vbfHhist_bDw) hist->Write();
     for(auto hist : vbfHhist_metJetUp) hist->Write();
     for(auto hist : vbfHhist_metJetDw) hist->Write();
     for(auto hist : vbfHhist_metResUp) hist->Write();
@@ -707,8 +609,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : vbfHhist_metUncUp) hist->Write();
     for(auto hist : vbfHhist_metUncDw) hist->Write();
 
-    for(auto hist :vbfHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist :vbfHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist :vbfHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist);temp->Write();}
     for(auto hist :vbfHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist :vbfHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -721,8 +621,6 @@ void signalHiggshist(TFile* outfile,
       outfile->mkdir("wH/sysShape");
     outfile->cd("wH/sysShape");
 
-    for(auto hist : wHhist_bUp) hist->Write();
-    for(auto hist : wHhist_bDw) hist->Write();
     for(auto hist : wHhist_metJetUp) hist->Write();
     for(auto hist : wHhist_metJetDw) hist->Write();
     for(auto hist : wHhist_metResUp) hist->Write();
@@ -730,8 +628,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : wHhist_metUncUp) hist->Write();
     for(auto hist : wHhist_metUncDw) hist->Write();
 
-    for(auto hist : wHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : wHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : wHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : wHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : wHhist_metResDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -743,8 +639,6 @@ void signalHiggshist(TFile* outfile,
       outfile->mkdir("zH/sysShape");
     outfile->cd("zH/sysShape");
 
-    for(auto hist : zHhist_bUp) hist->Write();
-    for(auto hist : zHhist_bDw) hist->Write();
     for(auto hist : zHhist_metJetUp) hist->Write();
     for(auto hist : zHhist_metJetDw) hist->Write();
     for(auto hist : zHhist_metResUp) hist->Write();
@@ -753,8 +647,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : zHhist_metUncDw) hist->Write();
 
 
-    for(auto hist : zHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : zHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : zHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : zHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : wHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -768,8 +660,6 @@ void signalHiggshist(TFile* outfile,
       outfile->mkdir("ggZH/sysShape");
     outfile->cd("ggZH/sysShape");
 
-    for(auto hist : ggZHhist_bUp) hist->Write();
-    for(auto hist : ggZHhist_bDw) hist->Write();
     for(auto hist : ggZHhist_metJetUp) hist->Write();
     for(auto hist : ggZHhist_metJetDw) hist->Write();
     for(auto hist : ggZHhist_metResUp) hist->Write();
@@ -777,8 +667,6 @@ void signalHiggshist(TFile* outfile,
     for(auto hist : ggZHhist_metUncUp) hist->Write();
     for(auto hist : ggZHhist_metUncDw) hist->Write();
   
-    for(auto hist : ggZHhist_bUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
-    for(auto hist : ggZHhist_bDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggZHhist_metJetUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : ggZHhist_metJetDw_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
     for(auto hist : wHhist_metResUp_2D){ TH1* temp = unroll2DHistograms(hist); temp->Write();}
@@ -801,40 +689,30 @@ void signalHiggshist(TFile* outfile,
   ggHhist_renDw.clear(); 
   ggHhist_facUp.clear(); 
   ggHhist_facDw.clear();
-  ggHhist_bUp.clear(); 
-  ggHhist_bDw.clear(); 
   ggHhist_metJetUp.clear(); 
   ggHhist_metJetDw.clear(); 
   ggHhist_metResUp.clear(); 
   ggHhist_metResDw.clear(); 
   ggHhist_metUncUp.clear(); 
   ggHhist_metUncDw.clear();
-  vbfHhist_bUp.clear(); 
-  vbfHhist_bDw.clear(); 
   vbfHhist_metJetUp.clear(); 
   vbfHhist_metJetDw.clear(); 
   vbfHhist_metResUp.clear(); 
   vbfHhist_metResDw.clear(); 
   vbfHhist_metUncUp.clear(); 
   vbfHhist_metUncDw.clear();
-  wHhist_bUp.clear(); 
-  wHhist_bDw.clear(); 
   wHhist_metJetUp.clear(); 
   wHhist_metJetDw.clear(); 
   wHhist_metResUp.clear(); 
   wHhist_metResDw.clear(); 
   wHhist_metUncUp.clear(); 
   wHhist_metUncDw.clear();
-  zHhist_bUp.clear(); 
-  zHhist_bDw.clear(); 
   zHhist_metJetUp.clear(); 
   zHhist_metJetDw.clear(); 
   zHhist_metResUp.clear(); 
   zHhist_metResDw.clear(); 
   zHhist_metUncUp.clear(); 
   zHhist_metUncDw.clear();
-  ggZHhist_bUp.clear(); 
-  ggZHhist_bDw.clear(); 
   ggZHhist_metJetUp.clear(); 
   ggZHhist_metJetDw.clear(); 
   ggZHhist_metResUp.clear(); 
@@ -850,40 +728,30 @@ void signalHiggshist(TFile* outfile,
   ggHhist_renDw_2D.clear(); 
   ggHhist_facUp_2D.clear(); 
   ggHhist_facDw_2D.clear();
-  ggHhist_bUp_2D.clear(); 
-  ggHhist_bDw_2D.clear(); 
   ggHhist_metJetUp_2D.clear(); 
   ggHhist_metJetDw_2D.clear(); 
   ggHhist_metResUp_2D.clear(); 
   ggHhist_metResDw_2D.clear(); 
   ggHhist_metUncUp_2D.clear(); 
   ggHhist_metUncDw_2D.clear();
-  vbfHhist_bUp_2D.clear(); 
-  vbfHhist_bDw_2D.clear(); 
   vbfHhist_metJetUp_2D.clear(); 
   vbfHhist_metJetDw_2D.clear(); 
   vbfHhist_metResUp_2D.clear(); 
   vbfHhist_metResDw_2D.clear(); 
   vbfHhist_metUncUp_2D.clear(); 
   vbfHhist_metUncDw_2D.clear();
-  wHhist_bUp_2D.clear(); 
-  wHhist_bDw_2D.clear(); 
   wHhist_metJetUp_2D.clear(); 
   wHhist_metJetDw_2D.clear(); 
   wHhist_metResUp_2D.clear(); 
   wHhist_metResDw_2D.clear(); 
   wHhist_metUncUp_2D.clear(); 
   wHhist_metUncDw_2D.clear();
-  zHhist_bUp_2D.clear(); 
-  zHhist_bDw_2D.clear(); 
   zHhist_metJetUp_2D.clear(); 
   zHhist_metJetDw_2D.clear(); 
   zHhist_metResUp_2D.clear(); 
   zHhist_metResDw_2D.clear(); 
   zHhist_metUncUp_2D.clear(); 
   zHhist_metUncDw_2D.clear();
-  ggZHhist_bUp_2D.clear(); 
-  ggZHhist_bDw_2D.clear(); 
   ggZHhist_metJetUp_2D.clear(); 
   ggZHhist_metJetDw_2D.clear(); 
   ggZHhist_metResUp_2D.clear(); 
@@ -949,12 +817,6 @@ void signalmchist(TFile* outfile,
   vector< vector<TH1*> > monoJhist;
   vector< vector<TH1*> > monoWhist;
   vector< vector<TH1*> > monoZhist;
-  vector< vector<TH1*> > monoJhist_bUp;
-  vector< vector<TH1*> > monoWhist_bUp;
-  vector< vector<TH1*> > monoZhist_bUp;
-  vector< vector<TH1*> > monoJhist_bDw;
-  vector< vector<TH1*> > monoWhist_bDw;
-  vector< vector<TH1*> > monoZhist_bDw;
   vector< vector<TH1*> > monoJhist_metJetUp;
   vector< vector<TH1*> > monoWhist_metJetUp;
   vector< vector<TH1*> > monoZhist_metJetUp;
@@ -979,12 +841,6 @@ void signalmchist(TFile* outfile,
   monoWhist.assign(massPoint.size(),vector<TH1*>());
   monoZhist.assign(massPoint.size(),vector<TH1*>());
   if(doShapeSystematics){
-    monoJhist_bUp.assign(massPoint.size(),vector<TH1*>());
-    monoWhist_bUp.assign(massPoint.size(),vector<TH1*>());
-    monoZhist_bUp.assign(massPoint.size(),vector<TH1*>());
-    monoJhist_bDw.assign(massPoint.size(),vector<TH1*>());
-    monoWhist_bDw.assign(massPoint.size(),vector<TH1*>());
-    monoZhist_bDw.assign(massPoint.size(),vector<TH1*>());
     monoJhist_metJetUp.assign(massPoint.size(),vector<TH1*>());
     monoWhist_metJetUp.assign(massPoint.size(),vector<TH1*>());
     monoZhist_metJetUp.assign(massPoint.size(),vector<TH1*>());
@@ -1025,21 +881,6 @@ void signalmchist(TFile* outfile,
       monoZhist.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_temp));
 
       if(doShapeSystematics){
-
-	TH1F* monoJhist_bUp_temp = new TH1F(("monoJhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* monoWhist_bUp_temp = new TH1F(("monoWhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* monoZhist_bUp_temp = new TH1F(("monoZhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	monoJhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_bUp_temp));
-	monoWhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_bUp_temp));
-	monoZhist_bUp.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_bUp_temp));
-
-	TH1F* monoJhist_bDw_temp = new TH1F(("monoJhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* monoWhist_bDw_temp = new TH1F(("monoWhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	TH1F* monoZhist_bDw_temp = new TH1F(("monoZhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-	monoJhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoJhist_bDw_temp));
-	monoWhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoWhist_bDw_temp));
-	monoZhist_bDw.at(imass).push_back(dynamic_cast<TH1*>(monoZhist_bDw_temp));
-
 
 	TH1F* monoJhist_metJetUp_temp = new TH1F(("monoJhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
 	TH1F* monoWhist_metJetUp_temp = new TH1F(("monoWhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -1092,12 +933,6 @@ void signalmchist(TFile* outfile,
   vector< vector<TH2*> > monoJhist_2D;
   vector< vector<TH2*> > monoWhist_2D;
   vector< vector<TH2*> > monoZhist_2D;
-  vector< vector<TH2*> > monoJhist_bUp_2D;
-  vector< vector<TH2*> > monoWhist_bUp_2D;
-  vector< vector<TH2*> > monoZhist_bUp_2D;
-  vector< vector<TH2*> > monoJhist_bDw_2D;
-  vector< vector<TH2*> > monoWhist_bDw_2D;
-  vector< vector<TH2*> > monoZhist_bDw_2D;
   vector< vector<TH2*> > monoJhist_metJetUp_2D;
   vector< vector<TH2*> > monoWhist_metJetUp_2D;
   vector< vector<TH2*> > monoZhist_metJetUp_2D;
@@ -1123,13 +958,6 @@ void signalmchist(TFile* outfile,
   monoZhist_2D.assign(massPoint.size(),vector<TH2*>());
 
   if(doShapeSystematics){
-    monoJhist_bUp_2D.assign(massPoint.size(),vector<TH2*>());
-    monoWhist_bUp_2D.assign(massPoint.size(),vector<TH2*>());
-    monoZhist_bUp_2D.assign(massPoint.size(),vector<TH2*>());
-    monoJhist_bDw_2D.assign(massPoint.size(),vector<TH2*>());
-    monoWhist_bDw_2D.assign(massPoint.size(),vector<TH2*>());
-    monoZhist_bDw_2D.assign(massPoint.size(),vector<TH2*>());
-
     monoJhist_metJetUp_2D.assign(massPoint.size(),vector<TH2*>());
     monoWhist_metJetUp_2D.assign(massPoint.size(),vector<TH2*>());
     monoZhist_metJetUp_2D.assign(massPoint.size(),vector<TH2*>());
@@ -1170,21 +998,6 @@ void signalmchist(TFile* outfile,
       monoZhist_2D.at(imass).push_back(dynamic_cast<TH2*>(monoZhist_temp));
 
       if(doShapeSystematics){
-
-	TH2F* monoJhist_bUp_temp = new TH2F(("monoJhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* monoWhist_bUp_temp = new TH2F(("monoWhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* monoZhist_bUp_temp = new TH2F(("monoZhist_bUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	monoJhist_bUp_2D.at(imass).push_back(dynamic_cast<TH2*>(monoJhist_bUp_temp));
-	monoWhist_bUp_2D.at(imass).push_back(dynamic_cast<TH2*>(monoWhist_bUp_temp));
-	monoZhist_bUp_2D.at(imass).push_back(dynamic_cast<TH2*>(monoZhist_bUp_temp));
-
-	TH2F* monoJhist_bDw_temp = new TH2F(("monoJhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* monoWhist_bDw_temp = new TH2F(("monoWhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	TH2F* monoZhist_bDw_temp = new TH2F(("monoZhist_bDw_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
-	monoJhist_bDw_2D.at(imass).push_back(dynamic_cast<TH2*>(monoJhist_bDw_temp));
-	monoWhist_bDw_2D.at(imass).push_back(dynamic_cast<TH2*>(monoWhist_bDw_temp));
-	monoZhist_bDw_2D.at(imass).push_back(dynamic_cast<TH2*>(monoZhist_bDw_temp));
-
 
 	TH2F* monoJhist_metJetUp_temp = new TH2F(("monoJhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
 	TH2F* monoWhist_metJetUp_temp = new TH2F(("monoWhist_metJetUp_"+interaction+"_"+iPoint.mediatorMass+"_"+iPoint.dmMass+"_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
@@ -1275,8 +1088,6 @@ void signalmchist(TFile* outfile,
       makehist4(tree,monoJhist.at(itree),monoJhist_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoJ sys "<<endl;
-	makehist4(tree,monoJhist_bUp.at(itree),monoJhist_bUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoJhist_bDw.at(itree),monoJhist_bDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
 	makehist4(tree,monoJhist_metJetUp.at(itree),monoJhist_metJetUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
 	makehist4(tree,monoJhist_metJetDw.at(itree),monoJhist_metJetDw_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
 	makehist4(tree,monoJhist_metResUp.at(itree),monoJhist_metResUp_2D.at(itree),true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
@@ -1295,8 +1106,6 @@ void signalmchist(TFile* outfile,
       makehist4(tree,monoWhist.at(itree),monoWhist_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoW sys "<<endl;
-	makehist4(tree,monoWhist_bUp.at(itree),monoWhist_bUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoWhist_bDw.at(itree),monoWhist_bDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
 	makehist4(tree,monoWhist_metJetUp.at(itree),monoWhist_metJetUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
 	makehist4(tree,monoWhist_metJetDw.at(itree),monoWhist_metJetDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
 	makehist4(tree,monoWhist_metResUp.at(itree),monoWhist_metResUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
@@ -1315,8 +1124,6 @@ void signalmchist(TFile* outfile,
       makehist4(tree,monoZhist.at(itree),monoZhist_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX);
       if(doShapeSystematics){
 	cout<<"signal region analysis --> do signal monoZ sys "<<endl;
-	makehist4(tree,monoZhist_bUp.at(itree),monoZhist_bUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagUp",false,reweightNVTX);
-	makehist4(tree,monoZhist_bDw.at(itree),monoZhist_bDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"btagDown",false,reweightNVTX);
 	makehist4(tree,monoZhist_metJetUp.at(itree),monoZhist_metJetUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX);
 	makehist4(tree,monoZhist_metJetDw.at(itree),monoZhist_metJetDw_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jesDw",false,reweightNVTX);
 	makehist4(tree,monoZhist_metResUp.at(itree),monoZhist_metResUp_2D.at(itree),true,Sample::sig,category,isWJet,1.00,lumi,ehists,"jerUp",false,reweightNVTX);
@@ -1340,20 +1147,6 @@ void signalmchist(TFile* outfile,
     
     
     if(doShapeSystematics){
-      
-      for(auto sample : monoJhist_bUp){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoJhist_bUp_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoWhist_bUp){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoWhist_bUp_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoZhist_bUp){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoZhist_bUp_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      
-      for(auto sample : monoJhist_bDw){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoJhist_bDw_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoWhist_bDw){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoWhist_bDw_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoZhist_bDw){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
-      for(auto sample : monoZhist_bDw_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
       
       for(auto sample : monoJhist_metJetUp){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
       for(auto sample : monoJhist_metJetUp_2D){for (auto histo : sample){if(TString(histo->GetName()).Contains("_met"))smoothEmptyBins(histo,2);}}
@@ -1421,8 +1214,6 @@ void signalmchist(TFile* outfile,
     if(not outfile->GetDirectory("monoJ/sysShape"))
       outfile->mkdir("monoJ/sysShape");
     outfile->cd("monoJ/sysShape");
-    for(auto sample : monoJhist_bUp){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoJhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_metJetUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_metJetDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoJhist_metResUp){ for(auto hist : sample) hist->Write();}
@@ -1434,8 +1225,6 @@ void signalmchist(TFile* outfile,
     if(not outfile->GetDirectory("monoW/sysShape"))
       outfile->mkdir("monoW/sysShape");
     outfile->cd("monoW/sysShape");
-    for(auto sample : monoWhist_bUp){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoWhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_metJetUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_metJetDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoWhist_metResUp){ for(auto hist : sample) hist->Write();}
@@ -1447,8 +1236,6 @@ void signalmchist(TFile* outfile,
     if(not outfile->GetDirectory("monoZ/sysShape"))
       outfile->mkdir("monoZ/sysShape");
     outfile->cd("monoZ/sysShape");
-    for(auto sample : monoZhist_bUp){ for(auto hist : sample) hist->Write();}
-    for(auto sample : monoZhist_bDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoZhist_metJetUp){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoZhist_metJetDw){ for(auto hist : sample) hist->Write();}
     for(auto sample : monoZhist_metResUp){ for(auto hist : sample) hist->Write();}
@@ -1471,8 +1258,6 @@ void signalmchist(TFile* outfile,
 
     outfile->cd();
     outfile->cd("monoJ/sysShape/");
-    for(auto sample : monoJhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
-    for(auto sample : monoJhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoJhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoJhist_metJetDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoJhist_metResUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1483,8 +1268,6 @@ void signalmchist(TFile* outfile,
 
     outfile->cd();
     outfile->cd("monoW/sysShape/");
-    for(auto sample : monoWhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
-    for(auto sample : monoWhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_metJetDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoWhist_metResUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1494,8 +1277,6 @@ void signalmchist(TFile* outfile,
 
     outfile->cd();
     outfile->cd("monoZ/sysShape/");
-    for(auto sample : monoZhist_bUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
-    for(auto sample : monoZhist_bDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoZhist_metJetUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoZhist_metJetDw_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
     for(auto sample : monoZhist_metResUp_2D){ for (auto hist_2D : sample) { TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }}
@@ -1512,13 +1293,6 @@ void signalmchist(TFile* outfile,
   monoWhist.clear();
   monoZhist.clear();
 
-  monoJhist_bUp.clear();
-  monoJhist_bUp.clear();
-  monoWhist_bUp.clear();
-  monoZhist_bUp.clear();
-  monoJhist_bDw.clear();
-  monoWhist_bDw.clear();
-  monoZhist_bDw.clear();
   monoJhist_metJetUp.clear();
   monoWhist_metJetUp.clear();
   monoZhist_metJetUp.clear();
@@ -1543,13 +1317,6 @@ void signalmchist(TFile* outfile,
   monoWhist_2D.clear();
   monoZhist_2D.clear();
 
-  monoJhist_bUp_2D.clear();
-  monoJhist_bUp_2D.clear();
-  monoWhist_bUp_2D.clear();
-  monoZhist_bUp_2D.clear();
-  monoJhist_bDw_2D.clear();
-  monoWhist_bDw_2D.clear();
-  monoZhist_bDw_2D.clear();
   monoJhist_metJetUp_2D.clear();
   monoWhist_metJetUp_2D.clear();
   monoZhist_metJetUp_2D.clear();
