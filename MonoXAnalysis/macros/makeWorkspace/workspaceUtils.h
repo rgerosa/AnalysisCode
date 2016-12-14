@@ -177,8 +177,6 @@ void addShapeVariations(const string & inputName,
 
   //Access to the different systematic variations
   TH1F* nominalHisto = NULL;
-  TH1F* histobUp     = NULL;
-  TH1F* histobDw     = NULL;
   TH1F* histoJesUp   = NULL;
   TH1F* histoJesDw   = NULL;
   TH1F* histoJerUp   = NULL;
@@ -190,8 +188,6 @@ void addShapeVariations(const string & inputName,
 
   if(postfix != ""){
     nominalHisto = (TH1F*)templateFile->FindObjectAny((inputName+"_"+postfix+"_"+observable).c_str());
-    histobUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_bUp_"+postfix+"_"+observable).c_str());
-    histobDw  = (TH1F*)templateFile->FindObjectAny((inputName+"_bDw_"+postfix+"_"+observable).c_str());
     histoJesUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_metJetUp_"+postfix+"_"+observable).c_str());
     histoJesDw  = (TH1F*)templateFile->FindObjectAny((inputName+"_metJetDw_"+postfix+"_"+observable).c_str());
     histoJerUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_metResUp_"+postfix+"_"+observable).c_str());
@@ -201,8 +197,6 @@ void addShapeVariations(const string & inputName,
   }
   else{
     nominalHisto = (TH1F*)templateFile->FindObjectAny((inputName+"_"+observable).c_str());
-    histobUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_bUp_"+observable).c_str());
-    histobDw  = (TH1F*)templateFile->FindObjectAny((inputName+"_bDw_"+observable).c_str());
     histoJesUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_metJetUp_"+observable).c_str());
     histoJesDw  = (TH1F*)templateFile->FindObjectAny((inputName+"_metJetDw_"+observable).c_str());
     histoJerUp  = (TH1F*)templateFile->FindObjectAny((inputName+"_metResUp_"+observable).c_str());
@@ -214,10 +208,6 @@ void addShapeVariations(const string & inputName,
   if(nominalHisto){
 
     if(normalizeSignal > 0 and isCoutAndCount){
-      if(histobUp and histobUp->Integral(histobUp->FindBin(var->getMin()),histobUp->FindBin(var->getMax())) != 0)
-	histobUp->Scale(normalizeSignal/histobUp->Integral(histobUp->FindBin(var->getMin()),histobUp->FindBin(var->getMax())));
-      if(histobDw and histobDw->Integral(histobDw->FindBin(var->getMin()),histobDw->FindBin(var->getMax())) != 0)
-	histobDw->Scale(normalizeSignal/histobDw->Integral(histobDw->FindBin(var->getMin()),histobDw->FindBin(var->getMax())));
       if(histoJesUp and histoJesUp->Integral(histoJesUp->FindBin(var->getMin()),histoJesUp->FindBin(var->getMax())) != 0)
 	histoJesUp->Scale(normalizeSignal/histoJesUp->Integral(histoJesUp->FindBin(var->getMin()),histoJesUp->FindBin(var->getMax())));
       if(histoJesDw and histoJesDw->Integral(histoJesDw->FindBin(var->getMin()),histoJesDw->FindBin(var->getMax())) != 0)
@@ -233,8 +223,6 @@ void addShapeVariations(const string & inputName,
     }
 
     if(nominalHisto->GetNbinsX() > binMaxForShapeSys){
-      fixShapeUncertainty(nominalHisto,histobUp,int(nominalHisto->GetNbinsX()/2),1.02);
-      fixShapeUncertainty(nominalHisto,histobDw,int(nominalHisto->GetNbinsX()/2),0.98);
       fixShapeUncertainty(nominalHisto,histoJesUp,int(nominalHisto->GetNbinsX()/2),1.06);
       fixShapeUncertainty(nominalHisto,histoJesDw,int(nominalHisto->GetNbinsX()/2),0.94);
       fixShapeUncertainty(nominalHisto,histoJerUp,int(nominalHisto->GetNbinsX()/2),1.02);
@@ -243,8 +231,6 @@ void addShapeVariations(const string & inputName,
       fixShapeUncertainty(nominalHisto,histoUncDw,int(nominalHisto->GetNbinsX()/2),0.99);
     }
 
-    addTemplate(workspaceName+"_"+suffix+"_CMS_btag_13TeVUp",varlist,workspace,histobUp,isCoutAndCount);
-    addTemplate(workspaceName+"_"+suffix+"_CMS_btag_13TeVDown",varlist,workspace,histobDw,isCoutAndCount);
     if(not isCombination){
       addTemplate(workspaceName+"_"+suffix+"_CMS_scale_j_13TeVUp",varlist,workspace,histoJesUp,isCoutAndCount);
       addTemplate(workspaceName+"_"+suffix+"_CMS_scale_j_13TeVDown",varlist,workspace,histoJesDw,isCoutAndCount);

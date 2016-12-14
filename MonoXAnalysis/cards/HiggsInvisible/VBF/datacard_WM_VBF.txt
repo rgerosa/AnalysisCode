@@ -33,6 +33,24 @@ Top_Reweight13TeV         lnN       -           -             -             -   
 QCD_WM_Norm13TeV          lnN       -           -             -             -             -              -             1.500
 CMS_met_13TeV             lnN       -           -            1.040       1.040           1.040         1.040           1.040
 CMS_btag_13TeV            lnN       -           -            1.020       1.020           1.060         1.020           1.020
+Dibosons_WM_VBF_CMS_bin1_stat shape -           -           -               -             1              -             -
+Dibosons_WM_VBF_CMS_bin2_stat shape -           -           -               -             1              -             -
+Dibosons_WM_VBF_CMS_bin3_stat shape -           -           -               -             1              -             -
+Dibosons_WM_VBF_CMS_bin4_stat shape -           -           -               -             1              -             -
+Dibosons_WM_VBF_CMS_bin5_stat shape -           -           -               -             1              -             -
+Dibosons_WM_VBF_CMS_bin6_stat shape -           -           -               -             1              -             -
+Top_WM_VBF_CMS_bin1_stat      shape -           -           -               -             -              1             -
+Top_WM_VBF_CMS_bin2_stat      shape -           -           -               -             -              1             -
+Top_WM_VBF_CMS_bin3_stat      shape -           -           -               -             -              1             -
+Top_WM_VBF_CMS_bin4_stat      shape -           -           -               -             -              1             -
+Top_WM_VBF_CMS_bin5_stat      shape -           -           -               -             -              1             -
+Top_WM_VBF_CMS_bin6_stat      shape -           -           -               -             -              1             -
+QCD_WM_VBF_CMS_bin1_stat      shape -           -           -               -             -              -             1
+QCD_WM_VBF_CMS_bin2_stat      shape -           -           -               -             -              -             1
+QCD_WM_VBF_CMS_bin3_stat      shape -           -           -               -             -              -             1
+QCD_WM_VBF_CMS_bin4_stat      shape -           -           -               -             -              -             1
+QCD_WM_VBF_CMS_bin5_stat      shape -           -           -               -             -              -             1
+QCD_WM_VBF_CMS_bin6_stat      shape -           -           -               -             -              -             1
 WJets_WM_VBF_bin1_Runc     param     0     1
 WJets_WM_VBF_bin2_Runc     param     0     1
 WJets_WM_VBF_bin3_Runc     param     0     1

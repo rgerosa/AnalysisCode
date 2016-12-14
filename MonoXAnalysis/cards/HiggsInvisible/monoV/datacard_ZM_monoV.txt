@@ -29,6 +29,22 @@ CMS_met_13TeV             lnN       -           1.040       1.040           1.04
 CMS_btag_13TeV            lnN       -           1.020       1.020           1.060
 CMS_eff_Vtag_stat         lnN       -           -           0.935/1.065  0.935/1.065
 CMS_eff_Vtag_PS           lnN       -           -           0.935/1.065  0.935/1.065
+Dibosons_ZM_MV_CMS_bin1_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin2_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin3_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin4_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin5_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin6_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin7_stat shape -           -           1           -               
+Dibosons_ZM_MV_CMS_bin8_stat shape -           -           1           -               
+Top_ZM_MV_CMS_bin1_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin2_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin3_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin4_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin5_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin6_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin7_stat shape      -           -           -           1
+Top_ZM_MV_CMS_bin8_stat shape      -           -           -           1
 Znunu_ZM_MV_bin1_Runc     param     0     1
 Znunu_ZM_MV_bin2_Runc     param     0     1
 Znunu_ZM_MV_bin3_Runc     param     0     1
