@@ -3,12 +3,12 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      WM_MJ   workspace_MJ.root WM_MJ:data_obs_WM_MJ
-shapes WJets         WM_MJ   workspace_MJ.root WM_MJ:WJets_WM_MJ
-shapes ZJets_WM      WM_MJ   workspace_MJ.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
-shapes Dibosons      WM_MJ   workspace_MJ.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
-shapes Top           WM_MJ   workspace_MJ.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
-shapes QCD_WM        WM_MJ   workspace_MJ.root WM_MJ:QCD_WM_MJ
+shapes data_obs      WM_MJ   workspace_MJ_v2.root WM_MJ:data_obs_WM_MJ
+shapes WJets         WM_MJ   workspace_MJ_v2.root WM_MJ:WJets_WM_MJ
+shapes ZJets_WM      WM_MJ   workspace_MJ_v2.root WM_MJ:ZJets_WM_MJ    WM_MJ:ZJets_WM_MJ_$SYSTEMATIC
+shapes Dibosons      WM_MJ   workspace_MJ_v2.root WM_MJ:Dibosons_WM_MJ WM_MJ:Dibosons_WM_MJ_$SYSTEMATIC
+shapes Top           WM_MJ   workspace_MJ_v2.root WM_MJ:Top_WM_MJ      WM_MJ:Top_WM_MJ_$SYSTEMATIC
+shapes QCD_WM        WM_MJ   workspace_MJ_v2.root WM_MJ:QCD_WM_MJ
 ------------------------------------------------------------------------------------------------
 bin         WM_MJ
 observation -1
@@ -54,5 +54,6 @@ WJets_WM_MJ_bin19_Runc     param     0     1
 WJets_WM_MJ_bin20_Runc     param     0     1
 WJets_WM_MJ_bin21_Runc     param     0     1
 WJets_WM_MJ_bin22_Runc     param     0     1
+WJets_WM_MJ_bin23_Runc     param     0     1
 ------------------------------------------------------------------------------------------------
 

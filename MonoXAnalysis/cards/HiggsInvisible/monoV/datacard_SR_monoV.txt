@@ -2,19 +2,19 @@ cimax * number of bins
 cmax * number of processes minus 1
 kmax * number of nuisance parameters
 --------------------------------------------------------------------------------------------------------------------------
-shapes data_obs    SR_MV   workspace_MV.root SR_MV:data_obs_SR_MV
-shapes Znunu       SR_MV   workspace_MV.root SR_MV:Znunu_SR_MV 
-shapes WJets       SR_MV   workspace_MV.root SR_MV:WJets_SR_MV 
-shapes ZJets       SR_MV   workspace_MV.root SR_MV:ZJets_SR_MV    SR_MV:ZJets_SR_MV_$SYSTEMATIC
-shapes Dibosons    SR_MV   workspace_MV.root SR_MV:Dibosons_SR_MV SR_MV:Dibosons_SR_MV_$SYSTEMATIC
-shapes Top         SR_MV   workspace_MV.root SR_MV:Top_SR_MV      SR_MV:Top_SR_MV_$SYSTEMATIC
-shapes QCD         SR_MV   workspace_MV.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
-shapes GJets       SR_MV   workspace_MV.root SR_MV:GJets_SR_MV    SR_MV:GJets_SR_MV_$SYSTEMATIC       
-shapes ggH         SR_MV   workspace_MV_signal.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
-shapes qqH         SR_MV   workspace_MV_signal.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
-shapes WH          SR_MV   workspace_MV_signal.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
-shapes ZH          SR_MV   workspace_MV_signal.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
-shapes ggZH        SR_MV   workspace_MV_signal.root SR_MV:ggZH_SR_MV     SR_MV:ggZH_SR_MV_$SYSTEMATIC
+shapes data_obs    SR_MV   workspace_MV_v2.root SR_MV:data_obs_SR_MV
+shapes Znunu       SR_MV   workspace_MV_v2.root SR_MV:Znunu_SR_MV 
+shapes WJets       SR_MV   workspace_MV_v2.root SR_MV:WJets_SR_MV 
+shapes ZJets       SR_MV   workspace_MV_v2.root SR_MV:ZJets_SR_MV    SR_MV:ZJets_SR_MV_$SYSTEMATIC
+shapes Dibosons    SR_MV   workspace_MV_v2.root SR_MV:Dibosons_SR_MV SR_MV:Dibosons_SR_MV_$SYSTEMATIC
+shapes Top         SR_MV   workspace_MV_v2.root SR_MV:Top_SR_MV      SR_MV:Top_SR_MV_$SYSTEMATIC
+shapes QCD         SR_MV   workspace_MV_v2.root SR_MV:QCD_SR_MV      SR_MV:QCD_SR_MV_$SYSTEMATIC
+shapes GJets       SR_MV   workspace_MV_v2.root SR_MV:GJets_SR_MV    SR_MV:GJets_SR_MV_$SYSTEMATIC       
+shapes ggH         SR_MV   workspace_MV_signal_v2.root SR_MV:ggH_SR_MV      SR_MV:ggH_SR_MV_$SYSTEMATIC
+shapes qqH         SR_MV   workspace_MV_signal_v2.root SR_MV:qqH_SR_MV      SR_MV:qqH_SR_MV_$SYSTEMATIC
+shapes WH          SR_MV   workspace_MV_signal_v2.root SR_MV:WH_SR_MV       SR_MV:WH_SR_MV_$SYSTEMATIC
+shapes ZH          SR_MV   workspace_MV_signal_v2.root SR_MV:ZH_SR_MV       SR_MV:ZH_SR_MV_$SYSTEMATIC
+shapes ggZH        SR_MV   workspace_MV_signal_v2.root SR_MV:ggZH_SR_MV     SR_MV:ggZH_SR_MV_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 bin         SR_MV
 observation -1
@@ -57,6 +57,7 @@ ggH_SR_MV_CMS_bin4_stat   shape    1        -         -    -            -       
 ggH_SR_MV_CMS_bin5_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
 ggH_SR_MV_CMS_bin6_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
 ggH_SR_MV_CMS_bin7_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
+ggH_SR_MV_CMS_bin8_stat   shape    1        -         -    -            -         -        -           -          -          -          -         -
 qqH_SR_MV_CMS_bin1_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
 qqH_SR_MV_CMS_bin2_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
 qqH_SR_MV_CMS_bin3_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
@@ -64,6 +65,7 @@ qqH_SR_MV_CMS_bin4_stat   shape    -        1         -    -            -       
 qqH_SR_MV_CMS_bin5_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
 qqH_SR_MV_CMS_bin6_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
 qqH_SR_MV_CMS_bin7_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
+qqH_SR_MV_CMS_bin8_stat   shape    -        1         -    -            -         -        -           -          -          -          -         -
 WH_SR_MV_CMS_bin1_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
 WH_SR_MV_CMS_bin2_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
 WH_SR_MV_CMS_bin3_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
@@ -71,6 +73,7 @@ WH_SR_MV_CMS_bin4_stat   shape    -        -         1    -            -        
 WH_SR_MV_CMS_bin5_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
 WH_SR_MV_CMS_bin6_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
 WH_SR_MV_CMS_bin7_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
+WH_SR_MV_CMS_bin8_stat   shape    -        -         1    -            -         -        -           -          -          -          -         -
 ZH_SR_MV_CMS_bin1_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
 ZH_SR_MV_CMS_bin2_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
 ZH_SR_MV_CMS_bin3_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
@@ -78,6 +81,7 @@ ZH_SR_MV_CMS_bin4_stat   shape    -        -         -    1            -        
 ZH_SR_MV_CMS_bin5_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
 ZH_SR_MV_CMS_bin6_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
 ZH_SR_MV_CMS_bin7_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
+ZH_SR_MV_CMS_bin8_stat   shape    -        -         -    1            -         -        -           -          -          -          -         -
 WJets_SR_RenScale1        param     0     1
 WJets_SR_FactScale1       param     0     1
 WJets_SR_RenScale2        param     0     1
@@ -90,6 +94,7 @@ WJets_SR_MV_bin4_Runc        param     0     1
 WJets_SR_MV_bin5_Runc        param     0     1
 WJets_SR_MV_bin6_Runc        param     0     1
 WJets_SR_MV_bin7_Runc        param     0     1
+WJets_SR_MV_bin8_Runc        param     0     1
 WJets_SR_MV_bin1_ZW_EWK      param     0     1
 WJets_SR_MV_bin2_ZW_EWK      param     0     1
 WJets_SR_MV_bin3_ZW_EWK      param     0     1
@@ -97,3 +102,4 @@ WJets_SR_MV_bin4_ZW_EWK      param     0     1
 WJets_SR_MV_bin5_ZW_EWK      param     0     1
 WJets_SR_MV_bin6_ZW_EWK      param     0     1
 WJets_SR_MV_bin7_ZW_EWK      param     0     1
+WJets_SR_MV_bin8_ZW_EWK      param     0     1

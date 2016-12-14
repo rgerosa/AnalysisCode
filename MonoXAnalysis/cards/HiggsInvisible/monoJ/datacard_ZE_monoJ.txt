@@ -3,11 +3,11 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ----------------------------------------------------------------------------------
-shapes data_obs      ZE_MJ  workspace_MJ.root ZE_MJ:data_obs_ZE_MJ
-shapes Znunu         ZE_MJ  workspace_MJ.root ZE_MJ:Znunu_ZE_MJ
-shapes WJets_ZE      ZE_MJ  workspace_MJ.root ZE_MJ:WJets_ZE_MJ    ZE_MJ:WJets_ZE_MJ_$SYSTEMATIC
-shapes Dibosons      ZE_MJ  workspace_MJ.root ZE_MJ:Dibosons_ZE_MJ ZE_MJ:Dibosons_ZE_MJ_$SYSTEMATIC
-shapes Top           ZE_MJ  workspace_MJ.root ZE_MJ:Top_ZE_MJ      ZE_MJ:Top_ZE_MJ_$SYSTEMATIC
+shapes data_obs      ZE_MJ  workspace_MJ_v2.root ZE_MJ:data_obs_ZE_MJ
+shapes Znunu         ZE_MJ  workspace_MJ_v2.root ZE_MJ:Znunu_ZE_MJ
+shapes WJets_ZE      ZE_MJ  workspace_MJ_v2.root ZE_MJ:WJets_ZE_MJ    ZE_MJ:WJets_ZE_MJ_$SYSTEMATIC
+shapes Dibosons      ZE_MJ  workspace_MJ_v2.root ZE_MJ:Dibosons_ZE_MJ ZE_MJ:Dibosons_ZE_MJ_$SYSTEMATIC
+shapes Top           ZE_MJ  workspace_MJ_v2.root ZE_MJ:Top_ZE_MJ      ZE_MJ:Top_ZE_MJ_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         ZE_MJ
 observation -1
@@ -51,4 +51,5 @@ Znunu_ZE_MJ_bin19_Runc     param     0     1
 Znunu_ZE_MJ_bin20_Runc     param     0     1
 Znunu_ZE_MJ_bin21_Runc     param     0     1
 Znunu_ZE_MJ_bin22_Runc     param     0     1
+Znunu_ZE_MJ_bin23_Runc     param     0     1
 ----------------------------------------------------------------------------------

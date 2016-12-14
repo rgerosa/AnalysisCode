@@ -3,14 +3,14 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      WM_VBF   workspace_VBF.root WM_VBF:data_obs_WM_VBF
-shapes WJets         WM_VBF   workspace_VBF.root WM_VBF:WJets_WM_VBF
-shapes WJets_EWK     WM_VBF   workspace_VBF.root WM_VBF:WJets_EWK_WM_VBF
-shapes ZJets_WM      WM_VBF   workspace_VBF.root WM_VBF:ZJets_WM_VBF     WM_VBF:ZJets_WM_VBF_$SYSTEMATIC
-shapes ZJets_EWK_WM  WM_VBF   workspace_VBF.root WM_VBF:ZJets_EWK_WM_VBF WM_VBF:ZJets_EWK_WM_VBF_$SYSTEMATIC
-shapes Dibosons      WM_VBF   workspace_VBF.root WM_VBF:Dibosons_WM_VBF  WM_VBF:Dibosons_WM_VBF_$SYSTEMATIC
-shapes Top           WM_VBF   workspace_VBF.root WM_VBF:Top_WM_VBF       WM_VBF:Top_WM_VBF_$SYSTEMATIC
-shapes QCD_WM        WM_VBF   workspace_VBF.root WM_VBF:QCD_WM_VBF       WM_VBF:QCD_WM_VBF_$SYSTEMATIC
+shapes data_obs      WM_VBF   workspace_VBF_v2.root WM_VBF:data_obs_WM_VBF
+shapes WJets         WM_VBF   workspace_VBF_v2.root WM_VBF:WJets_WM_VBF
+shapes WJets_EWK     WM_VBF   workspace_VBF_v2.root WM_VBF:WJets_EWK_WM_VBF
+shapes ZJets_WM      WM_VBF   workspace_VBF_v2.root WM_VBF:ZJets_WM_VBF     WM_VBF:ZJets_WM_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WM  WM_VBF   workspace_VBF_v2.root WM_VBF:ZJets_EWK_WM_VBF WM_VBF:ZJets_EWK_WM_VBF_$SYSTEMATIC
+shapes Dibosons      WM_VBF   workspace_VBF_v2.root WM_VBF:Dibosons_WM_VBF  WM_VBF:Dibosons_WM_VBF_$SYSTEMATIC
+shapes Top           WM_VBF   workspace_VBF_v2.root WM_VBF:Top_WM_VBF       WM_VBF:Top_WM_VBF_$SYSTEMATIC
+shapes QCD_WM        WM_VBF   workspace_VBF_v2.root WM_VBF:QCD_WM_VBF       WM_VBF:QCD_WM_VBF_$SYSTEMATIC
 ------------------------------------------------------------------------------------------------
 bin         WM_VBF
 observation -1
@@ -39,13 +39,11 @@ WJets_WM_VBF_bin3_Runc     param     0     1
 WJets_WM_VBF_bin4_Runc     param     0     1
 WJets_WM_VBF_bin5_Runc     param     0     1
 WJets_WM_VBF_bin6_Runc     param     0     1
-WJets_WM_VBF_bin7_Runc     param     0     1
 WJets_EWK_WM_VBF_bin1_Runc param     0     1
 WJets_EWK_WM_VBF_bin2_Runc param     0     1
 WJets_EWK_WM_VBF_bin3_Runc param     0     1
 WJets_EWK_WM_VBF_bin4_Runc param     0     1
 WJets_EWK_WM_VBF_bin5_Runc param     0     1
 WJets_EWK_WM_VBF_bin6_Runc param     0     1
-WJets_EWK_WM_VBF_bin7_Runc param     0     1
 ------------------------------------------------------------------------------------------------
 

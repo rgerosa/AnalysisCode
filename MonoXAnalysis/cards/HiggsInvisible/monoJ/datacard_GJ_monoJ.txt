@@ -2,11 +2,11 @@ imax * number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
 --------------------------------------------------------
-shapes data_obs      GJ_MJ   workspace_MJ.root GJ_MJ:data_obs_GJ_MJ
-shapes Znunu         GJ_MJ   workspace_MJ.root GJ_MJ:Znunu_GJ_MJ
-shapes QCD_GJ        GJ_MJ   workspace_MJ.root GJ_MJ:QCD_GJ_MJ
-shapes VGamma_GJ     GJ_MJ   workspace_MJ.root GJ_MJ:VGamma_GJ_MJ
-shapes WJets_GJ      GJ_MJ   workspace_MJ.root GJ_MJ:WJets_GJ_MJ
+shapes data_obs      GJ_MJ   workspace_MJ_v2.root GJ_MJ:data_obs_GJ_MJ
+shapes Znunu         GJ_MJ   workspace_MJ_v2.root GJ_MJ:Znunu_GJ_MJ
+shapes QCD_GJ        GJ_MJ   workspace_MJ_v2.root GJ_MJ:QCD_GJ_MJ
+shapes VGamma_GJ     GJ_MJ   workspace_MJ_v2.root GJ_MJ:VGamma_GJ_MJ
+shapes WJets_GJ      GJ_MJ   workspace_MJ_v2.root GJ_MJ:WJets_GJ_MJ
 ---------------------------------------------------------
 bin         GJ_MJ
 observation -1
@@ -51,6 +51,7 @@ Znunu_GJ_MJ_bin19_Runc      param    0           1
 Znunu_GJ_MJ_bin20_Runc      param    0           1
 Znunu_GJ_MJ_bin21_Runc      param    0           1
 Znunu_GJ_MJ_bin22_Runc      param    0           1
+Znunu_GJ_MJ_bin23_Runc      param    0           1
 Znunu_GJ_MJ_bin1_ZG_EWK    param    0           1 
 Znunu_GJ_MJ_bin2_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin3_ZG_EWK    param    0           1  
@@ -73,5 +74,6 @@ Znunu_GJ_MJ_bin19_ZG_EWK    param    0           1
 Znunu_GJ_MJ_bin20_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin21_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin22_ZG_EWK    param    0           1  
+Znunu_GJ_MJ_bin23_ZG_EWK    param    0           1  
 ---------------------------------------------------------
 

@@ -3,12 +3,12 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      WE_MV   workspace_MV.root WE_MV:data_obs_WE_MV
-shapes WJets         WE_MV   workspace_MV.root WE_MV:WJets_WE_MV
-shapes ZJets_WE      WE_MV   workspace_MV.root WE_MV:ZJets_WE_MV    WE_MV:ZJets_WE_MV_$SYSTEMATIC
-shapes Dibosons      WE_MV   workspace_MV.root WE_MV:Dibosons_WE_MV WE_MV:Dibosons_WE_MV_$SYSTEMATIC
-shapes Top           WE_MV   workspace_MV.root WE_MV:Top_WE_MV      WE_MV:Top_WE_MV_$SYSTEMATIC
-shapes QCD_WE        WE_MV   workspace_MV.root WE_MV:QCD_WE_MV      WE_MV:QCD_WE_MV_$SYSTEMATIC
+shapes data_obs      WE_MV   workspace_MV_v2.root WE_MV:data_obs_WE_MV
+shapes WJets         WE_MV   workspace_MV_v2.root WE_MV:WJets_WE_MV
+shapes ZJets_WE      WE_MV   workspace_MV_v2.root WE_MV:ZJets_WE_MV    WE_MV:ZJets_WE_MV_$SYSTEMATIC
+shapes Dibosons      WE_MV   workspace_MV_v2.root WE_MV:Dibosons_WE_MV WE_MV:Dibosons_WE_MV_$SYSTEMATIC
+shapes Top           WE_MV   workspace_MV_v2.root WE_MV:Top_WE_MV      WE_MV:Top_WE_MV_$SYSTEMATIC
+shapes QCD_WE        WE_MV   workspace_MV_v2.root WE_MV:QCD_WE_MV      WE_MV:QCD_WE_MV_$SYSTEMATIC
 ------------------------------------------------------------------------------------------------
 bin         WE_MV
 observation -1
@@ -40,5 +40,6 @@ WJets_WE_MV_bin4_Runc     param     0     1
 WJets_WE_MV_bin5_Runc     param     0     1
 WJets_WE_MV_bin6_Runc     param     0     1
 WJets_WE_MV_bin7_Runc     param     0     1
+WJets_WE_MV_bin8_Runc     param     0     1
 ------------------------------------------------------------------------------------------------
 
