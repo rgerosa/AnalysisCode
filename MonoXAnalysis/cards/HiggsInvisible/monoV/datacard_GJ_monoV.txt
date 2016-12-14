@@ -3,11 +3,11 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ---------------------------------------------------------
-shapes data_obs      GJ_MV   workspace_MV_v2.root GJ_MV:data_obs_GJ_MV
-shapes Znunu         GJ_MV   workspace_MV_v2.root GJ_MV:Znunu_GJ_MV
-shapes QCD_GJ        GJ_MV   workspace_MV_v2.root GJ_MV:QCD_GJ_MV
-shapes VGamma_GJ     GJ_MV   workspace_MV_v2.root GJ_MV:VGamma_GJ_MV
-shapes WJets_GJ      GJ_MV   workspace_MV_v2.root GJ_MV:WJets_GJ_MV
+shapes data_obs      GJ_MV   workspace_MV.root GJ_MV:data_obs_GJ_MV
+shapes Znunu         GJ_MV   workspace_MV.root GJ_MV:Znunu_GJ_MV
+shapes QCD_GJ        GJ_MV   workspace_MV.root GJ_MV:QCD_GJ_MV
+shapes VGamma_GJ     GJ_MV   workspace_MV.root GJ_MV:VGamma_GJ_MV
+shapes WJets_GJ      GJ_MV   workspace_MV.root GJ_MV:WJets_GJ_MV
 ---------------------------------------------------------
 bin         GJ_MV
 observation -1

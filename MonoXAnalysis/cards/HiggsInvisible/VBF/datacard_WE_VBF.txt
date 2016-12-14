@@ -3,14 +3,14 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      WE_VBF   workspace_VBF_v2.root WE_VBF:data_obs_WE_VBF
-shapes WJets         WE_VBF   workspace_VBF_v2.root WE_VBF:WJets_WE_VBF
-shapes WJets_EWK     WE_VBF   workspace_VBF_v2.root WE_VBF:WJets_EWK_WE_VBF
-shapes ZJets_WE      WE_VBF   workspace_VBF_v2.root WE_VBF:ZJets_WE_VBF     WE_VBF:ZJets_WE_VBF_$SYSTEMATIC
-shapes ZJets_EWK_WE  WE_VBF   workspace_VBF_v2.root WE_VBF:ZJets_EWK_WE_VBF WE_VBF:ZJets_EWK_WE_VBF_$SYSTEMATIC
-shapes Dibosons      WE_VBF   workspace_VBF_v2.root WE_VBF:Dibosons_WE_VBF  WE_VBF:Dibosons_WE_VBF_$SYSTEMATIC
-shapes Top           WE_VBF   workspace_VBF_v2.root WE_VBF:Top_WE_VBF       WE_VBF:Top_WE_VBF_$SYSTEMATIC
-shapes QCD_WE        WE_VBF   workspace_VBF_v2.root WE_VBF:QCD_WE_VBF       WE_VBF:QCD_WE_VBF_$SYSTEMATIC
+shapes data_obs      WE_VBF   workspace_VBF.root WE_VBF:data_obs_WE_VBF
+shapes WJets         WE_VBF   workspace_VBF.root WE_VBF:WJets_WE_VBF
+shapes WJets_EWK     WE_VBF   workspace_VBF.root WE_VBF:WJets_EWK_WE_VBF
+shapes ZJets_WE      WE_VBF   workspace_VBF.root WE_VBF:ZJets_WE_VBF     WE_VBF:ZJets_WE_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WE  WE_VBF   workspace_VBF.root WE_VBF:ZJets_EWK_WE_VBF WE_VBF:ZJets_EWK_WE_VBF_$SYSTEMATIC
+shapes Dibosons      WE_VBF   workspace_VBF.root WE_VBF:Dibosons_WE_VBF  WE_VBF:Dibosons_WE_VBF_$SYSTEMATIC
+shapes Top           WE_VBF   workspace_VBF.root WE_VBF:Top_WE_VBF       WE_VBF:Top_WE_VBF_$SYSTEMATIC
+shapes QCD_WE        WE_VBF   workspace_VBF.root WE_VBF:QCD_WE_VBF       WE_VBF:QCD_WE_VBF_$SYSTEMATIC
 ------------------------------------------------------------------------------------------------
 bin         WE_VBF
 observation -1

@@ -3,11 +3,11 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ----------------------------------------------------------------------------------
-shapes data_obs      ZE_MV  workspace_MV_v2.root ZE_MV:data_obs_ZE_MV
-shapes Znunu         ZE_MV  workspace_MV_v2.root ZE_MV:Znunu_ZE_MV
-shapes WJets_ZE      ZE_MV  workspace_MV_v2.root ZE_MV:WJets_ZE_MV    ZE_MV:WJets_ZE_MV_$SYSTEMATIC
-shapes Dibosons      ZE_MV  workspace_MV_v2.root ZE_MV:Dibosons_ZE_MV ZE_MV:Dibosons_ZE_MV_$SYSTEMATIC
-shapes Top           ZE_MV  workspace_MV_v2.root ZE_MV:Top_ZE_MV      ZE_MV:Top_ZE_MV_$SYSTEMATIC
+shapes data_obs      ZE_MV  workspace_MV.root ZE_MV:data_obs_ZE_MV
+shapes Znunu         ZE_MV  workspace_MV.root ZE_MV:Znunu_ZE_MV
+shapes WJets_ZE      ZE_MV  workspace_MV.root ZE_MV:WJets_ZE_MV    ZE_MV:WJets_ZE_MV_$SYSTEMATIC
+shapes Dibosons      ZE_MV  workspace_MV.root ZE_MV:Dibosons_ZE_MV ZE_MV:Dibosons_ZE_MV_$SYSTEMATIC
+shapes Top           ZE_MV  workspace_MV.root ZE_MV:Top_ZE_MV      ZE_MV:Top_ZE_MV_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         ZE_MV
 observation -1

@@ -3,13 +3,13 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ----------------------------------------------------------------------------------
-shapes data_obs      ZE_VBF   workspace_VBF_v2.root ZE_VBF:data_obs_ZE_VBF
-shapes Znunu         ZE_VBF   workspace_VBF_v2.root ZE_VBF:Znunu_ZE_VBF
-shapes Znunu_EWK     ZE_VBF   workspace_VBF_v2.root ZE_VBF:Znunu_EWK_ZE_VBF
-shapes WJets_ZE      ZE_VBF   workspace_VBF_v2.root ZE_VBF:WJets_ZE_VBF     ZE_VBF:WJets_ZE_VBF_$SYSTEMATIC
-shapes WJets_EWK_ZE  ZE_VBF   workspace_VBF_v2.root ZE_VBF:WJets_EWK_ZE_VBF ZE_VBF:WJets_EWK_ZE_VBF_$SYSTEMATIC
-shapes Dibosons      ZE_VBF   workspace_VBF_v2.root ZE_VBF:Dibosons_ZE_VBF  ZE_VBF:Dibosons_ZE_VBF_$SYSTEMATIC
-shapes Top           ZE_VBF   workspace_VBF_v2.root ZE_VBF:Top_ZE_VBF       ZE_VBF:Top_ZE_VBF_$SYSTEMATIC
+shapes data_obs      ZE_VBF   workspace_VBF.root ZE_VBF:data_obs_ZE_VBF
+shapes Znunu         ZE_VBF   workspace_VBF.root ZE_VBF:Znunu_ZE_VBF
+shapes Znunu_EWK     ZE_VBF   workspace_VBF.root ZE_VBF:Znunu_EWK_ZE_VBF
+shapes WJets_ZE      ZE_VBF   workspace_VBF.root ZE_VBF:WJets_ZE_VBF     ZE_VBF:WJets_ZE_VBF_$SYSTEMATIC
+shapes WJets_EWK_ZE  ZE_VBF   workspace_VBF.root ZE_VBF:WJets_EWK_ZE_VBF ZE_VBF:WJets_EWK_ZE_VBF_$SYSTEMATIC
+shapes Dibosons      ZE_VBF   workspace_VBF.root ZE_VBF:Dibosons_ZE_VBF  ZE_VBF:Dibosons_ZE_VBF_$SYSTEMATIC
+shapes Top           ZE_VBF   workspace_VBF.root ZE_VBF:Top_ZE_VBF       ZE_VBF:Top_ZE_VBF_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         ZE_VBF
 observation -1

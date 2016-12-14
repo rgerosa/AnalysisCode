@@ -3,12 +3,12 @@ jmax * number of processes minus 1
 kmax * number of nuisance parameters
 
 ------------------------------------------------------------------------------------------------
-shapes data_obs      WE_MJ   workspace_MJ_v2.root WE_MJ:data_obs_WE_MJ
-shapes WJets         WE_MJ   workspace_MJ_v2.root WE_MJ:WJets_WE_MJ
-shapes ZJets_WE      WE_MJ   workspace_MJ_v2.root WE_MJ:ZJets_WE_MJ    WE_MJ:ZJets_WE_MJ_$SYSTEMATIC
-shapes Dibosons      WE_MJ   workspace_MJ_v2.root WE_MJ:Dibosons_WE_MJ WE_MJ:Dibosons_WE_MJ_$SYSTEMATIC
-shapes Top           WE_MJ   workspace_MJ_v2.root WE_MJ:Top_WE_MJ      WE_MJ:Top_WE_MJ_$SYSTEMATIC
-shapes QCD_WE        WE_MJ   workspace_MJ_v2.root WE_MJ:QCD_WE_MJ
+shapes data_obs      WE_MJ   workspace_MJ.root WE_MJ:data_obs_WE_MJ
+shapes WJets         WE_MJ   workspace_MJ.root WE_MJ:WJets_WE_MJ
+shapes ZJets_WE      WE_MJ   workspace_MJ.root WE_MJ:ZJets_WE_MJ    WE_MJ:ZJets_WE_MJ_$SYSTEMATIC
+shapes Dibosons      WE_MJ   workspace_MJ.root WE_MJ:Dibosons_WE_MJ WE_MJ:Dibosons_WE_MJ_$SYSTEMATIC
+shapes Top           WE_MJ   workspace_MJ.root WE_MJ:Top_WE_MJ      WE_MJ:Top_WE_MJ_$SYSTEMATIC
+shapes QCD_WE        WE_MJ   workspace_MJ.root WE_MJ:QCD_WE_MJ
 ------------------------------------------------------------------------------------------------
 bin         WE_MJ
 observation -1

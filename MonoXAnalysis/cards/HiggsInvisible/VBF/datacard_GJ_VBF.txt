@@ -2,11 +2,11 @@ imax * number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
 --------------------------------------------------------
-shapes data_obs      gamma_VBF   workspace_VBF_v2.root GJ_VBF:data_obs_GJ_VBF
-shapes Znunu         gamma_VBF   workspace_VBF_v2.root GJ_VBF:Znunu_GJ_VBF
-shapes QCD_GJ        gamma_VBF   workspace_VBF_v2.root GJ_VBF:QCD_GJ_VBF
-shapes VGamma_GJ     gamma_VBF   workspace_VBF_v2.root GJ_VBF:VGamma_GJ_VBF
-shapes WJets_GJ      gamma_VBF   workspace_VBF_v2.root GJ_VBF:WJets_GJ_VBF
+shapes data_obs      gamma_VBF   workspace_VBF.root GJ_VBF:data_obs_GJ_VBF
+shapes Znunu         gamma_VBF   workspace_VBF.root GJ_VBF:Znunu_GJ_VBF
+shapes QCD_GJ        gamma_VBF   workspace_VBF.root GJ_VBF:QCD_GJ_VBF
+shapes VGamma_GJ     gamma_VBF   workspace_VBF.root GJ_VBF:VGamma_GJ_VBF
+shapes WJets_GJ      gamma_VBF   workspace_VBF.root GJ_VBF:WJets_GJ_VBF
 ---------------------------------------------------------
 bin         gamma_VBF
 observation -1

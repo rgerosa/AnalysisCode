@@ -2,21 +2,21 @@ imax * number of bins
 cmax * number of processes minus 1
 kmax * number of nuisance parameters
 --------------------------------------------------------------------------------------------------------------------------
-shapes data_obs    SR_VBF   workspace_VBF_v2.root SR_VBF:data_obs_SR_VBF
-shapes Znunu       SR_VBF   workspace_VBF_v2.root SR_VBF:Znunu_SR_VBF 
-shapes Znunu_EWK   SR_VBF   workspace_VBF_v2.root SR_VBF:Znunu_EWK_SR_VBF 
-shapes WJets       SR_VBF   workspace_VBF_v2.root SR_VBF:WJets_SR_VBF 
-shapes WJets_EWK   SR_VBF   workspace_VBF_v2.root SR_VBF:WJets_EWK_SR_VBF 
-shapes ZJets       SR_VBF   workspace_VBF_v2.root SR_VBF:ZJets_SR_VBF    SR_VBF:ZJets_SR_VBF_$SYSTEMATIC
-shapes Dibosons    SR_VBF   workspace_VBF_v2.root SR_VBF:Dibosons_SR_VBF SR_VBF:Dibosons_SR_VBF_$SYSTEMATIC
-shapes Top         SR_VBF   workspace_VBF_v2.root SR_VBF:Top_SR_VBF      SR_VBF:Top_SR_VBF_$SYSTEMATIC
-shapes QCD         SR_VBF   workspace_VBF_v2.root SR_VBF:QCD_SR_VBF      SR_VBF:QCD_SR_VBF_$SYSTEMATIC
-shapes GJets       SR_VBF   workspace_VBF_v2.root SR_VBF:GJets_SR_VBF    SR_VBF:GJets_SR_VBF_$SYSTEMATIC       
-shapes ggH         SR_VBF   workspace_VBF_signal_v2.root SR_VBF:ggH_SR_VBF      SR_VBF:ggH_SR_VBF_$SYSTEMATIC
-shapes qqH         SR_VBF   workspace_VBF_signal_v2.root SR_VBF:qqH_SR_VBF      SR_VBF:qqH_SR_VBF_$SYSTEMATIC
-shapes WH          SR_VBF   workspace_VBF_signal_v2.root SR_VBF:WH_SR_VBF       SR_VBF:WH_SR_VBF_$SYSTEMATIC
-shapes ZH          SR_VBF   workspace_VBF_signal_v2.root SR_VBF:ZH_SR_VBF       SR_VBF:ZH_SR_VBF_$SYSTEMATIC
-shapes ggZH        SR_VBF   workspace_VBF_signal_v2.root SR_VBF:ggZH_SR_VBF     SR_VBF:ggZH_SR_VBF_$SYSTEMATIC
+shapes data_obs    SR_VBF   workspace_VBF.root SR_VBF:data_obs_SR_VBF
+shapes Znunu       SR_VBF   workspace_VBF.root SR_VBF:Znunu_SR_VBF 
+shapes Znunu_EWK   SR_VBF   workspace_VBF.root SR_VBF:Znunu_EWK_SR_VBF 
+shapes WJets       SR_VBF   workspace_VBF.root SR_VBF:WJets_SR_VBF 
+shapes WJets_EWK   SR_VBF   workspace_VBF.root SR_VBF:WJets_EWK_SR_VBF 
+shapes ZJets       SR_VBF   workspace_VBF.root SR_VBF:ZJets_SR_VBF    SR_VBF:ZJets_SR_VBF_$SYSTEMATIC
+shapes Dibosons    SR_VBF   workspace_VBF.root SR_VBF:Dibosons_SR_VBF SR_VBF:Dibosons_SR_VBF_$SYSTEMATIC
+shapes Top         SR_VBF   workspace_VBF.root SR_VBF:Top_SR_VBF      SR_VBF:Top_SR_VBF_$SYSTEMATIC
+shapes QCD         SR_VBF   workspace_VBF.root SR_VBF:QCD_SR_VBF      SR_VBF:QCD_SR_VBF_$SYSTEMATIC
+shapes GJets       SR_VBF   workspace_VBF.root SR_VBF:GJets_SR_VBF    SR_VBF:GJets_SR_VBF_$SYSTEMATIC       
+shapes ggH         SR_VBF   workspace_VBF_signal.root SR_VBF:ggH_SR_VBF      SR_VBF:ggH_SR_VBF_$SYSTEMATIC
+shapes qqH         SR_VBF   workspace_VBF_signal.root SR_VBF:qqH_SR_VBF      SR_VBF:qqH_SR_VBF_$SYSTEMATIC
+shapes WH          SR_VBF   workspace_VBF_signal.root SR_VBF:WH_SR_VBF       SR_VBF:WH_SR_VBF_$SYSTEMATIC
+shapes ZH          SR_VBF   workspace_VBF_signal.root SR_VBF:ZH_SR_VBF       SR_VBF:ZH_SR_VBF_$SYSTEMATIC
+shapes ggZH        SR_VBF   workspace_VBF_signal.root SR_VBF:ggZH_SR_VBF     SR_VBF:ggZH_SR_VBF_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 bin         SR_VBF
 observation -1

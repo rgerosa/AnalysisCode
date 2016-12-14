@@ -2,11 +2,11 @@ imax * number of bins
 jmax * number of processes minus 1
 kmax * number of nuisance parameters
 ----------------------------------------------------------------------------------
-shapes data_obs      ZM_MJ   workspace_MJ_v2.root ZM_MJ:data_obs_ZM_MJ
-shapes Znunu         ZM_MJ   workspace_MJ_v2.root ZM_MJ:Znunu_ZM_MJ
-shapes WJets_ZM      ZM_MJ   workspace_MJ_v2.root ZM_MJ:WJets_ZM_MJ    ZM_MJ:WJets_ZM_MJ_$SYSTEMATIC
-shapes Dibosons      ZM_MJ   workspace_MJ_v2.root ZM_MJ:Dibosons_ZM_MJ ZM_MJ:Dibosons_ZM_MJ_$SYSTEMATIC
-shapes Top	     ZM_MJ   workspace_MJ_v2.root ZM_MJ:Top_ZM_MJ      ZM_MJ:Top_ZM_MJ_$SYSTEMATIC
+shapes data_obs      ZM_MJ   workspace_MJ.root ZM_MJ:data_obs_ZM_MJ
+shapes Znunu         ZM_MJ   workspace_MJ.root ZM_MJ:Znunu_ZM_MJ
+shapes WJets_ZM      ZM_MJ   workspace_MJ.root ZM_MJ:WJets_ZM_MJ    ZM_MJ:WJets_ZM_MJ_$SYSTEMATIC
+shapes Dibosons      ZM_MJ   workspace_MJ.root ZM_MJ:Dibosons_ZM_MJ ZM_MJ:Dibosons_ZM_MJ_$SYSTEMATIC
+shapes Top	     ZM_MJ   workspace_MJ.root ZM_MJ:Top_ZM_MJ      ZM_MJ:Top_ZM_MJ_$SYSTEMATIC
 ----------------------------------------------------------------------------------
 bin         ZM_MJ
 observation -1
