@@ -1,7 +1,8 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/makehist.h"
 
-float minTau2Tau1 = 0.1;
+static float minTau2Tau1 = 0.1;
+static bool saveTextYields = false;
 
 void makeControlPlots(string templateFileName, 
 		      Category category, 
@@ -203,11 +204,11 @@ void makeControlPlots(string templateFileName,
     }
   }
 
-  if(controlRegion == "SR" and observable == "met"){
+  if(saveTextYields){
 
     // write yields in a output in a text file 
     ofstream outputfile;
-    outputfile.open("preFitSR.txt");
+    outputfile.open(("preFit_"+controlRegion+".txt").c_str());
 
     stringstream QCDRate;
     QCDRate << "Process: QCD";
@@ -287,6 +288,31 @@ void makeControlPlots(string templateFileName,
     outputfile.close();
   }
 
+
+  cout<<"#########################"<<endl;
+  cout<<"Total Yields for process "<<endl;
+  cout<<"#########################"<<endl;
+  if(qcdhist)
+    cout<<"QCD Background        :"<<qcdhist->Integral()<<endl;
+  if(dbhist)
+    cout<<"Diboson Background    :"<<dbhist->Integral()<<endl;
+  if(tophist)
+    cout<<"Top Background        :"<<tophist->Integral()<<endl;
+  if(gamhist)
+    cout<<"#gamma+jet Background :"<<gamhist->Integral()<<endl;
+  if(vllhist)
+    cout<<"Z+jets Background     :"<<vllhist->Integral()<<endl;
+  if(vlhist)
+    cout<<"W+jets Background     :"<<vlhist->Integral()<<endl;
+  if(ewkwhist)
+    cout<<"EWK-W Background      :"<<ewkwhist->Integral()<<endl;
+  if(ewkwhist)
+    cout<<"EWK-Z Background      :"<<ewkzhist->Integral()<<endl;
+  if(ewkwhist)
+    cout<<"Zvv   Background      :"<<vnnhist->Integral()<<endl;
+  cout<<"-------------------------------------------"<<endl;
+  if(datahist)
+    cout<<"Data integral         :"<<datahist->Integral()<<endl;
 
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
@@ -570,8 +596,10 @@ void makeControlPlots(string templateFileName,
       vllhist->Add(gamhist);
     if(not isnan(float(vllhist->Integral())))    
       stack->Add(vllhist);
-    //if(not isnan(float(dbhist->Integral())))    
-    //stack->Add(dbhist);
+    if(not isnan(float(dbhist->Integral())))    
+      stack->Add(dbhist);
+    if(not isnan(float(tophist->Integral())))    
+      stack->Add(tophist);
     if(category == Category::VBF){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
