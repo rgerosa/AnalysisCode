@@ -1,4 +1,4 @@
-vid_id_toolsimport os
+import os
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 import random
@@ -58,8 +58,8 @@ def ElectronTools(process,addEGMSmear,isMC):
 					eMin = cms.double(400),
 					eMax = cms.double(500),
 					value = cms.double(1.0150))),
-							    recHitEB = cms.InputTag("reducedEBRecHits"),
-							    recHitEE = cms.InputTag("reducedEERecHits")
+							    recHitEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+							    recHitEE = cms.InputTag("reducedEgamma","reducedEERecHits")
 							    ));
 	if addEGMSmear:
 		getattr(process,"correctedElectrons").src = cms.InputTag("calibratedElectrons");

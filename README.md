@@ -21,7 +21,13 @@ Recipe for 80X:
        git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
        git cms-merge-topic -u ikrav:egm_id_80X_v0
        git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
-       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8020_X
+       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
+       scramv1 b j 4;
+       cd $CMSSW_BASE/external/$SCRAM_ARCH/;
+       git clone https://github.com/ikrav/RecoEgamma-PhotonIdentification.git data/RecoEgamma/PhotonIdentification/data
+       git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git data/RecoEgamma/ElectronIdentification/data
+       cd $CMSSW_BASE/src/;
+       
 	   
 How to Run the ntuple production (for analysis):
 

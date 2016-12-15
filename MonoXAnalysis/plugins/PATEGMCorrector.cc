@@ -40,7 +40,7 @@ private:
   const edm::InputTag rechitEBTag;
   const edm::InputTag rechitEETag;
 
-  edm::EDGetTokenT<edm::View<T> > objectToken;
+  edm::EDGetTokenT<std::vector<T> > objectToken;
   edm::EDGetTokenT<EcalRecHitCollection> recHitEBToken;
   edm::EDGetTokenT<EcalRecHitCollection> recHitEEToken;
 };
@@ -55,7 +55,7 @@ PATEGMCorrectorT<T>::PATEGMCorrectorT(const edm::ParameterSet& iConfig):
 
   recHitEBToken = consumes<EcalRecHitCollection>(rechitEBTag);
   recHitEEToken = consumes<EcalRecHitCollection>(rechitEETag);
-  objectToken = consumes<edm::View<T> >(objectTag);
+  objectToken   = consumes<std::vector<T> >(objectTag);
 
   produces<std::vector<T> >();
 }
@@ -80,7 +80,6 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(recHitEEToken,endcapRecHitH);
 
   std::auto_ptr<std::vector<pat::Electron>> egammaoutput (new std::vector<pat::Electron>());
-
   for (auto egamma_iter : *egammaCandidatesH){
     if(isMC){// just make a close
       egammaoutput->push_back(egamma_iter);
@@ -97,8 +96,8 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
 	  rh = NULL;
       } else {
 	rh = NULL;
-    }
-      
+      }
+
       if(rh!=NULL){
 	for(auto pset : correctionBin){
 	  if(rh->energy() > pset.getParameter<double>("eMin") and
@@ -107,9 +106,8 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
 	}
       }    
       
-      std::cout<<"Electron energy "<<rh->energy()<<" value "<<Ecorr<<std::endl;
       float newEcalEnergy = egamma_iter.correctedEcalEnergy()*Ecorr;
-      float newEcalEnergyError = std::hypot(egamma_iter.correctedEcalEnergyError()*Ecorr , 1 * newEcalEnergy);
+      float newEcalEnergyError = egamma_iter.correctedEcalEnergyError()*Ecorr;
       // clone the electron as it was --> no need for Eecal and P combination
       if(Ecorr == 1)
 	egammaoutput->push_back(egamma_iter);          
@@ -122,12 +120,10 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
 	egamma_iter.setCorrectedEcalEnergy(newEcalEnergy);
 	egamma_iter.setCorrectedEcalEnergyError(newEcalEnergyError);
 	egamma_iter.correctMomentum(newMomentum,egamma_iter.trackMomentumError(),egamma_iter.p4Error(reco::GsfElectron::P4_COMBINATION));
-	std::cout<<" original energy "<<egamma_iter.correctedEcalEnergy()<<" from momentum "<<egamma_iter.p4().E()<<" modified "<<newEcalEnergy<<" from new momentum "<<newMomentum.E()<<std::endl;
 	egammaoutput->push_back(egamma_iter);          
       }
     }
   }
-  
   iEvent.put(egammaoutput);  
 }
 
@@ -164,7 +160,7 @@ void PATEGMCorrectorT<pat::Photon>::produce(edm::Event& iEvent, const edm::Event
       } else {
 	rh = NULL;
       }
-      
+
       if(rh!=NULL){
 	for(auto pset : correctionBin){
 	  if(rh->energy() > pset.getParameter<double>("eMin") and
@@ -172,22 +168,20 @@ void PATEGMCorrectorT<pat::Photon>::produce(edm::Event& iEvent, const edm::Event
 	    Ecorr = pset.getParameter<double>("value");
 	}
       }    
-      
-      std::cout<<"Photon energy "<<rh->energy()<<" value "<<Ecorr<<std::endl;
-      
+           
       float newEcalEnergy = egamma_iter.getCorrectedEnergy(reco::Photon::P4type::regression2)*Ecorr;
-      float newEcalEnergyError = std::hypot(egamma_iter.getCorrectedEnergyError(reco::Photon::P4type::regression2)*Ecorr , 1 * newEcalEnergy);
+      float newEcalEnergyError = egamma_iter.getCorrectedEnergyError(reco::Photon::P4type::regression2)*Ecorr;
       // clone the electron as it was --> no need for Eecal and P combination
       if(Ecorr == 1)
 	egammaoutput->push_back(egamma_iter);          
       else{
-	std::cout<<" original energy "<<egamma_iter.getCorrectedEnergy(reco::Photon::P4type::regression2)<<" from momentum "<<egamma_iter.p4().E()<<" modified "<<newEcalEnergy<<" new error "<<newEcalEnergyError<<std::endl;
 	egamma_iter.setCorrectedEnergy(reco::Photon::P4type::regression2,newEcalEnergy,newEcalEnergyError, true); 
 	egammaoutput->push_back(egamma_iter);          
       }
     }
-  }
+  }      
   iEvent.put(egammaoutput);  
+  
 }
 
 
