@@ -9,7 +9,7 @@ def PhotonTools(process,addEGMSmear,isMC):
 	dataFormat = DataFormat.MiniAOD;
 	switchOnVIDPhotonIdProducer(process, dataFormat);
 	ph_id_modules = []
-	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff')
+	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff')
 		
 	for idmod in ph_id_modules:
 		setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
@@ -27,3 +27,26 @@ def PhotonTools(process,addEGMSmear,isMC):
 			initialSeed = cms.untracked.uint32(int(random.uniform(0,100000))),
 			engineName = cms.untracked.string('TRandom3')
 			)
+
+	#### apply gain corrections                                                                                                                                                                   
+	setattr(process,"correctedPhotons",cms.EDProducer("PATPhotonCorrector",
+							  src = cms.InputTag("slimmedPhotons"),
+							  isMC = cms.bool(isMC),
+                                                          correction = cms.VPSet(
+                                cms.PSet(
+                                        eMin = cms.double(200),
+                                        eMax = cms.double(300),
+                                        correction = cms.double(1.0199)),
+                                cms.PSet(
+                                        eMin = cms.double(300),
+                                        eMax = cms.double(400),
+                                        correction = cms.double(1.0520)),
+                                cms.PSet(
+                                        eMin = cms.double(400),
+					eMax = cms.double(500),
+                                        correction = cms.double(1.0150))),
+							  recHitEB = cms.InputTag("reducedEBRecHits"),
+							  recHitEE = cms.InputTag("reducedEERecHits")
+							  ))
+	if addEGMSmear:
+		getattr(process,"correctedPhotons").src = cms.InputTag("calibratedPhotons");

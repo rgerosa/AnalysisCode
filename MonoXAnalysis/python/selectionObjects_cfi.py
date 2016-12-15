@@ -36,8 +36,8 @@ selectedObjects = cms.EDProducer("PFCleaner",
             isolation = cms.double(0.15))),
                                  ### electrons
                                  electrons = cms.InputTag("slimmedElectrons"),
-                                 calibratedElectrons = cms.InputTag("calibratedElectrons"),
-                                 useCalibratedElectrons = cms.bool(False),
+                                 calibratedElectrons = cms.InputTag("correctedElectrons"),
+                                 useCalibratedElectrons = cms.bool(True),
                                  electronSelection = cms.VPSet(
         cms.PSet(
             electronCollectionName = cms.string("electrons"),
@@ -175,25 +175,25 @@ selectedObjects = cms.EDProducer("PFCleaner",
         ),
                                  #### photons
                                  photons   = cms.InputTag("slimmedPhotons"),
-                                 calibratedPhotons = cms.InputTag("calibratedPhotons"),
-                                 useCalibratedPhotons = cms.bool(False),
+                                 calibratedPhotons = cms.InputTag("correctedPhotons"),
+                                 useCalibratedPhotons = cms.bool(True),
                                  addPhotonPurity = cms.bool(False),
                                  photonSelection = cms.VPSet(
         cms.PSet(
             photonCollectionName = cms.string("photons"),
             ptMin  = cms.double(15),
             absEta = cms.double(2.5),
-            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose")),
+            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose")),
         cms.PSet(
             photonCollectionName = cms.string("mediumphotons"),
             ptMin  = cms.double(15),
             absEta = cms.double(2.5),
-            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium")),        
+            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium")),        
         cms.PSet(
             photonCollectionName = cms.string("tightphotons"),
             ptMin  = cms.double(15),
             absEta = cms.double(2.5),
-            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight"))),        
+            photonValueMap = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"))),        
                                  ### cluster shape and isolation value maps
                                  photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
                                  photonphiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),

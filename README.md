@@ -6,26 +6,22 @@ Repository for analysis code
 
 Recipe for 80X: 
 
-       cmsrel CMSSW_8_0_20_patch1
-       cd CMSSW_8_0_20_patch1/src
+       cmsrel CMSSW_8_0_24_patch1
+       cd CMSSW_8_0_24_patch1/src
        cmsenv
        git cms-init
-       git fetch --all		   
-       git push my-cmssw remotes/official-cmssw/CMSSW_8_0_X:refs/heads/CMSSW_8_0_X
-       git checkout CMSSW_8_0_X
-       git merge official-cmssw/CMSSW_8_0_X
-       git cms-addpkg FWCore/Framework
+       git cms-addpkg FWCore/Framework	
        git revert ccdf67f9dc7ee3968bc489b773561af6025e2115   
-       git cms-merge-topic ikrav:egm_id_80X_v1
-       git cms-merge-topic ikrav:egm_id_80X_v3_photons
-       git cms-merge-topic shervin86:Moriond2017_JEC_energyScales
+       git cms-merge-topic -u shervin86:Moriond2017_JEC_energyScales
        cd EgammaAnalysis/ElectronTools/data
        git clone git@github.com:ECALELFS/ScalesSmearings.git
        cd -
        git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
-       git cms-merge-topic cms-met:METRecipe_8020
-       git cms-merge-topic ahinzmann:METRecipe_8020_Moriond17
-       git clone git@github.com:avartak/AnalysisCode.git -b Raffaele_8020_X
+       git cms-merge-topic -u cms-met:METRecipe_8020
+       git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
+       git cms-merge-topic -u ikrav:egm_id_80X_v0
+       git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
+       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8020_X
 	   
 How to Run the ntuple production (for analysis):
 

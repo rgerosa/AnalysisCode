@@ -5509,7 +5509,6 @@ void MonoJetTreeMaker::fillTriggerObjects(const edm::Handle<pat::TriggerObjectSt
   }  
 }
 
-
 /////////
 void MonoJetTreeMaker::fillAlgosL1(const edm::Event & iEvent,
 				   const edm::EventSetup & eventSetup,

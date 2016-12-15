@@ -339,8 +339,9 @@ if options.addPuppiJets:
 # to apply analysis selections
 process.load('AnalysisCode.MonoXAnalysis.selectionObjects_cfi')
 process.selectedObjects.jets = cms.InputTag(jetCollName)
-process.selectedObjects.useCalibratedElectrons = cms.bool(options.addEGMSmear)
-process.selectedObjects.useCalibratedPhotons = cms.bool(options.addEGMSmear)
+### gain correction always applied for the time-being
+process.selectedObjects.useCalibratedElectrons = cms.bool(True)
+process.selectedObjects.useCalibratedPhotons = cms.bool(True)
 process.selectedObjects.addPhotonPurity = cms.bool(options.addPhotonPurity)
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood

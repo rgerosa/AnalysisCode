@@ -1,4 +1,4 @@
-import os
+vid_id_toolsimport os
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 import random
@@ -39,3 +39,30 @@ def ElectronTools(process,addEGMSmear,isMC):
 			initialSeed = cms.untracked.uint32(int(random.uniform(0,1000000))),
 			engineName = cms.untracked.string('TRandom3')
 			)
+		
+		
+	#### apply gain corrections
+	setattr(process,"correctedElectrons",cms.EDProducer("PATElectronCorrector",
+							    src = cms.InputTag("slimmedElectrons"),
+							    isMC = cms.bool(isMC),
+							    correction = cms.VPSet(
+				cms.PSet(
+					eMin = cms.double(200),
+					eMax = cms.double(300),
+					value = cms.double(1.0199)),
+				cms.PSet(
+					eMin = cms.double(300),
+					eMax = cms.double(400),
+					value = cms.double(1.0520)),
+				cms.PSet(
+					eMin = cms.double(400),
+					eMax = cms.double(500),
+					value = cms.double(1.0150))),
+							    recHitEB = cms.InputTag("reducedEBRecHits"),
+							    recHitEE = cms.InputTag("reducedEERecHits")
+							    ));
+	if addEGMSmear:
+		getattr(process,"correctedElectrons").src = cms.InputTag("calibratedElectrons");
+						    
+			
+			
