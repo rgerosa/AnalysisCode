@@ -32,8 +32,8 @@ Recipe for 80X:
        cd RecoEgamma/ElectronIdentification/data;
        git checkout remotes/origin/egm_id_80X_v1;
        cd -
-       scp -r RecoEgamma/PhotonIdentification/data $CMSSW_BASE/RecoEgamma/PhotonIdentification/data;
-       scp -r RecoEgamma/ElectronIdentification/data $CMSSW_BASE/RecoEgamma/ElectronIdentification/data;
+       scp -r RecoEgamma/PhotonIdentification/data $CMSSW_BASE/src/RecoEgamma/PhotonIdentification/data;
+       scp -r RecoEgamma/ElectronIdentification/data $CMSSW_BASE/src/RecoEgamma/ElectronIdentification/data;
        
 	   
 How to Run the ntuple production (for analysis):
