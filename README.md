@@ -19,7 +19,7 @@ Recipe for 80X:
        git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
        git cms-merge-topic -u cms-met:METRecipe_8020
        git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
-       git cms-merge-topic -u ikrav:egm_id_80X_v0
+       git cms-merge-topic -u ikrav:egm_id_80X_v1
        git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
        git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
        scramv1 b j 4;
