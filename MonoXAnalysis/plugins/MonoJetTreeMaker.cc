@@ -5004,8 +5004,9 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
        passjetid = true;
     }
     else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
-	     jet.neutralEmEnergyFraction() < 0.9 and
-	     jet.neutralMultiplicity()     > 2) 
+	     jet.neutralHadronEnergyFraction() < 0.98 and
+             jet.neutralEmEnergyFraction() > 0.01 and
+             jet.neutralMultiplicity()     > 2)
       passjetid = true;  
     else if(fabs(jet.eta()) > 3.0 and
 	    jet.neutralEmEnergyFraction() < 0.9 and
@@ -5014,22 +5015,23 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
   } 
   else if(level == "tight"){
     
-    if (fabs(jet.eta()) <= 2.7 && 
-	jet.neutralHadronEnergyFraction() < 0.90 && 
-	jet.neutralEmEnergyFraction()     < 0.90 && 
+    if (fabs(jet.eta()) <= 2.7 and 
+	jet.neutralHadronEnergyFraction() < 0.90 and 
+	jet.neutralEmEnergyFraction()     < 0.90 and 
 	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
       
       if (fabs(jet.eta()) > 2.4) 
 	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 && 
-	       jet.chargedHadronEnergyFraction() > 0. && 
-	       jet.chargedEmEnergyFraction() < 0.99 && 
+      else if (fabs(jet.eta()) <= 2.4 and 
+	       jet.chargedHadronEnergyFraction() > 0. and 
+	       jet.chargedEmEnergyFraction() < 0.99 and 
 	       jet.chargedMultiplicity() > 0) 
 	passjetid = true;
     }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 
-	     && jet.neutralEmEnergyFraction() < 0.9 
-	     && jet.neutralMultiplicity() > 2) 
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0  and
+	     jet.neutralHadronEnergyFraction() < 0.98 and
+             jet.neutralEmEnergyFraction() > 0.01 and
+             jet.neutralMultiplicity()     > 2)
       passjetid = true;
     else if(fabs(jet.eta()) > 3.0 and
 	    jet.neutralEmEnergyFraction() < 0.9 and
@@ -5038,27 +5040,28 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
   }
   
   else if(level == "tightLepVeto"){
-    if (fabs(jet.eta()) <= 2.7 &&
-        jet.neutralHadronEnergyFraction() < 0.90 &&
-        jet.neutralEmEnergyFraction() < 0.90 &&
-	jet.muonEnergyFraction() < 0.80 && 
+    if (fabs(jet.eta()) <= 2.7 and
+        jet.neutralHadronEnergyFraction() < 0.90 and
+        jet.neutralEmEnergyFraction() < 0.90 and
+	jet.muonEnergyFraction() < 0.80 and 
         (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
       
       if (fabs(jet.eta()) > 2.4)
         passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 &&
-               jet.chargedHadronEnergyFraction() > 0. &&
-               jet.chargedEmEnergyFraction() < 0.90 &&
+      else if (fabs(jet.eta()) <= 2.4 and
+               jet.chargedHadronEnergyFraction() > 0. and
+               jet.chargedEmEnergyFraction() < 0.90 and
                jet.chargedMultiplicity() > 0)
 	passjetid = true;
     }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0
-	     && jet.neutralEmEnergyFraction() < 0.9
-	     && jet.neutralMultiplicity() > 2)
+    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 and
+	     jet.neutralHadronEnergyFraction() < 0.98 and
+             jet.neutralEmEnergyFraction() > 0.01 and
+             jet.neutralMultiplicity()     > 2)
       passjetid = true;
-    else if (fabs(jet.eta()) > 3.0
-	     && jet.neutralEmEnergyFraction() < 0.9
-	     && jet.neutralMultiplicity() > 10)
+    else if (fabs(jet.eta()) > 3.0 and 
+	     jet.neutralEmEnergyFraction() < 0.9 and
+	     jet.neutralMultiplicity() > 10)
       passjetid = true;    
     
   }  

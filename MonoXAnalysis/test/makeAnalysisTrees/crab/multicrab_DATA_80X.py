@@ -25,11 +25,12 @@ pyCfgParams = ['isMC=False',
                'outputFileName=tree.root',
                'nThreads=3',
                'usePrivateSQliteJEC=True',
+               'JECEra=Spring16_23Sep2016V1'
                'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_80X'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_80X_newJEC'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -44,8 +45,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 75000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_ReReco_36fb-1_02_12_2016/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_ReReco_36fb-1_16_12_2016_gainCorrection_jecReReco/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #config.Data.runRange
 config.Data.publication   = False
 
