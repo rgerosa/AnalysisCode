@@ -1643,7 +1643,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	combinejetNHfrac  .push_back(incjets[i]->neutralHadronEnergyFraction());
 	combinejetEMfrac  .push_back(incjets[i]->neutralEmEnergyFraction());
 	combinejetCEMfrac .push_back(incjets[i]->chargedEmEnergyFraction());
-	
+
 	if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
 	  combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
 	  // pileup jet id
@@ -5004,7 +5004,8 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
        passjetid = true;
     }
     else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
-	     jet.neutralEmEnergyFraction() < 0.9 and
+	     jet.neutralHadronEnergyFraction() < 0.98 and
+	     jet.neutralEmEnergyFraction() > 0.01 and
 	     jet.neutralMultiplicity()     > 2) 
       passjetid = true;  
     else if(fabs(jet.eta()) > 3.0 and
@@ -5028,8 +5029,9 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 	passjetid = true;
     }
     else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 
-	     && jet.neutralEmEnergyFraction() < 0.9 
-	     && jet.neutralMultiplicity() > 2) 
+             jet.neutralHadronEnergyFraction() < 0.98 and
+             jet.neutralEmEnergyFraction() > 0.01 and
+             jet.neutralMultiplicity()     > 2)
       passjetid = true;
     else if(fabs(jet.eta()) > 3.0 and
 	    jet.neutralEmEnergyFraction() < 0.9 and
@@ -5053,8 +5055,9 @@ bool MonoJetTreeMaker::applyJetID(const pat::Jet & jet, const std::string & leve
 	passjetid = true;
     }
     else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0
-	     && jet.neutralEmEnergyFraction() < 0.9
-	     && jet.neutralMultiplicity() > 2)
+             jet.neutralHadronEnergyFraction() < 0.98 and
+             jet.neutralEmEnergyFraction() > 0.01 and
+             jet.neutralMultiplicity()     > 2)
       passjetid = true;
     else if (fabs(jet.eta()) > 3.0
 	     && jet.neutralEmEnergyFraction() < 0.9
