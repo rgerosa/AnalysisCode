@@ -929,7 +929,7 @@ void gamdatamchist(TFile* outfile,
   TChain* vltree = new TChain("tree/tree");
 
 
-  dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/SinglePhoton_gainfix/gamfilter/*root").c_str());
   if(useJetHT)
     dttree->Add((baseInputTreePath+"/JetHT/gamfilter/*root").c_str());
   

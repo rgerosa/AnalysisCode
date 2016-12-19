@@ -4,7 +4,7 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016H"};
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 
 
 // calculation from the jetHT dataset
@@ -22,8 +22,8 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TF1 *fitfunc = new TF1("fitfunc", ErfCB, 20, 1200, 5);
   fitfunc->SetParameters(30., 5., 5., 4., 1.);
 
-  vector<float> binsPt  = {100,125,150,175,200,225,250,275,300,350,400,450,500,550,600,650,700,800,1000,1200,1500};
-  vector<float> binsEta = {0,1.5,2.5};  
+  vector<float> binsPt  = {100,150,200,250,300,350,400,500,600,700,800,1000,1200,1500};
+  vector<float> binsEta = {0,0.75,1.5,2.5};  
   fitfunc->SetRange(binsPt.front(),binsPt.back());
   
   TChain* tree = new TChain("tree/tree");
@@ -70,11 +70,12 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TTreeReader reader(tree);
   TTreeReaderValue<unsigned int> run    (reader,"run");
   TTreeReaderValue<unsigned int> event  (reader,"event");
-  TTreeReaderValue<UChar_t> hlte        (reader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hlte        (reader,"hltsingleel27");
   TTreeReaderValue<UChar_t> hltenoiso   (reader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltPFHT400  (reader,"hltPFHT400");
   TTreeReaderValue<UChar_t> hltPFHT650  (reader,"hltPFHT650");
   TTreeReaderValue<UChar_t> hltPFHT800  (reader,"hltPFHT800");
+  TTreeReaderValue<UChar_t> hltEcalPFHT800  (reader,"hltEcalHT800");
   TTreeReaderValue<float>   el1pt    (reader,"el1pt");
   TTreeReaderValue<float>   el1eta   (reader,"el1eta");
   TTreeReaderValue<float>   el1phi   (reader,"el1phi");
@@ -108,7 +109,8 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
   TTreeReaderValue<float> metpf       (reader,"pfmet");
   TTreeReaderValue<float> metcalo     (reader,"calomet");
   TTreeReaderValue<float> jemdphi (reader,"incjetelmetdphimin4");
-
+  //TTreeReaderValue<float> wemt   (reader,"wemt");
+ 
   long int nTotal = tree->GetEntries();
   cout<<"Total number of events: "<<nTotal<<endl;
   long int nEvents = 0;
@@ -126,9 +128,18 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     // to kill QCD in a sample of Wen events
     if(*met < 50) continue;
     if(fabs(*el1eta) > 2.5) continue;
-    if(*el1id != 1)  continue;
-    if(*el1idt != 1) continue;
+    if(*el1id  != 1)  continue;
+    if(*el1idt != 1)  continue;
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
+    //if(*wemt > 160)    continue; 
+    if(*jemdphi < 0.5) continue;
+    if(fabs(*el1eta) > 1.445 and fabs(*el1eta) < 1.55) continue; //exclude gap
+    if(fabs(*el1eta) > 2.2)  continue;
+    if(jetpt->size() == 0)   continue;
+    if(jetpt->at(0)  <  100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
+    if(jetchfrac->at(0) < 0.1) continue;
+    if(jetnhfrac->at(0) > 0.8) continue;
 
     if(*hltPFHT400 or *hltPFHT650 or *hltPFHT800){
       hden->Fill(fabs(*el1eta),*el1pt);
@@ -136,13 +147,13 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
 	hnum->Fill(fabs(*el1eta),*el1pt);
       }
     }
-    if(*hltPFHT400 or *hltPFHT650){
+    if(*hltPFHT400 or *hltPFHT650 or *hltPFHT800){
       hden_recover->Fill(fabs(*el1eta),*el1pt);
-      if(*hlte or *hltenoiso or *hltPFHT800)
+      if(*hlte or *hltenoiso or *hltEcalPFHT800)
 	hnum_recover->Fill(fabs(*el1eta),*el1pt);
     }    
   }
-    
+  
   TEfficiency* efficiency         = new TEfficiency(*hnum,*hden);
   TEfficiency* efficiency_recover = new TEfficiency(*hnum_recover,*hden_recover);
   TH2* histoEff         = efficiency->CreateHistogram();
@@ -225,7 +236,7 @@ void makeSingleElectronTriggerEfficiency(string inputDIR, string outputDIR, floa
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(projection_pt,"HLT_Ele27 || HLT_Ele_105","PE");
-    leg->AddEntry(projection_pt_recover,"HLT_Ele27 || HLT_Ele_105 || HLT_PFHT800","PE");
+    leg->AddEntry(projection_pt_recover,"HLT_Ele27 || HLT_Ele_105 || Ecal_HT800","PE");
     leg->Draw("same");
     
     if(doFit)

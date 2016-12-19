@@ -671,6 +671,7 @@ void makehist4(TTree* tree, /*input tree*/
 
     //ICHEP dataset
     if(not useMoriondSetup and not isMC and *run > 276811) continue;
+    //if(*run > 276811) continue;
 
     // check trigger depending on the sample
     Double_t hlt   = 0.0;
@@ -688,7 +689,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (hlt  == 0) continue; // trigger
     
     // MET Filters --> apply on both data and monte-carlo
-    if(not isMC and (*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fcsct == 0 || *fbadmu == 0 || *fbadch == 0)) continue;
+    if(*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fcsct == 0 || *fbadmu == 0 || *fbadch == 0) continue;
 
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
@@ -823,6 +824,7 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
+    if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt  > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){
@@ -1225,8 +1227,6 @@ void makehist4(TTree* tree, /*input tree*/
       
       if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
-      //if(fabs(jeteta->at(0)) > 2.5 and fabs(jeteta->at(1)) < 2.5 and chfrac->at(1) < 0.1) continue;
-      //if(fabs(jeteta->at(0)) > 2.5 and fabs(jeteta->at(1)) < 2.5 and nhfrac->at(1) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
       if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
@@ -1246,7 +1246,6 @@ void makehist4(TTree* tree, /*input tree*/
       if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
       if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
-      //	if(sample == Sample::qcd and fabs(jeteta->at(1)) >= 2.5 and fabs(jeteta->at(1)) < 3.0 and chfrac->at(1) < 0.05) continue;
       if (sample != Sample::qcd and jmdphi < 0.5) continue;
       else if(sample == Sample::qcd and jmdphi > 0.5) continue;	
       
@@ -1592,7 +1591,7 @@ void makehist4(TTree* tree, /*input tree*/
       else if(name.Contains("btagCSV_max")){
 	float btagMax = -10.;
 	for(size_t iBjet = 0; iBjet < jetbtag->size(); iBjet++){
-	  if(jeteta->at(iBjet) > 2.5) continue;
+	  if(jeteta->at(iBjet) > 2.4 or jetpt->at(iBjet) < 20) continue;
 	  if(jetbtag->at(iBjet) >= btagMax)
 	    btagMax = jetbtag->at(iBjet);
 	}
@@ -1602,7 +1601,7 @@ void makehist4(TTree* tree, /*input tree*/
       else if(name.Contains("btagCSV_min")){
 	float btagMin = 10.;
 	for(size_t iBjet = 0; iBjet < jetbtag->size(); iBjet++){
-	  if(jeteta->at(iBjet) >= 2.5) continue;
+	  if(jeteta->at(iBjet) >= 2.4 or jetpt->at(iBjet) < 20) continue;
 	  if(jetbtag->at(iBjet) < btagMin and jetbtag->at(iBjet) > 0)
 	    btagMin = jetbtag->at(iBjet);
 	}

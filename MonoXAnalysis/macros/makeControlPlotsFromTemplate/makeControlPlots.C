@@ -308,7 +308,7 @@ void makeControlPlots(string templateFileName,
     cout<<"EWK-W Background      :"<<ewkwhist->Integral()<<endl;
   if(ewkwhist)
     cout<<"EWK-Z Background      :"<<ewkzhist->Integral()<<endl;
-  if(ewkwhist)
+  if(vnnhist)
     cout<<"Zvv   Background      :"<<vnnhist->Integral()<<endl;
   cout<<"-------------------------------------------"<<endl;
   if(datahist)
@@ -678,7 +678,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"36.2");
+  CMS_lumi(canvas,"36.4");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");

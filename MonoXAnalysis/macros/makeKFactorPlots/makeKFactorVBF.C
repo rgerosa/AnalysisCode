@@ -5,15 +5,15 @@
 //vector<float> bosonPt_vbf  {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
 //vector<float> bosonPt_vbf_gam  {150.,250.,350.,450.,550.,750.,1000.,1300.};
 
-vector<float> bosonPt          {150.,225.,350,550.,1000};
-vector<float> bosonPt_vbf      {150.,225.,350,550.,1000};
-vector<float> bosonPt_vbf_gam  {150.,225.,350,550.,1000};
+vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
+vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
+vector<float> bosonPt_vbf_gam  {150.,200.,250.,350,500.,700.,1000};
 
-static float mjj            = 1000;
-static float detajj         = 3.5;
+static float mjj            = 750;
+static float detajj         = 2.5;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float dphijj         = 3.2;
+static float dphijj         = 2.0;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -98,13 +98,6 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     cout<<"Calculate sumwgt for NLO file "<<file_NLO.at(ifile)->GetName()<<endl;
     double sumwgt = 0;
     while(reader.Next()){
-
-      // filter away bad events with no matching
-      /*
-      if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23) continue;
-      else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
-      else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
-      */
       sumwgt += *wgt;
     }
     cout<<"Tree NLO with entries "<<tree->GetEntries()<<" sumwgt "<<sumwgt<<endl;
@@ -113,18 +106,18 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   }
 
   // histograms
-  TH1F* bosonPt_LO_monojet = new TH1F("bosonPt_LO_monojet","",bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_LO_monojet  = new TH1F("bosonPt_LO_monojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_NLO_monojet = new TH1F("bosonPt_NLO_monojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_LO_twojet = new TH1F("bosonPt_LO_twojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_NLO_twojet = new TH1F("bosonPt_NLO_twojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_LO_vbf = NULL;
-  TH1F* bosonPt_NLO_vbf = NULL;
+  TH1F* bosonPt_LO_twojet   = new TH1F("bosonPt_LO_twojet","",bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_NLO_twojet  = new TH1F("bosonPt_NLO_twojet","",bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_LO_vbf      = NULL;
+  TH1F* bosonPt_NLO_vbf     = NULL;
   if(sample != Sample::gam){
-    bosonPt_LO_vbf = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+    bosonPt_LO_vbf  = new TH1F("bosonPt_LO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
     bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);    
   }
   else{
-    bosonPt_LO_vbf = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);
+    bosonPt_LO_vbf  = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);
     bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);    
   }
 
@@ -167,15 +160,14 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   
     cout<<"Loop on LO file "<<file_LO.at(ifile)->GetName()<<endl;
     while(reader.Next()){
-      
-      // filter away bad events with no matching
-      /*
+
+      // filter away bad events
       if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23) continue;
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
-      */
-
-      float mindphi = 100;
+      
+      // calculate min-dphi at gen level where met is boson 4V
+      float mindphi   = 100;
       for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
 	float dphi = fabs(*wzphi-jetphi->at(ijet));
@@ -184,7 +176,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	if(dphi < mindphi)
 	  mindphi = dphi;	
       }
-
+      
       if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
 
       // apply monojet-like selections
@@ -285,7 +277,13 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     ifile++;
   }
 
-  TFile* output = new TFile((outputDIR+"/output.root").c_str(),"RECREATE");
+  string postfix;
+  if(sample == Sample::znn)       postfix = "znn";
+  else if(sample == Sample::zll)  postfix = "zll";
+  else if(sample == Sample::wjet) postfix = "wjet";
+  else if(sample == Sample::gam)  postfix = "gam";
+
+  TFile* output = new TFile((outputDIR+"/kfactor_"+postfix+".root").c_str(),"RECREATE");
   output->cd();
   bosonPt_NLO_monojet->Write();
   bosonPt_NLO_twojet->Write();
@@ -294,17 +292,23 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   bosonPt_LO_twojet->Write();
   bosonPt_LO_vbf->Write();
 
-  TCanvas* canvas = new TCanvas("canvas","canvas",600,625);
+  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
+  canvas->SetTickx(1);
+  canvas->SetTicky(1);
+  canvas->cd();
+  canvas->SetBottomMargin(0.3);
+  canvas->SetRightMargin(0.06);
 
-  TPad* pad1 = new TPad("pad1","",0.,0.3,1,1);
-  pad1->Draw();
+  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+  pad2->SetTopMargin(0.7);
+  pad2->SetRightMargin(0.06);
+  pad2->SetFillColor(0);
+  pad2->SetGridy(1);
+  pad2->SetFillStyle(0);
+
   canvas->cd();
-  TPad* pad2 = new TPad("pad2","",0.,0.,1,0.3);
-  pad2->Draw();
-  canvas->cd();
-  
-  canvas->cd();
-  pad1->cd();
+
+
   TH1F* kfactor_monojet = (TH1F*) bosonPt_NLO_monojet->Clone("kfactor_monojet");
   kfactor_monojet->Divide(bosonPt_LO_monojet);
   TH1F* kfactor_twojet = (TH1F*) bosonPt_NLO_twojet->Clone("kfactor_twojet");
@@ -312,24 +316,10 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   TH1F* kfactor_vbf = (TH1F*) bosonPt_NLO_vbf->Clone("kfactor_vbf");
   kfactor_vbf->Divide(bosonPt_LO_vbf);
 
-  kfactor_monojet->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
-  kfactor_monojet->GetYaxis()->SetTitle("K-factor");
   kfactor_monojet->GetYaxis()->SetTitleOffset(1.1);
   kfactor_monojet->GetXaxis()->SetTitleOffset(1.1);
   kfactor_monojet->GetYaxis()->SetRangeUser(min(kfactor_monojet->GetMinimum(),min(kfactor_twojet->GetMinimum(),kfactor_vbf->GetMinimum()))*0.7,
-					    max(kfactor_monojet->GetMaximum(),min(kfactor_twojet->GetMaximum(),kfactor_vbf->GetMaximum()))*1.3);
-
-  TH1F* kfactor_monojet_band = (TH1F*) kfactor_monojet->Clone("kfactor_monojet_band");
-  kfactor_monojet_band->SetFillColor(kBlack);
-  kfactor_monojet_band->SetFillStyle(3002);
-
-  TH1F* kfactor_twojet_band = (TH1F*) kfactor_twojet->Clone("kfactor_twojet_band");
-  kfactor_twojet_band->SetFillColor(kBlue);
-  kfactor_twojet_band->SetFillStyle(3004);
-
-  TH1F* kfactor_vbf_band = (TH1F*) kfactor_vbf->Clone("kfactor_vbf_band");
-  kfactor_vbf_band->SetFillColor(kRed);
-  kfactor_vbf_band->SetFillStyle(3001);
+					    max(kfactor_monojet->GetMaximum(),max(kfactor_twojet->GetMaximum(),kfactor_vbf->GetMaximum()))*1.3);
 
   kfactor_monojet->SetLineColor(kBlack);
   kfactor_monojet->SetMarkerColor(kBlack);
@@ -345,7 +335,22 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_vbf->SetMarkerColor(kRed);
   kfactor_vbf->SetLineWidth(2);
   kfactor_vbf->SetMarkerSize(1);
+  
+  TH1F* kfactor_monojet_band = (TH1F*) kfactor_monojet->Clone("kfactor_monojet_band");
+  kfactor_monojet_band->SetFillColor(kBlack);
+  kfactor_monojet_band->SetFillStyle(3001);
 
+  TH1F* kfactor_twojet_band = (TH1F*) kfactor_twojet->Clone("kfactor_twojet_band");
+  kfactor_twojet_band->SetFillColor(kBlue);
+  kfactor_twojet_band->SetFillStyle(3001);
+
+  TH1F* kfactor_vbf_band = (TH1F*) kfactor_vbf->Clone("kfactor_vbf_band");
+  kfactor_vbf_band->SetFillColor(kRed);
+  kfactor_vbf_band->SetFillStyle(3001);
+  
+  kfactor_monojet->GetYaxis()->SetTitle("K-factor");
+  kfactor_monojet->GetXaxis()->SetLabelSize(0);
+  kfactor_monojet->GetXaxis()->SetTitleSize(0);
   kfactor_monojet->Draw("hist");
   kfactor_monojet_band->Draw("E2 same");
   kfactor_twojet_band->Draw("E2 same");
@@ -355,46 +360,68 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_twojet->Draw("hist same");
   kfactor_vbf->Draw("hist same");
 
-  TLegend leg (0.6,0.6,0.9,0.9);
+  TLegend leg (0.7,0.7,0.9,0.9);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
-  leg.AddEntry(kfactor_monojet,"K-factor monojet","FL");
-  leg.AddEntry(kfactor_twojet,"K-factor 2-jet","FL");
-  leg.AddEntry(kfactor_vbf,"K-factor VBF","FL");
+  leg.AddEntry(kfactor_monojet_band,"K-factor monojet","FL");
+  leg.AddEntry(kfactor_twojet_band, "K-factor 2-jet","FL");
+  leg.AddEntry(kfactor_vbf_band,    "K-factor VBF","FL");
   leg.Draw("same");
 
   TLatex* latex = new TLatex ();
   latex->SetNDC();
   latex->SetTextSize(0.6*gPad->GetTopMargin());
-  latex->SetTextFont(42);
-  latex->SetTextAlign(31);
+  latex->SetTextFont(62);
+  latex->SetTextAlign(11);
   if(sample == Sample::znn)
-    latex->DrawLatex(0.25,0.95,"Z+jets");
+    latex->DrawLatex(0.15,0.95,"CMS Simulation Z+jets");
   else if(sample == Sample::zll)
-    latex->DrawLatex(0.25,0.95,"DY+jets");
+    latex->DrawLatex(0.15,0.95,"CMS Simulation DY+jets");
   else if(sample == Sample::wjet)
-    latex->DrawLatex(0.25,0.95,"W+jets");
+    latex->DrawLatex(0.15,0.95,"CMS Simulation W+jets");
   else if(sample == Sample::gam)
-    latex->DrawLatex(0.25,0.95,"#gamma+jets");
+    latex->DrawLatex(0.15,0.95,"CMS Simulation #gamma+jets");
 
+  pad2->Draw();
   pad2->cd();
+
   //ratio plot
   TH1* ratio_1 = (TH1*) kfactor_vbf->Clone("ratio_1");
   ratio_1->Divide(kfactor_monojet);
-  TH1* ratio_2 = (TH1*) kfactor_vbf->Clone("ratio_2");
-  ratio_2->Divide(kfactor_twojet);
+  TH1* ratio_2 = (TH1*) kfactor_twojet->Clone("ratio_2");
+  ratio_2->Divide(kfactor_monojet);
 
-  ratio_1->SetLineColor(kBlack);
-  ratio_1->SetMarkerColor(kBlack);
-  ratio_1->SetMarkerStyle(20);
-  ratio_1->GetYaxis()->SetTitle("Ratio");
-  ratio_1->Draw("EPsame");
   ratio_2->SetLineColor(kBlue);
   ratio_2->SetMarkerColor(kBlue);
-  ratio_2->SetMarkerStyle(20);
   ratio_2->GetYaxis()->SetTitle("Ratio");
+  ratio_2->GetYaxis()->SetRangeUser(0.9,1.5);
+  ratio_2->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
+  ratio_2->GetYaxis()->CenterTitle();
+  ratio_2->GetYaxis()->SetTitleOffset(1.5);
+  ratio_2->GetYaxis()->SetLabelSize(0.04);
+  ratio_2->GetYaxis()->SetTitleSize(0.04);
+  ratio_2->GetXaxis()->SetLabelSize(0.04);
+  ratio_2->GetXaxis()->SetTitleSize(0.05);  
+  ratio_2->GetYaxis()->SetNdivisions(5);
+  ratio_2->Draw("hist");
+
+  ratio_1->SetLineColor(kRed);
+  ratio_1->SetMarkerColor(kRed);
+  ratio_1->Draw("hist same");
+
+  TH1F* ratio_2_band = (TH1F*) ratio_2->Clone("ratio_2_band");
+  ratio_2_band->SetFillColor(kBlue);
+  ratio_2_band->SetFillStyle(3001);
+  ratio_2_band->Draw("E2 same");
+
+  TH1F* ratio_1_band = (TH1F*) ratio_1->Clone("ratio_1_band");
+  ratio_1_band->SetFillColor(kRed);
+  ratio_1_band->SetFillStyle(3001);
+  ratio_1_band->Draw("E2 same");
+
   ratio_2->Draw("hist same");
+  ratio_1->Draw("hist same");
 
   if(sample == Sample::znn){
     canvas->SaveAs((outputDIR+"/kfactor_znn.png").c_str(),"png");
