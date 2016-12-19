@@ -461,8 +461,9 @@ private:
   float puppit1pfmetUncEnUpPhi,puppit1pfmetUncEnDownPhi,puppit1pfmetJetSmearPhi,puppit1pfmetXYPhi;
 
   // AK4CHS combine jet
-  std::vector<float> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA;
-  std::vector<float> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetmetdphi;
+  std::vector<float> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA,combinejetmetdphi;
+  std::vector<float> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetPHfrac,combinejetELfrac,combinejetMUfrac, combinejetHFHfrac, combinejetHFEMfrac;
+  std::vector<unsigned int> combinejetCHmult,combinejetNHmult,combinejetPHmult,combinejetELmult,combinejetMUmult,combinejetHFHmult,combinejetHFEMmult;
   std::vector<float> combinejetHFlav,combinejetPFlav,combinejetQGL,combinejetPUID, combinejetPassPUID; 
   std::vector<float> combinejetGenpt,combinejetGeneta,combinejetGenphi,combinejetGenm;
   std::vector<float> combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown;
@@ -1586,8 +1587,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     njetsinc    = 0; njetsincup    = 0; njetsincdw    = 0; njetsincjer    = 0;
     nbjets      = 0; nbjetslowpt   = 0; nbjetsMVA     = 0; nbjetsMVAlowpt = 0;
     
-    combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); combinejetCHfrac    .clear();
-    combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi   .clear();
+    combinejetpt        .clear(); combinejeteta       .clear(); combinejetphi       .clear(); combinejetbtag      .clear(); 
+    combinejetCHfrac    .clear(); combinejetNHfrac    .clear(); combinejetEMfrac    .clear(); combinejetCEMfrac   .clear(); combinejetmetdphi  .clear();
+    combinejetPHfrac    .clear(); combinejetELfrac    .clear(); combinejetMUfrac    .clear(); combinejetHFHfrac   .clear(); combinejetHFEMfrac .clear();
+    combinejetCHmult    .clear(); combinejetNHmult    .clear(); combinejetPHmult    .clear(); combinejetMUmult    .clear(); combinejetHFHmult  .clear(); combinejetHFEMmult .clear();
+ 
     combinejetHFlav     .clear(); combinejetPFlav     .clear(); combinejetQGL       .clear(); combinejetPUID      .clear();
     combinejetGenpt     .clear(); combinejetGeneta    .clear(); combinejetGenphi    .clear(); combinejetGenm      .clear(); 
     combinejetm         .clear(); combinejetbtagMVA   .clear();
@@ -1643,6 +1647,19 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	combinejetNHfrac  .push_back(incjets[i]->neutralHadronEnergyFraction());
 	combinejetEMfrac  .push_back(incjets[i]->neutralEmEnergyFraction());
 	combinejetCEMfrac .push_back(incjets[i]->chargedEmEnergyFraction());
+	combinejetPHfrac  .push_back(incjets[i]->photonEnergyFraction());
+	combinejetELfrac  .push_back(incjets[i]->electronEnergyFraction());
+	combinejetMUfrac  .push_back(incjets[i]->muonEnergyFraction());
+	combinejetHFHfrac  .push_back(incjets[i]->HFHadronEnergyFraction());
+	combinejetHFEMfrac .push_back(incjets[i]->HFEMEnergyFraction());
+	combinejetCHmult   .push_back(incjets[i]->chargedHadronMultiplicity());
+	combinejetNHmult   .push_back(incjets[i]->neutralHadronMultiplicity());
+	combinejetPHmult   .push_back(incjets[i]->photonMultiplicity());
+	combinejetELmult   .push_back(incjets[i]->electronMultiplicity());
+	combinejetMUmult   .push_back(incjets[i]->muonMultiplicity());
+	combinejetHFHmult  .push_back(incjets[i]->HFHadronMultiplicity());
+	combinejetHFEMmult  .push_back(incjets[i]->HFEMMultiplicity());
+
 	
 	if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
 	  combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
@@ -3991,6 +4008,20 @@ void MonoJetTreeMaker::beginJob() {
   if(not isTriggerTree){
     tree->Branch("combinejetEMfrac",  "std::vector<float>", &combinejetEMfrac);
     tree->Branch("combinejetCEMfrac", "std::vector<float>", &combinejetCEMfrac);
+    tree->Branch("combinejetPHfrac", "std::vector<float>", &combinejetPHfrac);
+    tree->Branch("combinejetELfrac", "std::vector<float>", &combinejetELfrac);
+    tree->Branch("combinejetMUfrac", "std::vector<float>", &combinejetMUfrac);
+    tree->Branch("combinejetHFHfrac", "std::vector<float>", &combinejetHFHfrac);
+    tree->Branch("combinejetHFEMfrac", "std::vector<float>", &combinejetHFEMfrac);
+
+    tree->Branch("combinejetCHmult",  "std::vector<unsigned int>", &combinejetCHmult);
+    tree->Branch("combinejetNHmult",  "std::vector<unsigned int>", &combinejetNHmult);
+    tree->Branch("combinejetPHmult", "std::vector<unsigned int>", &combinejetPHmult);
+    tree->Branch("combinejetELmult", "std::vector<unsigned int>", &combinejetELmult);
+    tree->Branch("combinejetMUmult", "std::vector<unsigned int>", &combinejetMUmult);
+    tree->Branch("combinejetHFHmult", "std::vector<unsigned int>", &combinejetHFHmult);
+    tree->Branch("combinejetHFEMmult", "std::vector<unsigned int>", &combinejetHFEMmult);
+
     tree->Branch("combinejetmetdphi", "std::vector<float>", &combinejetmetdphi);
     tree->Branch("combinejetHFlav",   "std::vector<float>", &combinejetHFlav);
     tree->Branch("combinejetPFlav",   "std::vector<float>", &combinejetPFlav);
