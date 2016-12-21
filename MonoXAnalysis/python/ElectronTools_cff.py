@@ -58,6 +58,10 @@ def ElectronTools(process,addEGMSmear,isMC):
 					eMin = cms.double(400),
 					eMax = cms.double(500),
 					value = cms.double(1.0150))),
+				cms.PSet(
+					eMin = cms.double(500),
+					eMax = cms.double(10000),
+					value = cms.double(1.0150))),
 							    recHitEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
 							    recHitEE = cms.InputTag("reducedEgamma","reducedEERecHits")
 							    ));
