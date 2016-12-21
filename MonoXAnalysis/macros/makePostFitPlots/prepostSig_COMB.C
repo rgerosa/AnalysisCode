@@ -407,7 +407,7 @@ void prepostSig_COMB(string fitFilename,
   frame ->Draw();
 
 
-  CMS_lumi(canvas,"36.2");
+  CMS_lumi(canvas,"36.4");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();

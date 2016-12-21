@@ -191,9 +191,9 @@ void prepostZM_COMB(string fitFilename, string templateFileName, string observab
   frame->Reset();
   if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*300);
-  else (category == Category::monoV)
+  else if (category == Category::monoV)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*300);
-  else (category == Category::VBF)
+  else if (category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
@@ -210,7 +210,7 @@ void prepostZM_COMB(string fitFilename, string templateFileName, string observab
 
   frame ->Draw();
   
-  CMS_lumi(canvas,"36.2");
+  CMS_lumi(canvas,"36.4");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
