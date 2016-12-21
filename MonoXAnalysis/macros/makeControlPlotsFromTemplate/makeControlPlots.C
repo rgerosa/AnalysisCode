@@ -204,6 +204,12 @@ void makeControlPlots(string templateFileName,
     }
   }
 
+
+  //  if((controlRegion == "topmu" or controlRegion == "topel") and (category == Category::monoV or category == Category::boosted)){
+  //    tophist->Scale(0.92);
+  //    vlhist->Scale(0.95);
+  //  }
+
   if(saveTextYields){
 
     // write yields in a output in a text file 
@@ -407,8 +413,10 @@ void makeControlPlots(string templateFileName,
       yield += gamhist->GetBinContent(i);
       yield += tophist->GetBinContent(i);
       yield += dbhist->GetBinContent(i);
-      yield += ewkzhist->GetBinContent(i);
-      yield += ewkwhist->GetBinContent(i);
+      if(category == Category::VBF){
+	yield += ewkzhist->GetBinContent(i);
+	yield += ewkwhist->GetBinContent(i);
+      }
       yield += vllhist->GetBinContent(i);
       yield += vlhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);

@@ -512,15 +512,17 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"prunedJetpt");
   TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
-  //  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedPuppiJetpt");
-  //  TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedPuppiJetQGL");
-  //  TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedPuppiJeteta");
-  //  TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedPuppiJetphi");
-  //  TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedPuppiJetm");
-  //  TTreeReaderValue<vector<float> > prunedJetm   (myReader,"softDropPuppiJetm");
-  //  TTreeReaderValue<vector<float> > prunedJetpt   (myReader,"softDropPuppiJetpt");
-  //  TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedPuppiJettau2");
-  //  TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedPuppiJettau1");
+  /*
+  TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedPuppiJetpt");
+  TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedPuppiJetQGL");
+  TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedPuppiJeteta");
+  TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedPuppiJetphi");
+  TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedPuppiJetm");
+  TTreeReaderValue<vector<float> > prunedJetm      (myReader,"softDropPuppiJetm");
+  TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"softDropPuppiJetpt");
+  TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedPuppiJettau2");
+  TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedPuppiJettau1");
+  */
   TTreeReaderValue<float> hadBosoneta  (myReader,"wzeta_h");
   TTreeReaderValue<float> hadBosonphi  (myReader,"wzphi_h");
   TTreeReaderValue<float> hadBosonpt   (myReader,"wzpt_h");
@@ -840,9 +842,9 @@ void makehist4(TTree* tree, /*input tree*/
     
     // n-bjets cut for unboosted categories
     if ((sample == Sample::topmu || sample == Sample::topel) && (category != Category::monoV and category != Category::boosted and category != Category::prunedMass and category != Category::tau2tau1)  && *nbjets < nBjets) continue;
-    if ( sample == Sample::topmu || sample == Sample::topel){ // select only events with one lepton
+    if (sample == Sample::topmu || sample == Sample::topel){ // select only events with one lepton
       // at least one lepton in the plateau region
-      if(pt1 <=0 or id1 != 1) continue;
+      if(id1 != 1) continue;
       if(abs(pid1) == 13 && pt1 < 20. ) continue;
       if(abs(pid1) == 11 && pt1 < 40. ) continue;
       // met cut
@@ -1027,10 +1029,12 @@ void makehist4(TTree* tree, /*input tree*/
 	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
     
-    // B10-4 -tag weight
+    // B-tag weight to be adjusted
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
-      btagw = **wgtbtag;
+      btagw = 0.98;
+    else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam)
+      btagw = 0.98;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
