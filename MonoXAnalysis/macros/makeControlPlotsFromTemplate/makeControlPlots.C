@@ -1,7 +1,8 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/makehist.h"
 
-float minTau2Tau1 = 0.1;
+static float minTau2Tau1 = 0.1;
+static bool saveTextYields = false;
 
 void makeControlPlots(string templateFileName, 
 		      Category category, 
@@ -203,11 +204,17 @@ void makeControlPlots(string templateFileName,
     }
   }
 
-  if(controlRegion == "SR" and observable == "met"){
+
+  //  if((controlRegion == "topmu" or controlRegion == "topel") and (category == Category::monoV or category == Category::boosted)){
+  //    tophist->Scale(0.92);
+  //    vlhist->Scale(0.95);
+  //  }
+
+  if(saveTextYields){
 
     // write yields in a output in a text file 
     ofstream outputfile;
-    outputfile.open("preFitSR.txt");
+    outputfile.open(("preFit_"+controlRegion+".txt").c_str());
 
     stringstream QCDRate;
     QCDRate << "Process: QCD";
@@ -287,6 +294,31 @@ void makeControlPlots(string templateFileName,
     outputfile.close();
   }
 
+
+  cout<<"#########################"<<endl;
+  cout<<"Total Yields for process "<<endl;
+  cout<<"#########################"<<endl;
+  if(qcdhist)
+    cout<<"QCD Background        :"<<qcdhist->Integral()<<endl;
+  if(dbhist)
+    cout<<"Diboson Background    :"<<dbhist->Integral()<<endl;
+  if(tophist)
+    cout<<"Top Background        :"<<tophist->Integral()<<endl;
+  if(gamhist)
+    cout<<"#gamma+jet Background :"<<gamhist->Integral()<<endl;
+  if(vllhist)
+    cout<<"Z+jets Background     :"<<vllhist->Integral()<<endl;
+  if(vlhist)
+    cout<<"W+jets Background     :"<<vlhist->Integral()<<endl;
+  if(ewkwhist)
+    cout<<"EWK-W Background      :"<<ewkwhist->Integral()<<endl;
+  if(ewkwhist)
+    cout<<"EWK-Z Background      :"<<ewkzhist->Integral()<<endl;
+  if(vnnhist)
+    cout<<"Zvv   Background      :"<<vnnhist->Integral()<<endl;
+  cout<<"-------------------------------------------"<<endl;
+  if(datahist)
+    cout<<"Data integral         :"<<datahist->Integral()<<endl;
 
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
@@ -381,8 +413,10 @@ void makeControlPlots(string templateFileName,
       yield += gamhist->GetBinContent(i);
       yield += tophist->GetBinContent(i);
       yield += dbhist->GetBinContent(i);
-      yield += ewkzhist->GetBinContent(i);
-      yield += ewkwhist->GetBinContent(i);
+      if(category == Category::VBF){
+	yield += ewkzhist->GetBinContent(i);
+	yield += ewkwhist->GetBinContent(i);
+      }
       yield += vllhist->GetBinContent(i);
       yield += vlhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);
@@ -570,8 +604,10 @@ void makeControlPlots(string templateFileName,
       vllhist->Add(gamhist);
     if(not isnan(float(vllhist->Integral())))    
       stack->Add(vllhist);
-    //if(not isnan(float(dbhist->Integral())))    
-    //stack->Add(dbhist);
+    if(not isnan(float(dbhist->Integral())))    
+      stack->Add(dbhist);
+    if(not isnan(float(tophist->Integral())))    
+      stack->Add(tophist);
     if(category == Category::VBF){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
@@ -650,7 +686,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"36.2");
+  CMS_lumi(canvas,"36.4");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");

@@ -1660,7 +1660,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	combinejetHFHmult  .push_back(incjets[i]->HFHadronMultiplicity());
 	combinejetHFEMmult  .push_back(incjets[i]->HFEMMultiplicity());
 
-	
 	if(incjets[i]->hasUserFloat("QGTagger:qgLikelihood"))
 	  combinejetQGL   .push_back(incjets[i]->userFloat("QGTagger:qgLikelihood")); 
 	  // pileup jet id

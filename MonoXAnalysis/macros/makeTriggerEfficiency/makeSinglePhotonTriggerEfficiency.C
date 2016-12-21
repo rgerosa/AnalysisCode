@@ -216,6 +216,7 @@ void makeSinglePhotonTriggerEfficiency(string inputDIR, string ouputDIR, float l
   TTreeReaderValue<UChar_t> hltht600  (reader,"hltPFHT600");
   TTreeReaderValue<UChar_t> hltht650  (reader,"hltPFHT650");
   TTreeReaderValue<UChar_t> hltht800  (reader,"hltPFHT800");
+  TTreeReaderValue<UChar_t> hltecalht800  (reader,"hltEcalHT800");
 
   TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");

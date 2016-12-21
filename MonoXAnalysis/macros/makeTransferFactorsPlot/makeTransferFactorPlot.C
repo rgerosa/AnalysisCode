@@ -4,13 +4,13 @@
 
 using namespace std;
 
-float musf = 0.02;
-float elsf = 0.02;
+float musf = 0.01;
+float elsf = 0.01;
 float phsf = 0.02;
-float mutrack = 0.01;
-float eltrack = 0.01;
+float mutrack = 0.005;
+float eltrack = 0.005;
 float mettrig = 0.01;
-float eltrig = 0.02;
+float eltrig = 0.01;
 float phtrig = 0.02;
 float lepveto = 0.03;
 
@@ -101,7 +101,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -219,7 +219,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -321,7 +321,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -427,7 +427,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -552,7 +552,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     if(not isEWK)
@@ -693,7 +693,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     ehistEWK->Draw("E2 SAME");
@@ -828,7 +828,7 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     if(not isEWK)
@@ -911,7 +911,7 @@ void rtopmu(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -978,7 +978,7 @@ void rtopel(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"35.9",true);
+    CMS_lumi(canvas,"36.4",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");

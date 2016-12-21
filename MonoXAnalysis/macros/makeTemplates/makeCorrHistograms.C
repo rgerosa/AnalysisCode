@@ -1549,8 +1549,8 @@ void makewgamcorhist( const string & wlnuFile,
   if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
   else if (kfact == 2 and nloSamples.useWJetsNLO) {whists.push_back(wewkhist);}
 
-  if (kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
-  else if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+  if (kfact == 2 and not  nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
+  else if (kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
   
   // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
   if (kfact == 3 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re1hist) ;}
@@ -1561,11 +1561,13 @@ void makewgamcorhist( const string & wlnuFile,
   // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
   if (kfact == 4 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa1hist) ;}
   else if (kfact == 4 and nloSamples.useWJetsNLO) {whists.push_back(fa1hist) ;}
+
   if (kfact == 4 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
 
   // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
   if (kfact == 5 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re2hist) ;}
   else if (kfact == 5 and nloSamples.useWJetsNLO) {whists.push_back(re2hist) ;}
+
   if (kfact == 5 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
 
   // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
@@ -1583,6 +1585,7 @@ void makewgamcorhist( const string & wlnuFile,
 
   // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
   if (kfact == 8 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+
   if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(afpchist);}
   else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
   
@@ -1614,7 +1617,7 @@ void makewgamcorhist( const string & wlnuFile,
 
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
-  if(isEWK){
+  if(not isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, "", false, reweightNVTX, 0, isHiggsInvisible);  
     makehist4(dtree, dhist, dhist_2D,  true, Sample::gam, category, false, 1.00, lumi, ahists, "", false, reweightNVTX, 0, isHiggsInvisible);
   }
