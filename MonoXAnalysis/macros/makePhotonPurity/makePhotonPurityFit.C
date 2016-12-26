@@ -412,7 +412,14 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   canvas2->SaveAs((outputDIR+"/photonPurityResultData.png").c_str(),"png");
   canvas2->SaveAs((outputDIR+"/photonPurityResultData.pdf").c_str(),"pdf");
 
-  if(addSystematics){ // implement sys uncertainties using MC
+  if(addSystematics){ // implement sys uncertainties using MC based templates to fit data
+
+    // use QCD MC to derive an alternative MC template --> apply sideband sigma-ieta-ieta cut + weigth for xsec sigma-ieta-ieta cut but ask no overlap witha gen-photon in case any
+    // use gamma+jets MC to derive an alternative signal template --> apply analysis selections+asking for a gen-level match --> use random cone dR = 0.4 or dR = 0.8
+    
+    //Fit alternative signal + data background
+    //Fit data signal + alternative MC background 
+    
 
   }
 
