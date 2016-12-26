@@ -600,8 +600,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      jetidwp          = cms.string("loose"),
 			      applypileupjetid = cms.bool(False),
 			      pileupjetidwp    = cms.string("medium"),
-			      btaggingCSVWP    = cms.double(0.80),
-			      btaggingMVAWP    = cms.double(0.185),
+			      btaggingCSVWP    = cms.double(0.8484),
+			      btaggingMVAWP    = cms.double(0.4432),
 			      minJetPtCountAK4     = cms.double(30),
 			      minJetPtBveto        = cms.double(20),
 			      minJetPtAK4Store     = cms.double(25),
@@ -662,19 +662,19 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 				 bDiscriminatorInfo = cms.VPSet(
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Loose"),
-			 wpValue = cms.double(0.460)),
+			 wpValue = cms.double(0.5426)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
-			 wpValue = cms.double(0.800)),
+			 wpValue = cms.double(0.8484)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
 			 wpLabel = cms.string("Loose"),
-			 wpValue = cms.double(-0.715)),
+			 wpValue = cms.double(-0.5884)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
-			 wpValue = cms.double(0.185)),
+			 wpValue = cms.double(0.4432)),
 		))
 
 if options.addPuppiJets: ## make b-tagging efficiency maps also for puppi jets
@@ -707,7 +707,7 @@ if options.addSubstructurePuppi:
 			bDiscriminatorInfo = cms.VPSet(
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Loose"),
-					 wpValue = cms.double(0.460)),
+					 wpValue = cms.double()),
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Medium"),
 					 wpValue = cms.double(0.800)),
