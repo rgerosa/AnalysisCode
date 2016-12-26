@@ -94,7 +94,7 @@ options.register (
 
 ## photon purity studies
 options.register (
-        'addPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'isPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon purity studies --> add some more branches');
 
 options.register (
@@ -217,7 +217,7 @@ print "Running with addEGMSmear         = ",options.addEGMSmear
 print "Running with useMiniAODMet       = ",options.useMiniAODMet
 print "Running with addMETSystematics   = ",options.addMETSystematics
 print "Running with addMETBreakDown     = ",options.addMETBreakDown	
-print "Running with addPhotonPurity     = ",options.addPhotonPurity	
+print "Running with isPhotonPurity     = ",options.isPhotonPurity	
 print "Running with addPhotonIDVariables = ",options.addPhotonIDVariables
 print "Running with addElectronIDVariables = ",options.addElectronIDVariables
 print "Running with processName         = ",options.processName	
@@ -342,7 +342,7 @@ process.selectedObjects.jets = cms.InputTag(jetCollName)
 ### gain correction always applied for the time-being
 process.selectedObjects.useCalibratedElectrons = cms.bool(True)
 process.selectedObjects.useCalibratedPhotons = cms.bool(True)
-process.selectedObjects.addPhotonPurity = cms.bool(options.addPhotonPurity)
+process.selectedObjects.addPhotonPurity = cms.bool(options.isPhotonPurity)
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
@@ -537,7 +537,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
 			      photonLooseId   = cms.InputTag("selectedObjects", "photonLooseId"),			     
 			      ## photon purity
-			      addPhotonPurity = cms.bool(options.addPhotonPurity),
+			      isPhotonPurity  = cms.bool(options.isPhotonPurity),
 			      photonsPurity   = cms.InputTag("selectedObjects", "photonsPurity"),
 			      tightphotonsPurity   = cms.InputTag("selectedObjects", "tightphotonsPurity"),
 			      rndgammaiso04   = cms.InputTag("selectedObjects", "rndgammaiso04"),
