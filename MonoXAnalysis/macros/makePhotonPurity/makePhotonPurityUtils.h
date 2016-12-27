@@ -1,32 +1,18 @@
 #include "../CMS_lumi.h"
 
-// set of effective areas                                                                                                                                                                             
-float getChargedHadronEA(float abseta){
-  if(abseta < 1) return 0.0360;
-  else if(abseta >  1 and abseta < 1.479) return 0.0377;
-  else return 1;
-}
+static float deltaRMatching = 0.3;
 
-float getNeutralHadronEA(float abseta){
-  if(abseta < 1) return 0.0597;
-  else if(abseta >  1 and abseta < 1.479) return 0.0807;
-  else return 1;
-}
-
-float getPhotonEA(float abseta){
-  if(abseta < 1) return 0.1210;
-  else if(abseta >  1 and abseta < 1.479) return 0.1107;
-  else return 1;
-}
-
+// to define samples
+enum class Sample {data, gjets, qcd};
 
 // photon id values --> class to handle it                                                                                                                                                           
 class photonID {
 
  public:
- photonID(const float & HoE, const float & sigmaieie, const float & chadiso, const float & nhadiso0, const float & nhadiso1, const float & nhadiso2, const float & phiso0, const float & phiso1):
+ photonID(const float & HoE, const float & sigmaieie, const float&  sigmaieie_sideband, const float & chadiso, const float & nhadiso0, const float & nhadiso1, const float & nhadiso2, const float & phiso0, const float & phiso1):
   HoE(HoE),
     sigmaieie(sigmaieie),
+    sigmaieie_sideband(sigmaieie_sideband),
     chadiso(chadiso),
     nhadiso0(nhadiso0),
     nhadiso1(nhadiso1),
@@ -38,6 +24,7 @@ class photonID {
 
   float HoE;
   float sigmaieie;
+  float sigmaieie_sideband;
   float chadiso;
   float nhadiso0;
   float nhadiso1;
@@ -62,6 +49,292 @@ class fitPurity {
   float ptMean;
   TH1F* phHisto;
 };
+
+/////////////
+void fillHistograms(TTree* chain,const Sample & sample, 
+		    vector<fitPurity>  & dataHisto, 
+		    vector<fitPurity>  & signalTemplateRND04, 
+		    vector<fitPurity>  & signalTemplateRND08,
+		    vector<fitPurity>  & backgroundTemplate,
+		    const photonID & mediumID,
+		    const vector<TH1*> & khists,
+		    const float & lumi = 36.2){
+
+
+  // apply pileup and trigger turn on
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
+  TH1*   puhist = (TH1*) pufile->Get("puhist");
+
+  TFile* triggerfile_SinglePhoton  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
+  TEfficiency* triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
+  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
+
+  // set all branches                                                                                                                                                                                
+  TTreeReader reader (chain);
+  TTreeReaderValue<float> phpt  (reader,"pPuritypt");
+  TTreeReaderValue<float> pheta (reader,"pPurityeta");
+  TTreeReaderValue<float> phphi (reader,"pPurityphi");
+  TTreeReaderValue<float> phElVeto (reader,"phPurityElectronVeto");
+  TTreeReaderValue<float> phPHIso (reader,"phPurityPHiso");
+  TTreeReaderValue<float> phCHIso (reader,"phPurityCHiso");
+  TTreeReaderValue<float> phNHIso (reader,"phPurityNHiso");
+  TTreeReaderValue<float> phHoE   (reader,"phPurityhoe");
+  TTreeReaderValue<float> phSieie (reader,"phPuritysieie");
+  TTreeReaderValue<float> phPHIsoRND04 (reader,"phPurityRND04PHiso");
+  TTreeReaderValue<float> phPHIsoRND08 (reader,"phPurityRND08PHiso");
+  TTreeReaderValue<float> phEAEgamma (reader,"phPurityEAEGamma");
+  TTreeReaderValue<float> rho (reader,"rho");
+  TTreeReaderValue<float> xsec (reader,"xsec");
+  TTreeReaderValue<float> wgt (reader,"wgt");
+  TTreeReaderValue<double> wgtsum (reader,"wgtsum");
+  TTreeReaderValue<unsigned int> nphotons (reader,"nphotons");
+  TTreeReaderValue<unsigned int> nphotonsPurity (reader,"nphotonsPurity");
+  TTreeReaderValue<unsigned int> nelectrons (reader,"nelectrons");
+  TTreeReaderValue<unsigned int> nmuons (reader,"nmuons");
+  TTreeReaderValue<unsigned int> ntausraw (reader,"ntausrawold");
+  TTreeReaderValue<unsigned int> nbjets (reader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> njets (reader,"njets");
+  TTreeReaderValue<UChar_t> hltp165     (reader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175     (reader,"hltphoton175");
+  TTreeReaderValue<unsigned int> run         (reader,"run");
+  TTreeReaderValue<unsigned int> lumisection (reader,"lumi");
+  TTreeReaderValue<unsigned int> event       (reader,"event");
+  TTreeReaderValue<unsigned int> nvtx        (reader,"nvtx");
+  TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsct  (reader,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (reader,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (reader,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
+  TTreeReaderValue<UChar_t> fcsc   (reader,"flagglobaltighthalo");
+  TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > chfrac  (reader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
+  TTreeReaderValue<float> pmet        (reader,"t1phmet");
+  TTreeReaderValue<float> pmetphi     (reader,"t1phmetphi");
+  TTreeReaderValue<float> metpf       (reader,"pfmet");
+  TTreeReaderValue<float> metcalo     (reader,"calomet");
+  TTreeReaderValue<float> jpmdphi (reader,"incjetphmetdphimin4");
+  TTreeReaderValue<float> wzpt   (reader,"wzpt");
+  TTreeReaderValue<float> wzeta  (reader,"wzeta");
+  TTreeReaderValue<float> wzphi  (reader,"wzphi");
+  TTreeReaderValue<int>   wzid  (reader,"wzid");
+  TTreeReaderValue<int>   ismatch  (reader,"ismatch");
+
+  // loop on data events                                                                                                                                                                        
+  if(sample == Sample::data) 
+    cout<<"Number of evedns in data "<<chain->GetEntries()<<endl;  
+  else if(sample == Sample::qcd)
+    cout<<"Number of evedns in QCD MC "<<chain->GetEntries()<<endl;  
+  else if(sample == Sample::gjets)
+    cout<<"Number of evedns in Gjets MC "<<chain->GetEntries()<<endl;  
+
+  long int nTotal = chain->GetEntries();
+  long int nEvents = 0;
+  while(reader.Next()){
+    cout.flush();
+    if(nEvents % 100000 == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+
+    if(not (*hltp165 or *hltp175)) continue;
+    if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0 or *fcsc == 0) continue;
+    if(fabs(*pheta) > 1.4442) continue;
+    if(*nmuons != 0) continue;
+    if(*nelectrons != 0) continue;
+    if(*nbjets != 0) continue;
+    if(*ntausraw != 0) continue;
+    if(*njets < 1) continue;
+    if(jetpt->at(0) < 100) continue;
+    if(fabs(jeteta->at(0)) > 2.5) continue;
+    if(chfrac->at(0) < 0.1) continue;
+    if(nhfrac->at(0) > 0.8) continue;
+    if(*jpmdphi < 0.5) continue;
+
+    // apply photon id                                                                                                                                                                                
+    if(*nphotonsPurity < 1) continue;
+    if(*phpt < 175) continue;
+    if(*phElVeto == 0) continue;
+    if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
+    if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
+    if(*phHoE > mediumID.HoE)  continue;
+
+    // select the histogram given the pt of the photon                                                                                                                                           
+    unsigned int bin = 0;
+    if(signalTemplateRND04.size() != 0){
+      for( ; bin < signalTemplateRND04.size(); bin++){
+	if(*phpt >= signalTemplateRND04.at(bin).ptMin and *phpt < signalTemplateRND04.at(bin).ptMax) break;
+      }
+    }
+    else if(backgroundTemplate.size() != 0){
+      for( ; bin < backgroundTemplate.size(); bin++){
+	if(*phpt >= backgroundTemplate.at(bin).ptMin and *phpt < backgroundTemplate.at(bin).ptMax) break;
+      }
+    }
+    
+    double evtwgt = 1.;
+    if(sample == Sample::gjets or sample == Sample::qcd){
+      evtwgt *= lumi*(*xsec)*(*wgt);
+      if (*nvtx <= 60)
+	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));      
+      evtwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+    }
+    
+    // apply k-factor
+    double kwgt = 1.0;      
+
+    // distributions in data without effective area correction                                                                                                                                      
+    if(*phSieie < mediumID.sigmaieie){
+      if(sample == Sample::data){ // fill also data histogram
+	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
+	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))));
+	signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))));
+	dataHisto.at(bin).ptMean += *phpt;
+	signalTemplateRND04.at(bin).ptMean += *phpt;
+	signalTemplateRND08.at(bin).ptMean += *phpt;
+      }
+      else if(sample == Sample::gjets){// don't fill data histogram
+
+	double genpt = *wzpt;
+	for (size_t i = 0; i < khists.size(); i++) {
+	  if (khists[i]) {
+	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) 
+	      genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) 
+	      genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	  }
+	}
+
+	// matching condition
+	if(*wzpt <= 0) continue;
+	float deltaEta_gen = fabs(*pheta-*wzeta);
+	float deltaPhi_gen = fabs(*phphi-*wzphi);
+	if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
+	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
+	if(not *ismatch) continue;
+	// fill histograms
+	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(*wgtsum));
+	signalTemplateRND04.at(bin).ptMean += *phpt;
+      }
+    }
+    else if(*phSieie > mediumID.sigmaieie and *phSieie < mediumID.sigmaieie_sideband){
+      if(sample == Sample::data){
+	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
+	backgroundTemplate.at(bin).ptMean += *phpt;
+      }
+      else if(sample == Sample::qcd){
+
+	if(*wzpt <= 0) continue;
+	// matching condition                                                                                                                                                                         
+        float deltaEta_gen = fabs(*pheta-*wzeta);
+        float deltaPhi_gen = fabs(*phphi-*wzphi);
+        if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
+        if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
+	
+	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(*wgtsum));
+	backgroundTemplate.at(bin).ptMean += *phpt;
+      }
+    }
+  }
+}
+
+
+/////////////
+void makePurityFit(RooWorkspace* ws, 
+		   const fitPurity & dataTemplate, const fitPurity & signalTemplate, const fitPurity & backgroundTemplate, 
+		   const photonID & mediumID,
+		   const bool & debug){
+
+  // create observable                                                                                                                                                                               
+  RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()));
+
+  // data-histogram                                                                                                                                                                                  
+  RooArgList observable_list (observable);
+  RooDataHist RooDataHisto      ("data","",observable_list, dataTemplate.phHisto);
+  RooDataHist RooSignalTemplate ("signalTemplateData","",observable_list,signalTemplate.phHisto);
+  RooDataHist RooBackgroundTemplate ("backgroundTemplateData","",observable_list, backgroundTemplate.phHisto);
+
+  // integral in data wrt neutral iso selection                                                                                                                                                      
+  double dataIntegralErr = 0;
+  double dataIntegral =  dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(0)),
+								       dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),dataIntegralErr);
+
+  // Pdfs                                                                                                                                                                                            
+  RooHistPdf signalTemplatePdf ("signalTemplatePdf","",observable_list,RooSignalTemplate);
+  RooHistPdf backgroundTemplatePdf ("backgroundTemplatePdf","",observable_list,RooBackgroundTemplate);
+
+  // make total Pdf                                                                                                                                                                                  
+  RooRealVar signalNorm     ("signalNorm","",signalTemplate.phHisto->Integral(),0,signalTemplate.phHisto->Integral()*10);
+  RooRealVar backgroundNorm ("backgroundNorm","",backgroundTemplate.phHisto->Integral(),0,backgroundTemplate.phHisto->Integral()*10);
+
+  RooExtendPdf signalExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
+  RooExtendPdf backgroundExtendPdf ("backgroundExdendPdf","",backgroundTemplatePdf,backgroundNorm);
+
+  // total pdf
+  RooAddPdf totalPdf ("totalPdf","",signalExtendPdf,backgroundExtendPdf);
+
+  RooAbsReal* nll = NULL;
+  if(not debug)
+    totalPdf.createNLL(RooDataHisto,RooFit::Extended(),RooFit::Verbose(-1),RooFit::SumW2Error(kTRUE));
+  else
+    totalPdf.createNLL(RooDataHisto,RooFit::Extended(),RooFit::SumW2Error(kTRUE));
+
+  //make fits                                                                                                                                                                                        
+  RooMinimizer mfit(*nll);
+  if(not debug){
+    mfit.setVerbose(kFALSE);
+    mfit.setPrintLevel(-1);
+    mfit.setVerbose(kFALSE);
+    mfit.setPrintLevel(-1);
+  }
+
+  cout<<"Minimize for ptMin "<<dataTemplate.ptMin<<" ptMax "<<dataTemplate.ptMax<<endl;
+  mfit.minimize("Minuit2","minimize");
+  cout<<"Minimize hesse"<<endl;
+  mfit.minimize("Minuit2","hesse");
+  cout<<"Estimate minos errors for all parameters"<<endl;
+  mfit.minos();
+  RooFitResult* fitResult = mfit.save("fitResult");
+  fitResult->Print();
+
+  // import data in the workspace                                                                                                                                                                    
+  ws->import(RooDataHisto);
+  ws->import(RooSignalTemplate);
+  ws->import(RooBackgroundTemplate);
+  ws->import(totalPdf);
+  ws->import(*nll);
+  ws->import(*fitResult);
+
+  // calculate the photon purity                                                                                                                                                                     
+  cout<<"####### Purity measurement for photon pt bin "<<dataTemplate.ptMin<<" "<<dataTemplate.ptMax<<" observed event "<<RooDataHisto.sumEntries()<<" signal events: "<<signalNorm.getVal()<<" pm "<<signalNorm.getError()<<" background events "<<backgroundNorm.getVal()<<" pm "<<backgroundNorm.getError()<<endl;
+
+  // integrate pdfs                                                                                                                                                                                  
+  observable.setRange("isolated",dataTemplate.phHisto->GetBinLowEdge(0),mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean);
+  RooRealVar* int_sig = (RooRealVar*) signalExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
+  RooRealVar* int_bkg = (RooRealVar*) backgroundExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
+
+  cout<<"Integral for isolation < 2.571+0.0047*pt: observed rate "<<dataIntegral<<" pm "<<dataIntegralErr<<" signal events : "<<int_sig->getVal()<<" pm "<<int_sig->getError()<<" background events "<<int_bkg->getVal()<<" pm "<<int_bkg->getError()<<endl;
+
+  // fill purity information                                                                                                                                                                         
+  double purity       = int_sig->getVal()/(int_sig->getVal()+int_bkg->getVal());
+  double purityErr_lo =  sqrt(int_sig->getErrorLo()*int_sig->getErrorLo()*(int_bkg->getVal()*int_bkg->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4))+
+				   int_bkg->getErrorLo()*int_bkg->getErrorLo()*(int_sig->getVal()*int_sig->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4)));
+  double purityErr_hi =  sqrt(int_sig->getErrorHi()*int_sig->getErrorHi()*(int_bkg->getVal()*int_bkg->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4))+
+				   int_bkg->getErrorHi()*int_bkg->getErrorHi()*(int_sig->getVal()*int_sig->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4)));
+
+  cout<<"Purity value: "<<purity<<" - "<<purityErr_lo<<" + "<<purityErr_hi<<endl;
+
+  RooRealVar phPurity ("photonPurity","",purity,0,1);
+  phPurity.setAsymError(purityErr_lo,purityErr_hi);
+  ws->import(phPurity);
+  
+}
+
 
 
 ////////////
