@@ -31,7 +31,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   setTDRStyle();
 
   //from twiki https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Selection_implementation_details
-  photonID mediumID (0.0396,0.01022,0.0140,0.441,2.725,0.0148,0.000017,2.571,0.0047); // set wp for medium id
+  photonID mediumID (0.0396,0.01022,0.0200,0.441,2.725,0.0148,0.000017,2.57,0.0047); // set wp for medium id
 
   // bins for purity and histograms
   vector<fitPurity> dataHisto;
@@ -58,6 +58,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     backgroundTemplate_data.back().phHisto->Sumw2();
 
     if(addSystematics){ // create alternative templates for signal and background
+
       signalTemplate_gjets.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
 						    new TH1F(Form("signalTemplate_gjets_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));
       backgroundTemplate_qcd.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
@@ -67,7 +68,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       backgroundTemplate_qcd.back().phHisto->Sumw2();
     }
   }
-  
+
   // add specific files to the chain --> data
   TChain* chain_data = new TChain("tree/tree");
   system(("ls "+inputDirectory+" | grep root > file.list").c_str());
@@ -82,11 +83,15 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 	if(TString(line).Contains(era.c_str()))
 	  found = true;
       }
-      if(found)
+      if(found){
+	cout<<"Add data file in chain "<<inputDirectory+"/"+line<<endl;
 	chain_data->Add((inputDirectory+"/"+line).c_str());
+      }
     }
   }
 
+  system("rm file.list");
+  
   //files for MC background and signal
   TChain* chain_gjets = new TChain("tree/tree");
   TChain* chain_qcd   = new TChain("tree/tree");
@@ -94,7 +99,9 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   vector<TH1*> khists;
 
   if(addSystematics){
+    cout<<"Add gamma+jets file in chain "<<inputDirectorySignalMC+"/*root"<<endl;
     chain_gjets->Add((inputDirectorySignalMC+"/*root").c_str());
+    cout<<"Add qcd multijets file in chain "<<inputDirectoryBackgroundMC+"/*root"<<endl;
     chain_qcd->Add((inputDirectoryBackgroundMC+"/*root").c_str());    
 
     // k-factor gor gjets
@@ -110,13 +117,13 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     khists.push_back(aewkhist);
     khists.push_back(anlohist);    
   }
-
+  
   // output file
   TFile* outputFile = new TFile((outputDIR+"/PhotonPurityFitResult.root").c_str(),"RECREATE");
   outputFile->cd();
 
   // fillHistograms for data  
-  fillHistograms(chain_data,Sample::data,dataHisto,signalTemplateRND04_data,signalTemplateRND08_data,backgroundTemplate_data,mediumID,khists,lumi);
+  fillHistograms(chain_data,Sample::data,dataHisto,signalTemplateRND04_data,signalTemplateRND08_data,backgroundTemplate_data,mediumID,khists,lumi);  
   // to calculate mean pt
   for(auto bin: dataHisto)
     bin.ptMean = bin.ptMean/bin.phHisto->Integral();
@@ -136,13 +143,15 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 
   TCanvas* canvas = new TCanvas("canvas","canvas",600,700);
   canvas->cd();
-
+  
+  cout<<"##### Start fitting data ... "<<endl;
   // fit of real data with data-driven templates
   for(size_t isize = 0; isize < dataHisto.size(); isize++){
 
     int ptMin = int(dataHisto.at(isize).ptMin);
     int ptMax = int(dataHisto.at(isize).ptMax);
 
+    cout<<"Fit bin : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
     //create workspace and fit for RND = 0.4
     worksapceRND04.push_back(new RooWorkspace(Form("wsRND04_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_pt_%d_%d",ptMin,ptMax)));
 
@@ -179,7 +188,6 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     plotFitResult(canvas,dataHisto.at(isize).phHisto,*signalExtendRND08Pdf,*backgroundExtendRND08Pdf,*observable,outputDIR,ptMin,ptMax,"RND08");
   }
 
-
   // Build Model for fit
   vector<RooWorkspace*> worksapce_gjets; // alternative signal
   vector<RooWorkspace*> worksapce_qcd;   // alternative background
@@ -200,8 +208,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       bin.ptMean = bin.ptMean/bin.phHisto->Integral();
 
     // fillHistograms for qcd                                                                                                                                                          
-    vector<fitPurity> signalTemplateRND08Temp;
-    
+    vector<fitPurity> signalTemplateRND08Temp;    
     fillHistograms(chain_qcd,Sample::gjets,dataHistoTemp,signalTemplateTemp,signalTemplateRND08Temp,backgroundTemplate_qcd,mediumID,khists,lumi);
     // to calculate mean pt                                                                                                                                                                       
     for(auto bin: backgroundTemplate_qcd)
@@ -212,7 +219,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       
       int ptMin = int(dataHisto.at(isize).ptMin);
       int ptMax = int(dataHisto.at(isize).ptMax);
-      
+
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_gjets.push_back(new RooWorkspace(Form("ws_gjets_pt_%d_%d",ptMin,ptMax),Form("ws_gjets_%d_%d",ptMin,ptMax)));
       makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
@@ -248,7 +255,6 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     }
   }
 
-   
   // plot purity result 
   TCanvas* canvas2 = new TCanvas("canvas2","",600,650);
   canvas2->cd();

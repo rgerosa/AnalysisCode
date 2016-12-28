@@ -61,19 +61,19 @@ void fillHistograms(TTree* chain,const Sample & sample,
 		    const float & lumi = 36.2){
 
 
-  // apply pileup and trigger turn on
+  /// apply pileup and trigger turn on
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
-
+  ///
   TFile* triggerfile_SinglePhoton  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
   TEfficiency* triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
   TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
 
-  // set all branches                                                                                                                                                                                
+  /// set all branches                                                                                                                                                                                
   TTreeReader reader (chain);
-  TTreeReaderValue<float> phpt  (reader,"pPuritypt");
-  TTreeReaderValue<float> pheta (reader,"pPurityeta");
-  TTreeReaderValue<float> phphi (reader,"pPurityphi");
+  TTreeReaderValue<float> phpt  (reader,"phPuritypt");
+  TTreeReaderArray<float> pheta (reader,"pPurityheta.phPurityeta");
+  TTreeReaderValue<float> phphi (reader,"phPurityphi");
   TTreeReaderValue<float> phElVeto (reader,"phPurityElectronVeto");
   TTreeReaderValue<float> phPHIso (reader,"phPurityPHiso");
   TTreeReaderValue<float> phCHIso (reader,"phPurityCHiso");
@@ -86,12 +86,11 @@ void fillHistograms(TTree* chain,const Sample & sample,
   TTreeReaderValue<float> rho (reader,"rho");
   TTreeReaderValue<float> xsec (reader,"xsec");
   TTreeReaderValue<float> wgt (reader,"wgt");
-  TTreeReaderValue<double> wgtsum (reader,"wgtsum");
   TTreeReaderValue<unsigned int> nphotons (reader,"nphotons");
   TTreeReaderValue<unsigned int> nphotonsPurity (reader,"nphotonsPurity");
   TTreeReaderValue<unsigned int> nelectrons (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nmuons (reader,"nmuons");
-  TTreeReaderValue<unsigned int> ntausraw (reader,"ntausrawold");
+  TTreeReaderValue<unsigned int> ntausraw (reader,"ntaus");
   TTreeReaderValue<unsigned int> nbjets (reader,"nbjetslowpt");
   TTreeReaderValue<unsigned int> njets (reader,"njets");
   TTreeReaderValue<UChar_t> hltp165     (reader,"hltphoton165");
@@ -108,7 +107,6 @@ void fillHistograms(TTree* chain,const Sample & sample,
   TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
-  TTreeReaderValue<UChar_t> fcsc   (reader,"flagglobaltighthalo");
   TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
   TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
   TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
@@ -134,46 +132,77 @@ void fillHistograms(TTree* chain,const Sample & sample,
   else if(sample == Sample::gjets)
     cout<<"Number of evedns in Gjets MC "<<chain->GetEntries()<<endl;  
 
+
+  // calculate sum of weights in case of MC sample
+  vector<double> wgtsum;
+  string currentFile = "";
+  if(sample == Sample::qcd or sample == Sample::gjets){
+    while(reader.Next()){
+      if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName()  != currentFile){
+	currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() ;
+	wgtsum.push_back(0);
+	wgtsum.back() += *wgt;
+      }
+      else
+	wgtsum.back() += *wgt;
+    }
+    reader.SetEntry(0);
+  }
+  
   long int nTotal = chain->GetEntries();
   long int nEvents = 0;
+
+  currentFile = "";
+  int ifile = 0;
   while(reader.Next()){
+    
+    if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
+      ifile ++;
+    }
+    else if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
+    }
+      
     cout.flush();
     if(nEvents % 100000 == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
 
     if(not (*hltp165 or *hltp175)) continue;
-    if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0 or *fcsc == 0) continue;
-    if(fabs(*pheta) > 1.4442) continue;
-    if(*nmuons != 0) continue;
+    if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
+    if(fabs(pheta[0]) > 1.4442) continue;
+    if(*nmuons     != 0) continue;
     if(*nelectrons != 0) continue;
-    if(*nbjets != 0) continue;
-    if(*ntausraw != 0) continue;
+    if(*nbjets     != 0) continue;
+    if(*ntausraw   != 0) continue;
     if(*njets < 1) continue;
     if(jetpt->at(0) < 100) continue;
     if(fabs(jeteta->at(0)) > 2.5) continue;
     if(chfrac->at(0) < 0.1) continue;
     if(nhfrac->at(0) > 0.8) continue;
-    if(*jpmdphi < 0.5) continue;
-
-    // apply photon id                                                                                                                                                                                
+    
+    // apply photon id: except sigma-ieta-ieta (later) and electron veto as well as photon isolation                                                                                      
     if(*nphotonsPurity < 1) continue;
     if(*phpt < 175) continue;
-    if(*phElVeto == 0) continue;
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
-    if(*phHoE > mediumID.HoE)  continue;
+    if(*phHoE   > mediumID.HoE)  continue;    
 
     // select the histogram given the pt of the photon                                                                                                                                           
     unsigned int bin = 0;
     if(signalTemplateRND04.size() != 0){
-      for( ; bin < signalTemplateRND04.size(); bin++){
+      for( ; bin < signalTemplateRND04.size()-1; bin++){
 	if(*phpt >= signalTemplateRND04.at(bin).ptMin and *phpt < signalTemplateRND04.at(bin).ptMax) break;
       }
+      if(*phpt >  signalTemplateRND04.back().ptMax)
+	bin = signalTemplateRND04.size()-1;
     }
     else if(backgroundTemplate.size() != 0){
-      for( ; bin < backgroundTemplate.size(); bin++){
+      for( ; bin < backgroundTemplate.size()-1; bin++){
 	if(*phpt >= backgroundTemplate.at(bin).ptMin and *phpt < backgroundTemplate.at(bin).ptMax) break;
       }
+      if(*phpt >  backgroundTemplate.back().ptMax)
+	bin = backgroundTemplate.size()-1;
     }
     
     double evtwgt = 1.;
@@ -183,12 +212,14 @@ void fillHistograms(TTree* chain,const Sample & sample,
 	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));      
       evtwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
-    
+
     // apply k-factor
     double kwgt = 1.0;      
 
     // distributions in data without effective area correction                                                                                                                                      
     if(*phSieie < mediumID.sigmaieie){
+      // adding track veto --> in order to add more stat in the background template
+      if(*phElVeto == 0) continue;
       if(sample == Sample::data){ // fill also data histogram
 	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
 	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))));
@@ -212,13 +243,13 @@ void fillHistograms(TTree* chain,const Sample & sample,
 
 	// matching condition
 	if(*wzpt <= 0) continue;
-	float deltaEta_gen = fabs(*pheta-*wzeta);
+	float deltaEta_gen = fabs(pheta[0]-*wzeta);
 	float deltaPhi_gen = fabs(*phphi-*wzphi);
 	if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
 	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
 	if(not *ismatch) continue;
 	// fill histograms
-	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(*wgtsum));
+	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	signalTemplateRND04.at(bin).ptMean += *phpt;
       }
     }
@@ -228,19 +259,22 @@ void fillHistograms(TTree* chain,const Sample & sample,
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
       else if(sample == Sample::qcd){
-
 	if(*wzpt <= 0) continue;
 	// matching condition                                                                                                                                                                         
-        float deltaEta_gen = fabs(*pheta-*wzeta);
+        float deltaEta_gen = fabs(pheta[0]-*wzeta);
         float deltaPhi_gen = fabs(*phphi-*wzphi);
         if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
         if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
-	
-	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(*wgtsum));
+	////
+	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
     }
   }
+
+  cout<<endl;
+  if(pufile) pufile->Close();
+  if(triggerfile_SinglePhoton) triggerfile_SinglePhoton->Close();
 }
 
 
@@ -251,7 +285,9 @@ void makePurityFit(RooWorkspace* ws,
 		   const bool & debug){
 
   // create observable                                                                                                                                                                               
-  RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()));
+  RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()+1));
+  if(debug)
+    observable.Print();
 
   // data-histogram                                                                                                                                                                                  
   RooArgList observable_list (observable);
@@ -259,31 +295,59 @@ void makePurityFit(RooWorkspace* ws,
   RooDataHist RooSignalTemplate ("signalTemplateData","",observable_list,signalTemplate.phHisto);
   RooDataHist RooBackgroundTemplate ("backgroundTemplateData","",observable_list, backgroundTemplate.phHisto);
 
+  if(debug){
+    RooDataHisto.Print();
+    RooSignalTemplate.Print();
+    RooBackgroundTemplate.Print();
+  }
+
   // integral in data wrt neutral iso selection                                                                                                                                                      
   double dataIntegralErr = 0;
   double dataIntegral =  dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(0)),
 								       dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),dataIntegralErr);
 
+  if(debug)
+    cout<<"Data integral : "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
+
+
   // Pdfs                                                                                                                                                                                            
   RooHistPdf signalTemplatePdf ("signalTemplatePdf","",observable_list,RooSignalTemplate);
   RooHistPdf backgroundTemplatePdf ("backgroundTemplatePdf","",observable_list,RooBackgroundTemplate);
+  if(debug){
+    signalTemplatePdf.Print();
+    backgroundTemplatePdf.Print();
+  }
 
   // make total Pdf                                                                                                                                                                                  
-  RooRealVar signalNorm     ("signalNorm","",signalTemplate.phHisto->Integral(),0,signalTemplate.phHisto->Integral()*10);
-  RooRealVar backgroundNorm ("backgroundNorm","",backgroundTemplate.phHisto->Integral(),0,backgroundTemplate.phHisto->Integral()*10);
-
+  RooRealVar signalNorm     ("signalNorm","",signalTemplate.phHisto->Integral()*0.9,0,signalTemplate.phHisto->Integral()*10);
+  RooRealVar backgroundNorm ("backgroundNorm","",signalTemplate.phHisto->Integral()*0.1,0,signalTemplate.phHisto->Integral()*10);
+  if(debug){
+    signalNorm.Print();
+    backgroundNorm.Print();
+  }
+    
   RooExtendPdf signalExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
   RooExtendPdf backgroundExtendPdf ("backgroundExdendPdf","",backgroundTemplatePdf,backgroundNorm);
 
+  if(debug){
+    signalExtendPdf.Print();
+    backgroundExtendPdf.Print();
+  }
+
   // total pdf
   RooAddPdf totalPdf ("totalPdf","",signalExtendPdf,backgroundExtendPdf);
+  if(debug)
+    totalPdf.Print();
 
   RooAbsReal* nll = NULL;
   if(not debug)
-    totalPdf.createNLL(RooDataHisto,RooFit::Extended(),RooFit::Verbose(-1),RooFit::SumW2Error(kTRUE));
+    nll = totalPdf.createNLL(RooDataHisto,RooFit::Extended(kTRUE),RooFit::Verbose(-1));
   else
-    totalPdf.createNLL(RooDataHisto,RooFit::Extended(),RooFit::SumW2Error(kTRUE));
+    nll = totalPdf.createNLL(RooDataHisto,RooFit::Extended(kTRUE));
 
+  if(debug)
+    nll->Print();
+  
   //make fits                                                                                                                                                                                        
   RooMinimizer mfit(*nll);
   if(not debug){
@@ -300,7 +364,8 @@ void makePurityFit(RooWorkspace* ws,
   cout<<"Estimate minos errors for all parameters"<<endl;
   mfit.minos();
   RooFitResult* fitResult = mfit.save("fitResult");
-  fitResult->Print();
+  if(debug)
+    fitResult->Print();
 
   // import data in the workspace                                                                                                                                                                    
   ws->import(RooDataHisto);
@@ -311,14 +376,16 @@ void makePurityFit(RooWorkspace* ws,
   ws->import(*fitResult);
 
   // calculate the photon purity                                                                                                                                                                     
-  cout<<"####### Purity measurement for photon pt bin "<<dataTemplate.ptMin<<" "<<dataTemplate.ptMax<<" observed event "<<RooDataHisto.sumEntries()<<" signal events: "<<signalNorm.getVal()<<" pm "<<signalNorm.getError()<<" background events "<<backgroundNorm.getVal()<<" pm "<<backgroundNorm.getError()<<endl;
+  if(debug)
+    cout<<"####### Purity measurement for photon pt bin "<<dataTemplate.ptMin<<" "<<dataTemplate.ptMax<<" observed event "<<RooDataHisto.sumEntries()<<" signal events: "<<signalNorm.getVal()<<" pm "<<signalNorm.getError()<<" background events "<<backgroundNorm.getVal()<<" pm "<<backgroundNorm.getError()<<endl;
 
   // integrate pdfs                                                                                                                                                                                  
   observable.setRange("isolated",dataTemplate.phHisto->GetBinLowEdge(0),mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean);
   RooRealVar* int_sig = (RooRealVar*) signalExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
   RooRealVar* int_bkg = (RooRealVar*) backgroundExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
-
-  cout<<"Integral for isolation < 2.571+0.0047*pt: observed rate "<<dataIntegral<<" pm "<<dataIntegralErr<<" signal events : "<<int_sig->getVal()<<" pm "<<int_sig->getError()<<" background events "<<int_bkg->getVal()<<" pm "<<int_bkg->getError()<<endl;
+  
+  if(debug)
+    cout<<"Integral for isolation < 2.571+0.0047*pt: observed rate "<<dataIntegral<<" pm "<<dataIntegralErr<<" signal events : "<<int_sig->getVal()<<" pm "<<int_sig->getError()<<" background events "<<int_bkg->getVal()<<" pm "<<int_bkg->getError()<<endl;
 
   // fill purity information                                                                                                                                                                         
   double purity       = int_sig->getVal()/(int_sig->getVal()+int_bkg->getVal());
@@ -327,7 +394,8 @@ void makePurityFit(RooWorkspace* ws,
   double purityErr_hi =  sqrt(int_sig->getErrorHi()*int_sig->getErrorHi()*(int_bkg->getVal()*int_bkg->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4))+
 				   int_bkg->getErrorHi()*int_bkg->getErrorHi()*(int_sig->getVal()*int_sig->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4)));
 
-  cout<<"Purity value: "<<purity<<" - "<<purityErr_lo<<" + "<<purityErr_hi<<endl;
+  if(debug)
+    cout<<"Purity value: "<<purity<<" - "<<purityErr_lo<<" + "<<purityErr_hi<<endl;
 
   RooRealVar phPurity ("photonPurity","",purity,0,1);
   phPurity.setAsymError(purityErr_lo,purityErr_hi);

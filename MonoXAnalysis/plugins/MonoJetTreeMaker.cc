@@ -421,8 +421,8 @@ private:
 
   // photon purity studies
   uint32_t nphotonsPurity;
-  float    phPHiso,  phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
-  float    phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso;
+  float    phPHiso, phCHiso, phNHiso, phPuritypt, phPurityeta, phPurityphi;
+  float    phPurityPHiso,phPurityRND04PHiso,phPurityRND08PHiso,phPurityCHiso,phPurityRND04CHiso,phPurityRND08CHiso,phPurityNHiso, phPurityGammaiso;
   float    phPuritysieie, phPurityhoe, phPurityElectronVeto, phPurityEAEGamma;
  
   // PF MET info (typeI and Raw)
@@ -2556,19 +2556,26 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       phPuritypt     = 0.0;
       phPurityeta    = 0.0;
       phPurityphi    = 0.0;
+
       phPurityPHiso  = 0.0;
+      phPurityGammaiso  = 0.0;
+      phPurityNHiso  = 0.0;
+      phPurityCHiso  = 0.0;
       phPurityRND04PHiso  = 0.0;
       phPurityRND08PHiso  = 0.0;
-      phPurityCHiso       = 0.0;
       phPurityRND08CHiso  = 0.0;
       phPurityRND04CHiso  = 0.0;
+
       phNHiso          = 0.0;
-      phPurityNHiso    = 0.0;
+      phCHiso          = 0.0;
+      phPHiso          = 0.0;
+
       phPuritysieie    = 0.0;
       phPurityhoe      = 0.0;
       phPurityElectronVeto = 0;
-      nphotonsPurity = photonsPurityH->size();
       phPurityEAEGamma = 0.;
+
+      nphotonsPurity = photonsPurityH->size();
       
       for (size_t i = 0; i < tightphotonsPurity.size(); i++) {
 	if (tightphotonsPurity[i]->pt() > hardestPhotonPurityPt) {
@@ -2596,8 +2603,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	phPurityRND08PHiso = (*rndgammaiso08H)[tightphotonsPurity[hardestPhotonPurityIndex]];
 	phPurityRND08CHiso = (*rndchhadiso08H)[tightphotonsPurity[hardestPhotonPurityIndex]];
 
+	phPurityGammaiso = (*gammaisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
+
 	phPuritysieie     = (*photonsieieH)[tightphotonsPurity[hardestPhotonPurityIndex]];
-	phPurityElectronVeto   = tightphotonsPurity[hardestPhotonPurityIndex]->passElectronVeto();
+	phPurityElectronVeto = tightphotonsPurity[hardestPhotonPurityIndex]->passElectronVeto();
 	phPurityhoe       = tightphotonsPurity[hardestPhotonPurityIndex]->hadTowOverEm();
 	phPurityEAEGamma  = getGammaEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
       }
@@ -4293,17 +4302,21 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/F");
     tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/F");
+    tree->Branch("phNHiso"        , &phNHiso         , "phNHiso/F");
+
     tree->Branch("phPuritypt"      , &phPuritypt      , "phPuritypt/F");
-    tree->Branch("pPurityheta"     , &phPurityeta     , "phPurityeta/F");
+    tree->Branch("phPurityeta"     , &phPurityeta     , "phPurityeta/F");
     tree->Branch("phPurityphi"     , &phPurityphi     , "phPurityphi/F");
+
     tree->Branch("phPurityPHiso"   , &phPurityPHiso   , "phPurityPHiso/F");
     tree->Branch("phPurityRND04PHiso"   , &phPurityRND04PHiso    , "phPurityRND04PHiso/F");
     tree->Branch("phPurityRND08PHiso"   , &phPurityRND08PHiso    , "phPurityRND08PHiso/F");
     tree->Branch("phPurityCHiso"        , &phPurityCHiso         , "phPurityCHiso/F");
     tree->Branch("phPurityRND04CHiso"        , &phPurityRND04CHiso         , "phPurityRND04CHiso/F");
     tree->Branch("phPurityRND08CHiso"        , &phPurityRND08CHiso         , "phPurityRND08CHiso/F");
-    tree->Branch("phNHiso"        , &phNHiso         , "phNHiso/F");
+    tree->Branch("phPurityGammaiso"        , &phPurityGammaiso         , "phPurityGammaiso/F");
     tree->Branch("phPurityNHiso"        , &phPurityNHiso         , "phPurityNHiso/F");
+
     tree->Branch("phPuritysieie"        , &phPuritysieie         , "phPuritysieie/F");
     tree->Branch("phPurityhoe"          , &phPurityhoe           , "phPurityhoe/F");
     tree->Branch("phPurityEAEGamma"     , &phPurityEAEGamma      , "phPurityEAEGamma/F");

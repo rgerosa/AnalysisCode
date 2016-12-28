@@ -21,6 +21,16 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+template <class T, class U>
+bool isInFootprint(const T& thefootprint, const U& theCandidate) {
+  for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) {
+    if( itr->key() == theCandidate.key() ) return true;
+  }
+  return false;
+}
 
 class PFCleaner : public edm::stream::EDProducer<> {
 public:
@@ -41,13 +51,14 @@ private:
 
   
   //livia for purity studies  
-  bool   randomConeOverlaps(double, double, double, std::vector<pat::Jet>, double);
-  double computePhotonIso( edm::Handle<edm::View<reco::Candidate>> ,double, double , double);
-  bool   photonIDLooseForPurity(std::vector<pat::Photon>::const_iterator  & photon, float chargedHadronIsolation, float neutralHadronIsolation,float rhoval, float hoe);
-  double getGammaEAForPhotonIso(double eta);
-  double getNeutralHadronEAForPhotonIso(double eta);
-  double getChargedHadronEAForPhotonIso(double eta);
-  bool   isPassingPhotonHighPtID(double, double, double, double, double, double, double);
+  bool   randomConeOverlaps(const double &, const double &, const double &, const std::vector<pat::Jet> &, const double &);
+  double computePhotonIso( const pat::Photon &, edm::Handle<edm::View<reco::Candidate>> , const double &, const double &, const double &);
+  bool   photonIDLooseForPurity(std::vector<pat::Photon>::const_iterator & photon, const float & chargedHadronIsolation, const float & neutralHadronIsolation, 
+				const float & rhoval, const float & hoe);
+  double getGammaEAForPhotonIso(const double & eta);
+  double getNeutralHadronEAForPhotonIso(const double & eta);
+  double getChargedHadronEAForPhotonIso(const double & eta);
+  bool   isPassingPhotonHighPtID(const double &, const double &, const double &, const double &, const double &, const double &, const double &);
 
   // rho value
   const edm::EDGetTokenT<double>  rhoToken;
@@ -445,7 +456,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
 
     // photon component from PF-candidate pdgId
-    float gaisoval = computePhotonIso(pfcandsH,photons_iter->eta(),photons_iter->phi(),0.3);     
+    float gaisoval = computePhotonIso(*photons_iter,pfcandsH,photons_iter->eta(),photons_iter->phi(),0.3);     
     gammaiso.push_back(gaisoval);
     
     // charged hadron isolation
@@ -514,11 +525,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       float rndgaisoval08 = 0;
 
       if(rndphi04 != -99)
-	rndgaisoval04 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
+	rndgaisoval04 = computePhotonIso(*photons_iter,pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
       else 
 	rndgaisoval04 = -99;
       if(rndphi08 != -99)
-	rndgaisoval08 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
+	rndgaisoval08 = computePhotonIso(*photons_iter,pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
       else
 	rndgaisoval08 = -99;
 
@@ -689,7 +700,7 @@ void PFCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 // Photon purity studies
-bool PFCleaner::randomConeOverlaps(double randomphi, double photoneta, double photonphi, std::vector<pat::Jet> jets, double vetoCone) {
+bool PFCleaner::randomConeOverlaps(const double & randomphi, const double & photoneta, const double & photonphi, const std::vector<pat::Jet> & jets, const double & vetoCone) {
   if (reco::deltaR(photoneta, randomphi, photoneta, photonphi) < vetoCone) return true;
   for (std::size_t i = 0; i < jets.size(); i++) {    
     if (reco::deltaR(photoneta,photonphi,jets[i].eta(),jets[i].phi()) < 0.4) continue;
@@ -700,20 +711,29 @@ bool PFCleaner::randomConeOverlaps(double randomphi, double photoneta, double ph
   return false;
 }
 
-double PFCleaner::computePhotonIso(edm::Handle<edm::View<reco::Candidate> >  pfcandsH, double eta, double phi, double isoCone){
+double PFCleaner::computePhotonIso(const pat::Photon & photon, edm::Handle<edm::View<reco::Candidate> >  pfcandsH, const double & eta, const double & phi, const double & isoCone){
   double isoval=0;
+  // take the pf-candidate associated to the photon
+  
   for(size_t i = 0; i < pfcandsH->size(); i++) {
     const auto& pfcand = pfcandsH->ptrAt(i);
-    if (pfcand->pdgId()  ==  22 && deltaR(eta, phi, pfcand->eta(), pfcand->phi()) <= isoCone and pfcand->eta() != eta and pfcand->phi() != phi) isoval += pfcand->pt();
+    if (pfcand->pdgId()  ==  22 && // pf photon candidate
+	deltaR(eta, phi, pfcand->eta(), pfcand->phi()) <= isoCone){
+      // check footprint
+      bool skipCandidate = isInFootprint(photon.associatedPackedPFCandidates(),pfcand);
+      if(skipCandidate) continue;
+      else
+	isoval += pfcand->pt();
+    }
   }
   return isoval;
 }
 
 bool PFCleaner::photonIDLooseForPurity(std::vector<pat::Photon>::const_iterator& photon, 
-				       float chargedHadronIsolation,
-				       float neutralHadronIsolation, 
-				       float rhoval, 
-				       float hoe) { //cut only on NH and HoE. Cuts on CH and PH and sieie will be applied later for purity studies
+				       const float & chargedHadronIsolation,
+				       const float & neutralHadronIsolation, 
+				       const float & rhoval, 
+				       const float & hoe) { //cut only on NH and HoE. Cuts on CH and PH and sieie will be applied later for purity studies
 
   if(photon->isEB()) {
     if(hoe < 0.0597 and
@@ -731,7 +751,7 @@ bool PFCleaner::photonIDLooseForPurity(std::vector<pat::Photon>::const_iterator&
 
 
 // check the high pt id
-bool PFCleaner::isPassingPhotonHighPtID(double pt, double eta, double hoe, double chiso, double phiso, double sieie, double rho ){
+bool PFCleaner::isPassingPhotonHighPtID(const double & pt, const double & eta, const double & hoe, const double & chiso, const double & phiso, const double & sieie, const double & rho ){
 
     double chisoCUT = 0;
     double phisoCUT = 0;
@@ -758,7 +778,7 @@ bool PFCleaner::isPassingPhotonHighPtID(double pt, double eta, double hoe, doubl
     return isPassing;
 }
 
-double PFCleaner::getChargedHadronEAForPhotonIso(double eta) {
+double PFCleaner::getChargedHadronEAForPhotonIso(const double & eta) {
   if (fabs(eta) < 1.0) return 0.0360;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return  0.0377;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return  0.0306;
@@ -769,7 +789,7 @@ double PFCleaner::getChargedHadronEAForPhotonIso(double eta) {
   else return 0.;
 }
 
-double PFCleaner::getNeutralHadronEAForPhotonIso(double eta) {
+double PFCleaner::getNeutralHadronEAForPhotonIso(const double & eta) {
   if (fabs(eta) < 1.0) return 0.0597;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.0807;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0629;
@@ -780,7 +800,7 @@ double PFCleaner::getNeutralHadronEAForPhotonIso(double eta) {
   else return 0.;
 }
 
-double PFCleaner::getGammaEAForPhotonIso(double eta) {
+double PFCleaner::getGammaEAForPhotonIso(const double & eta) {
   if (fabs(eta) < 1.0) return 0.1210;
   else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.1107;
   else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0699;
