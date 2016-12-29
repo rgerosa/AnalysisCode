@@ -23,8 +23,9 @@ pyCfgParams = ['isMC=False',
                'addSubstructurePuppi=False',
                'isPhotonPurity=True',
                'miniAODProcess=RECO',
-               #'globalTag=80X_dataRun2_Prompt_ICHEP16JEC_v0',
                'outputFileName=tree.root',
+               'usePrivateSQliteJEC=True',
+               'JECEra=Spring16_23Sep2016V1',
                'nThreads=3',
                'isCrab=True']
 
@@ -45,8 +46,8 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 80000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-7-11-2016_PhotonPurity_36fb-1/'
-config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/Production-28-12-2016_PhotonPurity_36fb-1/'
+config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #config.Data.runRange
 config.Data.publication   = False
 

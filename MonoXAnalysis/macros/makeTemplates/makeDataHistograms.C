@@ -44,7 +44,7 @@ void sigdatamchist(TFile* outfile,
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
-  dttree->Add((baseInputTreePath+"/MET/sigfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/MET_jecReReco/sigfilter/*root").c_str());
   // make met histograms                                                                                                                                                        
   vector<TH1*> znhist;
   vector<TH1*> wlhist;
@@ -929,9 +929,9 @@ void gamdatamchist(TFile* outfile,
   TChain* vltree = new TChain("tree/tree");
 
 
-  dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/SinglePhoton_jecReReco/gamfilter/*root").c_str());
   if(useJetHT)
-    dttree->Add((baseInputTreePath+"/JetHT/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/JetHT_jecReReco/gamfilter/*root").c_str());
   
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
@@ -1192,7 +1192,7 @@ void lepdatamchist(TFile* outfile,
     tttree->Add((baseInputTreePath+"/TopAlternative/zmmfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"/WJetsEWK/zmmfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/zmmfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"/MET/zmmfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET_jecReReco/zmmfilter/*root").c_str());
   }
   else if(sample == Sample::wmn){
 
@@ -1224,7 +1224,7 @@ void lepdatamchist(TFile* outfile,
     tttree->Add((baseInputTreePath+"/TopAlternative/wmnfilter/*root").c_str());
     ewkwtree->Add((baseInputTreePath+"/WJetsEWK/wmnfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/wmnfilter/*root").c_str());
-    dttree->Add((baseInputTreePath+"/MET/wmnfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET_jecReReco/wmnfilter/*root").c_str());
   }
   else if(sample == Sample::zee){
 
@@ -1256,12 +1256,12 @@ void lepdatamchist(TFile* outfile,
     ewkwtree->Add((baseInputTreePath+"/WJetsEWK/zeefilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/zeefilter/*root").c_str());
 
-    dttree->Add((baseInputTreePath+"/SingleElectron/zeefilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron_jecReReco/zeefilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useSinglePhoton)
-      dttree_2->Add((baseInputTreePath+"/SinglePhoton/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/SinglePhoton_jecReReco/zeefilter/*root").c_str());
     else if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"/JetHT/zeefilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/JetHT_jecReReco/zeefilter/*root").c_str());
   }
   else if(sample == Sample::wen){
 
@@ -1296,12 +1296,12 @@ void lepdatamchist(TFile* outfile,
     ewkwtree->Add((baseInputTreePath+"/WJetsEWK/wenfilter/*root").c_str());
     ewkztree->Add((baseInputTreePath+"/ZJetsToLLEWK/wenfilter/*root").c_str());
 
-    dttree->Add((baseInputTreePath+"/SingleElectron/wenfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron_jecReReco/wenfilter/*root").c_str());
     dttree_2 = new TChain("tree/tree");
     if(useJetHT)
-      dttree_2->Add((baseInputTreePath+"/JetHT/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/JetHT_jecReReco/wenfilter/*root").c_str());
     else if(useSinglePhoton)
-      dttree_2->Add((baseInputTreePath+"/SinglePhoton/wenfilter/*root").c_str());
+      dttree_2->Add((baseInputTreePath+"/SinglePhoton_jecReReco/wenfilter/*root").c_str());
   }
 
   vector<TH1*> dthist;
@@ -2143,9 +2143,9 @@ void topdatamchist(TFile* outfile,
   tttree->Add((baseInputTreePath+"/TopAlternative/"+suffix+"filter/*root").c_str());
   tttree_alt->Add((baseInputTreePath+"/Top/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
-    dttree->Add((baseInputTreePath+"/MET/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET_jecReReco/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
-    dttree->Add((baseInputTreePath+"/SingleElectron/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron_jecReReco/"+suffix+"filter/*root").c_str());
   
   vector<TH1*> dthist;
   vector<TH1*> tthist;
@@ -2859,7 +2859,7 @@ void qcddatamchist(TFile* outfile,
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
-  dttree->Add((baseInputTreePath+"/MET/sigfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/MET_jecReReco/sigfilter/*root").c_str());
 
   // make met histograms                                                                                                                                                        
   vector<TH1*> vnnhist;
