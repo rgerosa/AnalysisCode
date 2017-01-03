@@ -2,16 +2,16 @@
 #include <fstream>
 
 // to decide which data to run
-vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
-
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H","20062016"};
 // photon pt bins
 static vector<float> ptBins = {175,200,225,250,280,320,360,400,500,650,1000};
 // photon isolation info
-static int nBinPhotonIso  = 35;
-static float photonIsoMax = 12;
+static int nBinPhotonIso  = 20;
+static float photonIsoMax = 8;
 static float photonIsoMin = 0;
 // debug mode
-static bool debug = true;
+static bool debug = false;
+static bool saveHistograms = false;
 // k-facotr file
 static string kfactorFileName = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 
@@ -31,7 +31,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   setTDRStyle();
 
   //from twiki https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Selection_implementation_details
-  photonID mediumID (0.0396,0.01022,0.0200,0.441,2.725,0.0148,0.000017,2.57,0.0047); // set wp for medium id
+  //photonID mediumID (0.0396,0.01022,0.0200,0.441,2.725,0.0148,0.000017,2.57,0.0047); // set wp for medium id
+  photonID mediumID (0.05,0.0102,0.0200,1.37,1.06,0.014,0.000019,0.28,0.0053); // set wp for medium id
 
   // bins for purity and histograms
   vector<fitPurity> dataHisto;
@@ -95,14 +96,19 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   //files for MC background and signal
   TChain* chain_gjets = new TChain("tree/tree");
   TChain* chain_qcd   = new TChain("tree/tree");
+  TChain* genchain_gjets = new TChain("gentree/gentree");
+  TChain* genchain_qcd   = new TChain("gentree/gentree");
   TFile*  kfactorFile = NULL;
   vector<TH1*> khists;
 
   if(addSystematics){
+
     cout<<"Add gamma+jets file in chain "<<inputDirectorySignalMC+"/*root"<<endl;
     chain_gjets->Add((inputDirectorySignalMC+"/*root").c_str());
+    genchain_gjets->Add((inputDirectorySignalMC+"/*root").c_str());
     cout<<"Add qcd multijets file in chain "<<inputDirectoryBackgroundMC+"/*root"<<endl;
     chain_qcd->Add((inputDirectoryBackgroundMC+"/*root").c_str());    
+    genchain_qcd->Add((inputDirectoryBackgroundMC+"/*root").c_str());    
 
     // k-factor gor gjets
     kfactorFile = TFile::Open(kfactorFileName.c_str());
@@ -125,14 +131,23 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   // fillHistograms for data  
   fillHistograms(chain_data,Sample::data,dataHisto,signalTemplateRND04_data,signalTemplateRND08_data,backgroundTemplate_data,mediumID,khists,lumi);  
   // to calculate mean pt
-  for(auto bin: dataHisto)
-    bin.ptMean = bin.ptMean/bin.phHisto->Integral();
-  for(auto bin: signalTemplateRND04_data)
-    bin.ptMean = bin.ptMean/bin.phHisto->Integral();
-  for(auto bin: signalTemplateRND08_data)
-    bin.ptMean = bin.ptMean/bin.phHisto->Integral();
-  for(auto bin: backgroundTemplate_data)
-    bin.ptMean = bin.ptMean/bin.phHisto->Integral();
+  float mean = 0;
+  for(int ibin = 0; ibin < dataHisto.size(); ibin++){
+    mean = dataHisto.at(ibin).ptMean/dataHisto.at(ibin).phHisto->Integral();
+    dataHisto.at(ibin).ptMean = mean;
+  }
+  for(int ibin = 0; ibin < signalTemplateRND04_data.size(); ibin++){
+    mean = signalTemplateRND04_data.at(ibin).ptMean/signalTemplateRND04_data.at(ibin).phHisto->Integral();
+    signalTemplateRND04_data.at(ibin).ptMean = mean;
+  }
+  for(int ibin = 0; ibin < signalTemplateRND08_data.size(); ibin++){
+    mean = signalTemplateRND08_data.at(ibin).ptMean/signalTemplateRND08_data.at(ibin).phHisto->Integral();
+    signalTemplateRND08_data.at(ibin).ptMean = mean;
+  }
+  for(int ibin = 0; ibin < backgroundTemplate_data.size(); ibin++){
+    mean = backgroundTemplate_data.at(ibin).ptMean/backgroundTemplate_data.at(ibin).phHisto->Integral();
+    backgroundTemplate_data.at(ibin).ptMean = mean;
+  }
 
   // Build Model for fit
   vector<RooWorkspace*> worksapceRND04;
@@ -145,48 +160,50 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   canvas->cd();
   
   cout<<"##### Start fitting data ... "<<endl;
+  outputFile->cd();
   // fit of real data with data-driven templates
   for(size_t isize = 0; isize < dataHisto.size(); isize++){
 
     int ptMin = int(dataHisto.at(isize).ptMin);
     int ptMax = int(dataHisto.at(isize).ptMax);
 
-    cout<<"Fit bin : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
+    cout<<"####### Fit bin RND04 : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
     //create workspace and fit for RND = 0.4
     worksapceRND04.push_back(new RooWorkspace(Form("wsRND04_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_pt_%d_%d",ptMin,ptMax)));
+
+    if(saveHistograms){
+      dataHisto.at(isize).phHisto->Write();
+      signalTemplateRND04_data.at(isize).phHisto->Write();
+      signalTemplateRND08_data.at(isize).phHisto->Write();
+      backgroundTemplate_data.at(isize).phHisto->Write();
+    }
 
     makePurityFit(worksapceRND04.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
 
     RooRealVar* purity = worksapceRND04.back()->var("photonPurity");
     photonPurityRND04->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-    photonPurityRND04->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,purity->getErrorLo(),purity->getErrorHi());
-
-    // plot fit result:
-    RooAbsPdf* signalExtendRND04Pdf = worksapceRND04.back()->pdf("signalExtendPdf");
-    RooAbsPdf* backgroundExtendRND04Pdf = worksapceRND04.back()->pdf("backgroundExtendPdf");
-    RooRealVar* observable = worksapceRND04.back()->var("photoniso");
+    photonPurityRND04->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
 
     // save in the output file
-    worksapceRND04.back()->writeToFile(outputFile->GetName());
+    plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04.back(),outputDIR,ptMin,ptMax,"RND04",lumi);
 
     //create workspace and fit for RND = 0.8
+    cout<<"####### Fit bin RND08 : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
     worksapceRND08.push_back(new RooWorkspace(Form("wsRND08_data_pt_%d_%d",ptMin,ptMax),Form("wsRND08_pt_%d_%d",ptMin,ptMax)));
     
     makePurityFit(worksapceRND08.back(),dataHisto.at(isize),signalTemplateRND08_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
     purity = worksapceRND08.back()->var("photonPurity");
     photonPurityRND08->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-    photonPurityRND08->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,purity->getErrorLo(),purity->getErrorHi());
+    photonPurityRND08->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
 
-    // save in the output file
-    worksapceRND08.back()->writeToFile(outputFile->GetName());
-
-    plotFitResult(canvas,dataHisto.at(isize).phHisto,*signalExtendRND04Pdf,*backgroundExtendRND04Pdf,*observable,outputDIR,ptMin,ptMax,"RND04");
-
-    RooAbsPdf* signalExtendRND08Pdf = worksapceRND08.back()->pdf("signalExtendPdf");
-    RooAbsPdf* backgroundExtendRND08Pdf = worksapceRND08.back()->pdf("backgroundExtendPdf");
-    observable = worksapceRND08.back()->var("photoniso");
-    plotFitResult(canvas,dataHisto.at(isize).phHisto,*signalExtendRND08Pdf,*backgroundExtendRND08Pdf,*observable,outputDIR,ptMin,ptMax,"RND08");
+    plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND08.back(),outputDIR,ptMin,ptMax,"RND08",lumi);
   }
+
+  // save workspaces
+  for(auto ws: worksapceRND04)
+    ws->Write();
+  for(auto ws: worksapceRND08)
+    ws->Write();
 
   // Build Model for fit
   vector<RooWorkspace*> worksapce_gjets; // alternative signal
@@ -197,64 +214,62 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 
   if(addSystematics){ // implement sys uncertainties using MC based templates to fit data
 
-    // fillHistograms for gamma+jets                                                                                                                                                          
+    // fillHistograms for gamma+jets --> temp values                                                                                                                                             
     vector<fitPurity> dataHistoTemp;
     vector<fitPurity> backgroundTemplateTemp;
     vector<fitPurity> signalTemplateTemp;
 
-    fillHistograms(chain_gjets,Sample::gjets,dataHistoTemp,signalTemplate_gjets,signalTemplateTemp,backgroundTemplateTemp,mediumID,khists,lumi);
+    fillHistograms(chain_gjets,Sample::gjets,dataHistoTemp,signalTemplate_gjets,signalTemplateTemp,backgroundTemplateTemp,mediumID,khists,lumi,genchain_gjets);
     // to calculate mean pt                                                                                                                                                                       
-    for(auto bin: signalTemplate_gjets)
-      bin.ptMean = bin.ptMean/bin.phHisto->Integral();
-
+    for(size_t ibin = 0; ibin < signalTemplate_gjets.size(); ibin++)
+      signalTemplate_gjets.at(ibin).ptMean = signalTemplate_gjets.at(ibin).ptMean/signalTemplate_gjets.at(ibin).phHisto->Integral();
+    
     // fillHistograms for qcd                                                                                                                                                          
     vector<fitPurity> signalTemplateRND08Temp;    
-    fillHistograms(chain_qcd,Sample::gjets,dataHistoTemp,signalTemplateTemp,signalTemplateRND08Temp,backgroundTemplate_qcd,mediumID,khists,lumi);
+    fillHistograms(chain_qcd,Sample::qcd,dataHistoTemp,signalTemplateTemp,signalTemplateRND08Temp,backgroundTemplate_qcd,mediumID,khists,lumi,genchain_qcd);
     // to calculate mean pt                                                                                                                                                                       
-    for(auto bin: backgroundTemplate_qcd)
-      bin.ptMean = bin.ptMean/bin.phHisto->Integral();
+    for(size_t ibin = 0; ibin <  backgroundTemplate_qcd.size(); ibin++)
+      backgroundTemplate_qcd.at(ibin).ptMean = backgroundTemplate_qcd.at(ibin).ptMean/backgroundTemplate_qcd.at(ibin).phHisto->Integral();
 
     // make alternative fits
+    outputFile->cd();
     for(size_t isize = 0; isize < dataHisto.size(); isize++){
       
       int ptMin = int(dataHisto.at(isize).ptMin);
       int ptMax = int(dataHisto.at(isize).ptMax);
 
+      if(saveHistograms){
+	signalTemplate_gjets.at(isize).phHisto->Write();
+	backgroundTemplate_qcd.at(isize).phHisto->Write();
+      }
+
+      cout<<"####### Fit bin Gamma+jets : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;      
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_gjets.push_back(new RooWorkspace(Form("ws_gjets_pt_%d_%d",ptMin,ptMax),Form("ws_gjets_%d_%d",ptMin,ptMax)));
       makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
       RooRealVar* purity = worksapce_gjets.back()->var("photonPurity");
       photonPurity_gjets->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurity_gjets->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,purity->getErrorLo(),purity->getErrorHi());
-
+      photonPurity_gjets->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
       // plot fit result:                                                                                                                                                                         
-      RooAbsPdf* signalExtendPdf_gjets = worksapce_gjets.back()->pdf("signalExtendPdf");
-      RooAbsPdf* backgroundExtendPdf_gjets = worksapce_gjets.back()->pdf("backgroundExtendPdf");
-      RooRealVar* observable = worksapce_gjets.back()->var("photoniso");
-
-      plotFitResult(canvas,dataHisto.at(isize).phHisto,*signalExtendPdf_gjets,*backgroundExtendPdf_gjets,*observable,outputDIR,ptMin,ptMax,"gjets");
-
-      // save in the output file                                                                                                                                                                     
-      worksapce_gjets.back()->writeToFile(outputFile->GetName());
+      plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapce_gjets.back(),outputDIR,ptMin,ptMax,"gjets",lumi);
 
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_qcd.push_back(new RooWorkspace(Form("ws_qcd_pt_%d_%d",ptMin,ptMax),Form("ws_qcd_%d_%d",ptMin,ptMax)));
       makePurityFit(worksapce_qcd.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_qcd.at(isize),mediumID,debug);
       purity = worksapce_qcd.back()->var("photonPurity");
       photonPurity_qcd->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurity_qcd->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,purity->getErrorLo(),purity->getErrorHi());
-
+      photonPurity_qcd->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
       // plot fit result:                                                                                                                                                                         
-      RooAbsPdf* signalExtendPdf_qcd = worksapce_qcd.back()->pdf("signalExtendPdf");
-      RooAbsPdf* backgroundExtendPdf_qcd = worksapce_qcd.back()->pdf("backgroundExtendPdf");
-      observable = worksapce_qcd.back()->var("photoniso");
-
-      plotFitResult(canvas,dataHisto.at(isize).phHisto,*signalExtendPdf_qcd,*backgroundExtendPdf_qcd,*observable,outputDIR,ptMin,ptMax,"qcd");
-      // save in the output file                                                                                                                                                                     
-      worksapce_qcd.back()->writeToFile(outputFile->GetName());      
+      plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapce_qcd.back(),outputDIR,ptMin,ptMax,"qcd",lumi);
     }
   }
+  
+  for(auto ws : worksapce_gjets)
+    ws->Write();
+  for(auto ws : worksapce_qcd)
+    ws->Write();
 
+    
   // plot purity result 
   TCanvas* canvas2 = new TCanvas("canvas2","",600,650);
   canvas2->cd();
@@ -268,7 +283,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   photonPurityRND04->SetMarkerStyle(20);
   photonPurityRND04->SetMarkerSize(1);
   photonPurityRND04->GetXaxis()->SetTitle("photon p_{T} [GeV]");
-  photonPurityRND04->GetYaxis()->SetTitle("purity");
+  photonPurityRND04->GetYaxis()->SetTitle("photon purity");
   photonPurityRND04->GetYaxis()->SetRangeUser(0.5,1.2);
   photonPurityRND04->Draw("AP");
 
@@ -292,67 +307,77 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     photonPurity_qcd->Draw("Psame");
   }
 
-  CMS_lumi(canvas2,"36.2");
+  CMS_lumi(canvas2,Form("%.1f",lumi));
   
-  TLegend leg (0.6,0.3,0.9,0.6);
+  TLegend leg (0.3,0.3,0.6,0.6);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
-  leg.AddEntry(photonPurityRND04,"Purity with #DeltaR = 0.4","PE");
-  leg.AddEntry(photonPurityRND08,"Purity with #DeltaR = 0.8","PE");
+  leg.AddEntry(photonPurityRND04,"Purity with #DeltaR = 0.4","PLE");
+  leg.AddEntry(photonPurityRND08,"Purity with #DeltaR = 0.8","PLE");
   if(addSystematics){
-    leg.AddEntry(photonPurity_gjets,"Purity from #gamma+jets","PE");
-    leg.AddEntry(photonPurity_qcd,"Purity from QCD","PE");
+    leg.AddEntry(photonPurity_gjets,"Purity from #gamma+jets","PLE");
+    leg.AddEntry(photonPurity_qcd,"Purity from QCD","PLE");
   }
   leg.Draw("same");
 
   canvas2->SaveAs((outputDIR+"/photonPurityComparison.png").c_str(),"png");
   canvas2->SaveAs((outputDIR+"/photonPurityComparison.pdf").c_str(),"pdf");
 
+  
   //make final plot with statistical and sys errors
   TGraphAsymmErrors* finalPurity = new TGraphAsymmErrors();
-  for(int ipoint = 0; ipoint < photonPurityRND04->GetN(); ipoint++){
 
-    // nominal value and uncertainty
-    double x, y, err_x_low, err_x_high, err_y_low, err_y_high;
-    photonPurityRND04->GetPoint(ipoint,x,y);
-    err_x_low = photonPurityRND04->GetErrorXlow(ipoint);
-    err_x_high = photonPurityRND04->GetErrorXhigh(ipoint);
-    err_y_low = photonPurityRND04->GetErrorYlow(ipoint);
-    err_y_high = photonPurityRND04->GetErrorYhigh(ipoint);
+  if(addSystematics){
+    for(int ipoint = 0; ipoint < photonPurityRND04->GetN(); ipoint++){
+      
+      // nominal value and uncertainty
+      double x, y, err_x_low, err_x_high, err_y_low, err_y_high;
+      photonPurityRND04->GetPoint(ipoint,x,y);
+      err_x_low  = photonPurityRND04->GetErrorXlow(ipoint);
+      err_x_high = photonPurityRND04->GetErrorXhigh(ipoint);
+      err_y_low  = photonPurityRND04->GetErrorYlow(ipoint);
+      err_y_high = photonPurityRND04->GetErrorYhigh(ipoint);
+      
+      finalPurity->SetPoint(ipoint,x,y);
+      
+      //sys variations
+      double x_rnd08, y_rnd08;
+      photonPurityRND08->GetPoint(ipoint,x_rnd08,y_rnd08);
+      
+      double x_gjets, y_gjets;
+      photonPurity_gjets->GetPoint(ipoint,x_gjets,y_gjets);
+      
+      double x_qcd, y_qcd;
+      photonPurity_qcd->GetPoint(ipoint,x_qcd,y_qcd);
+      
+      err_y_low  = sqrt(err_y_low*err_y_low+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
+      err_y_high = sqrt(err_y_high*err_y_high+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
+      
+      finalPurity->SetPointError(ipoint,err_x_low,err_x_high,err_y_low,err_y_high);
+      
+    }
 
-    finalPurity->SetPoint(ipoint,x,y);
+    
+    canvas2->cd();
+    finalPurity->SetLineColor(kBlack);
+    finalPurity->SetMarkerColor(kBlack);
+    finalPurity->SetMarkerStyle(20);
+    finalPurity->SetMarkerSize(1);
+    finalPurity->GetXaxis()->SetTitle("photon p_{T} [GeV]");
+    finalPurity->GetYaxis()->SetTitle("photon purity");
+    finalPurity->GetYaxis()->SetRangeUser(0.5,1.2);
+   finalPurity->SetFillColor(kRed);
+    finalPurity->Draw("AP");
+    finalPurity->Draw("E2same");
+    finalPurity->Draw("Psame");
 
-    //sys variations
-    double x_rnd08, y_rnd08;
-    photonPurityRND08->GetPoint(ipoint,x_rnd08,y_rnd08);
+    CMS_lumi(canvas2,Form("%.1f",lumi));
 
-    double x_gjets, y_gjets;
-    photonPurity_gjets->GetPoint(ipoint,x_gjets,y_gjets);
-
-    double x_qcd, y_qcd;
-    photonPurity_qcd->GetPoint(ipoint,x_qcd,y_qcd);
-
-    err_y_low = sqrt(err_y_low*err_y_low+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
-    err_y_high = sqrt(err_y_high*err_y_high+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
-
-    finalPurity->SetPointError(ipoint,err_x_low,err_x_high,err_y_low,err_y_high);
-
+    canvas2->SaveAs((outputDIR+"/photonPurityFinal.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/photonPurityFinal.pdf").c_str(),"pdf");
+    
+    finalPurity->Write("purity");
+    outputFile->Close();
   }
-
-  canvas2->cd();
-  finalPurity->SetLineColor(kBlack);
-  finalPurity->SetMarkerColor(kBlack);
-  finalPurity->SetMarkerStyle(20);
-  finalPurity->SetMarkerSize(1);
-  finalPurity->GetXaxis()->SetTitle("photon p_{T} [GeV]");
-  finalPurity->GetYaxis()->SetTitle("purity");
-  finalPurity->GetYaxis()->SetRangeUser(0.5,1.2);
-  finalPurity->Draw("AP");
-
-  canvas2->SaveAs((outputDIR+"/photonPurityFinal.png").c_str(),"png");
-  canvas2->SaveAs((outputDIR+"/photonPurityFinal.pdf").c_str(),"pdf");
-
-  finalPurity->Write("purity");
-  outputFile->Close();
 }

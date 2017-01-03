@@ -51,28 +51,27 @@ class fitPurity {
 };
 
 /////////////
-void fillHistograms(TTree* chain,const Sample & sample, 
+void fillHistograms(TTree* chain,
+		    const Sample & sample, 
 		    vector<fitPurity>  & dataHisto, 
 		    vector<fitPurity>  & signalTemplateRND04, 
 		    vector<fitPurity>  & signalTemplateRND08,
 		    vector<fitPurity>  & backgroundTemplate,
 		    const photonID & mediumID,
 		    const vector<TH1*> & khists,
-		    const float & lumi = 36.2){
+		    const float & lumi = 36.2,
+		    TTree* genchain = NULL){
 
 
   /// apply pileup and trigger turn on
   TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
   TH1*   puhist = (TH1*) pufile->Get("puhist");
-  ///
-  TFile* triggerfile_SinglePhoton  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
-  TEfficiency* triggerphoton       = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
-  TGraphAsymmErrors* triggerphoton_graph = triggerphoton->CreateGraph();
 
   /// set all branches                                                                                                                                                                                
   TTreeReader reader (chain);
   TTreeReaderValue<float> phpt  (reader,"phPuritypt");
-  TTreeReaderArray<float> pheta (reader,"pPurityheta.phPurityeta");
+  TTreeReaderValue<float> pheta (reader,"phPurityeta");
+  //TTreeReaderArray<float> pheta (reader,"pPurityheta.phPurityeta");
   TTreeReaderValue<float> phphi (reader,"phPurityphi");
   TTreeReaderValue<float> phElVeto (reader,"phPurityElectronVeto");
   TTreeReaderValue<float> phPHIso (reader,"phPurityPHiso");
@@ -116,44 +115,53 @@ void fillHistograms(TTree* chain,const Sample & sample,
   TTreeReaderValue<float> pmet        (reader,"t1phmet");
   TTreeReaderValue<float> pmetphi     (reader,"t1phmetphi");
   TTreeReaderValue<float> metpf       (reader,"pfmet");
-  TTreeReaderValue<float> metcalo     (reader,"calomet");
   TTreeReaderValue<float> jpmdphi (reader,"incjetphmetdphimin4");
   TTreeReaderValue<float> wzpt   (reader,"wzpt");
   TTreeReaderValue<float> wzeta  (reader,"wzeta");
   TTreeReaderValue<float> wzphi  (reader,"wzphi");
-  TTreeReaderValue<int>   wzid  (reader,"wzid");
-  TTreeReaderValue<int>   ismatch  (reader,"ismatch");
+  TTreeReaderValue<int>    wzid   (reader,"wzid");
+  TTreeReaderValue<int>    ismatch  (reader,"ismatch");
 
   // loop on data events                                                                                                                                                                        
   if(sample == Sample::data) 
-    cout<<"Number of evedns in data "<<chain->GetEntries()<<endl;  
+    cout<<"Number of events in data "<<chain->GetEntries()<<endl;  
   else if(sample == Sample::qcd)
-    cout<<"Number of evedns in QCD MC "<<chain->GetEntries()<<endl;  
+    cout<<"Number of events in QCD MC "<<chain->GetEntries()<<endl;  
   else if(sample == Sample::gjets)
-    cout<<"Number of evedns in Gjets MC "<<chain->GetEntries()<<endl;  
+    cout<<"Number of events in Gjets MC "<<chain->GetEntries()<<endl;  
 
 
   // calculate sum of weights in case of MC sample
   vector<double> wgtsum;
   string currentFile = "";
-  if(sample == Sample::qcd or sample == Sample::gjets){
-    while(reader.Next()){
-      if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName()  != currentFile){
-	currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() ;
+  if((sample == Sample::qcd or sample == Sample::gjets) and genchain != NULL){
+
+    TTreeReader genreader (genchain);
+    TTreeReaderValue<float> wgtgen (genreader,"wgt");
+
+    while(genreader.Next()){
+      if(dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName()  != currentFile){
+	currentFile = dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName() ;
 	wgtsum.push_back(0);
-	wgtsum.back() += *wgt;
+	wgtsum.back() += *wgtgen;
       }
       else
-	wgtsum.back() += *wgt;
+	wgtsum.back() += *wgtgen;
     }
-    reader.SetEntry(0);
+  }    
+  else if(genchain == NULL and (sample == Sample::qcd or sample == Sample::gjets)){
+    cerr<<"Problem no gentree found --> exit"<<endl;
+    return;
   }
   
+
+  // after calculating sumwgt --> go to event loop  
+  reader.SetEntry(0);  
   long int nTotal = chain->GetEntries();
   long int nEvents = 0;
-
   currentFile = "";
   int ifile = 0;
+
   while(reader.Next()){
     
     if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
@@ -168,9 +176,9 @@ void fillHistograms(TTree* chain,const Sample & sample,
     if(nEvents % 100000 == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
 
-    if(not (*hltp165 or *hltp175)) continue;
+    if(*hltp165 == 0 and *hltp175 == 0) continue;
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
-    if(fabs(pheta[0]) > 1.4442) continue;
+    if(fabs(*pheta) > 1.4442) continue;
     if(*nmuons     != 0) continue;
     if(*nelectrons != 0) continue;
     if(*nbjets     != 0) continue;
@@ -178,15 +186,15 @@ void fillHistograms(TTree* chain,const Sample & sample,
     if(*njets < 1) continue;
     if(jetpt->at(0) < 100) continue;
     if(fabs(jeteta->at(0)) > 2.5) continue;
-    if(chfrac->at(0) < 0.1) continue;
-    if(nhfrac->at(0) > 0.8) continue;
+    if(sample != Sample::qcd and *jpmdphi < 0.5) continue; // to avoid killing qcd
     
     // apply photon id: except sigma-ieta-ieta (later) and electron veto as well as photon isolation                                                                                      
-    if(*nphotonsPurity < 1) continue;
-    if(*phpt < 175) continue;
+    if(*nphotonsPurity != 1) continue;
+    if(*phpt    < 175) continue;
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
     if(*phHoE   > mediumID.HoE)  continue;    
+    if(*phElVeto == 0) continue;
 
     // select the histogram given the pt of the photon                                                                                                                                           
     unsigned int bin = 0;
@@ -207,10 +215,9 @@ void fillHistograms(TTree* chain,const Sample & sample,
     
     double evtwgt = 1.;
     if(sample == Sample::gjets or sample == Sample::qcd){
-      evtwgt *= lumi*(*xsec)*(*wgt);
+      evtwgt = lumi*(*xsec)*(*wgt);
       if (*nvtx <= 60)
-	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));      
-      evtwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));            
     }
 
     // apply k-factor
@@ -219,7 +226,6 @@ void fillHistograms(TTree* chain,const Sample & sample,
     // distributions in data without effective area correction                                                                                                                                      
     if(*phSieie < mediumID.sigmaieie){
       // adding track veto --> in order to add more stat in the background template
-      if(*phElVeto == 0) continue;
       if(sample == Sample::data){ // fill also data histogram
 	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
 	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))));
@@ -243,11 +249,10 @@ void fillHistograms(TTree* chain,const Sample & sample,
 
 	// matching condition
 	if(*wzpt <= 0) continue;
-	float deltaEta_gen = fabs(pheta[0]-*wzeta);
+	float deltaEta_gen = fabs(*pheta-*wzeta);
 	float deltaPhi_gen = fabs(*phphi-*wzphi);
 	if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
 	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
-	if(not *ismatch) continue;
 	// fill histograms
 	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	signalTemplateRND04.at(bin).ptMean += *phpt;
@@ -259,22 +264,21 @@ void fillHistograms(TTree* chain,const Sample & sample,
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
       else if(sample == Sample::qcd){
-	if(*wzpt <= 0) continue;
-	// matching condition                                                                                                                                                                         
-        float deltaEta_gen = fabs(pheta[0]-*wzeta);
-        float deltaPhi_gen = fabs(*phphi-*wzphi);
-        if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
-        if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
+	if(*wzpt > 0){
+	  float deltaEta_gen = fabs(*pheta-*wzeta);
+	  float deltaPhi_gen = fabs(*phphi-*wzphi);
+	  if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
+	  if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
+	}	
 	////
 	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
     }
   }
-
+  
   cout<<endl;
   if(pufile) pufile->Close();
-  if(triggerfile_SinglePhoton) triggerfile_SinglePhoton->Close();
 }
 
 
@@ -303,12 +307,11 @@ void makePurityFit(RooWorkspace* ws,
 
   // integral in data wrt neutral iso selection                                                                                                                                                      
   double dataIntegralErr = 0;
-  double dataIntegral =  dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(0)),
-								       dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),dataIntegralErr);
+  double dataIntegral    =  dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
+								   dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),dataIntegralErr);
 
   if(debug)
-    cout<<"Data integral : "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
-
+    cout<<"Data integral : [min,max] =  "<<dataTemplate.phHisto->GetBinLowEdge(1)<<","<<mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean<<" = "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
 
   // Pdfs                                                                                                                                                                                            
   RooHistPdf signalTemplatePdf ("signalTemplatePdf","",observable_list,RooSignalTemplate);
@@ -319,15 +322,15 @@ void makePurityFit(RooWorkspace* ws,
   }
 
   // make total Pdf                                                                                                                                                                                  
-  RooRealVar signalNorm     ("signalNorm","",signalTemplate.phHisto->Integral()*0.9,0,signalTemplate.phHisto->Integral()*10);
-  RooRealVar backgroundNorm ("backgroundNorm","",signalTemplate.phHisto->Integral()*0.1,0,signalTemplate.phHisto->Integral()*10);
+  RooRealVar signalNorm     ("signalNorm","",dataIntegral*0.9,0,dataIntegral*100);
+  RooRealVar backgroundNorm ("backgroundNorm","",dataIntegral*0.1,0,dataIntegral*100);
   if(debug){
     signalNorm.Print();
     backgroundNorm.Print();
   }
     
   RooExtendPdf signalExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
-  RooExtendPdf backgroundExtendPdf ("backgroundExdendPdf","",backgroundTemplatePdf,backgroundNorm);
+  RooExtendPdf backgroundExtendPdf ("backgroundExtendPdf","",backgroundTemplatePdf,backgroundNorm);
 
   if(debug){
     signalExtendPdf.Print();
@@ -335,10 +338,10 @@ void makePurityFit(RooWorkspace* ws,
   }
 
   // total pdf
-  RooAddPdf totalPdf ("totalPdf","",signalExtendPdf,backgroundExtendPdf);
+  RooAddPdf totalPdf ("totalPdf","",RooArgList(signalExtendPdf,backgroundExtendPdf));
   if(debug)
     totalPdf.Print();
-
+  
   RooAbsReal* nll = NULL;
   if(not debug)
     nll = totalPdf.createNLL(RooDataHisto,RooFit::Extended(kTRUE),RooFit::Verbose(-1));
@@ -357,67 +360,87 @@ void makePurityFit(RooWorkspace* ws,
     mfit.setPrintLevel(-1);
   }
 
-  cout<<"Minimize for ptMin "<<dataTemplate.ptMin<<" ptMax "<<dataTemplate.ptMax<<endl;
+  cout<<"######### Minimize for ptMin "<<dataTemplate.ptMin<<" ptMax "<<dataTemplate.ptMax<<endl;
   mfit.minimize("Minuit2","minimize");
-  cout<<"Minimize hesse"<<endl;
+  cout<<"######### Minimize hesse"<<endl;
   mfit.minimize("Minuit2","hesse");
-  cout<<"Estimate minos errors for all parameters"<<endl;
+  cout<<"######### Estimate minos errors for all parameters"<<endl;
   mfit.minos();
   RooFitResult* fitResult = mfit.save("fitResult");
   if(debug)
     fitResult->Print();
-
+  
   // import data in the workspace                                                                                                                                                                    
   ws->import(RooDataHisto);
   ws->import(RooSignalTemplate);
   ws->import(RooBackgroundTemplate);
   ws->import(totalPdf);
-  ws->import(*nll);
   ws->import(*fitResult);
 
   // calculate the photon purity                                                                                                                                                                     
   if(debug)
-    cout<<"####### Purity measurement for photon pt bin "<<dataTemplate.ptMin<<" "<<dataTemplate.ptMax<<" observed event "<<RooDataHisto.sumEntries()<<" signal events: "<<signalNorm.getVal()<<" pm "<<signalNorm.getError()<<" background events "<<backgroundNorm.getVal()<<" pm "<<backgroundNorm.getError()<<endl;
-
+    cout<<"####### Purity measurement for photon pT ["<<dataTemplate.ptMin<<","<<dataTemplate.ptMax<<"]: observed event "<<RooDataHisto.sumEntries()<<" signal events: "<<signalNorm.getVal()<<" pm "<<signalNorm.getErrorHi()<<","<<signalNorm.getErrorLo()<<" background events "<<backgroundNorm.getVal()<<" pm "<<backgroundNorm.getErrorHi()<<","<<backgroundNorm.getErrorLo()<<endl;
+  
   // integrate pdfs                                                                                                                                                                                  
-  observable.setRange("isolated",dataTemplate.phHisto->GetBinLowEdge(0),mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean);
+  observable.setRange("isolated",dataTemplate.phHisto->GetBinLowEdge(1),mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean);
+  // get parameters after fit
   RooRealVar* int_sig = (RooRealVar*) signalExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
   RooRealVar* int_bkg = (RooRealVar*) backgroundExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
+
+  double nSig  = signalNorm.getVal()*int_sig->getVal();
+  double nBkg  = backgroundNorm.getVal()*int_bkg->getVal();
+
+  double errSig_up = signalNorm.getErrorHi()*int_sig->getVal();
+  double errSig_dw = signalNorm.getErrorLo()*int_sig->getVal();
+  double errBkg_up = backgroundNorm.getErrorHi()*int_bkg->getVal();
+  double errBkg_dw = backgroundNorm.getErrorLo()*int_bkg->getVal();
+
+  if(debug)
+    cout<<"Integral for isolation < phCut : observed rate "<<dataIntegral<<" pm "<<dataIntegralErr<<" signal events : "<<nSig<<" pm "<<errSig_up<<","<<errSig_dw<<" background events "<<nBkg<<" pm "<<errBkg_up<<","<<errBkg_dw<<endl;
   
-  if(debug)
-    cout<<"Integral for isolation < 2.571+0.0047*pt: observed rate "<<dataIntegral<<" pm "<<dataIntegralErr<<" signal events : "<<int_sig->getVal()<<" pm "<<int_sig->getError()<<" background events "<<int_bkg->getVal()<<" pm "<<int_bkg->getError()<<endl;
-
   // fill purity information                                                                                                                                                                         
-  double purity       = int_sig->getVal()/(int_sig->getVal()+int_bkg->getVal());
-  double purityErr_lo =  sqrt(int_sig->getErrorLo()*int_sig->getErrorLo()*(int_bkg->getVal()*int_bkg->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4))+
-				   int_bkg->getErrorLo()*int_bkg->getErrorLo()*(int_sig->getVal()*int_sig->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4)));
-  double purityErr_hi =  sqrt(int_sig->getErrorHi()*int_sig->getErrorHi()*(int_bkg->getVal()*int_bkg->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4))+
-				   int_bkg->getErrorHi()*int_bkg->getErrorHi()*(int_sig->getVal()*int_sig->getVal()/pow((int_sig->getVal()+int_bkg->getVal()),4)));
+  double purity       = nSig/(nSig+nBkg);
+  double purityErr_lo =  sqrt(errSig_dw*errSig_dw*(nBkg*nBkg/pow((nSig+nBkg),4))+errBkg_dw*errBkg_dw*(nSig*nSig/pow((nSig+nBkg),4)));
+  double purityErr_hi =  sqrt(errSig_up*errSig_up*(nBkg*nBkg/pow((nSig+nBkg),4))+errBkg_up*errBkg_up*(nSig*nSig/pow((nSig+nBkg),4)));
 
-  if(debug)
-    cout<<"Purity value: "<<purity<<" - "<<purityErr_lo<<" + "<<purityErr_hi<<endl;
+  cout<<"######## Purity value: "<<purity<<" - "<<purityErr_lo<<" + "<<purityErr_hi<<endl;
 
   RooRealVar phPurity ("photonPurity","",purity,0,1);
-  phPurity.setAsymError(purityErr_lo,purityErr_hi);
+  phPurity.setAsymError(-purityErr_lo,purityErr_hi);
   ws->import(phPurity);
-  
 }
 
 
 
 ////////////
-void plotFitResult(TCanvas* canvas, TH1F* data, const RooAbsPdf & signal, const RooAbsPdf & background, const RooRealVar & x, 
-		   const string & outputDIR, const int & ptMin, const int & ptMax, const string & postfix){
+void plotFitResult(TCanvas* canvas, 
+		   TH1F* data,   
+		   RooWorkspace* ws,
+		   const string & outputDIR, const int & ptMin, const int & ptMax, const string & postfix,
+		   const float & lumi = 36.2){
+
+  
+  
+  RooAbsPdf*  signalPdf = ws->pdf("signalExtendPdf");
+  RooAbsPdf*  backgroundPdf = ws->pdf("backgroundExtendPdf");
+  RooRealVar* x = ws->var("photoniso");
+
+  RooRealVar* sigNorm = ws->var("signalNorm");
+  RooRealVar* bkgNorm = ws->var("backgroundNorm");
+
 
   //create histograms from pdfs
-  TH1F* signal_hist = (TH1F*) signal.createHistogram(Form("signal%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
+  TH1F* signal_hist = (TH1F*) signalPdf->createHistogram(Form("signal%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
   signal_hist->Sumw2();
-  TH1F* background_hist = (TH1F*) background.createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
+  signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral());
+
+  TH1F* background_hist = (TH1F*) backgroundPdf->createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
   background_hist->Sumw2();
+  background_hist->Scale(bkgNorm->getVal()/background_hist->Integral());
 
   TH1F* totalHist = (TH1F*) signal_hist->Clone(Form("totalHist%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
   totalHist->Add(background_hist);
-  
+
   canvas->cd();
   canvas->SetTickx(1);
   canvas->SetTicky(1);
@@ -432,6 +455,9 @@ void plotFitResult(TCanvas* canvas, TH1F* data, const RooAbsPdf & signal, const 
   pad2->SetGridy(1);
   pad2->SetFillStyle(0);
   
+  TH1* frame =  (TH1*) data->Clone(Form("frame_pt_%d_%d",ptMin,ptMax));
+  frame->GetXaxis()->SetLabelSize(0.04);
+
   data->SetLineColor(kBlack);
   data->SetMarkerColor(kBlack);
   data->SetMarkerStyle(20);
@@ -439,7 +465,12 @@ void plotFitResult(TCanvas* canvas, TH1F* data, const RooAbsPdf & signal, const 
 
   data->GetXaxis()->SetLabelSize(0);
   data->GetYaxis()->SetTitle("Events / GeV");
-  data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.1,data->GetMaximum()*100);
+  data->GetYaxis()->SetTitleOffset(1.03);
+  if(data->GetMinimum() != 0 and data->GetMinimum() != 0.001)
+    data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.1,totalHist->GetMaximum()*100);
+  else
+    data->GetYaxis()->SetRangeUser(0.001,totalHist->GetMaximum()*100);
+  
   data->Draw("EP");
 
   background_hist->SetLineColor(kGreen+1);
@@ -454,25 +485,26 @@ void plotFitResult(TCanvas* canvas, TH1F* data, const RooAbsPdf & signal, const 
   totalHist->SetLineWidth(2);
   totalHist->Draw("hist same");
 
-  TLegend leg (0.6,0.6,0.9,0.9);
+  TLegend leg (0.5,0.7,0.9,0.9);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
-  leg.AddEntry(data,"Data","PE");
+  leg.AddEntry(data,"Data","PLE");
   leg.AddEntry(totalHist,"Total Fit","L");
   leg.AddEntry(signal_hist,"Signal Component","L");
   leg.AddEntry(background_hist,"Background Component","L");
   leg.Draw("same");
   canvas->RedrawAxis("sameaxis");
 
+  CMS_lumi(canvas,Form("%.1f",lumi));
+
   pad2->Draw();
   pad2->cd();
 
-  TH1* frame =  (TH1*) data->Clone(Form("frame_pt_%d_%d",ptMin,ptMax));
   frame->Reset("ICES");  
-  frame->GetYaxis()->SetRangeUser(0.4,1.6);
+  frame->GetYaxis()->SetRangeUser(0.0,2.0);
   frame->GetYaxis()->SetNdivisions(5);
-  frame->GetYaxis()->SetTitle("Data/Exp.");
+  frame->GetYaxis()->SetTitle("Data/Fit");
   frame->GetXaxis()->SetTitle("Photon Isolation [GeV]");
 
   TH1F* ratio = (TH1F*) data->Clone(Form("ratio%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
@@ -496,11 +528,8 @@ void plotFitResult(TCanvas* canvas, TH1F* data, const RooAbsPdf & signal, const 
   pad2->RedrawAxis("sameaxis");
     
 
-  CMS_lumi(canvas,"36.2");
-
   canvas->SetLogy();
 
-  canvas->SaveAs((outputDIR+"/photonPurity"+postfix+"_pt_"+to_string(ptMin)+"_"+to_string(ptMax)+".png").c_str());
-  canvas->SaveAs((outputDIR+"/photonPurity"+postfix+"_pt_"+to_string(ptMin)+"_"+to_string(ptMax)+".pdf").c_str());
-
+  canvas->SaveAs((outputDIR+"/photonPurity_"+postfix+"_pt_"+to_string(ptMin)+"_"+to_string(ptMax)+".png").c_str());
+  canvas->SaveAs((outputDIR+"/photonPurity_"+postfix+"_pt_"+to_string(ptMin)+"_"+to_string(ptMax)+".pdf").c_str());
 }
