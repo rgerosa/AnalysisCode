@@ -208,7 +208,7 @@ if options.filterHighMETEvents:
 	print "Running with metCut              = ",options.metCut
 print "Running with filterOnHLT         = ",options.filterOnHLT	
 print "Running with setHLTFilterFlag    = ",options.setHLTFilterFlag
-print "Running with useaddPileupJetIDPrivateSQliteJEC = ",options.usePrivateSQliteJEC	
+print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
 print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
 print "Running with addPuppiJets        = ",options.addPuppiJets
@@ -273,8 +273,8 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/00455E99-5021-E611-998E-003048CF5C10.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/relval/CMSSW_8_0_20/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/A8C282AE-D37A-E611-8603-0CC47A4C8ECE.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/VectorMonoW_Mphi-100_Mchi-1_gSM-0p25_gDM-1p0_v2_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/EA4716D4-DCC8-E611-8702-B083FED045ED.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/VectorMonoW_Mphi-100_Mchi-1_gSM-0p25_gDM-1p0_v2_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/EA4716D4-DCC8-E611-8702-B083FED045ED.root')
 
 else:
    process.source = cms.Source("PoolSource",
@@ -646,6 +646,14 @@ if options.addMETSystematics :
 			 process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
 			 process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
 			 process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
+else:
+	process.tree.jetsJESUp = cms.InputTag("");
+	process.tree.jetsJESDw = cms.InputTag("");
+	process.tree.jetsJER   = cms.InputTag("");
+	process.tree.puppijetsJESUp =  cms.InputTag("");
+	process.tree.puppijetsJESDw =  cms.InputTag("");
+	process.tree.puppijetsJER   =  cms.InputTag("");
+
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",

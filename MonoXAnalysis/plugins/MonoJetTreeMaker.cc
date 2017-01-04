@@ -2579,8 +2579,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       for (size_t i = 0; i < tightphotonsPurity.size(); i++) {
 	if (tightphotonsPurity[i]->pt() > hardestPhotonPurityPt) {
-	  hardestPhotonPurityIndex = i;
 	  hardestPhotonPurityPt = tightphotonsPurity[i]->pt();
+	  hardestPhotonPurityIndex = i;	  
 	}
       }
       
@@ -2590,12 +2590,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	phPurityeta   = tightphotonsPurity[hardestPhotonPurityIndex]->eta();
 	phPurityphi   = tightphotonsPurity[hardestPhotonPurityIndex]->phi();
 
-	phPHiso       = tightphotonsPurity[hardestPhotonPurityIndex]->photonIso()-rho*getGammaEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
-	phCHiso       = tightphotonsPurity[hardestPhotonPurityIndex]->chargedHadronIso()-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
-	phNHiso       = tightphotonsPurity[hardestPhotonPurityIndex]->neutralHadronIso()-rho*getNeutralHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
+	phPHiso       = (*photonPHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getGammaEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
+	phCHiso       = (*photonCHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
+	phNHiso       = (*photonNHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
 
 	phPurityPHiso  = (*photonPHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]];
-	phPurityCHiso  = (*photonCHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 
+	phPurityCHiso  = (*photonCHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getChargedHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta());
 	phPurityNHiso  = (*photonNHisoH)[tightphotonsPurity[hardestPhotonPurityIndex]]-rho*getNeutralHadronEAForPhotonIso(tightphotonsPurity[hardestPhotonPurityIndex]->eta()); 	
 
 	phPurityRND04CHiso = (*rndchhadiso04H)[tightphotonsPurity[hardestPhotonPurityIndex]];
@@ -4302,20 +4302,20 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("phPHiso"         , &phPHiso         , "phPHiso/F");
     tree->Branch("phCHiso"         , &phCHiso         , "phCHiso/F");
-    tree->Branch("phNHiso"        , &phNHiso         , "phNHiso/F");
+    tree->Branch("phNHiso"         , &phNHiso         , "phNHiso/F");
 
     tree->Branch("phPuritypt"      , &phPuritypt      , "phPuritypt/F");
     tree->Branch("phPurityeta"     , &phPurityeta     , "phPurityeta/F");
     tree->Branch("phPurityphi"     , &phPurityphi     , "phPurityphi/F");
 
-    tree->Branch("phPurityPHiso"   , &phPurityPHiso   , "phPurityPHiso/F");
-    tree->Branch("phPurityRND04PHiso"   , &phPurityRND04PHiso    , "phPurityRND04PHiso/F");
-    tree->Branch("phPurityRND08PHiso"   , &phPurityRND08PHiso    , "phPurityRND08PHiso/F");
-    tree->Branch("phPurityCHiso"        , &phPurityCHiso         , "phPurityCHiso/F");
-    tree->Branch("phPurityRND04CHiso"        , &phPurityRND04CHiso         , "phPurityRND04CHiso/F");
-    tree->Branch("phPurityRND08CHiso"        , &phPurityRND08CHiso         , "phPurityRND08CHiso/F");
-    tree->Branch("phPurityGammaiso"        , &phPurityGammaiso         , "phPurityGammaiso/F");
-    tree->Branch("phPurityNHiso"        , &phPurityNHiso         , "phPurityNHiso/F");
+    tree->Branch("phPurityPHiso"       , &phPurityPHiso   , "phPurityPHiso/F");
+    tree->Branch("phPurityRND04PHiso"  , &phPurityRND04PHiso    , "phPurityRND04PHiso/F");
+    tree->Branch("phPurityRND08PHiso"  , &phPurityRND08PHiso    , "phPurityRND08PHiso/F");
+    tree->Branch("phPurityCHiso"       , &phPurityCHiso         , "phPurityCHiso/F");
+    tree->Branch("phPurityRND04CHiso"  , &phPurityRND04CHiso    , "phPurityRND04CHiso/F");
+    tree->Branch("phPurityRND08CHiso"  , &phPurityRND08CHiso    , "phPurityRND08CHiso/F");
+    tree->Branch("phPurityGammaiso"    , &phPurityGammaiso      , "phPurityGammaiso/F");
+    tree->Branch("phPurityNHiso"       , &phPurityNHiso         , "phPurityNHiso/F");
 
     tree->Branch("phPuritysieie"        , &phPuritysieie         , "phPuritysieie/F");
     tree->Branch("phPurityhoe"          , &phPurityhoe           , "phPurityhoe/F");
