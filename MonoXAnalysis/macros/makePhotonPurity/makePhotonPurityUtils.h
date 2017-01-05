@@ -71,27 +71,25 @@ void fillHistograms(TTree* chain,
   TTreeReader reader (chain);
   TTreeReaderValue<float> phpt  (reader,"phPuritypt");
   TTreeReaderValue<float> pheta (reader,"phPurityeta");
-  //TTreeReaderArray<float> pheta (reader,"pPurityheta.phPurityeta");
   TTreeReaderValue<float> phphi (reader,"phPurityphi");
   TTreeReaderValue<float> phElVeto (reader,"phPurityElectronVeto");
-  TTreeReaderValue<float> phPHIso (reader,"phPurityPHiso");
-  TTreeReaderValue<float> phCHIso (reader,"phPurityCHiso");
-  TTreeReaderValue<float> phNHIso (reader,"phPurityNHiso");
-  TTreeReaderValue<float> phHoE   (reader,"phPurityhoe");
-  TTreeReaderValue<float> phSieie (reader,"phPuritysieie");
+  TTreeReaderValue<float> phPHIso  (reader,"phPurityPHiso");
+  TTreeReaderValue<float> phCHIso  (reader,"phPurityCHiso");
+  TTreeReaderValue<float> phNHIso  (reader,"phPurityNHiso");
+  TTreeReaderValue<float> phHoE    (reader,"phPurityhoe");
+  TTreeReaderValue<float> phSieie  (reader,"phPuritysieie");
   TTreeReaderValue<float> phPHIsoRND04 (reader,"phPurityRND04PHiso");
   TTreeReaderValue<float> phPHIsoRND08 (reader,"phPurityRND08PHiso");
-  TTreeReaderValue<float> phEAEgamma (reader,"phPurityEAEGamma");
-  TTreeReaderValue<float> rho (reader,"rho");
+  TTreeReaderValue<float> phEAEgamma   (reader,"phPurityEAEGamma");
+  TTreeReaderValue<float> rho  (reader,"rho");
   TTreeReaderValue<float> xsec (reader,"xsec");
-  TTreeReaderValue<float> wgt (reader,"wgt");
-  TTreeReaderValue<unsigned int> nphotons (reader,"nphotons");
+  TTreeReaderValue<float> wgt  (reader,"wgt");
   TTreeReaderValue<unsigned int> nphotonsPurity (reader,"nphotonsPurity");
   TTreeReaderValue<unsigned int> nelectrons (reader,"nelectrons");
-  TTreeReaderValue<unsigned int> nmuons (reader,"nmuons");
-  TTreeReaderValue<unsigned int> ntausraw (reader,"ntaus");
-  TTreeReaderValue<unsigned int> nbjets (reader,"nbjetslowpt");
-  TTreeReaderValue<unsigned int> njets (reader,"njets");
+  TTreeReaderValue<unsigned int> nmuons     (reader,"nmuons");
+  TTreeReaderValue<unsigned int> ntausraw   (reader,"ntaus");
+  TTreeReaderValue<unsigned int> nbjets     (reader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> njets      (reader,"njets");
   TTreeReaderValue<UChar_t> hltp165     (reader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (reader,"hltphoton175");
   TTreeReaderValue<unsigned int> run         (reader,"run");
@@ -112,15 +110,13 @@ void fillHistograms(TTree* chain,
   TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
   TTreeReaderValue<vector<float> > chfrac  (reader,"combinejetCHfrac");
   TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
-  TTreeReaderValue<float> pmet        (reader,"t1phmet");
-  TTreeReaderValue<float> pmetphi     (reader,"t1phmetphi");
-  TTreeReaderValue<float> metpf       (reader,"pfmet");
-  TTreeReaderValue<float> jpmdphi (reader,"incjetphmetdphimin4");
+  TTreeReaderValue<float> t1met     (reader,"t1pfmet");
+  TTreeReaderValue<float> t1metphi  (reader,"t1pfmetphi");
   TTreeReaderValue<float> wzpt   (reader,"wzpt");
   TTreeReaderValue<float> wzeta  (reader,"wzeta");
   TTreeReaderValue<float> wzphi  (reader,"wzphi");
-  TTreeReaderValue<int>    wzid   (reader,"wzid");
-  TTreeReaderValue<int>    ismatch  (reader,"ismatch");
+  TTreeReaderValue<int>   wzid   (reader,"wzid");
+  TTreeReaderValue<int>  ismatch (reader,"ismatch");
 
   // loop on data events                                                                                                                                                                        
   if(sample == Sample::data) 
@@ -178,19 +174,59 @@ void fillHistograms(TTree* chain,
 
     if(*hltp165 == 0 and *hltp175 == 0) continue;
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
-    if(fabs(*pheta) > 1.4442) continue;
     if(*nmuons     != 0) continue;
     if(*nelectrons != 0) continue;
     if(*nbjets     != 0) continue;
     if(*ntausraw   != 0) continue;
     if(*njets < 1) continue;
-    if(jetpt->at(0) < 100) continue;
-    if(fabs(jeteta->at(0)) > 2.5) continue;
-    if(sample != Sample::qcd and *jpmdphi < 0.5) continue; // to avoid killing qcd
+    if(*nphotonsPurity == 0) continue;
+    if(*phpt    < 175) continue;
+    if(fabs(*pheta) > 1.4442) continue;
+
+    // find the right jet not overlapping with the photon
+    int ijet = 0;
+    for(size_t i = 0 ; i < jetpt->size(); i++){
+      float deta = fabs(jeteta->at(i)-*pheta);
+      float dphi = fabs(*phphi-jetphi->at(i));
+      if(dphi > TMath::Pi())
+        dphi = 2*TMath::Pi()-dphi;
+      if(sqrt(deta*deta+dphi*dphi) > 0.4){
+        ijet = i;
+        break;
+      }
+    }
+    if(jetpt->at(ijet) < 100) continue;
+    if(fabs(jeteta->at(ijet)) > 2.5) continue;
+
+    // apply jet-met dphi
+    // jet-met dphi                                                                                                                                                                                  
+    int njet = 0;
+    float mindphi = 99;
+    for(size_t i= 0 ; i < jetpt->size(); i++){
+      // check pt                                                                                                                                                                                    
+      if(jetpt->at(i) < 30) continue;
+      // check if overlaps with the photon candidate                                                                                                                                                 
+      float deta = fabs(jeteta->at(i)-*pheta);
+      float dphi = fabs(*phphi-jetphi->at(i));
+      if(dphi > TMath::Pi())
+	dphi = 2*TMath::Pi()-dphi;
+      if(sqrt(deta*deta+dphi*dphi) < 0.4) continue;
+      njet++;
+      if(njet > 4) continue;
+      // calculate px and py                                                                                                                                                                         
+      float metx = *t1met*cos(*t1metphi)+*phpt*cos(*phphi);
+      float mety = *t1met*sin(*t1metphi)+*phpt*sin(*phphi);
+      TLorentzVector met;
+      met.SetPxPyPzE(metx,mety,0.,sqrt(metx*metx+mety*mety));
+      float dphitemp = fabs(met.Phi()-jetphi->at(ijet));
+      if(dphitemp > TMath::Pi())
+	dphitemp = 2*TMath::Pi()-dphitemp;
+      if(dphi < mindphi)
+	mindphi = dphi;
+    }
+    if(mindphi < 0.5) continue;
     
     // apply photon id: except sigma-ieta-ieta (later) and electron veto as well as photon isolation                                                                                      
-    if(*nphotonsPurity != 1) continue;
-    if(*phpt    < 175) continue;
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
     if(*phHoE   > mediumID.HoE)  continue;    
@@ -220,16 +256,16 @@ void fillHistograms(TTree* chain,
 	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));            
     }
 
+
     // apply k-factor
     double kwgt = 1.0;      
-
     // distributions in data without effective area correction                                                                                                                                      
     if(*phSieie < mediumID.sigmaieie){
       // adding track veto --> in order to add more stat in the background template
       if(sample == Sample::data){ // fill also data histogram
-	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
-	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))));
-	signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))));
+	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso))); // already corrected for effective area
+	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma)))); // to be corrected
+	signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma)))); // to be corrected
 	dataHisto.at(bin).ptMean += *phpt;
 	signalTemplateRND04.at(bin).ptMean += *phpt;
 	signalTemplateRND08.at(bin).ptMean += *phpt;
@@ -254,13 +290,13 @@ void fillHistograms(TTree* chain,
 	if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
 	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
 	// fill histograms
-	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
 	signalTemplateRND04.at(bin).ptMean += *phpt;
       }
     }
     else if(*phSieie > mediumID.sigmaieie and *phSieie < mediumID.sigmaieie_sideband){
       if(sample == Sample::data){
-	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))));
+	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso)));
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
       else if(sample == Sample::qcd){
@@ -271,7 +307,7 @@ void fillHistograms(TTree* chain,
 	  if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
 	}	
 	////
-	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
 	backgroundTemplate.at(bin).ptMean += *phpt;
       }
     }

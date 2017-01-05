@@ -5,7 +5,7 @@
 //////////////
 //////////////
 
-static float luminosity = 2;
+static float luminosity = 36.2;
 
 TH1F* photonpt_histo  = new TH1F("photonpt","", 50,-100,100);
 TH1F* photoneta_histo = new TH1F("photoneta","",50,-0.15,0.15);
@@ -116,7 +116,7 @@ void drawPlot2D(TCanvas* pad1, TH2* histo_1, string observable, string outputDIR
 }
 
 //////////////
-void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP, bool doOppositeMatching, string outputDIR){
+void makeComparisonData(string inputDIR_1, string inputDIR_2, string outputDIR, bool useOnlyICHEP, bool doOppositeMatching, bool applyPhotonID){
 
   if(useOnlyICHEP)
     luminosity = 12.9;
@@ -162,13 +162,14 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   float phPuritypt = 0, phPurityeta = 0, phPurityphi = 0, phPurityElectronVeto = 0, phPurityPHiso = 0;
   float phPurityCHiso = 0, phPurityNHiso = 0, phPurityhoe = 0, phPuritysieie = 0, phPurityRND04PHiso = 0, phPurityRND08PHiso = 0;
   float phPurityEAEGamma = 0, rho = 0;
-  vector<float> *jeteta = 0, *jetpt = 0, *jetphi = 0,*jetm = 0,*chfrac = 0,*nhfrac = 0;
+  float t1phmet = 0;
+  vector<float> *jeteta = 0, *jetpt = 0, *jetphi = 0,*jetm = 0;
 
   chain_1->SetBranchStatus("*",kFALSE);
   chain_1->SetBranchStatus("run",kTRUE);
   chain_1->SetBranchStatus("lumi",kTRUE);
   chain_1->SetBranchStatus("event",kTRUE);
-  chain_1->SetBranchStatus("hlt*",kTRUE);
+  chain_1->SetBranchStatus("hltphoton*",kTRUE);
   chain_1->SetBranchStatus("flag*",kTRUE);
   chain_1->SetBranchStatus("njets",kTRUE);
   chain_1->SetBranchStatus("nmuons",kTRUE);
@@ -180,12 +181,9 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_1->SetBranchStatus("combinejetpt", kTRUE);
   chain_1->SetBranchStatus("combinejetphi",kTRUE);
   chain_1->SetBranchStatus("combinejetm",kTRUE);
-  chain_1->SetBranchStatus("combinejetCHfrac",kTRUE);
-  chain_1->SetBranchStatus("combinejetNHfrac",kTRUE);
-  chain_1->SetBranchStatus("t1*",kTRUE);
-  chain_1->SetBranchStatus("incjet*metdphimin4",kTRUE);
-  chain_1->SetBranchStatus("ph*",kTRUE);
-  chain_1->SetBranchStatus("rho*",kTRUE);
+  chain_1->SetBranchStatus("t1pfmet*",kTRUE);
+  chain_1->SetBranchStatus("t1phmet*",kTRUE);
+  chain_1->SetBranchStatus("rho",kTRUE);
   chain_1->SetBranchStatus("phPurity*",kTRUE);
 
   chain_1->SetBranchAddress("run",&run);
@@ -212,10 +210,8 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_1->SetBranchAddress("combinejetpt", &jetpt);
   chain_1->SetBranchAddress("combinejetphi",&jetphi);
   chain_1->SetBranchAddress("combinejetm",&jetm);
-  chain_1->SetBranchAddress("combinejetCHfrac",&chfrac);
-  chain_1->SetBranchAddress("combinejetNHfrac",&nhfrac);
   chain_1->SetBranchAddress("phPuritypt",&phPuritypt);
-  chain_1->SetBranchAddress("phPurityeta",&phPurityeta);
+  chain_1->SetBranchAddress("pPurityheta",&phPurityeta);
   chain_1->SetBranchAddress("phPurityphi",&phPurityphi);
   chain_1->SetBranchAddress("phPurityElectronVeto",&phPurityElectronVeto);
   chain_1->SetBranchAddress("phPurityPHiso",&phPurityPHiso);
@@ -228,6 +224,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_1->SetBranchAddress("phPurityEAEGamma",&phPurityEAEGamma);
   chain_1->SetBranchAddress("rho",&rho);
   chain_1->SetBranchAddress("t1pfmet",&t1met);
+  chain_1->SetBranchAddress("t1phmet",&t1phmet);
   chain_1->SetBranchAddress("t1pfmetphi",&t1metphi);
 
   chain_1->BuildIndex("run","event");
@@ -241,13 +238,14 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   double phPuritypt_alt = 0, phPurityeta_alt = 0, phPurityphi_alt = 0, phPurityElectronVeto_alt = 0, phPurityPHiso_alt = 0;
   double phPurityCHiso_alt = 0, phPurityNHiso_alt = 0, phPurityhoe_alt = 0, phPuritysieie_alt = 0, phPurityRND04PHiso_alt = 0, phPurityRND08PHiso_alt = 0;
   double phPurityEAEGamma_alt = 0, rho_alt = 0;
-  vector<double> *jeteta_alt = 0, *jetpt_alt = 0, *jetphi_alt = 0,*jetm_alt = 0,*chfrac_alt = 0,*nhfrac_alt = 0;
+  vector<double> *jeteta_alt = 0, *jetpt_alt = 0, *jetphi_alt = 0,*jetm_alt = 0;
+  double t1phmet_alt = 0;
 
   chain_2->SetBranchStatus("*",kFALSE);
   chain_2->SetBranchStatus("run",kTRUE);
   chain_2->SetBranchStatus("lumi",kTRUE);
   chain_2->SetBranchStatus("event",kTRUE);
-  chain_2->SetBranchStatus("hlt*",kTRUE);
+  chain_2->SetBranchStatus("hltphoton*",kTRUE);
   chain_2->SetBranchStatus("flag*",kTRUE);
   chain_2->SetBranchStatus("njets",kTRUE);
   chain_2->SetBranchStatus("nmuons",kTRUE);
@@ -259,17 +257,14 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_2->SetBranchStatus("combinejetpt", kTRUE);
   chain_2->SetBranchStatus("combinejetphi",kTRUE);
   chain_2->SetBranchStatus("combinejetm",kTRUE);
-  chain_2->SetBranchStatus("combinejetCHfrac",kTRUE);
-  chain_2->SetBranchStatus("combinejetNHfrac",kTRUE);
-  chain_2->SetBranchStatus("t1*",kTRUE);
-  chain_2->SetBranchStatus("incjet*metdphimin4",kTRUE);
-  chain_2->SetBranchStatus("ph*",kTRUE);
-  chain_2->SetBranchStatus("rho*",kTRUE);
+  chain_2->SetBranchStatus("t1pfmet*",kTRUE);
+  chain_2->SetBranchStatus("t1phmet*",kTRUE);
+  chain_2->SetBranchStatus("rho",kTRUE);
   chain_2->SetBranchStatus("phPurity*",kTRUE);
+
   chain_2->SetBranchAddress("run",&run_alt);
   chain_2->SetBranchAddress("lumi",&lumi_alt);
   chain_2->SetBranchAddress("event",&event_alt);
-
   chain_2->SetBranchAddress("hltphoton165",&hltp165_alt);
   chain_2->SetBranchAddress("hltphoton175",&hltp175_alt);
   chain_2->SetBranchAddress("flaghbhenoise",&fhbhe_alt);
@@ -291,8 +286,6 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_2->SetBranchAddress("combinejetpt", &jetpt_alt);
   chain_2->SetBranchAddress("combinejetphi",&jetphi_alt);
   chain_2->SetBranchAddress("combinejetm",&jetm_alt);
-  chain_2->SetBranchAddress("combinejetCHfrac",&chfrac_alt);
-  chain_2->SetBranchAddress("combinejetNHfrac",&nhfrac_alt);
   chain_2->SetBranchAddress("phPuritypt",&phPuritypt_alt);
   chain_2->SetBranchAddress("pPurityheta",&phPurityeta_alt);
   chain_2->SetBranchAddress("phPurityphi",&phPurityphi_alt);
@@ -307,6 +300,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   chain_2->SetBranchAddress("phPurityEAEGamma",&phPurityEAEGamma_alt);
   chain_2->SetBranchAddress("rho",&rho_alt);
   chain_2->SetBranchAddress("t1pfmet",&t1met_alt);
+  chain_2->SetBranchAddress("t1phmet",&t1phmet_alt);
   chain_2->SetBranchAddress("t1pfmetphi",&t1metphi_alt);
   
   chain_2->BuildIndex("run","event");
@@ -321,14 +315,14 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
   long int effectiveEvents  = 0;
 
   for(long int entry = 0; entry < chain_1->GetEntries(); entry++){
-
+    
     int entry_status = chain_1->GetEntry(entry);
     if(entry_status <= 0) continue;
-
+    
     cout.flush();
     if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
-
+    
     // to select only ICHEP data
     if(useOnlyICHEP and run > 276242) continue;  
 
@@ -338,13 +332,24 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
     hlt = hltp165+hltp175;
     if(not hlt) continue;     
     /// apply met filters
-    if(not fhbhe or not fhbiso or not fcsct or not feeb or not feeb or not fetp or not fvtx or not fcsc) continue;
+    if(not fhbhe or not fhbiso or not fcsct or not feeb or not feeb or not fetp or not fvtx or not fcsc) continue;    
     /// vetoes
     if(ntausraw != 0) continue;
     if(nbjets   != 0) continue;
     if(nmuons   != 0) continue;
     if(nelectrons != 0) continue;
     if(nphotons == 0) continue;
+    // photon candidate
+    if(phPuritypt < 175) continue;
+    if(fabs(phPurityeta) > 1.5) continue;
+
+    if(applyPhotonID){
+      if(phPurityhoe   > 0.0396) continue;
+      if(phPuritysieie > 0.01022) continue;
+      if(phPurityElectronVeto == 0) continue;
+      if(phPurityNHiso > 2.725 + 0.0148*phPuritypt + 0.000017*phPuritypt*phPuritypt) continue;
+    }
+
     // jets
     if(njets < 1) continue;
     // check overlap with leading jet --> cleaning is done wrt loose photons by default in the trees
@@ -362,13 +367,11 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
 
     if(jetpt->at(ijet) < 100) continue;
     if(fabs(jeteta->at(ijet)) > 2.5) continue;
-    // photon candidate
-    if(phPuritypt < 175) continue;
-    if(fabs(phPurityeta) > 1.5) continue;
+
     // jet-met dphi
     int njet = 0;
     float mindphi = 99;
-    for(size_t i= 0 ; i < jetpt->size(); ijet++){
+    for(size_t i= 0 ; i < jetpt->size(); i++){
       // check pt
       if(jetpt->at(i) < 30) continue;
       // check if overlaps with the photon candidate
@@ -391,11 +394,11 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
 	mindphi = dphi; 
     }
     if(mindphi < 0.5) continue;
-        
+
     // access to the other tree
-    effectiveEvents++;
     entry_status = chain_2->GetEntryWithIndex(run,event);
-  
+    effectiveEvents++;
+
     // events in chain_1 but not in 2
     if(entry_status <= 0){
       notMatchedEvents++;
@@ -460,7 +463,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
       nEvents++;
 
       // to select only ICHEP data
-      if(useOnlyICHEP and run > 276242) continue;  
+      if(useOnlyICHEP and run_alt > 276242) continue;  
 
       //////// -- event selection --> everything except for Photon ID selections, i.e. H/E, Sietaieta, Isolation ..etc
       // trigger
@@ -468,13 +471,24 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
       hlt = hltp165_alt+hltp175_alt;
       if(not hlt) continue;     
       /// apply met filters
-      if(not fhbhe_alt or not fhbiso_alt or not fcsct_alt or not feeb_alt or not feeb_alt or not fetp_alt or not fvtx_alt or not fcsc_alt) continue;
+      if(not fhbhe_alt or not fhbiso_alt or not fcsct_alt or not feeb_alt or not feeb_alt or not fetp_alt or not fvtx_alt or not fcsc_alt) continue;      
       /// vetoes
       if(ntausraw_alt != 0) continue;
       if(nbjets_alt   != 0) continue;
       if(nmuons_alt   != 0) continue;
       if(nelectrons_alt != 0) continue;
       if(nphotons_alt == 0) continue;
+      // photon candidate
+      if(phPuritypt_alt < 175) continue;
+      if(fabs(phPurityeta_alt) > 1.5) continue;
+
+      if(applyPhotonID){
+	if(phPurityhoe_alt   > 0.0396) continue;
+	if(phPuritysieie_alt > 0.01022) continue;
+	if(phPurityElectronVeto_alt == 0) continue;
+	if(phPurityNHiso_alt > 2.725 + 0.0148*phPuritypt_alt + 0.000017*phPuritypt_alt*phPuritypt_alt) continue;
+      }
+      
       // jets
       if(njets_alt < 1) continue;
       // check overlap with leading jet --> cleaning is done wrt loose photons by default in the trees
@@ -492,13 +506,10 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
 
       if(jetpt_alt->at(ijet) < 100) continue;
       if(fabs(jeteta_alt->at(ijet)) > 2.5) continue;
-      // photon candidate
-      if(phPuritypt_alt < 175) continue;
-      if(fabs(phPurityeta_alt) > 1.5) continue;
       // jet-met dphi
       int njet = 0;
       float mindphi = 99;
-      for(size_t i= 0 ; i < jetpt_alt->size(); ijet++){
+      for(size_t i= 0 ; i < jetpt_alt->size(); i++){
 	// check pt
 	if(jetpt_alt->at(i) < 30) continue;
 	// check if overlaps with the photon candidate
@@ -519,14 +530,13 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
 	  dphitemp = 2*TMath::Pi()-dphitemp;
 	if(dphi < mindphi)
 	  mindphi = dphi; 
-      }
-    
+      }    
       if(mindphi < 0.5) continue;
       
       // access to the other tree
       effectiveEvents++;
       entry_status = chain_1->GetEntryWithIndex(run_alt,event_alt);
-  
+      
       // events in chain_1 but not in 2
       if(entry_status <= 0){
 	notMatchedEvents++;
@@ -546,7 +556,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, bool useOnlyICHEP,
     cout<<endl;
     cout<<"Not matched events after selections "<<notMatchedEvents<<" event passing selections "<<effectiveEvents<<" i.e. "<<double(notMatchedEvents)/effectiveEvents*100<<endl;    
   }
-
+  
   TCanvas* canvas = new TCanvas("canvas","",600,650);
   canvas->cd();
 
