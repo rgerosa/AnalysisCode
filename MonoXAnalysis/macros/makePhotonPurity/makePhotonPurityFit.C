@@ -2,13 +2,13 @@
 #include <fstream>
 
 // to decide which data to run
-vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H","20062016"};
+vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 // photon pt bins
 static vector<float> ptBins = {175,200,225,250,280,320,360,400,500,650,1000};
 // photon isolation info
-static int nBinPhotonIso  = 20;
-static float photonIsoMax = 8;
-static float photonIsoMin = 0;
+static vector<int>  nBinPhotonIso = {25,25,25,20,20,20,20,15,15,15};
+static vector<float> photonIsoMax = {15,15,15,15,15,15,15,10,10,10};
+static vector<float> photonIsoMin = {0,0,0,0,0,0,0,0,0,0,};
 // debug mode
 static bool debug = false;
 static bool saveHistograms = false;
@@ -31,8 +31,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   setTDRStyle();
 
   //from twiki https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2#Selection_implementation_details
-  //photonID mediumID (0.0396,0.01022,0.0200,0.441,2.725,0.0148,0.000017,2.57,0.0047); // set wp for medium id
-  photonID mediumID (0.05,0.0102,0.0200,1.37,1.06,0.014,0.000019,0.28,0.0053); // set wp for medium id
+  photonID mediumID (0.0396,0.01022,0.01400,0.441,2.725,0.0148,0.000017,2.571,0.0047); // set wp for medium id
 
   // bins for purity and histograms
   vector<fitPurity> dataHisto;
@@ -44,15 +43,16 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 
   for(size_t ibin = 0; ibin < ptBins.size()-1; ibin++){
 
+    ///// create histograms
     dataHisto.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-				  new TH1F(Form("dataHisto_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));  
+				  new TH1F(Form("dataHisto_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
     signalTemplateRND04_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-					    new TH1F(Form("signalTemplateRND04_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));  
+						 new TH1F(Form("signalTemplateRND04_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
     signalTemplateRND08_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-					    new TH1F(Form("signalTemplateRND08_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));  
+						 new TH1F(Form("signalTemplateRND08_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
     backgroundTemplate_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-					       new TH1F(Form("backgroundTemplate_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));  
-    
+						new TH1F(Form("backgroundTemplate_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
+    /////
     dataHisto.back().phHisto->Sumw2();
     signalTemplateRND04_data.back().phHisto->Sumw2();
     signalTemplateRND08_data.back().phHisto->Sumw2();
@@ -61,10 +61,10 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     if(addSystematics){ // create alternative templates for signal and background
 
       signalTemplate_gjets.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-						    new TH1F(Form("signalTemplate_gjets_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));
+					       new TH1F(Form("signalTemplate_gjets_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));
       backgroundTemplate_qcd.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
-						  new TH1F(Form("backgroundTemplate_qcd_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso,photonIsoMin,photonIsoMax)));  
-
+						 new TH1F(Form("backgroundTemplate_qcd_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
+      //////
       signalTemplate_gjets.back().phHisto->Sumw2();
       backgroundTemplate_qcd.back().phHisto->Sumw2();
     }
@@ -90,7 +90,6 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       }
     }
   }
-
   system("rm file.list");
   
   //files for MC background and signal
@@ -106,6 +105,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     cout<<"Add gamma+jets file in chain "<<inputDirectorySignalMC+"/*root"<<endl;
     chain_gjets->Add((inputDirectorySignalMC+"/*root").c_str());
     genchain_gjets->Add((inputDirectorySignalMC+"/*root").c_str());
+
     cout<<"Add qcd multijets file in chain "<<inputDirectoryBackgroundMC+"/*root"<<endl;
     chain_qcd->Add((inputDirectoryBackgroundMC+"/*root").c_str());    
     genchain_qcd->Add((inputDirectoryBackgroundMC+"/*root").c_str());    
@@ -129,7 +129,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   outputFile->cd();
 
   // fillHistograms for data  
-  fillHistograms(chain_data,Sample::data,dataHisto,signalTemplateRND04_data,signalTemplateRND08_data,backgroundTemplate_data,mediumID,khists,lumi);  
+  fillDataHistograms(chain_data,Sample::data,dataHisto,signalTemplateRND04_data,signalTemplateRND08_data,backgroundTemplate_data,mediumID);  
+
   // to calculate mean pt
   float mean = 0;
   for(int ibin = 0; ibin < dataHisto.size(); ibin++){
@@ -215,18 +216,13 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   if(addSystematics){ // implement sys uncertainties using MC based templates to fit data
 
     // fillHistograms for gamma+jets --> temp values                                                                                                                                             
-    vector<fitPurity> dataHistoTemp;
-    vector<fitPurity> backgroundTemplateTemp;
-    vector<fitPurity> signalTemplateTemp;
-
-    fillHistograms(chain_gjets,Sample::gjets,dataHistoTemp,signalTemplate_gjets,signalTemplateTemp,backgroundTemplateTemp,mediumID,khists,lumi,genchain_gjets);
+    fillMCHistograms(chain_gjets,Sample::gjets,signalTemplate_gjets,mediumID,khists,lumi,genchain_gjets);
     // to calculate mean pt                                                                                                                                                                       
     for(size_t ibin = 0; ibin < signalTemplate_gjets.size(); ibin++)
       signalTemplate_gjets.at(ibin).ptMean = signalTemplate_gjets.at(ibin).ptMean/signalTemplate_gjets.at(ibin).phHisto->Integral();
     
     // fillHistograms for qcd                                                                                                                                                          
-    vector<fitPurity> signalTemplateRND08Temp;    
-    fillHistograms(chain_qcd,Sample::qcd,dataHistoTemp,signalTemplateTemp,signalTemplateRND08Temp,backgroundTemplate_qcd,mediumID,khists,lumi,genchain_qcd);
+    fillMCHistograms(chain_qcd,Sample::qcd,backgroundTemplate_qcd,mediumID,khists,lumi,genchain_qcd);
     // to calculate mean pt                                                                                                                                                                       
     for(size_t ibin = 0; ibin <  backgroundTemplate_qcd.size(); ibin++)
       backgroundTemplate_qcd.at(ibin).ptMean = backgroundTemplate_qcd.at(ibin).ptMean/backgroundTemplate_qcd.at(ibin).phHisto->Integral();
@@ -367,7 +363,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     finalPurity->GetXaxis()->SetTitle("photon p_{T} [GeV]");
     finalPurity->GetYaxis()->SetTitle("photon purity");
     finalPurity->GetYaxis()->SetRangeUser(0.5,1.2);
-   finalPurity->SetFillColor(kRed);
+    finalPurity->SetFillColor(kRed);
     finalPurity->Draw("AP");
     finalPurity->Draw("E2same");
     finalPurity->Draw("Psame");

@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 
+// for matching with gen truth
 static float deltaRMatching = 0.3;
-
 // to define samples
 enum class Sample {data, gjets, qcd};
 
@@ -9,7 +9,12 @@ enum class Sample {data, gjets, qcd};
 class photonID {
 
  public:
- photonID(const float & HoE, const float & sigmaieie, const float&  sigmaieie_sideband, const float & chadiso, const float & nhadiso0, const float & nhadiso1, const float & nhadiso2, const float & phiso0, const float & phiso1):
+ photonID(const float & HoE,  // H/E
+	  const float & sigmaieie, const float&  sigmaieie_sideband,  // Sigma ieta-ieta
+	  const float & chadiso, // charged hadron isolation
+	  const float & nhadiso0, const float & nhadiso1, const float & nhadiso2, // neutral hadron isolation
+	  const float & phiso0, const float & phiso1 // photon isolation
+	  ):
   HoE(HoE),
     sigmaieie(sigmaieie),
     sigmaieie_sideband(sigmaieie_sideband),
@@ -50,23 +55,20 @@ class fitPurity {
   TH1F* phHisto;
 };
 
-/////////////
-void fillHistograms(TTree* chain,
-		    const Sample & sample, 
-		    vector<fitPurity>  & dataHisto, 
-		    vector<fitPurity>  & signalTemplateRND04, 
-		    vector<fitPurity>  & signalTemplateRND08,
-		    vector<fitPurity>  & backgroundTemplate,
-		    const photonID & mediumID,
-		    const vector<TH1*> & khists,
-		    const float & lumi = 36.2,
-		    TTree* genchain = NULL){
+///////////// --> run analysis on data and fill historgams
+void fillDataHistograms(TTree* chain,
+			const Sample & sample, 
+			vector<fitPurity>  & dataHisto, 
+			vector<fitPurity>  & signalTemplateRND04, 
+			vector<fitPurity>  & signalTemplateRND08,
+			vector<fitPurity>  & backgroundTemplate,
+			const photonID & mediumID){
 
-
-  /// apply pileup and trigger turn on
-  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
-  TH1*   puhist = (TH1*) pufile->Get("puhist");
-
+  if(sample != Sample::data){
+    cerr<<"Problem mismatch between sample type and fill function called --> please check"<<endl;
+    return;
+  }
+    
   /// set all branches                                                                                                                                                                                
   TTreeReader reader (chain);
   TTreeReaderValue<float> phpt  (reader,"phPuritypt");
@@ -82,20 +84,14 @@ void fillHistograms(TTree* chain,
   TTreeReaderValue<float> phPHIsoRND08 (reader,"phPurityRND08PHiso");
   TTreeReaderValue<float> phEAEgamma   (reader,"phPurityEAEGamma");
   TTreeReaderValue<float> rho  (reader,"rho");
-  TTreeReaderValue<float> xsec (reader,"xsec");
-  TTreeReaderValue<float> wgt  (reader,"wgt");
   TTreeReaderValue<unsigned int> nphotonsPurity (reader,"nphotonsPurity");
   TTreeReaderValue<unsigned int> nelectrons (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nmuons     (reader,"nmuons");
   TTreeReaderValue<unsigned int> ntausraw   (reader,"ntaus");
   TTreeReaderValue<unsigned int> nbjets     (reader,"nbjetslowpt");
-  TTreeReaderValue<unsigned int> njets      (reader,"njets");
+  TTreeReaderValue<unsigned int> njets  (reader,"njets");
   TTreeReaderValue<UChar_t> hltp165     (reader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (reader,"hltphoton175");
-  TTreeReaderValue<unsigned int> run         (reader,"run");
-  TTreeReaderValue<unsigned int> lumisection (reader,"lumi");
-  TTreeReaderValue<unsigned int> event       (reader,"event");
-  TTreeReaderValue<unsigned int> nvtx        (reader,"nvtx");
   TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsct  (reader,"flagcsctight");
@@ -112,79 +108,40 @@ void fillHistograms(TTree* chain,
   TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
   TTreeReaderValue<float> t1met     (reader,"t1pfmet");
   TTreeReaderValue<float> t1metphi  (reader,"t1pfmetphi");
-  TTreeReaderValue<float> wzpt   (reader,"wzpt");
-  TTreeReaderValue<float> wzeta  (reader,"wzeta");
-  TTreeReaderValue<float> wzphi  (reader,"wzphi");
-  TTreeReaderValue<int>   wzid   (reader,"wzid");
-  TTreeReaderValue<int>  ismatch (reader,"ismatch");
 
   // loop on data events                                                                                                                                                                        
-  if(sample == Sample::data) 
-    cout<<"Number of events in data "<<chain->GetEntries()<<endl;  
-  else if(sample == Sample::qcd)
-    cout<<"Number of events in QCD MC "<<chain->GetEntries()<<endl;  
-  else if(sample == Sample::gjets)
-    cout<<"Number of events in Gjets MC "<<chain->GetEntries()<<endl;  
+  cout<<"Number of events in data "<<chain->GetEntries()<<endl;  
 
-
-  // calculate sum of weights in case of MC sample
-  vector<double> wgtsum;
-  string currentFile = "";
-  if((sample == Sample::qcd or sample == Sample::gjets) and genchain != NULL){
-
-    TTreeReader genreader (genchain);
-    TTreeReaderValue<float> wgtgen (genreader,"wgt");
-
-    while(genreader.Next()){
-      if(dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName()  != currentFile){
-	currentFile = dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName() ;
-	wgtsum.push_back(0);
-	wgtsum.back() += *wgtgen;
-      }
-      else
-	wgtsum.back() += *wgtgen;
-    }
-  }    
-  else if(genchain == NULL and (sample == Sample::qcd or sample == Sample::gjets)){
-    cerr<<"Problem no gentree found --> exit"<<endl;
-    return;
-  }
-  
-
-  // after calculating sumwgt --> go to event loop  
-  reader.SetEntry(0);  
+  // start event loop
   long int nTotal = chain->GetEntries();
   long int nEvents = 0;
-  currentFile = "";
-  int ifile = 0;
 
   while(reader.Next()){
     
-    if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
-      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
-      ifile ++;
-    }
-    else if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
-      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
-    }
-      
     cout.flush();
     if(nEvents % 100000 == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
 
+    // trigger requirement
     if(*hltp165 == 0 and *hltp175 == 0) continue;
+    // met filters
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
+    // loose muon veto
     if(*nmuons     != 0) continue;
+    // loose electron veto
     if(*nelectrons != 0) continue;
+    // b-jet veto
     if(*nbjets     != 0) continue;
+    // tau-veto
     if(*ntausraw   != 0) continue;
-    if(*njets < 1) continue;
+    // photon candidate
     if(*nphotonsPurity == 0) continue;
     if(*phpt    < 175) continue;
     if(fabs(*pheta) > 1.4442) continue;
 
     // find the right jet not overlapping with the photon
     int ijet = 0;
+    int njet = 0;
     for(size_t i = 0 ; i < jetpt->size(); i++){
       float deta = fabs(jeteta->at(i)-*pheta);
       float dphi = fabs(*phphi-jetphi->at(i));
@@ -192,15 +149,22 @@ void fillHistograms(TTree* chain,
         dphi = 2*TMath::Pi()-dphi;
       if(sqrt(deta*deta+dphi*dphi) > 0.4){
         ijet = i;
+	njet++;
         break;
       }
     }
+    if(njet == 0) continue;
     if(jetpt->at(ijet) < 100) continue;
     if(fabs(jeteta->at(ijet)) > 2.5) continue;
 
+    // apply photon id: except sigma-ieta-ieta (later) and photon isolation                                                                                      
+    if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
+    if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
+    if(*phHoE   > mediumID.HoE)  continue;    
+    if(*phElVeto == 0) continue;
+    
     // apply jet-met dphi
-    // jet-met dphi                                                                                                                                                                                  
-    int njet = 0;
+    njet = 0;
     float mindphi = 99;
     for(size_t i= 0 ; i < jetpt->size(); i++){
       // check pt                                                                                                                                                                                    
@@ -226,93 +190,270 @@ void fillHistograms(TTree* chain,
     }
     if(mindphi < 0.5) continue;
     
-    // apply photon id: except sigma-ieta-ieta (later) and electron veto as well as photon isolation                                                                                      
+    // select the histogram given the pt of the photon                                                                                                                                           
+    unsigned int bin = 0;
+    if(dataHisto.size() != 0){
+      for( ; bin < dataHisto.size()-1; bin++){
+	if(*phpt >= dataHisto.at(bin).ptMin and *phpt < dataHisto.at(bin).ptMax) break;
+      }
+      if(*phpt >  dataHisto.back().ptMax)
+	bin = dataHisto.size()-1;
+    }
+
+    // data-events passing sigma-ieta-ieta
+    if(*phSieie < mediumID.sigmaieie){
+      dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso))); // already corrected for effective area
+      signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma)))); // to be corrected
+      signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma)))); // to be corrected
+      // to evaluate mean pt value in the bin
+      dataHisto.at(bin).ptMean += *phpt;
+      signalTemplateRND04.at(bin).ptMean += *phpt;
+      signalTemplateRND08.at(bin).ptMean += *phpt;
+    }
+    // sigma-ieta-ieta sideband region
+    else if(*phSieie > mediumID.sigmaieie and *phSieie < mediumID.sigmaieie_sideband){
+      backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso)));
+      backgroundTemplate.at(bin).ptMean += *phpt;
+    }
+  }  
+  cout<<endl;
+}
+
+
+/////////////
+void fillMCHistograms(TTree* chain,
+		      const Sample & sample, 
+		      vector<fitPurity>  & mcHisto, // can be signal template for gamma+jets or background for QCD
+		      const photonID & mediumID,
+		      const vector<TH1*> & khists,
+		      const float & lumi = 36.2,
+		      TTree* genchain = NULL){
+
+  // basic check
+  if(sample != Sample::gjets and sample != Sample::qcd){
+    cerr<<"Problem mismatch between sample type and fill function called --> please check"<<endl;
+    return;
+  }
+
+  /// apply pileup and trigger turn on
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
+  TH1*   puhist = (TH1*) pufile->Get("puhist");
+  
+  /// set all branches                                                                                                                                                                                
+  TTreeReader reader (chain);
+  TTreeReaderValue<float> phpt  (reader,"phPuritypt");
+  TTreeReaderValue<float> pheta (reader,"phPurityeta");
+  TTreeReaderValue<float> phphi (reader,"phPurityphi");
+  TTreeReaderValue<float> phElVeto (reader,"phPurityElectronVeto");
+  TTreeReaderValue<float> phPHIso  (reader,"phPurityPHiso");
+  TTreeReaderValue<float> phCHIso  (reader,"phPurityCHiso");
+  TTreeReaderValue<float> phNHIso  (reader,"phPurityNHiso");
+  TTreeReaderValue<float> phHoE    (reader,"phPurityhoe");
+  TTreeReaderValue<float> phSieie  (reader,"phPuritysieie");
+  TTreeReaderValue<float> phPHIsoRND04 (reader,"phPurityRND04PHiso");
+  TTreeReaderValue<float> phPHIsoRND08 (reader,"phPurityRND08PHiso");
+  TTreeReaderValue<float> phEAEgamma   (reader,"phPurityEAEGamma");
+  TTreeReaderValue<float> rho  (reader,"rho");
+  TTreeReaderValue<float> xsec (reader,"xsec");
+  TTreeReaderValue<float> wgt  (reader,"wgt");
+  TTreeReaderValue<unsigned int> nphotonsPurity (reader,"nphotonsPurity");
+  TTreeReaderValue<unsigned int> nelectrons (reader,"nelectrons");
+  TTreeReaderValue<unsigned int> nmuons     (reader,"nmuons");
+  TTreeReaderValue<unsigned int> ntausraw   (reader,"ntaus");
+  TTreeReaderValue<unsigned int> nbjets     (reader,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> njets      (reader,"njets");
+  TTreeReaderValue<UChar_t> hltp165     (reader,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175     (reader,"hltphoton175");
+  TTreeReaderValue<unsigned int> nvtx   (reader,"nvtx");
+  TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsct  (reader,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (reader,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (reader,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
+  TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
+  TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
+  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > chfrac  (reader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
+  TTreeReaderValue<float> t1met     (reader,"t1pfmet");
+  TTreeReaderValue<float> t1metphi  (reader,"t1pfmetphi");
+  TTreeReaderValue<float> wzpt   (reader,"wzpt");
+  TTreeReaderValue<float> wzeta  (reader,"wzeta");
+  TTreeReaderValue<float> wzphi  (reader,"wzphi");
+  TTreeReaderValue<int>   wzid   (reader,"wzid");
+  TTreeReaderValue<int>   ismatch (reader,"ismatch");
+
+  // loop on data events                                                                                                                                                                        
+  if(sample == Sample::qcd)
+    cout<<"Number of events in QCD MC "<<chain->GetEntries()<<endl;  
+  else if(sample == Sample::gjets)
+    cout<<"Number of events in gamma+jets MC "<<chain->GetEntries()<<endl;  
+
+  // calculate sum of weights in case of MC sample
+  vector<double> wgtsum;
+  string currentFile = "";  
+  if(genchain != NULL and genchain != 0){
+    TTreeReader genreader (genchain);
+    TTreeReaderValue<float> wgtgen (genreader,"wgt");    
+    while(genreader.Next()){
+      if(dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName() != currentFile){
+	currentFile = dynamic_cast<TChain*>(genreader.GetTree())->GetFile()->GetName() ;
+	wgtsum.push_back(*wgtgen);
+      }
+      else
+	wgtsum.back() += *wgtgen;
+    }
+  }
+  else{
+    cerr<<"Problem no gentree found --> exit"<<endl;
+    return;
+  }
+  
+
+  // after calculating sumwgt --> go to event loop  
+  reader.SetEntry(0);  
+  long int nTotal = chain->GetEntries();
+  long int nEvents = 0;
+  currentFile = "";
+  int ifile = 0;
+
+  while(reader.Next()){
+
+    cout.flush();
+    if(nEvents % 100000 == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+    
+    if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
+      ifile ++;
+    }
+    else if(dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(reader.GetTree())->GetFile()->GetName();
+    }
+      
+    // trigger requirement
+    if(*hltp165 == 0 and *hltp175 == 0) continue;
+    // met filters
+    if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue;
+    // loose lepton veto
+    if(*nmuons     != 0) continue;
+    if(*nelectrons != 0) continue;
+    // b-jet veto
+    if(*nbjets     != 0) continue;
+    // tau-veto
+    if(*ntausraw   != 0) continue;
+    // photon candidate
+    if(*nphotonsPurity == 0) continue;
+    if(*phpt    < 175) continue;
+    if(fabs(*pheta) > 1.4442) continue;
+
+    // find the right jet not overlapping with the photon
+    int ijet = 0;
+    int njet = 0;
+    for(size_t i = 0 ; i < jetpt->size(); i++){
+      float deta = fabs(jeteta->at(i)-*pheta);
+      float dphi = fabs(*phphi-jetphi->at(i));
+      if(dphi > TMath::Pi())
+        dphi = 2*TMath::Pi()-dphi;
+      if(sqrt(deta*deta+dphi*dphi) > 0.4){
+        ijet = i;
+	njet++;
+        break;
+      }
+    }
+    if(njet == 0) continue;
+    if(jetpt->at(ijet) < 100) continue;
+    if(fabs(jeteta->at(ijet)) > 2.5) continue;
+    
+    // apply photon id: except photon isolation                                                                                      
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
     if(*phHoE   > mediumID.HoE)  continue;    
     if(*phElVeto == 0) continue;
+    if(*phSieie > mediumID.sigmaieie) continue;
+
+    // apply jet-met dphi
+    njet = 0;
+    float mindphi = 99;
+    for(size_t i = 0; i < jetpt->size(); i++){
+      // check pt                                                                                                                                                                                    
+      if(jetpt->at(i) < 30) continue;
+      // check if overlaps with the photon candidate                                                                                                                                                 
+      float deta = fabs(jeteta->at(i)-*pheta);
+      float dphi = fabs(*phphi-jetphi->at(i));
+      if(dphi > TMath::Pi())
+	dphi = 2*TMath::Pi()-dphi;
+      if(sqrt(deta*deta+dphi*dphi) < 0.4) continue;
+      njet++;
+      if(njet > 4) continue;
+      // calculate px and py                                                                                                                                                                         
+      float metx = *t1met*cos(*t1metphi)+*phpt*cos(*phphi);
+      float mety = *t1met*sin(*t1metphi)+*phpt*sin(*phphi);
+      TLorentzVector met;
+      met.SetPxPyPzE(metx,mety,0.,sqrt(metx*metx+mety*mety));
+      float dphitemp = fabs(met.Phi()-jetphi->at(ijet));
+      if(dphitemp > TMath::Pi())
+	dphitemp = 2*TMath::Pi()-dphitemp;
+      if(dphi < mindphi)
+	mindphi = dphi;
+    }
+    if(mindphi < 0.5) continue;
+    
 
     // select the histogram given the pt of the photon                                                                                                                                           
     unsigned int bin = 0;
-    if(signalTemplateRND04.size() != 0){
-      for( ; bin < signalTemplateRND04.size()-1; bin++){
-	if(*phpt >= signalTemplateRND04.at(bin).ptMin and *phpt < signalTemplateRND04.at(bin).ptMax) break;
+    if(mcHisto.size() != 0){
+      for( ; bin < mcHisto.size()-1; bin++){
+	if(*phpt >= mcHisto.at(bin).ptMin and *phpt < mcHisto.at(bin).ptMax) break;
       }
-      if(*phpt >  signalTemplateRND04.back().ptMax)
-	bin = signalTemplateRND04.size()-1;
-    }
-    else if(backgroundTemplate.size() != 0){
-      for( ; bin < backgroundTemplate.size()-1; bin++){
-	if(*phpt >= backgroundTemplate.at(bin).ptMin and *phpt < backgroundTemplate.at(bin).ptMax) break;
-      }
-      if(*phpt >  backgroundTemplate.back().ptMax)
-	bin = backgroundTemplate.size()-1;
-    }
-    
-    double evtwgt = 1.;
-    if(sample == Sample::gjets or sample == Sample::qcd){
-      evtwgt = lumi*(*xsec)*(*wgt);
-      if (*nvtx <= 60)
-	evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));            
+      if(*phpt >  mcHisto.back().ptMax)
+	bin = mcHisto.size()-1;
     }
 
-
+    double evtwgt = lumi*(*xsec)*(*wgt);
+    if (*nvtx <= 60)
+      evtwgt *= puhist->GetBinContent(puhist->FindBin(*nvtx));            
+        
     // apply k-factor
     double kwgt = 1.0;      
-    // distributions in data without effective area correction                                                                                                                                      
-    if(*phSieie < mediumID.sigmaieie){
-      // adding track veto --> in order to add more stat in the background template
-      if(sample == Sample::data){ // fill also data histogram
-	dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso))); // already corrected for effective area
-	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma)))); // to be corrected
-	signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma)))); // to be corrected
-	dataHisto.at(bin).ptMean += *phpt;
-	signalTemplateRND04.at(bin).ptMean += *phpt;
-	signalTemplateRND08.at(bin).ptMean += *phpt;
-      }
-      else if(sample == Sample::gjets){// don't fill data histogram
-
-	double genpt = *wzpt;
-	for (size_t i = 0; i < khists.size(); i++) {
-	  if (khists[i]) {
-	    if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) 
-	      genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	    if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) 
-	      genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-	    kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
-	  }
+    if(sample == Sample::gjets){// match photon with gen level one + apply k-factors
+      double genpt = *wzpt;
+      for (size_t i = 0; i < khists.size(); i++) {
+	if (khists[i]) {
+	  if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) 
+	    genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) 
+	    genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+	  kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
 	}
-
-	// matching condition
-	if(*wzpt <= 0) continue;
+      }
+      
+      // matching condition
+      if(*wzpt <= 0) continue;
+      float deltaEta_gen = fabs(*pheta-*wzeta);
+      float deltaPhi_gen = fabs(*phphi-*wzphi);
+      if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
+      if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
+      // fill histograms
+      mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      mcHisto.at(bin).ptMean += *phpt;
+    }
+    else if(sample == Sample::qcd){
+      if(*wzpt > 0){ // make sure photon candidate does not overlap with a propt final state photon from M.E.
 	float deltaEta_gen = fabs(*pheta-*wzeta);
 	float deltaPhi_gen = fabs(*phphi-*wzphi);
 	if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
-	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
-	// fill histograms
-	signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
-	signalTemplateRND04.at(bin).ptMean += *phpt;
-      }
+	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
+      }	
+      ////
+      mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      mcHisto.at(bin).ptMean += *phpt;
     }
-    else if(*phSieie > mediumID.sigmaieie and *phSieie < mediumID.sigmaieie_sideband){
-      if(sample == Sample::data){
-	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso)));
-	backgroundTemplate.at(bin).ptMean += *phpt;
-      }
-      else if(sample == Sample::qcd){
-	if(*wzpt > 0){
-	  float deltaEta_gen = fabs(*pheta-*wzeta);
-	  float deltaPhi_gen = fabs(*phphi-*wzphi);
-	  if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
-	  if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
-	}	
-	////
-	backgroundTemplate.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
-	backgroundTemplate.at(bin).ptMean += *phpt;
-      }
-    }
-  }
-  
+  }  
   cout<<endl;
   if(pufile) pufile->Close();
 }
@@ -332,14 +473,6 @@ void makePurityFit(RooWorkspace* ws,
   // data-histogram                                                                                                                                                                                  
   RooArgList observable_list (observable);
   RooDataHist RooDataHisto      ("data","",observable_list, dataTemplate.phHisto);
-  RooDataHist RooSignalTemplate ("signalTemplateData","",observable_list,signalTemplate.phHisto);
-  RooDataHist RooBackgroundTemplate ("backgroundTemplateData","",observable_list, backgroundTemplate.phHisto);
-
-  if(debug){
-    RooDataHisto.Print();
-    RooSignalTemplate.Print();
-    RooBackgroundTemplate.Print();
-  }
 
   // integral in data wrt neutral iso selection                                                                                                                                                      
   double dataIntegralErr = 0;
@@ -348,6 +481,15 @@ void makePurityFit(RooWorkspace* ws,
 
   if(debug)
     cout<<"Data integral : [min,max] =  "<<dataTemplate.phHisto->GetBinLowEdge(1)<<","<<mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean<<" = "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
+
+  RooDataHist RooSignalTemplate ("signalTemplateData","",observable_list,signalTemplate.phHisto);
+  RooDataHist RooBackgroundTemplate ("backgroundTemplateData","",observable_list, backgroundTemplate.phHisto);
+
+  if(debug){
+    RooDataHisto.Print();
+    RooSignalTemplate.Print();
+    RooBackgroundTemplate.Print();
+  }
 
   // Pdfs                                                                                                                                                                                            
   RooHistPdf signalTemplatePdf ("signalTemplatePdf","",observable_list,RooSignalTemplate);
