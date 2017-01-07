@@ -47,7 +47,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 60000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/ProductionMC-28-12-2016_PhotonPurity/'
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/ProductionMC-05-01-2017_PhotonPurity/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
