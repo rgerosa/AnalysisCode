@@ -38,6 +38,7 @@ int code(double mh){
 void plotAxial(string inputDIR, string outputDIR, string coupling = "025", string energy = "13") {
 
   system(("mkdir -p "+outputDIR).c_str());
+  gROOT->SetBatch(kTRUE);
 
   // Set the color palette
   bool useNicksPalette = true;
@@ -312,6 +313,11 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   hobs->Write("scan_observed");
   hexp2->Write("contour_expected");
   hobs2->Write("contour_observed");
+  grexp->Write("graph_expected");
+  grexp_up->Write("graph_expected_p1s");
+  grexp_down->Write("graph_expected_m1s");
+  grobs->Write("graph_observed");
+
   outputFile->Write();
 
 }

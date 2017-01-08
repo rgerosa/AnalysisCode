@@ -19,7 +19,7 @@ static int  typeOfDMSignal        = 0;     // 0 means both mono-j and mono-V, 1 
 static bool runHiggsInvisible     = false; // run Higgs invisible analysis
 static bool addTop                = false;
 static bool addQCD                = false;
-static bool addWgamma             = false; 
+static bool addWgamma             = true; 
 static bool addZgamma             = true;
 static bool skipTFsystematics     = false;
 static bool skipDataAnalysis      = false;
@@ -199,7 +199,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"pdf",7);
       
     }
-    
+
     if(addWgamma and category != Category::VBF){
       cout<<"make W/gamma ratio "<<endl;
       makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",

@@ -21,7 +21,8 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		makePuppiesFromMiniAOD( process, False);
 		process.puppi.useExistingWeights = cms.bool(False)
 		process.puppiNoLep.useExistingWeights = cms.bool(False)
-		
+		process.puppiForMET.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
+		process.puppiPhoton.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
 		
 	######################
 	if useOfficialMETSystematics and addMETSystematics:

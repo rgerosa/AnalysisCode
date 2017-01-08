@@ -21,6 +21,16 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+template <class T, class U>
+bool isInFootprint(const T& thefootprint, const U& theCandidate) {
+  for ( auto itr = thefootprint.begin(); itr != thefootprint.end(); ++itr ) {
+    if( itr->key() == theCandidate.key() ) return true;
+  }
+  return false;
+}
 
 class PFCleaner : public edm::stream::EDProducer<> {
 public:
@@ -40,15 +50,16 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   
-  //livia for purity studies  
-  bool   randomConeOverlaps(double, double, double, std::vector<pat::Jet>, double);
-  double computePhotonIso( edm::Handle<edm::View<reco::Candidate>> ,double, double , double);
-  bool   testPhotonIsolationLoose(std::vector<pat::Photon>::const_iterator  & photon, float chargedHadronIsolation, float neutralHadronIsolation,float rhoval, float hoe);
-  bool   testPhotonIsolationMedium(std::vector<pat::Photon>::const_iterator & photon, float chargedHadronIsolation, float rhoval, float hoe);
-  double getGammaEAForPhotonIso(double eta);
-  double getNeutralHadronEAForPhotonIso(double eta);
-  double getChargedHadronEAForPhotonIso(double eta);
-  bool   isPassingPhotonHighPtID(double, double, double, double, double, double, double);
+  //for purity
+  bool   randomConeOverlaps(const double &, const double &, const double &, const std::vector<pat::Jet> &, const double &);
+  // for isolation
+  double computePhotonIso( const pat::Photon &, edm::Handle<edm::View<reco::Candidate>> , const double &, const double &, const double &);
+  double computeCHhadronIso(const pat::Photon &, edm::Handle<edm::View<reco::Candidate> > , const double &, const double &, const double &, const reco::Vertex &);
+  double computeNHhadronIso(const pat::Photon &, edm::Handle<edm::View<reco::Candidate> > , const double &, const double &, const double &);  
+  // effective area according to 80X Spring 16 ID
+  double getGammaEAForPhotonIso(const double & eta);
+  double getNeutralHadronEAForPhotonIso(const double & eta);
+  double getChargedHadronEAForPhotonIso(const double & eta);
 
   // rho value
   const edm::EDGetTokenT<double>  rhoToken;
@@ -83,10 +94,10 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<float> > photonsieieToken;
   const edm::EDGetTokenT<edm::ValueMap<float> > photonPHisoToken;
   const edm::EDGetTokenT<edm::ValueMap<float> > photonCHisoToken;
+  const edm::EDGetTokenT<edm::ValueMap<float> > photonNHisoToken;
   // calibrated Pat photons
   const edm::EDGetTokenT<std::vector<pat::Photon> > calibratedPhotonToken;
-  const edm::ParameterSet  highPtPhotonID;
-  const edm::ParameterSet  loosePhotonID;
+  const edm::ParameterSet  photonPurityID;
 
   const bool userandomphi;
   const bool addPhotonPurity;
@@ -114,8 +125,8 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   photonsieieToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"))), 
   photonPHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonphiso"))), 
   photonCHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonchiso"))),   
-  highPtPhotonID           (iConfig.getParameter<edm::ParameterSet>("highPtPhotonID")),
-  loosePhotonID            (iConfig.getParameter<edm::ParameterSet>("loosePhotonID")),
+  photonNHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonnhiso"))),   
+  photonPurityID           (iConfig.getParameter<edm::ParameterSet>("photonPurityID")),
   userandomphi             (iConfig.existsAs<bool>("userandomphiforRC") ? iConfig.getParameter<bool>("userandomphiforRC") : true),
   addPhotonPurity          (iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false)
 
@@ -155,13 +166,13 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     produces<edm::ValueMap<float> >("rndgammaiso04");
     produces<edm::ValueMap<float> >("rndgammaiso08");
     produces<pat::PhotonRefVector> ("photonsPurity");
-    produces<pat::PhotonRefVector> ("tightphotonsPurity");
   }
-  // value map for highptId
-  produces<edm::ValueMap<bool> > ("photonHighPtId");
-  produces<edm::ValueMap<bool> > ("photonLooseId");
-  produces<edm::ValueMap<float> >("gammaiso");
-  produces<edm::ValueMap<float> >("chhadiso");
+
+  // value map for isolation
+  produces<edm::ValueMap<float> > ("gammaiso");
+  produces<edm::ValueMap<float> > ("chhadiso");
+  produces<edm::ValueMap<float> > ("nhhadiso");
+  produces<edm::ValueMap<float> > ("sigmaietaieta");
 
   // useful for taus
   looseMuonPosition     = -1;
@@ -241,6 +252,8 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(photonPHisoToken, photonPHisoH);
   Handle<edm::ValueMap<float> > photonCHisoH;
   iEvent.getByToken(photonCHisoToken, photonCHisoH);
+  Handle<edm::ValueMap<float> > photonNHisoH;
+  iEvent.getByToken(photonNHisoToken, photonNHisoH);
 
   Handle<double> rhoH;
   iEvent.getByToken(rhoToken, rhoH);
@@ -260,19 +273,17 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for(auto ipho  : photonSelection)
     outputphotons.push_back(std::auto_ptr<pat::PhotonRefVector>(new pat::PhotonRefVector));
   
-  std::auto_ptr<edm::ValueMap<bool>  > outputphotonhighptidmap(new ValueMap<bool>());
-  std::auto_ptr<edm::ValueMap<bool>  > outputloosephotonmap(new ValueMap<bool>());
-
   std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputnhhadisomap(new ValueMap<float>());
+  std::auto_ptr<edm::ValueMap<float> > outputsigietaietamap(new ValueMap<float>());
 
   std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso04map(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso08map(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso04map(new ValueMap<float>());
   std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso08map(new ValueMap<float>());
-
+  // for purity studies
   std::auto_ptr<pat::PhotonRefVector>  outputphotonsPurity(new pat::PhotonRefVector);
-  std::auto_ptr<pat::PhotonRefVector>  outputtightphotonsPurity(new pat::PhotonRefVector);
   
   //muon info https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
@@ -433,38 +444,60 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // photon https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedPhotonIdentificationRun2
-  std::vector<float> rndgammaiso04;
-  std::vector<float> rndgammaiso08;
   std::vector<float> gammaiso;
   std::vector<float> chhadiso;
+  std::vector<float> nhhadiso;
+  std::vector<float> sigietaieta;
+  std::vector<float> rndgammaiso04;
+  std::vector<float> rndgammaiso08;
   std::vector<float> rndchhadiso04;
   std::vector<float> rndchhadiso08;
-  std::vector<bool>  photonidhighpt;
-  std::vector<bool>  photonloose;
   
   // loop on the photon colection
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
 
-    float gaisoval = computePhotonIso(pfcandsH,photons_iter->eta(),photons_iter->phi(),0.3);     
-    gammaiso.push_back(gaisoval);
-    float chisoval = 0;
-    for(size_t i = 0; i < pfcandsH->size(); i++) {
-      const auto& pfcand = pfcandsH->ptrAt(i);
-      if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),photons_iter->phi(), pfcand->eta(), pfcand->phi()) <= 0.3)
-	chisoval += pfcand->pt();
+    // if a calibrate photon collection exists --> match them --> if no matching skip the candidate (calibrated are photns after scale/smearing corrections)
+    vector<pat::Photon>::const_iterator calibpho_iter ;
+    bool isValid = false;
+    bool isMatched = false;
+
+    if(calibratedPhotonsH.isValid()){ // check if it exists                                                                                                                                        
+      isValid = true;
+      calibpho_iter = calibratedPhotonsH->begin();
+      if(calibratedPhotonsH->size() != photonsH->size())
+	throw cms::Exception("PFCleaner") <<" different size between calibrated and un-calibrated photons --> check \n";
+      for( ; calibpho_iter != calibratedPhotonsH->end(); ++calibpho_iter){
+	// match by reference                                                                                                                                                                      
+	if(calibpho_iter->superCluster()       == photons_iter->superCluster() and
+	   calibpho_iter->originalObjectRef()  == photons_iter->originalObjectRef()){
+	  isMatched = true;
+	  break;
+	}
+      }
+      if(not isMatched) continue;
     }
-    chhadiso.push_back(chisoval);
     
+    // take the photon candidate
+    pat::Photon photonCand;
+    if(isValid)
+      photonCand = *calibpho_iter;
+    else
+      photonCand = *photons_iter;
+
+    // photon purity case
     if(addPhotonPurity){
-      double rndphi04 = photons_iter->phi() + M_PI/2.0;
-      double rndphi08 = photons_iter->phi() + M_PI/2.0;
-      float  chisoval04 = 0.;
-      float  chisoval08 = 0.;
+      double rndphi04 = photonCand.phi() + M_PI/2.0;
+      double rndphi08 = photonCand.phi() + M_PI/2.0;
+      float  rndchisoval04 = 0.;
+      float  rndchisoval08 = 0.;
+      float  rndphisoval04 = 0.;
+      float  rndphisoval08 = 0.;
       unsigned int counterR04 = 1;
       unsigned int counterR08 = 1;
-      if (userandomphi) {
+      // select the random phi directions at the same eta of the photon candidate
+      if(userandomphi) {
 	rndphi04 = rand.Uniform(-M_PI, M_PI);
-	while (randomConeOverlaps(rndphi04, photons_iter->eta(), photons_iter->phi(), *jetsH, 0.4)) {
+	while (randomConeOverlaps(rndphi04, photonCand.eta(), photonCand.phi(), *jetsH, 0.4)) {
 	  rndphi04 = rand.Uniform(-M_PI, M_PI);
 	  counterR04++;
 	  if(counterR04 > 5000){
@@ -475,7 +508,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       if (userandomphi){
 	rndphi08 = rand.Uniform(-M_PI, M_PI);
-	while (randomConeOverlaps(rndphi08, photons_iter->eta(), photons_iter->phi(), *jetsH, 0.8)){
+	while (randomConeOverlaps(rndphi08, photonCand.eta(), photonCand.phi(), *jetsH, 0.8)){
 	  rndphi08 = rand.Uniform(-M_PI, M_PI);
 	  counterR08++;
 	  if(counterR08 > 5000){
@@ -484,163 +517,187 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  }
 	}
       }
-
-      if(rndphi04 != -99){
-	for(size_t i = 0; i < pfcandsH->size(); i++) {
-	  const auto& pfcand = pfcandsH->ptrAt(i);
-	  if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi04, pfcand->eta(), pfcand->phi()) <= 0.3) 
-	    chisoval04 += pfcand->pt();
-	}
-      }
-      else
-	chisoval04 = -99;
-      
-      if(rndphi08 != -99){
-	for(size_t i = 0; i < pfcandsH->size(); i++) {
-	  const auto& pfcand = pfcandsH->ptrAt(i);
-	  if (abs(pfcand->pdgId()) == 211 && deltaR(photons_iter->eta(),rndphi08, pfcand->eta(), pfcand->phi()) <= 0.3) 
-	    chisoval08 += pfcand->pt();
-	}      
-      }
-      else chisoval08 = -99;
-
-      float rndgaisoval04 = 0;
-      float rndgaisoval08 = 0;
+    
+      // if the random cone is found --> charged hadron isolation from pfCandidates with dR = 0.3 smaller than random cones
       if(rndphi04 != -99)
-	rndgaisoval04 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi04, 0.3);      
-      else 
-	rndgaisoval04 = -99;
-      if(rndphi08 != -99)
-	rndgaisoval08 = computePhotonIso(pfcandsH,photons_iter->eta(), rndphi08, 0.3);      
+	rndchisoval04 = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),rndphi04,0.3, verticesH->at(0));
       else
-	rndgaisoval08 = -99;
-      rndgammaiso04.push_back(rndgaisoval04);
-      rndgammaiso08.push_back(rndgaisoval08);
-      rndchhadiso04.push_back(chisoval04);
-      rndchhadiso08.push_back(chisoval08);
+	rndchisoval04 = -99;
+      
+      if(rndphi08 != -99)
+	rndchisoval08 = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),rndphi08,0.3, verticesH->at(0));
+      else 
+	rndchisoval08 = -99;
+
+      // compute the photon isolation in the random cone with dR = 0.3 smaller than random cones
+      if(rndphi04 != -99)
+	rndphisoval04 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi04, 0.3);      
+      else 
+	rndphisoval04 = -99;
+      if(rndphi08 != -99)
+	rndphisoval08 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi08, 0.3);      
+      else
+	rndphisoval08 = -99;
+      
+      rndgammaiso04.push_back(rndphisoval04);
+      rndgammaiso08.push_back(rndphisoval08);
+      rndchhadiso04.push_back(rndchisoval04);
+      rndchhadiso08.push_back(rndchisoval08);
     }
 
-    //livia
+    /// read the super-cluster and iso variables
     const Ptr<pat::Photon> photonPtr(photonsH, photons_iter - photonsH->begin());
     double photonsieie = (*photonsieieH)[photonPtr];
     double photonphiso = (*photonPHisoH)[photonPtr];
     double photonchiso = (*photonCHisoH)[photonPtr];
+    double photonnhiso = (*photonNHisoH)[photonPtr];
     double photonhoe   =  photons_iter->hadTowOverEm();
-    // high pt photon ID as described in AN (2016/079)
-    bool  passesphotonidhighpt = false;
-    passesphotonidhighpt = isPassingPhotonHighPtID(photons_iter->pt(), photons_iter->superCluster()->eta(), photonhoe, photonchiso, photonphiso, photonsieie, rho);
-    photonidhighpt.push_back(passesphotonidhighpt);
 
-    // additional loose photon definition
-    if (fabs(photons_iter->superCluster()->eta()) < loosePhotonID.getParameter<double>("absEta") and
-	photons_iter->pt() > loosePhotonID.getParameter<double>("ptMin") and
-	(photons_iter->r9() > loosePhotonID.getParameter<double>("R9min") or photons_iter->chargedHadronIso() < loosePhotonID.getParameter<double>("chIso") or photons_iter->chargedHadronIso() < photons_iter->pt()*loosePhotonID.getParameter<double>("chIsoFrac")))    
-      photonloose.push_back(true);
-    else
-      photonloose.push_back(false);
-
+    sigietaieta.push_back(photonsieie);
+    // photon component from PF-candidate pdgId
+    float gaisoval = computePhotonIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3);     
+    if(gaisoval != photonphiso)
+      std::cout<<"PFCleaner::Photon isolation: difference between re-calculated and original one: "<<gaisoval<<" vs "<<photonphiso<<std::endl;
+    gammaiso.push_back(gaisoval);
+    
+    // charged hadron isolation
+    float chisoval = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3, verticesH->at(0));
+    if(chisoval != photonchiso)
+      std::cout<<"PFCleaner::Photon Charged Hadron isolation: difference between re-calculated and original one: "<<chisoval<<" vs "<<photonchiso<<std::endl;
+    chhadiso.push_back(chisoval);
+    
+    // charged hadron isolation
+    float nhisoval = computeNHhadronIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3);
+    if(nhisoval != photonnhiso)
+      std::cout<<"PFCleaner::Photon Neutral Hadron isolation: difference between re-calculated and original one: "<<nhisoval<<" vs "<<photonnhiso<<std::endl;
+    nhhadiso.push_back(nhisoval);
+    
     // Purity studies
     if(addPhotonPurity){
-      bool passeslooseidPurity = testPhotonIsolationLoose(photons_iter, photons_iter->chargedHadronIso(), photons_iter->neutralHadronIso(), rho, photons_iter->hadTowOverEm());
-      if (passeslooseidPurity) {
-	outputphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
-	if (photons_iter->pt() > 100) outputtightphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+      if( photonCand.pt() > photonPurityID.getParameter<double>("ptMin") and
+	  fabs(photonCand.eta()) < photonPurityID.getParameter<double>("etaMax") and
+	  photonhoe < photonPurityID.getParameter<double>("HOverE") and
+	  photonsieie <  photonPurityID.getParameter<double>("sigmaIetaIeta")  and
+	  max(0.,photonchiso - rho*getChargedHadronEAForPhotonIso(photonCand.eta())) < photonPurityID.getParameter<double>("chIso") and
+	  max(0.,photonnhiso - rho*getNeutralHadronEAForPhotonIso(photonCand.eta())) < photonPurityID.getParameter<double>("nhIso") ){
+
+	if(isValid)
+	  outputphotonsPurity->push_back(pat::PhotonRef(calibratedPhotonsH, calibpho_iter - calibratedPhotonsH->begin()));
+	else
+	  outputphotonsPurity->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+
       }
     }
-
     size_t ipos = 0;
     for(auto ipho : photonSelection){
       // check only photons with the following proprierties
       // standard ID
       bool passesid = (*photonsMapH.at(ipos))[photonPtr];
-      if(passesid){	
-	// match with calibrate photons if possible                                                                                                                      
-	if(calibratedPhotonsH.isValid()){ // check if it exists                                                                                                          
-	  if(calibratedPhotonsH->size() != photonsH->size())
-	    throw cms::Exception("PFCleaner") <<" different size between calibrated and un-calibrated photons --> check \n";
-	  bool isMatched = false;
-	  for(vector<pat::Photon>::const_iterator calibpho_iter = calibratedPhotonsH->begin();
-	      calibpho_iter != calibratedPhotonsH->end(); ++calibpho_iter){
-	    // match by reference                                                                                                                                        
-	    if(calibpho_iter->superCluster()       == photons_iter->superCluster() or
-	       calibpho_iter->originalObjectRef()  == photons_iter->originalObjectRef()){
-	      isMatched = true;
-	      if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or 
-		  calibpho_iter->pt() < ipho.getParameter<double>("ptMin") or 
-		  not calibpho_iter->passElectronVeto()) continue;	      
-	      outputphotons.at(ipos)->push_back(pat::PhotonRef(calibratedPhotonsH,calibpho_iter-calibratedPhotonsH->begin()));
-	    }
-	  }
-	  if(not isMatched)
-	    throw cms::Exception("PFCleaner") <<" missing matching for one photons between calib and un-calib collections --> check \n";
-	}
-	else{
-	  if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") or 
-	      photons_iter->pt() < ipho.getParameter<double>("ptMin") or 
-	      not photons_iter->passElectronVeto()) continue;
-	  outputphotons.at(ipos)->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
-	}
+      if(passesid and isValid and isMatched){	
+	if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") ) continue;
+	if (calibpho_iter->pt() < ipho.getParameter<double>("ptMin")) continue;
+	if (not calibpho_iter->passElectronVeto()) continue;
+	outputphotons.at(ipos)->push_back(pat::PhotonRef(calibratedPhotonsH,calibpho_iter-calibratedPhotonsH->begin()));
+      }
+      else if(passesid and not isValid){
+	if (fabs(photons_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") ) continue;
+	if (photons_iter->pt() < ipho.getParameter<double>("ptMin")) continue;
+	if (not photons_iter->passElectronVeto()) continue;
+	outputphotons.at(ipos)->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
       }
       ipos++;
     }    
   }
 
+  // Value maps
   if(addPhotonPurity){
-    edm::ValueMap<float>::Filler rnd04gafiller(*outputrndgammaiso04map);
-    rnd04gafiller.insert(photonsH, rndgammaiso04.begin(), rndgammaiso04.end());
-    rnd04gafiller.fill();
-    edm::ValueMap<float>::Filler rnd08gafiller(*outputrndgammaiso08map);
-    rnd08gafiller.insert(photonsH, rndgammaiso08.begin(), rndgammaiso08.end());
-    rnd08gafiller.fill();
-    
-    edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
-    rnd04chfiller.insert(photonsH, rndchhadiso04.begin(), rndchhadiso04.end());
-    rnd04chfiller.fill();
-
-    edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
-    rnd08chfiller.insert(photonsH, rndchhadiso08.begin(), rndchhadiso08.end());
-    rnd08chfiller.fill();
+    if(calibratedPhotonsH.isValid()){
+      edm::ValueMap<float>::Filler rnd04gafiller(*outputrndgammaiso04map);
+      rnd04gafiller.insert(calibratedPhotonsH, rndgammaiso04.begin(), rndgammaiso04.end());
+      rnd04gafiller.fill();
+      edm::ValueMap<float>::Filler rnd08gafiller(*outputrndgammaiso08map);
+      rnd08gafiller.insert(calibratedPhotonsH, rndgammaiso08.begin(), rndgammaiso08.end());
+      rnd08gafiller.fill();
+      
+      edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
+      rnd04chfiller.insert(calibratedPhotonsH, rndchhadiso04.begin(), rndchhadiso04.end());
+      rnd04chfiller.fill();
+      
+      edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
+      rnd08chfiller.insert(calibratedPhotonsH, rndchhadiso08.begin(), rndchhadiso08.end());
+      rnd08chfiller.fill();
+    }
+    else{
+      edm::ValueMap<float>::Filler rnd04gafiller(*outputrndgammaiso04map);
+      rnd04gafiller.insert(photonsH, rndgammaiso04.begin(), rndgammaiso04.end());
+      rnd04gafiller.fill();
+      edm::ValueMap<float>::Filler rnd08gafiller(*outputrndgammaiso08map);
+      rnd08gafiller.insert(photonsH, rndgammaiso08.begin(), rndgammaiso08.end());
+      rnd08gafiller.fill();
+      
+      edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
+      rnd04chfiller.insert(photonsH, rndchhadiso04.begin(), rndchhadiso04.end());
+      rnd04chfiller.fill();
+      
+      edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
+      rnd08chfiller.insert(photonsH, rndchhadiso08.begin(), rndchhadiso08.end());
+      rnd08chfiller.fill();
+    }
   }
-  
-  edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
-  gafiller.insert(photonsH, gammaiso.begin(), gammaiso.end());
-  gafiller.fill();
 
-  edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
-  chfiller.insert(photonsH, chhadiso.begin(), chhadiso.end());
-  chfiller.fill();
+  if(calibratedPhotonsH.isValid()){
+    edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
+    gafiller.insert(calibratedPhotonsH, gammaiso.begin(), gammaiso.end());
+    gafiller.fill();
+    
+    edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
+    chfiller.insert(calibratedPhotonsH, chhadiso.begin(), chhadiso.end());
+    chfiller.fill();
+    
+    edm::ValueMap<float>::Filler nhfiller(*outputnhhadisomap);
+    nhfiller.insert(calibratedPhotonsH, nhhadiso.begin(), nhhadiso.end());
+    nhfiller.fill();
+
+    edm::ValueMap<float>::Filler sigietaietafiller(*outputsigietaietamap);
+    sigietaietafiller.insert(calibratedPhotonsH, sigietaieta.begin(), sigietaieta.end());
+    sigietaietafiller.fill();
+
+  }
+  else{
+    edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
+    gafiller.insert(photonsH, gammaiso.begin(), gammaiso.end());
+    gafiller.fill();
+    
+    edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
+    chfiller.insert(photonsH, chhadiso.begin(), chhadiso.end());
+    chfiller.fill();
+    
+    edm::ValueMap<float>::Filler nhfiller(*outputnhhadisomap);
+    nhfiller.insert(photonsH, nhhadiso.begin(), nhhadiso.end());
+    nhfiller.fill();
+
+    edm::ValueMap<float>::Filler sigietaietafiller(*outputsigietaietamap);
+    sigietaietafiller.insert(photonsH, sigietaieta.begin(), sigietaieta.end());
+    sigietaietafiller.fill();
+
+  }
 
 
-  //livia    
-  edm::ValueMap<bool>::Filler photonhighptidfiller(*outputphotonhighptidmap);
-  if(calibratedPhotonsH.isValid())
-    photonhighptidfiller.insert(calibratedPhotonsH, photonidhighpt.begin(), photonidhighpt.end());
-  else
-    photonhighptidfiller.insert(photonsH, photonidhighpt.begin(), photonidhighpt.end());
-  photonhighptidfiller.fill();
-
-  //livia    
-  edm::ValueMap<bool>::Filler photonlooseidfiller(*outputloosephotonmap);
-  if(calibratedPhotonsH.isValid())
-    photonlooseidfiller.insert(calibratedPhotonsH, photonloose.begin(), photonloose.end());
-  else
-    photonlooseidfiller.insert(photonsH, photonloose.begin(), photonloose.end());
-  photonlooseidfiller.fill();
-
-  iEvent.put(outputphotonhighptidmap,"photonHighPtId");
-  iEvent.put(outputloosephotonmap,   "photonLooseId");
   iEvent.put(outputgammaisomap,      "gammaiso");  
   iEvent.put(outputchhadisomap,      "chhadiso");  
-  
+  iEvent.put(outputnhhadisomap,      "nhhadiso");  
+  iEvent.put(outputsigietaietamap,   "sigmaietaieta");  
+
   if(addPhotonPurity){
-    iEvent.put(outputphotonsPurity,    "photonsPurity");
-    iEvent.put(outputtightphotonsPurity,"tightphotonsPurity");
     iEvent.put(outputrndgammaiso04map, "rndgammaiso04");
     iEvent.put(outputrndgammaiso08map, "rndgammaiso08");
     iEvent.put(outputrndchhadiso04map, "rndchhadiso04");
     iEvent.put(outputrndchhadiso08map, "rndchhadiso08");
+    iEvent.put(outputphotonsPurity,    "photonsPurity");
   }
 
+
+  ///////////
   for(size_t imuon = 0; imuon < outputmuons.size(); imuon++)
     iEvent.put(outputmuons.at(imuon), muonSelection.at(imuon).getParameter<std::string>("muonCollectionName"));
 
@@ -680,7 +737,7 @@ void PFCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 // Photon purity studies
-bool PFCleaner::randomConeOverlaps(double randomphi, double photoneta, double photonphi, std::vector<pat::Jet> jets, double vetoCone) {
+bool PFCleaner::randomConeOverlaps(const double & randomphi, const double & photoneta, const double & photonphi, const std::vector<pat::Jet> & jets, const double & vetoCone) {
   if (reco::deltaR(photoneta, randomphi, photoneta, photonphi) < vetoCone) return true;
   for (std::size_t i = 0; i < jets.size(); i++) {    
     if (reco::deltaR(photoneta,photonphi,jets[i].eta(),jets[i].phi()) < 0.4) continue;
@@ -691,95 +748,100 @@ bool PFCleaner::randomConeOverlaps(double randomphi, double photoneta, double ph
   return false;
 }
 
-double PFCleaner::computePhotonIso(edm::Handle<edm::View<reco::Candidate> >  pfcandsH, double eta, double phi, double isoCone){
+
+/// to calculate photon isolation
+double PFCleaner::computePhotonIso(const pat::Photon & photon, edm::Handle<edm::View<reco::Candidate> >  pfcandsH, const double & eta, const double & phi, const double & isoCone){
+
   double isoval=0;
   for(size_t i = 0; i < pfcandsH->size(); i++) {
     const auto& pfcand = pfcandsH->ptrAt(i);
-    if (pfcand->pdgId()  ==  22 && deltaR(eta, phi, pfcand->eta(), pfcand->phi()) <= isoCone) isoval += pfcand->pt();
+    if (pfcand->pdgId()  ==  22 && // pf photon candidate
+	deltaR(eta, phi, pfcand->eta(), pfcand->phi()) <= isoCone){
+      // check footprint
+      bool skipCandidate = isInFootprint(photon.associatedPackedPFCandidates(),pfcand);
+      if(skipCandidate) continue;
+      else
+	isoval += pfcand->pt();
+    }
   }
   return isoval;
 }
 
-bool PFCleaner::testPhotonIsolationMedium(std::vector<pat::Photon>::const_iterator& photon, float chargedHadronIsolation, float rhoval, float hoe) {
-  if (photon->isEB()) {
-    if (chargedHadronIsolation<10 && hoe < 0.05) return true;
-    else return false;
-  } 
-  else return false;
-}
 
-bool PFCleaner::testPhotonIsolationLoose(std::vector<pat::Photon>::const_iterator& photon, float chargedHadronIsolation,float neutralHadronIsolation, float rhoval, float hoe) { //cut only on NH and HoE. Cuts on CH and PH and sieie will be applied later for purity studies
-  double corrNHIso = neutralHadronIsolation - rhoval * getNeutralHadronEAForPhotonIso(photon->eta());
-  if (photon->isEB()) {
-    if (corrNHIso < 1.92 + 0.014 * photon->pt() + 0.000019 * pow ( photon->pt(),2) && hoe < 0.05) return true;
-    else return false;
-  }
-  else if (photon->isEE()) {//we care only about EB
-    if (chargedHadronIsolation<10 && hoe<0.05) return true;
-    else return false;
-  }
-  else return false;
-}
+// to compute charged hadronic isolation
+double PFCleaner::computeCHhadronIso(const pat::Photon & photon, edm::Handle<edm::View<reco::Candidate> >  pfcandsH, const double & eta, const double & phi, const double & isoCone, const reco::Vertex & pv){
 
-
-// check the high pt id
-bool PFCleaner::isPassingPhotonHighPtID(double pt, double eta, double hoe, double chiso, double phiso, double sieie, double rho ){
-
-    double chisoCUT = 0;
-    double phisoCUT = 0;
-    double sieieCUT = 0;
-    double hoeCUT   = 0; 
-    double alpha    = 0;
-    double k        = 0;
-    double EA       = 0;
-    double newphiso = 0;
-    int isPassing = false;
-    if(abs(eta)<highPtPhotonID.getParameter<double>("absEta") && pt > highPtPhotonID.getParameter<double>("ptMin")){
-      chisoCUT = highPtPhotonID.getParameter<double>("chIso");
-      sieieCUT = highPtPhotonID.getParameter<double>("sigmaIetaIeta");
-      hoeCUT   = highPtPhotonID.getParameter<double>("HOverE");
-      phisoCUT = highPtPhotonID.getParameter<double>("isolation");
-      alpha    = highPtPhotonID.getParameter<double>("alpha");
-      k        = highPtPhotonID.getParameter<double>("k");
-      if(abs(eta)<0.9) EA=0.17;
-      if(abs(eta)>0.9 && abs(eta)<1.4442) EA=0.14;
+  double isoval=0;
+  for(size_t i = 0; i < pfcandsH->size(); i++) {
+    const auto& pfcand = pfcandsH->ptrAt(i);
+    if (abs(pfcand->pdgId()) == 211 && deltaR(eta,phi,pfcand->eta(),pfcand->phi()) <= isoCone){
+      // check footprint
+      bool skipCandidate = isInFootprint(photon.associatedPackedPFCandidates(),pfcand);
+      if(skipCandidate) continue;
+      
+      // only charged hadrons from PV
+      const reco::Track *theTrack = &( ((const edm::Ptr<pat::PackedCandidate>) pfcand)->pseudoTrack());      
+      float dxy = theTrack->dxy(pv.position());
+      if(fabs(dxy) > 0.1) continue;
+      
+      float dz  = theTrack->dz(pv.position());
+      if (fabs(dz) > 0.2) continue;
+      
+      isoval += pfcand->pt();
     }
-    newphiso = alpha+phiso-rho*EA-k*pt;
-    if(newphiso < phisoCUT && chiso < chisoCUT && sieie < sieieCUT && hoe < hoeCUT)
-      isPassing =true;    
-    return isPassing;
+  }
+  return isoval;
 }
 
-double PFCleaner::getChargedHadronEAForPhotonIso(double eta) {
-  if (fabs(eta) < 1.0) return 0.000000000001;
-  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return  0.000000000001;
-  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return  0.000000000001;
-  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return  0.000000000001;
-  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return  0.000000000001;
-  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.3  ) return  0.000000000001;
-  else if (fabs(eta) >= 2.4) return 0.000000000001 ;
+
+// to compute charged hadronic isolation
+double PFCleaner::computeNHhadronIso(const pat::Photon & photon, edm::Handle<edm::View<reco::Candidate> >  pfcandsH, const double & eta, const double & phi, const double & isoCone){
+
+  double isoval=0;
+  for(size_t i = 0; i < pfcandsH->size(); i++) {
+    const auto& pfcand = pfcandsH->ptrAt(i);
+    if (abs(pfcand->pdgId()) == 130 && deltaR(eta,phi, pfcand->eta(), pfcand->phi()) <= isoCone){
+      // check footprint
+      bool skipCandidate = isInFootprint(photon.associatedPackedPFCandidates(),pfcand);
+      if(skipCandidate) continue;
+      else
+	isoval += pfcand->pt();
+    }
+  }
+  return isoval;
+}
+
+
+double PFCleaner::getChargedHadronEAForPhotonIso(const double & eta) {
+  if (fabs(eta) < 1.0) return 0.0360;
+  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return  0.0377;
+  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return  0.0306;
+  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return  0.0283;
+  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return  0.0254;
+  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.4  ) return  0.0217;
+  else if (fabs(eta) >= 2.4) return 0.0167 ;
   else return 0.;
 }
 
-double PFCleaner::getNeutralHadronEAForPhotonIso(double eta) {
-  if (fabs(eta) < 1.0) return 0.0599;
-  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.0819;
-  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0696;
-  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return 0.036;
-  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return 0.036;
-  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.3  ) return 0.0462;
-  else if (fabs(eta) >= 2.4) return 0.0656;
+double PFCleaner::getNeutralHadronEAForPhotonIso(const double & eta) {
+  if (fabs(eta) < 1.0) return 0.0597;
+  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.0807;
+  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0629;
+  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return 0.0197;
+  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return 0.0184;
+  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.4  ) return 0.0284;
+  else if (fabs(eta) >= 2.4) return 0.0591;
   else return 0.;
 }
 
-double PFCleaner::getGammaEAForPhotonIso(double eta) {
-  if (fabs(eta) < 1.0) return 0.1271;
-  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.1101;
-  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0756;
-  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return 0.1175;
-  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return 0.1498;
-  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.3  ) return 0.1857;
-  else if (fabs(eta) >= 2.4) return 0.2183;
+double PFCleaner::getGammaEAForPhotonIso(const double & eta) {
+  if (fabs(eta) < 1.0) return 0.1210;
+  else if (fabs(eta) >= 1.0   && fabs(eta) < 1.479) return 0.1107;
+  else if (fabs(eta) >= 1.479 && fabs(eta) < 2.0  ) return 0.0699;
+  else if (fabs(eta) >= 2.0   && fabs(eta) < 2.2  ) return 0.1056;
+  else if (fabs(eta) >= 2.2   && fabs(eta) < 2.3  ) return 0.1457;
+  else if (fabs(eta) >= 2.3   && fabs(eta) < 2.3  ) return 0.1719;
+  else if (fabs(eta) >= 2.4) return 0.1998;
   else return 0.;
 }
 

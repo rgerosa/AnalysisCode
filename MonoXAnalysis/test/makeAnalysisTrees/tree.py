@@ -94,7 +94,7 @@ options.register (
 
 ## photon purity studies
 options.register (
-        'addPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'isPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon purity studies --> add some more branches');
 
 options.register (
@@ -202,41 +202,56 @@ if options.isMC and options.miniAODProcess != 'PAT':
 	options.miniAODProcess  = 'PAT'
 
 print "##### Settings ######"
+print "##### General #####"
 print "Running with isMC                = ",options.isMC	
+print "Running with isFastSIM           = ",options.isFastSIM
+print "Running with processName         = ",options.processName	
+print "Running with miniAODProcess      = ",options.miniAODProcess	
+print "Running with outputFileName      = ",options.outputFileName	
+print "Running with globalTag           = ",options.globalTag	
+print "Running with nThreads            = ",options.nThreads
+print "Running with isCrab              = ",options.isCrab
+print "Running with dropAnalyzerDumpEDM = ",options.dropAnalyzerDumpEDM	
+print "##### Skim #####"
 print "Running with filterHighMETEvents = ",options.filterHighMETEvents	
 if options.filterHighMETEvents:
 	print "Running with metCut              = ",options.metCut
 print "Running with filterOnHLT         = ",options.filterOnHLT	
 print "Running with setHLTFilterFlag    = ",options.setHLTFilterFlag
-print "Running with useaddPileupJetIDPrivateSQliteJEC = ",options.usePrivateSQliteJEC	
+print "##### Trigger info #####"
+print "Running with triggerName         = ",options.triggerName
+print "Running with isTriggerTree       = ",options.isTriggerTree
+print "Running with addTriggerObjects   = ",options.addTriggerObjects
+print "##### Regular jets #####"
+print "Running with JEC Era             = ",options.JECEra	
+print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
 print "Running with usePrivateSQliteJER = ",options.usePrivateSQliteJER	
 print "Running with applyL2L3Residuals  = ",options.applyL2L3Residuals	
-print "Running with addPuppiJets        = ",options.addPuppiJets
-print "Running with addPuppiMET         = ",options.addPuppiMET
-print "Running with addEGMSmear         = ",options.addEGMSmear
-print "Running with useMiniAODMet       = ",options.useMiniAODMet
-print "Running with addMETSystematics   = ",options.addMETSystematics
-print "Running with addMETBreakDown     = ",options.addMETBreakDown	
-print "Running with addPhotonPurity     = ",options.addPhotonPurity	
-print "Running with addPhotonIDVariables = ",options.addPhotonIDVariables
-print "Running with addElectronIDVariables = ",options.addElectronIDVariables
-print "Running with processName         = ",options.processName	
-print "Running with miniAODProcess      = ",options.miniAODProcess	
-print "Running with outputFileName      = ",options.outputFileName	
-print "Running with globalTag           = ",options.globalTag	
-print "Running with JEC Era             = ",options.JECEra	
-print "Running with dropAnalyzerDumpEDM = ",options.dropAnalyzerDumpEDM	
 print "Running with addPileupJetID      = ",options.addPileupJetID
 print "Running with addQGLikelihood     = ",options.addQGLikelihood
+print "Running with addPuppiJets        = ",options.addPuppiJets
+print "##### Missing energy #####"
+print "Running with addPuppiMET         = ",options.addPuppiMET
+print "Running with addMETSystematics   = ",options.addMETSystematics
+print "Running with addPuppiMETSystematics = ",options.addPuppiMETSystematics
+print "Running with addMETBreakDown     = ",options.addMETBreakDown	
 print "Running with addMVAMet           = ",options.addMVAMet
-print "Running with addSubstructureCHS  = ",options.addSubstructureCHS
-print "Running with addSubstructurePuppi= ",options.addSubstructurePuppi
+print "Running with useMiniAODMet       = ",options.useMiniAODMet
+print "Running with useOfficialMETSystematics = ",options.useOfficialMETSystematics
+print "##### Electrons/Photons #####"
+print "Running with addEGMSmear          = ",options.addEGMSmear
+print "Running with isPhotonPurity       = ",options.isPhotonPurity	
+print "Running with addPhotonIDVariables = ",options.addPhotonIDVariables
+print "Running with addElectronIDVariables = ",options.addElectronIDVariables
+print "##### Jet Substructure #####"
+print "Running with addSubstructureCHS   = ",options.addSubstructureCHS
+print "Running with addSubstructurePuppi = ",options.addSubstructurePuppi
+print "##### Generator info #####"
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
 print "Running with isSignalSample      = ",options.isSignalSample
 print "Running with addGenParticles     = ",options.addGenParticles
-print "Running with nThreads            = ",options.nThreads
-print "Running with isCrab              = ",options.isCrab
+print "Running with crossSection        = ",options.crossSection
 print "#####################"
 
 ## Define the CMSSW process
@@ -271,8 +286,11 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/0015A622-AA2B-E611-A12D-0023AEFDE888.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/00455E99-5021-E611-998E-003048CF5C10.root')
-		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
+		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/relval/CMSSW_8_0_20/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/A8C282AE-D37A-E611-8603-0CC47A4C8ECE.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/VectorMonoW_Mphi-100_Mchi-1_gSM-0p25_gDM-1p0_v2_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/EA4716D4-DCC8-E611-8702-B083FED045ED.root')
+
 else:
    process.source = cms.Source("PoolSource",
    	  fileNames = cms.untracked.vstring(options.inputFiles))
@@ -342,7 +360,7 @@ process.selectedObjects.jets = cms.InputTag(jetCollName)
 ### gain correction always applied for the time-being
 process.selectedObjects.useCalibratedElectrons = cms.bool(True)
 process.selectedObjects.useCalibratedPhotons = cms.bool(True)
-process.selectedObjects.addPhotonPurity = cms.bool(options.addPhotonPurity)
+process.selectedObjects.addPhotonPurity = cms.bool(options.isPhotonPurity)
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
@@ -477,6 +495,20 @@ process.filterHighRecoil = cms.EDFilter("PATMETFilter",
 					applyAndInsteadOfOr = cms.bool(False)
 					)
 
+if options.isPhotonPurity:
+	if options.filterHighMETEvents and options.metCut != 0:
+		process.filterHighRecoil.metCollections[0].metCut = cms.double(0);
+		process.filterHighRecoil.metCollections[1].metCut = cms.double(0);
+		process.filterHighRecoil.metCollections[2].metCut = cms.double(0);
+		process.filterHighRecoil.metCollections[3].metCut = cms.double(0);
+	
+	process.filterPhotonCandidates = cms.EDFilter("PhotonRefCountFilter",
+						      src = cms.InputTag("selectedObjects","photonsPurity"),
+						      minNumber = cms.int32(1),
+						      maxNumber = cms.int32(999)
+						      )
+
+
 if options.useMiniAODMet:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
      					
@@ -535,20 +567,17 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
 			      tightphotons    = cms.InputTag("selectedObjects", "tightphotons"),			     
 			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
-			      photonLooseId   = cms.InputTag("selectedObjects", "photonLooseId"),			     
 			      ## photon purity
-			      addPhotonPurity = cms.bool(options.addPhotonPurity),
+			      isPhotonPurity  = cms.bool(options.isPhotonPurity),
 			      photonsPurity   = cms.InputTag("selectedObjects", "photonsPurity"),
-			      tightphotonsPurity   = cms.InputTag("selectedObjects", "tightphotonsPurity"),
 			      rndgammaiso04   = cms.InputTag("selectedObjects", "rndgammaiso04"),
 			      rndgammaiso08   = cms.InputTag("selectedObjects", "rndgammaiso08"),
-			      gammaiso        = cms.InputTag("selectedObjects", "gammaiso"),
 			      rndchhadiso04   = cms.InputTag("selectedObjects", "rndchhadiso04"),
 			      rndchhadiso08   = cms.InputTag("selectedObjects", "rndchhadiso08"),
-			      photonsieie = cms.InputTag("photonIDValueMapProducer", "phoFull5x5SigmaIEtaIEta"),
-			      photonPHiso = cms.InputTag("photonIDValueMapProducer", "phoPhotonIsolation"),
-			      photonCHiso = cms.InputTag("photonIDValueMapProducer", "phoChargedIsolation"),
-			      photonNHiso = cms.InputTag("photonIDValueMapProducer", "phoNeutralHadronIsolation"),
+			      photonsieie = cms.InputTag("selectedObjects", "sigmaietaieta"),
+			      photonPHiso = cms.InputTag("selectedObjects", "gammaiso"),
+			      photonCHiso = cms.InputTag("selectedObjects", "chhadiso"),
+			      photonNHiso = cms.InputTag("selectedObjects", "nhhadiso"),
 			      ## taus
 			      taus            = cms.InputTag("selectedObjects","tausNew"),
 			      tausOld         = cms.InputTag("selectedObjects","tausOld"),
@@ -600,8 +629,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      jetidwp          = cms.string("loose"),
 			      applypileupjetid = cms.bool(False),
 			      pileupjetidwp    = cms.string("medium"),
-			      btaggingCSVWP    = cms.double(0.80),
-			      btaggingMVAWP    = cms.double(0.185),
+			      btaggingCSVWP    = cms.double(0.8484),
+			      btaggingMVAWP    = cms.double(0.4432),
 			      minJetPtCountAK4     = cms.double(30),
 			      minJetPtBveto        = cms.double(20),
 			      minJetPtAK4Store     = cms.double(25),
@@ -643,6 +672,14 @@ if options.addMETSystematics :
 			 process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
 			 process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
 			 process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
+else:
+	process.tree.jetsJESUp = cms.InputTag("");
+	process.tree.jetsJESDw = cms.InputTag("");
+	process.tree.jetsJER   = cms.InputTag("");
+	process.tree.puppijetsJESUp =  cms.InputTag("");
+	process.tree.puppijetsJESDw =  cms.InputTag("");
+	process.tree.puppijetsJER   =  cms.InputTag("");
+
 
 # Histo for Btag efficiency
 process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
@@ -662,19 +699,19 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 				 bDiscriminatorInfo = cms.VPSet(
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Loose"),
-			 wpValue = cms.double(0.460)),
+			 wpValue = cms.double(0.5426)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
-			 wpValue = cms.double(0.800)),
+			 wpValue = cms.double(0.8484)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
 			 wpLabel = cms.string("Loose"),
-			 wpValue = cms.double(-0.715)),
+			 wpValue = cms.double(-0.5884)),
 
 		cms.PSet(discriminatorName = cms.string("pfCombinedMVAV2BJetTags"),
 			 wpLabel = cms.string("Medium"),
-			 wpValue = cms.double(0.185)),
+			 wpValue = cms.double(0.4432)),
 		))
 
 if options.addPuppiJets: ## make b-tagging efficiency maps also for puppi jets
@@ -707,7 +744,7 @@ if options.addSubstructurePuppi:
 			bDiscriminatorInfo = cms.VPSet(
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Loose"),
-					 wpValue = cms.double(0.460)),
+					 wpValue = cms.double()),
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Medium"),
 					 wpValue = cms.double(0.800)),
@@ -728,11 +765,11 @@ if options.isFastSIM:
 	
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
-	if (options.isMC):
+	if options.isMC:
 		process.treePath = cms.Path(process.gentree + 					    
 					    process.metFilters+
 					    process.btageff+
-					    process.filterHighRecoil + 
+					    process.filterHighRecoil +
 					    process.tree)
 		if(options.addPuppiJets):
 			process.treePath = cms.Path(process.gentree +
@@ -740,15 +777,19 @@ if options.dropAnalyzerDumpEDM == False:
 						    process.btageff+
 						    process.btageffPuppi+
 						    process.filterHighRecoil +
-						    process.tree)
+						    process.tree)		
 
 		if options.addSubstructureCHS:
 			process.treePath.replace(process.btageff,process.btageff+process.btageffBooostedJet);
 		if options.addSubstructurePuppi:
 			process.treePath.replace(process.btageffPuppi,process.btageffPuppi+process.btageffBooostedPuppiJet);
-
 		if options.addMETBreakDown:
 			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
+		if options.isPhotonPurity:
+			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil + process.filterPhotonCandidates);
+
+
+
 			
 	else :
 		process.treePath = cms.Path(
@@ -758,6 +799,8 @@ if options.dropAnalyzerDumpEDM == False:
 
 		if options.addMETBreakDown:
 			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
+		if options.isPhotonPurity:
+			process.treePath.replace(process.filterHighRecoil,process.filterHighRecoil + process.filterPhotonCandidates);
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

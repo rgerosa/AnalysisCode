@@ -9,7 +9,8 @@ def PhotonTools(process,addEGMSmear,isMC):
 	dataFormat = DataFormat.MiniAOD;
 	switchOnVIDPhotonIdProducer(process, dataFormat);
 	ph_id_modules = []
-	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff')
+	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff')
+	#ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff')
 		
 	for idmod in ph_id_modules:
 		setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
@@ -44,6 +45,10 @@ def PhotonTools(process,addEGMSmear,isMC):
                                 cms.PSet(
                                         eMin = cms.double(400),
 					eMax = cms.double(500),
+                                        value = cms.double(1.0150)),
+                                cms.PSet(
+                                        eMin = cms.double(500),
+					eMax = cms.double(10000),
                                         value = cms.double(1.0150))),
 							  recHitEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
 							  recHitEE = cms.InputTag("reducedEgamma","reducedEERecHits")

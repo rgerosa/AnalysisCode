@@ -25,7 +25,7 @@ pyCfgParams = ['isMC=False',
                'outputFileName=tree.root',
                'nThreads=3',
                'usePrivateSQliteJEC=True',
-#               'JECEra=Spring16_23Sep2016V1',
+               'JECEra=Spring16_23Sep2016V1',
                'isCrab=True']
 
 config.section_('General')

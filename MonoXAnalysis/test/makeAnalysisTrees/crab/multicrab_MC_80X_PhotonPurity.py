@@ -10,22 +10,23 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=100',
+               'metCut=0',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
                'addPuppiJets=True',
                'addPuppiMET=True',
-               'addEGMSmear=False',
+               'addEGMSmear=True',
                'addMETSystematics=True',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=True',
                'addSubstructureCHS=False',
                'addSubstructurePuppi=False',
-               'addPhotonPurity=True',
+               'isPhotonPurity=True',
                'miniAODProcess=PAT',
                'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
                'outputFileName=tree.root',
+               'usePrivateSQliteJEC=True',       
                'nThreads=3',
                'isCrab=True']
 
@@ -45,8 +46,8 @@ config.JobType.numCores         = 3
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 50000
-config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/ProductionMC-7-11-2016_PhotonPurity/'
+config.Data.unitsPerJob   = 60000
+config.Data.outLFNDirBase = '/store/user/rgerosa/MONOJET_ANALYSIS/ProductionMC-05-01-2017_PhotonPurity/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

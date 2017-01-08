@@ -22,7 +22,6 @@ parser.add_option('-b', action='store_true', dest='noX', default=False, help='no
 ## parse files
 parser.add_option('--inputDIR',    action="store", type="string", dest="inputDIR",      default="",   help="input directory where files are located")
 parser.add_option('--outputName',  action="store", type="string", dest="outputName",    default="",   help="input directory where files are located")
-parser.add_option('--fastHadd',    action="store_true", dest="fastHadd", help="use a fast hadd script")
 (options, args) = parser.parse_args()
 
 if __name__ == '__main__':
@@ -42,19 +41,15 @@ if __name__ == '__main__':
         print "go into directory --> ",line;
         print ;
         os.chdir(currentDIR+"/"+line);
-        os.system("find . -name \"*.root\" > file_2_temp.txt");        
+        os.system("find . -name \"*.root\" | grep -v failed | grep .root  > file_2_temp.txt");        
         fs_2 = open("file_2_temp.txt","r");        
         print "create output file with name --> "+options.outputName+"_"+line+".root";
         print ;
-        if not options.fastHadd:
-            command = "hadd -f "+options.outputName+"_"+line+".root";
-        else:
-            command = "python "+originalDIR+"/fhadd.py -f "+options.outputName+"_"+line+".root";
-            
+        command = "hadd -f "+options.outputName+"_"+line+".root";
             
         for line_2 in fs_2:
             line_2 = line_2.replace('\n','');
-            command += " "+line_2;
+           command += " "+line_2;
         print command;        
         print ;
 

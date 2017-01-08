@@ -60,7 +60,7 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   frame->GetYaxis()->SetTitleSize(0.050);
 
   frame->Draw();
-  CMS_lumi(pad1,"35.9",true);
+  CMS_lumi(pad1,"36.4",true);
 
   float maxdata  = -1;
   float mindata  = 1000000;
@@ -214,13 +214,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* ewkwbkg_zmm = (TH1*) inputFile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str());
   TH1* ewkzbkg_zmm = (TH1*) inputFile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str());
   TH1* gambkg_zmm = (TH1*) inputFile->FindObjectAny(("gbkghistzmm_"+observable).c_str());
+  TH1* qcdbkg_zmm = (TH1*) inputFile->FindObjectAny(("qbkghistzmm_"+observable).c_str());
   vllbkg_zmm->Add(vlbkg_zmm);
   vllbkg_zmm->Add(dbbkg_zmm);
   vllbkg_zmm->Add(ttbkg_zmm);
-  vllbkg_zmm->Add(ewkwbkg_zmm);
-  vllbkg_zmm->Add(ewkzbkg_zmm);
+  if(category == Category::VBF){
+    vllbkg_zmm->Add(ewkwbkg_zmm);
+    vllbkg_zmm->Add(ewkzbkg_zmm);
+  }
   vllbkg_zmm->Add(gambkg_zmm);
-  
+  vllbkg_zmm->Add(qcdbkg_zmm);
 
   // ZEE  control region
   TH1* vllbkg_zee = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
@@ -230,12 +233,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* ewkwbkg_zee = (TH1*) inputFile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str());
   TH1* ewkzbkg_zee = (TH1*) inputFile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str());
   TH1* gambkg_zee = (TH1*) inputFile->FindObjectAny(("gbkghistzee_"+observable).c_str());
+  TH1* qcdbkg_zee = (TH1*) inputFile->FindObjectAny(("qbkghistzee_"+observable).c_str());
   vllbkg_zee->Add(vlbkg_zee);
   vllbkg_zee->Add(dbbkg_zee);
   vllbkg_zee->Add(ttbkg_zee);
-  vllbkg_zee->Add(ewkwbkg_zee);
-  vllbkg_zee->Add(ewkzbkg_zee);
+  if(category == Category::VBF){
+    vllbkg_zee->Add(ewkwbkg_zee);
+    vllbkg_zee->Add(ewkzbkg_zee);
+  }
   vllbkg_zee->Add(gambkg_zee);
+  vllbkg_zee->Add(qcdbkg_zee);
 
   // WEN  control region
   TH1* vlbkg_wen   = (TH1*) inputFile->FindObjectAny(("vlbkghistwen_"+observable).c_str());
@@ -251,9 +258,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   vlbkg_wen->Add(ttbkg_wen);
   vlbkg_wen->Add(qbkg_wen);
   vlbkg_wen->Add(gambkg_wen);
-  vlbkg_wen->Add(ewkwbkg_wen);
-  vlbkg_wen->Add(ewkzbkg_wen);
-
+  if(category == Category::VBF){
+    vlbkg_wen->Add(ewkwbkg_wen);
+    vlbkg_wen->Add(ewkzbkg_wen);
+  }
   // WMN  control region
   TH1* vlbkg_wmn   = (TH1*) inputFile->FindObjectAny(("vlbkghistwmn_"+observable).c_str());
   TH1* vllbkg_wmn  = (TH1*) inputFile->FindObjectAny(("vllbkghistwmn_"+observable).c_str());
@@ -268,17 +276,24 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   vlbkg_wmn->Add(ttbkg_wmn);
   vlbkg_wmn->Add(qbkg_wmn);
   vlbkg_wmn->Add(gambkg_wmn);
-  vlbkg_wmn->Add(ewkwbkg_wmn);
-  vlbkg_wmn->Add(ewkzbkg_wmn);
-
+  if(category == Category::VBF){
+    vlbkg_wmn->Add(ewkwbkg_wmn);
+    vlbkg_wmn->Add(ewkzbkg_wmn);
+  }
 
   // GAM  control region
   TH1* gbkg_gam   = NULL;
   TH1* qbkg_gam   = NULL;
+  TH1* vgbkg_gam   = NULL;
+  TH1* vlbkg_gam   = NULL;
   if(category != Category::VBF){
-    gbkg_gam  = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
+    gbkg_gam = (TH1*) inputFile->FindObjectAny(("gbkghistgam_"+observable).c_str());
     qbkg_gam = (TH1*) inputFile->FindObjectAny(("qbkghistgam_"+observable).c_str());
+    vgbkg_gam = (TH1*) inputFile->FindObjectAny(("vgbkghistgam_"+observable).c_str());
+    vlbkg_gam = (TH1*) inputFile->FindObjectAny(("vlbkghistgam_"+observable).c_str());
     gbkg_gam->Add(qbkg_gam);
+    gbkg_gam->Add(vgbkg_gam);
+    gbkg_gam->Add(vlbkg_gam);
   }
 
   //SYS Unc on ratios

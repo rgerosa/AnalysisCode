@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     currentDIR = os.getcwd();
     ## generate binary file
-    ROOT.gROOT.ProcessLine(".L macros/filters.C+");
+    ROOT.gROOT.ProcessLine(".L $CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/filters.C+");
     ## not in batchMode
     if not options.batchMode:        
         os.chdir(options.inputDIR);

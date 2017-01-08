@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-void drawPlot(TCanvas* canvas, TH1* sig1, TH1* sig2, TH1* sig3, TH1* bkg, string outputDIR, string xAxisLabel){
+void drawPlot(TCanvas* canvas, TH1* sig1, TH1* sig2, TH1* sig3, TH1* bkg, string outputDIR, string xAxisLabel, bool isWboson){
 
   sig1->Scale(1./sig1->Integral());
   sig2->Scale(1./sig2->Integral());
@@ -34,9 +34,16 @@ void drawPlot(TCanvas* canvas, TH1* sig1, TH1* sig2, TH1* sig3, TH1* bkg, string
   leg.SetBorderSize(0);
   leg.SetFillStyle(0);
   leg.SetFillColor(0);
-  leg.AddEntry(sig1,"Mono-W m_{med} = 150 GeV","L");
-  leg.AddEntry(sig2,"Mono-W m_{med} = 400 GeV","L");
-  leg.AddEntry(sig3,"Mono-W m_{med} = 600 GeV","L");
+  if(isWboson){
+    leg.AddEntry(sig1,"Mono-W m_{med} = 150 GeV","L");
+    leg.AddEntry(sig2,"Mono-W m_{med} = 400 GeV","L");
+    leg.AddEntry(sig3,"Mono-W m_{med} = 600 GeV","L");
+  }
+  else{
+    leg.AddEntry(sig1,"Mono-Z m_{med} = 150 GeV","L");
+    leg.AddEntry(sig2,"Mono-Z m_{med} = 400 GeV","L");
+    leg.AddEntry(sig3,"Mono-Z m_{med} = 600 GeV","L");
+  }
   leg.AddEntry(bkg,"Z #rightarrow #nu#nu","F");
 
   leg.Draw("same");
@@ -47,7 +54,7 @@ void drawPlot(TCanvas* canvas, TH1* sig1, TH1* sig2, TH1* sig3, TH1* bkg, string
 
 }
 
-void makeBoostedVariablesComparison(string outputDIR){
+void makeBoostedVariablesComparison(string outputDIR, bool isWboson = true){
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
@@ -58,13 +65,20 @@ void makeBoostedVariablesComparison(string outputDIR){
   TChain* signal_mass3 = new TChain("tree/tree","tree/tree");;
   TChain* background = new TChain("tree/tree","tree/tree");
 
-  signal_mass1->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M150_13TeV_powheg_pythia8.root");
-  signal_mass1->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M150_13TeV_powheg_pythia8.root");
-  signal_mass2->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M400_13TeV_powheg_pythia8.root");
-  signal_mass2->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M400_13TeV_powheg_pythia8.root");
-  signal_mass3->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M600_13TeV_powheg_pythia8.root");
-  signal_mass3->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M600_13TeV_powheg_pythia8.root");
-  background->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/ZJets/sigfilter/*root");
+  if(isWboson){
+    signal_mass1->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M150_13TeV_powheg_pythia8.root");
+    signal_mass1->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M150_13TeV_powheg_pythia8.root");
+    signal_mass2->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M400_13TeV_powheg_pythia8.root");
+    signal_mass2->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M400_13TeV_powheg_pythia8.root");
+    signal_mass3->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M600_13TeV_powheg_pythia8.root");
+    signal_mass3->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M600_13TeV_powheg_pythia8.root");
+  }
+  else{
+    signal_mass1->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_ZH_HToInvisible_ZToQQ_M150_13TeV_powheg_pythia8.root");
+    signal_mass2->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_ZH_HToInvisible_ZToQQ_M400_13TeV_powheg_pythia8.root");
+    signal_mass3->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/HiggsInvisible/sigfilter/sig_ZH_HToInvisible_ZToQQ_M600_13TeV_powheg_pythia8.root");
+  }
+  background->Add("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/ZJets/sigfilter/*root");
 
 
   TH1F* prunedmass_sig_mass1 = new TH1F("prunedmass_sig_mass1","",30,0,150);
@@ -292,9 +306,9 @@ void makeBoostedVariablesComparison(string outputDIR){
   TCanvas* canvas = new TCanvas("canvas","",600,650);
   canvas->cd();
 
-  drawPlot(canvas,prunedmass_sig_mass1,prunedmass_sig_mass2,prunedmass_sig_mass3,prunedmass_bkg,outputDIR,"pruned mass [GeV]");
-  drawPlot(canvas,softdropmass_sig_mass1,softdropmass_sig_mass2,softdropmass_sig_mass3,softdropmass_bkg,outputDIR,"softdrop+puppi mass [GeV]");
-  drawPlot(canvas,tau2tau1_sig_mass1,tau2tau1_sig_mass2,tau2tau1_sig_mass3,tau2tau1_bkg,outputDIR,"#tau_{2}/#tau_{1}");
-  drawPlot(canvas,tau2tau1puppi_sig_mass1,tau2tau1puppi_sig_mass2,tau2tau1puppi_sig_mass3,tau2tau1puppi_bkg,outputDIR,"#tau_{2}/#tau_{1} puppi");
+  drawPlot(canvas,prunedmass_sig_mass1,prunedmass_sig_mass2,prunedmass_sig_mass3,prunedmass_bkg,outputDIR,"pruned mass [GeV]",isWboson);
+  drawPlot(canvas,softdropmass_sig_mass1,softdropmass_sig_mass2,softdropmass_sig_mass3,softdropmass_bkg,outputDIR,"softdrop+puppi mass [GeV]",isWboson);
+  drawPlot(canvas,tau2tau1_sig_mass1,tau2tau1_sig_mass2,tau2tau1_sig_mass3,tau2tau1_bkg,outputDIR,"#tau_{2}/#tau_{1}",isWboson);
+  drawPlot(canvas,tau2tau1puppi_sig_mass1,tau2tau1puppi_sig_mass2,tau2tau1puppi_sig_mass3,tau2tau1puppi_bkg,outputDIR,"#tau_{2}/#tau_{1} puppi",isWboson);
 
 }

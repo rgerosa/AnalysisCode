@@ -7,22 +7,25 @@
 
 #include "../makeTemplates/histoUtils.h"
 
-void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion, Category category){
+void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample controlRegion, Category category){
 
   system(("mkdir -p "+outputDir).c_str());
   system(("rm "+outputDir+"/*").c_str());
-
-  TFile* input = TFile::Open(inputFile.c_str());
-  TTree* tree  = (TTree*) input->Get("tree/tree");
+  
+  TChain* chain = new TChain("tree/tree","tree/tree");
+  chain->Add((inputDirectory+"/*root").c_str());
   
   // declare branches
-  TTreeReader myReader(tree);
+  TTreeReader myReader(chain);
   TTreeReaderValue<unsigned int> run    (myReader,"run");
   TTreeReaderValue<unsigned int> lumi   (myReader,"lumi");
   TTreeReaderValue<unsigned int> event  (myReader,"event");
+  TTreeReaderValue<unsigned int> nvtx   (myReader,"nvtx");
 
   // triggers 
   TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm100     (myReader,"hltmet100");
+  TTreeReaderValue<UChar_t> hltm110     (myReader,"hltmet110");
   TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
   TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
   TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
@@ -35,13 +38,16 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   // met filters
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
-  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagcsctight");
+  TTreeReaderValue<UChar_t> fcsct  (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
 
   // njets
   TTreeReaderValue<unsigned int> njets  (myReader,"njets");
+  TTreeReaderValue<unsigned int> nincjets  (myReader,"njetsinc");
   TTreeReaderValue<unsigned int> nbjets (myReader,"nbjets");
   TTreeReaderValue<unsigned int> nbjetslowpt (myReader,"nbjetslowpt");
 
@@ -60,15 +66,15 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
   TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
   TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm");
-  TTreeReaderValue<vector<float> > prunedJetm_v2   (myReader,"prunedJetm_v2");
   TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
 
   // MET
-  TTreeReaderValue<float> met (myReader,"t1pfmet");
-  TTreeReaderValue<float> mmet        (myReader,"t1mumet");
-  TTreeReaderValue<float> emet        (myReader,"t1elmet");
-  TTreeReaderValue<float> pmet        (myReader,"t1phmet");
+  TTreeReaderValue<float> met  (myReader,"t1pfmet");
+  TTreeReaderValue<float> mmet (myReader,"t1mumet");
+  TTreeReaderValue<float> emet (myReader,"t1elmet");
+  TTreeReaderValue<float> pmet (myReader,"t1phmet");
+  TTreeReaderValue<float> metcalo     (myReader,"calomet");
 
   // Dphi
   TTreeReaderValue<float> jmmdphi (myReader,"incjetmumetdphimin4");
@@ -94,8 +100,9 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   // Electron information
   TTreeReaderValue<int> el1pid (myReader,"el1pid");
   TTreeReaderValue<int> el2pid (myReader,"el2pid");
-  TTreeReaderValue<int> el1id (myReader,"el1id");
-  TTreeReaderValue<int> el2id (myReader,"el2id");
+  TTreeReaderValue<int> el1id  (myReader,"el1id");
+  TTreeReaderValue<int> el1idt (myReader,"el1idt");
+  TTreeReaderValue<int> el2id  (myReader,"el2id");
   TTreeReaderValue<float> el1pt (myReader,"el1pt");
   TTreeReaderValue<float> el2pt (myReader,"el2pt");
   TTreeReaderValue<float> el1eta (myReader,"el1eta");
@@ -118,27 +125,28 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
 
   TTreeReaderValue<float> wmt (myReader,"wmt");
   TTreeReaderValue<float> wemt (myReader,"wemt");
-
   TTreeReaderValue<float> wgt (myReader,"wgt");
 
   // output text files for the comparison
-  string control = "";
-  if(controlRegion == Sample::sig) control = "SR";
-  else if(controlRegion == Sample::wmn) control = "wmn";
-  else if(controlRegion == Sample::wen) control = "wen";
-  else if(controlRegion == Sample::zmm) control = "zmm";
-  else if(controlRegion == Sample::zee) control = "zee";
-  else if(controlRegion == Sample::gam) control = "gam";
-  ofstream leptonSelection((outputDir+"/leptonSelection_"+control+".txt").c_str());
-  ofstream photonSelection((outputDir+"/photonSelection_"+control+".txt").c_str());
-  ofstream tauSelection((outputDir+"/tauSelection_"+control+".txt").c_str());
-  ofstream jetSelection((outputDir+"/jetSelection_"+control+".txt").c_str());
-  ofstream metSelection((outputDir+"/metSelection_"+control+".txt").c_str());
-  ofstream btagSelection((outputDir+"/btagSelection_"+control+".txt").c_str());
-  ofstream VtaggingSelection((outputDir+"/VtaggingSelection_"+control+".txt").c_str());
-  ofstream VBFSelection((outputDir+"/VBFSelection_"+control+".txt").c_str());
+  //string control = "";
+  //if(controlRegion == Sample::sig) control = "SR";
+  //else if(controlRegion == Sample::wmn) control = "wmn";
+  //else if(controlRegion == Sample::wen) control = "wen";
+  //else if(controlRegion == Sample::zmm) control = "zmm";
+  //else if(controlRegion == Sample::zee) control = "zee";
+  //else if(controlRegion == Sample::gam) control = "gam";
+  //ofstream leptonSelection((outputDir+"/leptonSelection_"+control+".txt").c_str());
+  //ofstream photonSelection((outputDir+"/photonSelection_"+control+".txt").c_str());
+  //ofstream tauSelection((outputDir+"/tauSelection_"+control+".txt").c_str());
+  //ofstream jetSelection((outputDir+"/jetSelection_"+control+".txt").c_str());
+  //ofstream metSelection((outputDir+"/metSelection_"+control+".txt").c_str());
+  //ofstream btagSelection((outputDir+"/btagSelection_"+control+".txt").c_str());
+  //ofstream VtaggingSelection((outputDir+"/VtaggingSelection_"+control+".txt").c_str());
+  //ofstream VBFSelection((outputDir+"/VBFSelection_"+control+".txt").c_str());
   
   long int n_total        = 0;
+  long int n_metfilter    = 0;
+  long int n_calometfilter = 0;
   long int n_muonLooseSelection  = 0;
   long int n_muonSelection     = 0;
   long int n_electronLooseSelection = 0;
@@ -158,8 +166,11 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   long int n_emVBF        = 0;
   long int n_detaVBF      = 0;
   long int n_mjjVBF       = 0;
+  long int n_dphijjVBF    = 0;
 
   double nwgt_total        = 0;
+  double nwgt_metfilter    = 0;
+  double nwgt_calometfilter    = 0;
   double nwgt_muonLooseSelection  = 0;
   double nwgt_muonSelection     = 0;
   double nwgt_electronLooseSelection = 0;
@@ -176,15 +187,38 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   double nwgt_ak8tau2tau1  = 0;
   double nwgt_ak8mpruned   = 0;
   double nwgt_metHard      = 0;
-  double nwgt_emVBF      = 0;
+  double nwgt_emVBF        = 0;
   double nwgt_detaVBF      = 0;
   double nwgt_mjjVBF       = 0;
-
+  double nwgt_dphijjVBF    = 0;
   /// event loop
   while(myReader.Next()){
     
     n_total++;
     nwgt_total += *wgt;
+
+    // met filters
+    int hlt = 0;
+    if (controlRegion == Sample::sig || controlRegion == Sample::zmm || controlRegion == Sample::wmn)// single and double muon                                         
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170+*hltmwm300+*hltmwm90;
+    if(hlt == 0) continue;
+      
+    if(*fhbhe == 0 or *fhbiso == 0 or *fcsct == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue; 
+    n_metfilter++;
+    nwgt_metfilter += *wgt;
+
+    //noise cleaner
+    if(controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm){
+      if(fabs(*met-*metcalo)/(*mmet) > 0.5) continue;
+    }
+    else if(controlRegion == Sample::wen or controlRegion == Sample::zee){
+      if(fabs(*met-*metcalo)/(*emet) > 0.5) continue;
+    }
+    else if(controlRegion == Sample::gam){
+      if(fabs(*met-*metcalo)/(*pmet) > 0.5) continue;
+    }
+    n_calometfilter++;
+    nwgt_calometfilter +=*wgt;
 
     // muon selection
     if((controlRegion == Sample::sig or controlRegion == Sample::wen or controlRegion == Sample::zee or controlRegion == Sample::gam) and *nmuons != 0) continue;
@@ -220,8 +254,9 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       n_electronLooseSelection++;
       nwgt_electronLooseSelection += *wgt;;
        if(*el1pt < 40) continue;
-      if(fabs(*el1eta) > 2.5) continue;
-      if(*el1id != 1) continue;
+       if(fabs(*el1eta) > 2.5) continue;
+       if(*el1id != 1) continue;
+       if(*el1idt != 1) continue;
     }
     else if(controlRegion == Sample::zee){      
       if (*nelectrons != 2 ) continue;
@@ -240,7 +275,7 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
 
     n_electronSelection++;
     nwgt_electronSelection += *wgt;
-    leptonSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+    //leptonSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
     // photon selection
     if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm or controlRegion == Sample::wen or controlRegion == Sample::zee) and *nphotons != 0) continue;
@@ -252,21 +287,21 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
 
     n_photonSelection++;
     nwgt_photonSelection += *wgt;
-    photonSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+    //photonSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
     
     ///////////
     if(*ntaus != 0) continue;
     n_tauSelection++;
     nwgt_tauSelection += *wgt;
-    tauSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+    //tauSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
         
     ///////////
     if(*nbjetslowpt > 0) continue;
     n_bjetSelection++;
     nwgt_bjetSelection += *wgt;
-    btagSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+    //btagSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
-    ///////////
+    /////////// met + mT
     if(controlRegion == Sample::wen){
       if(*met < 50) continue;
       if(*wemt > 160) continue;
@@ -278,7 +313,6 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
     n_metmT++;
     nwgt_metmT += *wgt;
 
-
     ///////////
     if(category == Category::monojet){
 
@@ -289,19 +323,18 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       nwgt_jetpt += *wgt;
     
       if(chfrac->at(0) < 0.1) continue;
-      if(nhfrac->at(0) > 0.8) continue;
+      if(nhfrac->at(0) > 0.8) continue;      
       n_jetid++;
       nwgt_jetid += *wgt;
 
-      jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
-
+      //jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
       if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *mmet < 200) continue;
       else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *emet < 200) continue;
       else if(controlRegion == Sample::gam and *pmet < 200) continue;
       n_metcut++;
       nwgt_metcut += *wgt;
-      metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+      //metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
       ///////////
       if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and fabs(*jmmdphi) < 0.5) continue;
@@ -309,13 +342,14 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       else if(controlRegion == Sample::gam and fabs(*jpmdphi) < 0.5) continue;
       
       n_jetdphi++;
-      nwgt_jetdphi += *wgt;
+      //nwgt_jetdphi += *wgt;
     
     }
     ///////////
     else if(category == Category::monoV){
 
       // still apply the monojet id on the leading jet
+      if(*njets < 1) continue;
       if(jetpt->size() <= 0) continue;
       if(jetpt->at(0)  < 100) continue;
       if(fabs(jeteta->at(0)) > 2.5) continue;
@@ -327,14 +361,14 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       n_jetid++;
       nwgt_jetid += *wgt;
 
-      jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+      //jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
-      if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *mmet < 200) continue;
-      else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *emet < 200) continue;
-      else if(controlRegion == Sample::gam and *pmet < 200) continue;
+      if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *mmet < 250) continue;
+      else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *emet < 250) continue;
+      else if(controlRegion == Sample::gam and *pmet < 250) continue;
       n_metcut++;
       nwgt_metcut += *wgt;
-      metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+      //metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
       ///////////
       if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and fabs(*jmmdphi) < 0.5) continue;
@@ -355,44 +389,47 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       n_ak8tau2tau1++;
       nwgt_ak8tau2tau1 += *wgt;
 
-      if(prunedJetm_v2->at(0) < 65 or prunedJetm_v2->at(0) > 105 ) continue;
+      if(prunedJetm->at(0) < 65 or prunedJetm->at(0) > 105 ) continue;
       n_ak8mpruned++;
       nwgt_ak8mpruned += *wgt;
       
-      VtaggingSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
-
-      if(*met<250) continue;
-      n_metHard++;
-      nwgt_metHard += *wgt;
+      //VtaggingSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
     }
     ///////////
     else if(category == Category::VBF){
       
       if(jetpt->size() < 2) continue;
+      if(*nincjets < 2) continue;
 
       TLorentzVector leadingJet;
       leadingJet.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       TLorentzVector subleadingJet;
       subleadingJet.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       
-      if(leadingJet.Pt() < 80 or fabs(leadingJet.Eta()) > 4.7) continue;
-      if(subleadingJet.Pt() < 40 or fabs(subleadingJet.Eta()) > 4.7) continue;
+      if(leadingJet.Pt() < 80) continue;
+      if(fabs(leadingJet.Eta()) > 4.7) continue;
+      if(subleadingJet.Pt() < 40) continue;
+      if(fabs(subleadingJet.Eta()) > 4.7) continue;
       n_jetpt++;
       nwgt_jetpt += *wgt;
       
-      //if(fabs(leadingJet.Eta()) < 2.5 and chfrac->at(0) < 0.1) continue;
-      //if(fabs(leadingJet.Eta()) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(leadingJet.Eta()) < 2.5 and chfrac->at(0) < 0.1) continue;
+      if(fabs(leadingJet.Eta()) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(leadingJet.Eta()) < 3.2 and fabs(leadingJet.Eta()) > 3.0 and nhfrac->at(0) > 0.96) continue;
       n_jetid++;
       nwgt_jetid += *wgt;
 
-      jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+      //jetSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
       if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *mmet < 200) continue;
       else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *emet < 200) continue;
       else if(controlRegion == Sample::gam and *pmet < 200) continue;
+      if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and *mmet > 8000) continue;
+      else if((controlRegion == Sample::wen or controlRegion == Sample::zee) and *emet > 8000) continue;
+      else if(controlRegion == Sample::gam and *pmet > 8000) continue;
       n_metcut++;
       nwgt_metcut += *wgt;
-      metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
+      //metSelection << *run << " "<<*lumi<<" "<<*event<<"\n";
 
       ///////////
       if((controlRegion == Sample::sig or controlRegion == Sample::wmn or controlRegion == Sample::zmm) and fabs(*jmmdphi) < 0.5) continue;
@@ -406,53 +443,62 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
       n_emVBF++;
       nwgt_emVBF += *wgt;
 
-      if(fabs(leadingJet.Eta()-subleadingJet.Eta()) < 2.5) continue;
+      if(fabs(leadingJet.Eta()-subleadingJet.Eta()) < 3.5) continue;
       n_detaVBF++;
       nwgt_detaVBF += *wgt;
       
-      if((leadingJet+subleadingJet).M() < 500) continue; 
+      if((leadingJet+subleadingJet).M() < 1000) continue; 
       n_mjjVBF++;
       nwgt_mjjVBF += *wgt;
-      VBFSelection << *run << "  "<<*lumi<<" "<<*event<<"\n";
+
+      if(fabs(leadingJet.DeltaPhi(subleadingJet)) > 1.5) continue;
+      n_dphijjVBF++;
+      nwgt_dphijjVBF += *wgt;
+
+      //VBFSelection << *run << "  "<<*lumi<<" "<<*event<<"\n";
+
+      cout<<"met "<<*met<<" jetpt "<<jetpt->at(0)<<" "<<jetpt->at(1)<<" detajj "<<fabs(leadingJet.Eta()-subleadingJet.Eta())<<" jetmetdphi "<<*jmmdphi<<" nvtx "<<*nvtx<<" event "<<*event<<endl;
       
     }
   }
   
-  leptonSelection.close();
-  photonSelection.close();
-  tauSelection.close();
-  jetSelection.close();
-  metSelection.close();
-  btagSelection.close();
-  VtaggingSelection.close();
-  VBFSelection.close();
+  //  leptonSelection.close();
+  //  photonSelection.close();
+  //  tauSelection.close();
+  //  jetSelection.close();
+  //  metSelection.close();
+  //  btagSelection.close();
+  //  VtaggingSelection.close();
+  //  VBFSelection.close();
 
   cout<<"############################"<<endl;
   cout<<"## Event report in the CR ##"<<endl;
   cout<<"############################"<<endl;
-  cout<<"total event = "              <<n_total<<endl;
-  cout<<"muon loose selection event = "     <<n_muonLooseSelection<<" efficiency "<<float(n_muonLooseSelection)/n_total<<endl;
-  cout<<"muon selection event = "     <<n_muonSelection     <<" efficiency "<<float(n_muonSelection)/n_total<<endl;
-  cout<<"electron loose selection event = "     <<n_electronLooseSelection<<" efficiency "<<float(n_electronLooseSelection)/n_total<<endl;
-  cout<<"electron selection event = " <<n_electronSelection <<" efficiency "<<float(n_electronSelection)/n_total<<endl;
-  cout<<"photon selection event = "   <<n_photonSelection   <<" efficiency "<<float(n_photonSelection)/n_total<<endl;
-  cout<<"tau selection event = "      <<n_tauSelection      <<" efficiency "<<float(n_tauSelection)/n_total<<endl;
-  cout<<"bjet selection event = "     <<n_bjetSelection     <<" efficiency "<<float(n_bjetSelection)/n_total<<endl;
-  cout<<"pfmet+mT selection event = " <<n_metmT             <<" efficiency "<<float(n_metmT)/n_total<<endl;
-  cout<<"jetpt event = "              <<n_jetpt             <<" efficiency "<<float(n_jetpt)/n_total<<endl;
-  cout<<"jetid event = "              <<n_jetid             <<" efficiency "<<float(n_jetid)/n_total<<endl;
-  cout<<"met cut event = "            <<n_metcut            <<" efficiency "<<float(n_metcut)/n_total<<endl;
-  cout<<"jetphi event = "             <<n_jetdphi           <<" efficiency "<<float(n_jetdphi)/n_total<<endl;
+  cout<<"total event                = "<<n_total<<endl;
+  cout<<"met filters                = "<<n_metfilter<<" efficiency "<<float(n_metfilter)/n_total<<endl;
+  cout<<"calo-met filter            = "<<n_calometfilter<<" efficiency "<<float(n_calometfilter)/n_total<<endl;
+  cout<<"muon loose selection event = "<<n_muonLooseSelection<<" efficiency "<<float(n_muonLooseSelection)/n_total<<endl;
+  cout<<"muon selection event       = "<<n_muonSelection     <<" efficiency "<<float(n_muonSelection)/n_total<<endl;
+  cout<<"electron loose selection event = "<<n_electronLooseSelection<<" efficiency "<<float(n_electronLooseSelection)/n_total<<endl;
+  cout<<"electron selection event   = "<<n_electronSelection <<" efficiency "<<float(n_electronSelection)/n_total<<endl;
+  cout<<"photon selection event     = "<<n_photonSelection   <<" efficiency "<<float(n_photonSelection)/n_total<<endl;
+  cout<<"tau selection event        = "<<n_tauSelection      <<" efficiency "<<float(n_tauSelection)/n_total<<endl;
+  cout<<"bjet selection event       = "<<n_bjetSelection     <<" efficiency "<<float(n_bjetSelection)/n_total<<endl;
+  cout<<"pfmet+mT selection event   = "<<n_metmT             <<" efficiency "<<float(n_metmT)/n_total<<endl;
+  cout<<"jetpt event                = "<<n_jetpt             <<" efficiency "<<float(n_jetpt)/n_total<<endl;
+  cout<<"jetid event                = "<<n_jetid             <<" efficiency "<<float(n_jetid)/n_total<<endl;
+  cout<<"met cut event              = "<<n_metcut            <<" efficiency "<<float(n_metcut)/n_total<<endl;
+  cout<<"jetphi event               = "<<n_jetdphi           <<" efficiency "<<float(n_jetdphi)/n_total<<endl;
   if(category == Category::monoV){
-    cout<<"ak8 pt event = "           <<n_ak8pt             <<" efficiency "<<float(n_ak8pt)/n_total<<endl;
-    cout<<"ak8 tau2tau1 event = "     <<n_ak8tau2tau1       <<" efficiency "<<float(n_ak8tau2tau1)/n_total<<endl;
-    cout<<"ak8 mpruned event = "      <<n_ak8mpruned        <<" efficiency "<<float(n_ak8mpruned)/n_total<<endl;
-    cout<<"met hard cut = "           <<n_metHard           <<" efficiency "<<float(n_metHard)/n_total<<endl;
+    cout<<"ak8 pt event             = "<<n_ak8pt             <<" efficiency "<<float(n_ak8pt)/n_total<<endl;
+    cout<<"ak8 tau2tau1 event       = "<<n_ak8tau2tau1       <<" efficiency "<<float(n_ak8tau2tau1)/n_total<<endl;
+    cout<<"ak8 mpruned event        = "<<n_ak8mpruned        <<" efficiency "<<float(n_ak8mpruned)/n_total<<endl;
   }
   else if(category == Category::VBF){
     cout<<"n opposite hem VBF = "<<n_emVBF   <<" efficiency "<<float(n_emVBF)/n_total<<endl;
     cout<<"deta VBF           = "<<n_detaVBF <<" efficiency "<<float(n_detaVBF)/n_total<<endl;
     cout<<"mjj VBF            = "<<n_mjjVBF  <<" efficiency "<<float(n_mjjVBF)/n_total<<endl;
+    cout<<"dphijj VBF         = "<<n_dphijjVBF  <<" efficiency "<<float(n_dphijjVBF)/n_total<<endl;
   }
   
 
@@ -460,9 +506,11 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
   cout<<"## Event report in the CR weighted ##"<<endl;
   cout<<"#####################################"<<endl;
   cout<<"total event = "               <<nwgt_total<<endl;
-  cout<<"muon loose selection event = "     <<nwgt_muonLooseSelection<<" efficiency "<<float(nwgt_muonLooseSelection)/nwgt_total<<endl;
+  cout<<"met filters  = "              <<nwgt_metfilter<<" efficiency "<<float(nwgt_metfilter)/n_total<<endl;
+  cout<<"calo-met filter  = "          <<nwgt_calometfilter<<" efficiency "<<float(n_calometfilter)/n_total<<endl;  
+  cout<<"muon loose selection event = "<<nwgt_muonLooseSelection<<" efficiency "<<float(nwgt_muonLooseSelection)/nwgt_total<<endl;
   cout<<"muon selection event = "      <<nwgt_muonSelection     <<" efficiency "<<float(nwgt_muonSelection)/nwgt_total<<endl;
-  cout<<"electron loose selection event = "     <<nwgt_electronLooseSelection<<" efficiency "<<float(nwgt_electronLooseSelection)/nwgt_total<<endl;
+  cout<<"electron loose selection event = "<<nwgt_electronLooseSelection<<" efficiency "<<float(nwgt_electronLooseSelection)/nwgt_total<<endl;
   cout<<"electron selection event = "  <<nwgt_electronSelection <<" efficiency "<<float(nwgt_electronSelection)/nwgt_total<<endl;
   cout<<"photon selection event = "    <<nwgt_photonSelection   <<" efficiency "<<float(nwgt_photonSelection)/nwgt_total<<endl;
   cout<<"tau selection event = "       <<nwgt_tauSelection      <<" efficiency "<<float(nwgt_tauSelection)/nwgt_total<<endl;
@@ -476,11 +524,11 @@ void checkEventsForSync(string inputFile, string outputDir, Sample controlRegion
     cout<<"ak8 pt event = "              <<nwgt_ak8pt           <<" efficiency "<<float(nwgt_ak8pt)/nwgt_total<<endl;
     cout<<"ak8 tau2tau1 event = "        <<nwgt_ak8tau2tau1     <<" efficiency "<<float(nwgt_ak8tau2tau1)/nwgt_total<<endl;
     cout<<"ak8 mpruned event = "         <<nwgt_ak8mpruned      <<" efficiency "<<float(nwgt_ak8mpruned)/nwgt_total<<endl;
-    cout<<"met hard cut = "              <<nwgt_metHard         <<" efficiency "<<float(nwgt_metHard)/nwgt_total<<endl;
   }
   else if(category == Category::VBF){
     cout<<"n opposite hem VBF = "  <<nwgt_emVBF   <<" efficiency "<<float(nwgt_emVBF)/nwgt_total<<endl;
     cout<<"deta VBF = "            <<nwgt_detaVBF <<" efficiency "<<float(nwgt_detaVBF)/nwgt_total<<endl;
-    cout<<"mjj VBF = "             <<nwgt_mjjVBF  <<" efficiency "<<float(nwgt_mjjVBF)/nwgt_total<<endl;
-  }  
+    cout<<"mjj VBF = "             <<nwgt_mjjVBF  <<" efficiency "<<float(nwgt_mjjVBF)/nwgt_total<<endl; 
+    cout<<"dphijj VBF         = "<<n_dphijjVBF  <<" efficiency "<<float(n_dphijjVBF)/n_total<<endl;
+ }  
 }
