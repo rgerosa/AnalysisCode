@@ -49,7 +49,7 @@ if __name__ == '__main__':
             
         for line_2 in fs_2:
             line_2 = line_2.replace('\n','');
-           command += " "+line_2;
+            command += " "+line_2;
         print command;        
         print ;
 
