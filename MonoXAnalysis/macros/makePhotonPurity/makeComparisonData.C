@@ -390,8 +390,8 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, string outputDIR, 
       float dphitemp = fabs(met.Phi()-jetphi->at(ijet));
       if(dphitemp > TMath::Pi())
 	dphitemp = 2*TMath::Pi()-dphitemp;
-      if(dphi < mindphi)
-	mindphi = dphi; 
+      if(dphitemp < mindphi)
+	mindphi = dphitemp; 
     }
     if(mindphi < 0.5) continue;
 
@@ -443,7 +443,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, string outputDIR, 
     }
   }
   cout<<endl;
-  cout<<"Not matched events after selections "<<notMatchedEvents<<" event passing selections "<<effectiveEvents<<" i.e. "<<double(notMatchedEvents)/effectiveEvents*100<<endl;
+  cout<<"Not matched events after selections "<<notMatchedEvents<<" event passing selections "<<effectiveEvents<<" i.e. "<<double(notMatchedEvents)/effectiveEvents*100 << " %"<<endl;
 
   if(doOppositeMatching){
 
@@ -528,8 +528,8 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, string outputDIR, 
 	float dphitemp = fabs(met.Phi()-jetphi_alt->at(ijet));
 	if(dphitemp > TMath::Pi())
 	  dphitemp = 2*TMath::Pi()-dphitemp;
-	if(dphi < mindphi)
-	  mindphi = dphi; 
+	if(dphitemp < mindphi)
+	  mindphi = dphitemp; 
       }    
       if(mindphi < 0.5) continue;
       
@@ -554,7 +554,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, string outputDIR, 
     }
     
     cout<<endl;
-    cout<<"Not matched events after selections "<<notMatchedEvents<<" event passing selections "<<effectiveEvents<<" i.e. "<<double(notMatchedEvents)/effectiveEvents*100<<endl;    
+    cout<<"Not matched events after selections "<<notMatchedEvents<<" event passing selections "<<effectiveEvents<<" i.e. "<<double(notMatchedEvents)/effectiveEvents*100<< " %"<<endl;    
   }
   
   TCanvas* canvas = new TCanvas("canvas","",600,650);
