@@ -186,7 +186,10 @@ private:
   edm::EDGetTokenT<GlobalAlgBlkBxCollection> T_L1Algos;
   edm::EDGetTokenT<bool> badChargedCandidateToken;
   edm::EDGetTokenT<bool> badPFMuonToken;
-  
+
+  // QCD bacground trees
+  const bool isQCDTree;
+
   // Vertex
   const edm::InputTag verticesTag;
   edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
@@ -371,9 +374,11 @@ private:
 
   // pileup info
   int32_t puobs,putrue; 
+  // W/Z boson ifo
   int32_t wzid,l1id,l2id;
   int32_t wzid_h,q1id,q2id;
   int32_t top_1,top_2;  
+  // lepton info
   int32_t mu1pid,mu2pid,mu1id,mu2id,mu1idm,mu2idm,mu1idt,mu2idt;
   int32_t el1pid,el2pid,el1id,el1idl,el1idt,el2id,el2idl,el2idt;
   int32_t tau1pid,tau2pid;
@@ -396,14 +401,18 @@ private:
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
   uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
   uint8_t hltjetmet;
-  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf;
+  // photon trigger
+  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf,hltphoton90PFHT;
+  // lepton trigger
   uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
+  // PF HT trigger
+  uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350;
   uint8_t hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
   uint8_t hltEcalHT800;
-  uint8_t hltphoton90PFHT;
 
-  //pre-scales
+  //pre-scales for PF-HT
   float pswgt_ph120,pswgt_ph90;
+  float pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350;  
   float pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
   
   //met filters
@@ -667,6 +676,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   IT_L1_Mu           (iConfig.existsAs<edm::InputTag>("triggerL1Mu")   ?  iConfig.getParameter<edm::InputTag>("triggerL1Mu")   : edm::InputTag("")),
   IT_L1_Sums         (iConfig.existsAs<edm::InputTag>("triggerL1Sums") ?  iConfig.getParameter<edm::InputTag>("triggerL1Sums") : edm::InputTag("")), 
   IT_L1_Algos        (iConfig.existsAs<edm::InputTag>("triggerL1algos") ? iConfig.getParameter<edm::InputTag>("triggerL1algos") : edm::InputTag("gtStage2Digis")),
+  // QCD tree info
+  isQCDTree   (iConfig.getParameter<bool>("isQCDTree")),
   // vertexes
   verticesTag (iConfig.getParameter<edm::InputTag>("vertices")),
   // rho
@@ -772,6 +783,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   tightelectronsToken  = consumes<pat::ElectronRefVector> (tightelectronsTag);
   triggerelectronsToken  = consumes<pat::ElectronRefVector> (triggerelectronsTag);
   heepelectronsToken   = consumes<pat::ElectronRefVector> (heepelectronsTag);
+
   // photons
   photonsToken        = consumes<pat::PhotonRefVector> (photonsTag);
   mediumphotonsToken  = consumes<pat::PhotonRefVector> (mediumphotonsTag);
@@ -825,7 +837,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   }
  
   // only for simulated samples
-  if( isMC ){
+  if(isMC){
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
     genevtInfoToken = consumes<GenEventInfoProduct> (iConfig.getParameter<edm::InputTag>("genevt"));
     lheInfoToken    = consumes<LHEEventProduct> (lheEventTag);
@@ -1231,6 +1243,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     hltsingleel     = 0;
     hltsingleel27   = 0;
     hltelnoiso      = 0;
+    hltPFHT125      = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0;
     hltPFHT400      = 0; hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
     hltEcalHT800    = 0; 
     hltphoton90PFHT = 0;
@@ -3680,6 +3693,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("event"                , &event                , "event/i");
   tree->Branch("run"                  , &run                  , "run/i");
   tree->Branch("lumi"                 , &lumi                 , "lumi/i");
+
   // Event weights
   // Pileup info
   if(not isTriggerTree){
@@ -3687,9 +3701,9 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("puobs"                , &puobs                , "puobs/I");
     tree->Branch("xsec"                 , &xsec                 , "xsec/F");
     tree->Branch("wgt"                  , &wgt                  , "wgt/F");
+    tree->Branch("putrue"               , &putrue               , "putrue/I");
   }
 
-  tree->Branch("putrue"               , &putrue               , "putrue/I");
   tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
   
   // Triggers
@@ -3704,33 +3718,49 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
   tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
   tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/b");
-  tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
-  tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
-  tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
-  tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
-  tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+  if(not isQCDTree){
+    tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
+    tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
+    tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
+    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+    tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
+    tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
+  }
+  tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
 
-  tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
-  tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
-  tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
-  tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
-  tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
-  tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
+  if(not isQCDTree){
+    tree->Branch("hltdoublemu"          , &hltdoublemu          , "hltdoublemu/b");
+    tree->Branch("hltsinglemu"          , &hltsinglemu          , "hltsinglemu/b");
+    tree->Branch("hltdoubleel"          , &hltdoubleel          , "hltdoubleel/b");
+    tree->Branch("hltsingleel"          , &hltsingleel          , "hltsingleel/b");
+    tree->Branch("hltsingleel27"        , &hltsingleel27        , "hltsingleel27/b");
+    tree->Branch("hltelnoiso"           , &hltelnoiso           , "hltelnoiso/b");
+  }
 
   if(not isPhotonPurity){
+
+    if(isQCDTree){
+      tree->Branch("hltPFHT125"           , &hltPFHT125           , "hltPFHT125/b");
+      tree->Branch("hltPFHT200"           , &hltPFHT200           , "hltPFHT200/b");
+      tree->Branch("hltPFHT250"           , &hltPFHT250           , "hltPFHT250/b");
+      tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");
+      tree->Branch("hltPFHT350"           , &hltPFHT350           , "hltPFHT350/b");
+    }
     tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
     tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
     tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
     tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
     tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
     tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
-    tree->Branch("hltEcalHT800"         , &hltEcalHT800         , "hltEcalHT800/b");
-    tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
-
     tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
     tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
     
-    if(isTriggerTree){
+    if(isTriggerTree or isQCDTree){
+      tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/F");
+      tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/F");
+      tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/F");
+      tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/F");
+      tree->Branch("pswgt_ht350"          , &pswgt_ht350          , "pswgt_ht350/F");
       tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/F");
       tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/F");
       tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/F");
@@ -3739,7 +3769,7 @@ void MonoJetTreeMaker::beginJob() {
       tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/F");
     }
   }
-
+  
   // MET filters
   tree->Branch("flagcsctight"         , &flagcsctight         , "flagcsctight/b");
   tree->Branch("flaghbhenoise"        , &flaghbhenoise        , "flaghbhenoise/b");
@@ -3820,7 +3850,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("nbjetsMVAlowpt"       , &nbjetsMVAlowpt       , "nbjetsMVAlowpt/i");
   }
 
-  if(addPuppiJets and not isTriggerTree and not isPhotonPurity){
+  if(addPuppiJets and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("npuppijets"                , &npuppijets                , "npuppijets/i");
     tree->Branch("npuppijetsinc"             , &npuppijetsinc             , "npuppijetsinc/i");
     if(addMETSystematics){
@@ -3859,7 +3889,7 @@ void MonoJetTreeMaker::beginJob() {
   }
   tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/F");
   tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/F");
-  if(not isTriggerTree and not isPhotonPurity){
+  if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("taumet"                , &taumet                , "taumet/F");
     tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/F");
     tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/F");
@@ -3867,8 +3897,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("genmet",    &genmet,   "genmet/F");
     tree->Branch("genmetphi", &genmetphi,"genmetphi/F");
   }
-
-  if(addMETBreakDown and not isTriggerTree and not isPhotonPurity){
+  
+  if(addMETBreakDown and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     
     tree->Branch("pfmethadronHF",&pfmethadronHF,"pfmethadronHF/F");
     tree->Branch("pfmethadronHFphi",&pfmethadronHFphi,"pfmethadronHFphi/F");
@@ -3888,12 +3918,12 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("pfmetunclusteredphi",&pfmetunclusteredphi,"pfmetunclusteredphi/F");
   }
 
-  if(addMVAMet and not isTriggerTree and not isPhotonPurity){
+  if(addMVAMet and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("mvamet"              , &mvamet              , "mvamet/F");
     tree->Branch("mvametphi"           , &mvametphi           , "mvametphi/F");
   }
 
-  if(addMETSystematics and not isTriggerTree and not isPhotonPurity){
+  if(addMETSystematics and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("t1pfmetMuEnUp"       , &t1pfmetMuEnUp       , "t1pfmetMuEnUp/F");
     tree->Branch("t1pfmetMuEnDown"     , &t1pfmetMuEnDown     , "t1pfmetMuEnDown/F");
     tree->Branch("t1pfmetElEnUp"       , &t1pfmetElEnUp       , "t1pfmetElEnUp/F");
@@ -3930,7 +3960,7 @@ void MonoJetTreeMaker::beginJob() {
 
   }
 
-  if(addPuppiMET and not isTriggerTree and not isPhotonPurity){
+  if(addPuppiMET and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("puppipfmet"                , &puppipfmet                , "puppipfmet/F");
     tree->Branch("puppipfmetphi"             , &puppipfmetphi             , "puppipfmetphi/F");
     tree->Branch("puppit1pfmet"              , &puppit1pfmet              , "puppit1pfmet/F");
@@ -3948,7 +3978,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("puppit1phmet"              , &puppit1phmet              , "puppit1phmet/F");
     tree->Branch("puppit1phmetphi"           , &puppit1phmetphi           , "puppit1phmetphi/F");
 
-    if(addMETSystematics and not isTriggerTree and not isPhotonPurity){
+    if(addMETSystematics and not isTriggerTree and not isPhotonPurity and not isQCDTree){
       tree->Branch("puppit1pfmetMuEnUp"       , &puppit1pfmetMuEnUp       , "puppit1pfmetMuEnUp/F");
       tree->Branch("puppit1pfmetMuEnDown"     , &puppit1pfmetMuEnDown     , "puppit1pfmetMuEnDown/F");
       tree->Branch("puppit1pfmetElEnUp"       , &puppit1pfmetElEnUp       , "puppit1pfmetElEnUp/F");
@@ -3996,6 +4026,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("combinejetCHfrac",  "std::vector<float>", &combinejetCHfrac);
   tree->Branch("combinejetNHfrac",  "std::vector<float>", &combinejetNHfrac);
   if(not isTriggerTree){
+
     tree->Branch("combinejetEMfrac",  "std::vector<float>", &combinejetEMfrac);
     tree->Branch("combinejetCEMfrac", "std::vector<float>", &combinejetCEMfrac);
     tree->Branch("combinejetPHfrac", "std::vector<float>", &combinejetPHfrac);
@@ -4030,7 +4061,6 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("combinejetBtagMVASFDown", "std::vector<float>", &combinejetBtagMVASFDown);    
     tree->Branch("jetjetdphi"           , &jetjetdphi           , "jetjetdphi/F");
   
-
     tree->Branch("incjetmetdphimin"     , &incjetmetdphimin     , "incjetmetdphimin/F");
     tree->Branch("incjetmumetdphimin"   , &incjetmumetdphimin   , "incjetmumetdphimin/F");
     tree->Branch("incjetelmetdphimin"   , &incjetelmetdphimin   , "incjetelmetdphimin/F");
@@ -4080,7 +4110,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("incjetelmetdphimin4"  , &incjetelmetdphimin4  , "incjetelmetdphimin4/F");
   tree->Branch("incjetphmetdphimin4"  , &incjetphmetdphimin4  , "incjetphmetdphimin4/F");
 
-  if(not isTriggerTree){
+  if(not isTriggerTree and not isQCDTree){
     tree->Branch("alljetmetdphimin4"    , &alljetmetdphimin4    , "alljetmetdphimin4/F");
     tree->Branch("alljetmumetdphimin4"  , &alljetmumetdphimin4  , "alljetmumetdphimin4/F");
     tree->Branch("alljetelmetdphimin4"  , &alljetelmetdphimin4  , "alljetelmetdphimin4/F");
@@ -4090,7 +4120,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("ht30"                 , &ht30                 , "ht30/F");
   }
 
-  if(addPuppiJets and not isTriggerTree and not isPhotonPurity){
+  if(addPuppiJets and not isTriggerTree and not isPhotonPurity and not isQCDTree){
 
     tree->Branch("combinePuppijetpt",  "std::vector<float>", &combinePuppijetpt);
     tree->Branch("combinePuppijeteta", "std::vector<float>", &combinePuppijeteta);
@@ -4179,7 +4209,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("mu1pt"                , &mu1pt                , "mu1pt/F");
   tree->Branch("mu1eta"               , &mu1eta               , "mu1eta/F");
   tree->Branch("mu1phi"               , &mu1phi               , "mu1phi/F");
-  if(not isTriggerTree and not isPhotonPurity){
+  if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("mu1pfpt"              , &mu1pfpt              , "mu1pfpt/F");
     tree->Branch("mu1pfeta"             , &mu1pfeta             , "mu1pfeta/F");
     tree->Branch("mu1pfphi"             , &mu1pfphi             , "mu1pfphi/F");
@@ -4193,7 +4223,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("mu2pt"                , &mu2pt                , "mu2pt/F");
   tree->Branch("mu2eta"               , &mu2eta               , "mu2eta/F");
   tree->Branch("mu2phi"               , &mu2phi               , "mu2phi/F");
-  if(not isTriggerTree and not isPhotonPurity){
+  if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("mu2pfpt"              , &mu2pfpt              , "mu2pfpt/F");
     tree->Branch("mu2pfeta"             , &mu2pfeta             , "mu2pfeta/F");
     tree->Branch("mu2pfphi"             , &mu2pfphi             , "mu2pfphi/F");
@@ -4219,7 +4249,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("el2idl"               , &el2idl               , "el2idl/I");
   tree->Branch("el2idt"               , &el2idt               , "el2idt/I");
 
-  if(not isTriggerTree and not isPhotonPurity){
+  if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
     tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/F");
     tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/F");
@@ -4238,7 +4268,7 @@ void MonoJetTreeMaker::beginJob() {
   }
 
     // Dilepton info
-  if(not isTriggerTree){
+  if(not isTriggerTree and not isQCDTree and not isPhotonPurity){
     tree->Branch("zmass"                , &zmass                , "zmass/F");
     tree->Branch("zpt"                  , &zpt                  , "zpt/F");
     tree->Branch("zeta"                 , &zeta                 , "zeta/F");
@@ -4275,7 +4305,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("pheta"                , &pheta                , "pheta/F");
   tree->Branch("phphi"                , &phphi                , "phphi/F");
 
-  if(isPhotonPurity and not isTriggerTree){
+  if(isPhotonPurity and not isTriggerTree and not isQCDTree){
 
     tree->Branch("nphotonsPurity"  , &nphotonsPurity  , "nphotonsPurity/i");
     tree->Branch("rho"             , &rho             , "rho/F");
@@ -4303,7 +4333,7 @@ void MonoJetTreeMaker::beginJob() {
   }
   
   // W/Z gen-level info: leptonic and hadronic
-  if(not isTriggerTree){
+  if(not isTriggerTree and not isQCDTree){
     tree->Branch("wzid"                 , &wzid                 , "wzid/I");
     tree->Branch("wzmass"               , &wzmass               , "wzmass/F");
     tree->Branch("wzmt"                 , &wzmt                 , "wzmt/F");
@@ -4680,7 +4710,7 @@ void MonoJetTreeMaker::beginJob() {
 
   }
 
-  if(addPhotonIDVariables and not isTriggerTree){
+  if(addPhotonIDVariables and not isTriggerTree and not isQCDTree){
     if(not isPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("photonPt", "std::vector<float>", &photonPt);
@@ -4698,7 +4728,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("photonEMIso", "std::vector<float>", &photonEMIso);
     tree->Branch("photonElectronVeto", "std::vector<float>", &photonElectronVeto);
   }
-  if(addElectronIDVariables and not isTriggerTree and not isPhotonPurity){
+  if(addElectronIDVariables and not isTriggerTree and not isPhotonPurity and not isQCDTree){
     if(not isPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("electronPt", "std::vector<float>", &electronPt);
@@ -4781,15 +4811,20 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf_v"); //47
   triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //48
   triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //49
-  triggerPathsVector.push_back("HLT_PFHT400_v");//50
-  triggerPathsVector.push_back("HLT_PFHT475_v");//51
-  triggerPathsVector.push_back("HLT_PFHT600_v");//52
-  triggerPathsVector.push_back("HLT_PFHT650_v");//53
-  triggerPathsVector.push_back("HLT_PFHT800_v");//54
-  triggerPathsVector.push_back("HLT_PFHT900_v");//55
-  triggerPathsVector.push_back("HLT_ECALHT800_v");//56
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//57
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//58
+  triggerPathsVector.push_back("HLT_PFHT125_v");//50
+  triggerPathsVector.push_back("HLT_PFHT200_v");//51
+  triggerPathsVector.push_back("HLT_PFHT250_v");//52
+  triggerPathsVector.push_back("HLT_PFHT300_v");//53
+  triggerPathsVector.push_back("HLT_PFHT350_v");//54  
+  triggerPathsVector.push_back("HLT_PFHT400_v");//55
+  triggerPathsVector.push_back("HLT_PFHT475_v");//56
+  triggerPathsVector.push_back("HLT_PFHT600_v");//57
+  triggerPathsVector.push_back("HLT_PFHT650_v");//58
+  triggerPathsVector.push_back("HLT_PFHT800_v");//59
+  triggerPathsVector.push_back("HLT_PFHT900_v");//60
+  triggerPathsVector.push_back("HLT_ECALHT800_v");//61
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//62
+  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//63
 
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
@@ -5401,71 +5436,127 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
 
       if (i == 48 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
       if (i == 49 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltelnoiso      = 1; // Single electron trigger
-      
-      if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
-      if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
-      if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
-      if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
-      if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
-      if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
-      if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
-      if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
-      if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
+
+      if (i == 50 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT125      = 1; // jet ht
+      if (i == 51 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT200      = 1; // jet ht
+      if (i == 52 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
+      if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
+      if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
+      if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
+      if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
+      if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
+      if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
+      if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
+      if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
+      if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
+      if (i == 62 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
+      if (i == 63 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;      
       
     }
   }
   else if(setHLTFilterFlag == true){
+    /// met no-mu
     hltmet90        = 1; hltmet100       = 1; hltmet110       = 1; hltmet120       = 1;
     hltmetwithmu90  = 1; hltmetwithmu100 = 1; hltmetwithmu110 = 1; hltmetwithmu120 = 1;
     hltmetwithmu170 = 1; hltmetwithmu300 = 1;
     hltjetmet       = 1; 
-    hltphoton90     = 1; hltphoton120    = 1; hltphoton120vbf = 1;
-    hltphoton165    = 1; hltphoton175    = 1;
-    hltdoublemu     = 1;
-    hltsinglemu     = 1;
-    hltdoubleel     = 1;
-    hltsingleel     = 1;
-    hltsingleel27   = 1;
-    hltelnoiso      = 1;
+    /// photon
+    hltphoton90     = 1; hltphoton120    = 1; hltphoton120vbf = 1; hltphoton165    = 1; hltphoton175    = 1;
+    hltdoublemu     = 1; hltsinglemu     = 1;
+    hltdoubleel     = 1; hltsingleel     = 1; hltsingleel27   = 1; hltelnoiso      = 1;
+    hltPFHT125   = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; 
     hltPFHT400   = 1; hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
     hltEcalHT800 = 1; 
     hltphoton90PFHT = 1;
   }
   
   bool triggered = false;
-  if (hltmet90        == 1) triggered = true;
-  if (hltmet100       == 1) triggered = true;
-  if (hltmet110       == 1) triggered = true;
-  if (hltmet120       == 1) triggered = true;
-  if (hltmetwithmu90  == 1) triggered = true;
-  if (hltmetwithmu100 == 1) triggered = true;
-  if (hltmetwithmu110 == 1) triggered = true;
-  if (hltmetwithmu120 == 1) triggered = true;
-  if (hltmetwithmu170 == 1) triggered = true;
-  if (hltmetwithmu300 == 1) triggered = true;
-  if (hltjetmet       == 1) triggered = true;
-  if (hltphoton165    == 1) triggered = true;
-  if (hltphoton175    == 1) triggered = true;
-  if (hltphoton120    == 1) triggered = true;
-  if (hltphoton120vbf == 1) triggered = true;
-  if (hltphoton90    == 1) triggered = true;
-  if (hltdoublemu     == 1) triggered = true;
-  if (hltsinglemu     == 1) triggered = true;
-  if (hltdoubleel     == 1) triggered = true;
-  if (hltsingleel     == 1) triggered = true;
-  if (hltelnoiso      == 1) triggered = true;
-  if (hltPFHT400      == 1) triggered = true;
-  if (hltPFHT475      == 1) triggered = true;
-  if (hltPFHT600      == 1) triggered = true;
-  if (hltPFHT650      == 1) triggered = true;
-  if (hltPFHT800      == 1) triggered = true;
-  if (hltPFHT900      == 1) triggered = true;
-  if (hltEcalHT800    == 1) triggered = true;
-  if (hltphoton90PFHT == 1) triggered = true;
-
+  if (isPhotonPurity == true){ // for photon purity check only photon triggers
+    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton175    == 1) triggered = true;
+    if (hltphoton120    == 1) triggered = true;
+    if (hltphoton120vbf == 1) triggered = true;
+    if (hltphoton90    == 1) triggered = true;
+  }
+  else if(isTriggerTree == true){ // trigger study check met-no-mu, lepton triggers, photon triggers and PF-HT
+    if (hltmet90        == 1) triggered = true;
+    if (hltmet100       == 1) triggered = true;
+    if (hltmet110       == 1) triggered = true;
+    if (hltmet120       == 1) triggered = true;
+    if (hltmetwithmu90  == 1) triggered = true;
+    if (hltmetwithmu100 == 1) triggered = true;
+    if (hltmetwithmu110 == 1) triggered = true;
+    if (hltmetwithmu120 == 1) triggered = true;
+    if (hltmetwithmu170 == 1) triggered = true;
+    if (hltmetwithmu300 == 1) triggered = true;
+    if (hltjetmet       == 1) triggered = true;  
+    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton175    == 1) triggered = true;
+    if (hltphoton120    == 1) triggered = true;
+    if (hltphoton120vbf == 1) triggered = true;
+    if (hltphoton90     == 1) triggered = true;
+    if (hltdoublemu     == 1) triggered = true;
+    if (hltsinglemu     == 1) triggered = true;
+    if (hltdoubleel     == 1) triggered = true;
+    if (hltsingleel     == 1) triggered = true;
+    if (hltelnoiso      == 1) triggered = true;
+    if (hltPFHT400      == 1) triggered = true;
+    if (hltPFHT400      == 1) triggered = true;
+    if (hltPFHT400      == 1) triggered = true;  
+    if (hltPFHT400      == 1) triggered = true;
+    if (hltPFHT475      == 1) triggered = true;
+    if (hltPFHT600      == 1) triggered = true;
+    if (hltPFHT650      == 1) triggered = true;
+    if (hltPFHT800      == 1) triggered = true;
+    if (hltPFHT900      == 1) triggered = true;
+    if (hltEcalHT800    == 1) triggered = true;
+    if (hltphoton90PFHT == 1) triggered = true;
+  }
+  else if(isQCDTree == true){ // check only PF HT
+    if (hltPFHT125      == 1) triggered = true;
+    if (hltPFHT200      == 1) triggered = true;
+    if (hltPFHT250      == 1) triggered = true;
+    if (hltPFHT300      == 1) triggered = true;
+    if (hltPFHT350      == 1) triggered = true;
+    if (hltPFHT400      == 1) triggered = true;
+    if (hltPFHT475      == 1) triggered = true;
+    if (hltPFHT600      == 1) triggered = true;
+    if (hltPFHT650      == 1) triggered = true;
+    if (hltPFHT800      == 1) triggered = true;
+    if (hltPFHT900      == 1) triggered = true;
+    if (hltEcalHT800    == 1) triggered = true;
+  }
+  else{ // normal analysis: check photon triggers, met-nu-mu, single-ele, PF-HT
+    if (hltmet90        == 1) triggered = true;
+    if (hltmet100       == 1) triggered = true;
+    if (hltmet110       == 1) triggered = true;
+    if (hltmet120       == 1) triggered = true;
+    if (hltmetwithmu90  == 1) triggered = true;
+    if (hltmetwithmu100 == 1) triggered = true;
+    if (hltmetwithmu110 == 1) triggered = true;
+    if (hltmetwithmu120 == 1) triggered = true;
+    if (hltmetwithmu170 == 1) triggered = true;
+    if (hltmetwithmu300 == 1) triggered = true;
+    if (hltjetmet       == 1) triggered = true;  
+    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton175    == 1) triggered = true;
+    if (hltphoton120    == 1) triggered = true;
+    if (hltphoton120vbf == 1) triggered = true;
+    if (hltsinglemu     == 1) triggered = true;
+    if (hltsingleel     == 1) triggered = true;
+    if (hltelnoiso      == 1) triggered = true;
+    if (hltPFHT800      == 1) triggered = true;
+    if (hltPFHT900      == 1) triggered = true;
+    if (hltEcalHT800    == 1) triggered = true;
+  }
     
   pswgt_ph120 = 1.0;
   pswgt_ph90  = 1.0;
+  pswgt_ht125 = 1.0; 
+  pswgt_ht200 = 1.0; 
+  pswgt_ht250 = 1.0; 
+  pswgt_ht300 = 1.0; 
+  pswgt_ht350 = 1.0; 
   pswgt_ht400 = 1.0; 
   pswgt_ht475 = 1.0; 
   pswgt_ht600 = 1.0; 
@@ -5474,8 +5565,13 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
   pswgt_ht900 = 1.0;
   
   for (size_t i = 0; i < triggerResultsH->size(); i++) {
-    if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt_ph90 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT125_v") != string::npos) pswgt_ht125 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT200_v") != string::npos) pswgt_ht200 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT250_v") != string::npos) pswgt_ht250 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT300_v") != string::npos) pswgt_ht300 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT350_v") != string::npos) pswgt_ht350 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT400_v") != string::npos) pswgt_ht400 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT475_v") != string::npos) pswgt_ht475 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT600_v") != string::npos) pswgt_ht600 = triggerPrescalesH->getPrescaleForIndex(i);
