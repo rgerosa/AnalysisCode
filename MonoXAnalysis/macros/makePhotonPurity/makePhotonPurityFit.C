@@ -11,7 +11,7 @@ static vector<float> photonIsoMax  = {20,20,20,20,20,20,20,20,20};
 static vector<float> photonIsoMin  = {0,0,0,0,0,0,0,0,0,0};
 // debug mode
 static bool debug = false;
-static bool saveHistograms = true;
+static bool saveHistograms = false;
 // k-facotr file
 static string kfactorFileName = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 
@@ -187,8 +187,11 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 
     makePurityFit(worksapceRND04.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
     RooRealVar* purity = worksapceRND04.back()->var("photonPurity");
-    photonPurityRND04->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-    photonPurityRND04->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+    photonPurityRND04->SetPoint(isize,double((ptMax+ptMin)/2.),purity->getVal());   
+    photonPurityRND04->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());
+    if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+      photonPurityRND04->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
+    
     // save in the output file
     plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04.back(),outputDIR,ptMin,ptMax,"RND04",lumi);
     
@@ -197,25 +200,31 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     worksapceRND08.push_back(new RooWorkspace(Form("wsRND08_data_pt_%d_%d",ptMin,ptMax),Form("wsRND08_pt_%d_%d",ptMin,ptMax)));    
     makePurityFit(worksapceRND08.back(),dataHisto.at(isize),signalTemplateRND08_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
     purity = worksapceRND08.back()->var("photonPurity");
-    photonPurityRND08->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-    photonPurityRND08->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+    photonPurityRND08->SetPoint(isize,double(ptMax+ptMin)/2.,purity->getVal());
+    photonPurityRND08->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());
+    if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+      photonPurityRND08->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
     plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND08.back(),outputDIR,ptMin,ptMax,"RND08",lumi);
 
     if(addSystematics and makeFitBasedOnlyOnTemplates == false){
       cout<<"####### Fit bin alt sig : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
       worksapceRND04_altSig.push_back(new RooWorkspace(Form("wsRND04_altSig_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_altSig_pt_%d_%d",ptMin,ptMax)));    
       makePurityFit(worksapceRND04_altSig.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates,true,false);
-      purity = worksapceRND04_altSig.back()->var("photonPurity");
-      photonPurityRND04_altSig->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurityRND04_altSig->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+      RooRealVar* purity = worksapceRND04_altSig.back()->var("photonPurity");
+      photonPurityRND04_altSig->SetPoint(isize,double((ptMax+ptMin)/2),purity->getVal());
+      photonPurityRND04_altSig->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());
+      if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+	photonPurityRND04_altSig->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
       plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04_altSig.back(),outputDIR,ptMin,ptMax,"RND04_altSig",lumi);
-      
+
       cout<<"####### Fit bin alt bkg : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
       worksapceRND04_altBkg.push_back(new RooWorkspace(Form("wsRND04_altBkg_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_altBkg_pt_%d_%d",ptMin,ptMax)));    
       makePurityFit(worksapceRND04_altBkg.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates,false,true);
       purity = worksapceRND04_altBkg.back()->var("photonPurity");
-      photonPurityRND04_altBkg->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurityRND04_altBkg->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+      photonPurityRND04_altBkg->SetPoint(isize,double((ptMax+ptMin)/2),purity->getVal());
+      photonPurityRND04_altBkg->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());
+      if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+	photonPurityRND04_altBkg->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
       plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04_altBkg.back(),outputDIR,ptMin,ptMax,"RND04_altBkg",lumi);
     }
   }
@@ -267,19 +276,23 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_gjets.push_back(new RooWorkspace(Form("ws_gjets_pt_%d_%d",ptMin,ptMax),Form("ws_gjets_%d_%d",ptMin,ptMax)));
 
-      makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,true);
+      makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
       RooRealVar* purity = worksapce_gjets.back()->var("photonPurity");
-      photonPurity_gjets->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurity_gjets->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
+      photonPurity_gjets->SetPoint(isize,double((ptMax+ptMin)/2),purity->getVal());
+      photonPurity_gjets->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());      
+      if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+	photonPurity_gjets->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
       // plot fit result:                                                                                                                                                                         
       plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapce_gjets.back(),outputDIR,ptMin,ptMax,"gjets",lumi);
 
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_qcd.push_back(new RooWorkspace(Form("ws_qcd_pt_%d_%d",ptMin,ptMax),Form("ws_qcd_%d_%d",ptMin,ptMax)));
-      makePurityFit(worksapce_qcd.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_qcd.at(isize),mediumID,debug,true);
+      makePurityFit(worksapce_qcd.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_qcd.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
       purity = worksapce_qcd.back()->var("photonPurity");
-      photonPurity_qcd->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
-      photonPurity_qcd->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
+      photonPurity_qcd->SetPoint(isize,double((ptMax+ptMin)/2),purity->getVal());
+      photonPurity_qcd->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());      
+      if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
+	photonPurity_qcd->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
       // plot fit result:                                                                                                                                                                         
       plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapce_qcd.back(),outputDIR,ptMin,ptMax,"qcd",lumi);
     }
@@ -354,8 +367,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     photonPurityRND04_altSig->SetMarkerSize(1);
     photonPurityRND04_altSig->Draw("Psame");
 
-    photonPurityRND04_altBkg->SetLineColor(kCyan+1);
-    photonPurityRND04_altBkg->SetMarkerColor(kCyan+1);
+    photonPurityRND04_altBkg->SetLineColor(kRed);
+    photonPurityRND04_altBkg->SetMarkerColor(kRed);
     photonPurityRND04_altBkg->SetMarkerStyle(24);
     photonPurityRND04_altBkg->SetMarkerSize(1);
     photonPurityRND04_altBkg->Draw("Psame");
@@ -367,7 +380,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     leg.SetFillStyle(0);
     leg.SetBorderSize(0);
     leg.AddEntry(photonPurityRND04,"Purity with #DeltaR = 0.4","PLE");
-    leg.AddEntry(photonPurityRND04_altSig,"Purity with Landau","PLE");
+    leg.AddEntry(photonPurityRND04_altSig,"Purity with CB","PLE");
     leg.AddEntry(photonPurityRND04_altBkg,"Purity with Power-Law","PLE");
     leg.Draw("same");
 
@@ -447,7 +460,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     finalPurity->SetMarkerStyle(20);
     finalPurity->SetMarkerSize(1);
     finalPurity->GetYaxis()->SetRangeUser(0.5,1.2);
-    finalPurity->SetFillColor(kRed);
+    finalPurity->SetFillColor(kOrange+1);
     photonPurityRND04->Draw("AP");
     finalPurity->Draw("E2same");
     photonPurityRND04->Draw("Psame");

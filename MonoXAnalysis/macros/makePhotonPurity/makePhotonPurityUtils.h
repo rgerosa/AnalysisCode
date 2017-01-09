@@ -473,7 +473,7 @@ void makePurityFit(RooWorkspace* ws,
 		   const fitPurity & dataTemplate, const fitPurity & signalTemplate, const fitPurity & backgroundTemplate, 
 		   const photonID & mediumID,
 		   const bool & debug,
-		   const bool & useMoreComplicatedFit = true,
+		   const bool & makeFitBasedOnlyOnTemplates = false,
 		   const bool & useAlternativeSigShape = false,
 		   const bool & useAlternativeBkgShape = false){
 
@@ -528,27 +528,29 @@ void makePurityFit(RooWorkspace* ws,
   RooRealVar  var_sig    ("var_sig","" ,1.,0.5,6.5);  
   RooGaussian gauss_sig  ("gauss_sig","",observable,mean_sig,var_sig);  
   //alternative signal
-  RooLandau   landau_sig  ("landau_sig","",observable,mean_sig,var_sig);
-  
+  RooRealVar  alpha_sig  ("alpha_sig","",3,-2,10);
+  RooRealVar  n_sig      ("n_sig","",1,-10,10);
+  RooCBShape  cb_sig     ("cb_sig","",observable,mean_sig,var_sig,alpha_sig,n_sig);
+
   RooRealVar  c_bkg      ("c_bkg","",-0.01,-4.,0.);
   RooExponential exp_bkg ("exp_bkg","",observable,c_bkg);  
   // alternative bkg
   RooPowPdf pow_bkg("pow_bkg","",observable,c_bkg);
   if(debug){
     gauss_sig.Print();
-    landau_sig.Print();
+    cb_sig.Print();
     exp_bkg.Print();
     pow_bkg.Print();
   }
 
 
-  RooRealVar frac_sig ("frac_sig","",0.8,0.,1.);
+  RooRealVar frac_sig ("frac_sig","",0.9,0.5,1.);
   // signal = signal template + gaussian peak
   RooAddPdf*  signalConvPdf = NULL; 
   if(not useAlternativeSigShape)
     signalConvPdf = new RooAddPdf("signalConvPdf","",RooArgList(signalTemplatePdf,gauss_sig),frac_sig);
   else
-    signalConvPdf = new RooAddPdf("signalConvPdf","",RooArgList(signalTemplatePdf,landau_sig),frac_sig);
+    signalConvPdf = new RooAddPdf("signalConvPdf","",RooArgList(signalTemplatePdf,cb_sig),frac_sig);
 
   // background = template * exponential tail
   RooProdPdf* backgroundConvPdf = NULL;  
@@ -563,7 +565,7 @@ void makePurityFit(RooWorkspace* ws,
   }
     
   
-  if(not useMoreComplicatedFit){
+  if(makeFitBasedOnlyOnTemplates){
     signalExtendPdf = new RooExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
     backgroundExtendPdf = new RooExtendPdf ("backgroundExtendPdf","",backgroundTemplatePdf,backgroundNorm);
   }
@@ -716,13 +718,10 @@ void plotFitResult(TCanvas* canvas,
   data->GetXaxis()->SetLabelSize(0);
   data->GetYaxis()->SetTitle("Events / GeV");
   data->GetYaxis()->SetTitleOffset(1.03);
-  if(data->GetMinimum() != 0 and data->GetMinimum() != 0.001)
-    data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.1,totalHist->GetMaximum()*100);
-  else
-    data->GetYaxis()->SetRangeUser(0.001,totalHist->GetMaximum()*100);
-  
+  if(postfix == "RND04")
+     data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.01,totalHist->GetMaximum()*100);     
   data->Draw("EP");
-
+     
   background_hist->SetLineColor(kGreen+1);
   background_hist->SetLineWidth(2);
   background_hist->Draw("hist same");
