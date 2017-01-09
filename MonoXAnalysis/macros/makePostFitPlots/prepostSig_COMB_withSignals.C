@@ -368,14 +368,14 @@ void prepostSig_COMB_withSignals(string fitFilename,
   canvas->cd();
   leg->AddEntry(dthist, "Data", "PEL");
 
-  leg->AddEntry(znhist, "Z #rightarrow #nu#nu", "F");
-  leg->AddEntry(wlhist, "W #rightarrow l#nu", "F");
+  leg->AddEntry(znhist, "Z(#nu#nu)+jets", "F");
+  leg->AddEntry(wlhist, "W(l#nu)+jets", "F");
   leg->AddEntry(dihist, "WW/WZ/ZZ", "F");
-  leg->AddEntry(tthist, "Top Quark", "F");
-  leg->AddEntry(zlhist, "Z/#gamma #rightarrow ll, #gamma+jets", "F");
+  leg->AddEntry(tthist, "Top quark", "F");
+  leg->AddEntry(zlhist, "Z/#gamma(ll)+jets, #gamma+jets", "F");
   leg->AddEntry(qchist, "QCD", "F");
-  leg->AddEntry(mjhist_av, "Axial-Vector, M_{med} = 1.6 TeV","L");
   leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
+  leg->AddEntry(mjhist_av, "Axial-vector, M_{med} = 1.6 TeV","L");
   
   leg->Draw("SAME");  
   pad2->RedrawAxis("sameaxis");

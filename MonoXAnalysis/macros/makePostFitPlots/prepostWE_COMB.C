@@ -240,7 +240,7 @@ void prepostWE_COMB(string fitFilename, string templateFileName, string observab
   leg->AddEntry(prhist, "Pre-fit W #rightarrow e#nu","L");
   if(category == Category::VBF)
     leg->AddEntry(ewkwhist, "W-EWK","F");
-   leg->AddEntry(wlhist, "Other Backgrounds", "F");
+   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
   canvas->RedrawAxis("sameaxis");
@@ -265,7 +265,7 @@ void prepostWE_COMB(string fitFilename, string templateFileName, string observab
   frame2->GetYaxis()->SetNdivisions(5);
 
 
-  frame2->GetXaxis()->SetTitle("Hadronic Recoil [GeV]");
+  frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
   if(category == Category::VBF and TString(observable).Contains("mjj"))
     frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
 
