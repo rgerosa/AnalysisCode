@@ -4,14 +4,14 @@
 // to decide which data to run
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 // photon pt bins
-static vector<float> ptBins = {175,200,225,250,280,320,360,400,500,650,1000};
+static vector<float> ptBins = {175,200,225,250,280,320,375,425,1000};
 // photon isolation info
-static vector<int>  nBinPhotonIso = {25,25,25,20,20,20,20,15,15,15};
-static vector<float> photonIsoMax = {15,15,15,15,15,15,15,10,10,10};
-static vector<float> photonIsoMin = {0,0,0,0,0,0,0,0,0,0,};
+static vector<int>   nBinPhotonIso = {30,30,30,30,30,25,25,25,25};
+static vector<float> photonIsoMax  = {20,20,20,20,20,20,20,20,20};
+static vector<float> photonIsoMin  = {0,0,0,0,0,0,0,0,0,0};
 // debug mode
 static bool debug = false;
-static bool saveHistograms = false;
+static bool saveHistograms = true;
 // k-facotr file
 static string kfactorFileName = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 
@@ -21,7 +21,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 			 string outputDIR,
 			 bool   addSystematics = false,
 			 string inputDirectorySignalMC = "",
-			 string inputDirectoryBackgroundMC = ""
+			 string inputDirectoryBackgroundMC = "",
+			 bool   makeFitBasedOnlyOnTemplates = false
 			 ){
 
   system(("mkdir -p "+outputDIR).c_str());
@@ -153,9 +154,14 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   // Build Model for fit
   vector<RooWorkspace*> worksapceRND04;
   vector<RooWorkspace*> worksapceRND08;
+  vector<RooWorkspace*> worksapceRND04_altSig;
+  vector<RooWorkspace*> worksapceRND04_altBkg;
 
   TGraphAsymmErrors* photonPurityRND04 = new TGraphAsymmErrors();
   TGraphAsymmErrors* photonPurityRND08 = new TGraphAsymmErrors();
+
+  TGraphAsymmErrors* photonPurityRND04_altSig = new TGraphAsymmErrors();
+  TGraphAsymmErrors* photonPurityRND04_altBkg = new TGraphAsymmErrors();
 
   TCanvas* canvas = new TCanvas("canvas","canvas",600,700);
   canvas->cd();
@@ -179,31 +185,49 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       backgroundTemplate_data.at(isize).phHisto->Write();
     }
 
-    makePurityFit(worksapceRND04.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
-
+    makePurityFit(worksapceRND04.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
     RooRealVar* purity = worksapceRND04.back()->var("photonPurity");
     photonPurityRND04->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
     photonPurityRND04->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
-
     // save in the output file
     plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04.back(),outputDIR,ptMin,ptMax,"RND04",lumi);
-
+    
     //create workspace and fit for RND = 0.8
     cout<<"####### Fit bin RND08 : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
-    worksapceRND08.push_back(new RooWorkspace(Form("wsRND08_data_pt_%d_%d",ptMin,ptMax),Form("wsRND08_pt_%d_%d",ptMin,ptMax)));
-    
-    makePurityFit(worksapceRND08.back(),dataHisto.at(isize),signalTemplateRND08_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
+    worksapceRND08.push_back(new RooWorkspace(Form("wsRND08_data_pt_%d_%d",ptMin,ptMax),Form("wsRND08_pt_%d_%d",ptMin,ptMax)));    
+    makePurityFit(worksapceRND08.back(),dataHisto.at(isize),signalTemplateRND08_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates);
     purity = worksapceRND08.back()->var("photonPurity");
     photonPurityRND08->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
     photonPurityRND08->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
-
     plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND08.back(),outputDIR,ptMin,ptMax,"RND08",lumi);
+
+    if(addSystematics and makeFitBasedOnlyOnTemplates == false){
+      cout<<"####### Fit bin alt sig : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
+      worksapceRND04_altSig.push_back(new RooWorkspace(Form("wsRND04_altSig_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_altSig_pt_%d_%d",ptMin,ptMax)));    
+      makePurityFit(worksapceRND04_altSig.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates,true,false);
+      purity = worksapceRND04_altSig.back()->var("photonPurity");
+      photonPurityRND04_altSig->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
+      photonPurityRND04_altSig->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+      plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04_altSig.back(),outputDIR,ptMin,ptMax,"RND04_altSig",lumi);
+      
+      cout<<"####### Fit bin alt bkg : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
+      worksapceRND04_altBkg.push_back(new RooWorkspace(Form("wsRND04_altBkg_data_pt_%d_%d",ptMin,ptMax),Form("wsRND04_altBkg_pt_%d_%d",ptMin,ptMax)));    
+      makePurityFit(worksapceRND04_altBkg.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,makeFitBasedOnlyOnTemplates,false,true);
+      purity = worksapceRND04_altBkg.back()->var("photonPurity");
+      photonPurityRND04_altBkg->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
+      photonPurityRND04_altBkg->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());
+      plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04_altBkg.back(),outputDIR,ptMin,ptMax,"RND04_altBkg",lumi);
+    }
   }
 
   // save workspaces
   for(auto ws: worksapceRND04)
     ws->Write();
   for(auto ws: worksapceRND08)
+    ws->Write();
+  for(auto ws: worksapceRND04_altSig)
+    ws->Write();
+  for(auto ws: worksapceRND04_altBkg)
     ws->Write();
 
   // Build Model for fit
@@ -242,7 +266,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       cout<<"####### Fit bin Gamma+jets : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;      
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_gjets.push_back(new RooWorkspace(Form("ws_gjets_pt_%d_%d",ptMin,ptMax),Form("ws_gjets_%d_%d",ptMin,ptMax)));
-      makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug);
+
+      makePurityFit(worksapce_gjets.back(),dataHisto.at(isize),signalTemplate_gjets.at(isize),backgroundTemplate_data.at(isize),mediumID,debug,true);
       RooRealVar* purity = worksapce_gjets.back()->var("photonPurity");
       photonPurity_gjets->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
       photonPurity_gjets->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
@@ -251,7 +276,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
 
       //create workspace and fit for RND = 0.4 using gamma+jets MC                                                                                                                               
       worksapce_qcd.push_back(new RooWorkspace(Form("ws_qcd_pt_%d_%d",ptMin,ptMax),Form("ws_qcd_%d_%d",ptMin,ptMax)));
-      makePurityFit(worksapce_qcd.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_qcd.at(isize),mediumID,debug);
+      makePurityFit(worksapce_qcd.back(),dataHisto.at(isize),signalTemplateRND04_data.at(isize),backgroundTemplate_qcd.at(isize),mediumID,debug,true);
       purity = worksapce_qcd.back()->var("photonPurity");
       photonPurity_qcd->SetPoint(isize,(ptMax+ptMin)/2,purity->getVal());
       photonPurity_qcd->SetPointError(isize,(ptMax-ptMin)/2,(ptMax-ptMin)/2,fabs(purity->getErrorLo()),purity->getErrorHi());      
@@ -320,11 +345,42 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
   canvas2->SaveAs((outputDIR+"/photonPurityComparison.png").c_str(),"png");
   canvas2->SaveAs((outputDIR+"/photonPurityComparison.pdf").c_str(),"pdf");
 
+  if(addSystematics and makeFitBasedOnlyOnTemplates == false){
+    canvas2->cd();
+    photonPurityRND04->Draw("AP");
+    photonPurityRND04_altSig->SetLineColor(kBlue);
+    photonPurityRND04_altSig->SetMarkerColor(kBlue);
+    photonPurityRND04_altSig->SetMarkerStyle(24);
+    photonPurityRND04_altSig->SetMarkerSize(1);
+    photonPurityRND04_altSig->Draw("Psame");
+
+    photonPurityRND04_altBkg->SetLineColor(kCyan+1);
+    photonPurityRND04_altBkg->SetMarkerColor(kCyan+1);
+    photonPurityRND04_altBkg->SetMarkerStyle(24);
+    photonPurityRND04_altBkg->SetMarkerSize(1);
+    photonPurityRND04_altBkg->Draw("Psame");
+    
+    CMS_lumi(canvas2,Form("%.1f",lumi));
+    
+    TLegend leg (0.3,0.3,0.6,0.6);
+    leg.SetFillColor(0);
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.AddEntry(photonPurityRND04,"Purity with #DeltaR = 0.4","PLE");
+    leg.AddEntry(photonPurityRND04_altSig,"Purity with Landau","PLE");
+    leg.AddEntry(photonPurityRND04_altBkg,"Purity with Power-Law","PLE");
+    leg.Draw("same");
+
+    canvas2->SaveAs((outputDIR+"/photonPurityComparison_2.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/photonPurityComparison_2.pdf").c_str(),"pdf");
+  }
   
   //make final plot with statistical and sys errors
   TGraphAsymmErrors* finalPurity = new TGraphAsymmErrors();
 
   if(addSystematics){
+
+    cout<<"###### Purity Result with systematics "<<endl;
     for(int ipoint = 0; ipoint < photonPurityRND04->GetN(); ipoint++){
       
       // nominal value and uncertainty
@@ -334,39 +390,67 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
       err_x_high = photonPurityRND04->GetErrorXhigh(ipoint);
       err_y_low  = photonPurityRND04->GetErrorYlow(ipoint);
       err_y_high = photonPurityRND04->GetErrorYhigh(ipoint);
+      cout<<"#### Central value: x = "<<x<<" purity = "<<y<<" err_low "<<err_y_low<<" err_high "<<err_y_high<<endl;
       
       finalPurity->SetPoint(ipoint,x,y);
-      
+
       //sys variations
       double x_rnd08, y_rnd08;
       photonPurityRND08->GetPoint(ipoint,x_rnd08,y_rnd08);
-      
+      cout<<"#### Variation 1 with RND 0.8: (purity - purity_rnd08)/purity "<<fabs(y-y_rnd08)/y<<endl;
+
       double x_gjets, y_gjets;
       photonPurity_gjets->GetPoint(ipoint,x_gjets,y_gjets);
+      cout<<"#### Variation 2 with gamma+jets: (purity - purity_gjets)/purity "<<fabs(y-y_gjets)/y<<endl;
       
       double x_qcd, y_qcd;
       photonPurity_qcd->GetPoint(ipoint,x_qcd,y_qcd);
+      cout<<"#### Variation 3 with QCD EM enriched: (purity - purity_qcd)/purity "<<fabs(y-y_qcd)/y<<endl;      
       
-      err_y_low  = sqrt(err_y_low*err_y_low+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
-      err_y_high = sqrt(err_y_high*err_y_high+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
-      
-      finalPurity->SetPointError(ipoint,err_x_low,err_x_high,err_y_low,err_y_high);
-      
-    }
 
+      if(makeFitBasedOnlyOnTemplates == true){
+	err_y_low  = sqrt(err_y_low*err_y_low+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));
+	
+	err_y_high = sqrt(err_y_high*err_y_high+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));	
+
+	finalPurity->SetPointError(ipoint,err_x_low,err_x_high,err_y_low,err_y_high);
+	cout<<"#### Total uncertainty : low "<<err_y_low<<" high "<<err_y_high<<endl;      
+      }
+      else{
+
+	//sys variations
+	double x_altSig, y_altSig;
+	photonPurityRND04_altSig->GetPoint(ipoint,x_altSig,y_altSig);       
+	cout<<"#### Variation 4 with Landau: (purity - purity_altSig)/purity "<<fabs(y-y_altSig)/y<<endl;
+	
+	//sys variations
+	double x_altBkg, y_altBkg;
+	photonPurityRND04_altBkg->GetPoint(ipoint,x_altBkg,y_altBkg);	
+	cout<<"#### Variation 5 with Power Law: (purity - purity_altBkg)/purity "<<fabs(y-y_altBkg)/y<<endl;
+
+
+	err_y_low  = sqrt(err_y_low*err_y_low+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y)+
+			  fabs(y_altSig-y)*fabs(y_altSig-y)+fabs(y_altBkg-y)*fabs(y_altBkg-y));
+	
+	err_y_high = sqrt(err_y_high*err_y_high+fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y)+
+			  fabs(y_altSig-y)*fabs(y_altSig-y)+fabs(y_altBkg-y)*fabs(y_altBkg-y));
+	
+	finalPurity->SetPointError(ipoint,err_x_low,err_x_high,err_y_low,err_y_high);
+	cout<<"#### Total uncertainty : low "<<err_y_low<<" high "<<err_y_high<<endl;      
+	
+      }
+    }
     
     canvas2->cd();
     finalPurity->SetLineColor(kBlack);
     finalPurity->SetMarkerColor(kBlack);
     finalPurity->SetMarkerStyle(20);
     finalPurity->SetMarkerSize(1);
-    finalPurity->GetXaxis()->SetTitle("photon p_{T} [GeV]");
-    finalPurity->GetYaxis()->SetTitle("photon purity");
     finalPurity->GetYaxis()->SetRangeUser(0.5,1.2);
     finalPurity->SetFillColor(kRed);
-    finalPurity->Draw("AP");
+    photonPurityRND04->Draw("AP");
     finalPurity->Draw("E2same");
-    finalPurity->Draw("Psame");
+    photonPurityRND04->Draw("Psame");
 
     CMS_lumi(canvas2,Form("%.1f",lumi));
 

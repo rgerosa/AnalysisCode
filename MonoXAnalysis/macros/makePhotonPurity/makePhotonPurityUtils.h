@@ -1,4 +1,5 @@
 #include "../CMS_lumi.h"
+#include "makePhotonPurityPDFs.h"
 
 // for matching with gen truth
 static float deltaRMatching = 0.3;
@@ -156,12 +157,13 @@ void fillDataHistograms(TTree* chain,
     if(njet == 0) continue;
     if(jetpt->at(ijet) < 100) continue;
     if(fabs(jeteta->at(ijet)) > 2.5) continue;
+    if(chfrac->at(ijet) < 0.1) continue;
+    if(nhfrac->at(ijet) > 0.8) continue;
 
     // apply photon id: except sigma-ieta-ieta (later) and photon isolation                                                                                      
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
     if(*phHoE   > mediumID.HoE)  continue;    
-    if(*phElVeto == 0) continue;
     
     // apply jet-met dphi
     njet = 0;
@@ -193,7 +195,7 @@ void fillDataHistograms(TTree* chain,
     // select the histogram given the pt of the photon                                                                                                                                           
     unsigned int bin = 0;
     if(dataHisto.size() != 0){
-      for( ; bin < dataHisto.size()-1; bin++){
+      for( ; bin < dataHisto.size()-1; bin++){	
 	if(*phpt >= dataHisto.at(bin).ptMin and *phpt < dataHisto.at(bin).ptMax) break;
       }
       if(*phpt >  dataHisto.back().ptMax)
@@ -202,6 +204,7 @@ void fillDataHistograms(TTree* chain,
 
     // data-events passing sigma-ieta-ieta
     if(*phSieie < mediumID.sigmaieie){
+      if(*phElVeto == 0) continue; // not applied before to increase stat in background sample
       dataHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso))); // already corrected for effective area
       signalTemplateRND04.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma)))); // to be corrected
       signalTemplateRND08.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma)))); // to be corrected
@@ -343,9 +346,9 @@ void fillMCHistograms(TTree* chain,
     if(*nmuons     != 0) continue;
     if(*nelectrons != 0) continue;
     // b-jet veto
-    if(*nbjets     != 0) continue;
+    if(sample == Sample::gjets and *nbjets != 0) continue;
     // tau-veto
-    if(*ntausraw   != 0) continue;
+    if(sample == Sample::gjets and *ntausraw != 0) continue;
     // photon candidate
     if(*nphotonsPurity == 0) continue;
     if(*phpt    < 175) continue;
@@ -368,13 +371,18 @@ void fillMCHistograms(TTree* chain,
     if(njet == 0) continue;
     if(jetpt->at(ijet) < 100) continue;
     if(fabs(jeteta->at(ijet)) > 2.5) continue;
+    // try to gain in statistics for the QCD sample --> relax fraction cuts
+    if(sample == Sample::gjets and chfrac->at(ijet) < 0.1) continue;
+    if(sample == Sample::gjets and nhfrac->at(ijet) > 0.8) continue;
     
     // apply photon id: except photon isolation                                                                                      
     if(*phCHIso > mediumID.chadiso) continue; // already corrected for effective area                                                                                                          
     if(*phNHIso > mediumID.nhadiso0+mediumID.nhadiso1*(*phpt) + mediumID.nhadiso2*(*phpt)*(*phpt)) continue; // already corrected for effective area                                           
     if(*phHoE   > mediumID.HoE)  continue;    
-    if(*phElVeto == 0) continue;
-    if(*phSieie > mediumID.sigmaieie) continue;
+    // try to gain in statistics for the QCD sample --> relax electron veto
+    if(sample == Sample::gjets and *phElVeto == 0) continue;
+    if(sample == Sample::gjets and *phSieie > mediumID.sigmaieie) continue;
+    if(sample == Sample::qcd   and (*phSieie < mediumID.sigmaieie or *phSieie > mediumID.sigmaieie_sideband)) continue;
 
     // apply jet-met dphi
     njet = 0;
@@ -401,7 +409,8 @@ void fillMCHistograms(TTree* chain,
       if(dphi < mindphi)
 	mindphi = dphi;
     }
-    if(mindphi < 0.5) continue;
+    // try to gain in statistics for the QCD sample --> relax min-dphi
+    if(sample == Sample::gjets and mindphi < 0.5) continue;
     
 
     // select the histogram given the pt of the photon                                                                                                                                           
@@ -463,7 +472,11 @@ void fillMCHistograms(TTree* chain,
 void makePurityFit(RooWorkspace* ws, 
 		   const fitPurity & dataTemplate, const fitPurity & signalTemplate, const fitPurity & backgroundTemplate, 
 		   const photonID & mediumID,
-		   const bool & debug){
+		   const bool & debug,
+		   const bool & useMoreComplicatedFit = true,
+		   const bool & useAlternativeSigShape = false,
+		   const bool & useAlternativeBkgShape = false){
+
 
   // create observable                                                                                                                                                                               
   RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()+1));
@@ -507,16 +520,66 @@ void makePurityFit(RooWorkspace* ws,
     backgroundNorm.Print();
   }
     
-  RooExtendPdf signalExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
-  RooExtendPdf backgroundExtendPdf ("backgroundExtendPdf","",backgroundTemplatePdf,backgroundNorm);
+  RooExtendPdf* signalExtendPdf = NULL;
+  RooExtendPdf* backgroundExtendPdf = NULL;
+
+  // for a more complicated fit
+  RooRealVar  mean_sig   ("mean_sig","",0.,-2,10.);
+  RooRealVar  var_sig    ("var_sig","" ,1.,0.5,6.5);  
+  RooGaussian gauss_sig  ("gauss_sig","",observable,mean_sig,var_sig);  
+  //alternative signal
+  RooLandau   landau_sig  ("landau_sig","",observable,mean_sig,var_sig);
+  
+  RooRealVar  c_bkg      ("c_bkg","",-0.01,-4.,0.);
+  RooExponential exp_bkg ("exp_bkg","",observable,c_bkg);  
+  // alternative bkg
+  RooPowPdf pow_bkg("pow_bkg","",observable,c_bkg);
+  if(debug){
+    gauss_sig.Print();
+    landau_sig.Print();
+    exp_bkg.Print();
+    pow_bkg.Print();
+  }
+
+
+  RooRealVar frac_sig ("frac_sig","",0.8,0.,1.);
+  // signal = signal template + gaussian peak
+  RooAddPdf*  signalConvPdf = NULL; 
+  if(not useAlternativeSigShape)
+    signalConvPdf = new RooAddPdf("signalConvPdf","",RooArgList(signalTemplatePdf,gauss_sig),frac_sig);
+  else
+    signalConvPdf = new RooAddPdf("signalConvPdf","",RooArgList(signalTemplatePdf,landau_sig),frac_sig);
+
+  // background = template * exponential tail
+  RooProdPdf* backgroundConvPdf = NULL;  
+  if(not useAlternativeBkgShape)
+    backgroundConvPdf = new RooProdPdf("backgroundConvPdf","",backgroundTemplatePdf,exp_bkg);
+  else
+    backgroundConvPdf = new RooProdPdf("backgroundConvPdf","",backgroundTemplatePdf,pow_bkg);
 
   if(debug){
-    signalExtendPdf.Print();
-    backgroundExtendPdf.Print();
+    signalConvPdf->Print();
+    backgroundConvPdf->Print();
+  }
+    
+  
+  if(not useMoreComplicatedFit){
+    signalExtendPdf = new RooExtendPdf ("signalExtendPdf","",signalTemplatePdf,signalNorm);
+    backgroundExtendPdf = new RooExtendPdf ("backgroundExtendPdf","",backgroundTemplatePdf,backgroundNorm);
+  }
+  else{
+
+    signalExtendPdf = new RooExtendPdf ("signalExtendPdf","",*signalConvPdf,signalNorm);
+    backgroundExtendPdf = new RooExtendPdf ("backgroundExtendPdf","",*backgroundConvPdf,backgroundNorm);
+  }
+
+  if(debug){
+    signalExtendPdf->Print();
+    backgroundExtendPdf->Print();
   }
 
   // total pdf
-  RooAddPdf totalPdf ("totalPdf","",RooArgList(signalExtendPdf,backgroundExtendPdf));
+  RooAddPdf totalPdf ("totalPdf","",RooArgList(*signalExtendPdf,*backgroundExtendPdf));
   if(debug)
     totalPdf.Print();
   
@@ -543,10 +606,9 @@ void makePurityFit(RooWorkspace* ws,
   cout<<"######### Minimize hesse"<<endl;
   mfit.minimize("Minuit2","hesse");
   cout<<"######### Estimate minos errors for all parameters"<<endl;
-  mfit.minos();
+  mfit.minos(RooArgSet(signalNorm,backgroundNorm));
   RooFitResult* fitResult = mfit.save("fitResult");
-  if(debug)
-    fitResult->Print();
+  fitResult->Print();
   
   // import data in the workspace                                                                                                                                                                    
   ws->import(RooDataHisto);
@@ -562,8 +624,8 @@ void makePurityFit(RooWorkspace* ws,
   // integrate pdfs                                                                                                                                                                                  
   observable.setRange("isolated",dataTemplate.phHisto->GetBinLowEdge(1),mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean);
   // get parameters after fit
-  RooRealVar* int_sig = (RooRealVar*) signalExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
-  RooRealVar* int_bkg = (RooRealVar*) backgroundExtendPdf.createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
+  RooRealVar* int_sig = (RooRealVar*) signalExtendPdf->createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
+  RooRealVar* int_bkg = (RooRealVar*) backgroundExtendPdf->createIntegral(observable,RooFit::NormSet(observable),RooFit::Range("isolated"));
 
   double nSig  = signalNorm.getVal()*int_sig->getVal();
   double nBkg  = backgroundNorm.getVal()*int_bkg->getVal();
@@ -586,6 +648,16 @@ void makePurityFit(RooWorkspace* ws,
   RooRealVar phPurity ("photonPurity","",purity,0,1);
   phPurity.setAsymError(-purityErr_lo,purityErr_hi);
   ws->import(phPurity);
+
+  if(signalExtendPdf) delete signalExtendPdf;
+  if(backgroundExtendPdf) delete backgroundExtendPdf;
+  if(int_sig) delete int_sig;
+  if(int_bkg) delete int_bkg;
+  if(nll) delete nll;
+  if(fitResult) delete fitResult;
+  if(signalConvPdf) delete signalConvPdf;
+  if(backgroundConvPdf) delete backgroundConvPdf;
+
 }
 
 
@@ -695,6 +767,7 @@ void plotFitResult(TCanvas* canvas,
   denFit->Divide(denFit_noerr);
   denFit->SetFillColor(kGray);
   frame->Draw();
+  ratio->SetMarkerSize(0.85);
   ratio->Draw("EPsame");
   denFit->Draw("E2same");
 
@@ -704,7 +777,16 @@ void plotFitResult(TCanvas* canvas,
   line->Draw("Lsame");
   ratio->Draw("EPsame");
   pad2->RedrawAxis("sameaxis");
-    
+
+  // Calculate chi2
+  double chi2 = data->Chi2Test(totalHist,"CHI2/NDF UW");
+  TLegend leg2 (0.14,0.25,0.32,0.28,NULL,"brNDC");
+  leg2.SetFillColor(0);
+  leg2.SetFillStyle(1);
+  leg2.SetBorderSize(0);
+  leg2.SetLineColor(0);
+  leg2.AddEntry((TObject*)0,Form("#chi^{2}/ndf = %.2f",chi2),"");
+  leg2.Draw("same");
 
   canvas->SetLogy();
 
