@@ -230,7 +230,8 @@ void fillMCHistograms(TTree* chain,
 		      const photonID & mediumID,
 		      const vector<TH1*> & khists,
 		      const float & lumi = 36.2,
-		      TTree* genchain = NULL){
+		      TTree* genchain = NULL,
+		      const bool & useRandomCone = false){
 
   // basic check
   if(sample != Sample::gjets and sample != Sample::qcd){
@@ -448,7 +449,11 @@ void fillMCHistograms(TTree* chain,
       if(deltaPhi_gen > TMath::Pi()) deltaPhi_gen = 2*TMath::Pi() - deltaPhi_gen;
       if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) > deltaRMatching) continue;
       // fill histograms
-      mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      if(not useRandomCone)
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      else
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+
       mcHisto.at(bin).ptMean += *phpt;
     }
     else if(sample == Sample::qcd){
@@ -459,7 +464,11 @@ void fillMCHistograms(TTree* chain,
 	if(sqrt(deltaEta_gen*deltaEta_gen+deltaPhi_gen*deltaPhi_gen) < deltaRMatching) continue;
       }	
       ////
-      mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      if(not useRandomCone)
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
+      else
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	
       mcHisto.at(bin).ptMean += *phpt;
     }
   }  
