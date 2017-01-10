@@ -452,7 +452,7 @@ void fillMCHistograms(TTree* chain,
       if(not useRandomCone)
 	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
       else
-	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 
       mcHisto.at(bin).ptMean += *phpt;
     }
@@ -467,7 +467,7 @@ void fillMCHistograms(TTree* chain,
       if(not useRandomCone)
 	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
       else
-	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	
       mcHisto.at(bin).ptMean += *phpt;
     }
@@ -727,7 +727,7 @@ void plotFitResult(TCanvas* canvas,
   data->GetXaxis()->SetLabelSize(0);
   data->GetYaxis()->SetTitle("Events / GeV");
   data->GetYaxis()->SetTitleOffset(1.03);
-  if(postfix == "RND04")
+  if(postfix == "RND08")
      data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.01,totalHist->GetMaximum()*100);     
   data->Draw("EP");
      
