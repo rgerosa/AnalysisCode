@@ -187,7 +187,7 @@ void fillDataHistograms(TTree* chain,
       float dphitemp = fabs(met.Phi()-jetphi->at(ijet));
       if(dphitemp > TMath::Pi())
 	dphitemp = 2*TMath::Pi()-dphitemp;
-      if(dphi < mindphi)
+      if(dphitemp < mindphi)
 	mindphi = dphi;
     }
     if(mindphi < 0.5) continue;
@@ -407,7 +407,7 @@ void fillMCHistograms(TTree* chain,
       float dphitemp = fabs(met.Phi()-jetphi->at(ijet));
       if(dphitemp > TMath::Pi())
 	dphitemp = 2*TMath::Pi()-dphitemp;
-      if(dphi < mindphi)
+      if(dphitemp < mindphi)
 	mindphi = dphi;
     }
     // try to gain in statistics for the QCD sample --> relax min-dphi
@@ -452,7 +452,7 @@ void fillMCHistograms(TTree* chain,
       if(not useRandomCone)
 	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
       else
-	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 
       mcHisto.at(bin).ptMean += *phpt;
     }
@@ -467,7 +467,7 @@ void fillMCHistograms(TTree* chain,
       if(not useRandomCone)
 	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIso)),evtwgt*kwgt/(wgtsum.at(ifile)));
       else
-	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND08-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
+	mcHisto.at(bin).phHisto->Fill(max(0.,double(*phPHIsoRND04-*rho*(*phEAEgamma))),evtwgt*kwgt/(wgtsum.at(ifile)));
 	
       mcHisto.at(bin).ptMean += *phpt;
     }
@@ -533,14 +533,14 @@ void makePurityFit(RooWorkspace* ws,
   RooExtendPdf* backgroundExtendPdf = NULL;
 
   // for a more complicated fit
-  RooRealVar  mean_sig   ("mean_sig","",0.,-2,10.);
-  RooRealVar  var_sig    ("var_sig","" ,1.,0.5,6.5);  
+  RooRealVar  mean_sig   ("mean_sig","",0.,-1, 4.);
+  RooRealVar  var_sig    ("var_sig","" ,1.,0.5,4.);  
   RooGaussian gauss_sig  ("gauss_sig","",observable,mean_sig,var_sig);  
   //alternative signal
-  RooRealVar  alpha_sig  ("alpha_sig","",3,-2,10);
-  RooRealVar  n_sig      ("n_sig","",1,-10,10);
+  RooRealVar  alpha_sig  ("alpha_sig","",1,0,4);
+  RooRealVar  n_sig      ("n_sig","",1,0,4);
   RooCBShape  cb_sig     ("cb_sig","",observable,mean_sig,var_sig,alpha_sig,n_sig);
-
+  
   RooRealVar  c_bkg      ("c_bkg","",-0.01,-4.,0.);
   RooExponential exp_bkg ("exp_bkg","",observable,c_bkg);  
   // alternative bkg
@@ -553,7 +553,7 @@ void makePurityFit(RooWorkspace* ws,
   }
 
 
-  RooRealVar frac_sig ("frac_sig","",0.9,0.5,1.);
+  RooRealVar frac_sig ("frac_sig","",0.9,0.75,1.);
   // signal = signal template + gaussian peak
   RooAddPdf*  signalConvPdf = NULL; 
   if(not useAlternativeSigShape)

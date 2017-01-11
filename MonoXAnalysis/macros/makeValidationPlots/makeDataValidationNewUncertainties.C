@@ -37,7 +37,7 @@ void makeUncertaintyPlot (TH1* histo1, TH1* histo2, TH1* histo3, TH1* histo4, co
   canvas->SetTicky();
   canvas->cd();
 
-  histo1->GetXaxis()->SetRangeUser(200,2000);
+  histo1->GetXaxis()->SetRangeUser(200,1300);
   histo1->GetYaxis()->SetRangeUser(0.9,1.1);
   histo1->SetLineColor(kBlack);
   histo1->SetLineWidth(2);
@@ -424,12 +424,12 @@ void makeDataValidationNewUncertainties(string inputFileName, string observable,
   ZW_sudewk_dw->Reset("ICES");
 
   for(int iBin = 0; iBin < ZW_sudewk_up->GetNbinsX()+1; iBin++){
-    ZW_sudewk_up->SetBinContent(iBin,Zll_nlokfact->GetBinContent(iBin)*(1+Zll_nloewk->GetBinContent(iBin)+Zll_sudewk->GetBinContent(iBin)+2/3*Zll_sudewk->GetBinContent(iBin)*Zll_nloewk->GetBinContent(iBin)));
-    ZW_sudewk_dw->SetBinContent(iBin,Zll_nlokfact->GetBinContent(iBin)*(1+Zll_nloewk->GetBinContent(iBin)+Zll_sudewk->GetBinContent(iBin)-2/3*Zll_sudewk->GetBinContent(iBin)*Zll_nloewk->GetBinContent(iBin)));
+    ZW_sudewk_up->SetBinContent(iBin,Zll_nlokfact->GetBinContent(iBin)*(1+Zll_nloewk->GetBinContent(iBin)+Zll_sudewk->GetBinContent(iBin)+0.67*Zll_sudewk->GetBinContent(iBin)*Zll_nloewk->GetBinContent(iBin)));
+    ZW_sudewk_dw->SetBinContent(iBin,Zll_nlokfact->GetBinContent(iBin)*(1+Zll_nloewk->GetBinContent(iBin)+Zll_sudewk->GetBinContent(iBin)-0.67*Zll_sudewk->GetBinContent(iBin)*Zll_nloewk->GetBinContent(iBin)));
   }
   for(int iBin = 0; iBin < ZW_sudewk_up->GetNbinsX()+1; iBin++){
-    ZW_sudewk_up->SetBinContent(iBin,ZW_sudewk_up->GetBinContent(iBin)/(Wln_nlokfact->GetBinContent(iBin)*(1+Wln_nloewk->GetBinContent(iBin)+Wln_sudewk->GetBinContent(iBin)+2.3*Wln_sudewk->GetBinContent(iBin)*Wln_nloewk->GetBinContent(iBin))));
-    ZW_sudewk_dw->SetBinContent(iBin,ZW_sudewk_dw->GetBinContent(iBin)/(Wln_nlokfact->GetBinContent(iBin)*(1+Wln_nloewk->GetBinContent(iBin)+Wln_sudewk->GetBinContent(iBin)-2/3*Wln_sudewk->GetBinContent(iBin)*Wln_nloewk->GetBinContent(iBin))));
+    ZW_sudewk_up->SetBinContent(iBin,ZW_sudewk_up->GetBinContent(iBin)/(Wln_nlokfact->GetBinContent(iBin)*(1+Wln_nloewk->GetBinContent(iBin)+Wln_sudewk->GetBinContent(iBin)+0.67*Wln_sudewk->GetBinContent(iBin)*Wln_nloewk->GetBinContent(iBin))));
+    ZW_sudewk_dw->SetBinContent(iBin,ZW_sudewk_dw->GetBinContent(iBin)/(Wln_nlokfact->GetBinContent(iBin)*(1+Wln_nloewk->GetBinContent(iBin)+Wln_sudewk->GetBinContent(iBin)-0.67*Wln_sudewk->GetBinContent(iBin)*Wln_nloewk->GetBinContent(iBin))));
   }
   
   TH1* ZW_sudewk = (TH1*) ZW_sudewk_up->Clone("ZW_sudewk");
