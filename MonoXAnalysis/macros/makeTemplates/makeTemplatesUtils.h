@@ -369,9 +369,9 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
       zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());      
     }
-    else{ // new theory uncertainties
+    else{ 
 
-
+      // new theory uncertainties
       zwjcorqcdscaleuphist.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("zwjcorqcd_scaleup"+ext+"hist_"+obs).c_str()));
       zwjcorqcdscaleuphist_num.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("nhist_zwjqcd_scaleup"+ext+"_"+obs).c_str()));
       zwjcorqcdscaleuphist_den.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("dhist_zwjqcd_scaleup"+ext+"_"+obs).c_str()));
@@ -410,6 +410,8 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++)
         zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/zwjcorewkhist.back()->GetBinContent(i));
       zwjuncqcdscalehist->SetName(("ZW_QCDScale_"+obs).c_str());
+      //temp fix
+      zwjuncqcdscalehist->SetBinContent(1,zwjuncqcdscalehist->GetBinContent(2)+0.003);
 
       // NLO EWK --> to be symmetrized
       zwjuncnloewkhist = (TH1*) zwjcornloewkuphist.back()->Clone(("zwjuncnloewk"+ext+"hist_"+obs).c_str());

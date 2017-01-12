@@ -203,7 +203,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles
     photonPurityRND08->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(purity->getErrorLo()),purity->getErrorHi());
     if(purity->getErrorLo() > 0.01 or purity->getErrorHi() > 0.01)
       photonPurityRND08->SetPointError(isize,double(ptMax-ptMin)/2.,double(ptMax-ptMin)/2.,fabs(0.01),0.01);
-    plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND04.back(),outputDIR,ptMin,ptMax,"RND08",lumi);
+    plotFitResult(canvas,dataHisto.at(isize).phHisto,worksapceRND08.back(),outputDIR,ptMin,ptMax,"RND08",lumi);
 
     if(addSystematics and makeFitBasedOnlyOnTemplates == false){
       cout<<"####### Fit bin alt sig : ptMin "<<ptMin<<" ptMax "<<ptMax<<endl;
