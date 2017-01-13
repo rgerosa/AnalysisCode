@@ -16,7 +16,7 @@ using namespace std;
 
 // Basic enum
 enum class Sample   { sig, gam, wmn, zmm, wen, zee, topmu, topel, qcdgam, qcd};
-enum class Category { inclusive, monojet, monoV, twojet, VBF, boosted, prunedMass, tau2tau1, combined, total};
+enum class Category { inclusive, monojet, monoV, twojet, VBFrelaxed, VBF, boosted, prunedMass, tau2tau1, combined, total};
 
 class signalSample{
   
@@ -377,7 +377,7 @@ void initializeBinning(){
   bins_VBF["detajj_v2"]  = {2.5,3,3.5,4,4.5,5,6,9};
   bins_VBF["detajj_v3"]  = {3.5,4,4.5,5,5.75,9};
   bins_VBF["detajj_v4"]  = {3.5,4,4.5,5,5.5,6,9};
-  bins_VBF["mjj_v4"]     = {200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000,2250,2500,2750,3000};
+  bins_VBF["mjj_v4"]     = {200,400,600,800,1000,1200,1400,1600,1800,2000,2500,3000};
   bins_VBF["mjj_v2"]     = {500,700,900,1100,1300,1500,1800,2100,2500,3000,3500};
   bins_VBF["mjj"]        = {1000,1250,1500,1750,2000,2500,3500};
 
@@ -394,7 +394,7 @@ vector<double> selectBinning (const string & observable, const Category & catego
     return bins_monoV[observable];
   else if(category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1)
     return bins_substructure[observable];
-  else if(category == Category::VBF or category == Category::twojet)
+  else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
     return bins_VBF[observable];
   else{
     vector<double> dummy;

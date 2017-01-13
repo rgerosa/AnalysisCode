@@ -39,11 +39,14 @@ const float pfMetMonoVUpper = 8000.;
 const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 40.;
 const float detajj          = 3.5;
+const float detajjrelaxed   = 1.0;
 const float mjj             = 1000;
+const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
+const float dphijjrelaxed   = 2.0;
 // Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -311,7 +314,7 @@ void makehist4(TTree* tree, /*input tree*/
   vector<TFile*> triggerfile_MET_binned;
 
   if(useMoriondSetup){
-    if(category != Category::VBF and category != Category::twojet){ // monojet
+    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
       if(useSingleMuon)
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
       else
@@ -333,7 +336,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
   }
   else{
-    if(category != Category::VBF and category != Category::twojet){ // monojet
+    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
       if(useSingleMuon)
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");
       else
@@ -371,7 +374,7 @@ void makehist4(TTree* tree, /*input tree*/
   TEfficiency* triggerphoton       = NULL;
   TEfficiency* triggerphoton_jetHT = NULL;
   if(useMoriondSetup){
-    if(category != Category::VBF){
+    if(category != Category::VBF and category != Category::VBFrelaxed){
       triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_jetHT.root");
       triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
       triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
@@ -824,15 +827,15 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // number of central jets
-    if (category != Category::VBF and category != Category::twojet and *njets < 1) continue; 
-    else if((category == Category::VBF or category == Category::twojet) and *nincjets < 2) continue;
+    if (category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and *njets < 1) continue; 
+    else if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed) and *nincjets < 2) continue;
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt  > 160) continue;
-    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet)){
+    if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
       if(pfMetVBFLower     <   200 and *wmt > 100) continue;
       else if(pfMetVBFLower >= 200 and *wmt > 160) continue;
     }
@@ -857,7 +860,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     // met selection
-    if(category == Category::VBF or category == Category::twojet){
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
       if (pfmet < pfMetVBFLower) continue;
       if (pfmet > pfMetVBFUpper) continue;
     }
@@ -894,8 +897,8 @@ void makehist4(TTree* tree, /*input tree*/
       }
     }
    
-    if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos < 0)  continue;
-    if(category != Category::VBF and category != Category::twojet and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
+    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos < 0)  continue;
+    if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
 
        
     Double_t sfwgt = 1.0;
@@ -1006,7 +1009,7 @@ void makehist4(TTree* tree, /*input tree*/
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
       if(triggermet_graph)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
-      else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet)){
+      else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
 	  TLorentzVector jet2 ;
@@ -1245,6 +1248,28 @@ void makehist4(TTree* tree, /*input tree*/
       if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
       goodVBF = true;
     }
+    else if(category == Category::VBFrelaxed){
+
+      if(centralJets.size()+forwardJets.size() < 2) continue;
+      if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
+      if(jetpt->at(0) < leadingJetPtCutVBF) continue;
+      if(jetpt->at(1) < trailingJetPtCutVBF) continue;
+      
+      if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
+      else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
+      
+      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
+      if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
+      TLorentzVector jet1 ;
+      TLorentzVector jet2 ;
+      jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+      jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+      if((jet1+jet2).M() < mjjrelaxed) continue;
+      if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijjrelaxed) continue;
+      goodVBF = true;
+    }
     else if(category == Category::twojet){
       if(centralJets.size()+forwardJets.size() < 2) continue;
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
@@ -1254,8 +1279,7 @@ void makehist4(TTree* tree, /*input tree*/
       if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
       if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
       if (sample != Sample::qcd and jmdphi < 0.5) continue;
-      else if(sample == Sample::qcd and jmdphi > 0.5) continue;	
-      
+      else if(sample == Sample::qcd and jmdphi > 0.5) continue;	      
     }
   
     
@@ -1407,7 +1431,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = nhfrac->at(0);
       }
       else if(name.Contains("jetnhfrac")){
-	if((category == Category::VBF or category == Category::twojet))
+	if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed))
 	  fillvar = nhfrac->at(0);
 	else
 	  fillvar = nhfrac->at(leadingCentralJetPos);
@@ -1442,7 +1466,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = emfrac->at(0);
       }
       else if(name.Contains("jetemfrac")){
-	if(category == Category::VBF or category == Category::twojet)
+	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
 	fillvar = emfrac->at(0);
 	else
 	  fillvar = emfrac->at(leadingCentralJetPos);
@@ -1477,7 +1501,7 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = chfrac->at(0);
       }
       else if(name.Contains("jetchfrac")){
-	if(category == Category::VBF or category == Category::twojet)
+	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
 	  fillvar = chfrac->at(0);
 	else 
 	  fillvar = chfrac->at(leadingCentralJetPos);
@@ -1528,13 +1552,13 @@ void makehist4(TTree* tree, /*input tree*/
 	  fillvar = jeteta->at(1)*jeteta->at(0);
       }
       else if(name.Contains("jetpt")){
-	if(category == Category::VBF or category == Category::twojet)
+	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
 	  fillvar = jetpt->at(0);
 	else
 	  fillvar = jetpt->at(leadingCentralJetPos);
       }
       else if(name.Contains("jeteta")){
-	if(category == Category::VBF or category == Category::twojet)
+	if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
 	  fillvar = jeteta->at(0);
 	else
 	  fillvar = jeteta->at(leadingCentralJetPos);

@@ -408,7 +408,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       zwjuncqcdscalehist = (TH1*) zwjcorqcdscaleuphist.back()->Clone(("zwjuncqcdscale"+ext+"hist_"+obs).c_str());
       zwjuncqcdscalehist->Reset("ICES");
       for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++)
-        zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/zwjcorewkhist.back()->GetBinContent(i));
+        zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
       zwjuncqcdscalehist->SetName(("ZW_QCDScale_"+obs).c_str());
       //temp fix
       zwjuncqcdscalehist->SetBinContent(1,zwjuncqcdscalehist->GetBinContent(2)+0.003);
