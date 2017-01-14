@@ -17,6 +17,7 @@ parser = OptionParser()
 parser.add_option('-b', action='store_true', dest='noX', default=False, help='no X11 windows')
 parser.add_option('--inputDIR',  action="store", type="string",   dest="inputDIR",     default="",   help="input directory where files are contained")
 parser.add_option('--grepName',  action="callback", type="string", dest="grepName",    default="", callback=foo_callback, help="grep a set of names in the directory") 
+parser.add_option('--maxFiles',  action="store", type=int     , dest="maxFiles",   default=1, help="max files per mass point") 
 
 (options, args) = parser.parse_args()
 
@@ -30,18 +31,25 @@ if __name__ == '__main__':
     file = open("dirList.tmp","r");
     for ifile in file:
       ifile = ifile.replace("\n","");
+      print ifile;
+
       os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select find "+options.inputDIR+"/"+ifile+" -name \"*root\" > fileList.tmp");
       fileList = open("fileList.tmp","r");
       inputFiles = [];
-      command = "cmsRun ../test/genAnalyzer.py inputFiles="
+      command = "cmsRun test/makeGenTrees/genAnalyzer.py inputFiles="      
+      nfile = 0;
       for jfile in fileList:
         if not ".root" in jfile:
           continue;
+        if nfile >= options.maxFiles:
+          break;
         jfile = jfile.replace("\n","");
         jfile = jfile.replace("/eos/cms","");
         command = command+jfile+","        
+        nfile = nfile +1;
       command = command[:-1];
-      command = command + " debugName="+ifile+".log"
+      command = command + " debugName="+ifile+".log useDebug=True"
+      print command
       os.system(command)
       
       
