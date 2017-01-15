@@ -178,7 +178,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit #gamma+jets","L");
   leg->AddEntry(prhist, "Pre-fit #gamma+jets","L");
-  leg->AddEntry(qchist, "Other Backgrounds", "F");
+  leg->AddEntry(qchist, "Other backgrounds", "F");
   leg->Draw("SAME");
 
 
@@ -204,7 +204,7 @@ void prepostGJ_COMB(string fitFilename, string templateFileName, string observab
   frame2->GetYaxis()->SetNdivisions(5);
 
 
-  frame2->GetXaxis()->SetTitle("Hadronic Recoil [GeV]");
+  frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);

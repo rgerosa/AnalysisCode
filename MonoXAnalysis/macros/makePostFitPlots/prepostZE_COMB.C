@@ -249,7 +249,7 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
   leg->AddEntry(prhist, "Pre-fit Z/#gamma #rightarrow ee","L");
   if(category == Category::VBF)
     leg->AddEntry(ewkzhist, "Z-EWK","F");
-   leg->AddEntry(wlhist, "Other Backgrounds", "F");
+   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
   canvas->RedrawAxis("sameaxis");
@@ -274,7 +274,7 @@ void prepostZE_COMB(string fitFilename, string templateFileName, string observab
   frame2->GetYaxis()->SetNdivisions(5);
   
 
-  frame2->GetXaxis()->SetTitle("Hadronic Recoil [GeV]");
+  frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
   frame2->GetYaxis()->SetTitle("Data/Pred.");
   frame2->GetYaxis()->CenterTitle();
   frame2->GetYaxis()->SetTitleOffset(1.5);

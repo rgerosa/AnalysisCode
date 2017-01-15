@@ -13,19 +13,20 @@ pyCfgParams = ['isMC=False',
                'applyL2L3Residuals=True',
                'addQGLikelihood=True',
                'addPileupJetID=False',
-               'addPuppiJets=False',
-               'addPuppiMET=False',
-               'addEGMSmear=False',
+               'addPuppiJets=True',
+               'addPuppiMET=True',
+               'addEGMSmear=True',
                'addMVAMet=False',
-               'addMETSystematics=False',
-               'useOfficialMETSystematics=False',
+               'addMETSystematics=True',
+               'useOfficialMETSystematics=True',
                'addMETBreakDown=False',
-               'addSubstructureCHS=False',
-               'addSubstructurePuppi=False',
+               'addSubstructureCHS=True',
+               'addSubstructurePuppi=True',
                'miniAODProcess=RECO',
                'outputFileName=tree.root',
-               'isTriggerTree=True',
+               'isTriggerTree=False',
                'addTriggerObjects=False',
+               'isQCDTree=True',
                'usePrivateSQliteJEC=True',
                'JECEra=Spring16_23Sep2016V1',
                'nThreads=3',
@@ -33,7 +34,7 @@ pyCfgParams = ['isMC=False',
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_DATA_80X_trigger'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_DATA_80X_QCDBkg'  # Make sure you set this parameter
 
 config.section_('JobType')
 config.JobType.psetName         = '../tree.py'
@@ -48,7 +49,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 100000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_07_11_2016_36fb-1_trigger/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_07_11_2016_36fb-1_QCDBkg/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/Cert_271036-284044_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'  
 #config.Data.runRange
 config.Data.publication   = False

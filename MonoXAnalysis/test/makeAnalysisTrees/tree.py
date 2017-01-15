@@ -14,7 +14,7 @@ options.register (
 	'isFastSIM',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate full or fast SIM for MC');
 
-## filter Events options
+## MET filter options
 options.register (
 	'filterHighMETEvents',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not MET filters');
@@ -23,6 +23,7 @@ options.register (
 	'metCut',150.,VarParsing.multiplicity.singleton,VarParsing.varType.float,
 	'met/recoil cut to be applied if filterHighMETEvents is set to true');
 
+## HLT filter options
 options.register (
 	'filterOnHLT',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate if apply or not trigger requirements');
@@ -31,7 +32,7 @@ options.register (
 	'setHLTFilterFlag',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to dump all the HLT flags to true');
 
-## JEC options
+## JET correction options
 options.register (
 	'usePrivateSQliteJEC',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'if a private SQL file with JEC to be found in test directory');
@@ -45,6 +46,11 @@ options.register (
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
+	'JECEra','Spring16_25nsV10',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JEC correction era');
+
+## JET information
+options.register (
 	'addPileupJetID',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	're-compute pileup-jet id for AK4 jets');
 
@@ -52,7 +58,7 @@ options.register (
 	'addQGLikelihood',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'compute QGLikelihood for AK4 jets');
 
-## PUPPI Jets MET, MVA Met
+## PUPPI Jets 
 options.register (
 	'addPuppiJets',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add PUPPI jets to the output');
@@ -66,15 +72,15 @@ options.register (
 	'addEGMSmear',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add e-gamma scale and resolution corrections for electrons and photons');
 
-options.register (
-	'addMVAMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-	'compute MVAMet');
-  	
 ## MET options
 options.register (
         'useMiniAODMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'use the default MET in minoAOD without re-applying corrections');
 	
+options.register (
+	'addMVAMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'compute MVAMet');
+  	
 options.register (
 	'addMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
@@ -87,7 +93,6 @@ options.register (
 	'useOfficialMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
 
-
 options.register (
 	'addMETBreakDown',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'produce the pf met breakdown in different components: pfMet, pfMetChargedHadrons, pfMetNeutralHadrons, pfMetPhotons ... etc');
@@ -97,6 +102,12 @@ options.register (
         'isPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon purity studies --> add some more branches');
 
+## QCD background studies
+options.register (
+        'isQCDTree',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'output tree layout for QCD background studies');
+
+## Photon and electron id variables
 options.register (
         'addPhotonIDVariables',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon id variables study --> dump id variables');
@@ -104,7 +115,6 @@ options.register (
 options.register (
         'addElectronIDVariables',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'electorn id variables study --> dump id variables');
-
 
 ## do substructure for CHS or Puppi jets
 options.register (
@@ -124,6 +134,7 @@ options.register (
 	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
+## specific to produce trees for trigger studies
 options.register (
 	'triggerName','HLT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
@@ -145,11 +156,6 @@ options.register (
 options.register (
 	'globalTag','80X_dataRun2_Prompt_ICHEP16JEC_v0',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
-
-## JEC    
-options.register (
-	'JECEra','Spring16_25nsV10',VarParsing.multiplicity.singleton,VarParsing.varType.string,
-	'JEC correction era');
 
 ## Dump Gen Level info
 options.register (
@@ -222,6 +228,8 @@ print "##### Trigger info #####"
 print "Running with triggerName         = ",options.triggerName
 print "Running with isTriggerTree       = ",options.isTriggerTree
 print "Running with addTriggerObjects   = ",options.addTriggerObjects
+print "##### QCD background trees #####"
+print "Running with isQCDTree           = ",options.isQCDTree
 print "##### Regular jets #####"
 print "Running with JEC Era             = ",options.JECEra	
 print "Running with usePrivateSQliteJEC = ",options.usePrivateSQliteJEC	
@@ -549,6 +557,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      triggerL1Sums  = cms.InputTag("caloStage2Digis"   , "EtSum" ),
 			      badChargedCandidate = cms.InputTag("BadChargedCandidateFilter"),
 			      badPFMuon           = cms.InputTag("BadPFMuonFilter"),
+			      ## flag for QCD background studies
+			      isQCDTree      = cms.bool(options.isQCDTree),
 			      ## vertexes			    
 			      vertices       = cms.InputTag("goodVertices"),
 			      ## muons    
@@ -744,7 +754,7 @@ if options.addSubstructurePuppi:
 			bDiscriminatorInfo = cms.VPSet(
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Loose"),
-					 wpValue = cms.double()),
+					 wpValue = cms.double(0.460)),
 				cms.PSet(discriminatorName = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
 					 wpLabel = cms.string("Medium"),
 					 wpValue = cms.double(0.800)),
