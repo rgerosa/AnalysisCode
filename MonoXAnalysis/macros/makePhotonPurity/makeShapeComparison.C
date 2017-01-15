@@ -36,11 +36,11 @@
 #include <string>
 #include <vector>
 
-#include "../CMS_lumi.h"
+#include "../CMS_lumi.h"   // with this header I can't compile macro with .L makeShapeComparison.C.C++
 
 using namespace std;
 
-static vector<int> ptBins = {175, 200, 225, 250, 280, 320, 375, 425, 1000};
+static vector<int> ptBins = {175, 200, 225, 250, 280, 320, 375, 425, 1000};  // must be consistent with input file content
 
 //==============================================
 
@@ -365,6 +365,7 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
 
 void makeShapeComparison(const string& inputDIR = "./", const string& outputDIR = "./", const float& lumi = 36.2) {
 
+  // assume the input file is called PhotonPurityFitResult.root, but can choose its location with inputDIR (default is current directory)
 
   if (outputDIR != "./") system(("mkdir -p "+outputDIR).c_str());
   string bkgDIR = "/background/";
