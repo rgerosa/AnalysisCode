@@ -123,9 +123,10 @@ void drawPlotBkg(TH1F* h1, TH1F* h2,
   leg->SetFillColor(0);
 
   // set x axis range to have histogram cover (almost) whole length on the right side
-  Int_t lastVisibleBin = h1->FindLastBinAbove(h1->GetMinimum());
-  if (lastVisibleBin < h2->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h2->FindLastBinAbove(h1->GetMinimum());
-  h1->GetXaxis()->SetRange(0,lastVisibleBin);
+  // can be useful when the canvas's x axis range is decided a priori (e.g. 0 - 1000) but the plot starts being empty at some point (e.g. at 500)
+  // Int_t lastVisibleBin = h1->FindLastBinAbove(h1->GetMinimum());
+  // if (lastVisibleBin < h2->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h2->FindLastBinAbove(h1->GetMinimum());
+  // h1->GetXaxis()->SetRange(0,lastVisibleBin);
 
   canvas->RedrawAxis("sameaxis");
 
@@ -286,11 +287,12 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   leg->SetFillColor(0);
 
   // set x axis range to have histogram cover (almost) whole length on the right
-  Int_t lastVisibleBin = h1->FindLastBinAbove(h1->GetMinimum());
-  if (lastVisibleBin < h2->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h2->FindLastBinAbove(h1->GetMinimum());
-  if (lastVisibleBin < h3->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h3->FindLastBinAbove(h1->GetMinimum());
-  if (lastVisibleBin < h4->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h4->FindLastBinAbove(h1->GetMinimum());
-  h1->GetXaxis()->SetRange(0,lastVisibleBin);
+  // can be useful when the canvas's x axis range is decided a priori (e.g. 0 - 1000) but the plot starts being empty at some point (e.g. at 500)
+  // Int_t lastVisibleBin = h1->FindLastBinAbove(h1->GetMinimum());
+  // if (lastVisibleBin < h2->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h2->FindLastBinAbove(h1->GetMinimum());
+  // if (lastVisibleBin < h3->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h3->FindLastBinAbove(h1->GetMinimum());
+  // if (lastVisibleBin < h4->FindLastBinAbove(h1->GetMinimum())) lastVisibleBin = h4->FindLastBinAbove(h1->GetMinimum());
+  // h1->GetXaxis()->SetRange(0,lastVisibleBin);
 
   canvas->RedrawAxis("sameaxis");
 
