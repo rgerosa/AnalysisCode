@@ -21,7 +21,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 			 string outputDIR,
 			 bool   addSystematics = false,
 			 string inputDirectorySignalMC = "",   // here there must be only MC signal root files
-			 string inputDirectoryBackgroundMC = ""  // here there must be only MC background root files
+			 string inputDirectoryBackgroundMC = "",  // here there must be only MC background root files
 			 bool   makeFitBasedOnlyOnTemplates = false
 			 ){
 
