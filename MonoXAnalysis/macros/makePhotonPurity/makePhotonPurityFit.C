@@ -4,11 +4,11 @@
 // to decide which data to run
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 // photon pt bins
-static vector<float> ptBins = {175,200,225,250,280,320,375,425,1000};
+static vector<float> ptBins = {175,200,225,250,280,320,370,420,1000};
 // photon isolation info
 static vector<int>   nBinPhotonIso = {30,30,30,30,30,25,25,25,25};
 static vector<float> photonIsoMax  = {20,20,20,20,20,20,20,20,20};
-static vector<float> photonIsoMin  = {0,0,0,0,0,0,0,0,0,0};
+static vector<float> photonIsoMin  = {0,0,0,0,0,0,0,0,0};
 // debug mode
 static bool debug = false;
 static bool saveHistograms = true;
@@ -58,6 +58,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
     backgroundTemplate_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
 						new TH1F(Form("backgroundTemplate_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",
 							 nBinPhotonIso.at(ibin),photonIsoMin.at(ibin),photonIsoMax.at(ibin))));  
+
     /////
     dataHisto.back().phHisto->Sumw2();
     signalTemplateRND04_data.back().phHisto->Sumw2();
@@ -100,6 +101,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
     }
   }
   system("rm file.list");
+
   
   //files for MC background and signal
   TChain* chain_gjets = new TChain("tree/tree");
