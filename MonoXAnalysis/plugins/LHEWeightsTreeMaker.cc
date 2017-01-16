@@ -75,8 +75,12 @@ private:
   float    lheXSEC;
   float    samplemedM, sampledmM;
   bool     readDMFromGenParticles;
+
   std::vector<float>  wgtpdf; //have id larger than 2000 for madgraph                                                                                                                                
-  std::vector<float>  wgtqcd; //have id [1000-2000] for madgraph                                                                                                                                        
+  std::vector<int>    qcdscale; 
+  std::vector<float>  wgtqcd; 
+  std::vector<int>    pdfvariations; 
+  
 };
 
 LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig): 
@@ -94,7 +98,6 @@ LHEWeightsTreeMaker::LHEWeightsTreeMaker(const edm::ParameterSet& iConfig):
   lheRunInfoToken = consumes<LHERunInfoProduct,edm::InRun>(lheRunInfoTag);
   genInfoToken = consumes<GenEventInfoProduct>(genInfoTag);
   pileupInfoToken = consumes<std::vector<PileupSummaryInfo> >(pileupInfoTag);
-
   gensToken = consumes<edm::View<reco::GenParticle> > (gensInfoTag);
 
   // state that TFileService is used
@@ -112,6 +115,7 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
   using namespace std;
   using namespace reco;
+  using namespace boost::algorithm;
 
   // Get handles to all the requisite collections
   Handle<LHEEventProduct> lheInfoH;
@@ -146,11 +150,11 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
   
 
-  // Weights info
+  // Weights info and xsec at LHE-level which is the right one to be used only for fixed order calculation (no PS matching of different M.E. multplicities)
   wgt = 1.0;
   wgtoriginal = 1.0;
   if (uselheweights) {
-    wgt = genInfoH->weight();
+    wgt         = genInfoH->weight();
     wgtoriginal = lheInfoH->originalXWGTUP();
   }
   
@@ -160,23 +164,23 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     vector<gen::WeightsInfo> weights = lheInfoH->weights();
     for (size_t i = 0; i < weights.size(); i++) {
-      if(std::stoi(weights[i].id) >= 1001 and std::stoi(weights[i].id) <= 1009) // scale varions                                                                                                   
+      TString weight_name (weights[i].id);
+      if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")) continue;
+      else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")) continue;
+      else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")) continue;
+      else if(qcdscale.size() != 0){
+	if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end()) 
+	  wgtqcd.push_back(weights[i].wgt);      
+      }
+      else if(qcdscale.size() == 0 and ((std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009) or (std::stoi(weights[i].id) >= 1 and std::stoi(weights[i].id) <= 9)))
 	wgtqcd.push_back(weights[i].wgt);
-      else if(std::stoi(weights[i].id) >= 2001 and std::stoi(weights[i].id) < 3000) // variations of NNPDF LO or NLO                                                                               
-	wgtpdf.push_back(weights[i].wgt);
-      //else if(std::stoi(weights[i].id) >= 3001 and std::stoi(weights[i].id) < 4000) // variations of CT10                                                                                         
-      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
-      //else if(std::stoi(weights[i].id) >= 4001 and std::stoi(weights[i].id) < 5000) // variations of MMHT                                                                                        
-      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
-      //else if(std::stoi(weights[i].id) >= 5001 and std::stoi(weights[i].id) < 6000) // variations of HERAPDF                                                                                    
-      //      wgtpdf.push_back(weights[i].wgt);                                                                                                                                                    
       else
-	continue;
+	wgtpdf.push_back(weights[i].wgt);
     }
   }
-
+  
   if(readDMFromGenParticles and gensH.isValid()){
-
+    
     bool foundfirst = false;
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
       bool goodParticle = false;
@@ -239,7 +243,6 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
     LHERunInfoProduct myLHERunInfoProduct = *(run.product());
     lheXSEC = myLHERunInfoProduct.heprup().XSECUP.at(0); 
 
-    
     using namespace boost::algorithm;
     
     if(isSignalSample){
@@ -247,33 +250,53 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
 	std::vector<std::string> lines = iter->lines();    
 	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
 	  std::vector<std::string> tokens;
-	  if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet
+	  if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet --> extract the sample mass value
 	    split(tokens, lines.at(iLine), is_any_of(" "));
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    sampledmM = std::stod(tokens.at(1));
 	  }
-	  else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet
+	  else if(lines.at(iLine).find("DMVmass") !=std::string::npos){ // powheg mono-jet --> extract the sample mass value
 	    split(tokens, lines.at(iLine), is_any_of(" "));
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    samplemedM = std::stod(tokens.at(1));
 	  }
-	  else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
+	  else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V --> extract sample mass value
 	    split(tokens, lines.at(iLine), is_any_of(" "));
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    std::vector<std::string> subtokens;
 	    split(subtokens,tokens.at(2),is_any_of("_"));	
-	    samplemedM = std::stod(subtokens.at(3));
-	    sampledmM = std::stod(subtokens.at(4));	
+	    if(subtokens.size() >= 5){
+	      samplemedM = std::stod(subtokens.at(3));
+	      sampledmM = std::stod(subtokens.at(4));	
+	    }
+	    else{
+	      samplemedM = std::stod(subtokens.at(1));
+	      sampledmM = std::stod(subtokens.at(2));	
+	    }
 	  }      
 	  else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
 	    split(tokens, lines.at(iLine), is_any_of(" "));
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    samplemedM = std::stod(tokens.at(3));
 	    sampledmM  = -1.; 
-	  readDMFromGenParticles = true;
+	    readDMFromGenParticles = true;
 	  }
+
+	  // read-weights for scale variation
+	  if(lines.at(iLine).find("Central scale variation") != std::string::npos or  lines.at(iLine).find("scale_variation") != std::string::npos){
+	    for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
+	      TString line_string (lines.at(iLine2));
+	      if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
+		split(tokens, lines.at(iLine2), is_any_of("\""));
+		tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+		qcdscale.push_back(std::stoi(tokens.at(1)));
+	      }
+	      else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
+		break;
+	    }
+	  }	  
 	}
-      }   
+      }
     }
   }
 }

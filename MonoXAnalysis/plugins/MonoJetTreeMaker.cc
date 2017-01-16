@@ -613,6 +613,14 @@ private:
   float samplemedM,sampledmM;
   // weights
   float wgt,kfact,puwgt;
+  std::vector<float> qcdscalewgt;
+  std::vector<int>   qcdscale;
+  std::vector<float> gTheta;
+  std::vector<float> gDMV;
+  std::vector<float> gDMA;
+  std::vector<float> gV;
+  std::vector<float> gA;
+  std::vector<float> couplingwgt;
 
   // Trigger objects //ND
   uint32_t                   trig_obj_n; 
@@ -956,6 +964,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     using namespace reco;
     using namespace std;
     using namespace pat;
+    using namespace boost::algorithm;
 
     // get the rho value
     Handle<double> rhoH;
@@ -1297,6 +1306,49 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (uselheweights && genevtInfoH.isValid())
       wgt = genevtInfoH->weight();    
     else wgt = 1.0;
+
+    // add weights
+    if(uselheweights && lheInfoH.isValid()){
+
+      qcdscalewgt.clear();
+      couplingwgt.clear();
+      gDMV.clear(); gDMA.clear(); gV.clear(); gA.clear(); couplingwgt.clear();
+
+      vector<gen::WeightsInfo> weights = lheInfoH->weights();
+      std::vector<std::string> tokens;
+      for (size_t i = 0; i < weights.size(); i++) {
+	TString weight_name (weights[i].id);
+	split(tokens, weights[i].id, is_any_of("_"));
+	tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+
+	if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")){ // DMsimp Scalar-PS
+	  gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+	  gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+	  gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+	  gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
+	  couplingwgt.push_back(weights[i].wgt);
+	}
+	else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")){ // DMSimp V/AV
+	  gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+	  gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+	  gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+	  gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
+	  couplingwgt.push_back(weights[i].wgt);
+	}
+	else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")){ //SMM	  
+	  gTheta.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+	  gDMV.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+	  gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+	  couplingwgt.push_back(weights[i].wgt);
+	}
+	else if(qcdscale.size() != 0){ // qcd scale variations
+	  if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
+	    qcdscalewgt.push_back(weights[i].wgt);
+	}
+	else if(qcdscale.size() == 0 and ((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009)))
+	  qcdscalewgt.push_back(weights[i].wgt);
+      }      
+    }
     
     if (pileupInfoH.isValid()) {
       for (auto pileupInfo_iter = pileupInfoH->begin(); pileupInfo_iter != pileupInfoH->end(); ++pileupInfo_iter) {
@@ -3466,7 +3518,9 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  goodParticle = true;
 	else if(abs(gens_iter->pdgId()) == 9100012)
 	  goodParticle = true;
-	
+	else if(abs(gens_iter->pdgId()) == 18) // DM particles in MG DMSimp and SMM
+	  goodParticle = true;
+
 	if(not goodParticle)
 	  continue;
 	
@@ -3474,7 +3528,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	  dmX1id = gens_iter->pdgId();
 	  foundfirst = true;
-
+	  
 	  if(readDMFromGenParticle)
 	    sampledmM = gens_iter->mass();
 	}
@@ -4409,7 +4463,19 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
     tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
     tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
-    
+
+    if(uselheweights){
+      tree->Branch("qcdscalewgt","std::vector<float>",&qcdscalewgt);
+      if(isSignalSample){
+	tree->Branch("couplingwgt","std::vector<float>",&couplingwgt);
+	tree->Branch("gDMV","std::vector<float>",&gDMV);
+	tree->Branch("gTheta","std::vector<float>",&gTheta);
+	tree->Branch("gDMA","std::vector<float>",&gDMA);
+	tree->Branch("gV","std::vector<float>",&gV);
+	tree->Branch("gA","std::vector<float>",&gA);
+      }
+    }
+
     // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
     tree->Branch("samplemedM",   &samplemedM, "samplemedM/F");
     tree->Branch("sampledmM",    &sampledmM, "sampledmM/F");
@@ -4905,8 +4971,14 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    std::vector<std::string> subtokens;
 	    split(subtokens,tokens.at(2),is_any_of("_"));
-	    samplemedM = std::stod(subtokens.at(3));
-	    sampledmM = std::stod(subtokens.at(4));
+	    if(subtokens.size() >= 5){
+	      samplemedM = std::stod(subtokens.at(3));
+	      sampledmM = std::stod(subtokens.at(4));
+	    }
+	    else{
+	      samplemedM = std::stod(subtokens.at(1));
+	      sampledmM = std::stod(subtokens.at(2));
+	    }
 	  }
 	  else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop                     
 	    split(tokens, lines.at(iLine), is_any_of(" "));
@@ -4915,9 +4987,23 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 	    sampledmM  = -1.;
 	    readDMFromGenParticle = true;
 	  }
+	  	  
+	  // read-weights for scale variation                                                                                                                                                         
+	  if(lines.at(iLine).find("Central scale variation") != std::string::npos or lines.at(iLine).find("scale_variation") != std::string::npos){
+	    for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
+	      TString line_string (lines.at(iLine2));
+	      if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
+		split(tokens, lines.at(iLine2), is_any_of("\""));
+		tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+		qcdscale.push_back(std::stoi(tokens.at(1)));
+	      }
+	      else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
+		break;
+	    }
+	  }	  
 	}
-      }   
-    }       
+      }
+    }
   }
 }
 

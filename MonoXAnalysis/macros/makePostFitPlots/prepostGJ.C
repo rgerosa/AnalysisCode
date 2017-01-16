@@ -4,7 +4,7 @@
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
 
-void prepostGJ_COMB(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false) {
+void prepostGJ(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
@@ -162,7 +162,7 @@ void prepostGJ_COMB(string fitFilename, string observable, Category category, bo
   TH1* frame = (TH1*) pohist->Clone("frame");  
   frame->Reset();
   frame->SetLineColor(kBlack);
-  frame->SetLineWidth(2);
+  frame->SetLineWidth(1);
 
   if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*500);
@@ -411,9 +411,15 @@ void prepostGJ_COMB(string fitFilename, string observable, Category category, bo
 
   }
 
-  canvas->SaveAs(("prepostfit_gam"+postfix+".pdf").c_str());
-  canvas->SaveAs(("prepostfit_gam"+postfix+".png").c_str());
-  
+  if(not addPullPlot){
+    canvas->SaveAs(("prepostfit_gam"+postfix+".pdf").c_str());
+    canvas->SaveAs(("prepostfit_gam"+postfix+".png").c_str());
+  }
+  else{
+    canvas->SaveAs(("prepostfit_gam"+postfix+"_pull.pdf").c_str());
+    canvas->SaveAs(("prepostfit_gam"+postfix+"_pull.png").c_str());
+  }
+
   if(dumpInfo){
 
     TFile* outFile = new TFile(("postfit_weights_GJ"+postfix+".root").c_str(),"RECREATE");
