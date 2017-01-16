@@ -1,62 +1,103 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-void prepostGJ(string fitFilename, string templateFileName, string observable, Category category, bool plotSBFit = false,  bool dumpInfo = false) {
+static bool saveTextFile = false;
+static bool dumpInfo     = false;
+
+void prepostGJ_COMB(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false) {
 
   gROOT->SetBatch(kTRUE); 
   setTDRStyle();
   
 
-  TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
-  canvas->SetTickx(1);
-  canvas->SetTicky(1);
-  canvas->cd();
-  canvas->SetBottomMargin(0.3);
-  canvas->SetRightMargin(0.06);
+  TCanvas* canvas = NULL;
+  TPad *pad2 = NULL;
+  TPad *pad3 = NULL;
 
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
-  pad2->SetTopMargin(0.7);
-  pad2->SetRightMargin(0.06);
-  pad2->SetFillColor(0);
-  pad2->SetGridy(1);
-  pad2->SetFillStyle(0);
-  
+  if(not addPullPlot){
+
+    canvas = new TCanvas("canvas", "canvas", 600, 700);
+    canvas->SetTickx(1);
+    canvas->SetTicky(1);
+    canvas->cd();
+    canvas->SetBottomMargin(0.3);
+    canvas->SetRightMargin(0.06);
+
+    pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+    pad2->SetTopMargin(0.7);
+    pad2->SetRightMargin(0.06);
+    pad2->SetFillColor(0);
+    pad2->SetGridy(1);
+    pad2->SetFillStyle(0);
+  }
+  else{
+
+    canvas = new TCanvas("canvas", "canvas", 600, 800);
+    canvas->SetTickx(1);
+    canvas->SetTicky(1);
+    canvas->cd();
+    canvas->SetBottomMargin(0.38);
+    canvas->SetRightMargin(0.06);    
+
+    pad2 = new TPad("pad2","pad2",0,0.,1,1.);
+    pad2->SetTopMargin(0.63);
+    pad2->SetBottomMargin(0.25);
+    pad2->SetRightMargin(0.06);
+    pad2->SetFillColor(0);
+    pad2->SetFillStyle(0);
+    pad2->SetLineColor(0);
+    pad2->SetGridy();
+
+    pad3 = new TPad("pad3","pad3",0,0.,1,1.);
+    pad3->SetTopMargin(0.76);
+    pad3->SetRightMargin(0.06);
+    pad3->SetFillColor(0);
+    pad3->SetFillStyle(0);
+    pad3->SetLineColor(0);
+    pad3->SetGridy();
+  }
 
   TFile* pfile = new TFile(fitFilename.c_str());
-  TFile* dfile = new TFile(templateFileName.c_str());
 
-  TH1* dthist = NULL;
+  TGraphAsymmErrors* dthist = NULL;
   TH1* qchist = NULL;
   TH1* vghist = NULL;
   TH1* vlhist = NULL;
   TH1* pohist = NULL;
   TH1* prhist = NULL;
+  
+  string fit_dir = "shapes_fit_b";
+  if(plotSBFit)
+    fit_dir = "shapes_fit_s";
+  
+  string dir;
+  if(isCombinedFit){
+    if(category == Category::monojet)
+      dir = "ch1_ch4";
+    else if(category == Category::monoV)
+      dir = "ch2_ch4";
+    else if(category == Category::VBF)
+      dir = "ch3_ch4";
+  }
+  else
+    dir = "ch4";
 
-  if(!plotSBFit){
+  string postfix = "_MJ";
+  if(category == Category::monoV)
+    postfix = "_MV";
+  else if(category == Category::VBF)
+    postfix = "_VBF";
+  
+  dthist = (TGraphAsymmErrors*)pfile->Get((fit_dir+"/"+dir+"/data").c_str());
+  qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD_GJ").c_str());
+  vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma_GJ").c_str());
+  vlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_GJ").c_str());
+  pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
+  prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
+
+
+  if(saveTextFile){
     
-    dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
-    qchist = (TH1*)pfile->Get("shapes_fit_b/ch4/QCD_GJ");
-    vghist = (TH1*)pfile->Get("shapes_fit_b/ch4/VGamma_GJ");
-    vlhist = (TH1*)pfile->Get("shapes_fit_b/ch4/WJets_GJ");
-    pohist = (TH1*)pfile->Get("shapes_fit_b/ch4/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
-
-  }
-  else{
-
-    dthist = (TH1*)dfile->FindObjectAny(("datahistgam_"+observable).c_str());
-    qchist = (TH1*)pfile->Get("shapes_fit_s/ch4/QCD_GJ");
-    vghist = (TH1*)pfile->Get("shapes_fit_s/ch4/VGamma_GJ");
-    vlhist = (TH1*)pfile->Get("shapes_fit_s/ch4/WJets_GJ");
-    pohist = (TH1*)pfile->Get("shapes_fit_s/ch4/total_background");
-    prhist = (TH1*)pfile->Get("shapes_prefit/ch4/total_background");
-
-  }
-
-  dthist->Scale(1.0, "width");
-
-  if(dumpInfo){
-
     ofstream  outputfile;
     outputfile.open("prepostGJ.txt");
     stringstream QCDRate;
@@ -70,23 +111,25 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
     
     for(int iBin = 0; iBin < qchist->GetNbinsX(); iBin++){
       QCDRate << "   ";
-      QCDRate << qchist->GetBinContent(iBin);
+      QCDRate << qchist->GetBinContent(iBin+1);
     }
     
     
     for(int iBin = 0; iBin < prhist->GetNbinsX(); iBin++){
       PreRate << "   ";
-      PreRate << prhist->GetBinContent(iBin);
+      PreRate << prhist->GetBinContent(iBin+1);
     }
     
     for(int iBin = 0; iBin < pohist->GetNbinsX(); iBin++){
       PostRate << "   ";
-      PostRate << pohist->GetBinContent(iBin);
+      PostRate << pohist->GetBinContent(iBin+1);
     }  
     
-    for(int iBin = 0; iBin < dthist->GetNbinsX(); iBin++){
+    for(int iBin = 0; iBin < dthist->GetN(); iBin++){
+      double x,y;
+      dthist->GetPoint(iBin+1,x,y);
       DataRate << "   ";
-      DataRate << dthist->GetBinContent(iBin);
+      DataRate << y;
     }
     
     outputfile<<"######################"<<endl;
@@ -103,6 +146,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   
   prhist->SetLineColor(kRed);
   prhist->SetLineWidth(2);
+  prhist->SetLineStyle(7);
   pohist->SetLineColor(kBlue);
   pohist->SetLineWidth(2);
   prhist->SetMarkerColor(kRed);
@@ -115,12 +159,17 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   vlhist->SetFillColor(kOrange+1);
   qchist->SetLineColor(kBlack);
   
-  TH1* frame = (TH1*) dthist->Clone("frame");
+  TH1* frame = (TH1*) pohist->Clone("frame");  
   frame->Reset();
+  frame->SetLineColor(kBlack);
+  frame->SetLineWidth(2);
+
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.003,prhist->GetMaximum()*150);
-  else
-    frame->GetYaxis()->SetRangeUser(0.001,prhist->GetMaximum()*150);
+    frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*500);
+  else if(category == Category::monoV)
+    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
+  else if(category == Category::VBF)
+    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -136,36 +185,7 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"36.2");
-  
-  prhist->Draw("HIST SAME");
-  pohist->Draw("HIST SAME");
-  qchist->Draw("HIST SAME");
-  
-  dthist->SetMarkerSize(1.2);
-  dthist->SetMarkerStyle(20);
-  dthist->SetLineColor(kBlack);
-  dthist->Draw("EP SAME");
-  
-  TLegend* leg = new TLegend(0.6, 0.60, 0.92, 0.92);
-  leg->SetBorderSize(0);
-  leg->SetFillColor(0);
-  leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit (#gamma + jets)","L");
-  leg->AddEntry(prhist, "Pre-fit (#gamma + jets)","L");
-  leg->AddEntry(qchist, "Other Backgrounds", "F");
-  leg->Draw("SAME");
-
-
-  canvas->RedrawAxis("sameaxis");
-  canvas->SetLogy();
-  canvas->cd();
-
-  pad2->Draw();
-  pad2->cd();
-
-  TH1* frame2 =  (TH1*) dthist->Clone("frame");
-  frame2->Reset("ICES");
+  CMS_lumi(canvas,"36.4");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -179,36 +199,75 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   else if(category == Category::VBF)
     categoryLabel ->DrawLatex(0.175,0.80,"VBF");
   categoryLabel->Draw("same");
+  
+  prhist->Draw("HIST SAME");
+  pohist->Draw("HIST SAME");
+  qchist->Draw("HIST SAME");
+  
+  dthist->SetMarkerSize(1.2);
+  dthist->SetMarkerStyle(20);
+  dthist->SetLineColor(kBlack);
+  dthist->Draw("EP SAME");
+  
+  TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
+  leg->SetBorderSize(0);
+  leg->SetFillColor(0);
+  leg->SetFillStyle(0);
+  leg->AddEntry(dthist, "Data","PEL");
+  leg->AddEntry(pohist, "Post-fit #gamma+jets","L");
+  leg->AddEntry(prhist, "Pre-fit #gamma+jets","L");
+  leg->AddEntry(qchist, "Other backgrounds", "F");
+  leg->Draw("SAME");
+
+  canvas->RedrawAxis("sameaxis");
+  canvas->SetLogy();
+  canvas->cd();
+
+  pad2->Draw();
+  pad2->cd();
+
+  TH1* frame2 =  (TH1*) pohist->Clone("frame");
+  frame2->Reset();
+  frame2->SetLineColor(kBlack);
+  frame2->SetLineWidth(1);
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
+
   frame2->GetYaxis()->SetNdivisions(5);
 
+  if(not addPullPlot){
+    frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
+    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->CenterTitle();
+    frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetYaxis()->SetLabelSize(0.04);
+    frame2->GetYaxis()->SetTitleSize(0.04);
+    frame2->GetXaxis()->SetLabelSize(0.04);
+    frame2->GetXaxis()->SetTitleSize(0.05);
+  }
+  else{
+    frame2->GetYaxis()->SetTitleOffset(1.9);
+    frame2->GetYaxis()->SetLabelSize(0.03);
+    frame2->GetXaxis()->SetLabelSize(0);
+    frame2->GetYaxis()->SetTitleSize(0.03);
+    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->CenterTitle();
+  }
 
-  
-  frame2->GetXaxis()->SetTitle("Recoil [GeV]");
-  if(TString(observable).Contains("mjj") and category == Category::VBF)
-    frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-
-  frame2->GetYaxis()->SetTitle("Data/Pred.");
-  frame2->GetYaxis()->CenterTitle();
-  frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.04);
-  frame2->GetYaxis()->SetTitleSize(0.04);
-  frame2->GetXaxis()->SetLabelSize(0.04);
-  frame2->GetXaxis()->SetTitleSize(0.05);
   frame2->Draw();
   
 
-  TH1* d1hist = (TH1*)dthist->Clone("d1hist");
-  TH1* d2hist = (TH1*)dthist->Clone("d2hist");
+  TGraphAsymmErrors* d1hist = (TGraphAsymmErrors*)dthist->Clone("d1hist");
+  TGraphAsymmErrors* d2hist = (TGraphAsymmErrors*)dthist->Clone("d2hist");
+
   TH1* m1hist = (TH1*)prhist->Clone("m1hist");
   TH1* m2hist = (TH1*)pohist->Clone("m2hist");
   TH1* erhist = (TH1*)pohist->Clone("erhist");
@@ -217,16 +276,26 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   d2hist->SetLineColor(kBlue);
   d1hist->SetMarkerColor(kRed);
   d1hist->SetMarkerSize(1);
-  d1hist->SetMarkerStyle(20);
+  d1hist->SetMarkerStyle(24);
   d2hist->SetMarkerColor(kBlue);
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
   
   for (int i = 1; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
   for (int i = 1; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
+
+  for(int iPoint = 1; iPoint < d1hist->GetN(); iPoint++){
+    double x,y;
+    d1hist->GetPoint(iPoint,x,y);
+    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint));
+    d1hist->SetPointError(iPoint,d1hist->GetErrorXlow(iPoint),d1hist->GetErrorXhigh(iPoint),
+			  d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint));
+    d2hist->GetPoint(iPoint,x,y);
+    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint));
+    d2hist->SetPointError(iPoint,d2hist->GetErrorXlow(iPoint),d2hist->GetErrorXhigh(iPoint),
+			  d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint));    
+  }
   
-  d1hist->Divide(m1hist);
-  d2hist->Divide(m2hist);
   erhist->Divide(m2hist);
   erhist->SetLineColor(0);
   erhist->SetMarkerColor(0);
@@ -235,7 +304,6 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   
   d1hist->SetMarkerSize(1.2);
   d2hist->SetMarkerSize(1.2);
-  d1hist->SetStats(kFALSE);
   
   d1hist->GetXaxis()->SetLabelOffset(999999);
   d1hist->GetXaxis()->SetLabelSize(0);
@@ -251,11 +319,13 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   d1hist->GetYaxis()->SetLabelSize(0.12);
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
-  
-  d1hist->Draw("PE1 SAME");    
+
+  if(not addPullPlot)
+    d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  d1hist->Draw("P0E1 SAME");
+  if(not addPullPlot)
+    d1hist->Draw("P0E1 SAME");
   d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
@@ -268,22 +338,95 @@ void prepostGJ(string fitFilename, string templateFileName, string observable, C
   unhist->SetLineWidth(2);
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
-  pad2->RedrawAxis("G sameaxis");
-  
-  canvas->SaveAs("prepostfit_gam.pdf");
-  canvas->SaveAs("prepostfit_gam.png");
 
+  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
+  leg2->SetFillColor(0);
+  leg2->SetFillStyle(1);
+  leg2->SetBorderSize(0);
+  leg2->SetLineColor(0);
+  leg2->SetNColumns(2);
+  leg2->AddEntry(d2hist,"post-fit","PLE");
+  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  if(not addPullPlot)
+    leg2->Draw("same");                                                                                                                                                      
+
+  pad2->RedrawAxis("G sameaxis");
+
+  if(addPullPlot){
+    pad3->Draw();
+    pad3->cd();
+
+    TH1* frame3 = (TH1*) pohist->Clone("frame2");
+    frame3->Reset();
+    frame3->SetLineColor(kBlack);
+    frame3->SetLineWidth(1);
+    frame3->GetYaxis()->SetRangeUser(-3,3);
+    frame3->GetXaxis()->SetNdivisions(510);
+    frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
+    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
+
+    frame3->GetYaxis()->CenterTitle();
+    frame3->GetYaxis()->SetTitleOffset(1.5);
+    frame3->GetYaxis()->SetLabelSize(0.03);
+    frame3->GetYaxis()->SetTitleSize(0.03);
+    frame3->GetXaxis()->SetLabelSize(0.04);
+    frame3->GetXaxis()->SetTitleSize(0.05);
+    frame3->GetYaxis()->SetNdivisions(504);
+    frame3->Draw("AXIS");
+    frame3->Draw("AXIG same");
+
+
+    TH1F* data_pull_post = (TH1F*) pohist->Clone("data_pull_post");
+    data_pull_post->Reset();
+    for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
+      double x,y;
+      dthist->GetPoint(iPoint+1,x,y);
+      data_pull_post->SetBinContent(iPoint+1,y);
+      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
+    }
+    data_pull_post->Add(pohist,-1);
+    data_pull_post->SetMarkerColor(kBlue);
+    data_pull_post->SetLineColor(kBlue);
+    data_pull_post->SetLineWidth(1);
+    for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
+      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
+      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                            
+    }
+
+    // line at 1                                                                                                                                                                                   
+    TH1* unhist2 = (TH1*) pohist->Clone("unhist");
+    unhist2->Reset();
+    for (int i = 1; i <= unhist2->GetNbinsX(); i++) unhist2->SetBinContent(i, 0);
+    for (int i = 1; i <= unhist2->GetNbinsX(); i++) unhist2->SetBinError(i, 0);
+    unhist2->SetMarkerSize(0);
+    unhist2->SetLineColor(kBlack);
+    unhist2->SetLineStyle(2);
+    unhist2->SetLineWidth(2);
+    unhist2->SetFillColor(0);
+    unhist2->Draw("SAME");
+    data_pull_post->Draw("hist same");
+   
+    pad3->RedrawAxis("G sameaxis");
+    pad3->Modified();
+
+  }
+
+  canvas->SaveAs(("prepostfit_gam"+postfix+".pdf").c_str());
+  canvas->SaveAs(("prepostfit_gam"+postfix+".png").c_str());
+  
   if(dumpInfo){
 
-    TFile* outFile = new TFile("postfit_weights_GJ.root","RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_GJ"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
 
     dthist->Write("data");
     qchist->Write("qcd_post_fit");
-    TH1* qchist_prefit = (TH1*) pfile->Get("shapes_prefit/ch4/QCD_GJ");
+    TH1* qchist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/QCD_GJ").c_str());
     qchist_prefit->Write("wjets_pre_fit");
     pohist->Write("post_fit_post_fit");
     prhist->Write("pre_fit_post_fit");
+
+
     outFile->Close();
   }
 }
