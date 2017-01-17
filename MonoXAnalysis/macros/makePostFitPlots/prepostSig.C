@@ -13,7 +13,7 @@ void prepostSig(string   fitFilename,
 		bool     addPullPlot = false,  
 		bool     isHiggsInvisible = false, 		
 		int      scaleSig = 1, 
-		bool     blind    = true){
+		bool     blind    = false){
   
   
   gROOT->SetBatch(kTRUE);
@@ -161,9 +161,13 @@ void prepostSig(string   fitFilename,
   TGraphAsymmErrors* dthist = NULL;
   if(!blind)
     dthist = (TGraphAsymmErrors*)pfile->Get((fit_dir+"/"+dir+"/data").c_str());
-  else
-    dthist = new TGraphAsymmErrors((TH1*) tohist->Clone(("datahist_"+observable).c_str()));
-
+  else{
+    dthist = new TGraphAsymmErrors();
+    for(int iBin = 1; iBin < tohist->GetNbinsX()+1; iBin++){
+      dthist->SetPoint(iBin,tohist->GetBinCenter(iBin),tohist->GetBinContent(iBin));
+      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin)/2,tohist->GetBinWidth(iBin)/2,tohist->GetBinError(iBin)/2,tohist->GetBinError(iBin)/2);
+    }
+  }
   if(saveTextFile){
 
     ofstream outputfile;
@@ -592,7 +596,7 @@ void prepostSig(string   fitFilename,
   dahist->SetMarkerColor(kBlue);
 
   dphist->SetMarkerSize(1);
-  dphist->SetMarkerStyle(20);
+  dphist->SetMarkerStyle(24);
   dahist->SetMarkerSize(1);
   dahist->SetMarkerStyle(20);
 
@@ -607,6 +611,7 @@ void prepostSig(string   fitFilename,
   mchist->Add(tthist);
   mchist->Add(dihist);
   mchist->Add(znhist);
+
   if(category == Category::VBF){
     mchist->Add(ewkwhist);
     mchist->Add(ewkzhist);
@@ -640,7 +645,7 @@ void prepostSig(string   fitFilename,
   dahist->SetMarkerSize(1);
   dphist->SetMarkerSize(1);
   dahist->SetMarkerStyle(20);
-  dphist->SetMarkerStyle(20);
+  dphist->SetMarkerStyle(24);
 
   // line at 1
   for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
@@ -672,7 +677,7 @@ void prepostSig(string   fitFilename,
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"post-fit","PLE");
   leg2->AddEntry(dphist,"pre-fit","PLE");
-  if(not addPullPlot)
+  if(not addPullPlot and not blind)
     leg2->Draw("same");
 
   canvas->cd();
@@ -756,8 +761,8 @@ void prepostSig(string   fitFilename,
     canvas->SaveAs(("postfit_sig_blind"+postfix+"_pull.png").c_str());
   }
   else if(addPullPlot and not blind){
-    canvas->SaveAs(("postfit_sig_"+postfix+"_pull.pdf").c_str());
-    canvas->SaveAs(("postfit_sig_"+postfix+"_pull.png").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+"_pull.pdf").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+"_pull.png").c_str());
   }
   
   
