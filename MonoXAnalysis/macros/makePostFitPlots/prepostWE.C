@@ -247,6 +247,20 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   frame->Draw();
   
   CMS_lumi(canvas,"36.4");
+
+  TLatex* categoryLabel = new TLatex();
+  categoryLabel->SetNDC();
+  categoryLabel->SetTextSize(0.5*canvas->GetTopMargin());
+  categoryLabel->SetTextFont(42);
+  categoryLabel->SetTextAlign(11);
+  if(category == Category::monojet)
+    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+  else if(category == Category::monoV)
+    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+  else if(category == Category::VBF)
+    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+  categoryLabel->Draw("same");
+
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
   wlhist->Draw("HIST SAME");
@@ -256,6 +270,7 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
+
  
   TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
   leg->SetBorderSize(0);
@@ -410,7 +425,10 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3,3);
-    frame3->GetXaxis()->SetNdivisions(510);
+    if(category == Category::monojet)
+      frame3->GetXaxis()->SetNdivisions(510);
+    else
+      frame3->GetXaxis()->SetNdivisions(210);
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
     frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
@@ -435,6 +453,7 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
     data_pull_post->Add(pohist,-1);
     data_pull_post->SetMarkerColor(kBlue);
     data_pull_post->SetLineColor(kBlue);
+    data_pull_post->SetFillColor(kBlue);
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               

@@ -361,7 +361,10 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3,3);
-    frame3->GetXaxis()->SetNdivisions(510);
+    if(category == Category::monojet)
+      frame3->GetXaxis()->SetNdivisions(510);
+    else
+      frame3->GetXaxis()->SetNdivisions(210);
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
     frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
@@ -387,6 +390,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     data_pull_post->Add(pohist,-1);
     data_pull_post->SetMarkerColor(kBlue);
     data_pull_post->SetLineColor(kBlue);
+    data_pull_post->SetFillColor(kBlue);
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               

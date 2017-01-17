@@ -367,7 +367,6 @@ void prepostSig_COMB_withSignals(string fitFilename,
 
   canvas->cd();
   leg->AddEntry(dthist, "Data", "PEL");
-
   leg->AddEntry(znhist, "Z(#nu#nu)+jets", "F");
   leg->AddEntry(wlhist, "W(l#nu)+jets", "F");
   leg->AddEntry(dihist, "WW/WZ/ZZ", "F");
