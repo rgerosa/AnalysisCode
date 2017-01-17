@@ -469,7 +469,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
   if(dumpHisto){
 
-    TFile* outFile = new TFile(("postfit_weights_WM"+postfix+".root").c_str(),"RECREATE");
+    TFile* outFile = new TFile(("postfit_weights_ZM"+postfix+".root").c_str(),"RECREATE");
     outFile->cd();
 
     dthist->Write("data");
@@ -477,7 +477,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     tthist->Write("top_post_fit");
     dihist->Write("diboson_post_fit");
 
-    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ZJets_WM").c_str());
+    TH1* wlhist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WJets_ZM").c_str());
     TH1* tthist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Top").c_str());
     TH1* dihist_prefit = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/Dibosons").c_str());
 
