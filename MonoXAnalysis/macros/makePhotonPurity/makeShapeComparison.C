@@ -40,7 +40,19 @@
 
 using namespace std;
 
-static vector<int> ptBins = {175, 200, 225, 250, 280, 320, 375, 425, 1000};  // must be consistent with input file content
+static vector<int> ptBins = {175,200,225,250,280,320,370,420,1000};  // must be consistent with input file content
+
+//==============================================
+
+void checkHistogramInFile(TH1F* h, const string& histoName, const string& fileName) {
+
+  if (!h || h == NULL) {
+    cout << "Error: histogram '" << histoName << "' not found in file '" << fileName << "'. End of programme." << endl;
+    exit(EXIT_FAILURE);
+  }
+
+}
+
 
 //==============================================
 
@@ -363,10 +375,11 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
 
 //=====================
 
-void makeShapeComparison(const string& inputDIR = "./", const string& outputDIR = "./", const float& lumi = 36.2) {
+void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2) {
 
   // assume the input file is called PhotonPurityFitResult.root, but can choose its location with inputDIR (default is current directory)
 
+  string outputDIR = inputDIR + "shapeComparison/";
   if (outputDIR != "./") system(("mkdir -p "+outputDIR).c_str());
   string bkgDIR = "/background/";
   string sigDIR = "/signal/";
@@ -415,52 +428,34 @@ void makeShapeComparison(const string& inputDIR = "./", const string& outputDIR 
     string hname_Sig_mcGJETS_RND04 = string( (char*)Form("signalTemplateRND04_gjets_pt_%d_%d",ptBins[ipt],ptBins[ipt+1]) ) ;
     
     hist = (TH1F*) inputfile->Get((infileDir+hname_Bkg_data).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Bkg_data,inputfilename);
     hBkg_data = (TH1F*) hist->Clone();
-    cout << hBkg_data->GetName() << endl;
+    //cout << hBkg_data->GetName() << endl;
 
     hist = (TH1F*) inputfile->Get((infileDir+hname_Bkg_mcQCD).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Bkg_mcQCD,inputfilename);
     hBkg_mcQCD = (TH1F*) hist->Clone();
-    cout << hBkg_mcQCD->GetName() << endl;
+    //cout << hBkg_mcQCD->GetName() << endl;
 
     hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_data_RND04).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Sig_data_RND04,inputfilename);
     hSig_data_RND04 = (TH1F*) hist->Clone();
-    cout << hSig_data_RND04->GetName() << endl;
+    //cout << hSig_data_RND04->GetName() << endl;
 
     hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_data_RND08).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Sig_data_RND08,inputfilename);
     hSig_data_RND08 = (TH1F*) hist->Clone();
-    cout << hSig_data_RND08->GetName() << endl;
+    //cout << hSig_data_RND08->GetName() << endl;
 
     hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_matched).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Sig_mcGJETS_matched,inputfilename);
     hSig_mcGJETS_matched = (TH1F*) hist->Clone();
-    cout << hSig_mcGJETS_matched->GetName() << endl;
+    //cout << hSig_mcGJETS_matched->GetName() << endl;
 
     hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_RND04).c_str());
-    if (!hist) {
-      cout << "Error: histogram not found in file '" << inputfilename << "'. End of programme." << endl;
-      exit(EXIT_FAILURE);
-    }
+    checkHistogramInFile(hist,hname_Sig_mcGJETS_RND04,inputfilename);
     hSig_mcGJETS_RND04 = (TH1F*) hist->Clone();
-    cout << hSig_mcGJETS_RND04->GetName() << endl;
+    //cout << hSig_mcGJETS_RND04->GetName() << endl;
 
 
     //drawPlotBkg(TH1F* h1, TH1F* h2, const string& xAxisName = "", const string& canvasTitle = "", const string& outputDIR = "./")

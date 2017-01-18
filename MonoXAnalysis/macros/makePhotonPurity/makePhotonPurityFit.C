@@ -9,6 +9,21 @@ static vector<float> ptBins = {175,200,225,250,280,320,370,420,1000};
 static vector<int>   nBinPhotonIso = {30,30,30,30,30,25,25,25,25};
 static vector<float> photonIsoMax  = {20,20,20,20,20,20,20,20,20};
 static vector<float> photonIsoMin  = {0,0,0,0,0,0,0,0,0};
+
+///////////////////////////////////////////////////////////////
+// photon isolation info with variable bin width
+static vector<float> photonIsoVariableBinWidth = {0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 
+				      1.8, 2.2, 2.6, 3.0, 3.4, 3.8, 4.2, 
+				      4.8, 5.4, 6.0, 6.6, 7.2, 7.8, 8.4, 9.0, 9.6, 10.2, 10.8, 11.4, 12.0,
+				      12.8, 13.6, 14.4, 15.2, 16.0,
+				      17.0, 18.0, 19.0, 20.0, 21.0,
+				      23.0, 25.0};
+// useful information from previous vector
+static int nBinsPhIsoVarWidth = (int) photonIsoVariableBinWidth.size() -1;
+static float phIsoVarWidth_min = photonIsoVariableBinWidth.front();
+static float phIsoVarWidth_max = photonIsoVariableBinWidth.back();
+//////////////////////////////////////////////////////////////
+
 // debug mode
 static bool debug = false;
 static bool saveHistograms = true;
@@ -43,6 +58,11 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
   vector<fitPurity> signalTemplateRND04_gjets;
   vector<fitPurity> backgroundTemplate_qcd;
 
+  // variable bin width histograms, used to estimate an additional systematic uncertainty
+  vector<fitPurity> dataHisto_varBinWidth;
+  vector<fitPurity> signalTemplateRND04_varBinWidth_data;
+  vector<fitPurity> backgroundTemplate_varBinWidth_data;
+
   for(size_t ibin = 0; ibin < ptBins.size()-1; ibin++){
 
     ///// create histograms
@@ -65,6 +85,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
     signalTemplateRND08_data.back().phHisto->Sumw2();
     backgroundTemplate_data.back().phHisto->Sumw2();
 
+    
     if(addSystematics){ // create alternative templates for signal and background
 
       signalTemplate_gjets.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
@@ -78,7 +99,28 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
       signalTemplateRND04_gjets.back().phHisto->Sumw2();
       backgroundTemplate_qcd.back().phHisto->Sumw2();
     }
+
+    ///////////////////////////////////////////////////////////////////
+    // variable bin width histograms
+    dataHisto_varBinWidth.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
+					      new TH1F(Form("dataHisto_varBinWidth_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",
+						       nBinsPhIsoVarWidth,photonIsoVariableBinWidth.data())));
+    signalTemplateRND04_varBinWidth_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
+							     new TH1F(Form("signalTemplateRND04_varBinWidth_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",
+								      nBinsPhIsoVarWidth,photonIsoVariableBinWidth.data())));
+    backgroundTemplate_varBinWidth_data.push_back(fitPurity(ptBins.at(ibin),ptBins.at(ibin+1),
+							    new TH1F(Form("backgroundTemplate_varBinWidth_data_pt_%d_%d",int(ptBins.at(ibin)),int(ptBins.at(ibin+1))),"",
+								     nBinsPhIsoVarWidth,photonIsoVariableBinWidth.data())));
+    
+    /////
+    dataHisto_varBinWidth.back().phHisto->Sumw2();
+    signalTemplateRND04_varBinWidth_data.back().phHisto->Sumw2();
+    backgroundTemplate_varBinWidth_data.back().phHisto->Sumw2();
+    //////////////////////////////////////////////////////////////////////
+
   }
+
+
 
   // add specific files to the chain --> data
   TChain* chain_data = new TChain("tree/tree");
