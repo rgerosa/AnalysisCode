@@ -296,6 +296,9 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 
     // fillHistograms for gamma+jets --> temp values                                                                                                          
                                    
+    fillMCHistograms(chain_gjets,Sample::gjets,signalTemplate_gjets,mediumID,khists,lumi,genchain_gjets);
+    // to calculate mean pt                                                                                                                                                 
+                                   
     fillMCHistograms(chain_gjets,Sample::gjets,signalTemplateRND04_gjets,mediumID,khists,lumi,genchain_gjets,true);
     // to calculate mean pt                                                                                                                                                 
 
