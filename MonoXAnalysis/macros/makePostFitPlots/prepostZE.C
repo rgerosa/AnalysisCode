@@ -272,8 +272,8 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit Z #rightarrow ee","L");
-  leg->AddEntry(prhist, "Pre-fit Z #rightarrow ee","L");
+  leg->AddEntry(pohist, "Post-fit Z(ee)+jets","L");
+  leg->AddEntry(prhist, "Pre-fit Z(ee)+jets","L");
   if(category == Category::VBF)
     leg->AddEntry(ewkwhist, "Z-EWK","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");

@@ -19,6 +19,14 @@ options.register(
 options.register(
         'isMiniAOD',True,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
         'flag to tell if one is running on miniAOD or GEN files');
+
+options.register(
+        'isSignalSample',False,VarParsing.multiplicity.singleton, VarParsing.varType.bool,
+        'in case one want to run on signal files at gen level');
+
+options.register(
+        'minBosonPt',100,VarParsing.multiplicity.singleton, VarParsing.varType.float,
+        'apply a minimum boson pt requirement, which is DM mediator in case of DM signals');
    
 options.parseArguments()
 
@@ -65,7 +73,9 @@ process.gentree = cms.EDAnalyzer("GenTreeMaker",
                                  jets   = cms.InputTag("slimmedGenJets"),
                                  met    = cms.InputTag("slimmedMETs"),
                                  sample = cms.int32(options.sample),
-                                 isMiniAOD = cms.bool(options.isMiniAOD)
+                                 isSignalSample = cms.bool(options.isSignalSample),
+                                 isMiniAOD = cms.bool(options.isMiniAOD),
+                                 minBosonPt = cms.double(options.minBosonPt)                                 
                               )
 
 if not options.isMiniAOD:

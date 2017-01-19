@@ -45,7 +45,7 @@ const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 1.5;
+const float dphijj          = 2.0;
 const float dphijjrelaxed   = 2.0;
 // Additional selections
 const float photonPt        = 120;
@@ -832,7 +832,6 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
-    if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt  > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){

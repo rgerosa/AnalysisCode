@@ -272,8 +272,8 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit Z #rightarrow #mu#nu","L");
-  leg->AddEntry(prhist, "Pre-fit Z #rightarrow #mu#nu","L");
+  leg->AddEntry(pohist, "Post-fit Z(#mu#mu)+jets","L");
+  leg->AddEntry(prhist, "Pre-fit Z(#mu#mu)+jets","L");
   if(category == Category::VBF)
     leg->AddEntry(ewkwhist, "Z-EWK","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");

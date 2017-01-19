@@ -209,14 +209,14 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
-  TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
+  TLegend* leg = new TLegend(0.60, 0.65, 0.92, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit #gamma+jets","L");
   leg->AddEntry(prhist, "Pre-fit #gamma+jets","L");
-  leg->AddEntry(qchist, "Other backgrounds", "F");
+  leg->AddEntry(qchist, "QCD multijets", "F");
   leg->Draw("SAME");
 
   canvas->RedrawAxis("sameaxis");

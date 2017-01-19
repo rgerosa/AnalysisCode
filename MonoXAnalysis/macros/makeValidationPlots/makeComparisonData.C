@@ -1,17 +1,46 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static float recoilSelection = 400;
+static float recoilSelection = 600;
 
-TH1F* bosonpt_histo  = new TH1F("bosonpt","",50,-100,100);
-TH1F* bosoneta_histo = new TH1F("bosoneta","",50,-0.15,0.15);
-TH1F* bosonphi_histo = new TH1F("bosonphi","",50,-0.1,0.1);
-TH1F* recoil_histo   = new TH1F("recoil","",50,-100,100);
+TH1F* bosonpt_histo   = new TH1F("bosonpt","",50,-100,100);
+TH1F* bosoneta_histo  = new TH1F("bosoneta","",50,-0.15,0.15);
+TH1F* bosonphi_histo  = new TH1F("bosonphi","",50,-0.1,0.1);
+TH1F* recoil_histo    = new TH1F("recoil","",50,-100,100);
 TH1F* recoilphi_histo = new TH1F("recoilphi","",50,-0.25,0.25);
 TH1F* pfmet_histo     = new TH1F("pfmet","",50,-100,100);
 TH1F* pfmetphi_histo  = new TH1F("pfmetphi","",50,-0.25,0.25);
-TH1F* jetpt_histo  = new TH1F("jetpt","",50,-100,100);
+TH1F* jetpt_histo     = new TH1F("jetpt","",50,-30,30);
+TH1F* jetpt2_histo    = new TH1F("jetpt2","",50,-30,30);
+TH1F* njet_histo      = new TH1F("njet","",10,-5,5);
+TH1F* jeteta_histo    = new TH1F("jeteta","",50,-0.1,0.1);
+TH1F* jeteta2_histo   = new TH1F("jeteta2","",50,-0.1,0.1);
 
+TH1F* bosonpt_histo_only1   = new TH1F("bosonpt_only1","",40,120,1000);
+TH1F* bosoneta_histo_only1  = new TH1F("bosoneta_only1","",30,-1.5,1.5);
+TH1F* bosonphi_histo_only1  = new TH1F("bosonphi_only1","",30,-3.14,3.14);
+TH1F* recoil_histo_only1    = new TH1F("recoil_only1","",40,200,1200);
+TH1F* recoilphi_histo_only1 = new TH1F("recoilphi_only1","",30,-3.14,3.14);
+TH1F* pfmet_histo_only1     = new TH1F("pfmet_only1","",40,0,400);
+TH1F* pfmetphi_histo_only1  = new TH1F("pfmetphi_only1","",30,-3.14,3.14);
+TH1F* jetpt_histo_only1     = new TH1F("jetpt_only1","",40,100,1000);
+TH1F* jetpt2_histo_only1    = new TH1F("jetpt2_only1","",40,30,500);
+TH1F* njet_histo_only1      = new TH1F("njet_only1","",5,0,5);
+TH1F* jeteta_histo_only1    = new TH1F("jeteta_only1","",30,-1.5,1.5);
+TH1F* jeteta2_histo_only1   = new TH1F("jeteta2_only1","",50,-1.5,1.5);
+
+TH1F* bosonpt_histo_only2   = new TH1F("bosonpt_only2","",40,120,1000);
+TH1F* bosoneta_histo_only2  = new TH1F("bosoneta_only2","",30,-1.5,1.5);
+TH1F* bosonphi_histo_only2  = new TH1F("bosonphi_only2","",30,-3.14,3.14);
+TH1F* recoil_histo_only2    = new TH1F("recoil_only2","",40,200,1200);
+TH1F* recoilphi_histo_only2 = new TH1F("recoilphi_only2","",30,-3.14,3.14);
+TH1F* pfmet_histo_only2     = new TH1F("pfmet_only2","",40,0,400);
+TH1F* pfmetphi_histo_only2  = new TH1F("pfmetphi_only2","",30,-3.14,3.14);
+TH1F* jetpt_histo_only2     = new TH1F("jetpt_only2","",40,100,1000);
+TH1F* jetpt2_histo_only2    = new TH1F("jetpt2_only2","",40,30,500);
+TH1F* njet_histo_only2      = new TH1F("njet_only2","",5,0,5);
+TH1F* jeteta_histo_only2    = new TH1F("jeteta_only2","",30,-1.5,1.5);
+TH1F* jeteta2_histo_only2   = new TH1F("jeteta2_only2","",50,-1.5,1.5);
 
 TH2F* bosonpt_histo_2D  = new TH2F("bosonpt_2d","",50,200,1100,50,200,1100);
 TH2F* bosoneta_histo_2D = new TH2F("bosoneta_2d","",50,-2.5,2.5,50,-2.5,2.5);
@@ -21,6 +50,10 @@ TH2F* recoilphi_histo_2D = new TH2F("recoilphi_2d","",50,-3.14,3.14,50,-3.14,3.1
 TH2F* pfmet_histo_2D     = new TH2F("pfmet_2d","",50,0,300,50,0,300);
 TH2F* pfmetphi_histo_2D  = new TH2F("pfmetphi_2d","",50,-3.14,3.14,50,-3.14,3.14);
 TH2F* jetpt_histo_2D     = new TH2F("jetpt_2d","",50,100,900,50,100,900);
+TH2F* jetpt2_histo_2D    = new TH2F("jetpt2_2d","",50,100,900,50,100,900);
+TH2F* jeteta_histo_2D    = new TH2F("jeteta_2d","",30,-2.5,2.5,30,-2.5,2.5);
+TH2F* jeteta2_histo_2D    = new TH2F("jeteta2_2d","",30,-2.5,2.5,30,-2.5,2.5);
+TH2F* njet_histo_2D    = new TH2F("njet_2d","",5,0,5,5,0,5);
 
 
 void drawPlot(TCanvas* pad1, TH1* histo_1, string observable, string outputDIR, bool logScale = true){
@@ -89,7 +122,7 @@ void drawPlot2D(TCanvas* pad1, TH2* histo_1, string observable, string outputDIR
 
 
 
-void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Category category, string outputDIR){
+void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Category category, string outputDIR, bool useOnlyICHEP, bool doOppositeMatching){
 
   bosonpt_histo->Sumw2();
   bosoneta_histo->Sumw2();
@@ -99,6 +132,10 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   pfmet_histo->Sumw2();
   pfmetphi_histo->Sumw2();
   jetpt_histo->Sumw2();
+  jetpt2_histo->Sumw2();
+  njet_histo->Sumw2();
+  jeteta_histo->Sumw2();
+  jeteta2_histo->Sumw2();
 
   bosonpt_histo_2D->Sumw2();
   bosoneta_histo_2D->Sumw2();
@@ -108,6 +145,10 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   pfmet_histo_2D->Sumw2();
   pfmetphi_histo_2D->Sumw2();
   jetpt_histo_2D->Sumw2();
+  jetpt2_histo_2D->Sumw2();
+  jeteta_histo_2D->Sumw2();
+  jeteta2_histo_2D->Sumw2();
+  njet_histo_2D->Sumw2();
 
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
@@ -172,7 +213,7 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   chain_1->SetBranchStatus("nmuons",kTRUE);
   chain_1->SetBranchStatus("nelectrons",kTRUE);
   chain_1->SetBranchStatus("nphotons",kTRUE);
-  chain_1->SetBranchStatus("ntausrawold",kTRUE);
+  chain_1->SetBranchStatus("ntausraw",kTRUE);
   chain_1->SetBranchStatus("njetsinc",kTRUE);
   chain_1->SetBranchStatus("nbjetslowpt",kTRUE);
   chain_1->SetBranchStatus("combinejeteta",kTRUE);
@@ -289,35 +330,98 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   chain_1->SetBranchAddress("prunedJetm",&prunedJetm);
 
   chain_1->BuildIndex("run","event");
-
   ///
   cout<<"Build second chain with index "<<endl;
-  unsigned int run_alt=0;
-  unsigned int lumi_alt=0;
-  unsigned int event_alt=0;
+  unsigned int run_alt   = 0;
+  unsigned int lumi_alt  = 0;
+  unsigned int event_alt = 0;
+  UChar_t hltm90_alt=0,hltm100_alt=0,hltm110_alt=0,hltm120_alt=0,hltmwm120_alt=0,hltmwm170_alt=0,hltmwm300_alt=0,hltmwm90_alt=0,hlte_alt=0,hltenoiso_alt=0,hltp165_alt=0,hltp175_alt=0;
+  UChar_t fhbhe_alt=0,fhbiso_alt=0,fcsct_alt=0,feeb_alt=0,fetp_alt=0,fvtx_alt=0,fbadmu_alt=0,fbadch_alt=0,fcsc_alt=0;
+  unsigned int njets_alt=0,nmuons_alt=0,nelectrons_alt=0,nphotons_alt=0,ntausraw_alt=0,nincjets_alt=0,nbjets_alt=0;
+  vector<double> *jeteta_alt=0, *jetpt_alt=0, *jetphi_alt=0,*jetm_alt=0,*chfrac_alt=0,*nhfrac_alt=0;
+  double incjetmumetdphimin4_alt=0,incjetelmetdphimin4_alt=0,incjetphmetdphimin4_alt=0;
   double met_alt=0,metphi_alt=0,mmet_alt=0,mmetphi_alt=0,emet_alt=0,emetphi_alt=0,pmet_alt=0,pmetphi_alt=0,pfmet_alt=0,pfmetphi_alt=0,metcalo_alt=0;
+  double jmmdphi_alt=0,jemdphi_alt=0,jpmdphi_alt=0;
+  int    mu1pid_alt=0,mu2pid_alt=0,mu1id_alt=0,mu2id_alt=0;
   double mu1pt_alt=0,mu2pt_alt=0,mu1eta_alt=0,mu2eta_alt=0,mu1phi_alt=0,mu2phi_alt=0;
+  int    el1pid_alt=0,el2pid_alt=0,el1id_alt=0,el2id_alt=0;
   double el1pt_alt=0,el2pt_alt=0,el1eta_alt=0,el2eta_alt=0,el1phi_alt=0,el2phi_alt=0;
+  int    phidm_alt=0;
   double phpt_alt=0,pheta_alt=0,phphi_alt=0;
-  double zpt_alt=0, zeept_alt=0, zeta_alt=0, zeeeta_alt=0, zphi_alt=0, zeephi_alt=0;
-  vector<float> *jetpt_alt=0;
+  double wmt_alt=0,wemt_alt=0,zmass_alt=0,zeemass_alt=0,zpt_alt=0,zeept_alt=0,zeeeta_alt=0,zeta_alt=0,zphi_alt=0,zeephi_alt=0;
+  vector<double> *boostedJetpt_alt=0,*boostedJeteta_alt=0,*boostedJetphi_alt=0,*prunedJetm_alt=0,*boostedJettau2_alt=0,*boostedJettau1_alt=0;
 
   chain_2->SetBranchStatus("*",kFALSE);
   chain_2->SetBranchStatus("run",kTRUE);
   chain_2->SetBranchStatus("lumi",kTRUE);
   chain_2->SetBranchStatus("event",kTRUE);
+  chain_2->SetBranchStatus("hlt*",kTRUE);
+  chain_2->SetBranchStatus("flag*",kTRUE);
+  chain_2->SetBranchStatus("njets",kTRUE);
+  chain_2->SetBranchStatus("nmuons",kTRUE);
+  chain_2->SetBranchStatus("nelectrons",kTRUE);
+  chain_2->SetBranchStatus("nphotons",kTRUE);
+  chain_2->SetBranchStatus("ntausraw",kTRUE);
+  chain_2->SetBranchStatus("njetsinc",kTRUE);
+  chain_2->SetBranchStatus("nbjetslowpt",kTRUE);
+  chain_2->SetBranchStatus("combinejeteta",kTRUE);
+  chain_2->SetBranchStatus("combinejetpt", kTRUE);
+  chain_2->SetBranchStatus("combinejetphi",kTRUE);
+  chain_2->SetBranchStatus("combinejetm",kTRUE);
+  chain_2->SetBranchStatus("combinejetCHfrac",kTRUE);
+  chain_2->SetBranchStatus("combinejetNHfrac",kTRUE);
   chain_2->SetBranchStatus("t1*",kTRUE);
   chain_2->SetBranchStatus("pfmet",kTRUE);
+  chain_2->SetBranchStatus("incjet*metdphimin4",kTRUE);
   chain_2->SetBranchStatus("mu*",kTRUE);
   chain_2->SetBranchStatus("el*",kTRUE);
   chain_2->SetBranchStatus("ph*",kTRUE);
-  chain_2->SetBranchStatus("z*",kTRUE);
-  chain_2->SetBranchStatus("combinejetpt",kTRUE);
-
+  chain_2->SetBranchStatus("wmt",kTRUE);
+  chain_2->SetBranchStatus("wemt",kTRUE);
+  chain_2->SetBranchStatus("zmass",kTRUE);
+  chain_2->SetBranchStatus("zeemass",kTRUE);
+  chain_2->SetBranchStatus("zpt",kTRUE);
+  chain_2->SetBranchStatus("zeept",kTRUE);
+  chain_2->SetBranchStatus("boostedJet*",kTRUE);
+  chain_2->SetBranchStatus("prunedJetm",kTRUE);
 
   chain_2->SetBranchAddress("run",&run_alt);
   chain_2->SetBranchAddress("lumi",&lumi_alt);
   chain_2->SetBranchAddress("event",&event_alt);
+  chain_2->SetBranchAddress("hltmet90",&hltm90_alt);
+  chain_2->SetBranchAddress("hltmet100",&hltm100_alt);
+  chain_2->SetBranchAddress("hltmet110",&hltm110_alt);
+  chain_2->SetBranchAddress("hltmet120",&hltm120_alt);
+  chain_2->SetBranchAddress("hltmetwithmu170",&hltmwm170_alt);
+  chain_2->SetBranchAddress("hltmetwithmu300",&hltmwm300_alt);
+  chain_2->SetBranchAddress("hltmetwithmu90",&hltmwm90_alt);
+  chain_2->SetBranchAddress("hltsingleel",&hlte_alt);
+  chain_2->SetBranchAddress("hltelnoiso",&hltenoiso_alt);
+  chain_2->SetBranchAddress("hltphoton165",&hltp165_alt);
+  chain_2->SetBranchAddress("hltphoton175",&hltp175_alt);
+  chain_2->SetBranchAddress("flaghbhenoise",&fhbhe_alt);
+  chain_2->SetBranchAddress("flaghbheiso",&fhbiso_alt);
+  chain_2->SetBranchAddress("flagcsctight",&fcsct_alt);
+  chain_2->SetBranchAddress("flageebadsc",&feeb_alt);
+  chain_2->SetBranchAddress("flagecaltp",&fetp_alt);
+  chain_2->SetBranchAddress("flaggoodvertices",&fvtx_alt);
+  chain_2->SetBranchAddress("flagbadpfmu",&fbadmu_alt);
+  chain_2->SetBranchAddress("flagbadchpf",&fbadch_alt);
+  chain_2->SetBranchAddress("flagglobaltighthalo",&fcsc_alt);
+  chain_2->SetBranchAddress("njets",&njets_alt);
+  chain_2->SetBranchAddress("nmuons",&nmuons_alt);
+  chain_2->SetBranchAddress("nelectrons",&nelectrons_alt);
+  chain_2->SetBranchAddress("nphotons",&nphotons_alt);
+  chain_2->SetBranchAddress("nelectrons",&nelectrons_alt);
+  chain_2->SetBranchAddress("ntausraw",&ntausraw_alt);
+  chain_2->SetBranchAddress("njetsinc",&nincjets_alt);
+  chain_2->SetBranchAddress("nbjetslowpt",&nbjets_alt);
+  chain_2->SetBranchAddress("combinejeteta",&jeteta_alt);
+  chain_2->SetBranchAddress("combinejetpt", &jetpt_alt);
+  chain_2->SetBranchAddress("combinejetphi",&jetphi_alt);
+  chain_2->SetBranchAddress("combinejetm",&jetm_alt);
+  chain_2->SetBranchAddress("combinejetCHfrac",&chfrac_alt);
+  chain_2->SetBranchAddress("combinejetNHfrac",&nhfrac_alt);
   chain_2->SetBranchAddress("t1pfmet",&met_alt);
   chain_2->SetBranchAddress("t1pfmetphi",&metphi_alt);
   chain_2->SetBranchAddress("t1mumet",&mmet_alt);
@@ -329,48 +433,87 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   chain_2->SetBranchAddress("pfmet",&pfmet_alt);
   chain_2->SetBranchAddress("pfmetphi",&pfmetphi_alt);
   chain_2->SetBranchAddress("calomet",&metcalo_alt);
+  chain_2->SetBranchAddress("incjetmumetdphimin4",&incjetmumetdphimin4_alt);
+  chain_2->SetBranchAddress("incjetelmetdphimin4",&incjetelmetdphimin4_alt);
+  chain_2->SetBranchAddress("incjetphmetdphimin4",&incjetphmetdphimin4_alt);
+  chain_2->SetBranchAddress("mu1pid",&mu1pid_alt);
+  chain_2->SetBranchAddress("mu2pid",&mu2pid_alt);
+  chain_2->SetBranchAddress("mu1id",&mu1id_alt);
+  chain_2->SetBranchAddress("mu2id",&mu2id_alt);
   chain_2->SetBranchAddress("mu1pt",&mu1pt_alt);
   chain_2->SetBranchAddress("mu2pt",&mu2pt_alt);
   chain_2->SetBranchAddress("mu1eta",&mu1eta_alt);
   chain_2->SetBranchAddress("mu2eta",&mu2eta_alt);
   chain_2->SetBranchAddress("mu1phi",&mu1phi_alt);
   chain_2->SetBranchAddress("mu2phi",&mu2phi_alt);
+  chain_2->SetBranchAddress("el1pid",&el1pid_alt);
+  chain_2->SetBranchAddress("el2pid",&el2pid_alt);
+  chain_2->SetBranchAddress("el1id",&el1id_alt);
+  chain_2->SetBranchAddress("el2id",&el2id_alt);
   chain_2->SetBranchAddress("el1pt",&el1pt_alt);
   chain_2->SetBranchAddress("el2pt",&el2pt_alt);
   chain_2->SetBranchAddress("el1eta",&el1eta_alt);
   chain_2->SetBranchAddress("el2eta",&el2eta_alt);
   chain_2->SetBranchAddress("el1phi",&el1phi_alt);
   chain_2->SetBranchAddress("el2phi",&el2phi_alt);
+  chain_2->SetBranchAddress("phidm",&phidm_alt);
   chain_2->SetBranchAddress("phpt",&phpt_alt);
   chain_2->SetBranchAddress("pheta",&pheta_alt);
   chain_2->SetBranchAddress("phphi",&phphi_alt);
+  chain_2->SetBranchAddress("wmt",&wmt_alt);
+  chain_2->SetBranchAddress("wemt",&wemt_alt);
+  chain_2->SetBranchAddress("zmass",&zmass_alt);
+  chain_2->SetBranchAddress("zeemass",&zeemass_alt);
   chain_2->SetBranchAddress("zpt",&zpt_alt);
   chain_2->SetBranchAddress("zeept",&zeept_alt);
   chain_2->SetBranchAddress("zeta",&zeta_alt);
   chain_2->SetBranchAddress("zeeeta",&zeeeta_alt);
   chain_2->SetBranchAddress("zphi",&zphi_alt);
   chain_2->SetBranchAddress("zeephi",&zeephi_alt);
-  chain_2->SetBranchAddress("combinejetpt",&jetpt_alt);
- 
-
+  chain_2->SetBranchAddress("boostedJetpt",&boostedJetpt_alt);
+  chain_2->SetBranchAddress("boostedJeteta",&boostedJeteta_alt);
+  chain_2->SetBranchAddress("boostedJetphi",&boostedJetphi_alt);
+  chain_2->SetBranchAddress("boostedJettau2",&boostedJettau2_alt);
+  chain_2->SetBranchAddress("boostedJettau1",&boostedJettau1_alt);
+  chain_2->SetBranchAddress("prunedJetm",&prunedJetm_alt);
   chain_2->BuildIndex("run","event");
 
   cout<<"Number of events in chain 1 "<<chain_1->GetEntries()<<endl;
   cout<<"Number of events in chain 2 "<<chain_2->GetEntries()<<endl;
+
   long int nEvents = 0;
   int nPart        = 10000;
   long int nTotal  = chain_1->GetEntries();
+  long int notMatchedEvents = 0;
+  long int effectiveEntries = 0;
+
   for(long int entry = 0; entry < chain_1->GetEntries(); entry++){
 
     int entry_status = chain_1->GetEntry(entry);
     if(entry_status <= 0) continue;
 
-    //if(nEvents > nTotal/10) break;
-
     cout.flush();
-    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
+    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 1 "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
-    ////////
+
+    if(useOnlyICHEP and run > 276242) continue;
+
+    // recoil
+    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and mmet < recoilSelection) continue;
+    else if((sample == Sample::wen or sample == Sample::zee) and emet < recoilSelection) continue;
+    else if(sample == Sample::gam and pmet < recoilSelection) continue;
+
+    /// jets
+    if(njets < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+    else if(category == Category::VBF and nincjets < 2) continue;
+    // vetos
+    if(ntausraw != 0 ) continue;
+    if(nbjets != 0) continue;
+
+    /// apply met filters
+    if(not fhbhe or not fhbiso or not fcsct or not feeb or not feeb or not fetp or not fvtx or not fbadmu or not fbadch or not fcsc) continue;
+
+        ////////
     int hlt = 0;
     if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
       hlt = hltm90+hltm100+hltm110+hltm120+hltmwm120+hltmwm170+hltmwm300+hltmwm90;
@@ -381,33 +524,19 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
     
     if(not hlt) continue;
      
-    /// apply met filters
-    if(not fhbhe or not fhbiso or not fcsct or not feeb or not feeb or not fetp or not fvtx or not fbadmu or not fbadch or not fcsc) continue;
-
-    /// jets
-    if(njets < 1 and (category == Category::monojet or category == Category::monoV)) continue;
-    else if(category == Category::VBF and nincjets < 2) continue;
-    // vetos
-    if(ntausraw != 0 ) continue;
-    if(nbjets != 0) continue;
-    
     // tag objets
-    if(sample == Sample::wen and (el1pt < 40 or el1id != 1 or wemt > 160 or pfmet < 50 or nmuons != 0 or nphotons != 0)) continue;
-    else if(sample == Sample::wmn and (mu1pt < 20 or mu1id != 1 or wmt > 160 or nelectrons != 0 or nphotons != 0)) continue;
-    else if(sample == Sample::gam and (phpt < 120 or fabs(pheta) > 1.442 or phidm != 1 or nmuons != 0 or nelectrons != 0)) continue;
+    if(sample == Sample::wen and (el1pt < 40 or el1id != 1 or wemt > 160 or pfmet < 50 or nmuons != 0 or nphotons != 0 or nelectrons != 1)) continue;
+    else if(sample == Sample::wmn and (mu1pt < 20 or mu1id != 1 or wmt > 160 or nelectrons != 0 or nphotons != 0 or nmuons != 1)) continue;
+    else if(sample == Sample::gam and (phpt < 120 or fabs(pheta) > 1.442 or phidm != 1 or nmuons != 0 or nelectrons != 0 or nphotons != 1)) continue;
     else if(sample == Sample::zmm and (not ((mu1pt > 20 and mu1id == 1 and fabs(mu1eta) < 2.4) or (mu2pt > 20 and mu2id == 1 and fabs(mu1eta) < 2.4)) or 
-				       zmass < 60 or zmass > 120 or mu1id == mu2id or nelectrons != 0 or nphotons != 0)) continue;
+				       zmass < 60 or zmass > 120 or mu1id == mu2id or nelectrons != 0 or nphotons != 0 or nmuons != 2)) continue;
     else if(sample == Sample::zee and (not ((el1pt > 40 and el1id == 1 and fabs(el1eta) < 2.5) or (el2pt > 40 and el2id == 1 and fabs(el1eta) < 2.45)) or 
-				       zeemass < 60 or zeemass > 120 or el1id == el2id or nmuons != 0 or nphotons != 0)) continue;
+				       zeemass < 60 or zeemass > 120 or el1id == el2id or nmuons != 0 or nphotons != 0 or nelectrons != 2)) continue;
     // min-dphi
     if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and incjetmumetdphimin4 < 0.5) continue;
     else if((sample == Sample::wen or sample == Sample::zee) and incjetelmetdphimin4 < 0.5) continue;
     else if(sample == Sample::gam and incjetphmetdphimin4 < 0.5) continue;
 
-    // recoil
-    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and mmet < recoilSelection) continue;
-    else if((sample == Sample::wen or sample == Sample::zee) and emet < recoilSelection) continue;
-    else if(sample == Sample::gam and pmet < recoilSelection) continue;
 
     //
     Double_t metden = 0.0;
@@ -429,88 +558,258 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
 	 prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and metden > 250)
 	goodMonoV = true;
       if(goodMonoV) continue;     
-
-     
+      
+      effectiveEntries++;
       // access to the other tree
       entry_status = chain_2->GetEntryWithIndex(run,event);
 
-      if(entry_status <= 0) continue;
+      if(entry_status > 0){
+	
+	if(run != run_alt or lumi != lumi_alt or event != event_alt){
+	  cerr<<"Problem in associating: [run,lumi,event] = ["<<run<<","<<lumi<<","<<event<<"] with ["<<run_alt<<","<<lumi_alt<<","<<event_alt<<"]"<<endl;
+	  continue;
+	}
 
-      if(run != run_alt or lumi != lumi_alt or event != event_alt){
-	cerr<<"Problem in associating: [run,lumi,event] = ["<<run<<","<<lumi<<","<<event<<"] with ["<<run_alt<<","<<lumi_alt<<","<<event_alt<<"]"<<endl;
-	continue;
-      }
+	if(sample == Sample::zmm){
+	  bosonpt_histo->Fill(zpt-zpt_alt);
+	  bosoneta_histo->Fill(zeta-zeta_alt);
+	  bosonphi_histo->Fill(zphi-zphi_alt);
+	  recoil_histo->Fill(mmet-mmet_alt);
+	  recoilphi_histo->Fill(mmetphi-mmetphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
 
-      if(sample == Sample::zmm){
-	bosonpt_histo->Fill(zpt-zpt_alt);
-	bosoneta_histo->Fill(zeta-zeta_alt);
-	bosonphi_histo->Fill(zphi-zphi_alt);
-	recoil_histo->Fill(mmet-mmet_alt);
-	recoilphi_histo->Fill(mmetphi-mmetphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-      }
-      else if(sample == Sample::zee){
-	bosonpt_histo->Fill(zeept-zeept_alt);
-	bosoneta_histo->Fill(zeeeta-zeeeta_alt);
-	bosonphi_histo->Fill(zeephi-zeephi_alt);
-	recoil_histo->Fill(emet-emet_alt);
-	recoilphi_histo->Fill(emetphi-emetphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-      }
-      else if(sample == Sample::wen){
-	bosonpt_histo->Fill(el1pt-el1pt_alt);
-	bosoneta_histo->Fill(el1eta-el1eta_alt);
-	bosonphi_histo->Fill(el1phi-el1phi_alt);
-	recoil_histo->Fill(emet-emet_alt);
-	recoilphi_histo->Fill(emetphi-emetphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-      }
-      else if(sample == Sample::wmn){
-	bosonpt_histo->Fill(mu1pt-mu1pt_alt);
-	bosoneta_histo->Fill(mu1eta-mu1eta_alt);
-	bosonphi_histo->Fill(mu1phi-mu1phi_alt);
-	recoil_histo->Fill(mmet-mmet_alt);
-	recoilphi_histo->Fill(mmetphi-mmetphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-      }
-      else if(sample == Sample::gam){	
-	bosonpt_histo->Fill(phpt-phpt_alt);
-	bosoneta_histo->Fill(pheta-pheta_alt);
-	bosonphi_histo->Fill(phphi-phphi_alt);
-	recoil_histo->Fill(pmet-pmet_alt);
-	recoilphi_histo->Fill(pmetphi-pmetphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-	jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
+	  njet_histo->Fill(njets-njets_alt);
+	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
 
-	bosonpt_histo_2D->Fill(phpt,phpt_alt);
-	bosoneta_histo_2D->Fill(pheta,pheta_alt);
-	bosonphi_histo_2D->Fill(phphi,phphi_alt);
-	recoil_histo_2D->Fill(pmet,pmet_alt);
-	recoilphi_histo_2D->Fill(pmetphi,pmetphi_alt);
-	pfmet_histo_2D->Fill(pfmet,pfmet_alt);
-	pfmetphi_histo_2D->Fill(pfmetphi,pfmetphi_alt);
-	jetpt_histo_2D->Fill(jetpt->at(0),jetpt_alt->at(0));
+	}
+	else if(sample == Sample::zee){
+	  bosonpt_histo->Fill(zeept-zeept_alt);
+	  bosoneta_histo->Fill(zeeeta-zeeeta_alt);
+	  bosonphi_histo->Fill(zeephi-zeephi_alt);
+	  recoil_histo->Fill(emet-emet_alt);
+	  recoilphi_histo->Fill(emetphi-emetphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
 
+	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
+	  njet_histo->Fill(njets-njets_alt);
+	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
+
+	}
+	else if(sample == Sample::wen){
+	  bosonpt_histo->Fill(el1pt-el1pt_alt);
+	  bosoneta_histo->Fill(el1eta-el1eta_alt);
+	  bosonphi_histo->Fill(el1phi-el1phi_alt);
+	  recoil_histo->Fill(emet-emet_alt);
+	  recoilphi_histo->Fill(emetphi-emetphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
+	}
+	else if(sample == Sample::wmn){
+	  bosonpt_histo->Fill(mu1pt-mu1pt_alt);
+	  bosoneta_histo->Fill(mu1eta-mu1eta_alt);
+	  bosonphi_histo->Fill(mu1phi-mu1phi_alt);
+	  recoil_histo->Fill(mmet-mmet_alt);
+	  recoilphi_histo->Fill(mmetphi-mmetphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
+
+	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
+	  njet_histo->Fill(njets-njets_alt);
+	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
+
+	}
+	else if(sample == Sample::gam){	
+	  
+	  bosonpt_histo->Fill(phpt-phpt_alt);
+	  bosoneta_histo->Fill(pheta-pheta_alt);
+	  bosonphi_histo->Fill(phphi-phphi_alt);
+	  recoil_histo->Fill(pmet-pmet_alt);
+	  recoilphi_histo->Fill(pmetphi-pmetphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
+	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
+	  njet_histo->Fill(double(njets)-double(njets_alt));
+	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
+	  
+	  bosonpt_histo_2D->Fill(phpt,phpt_alt);
+	  bosoneta_histo_2D->Fill(pheta,pheta_alt);
+	  bosonphi_histo_2D->Fill(phphi,phphi_alt);
+	  recoil_histo_2D->Fill(pmet,pmet_alt);
+	  recoilphi_histo_2D->Fill(pmetphi,pmetphi_alt);
+	  pfmet_histo_2D->Fill(pfmet,pfmet_alt);
+	  pfmetphi_histo_2D->Fill(pfmetphi,pfmetphi_alt);
+	  jetpt_histo_2D->Fill(jetpt->at(0),jetpt_alt->at(0));
+	  jeteta_histo_2D->Fill(jeteta->at(0),jeteta_alt->at(0));
+	  njet_histo_2D->Fill(double(njets),double(njets_alt));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30){
+	    jetpt2_histo_2D->Fill(jetpt->at(1),jetpt_alt->at(1));
+	    jeteta2_histo_2D->Fill(jeteta->at(1),jeteta_alt->at(1));  
+	  }
+	}
+	else if(sample == Sample::sig){
+	  recoil_histo->Fill(met-met_alt);
+	  recoilphi_histo->Fill(metphi-metphi_alt);
+	  pfmet_histo->Fill(pfmet-pfmet_alt);
+	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);	  
+	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
+	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
+	  njet_histo->Fill(njets-njets_alt);
+	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
+	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
+
+	}
       }
-      else if(sample == Sample::sig){
-	recoil_histo->Fill(met-met_alt);
-	recoilphi_histo->Fill(metphi-metphi_alt);
-	pfmet_histo->Fill(pfmet-pfmet_alt);
-	pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
+      else{ // events only in re-reco
+	notMatchedEvents++;
+	if(sample == Sample::gam){
+	  bosonpt_histo_only1->Fill(phpt);
+	  bosoneta_histo_only1->Fill(pheta);
+	  bosonphi_histo_only1->Fill(phphi);
+	  recoil_histo_only1->Fill(pmet);
+	  recoilphi_histo_only1->Fill(pmetphi);
+	  pfmet_histo_only1->Fill(pfmet);
+	  pfmetphi_histo_only1->Fill(pfmetphi);
+	  jetpt_histo_only1->Fill(jetpt->at(0));
+	  jeteta_histo_only1->Fill(jeteta->at(0));
+	  njet_histo_only1->Fill(njets);
+	  if(jetpt->size() > 1 and jetpt->at(1) > 30)
+	    jetpt2_histo_only1->Fill(jetpt->at(1));
+	  if(jeteta->size() > 1 and jetpt->at(1) > 30)
+	    jeteta2_histo_only1->Fill(jeteta->at(1));
+	}
       }
     }
-    //    else if(category == Category::monoV){
-    //    }
-    //    else if(category == Category::VBF){
-    //    }
+  }
+  cout<<"Number of unmatched events that are in chain_1 but not in chain_2 is "<<notMatchedEvents<<" over "<<effectiveEntries<<" i.e. "<<100*double(notMatchedEvents)/effectiveEntries<<" %"<<endl;
+
+  effectiveEntries = 0;
+  notMatchedEvents = 0;
+
+  if(doOppositeMatching){
+    // events in 2 but not in 1
+    nEvents = 0;
+    nPart   = 10000;
+    nTotal  = chain_1->GetEntries();
+    for(long int entry = 0; entry < chain_2->GetEntries(); entry++){
+      
+      int entry_status = chain_2->GetEntry(entry);
+      if(entry_status <= 0) continue;
+      
+      cout.flush();
+      if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 2 "<<double(nEvents)/nTotal*100<<" % ";
+      nEvents++;
+      
+      if(useOnlyICHEP and run_alt > 276242) continue;
+
+      // recoil
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and mmet_alt < recoilSelection) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and emet_alt < recoilSelection) continue;
+      else if(sample == Sample::gam and pmet_alt < recoilSelection) continue;
+            
+      ////////
+      int hlt = 0;
+      if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
+	hlt = hltm90_alt+hltm100_alt+hltm110_alt+hltm120_alt+hltmwm120_alt+hltmwm170_alt+hltmwm300_alt+hltmwm90_alt;
+      else if(sample == Sample::wen or sample == Sample::zee)
+	hlt = hlte_alt+hltenoiso_alt;
+      else if(sample == Sample::gam)
+	hlt = hltp165_alt+hltp175_alt;
+      
+      if(not hlt) continue;
+
+      /// apply met filters
+      if(not fhbhe_alt or not fhbiso_alt or not fcsct_alt or not feeb_alt or not feeb_alt or not fetp_alt or not fvtx_alt or not fbadmu_alt or not fbadch_alt or not fcsc_alt) continue;
+
+      /// jets
+      if(njets_alt < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+      else if(category == Category::VBF and nincjets_alt < 2) continue;
+      // vetos
+      if(ntausraw_alt != 0 ) continue;
+      if(nbjets_alt != 0) continue;
+      
+      // tag objets
+      if(sample == Sample::wen and (el1pt_alt < 40 or el1id_alt != 1 or wemt_alt > 160 or pfmet_alt < 50 or nmuons_alt != 0 or nphotons_alt != 0 or nelectrons_alt != 1)) continue;
+      else if(sample == Sample::wmn and (mu1pt_alt < 20 or mu1id_alt != 1 or wmt_alt > 160 or nelectrons_alt != 0 or nphotons_alt != 0 or nmuons_alt != 1)) continue;
+      else if(sample == Sample::gam and (phpt_alt < 120 or fabs(pheta_alt) > 1.442 or phidm_alt != 1 or nmuons_alt != 0 or nelectrons_alt != 0 or nphotons_alt != 1)) continue;
+      else if(sample == Sample::zmm and (not ((mu1pt > 20 and mu1id_alt == 1 and fabs(mu1eta_alt) < 2.4) or (mu2pt_alt > 20 and mu2id_alt == 1 and fabs(mu1eta_alt) < 2.4)) or 
+					 zmass_alt < 60 or zmass_alt > 120 or mu1id_alt == mu2id_alt or nelectrons_alt != 0 or nphotons_alt != 0 or nmuons_alt != 2)) continue;
+      else if(sample == Sample::zee and (not ((el1pt_alt > 40 and el1id_alt == 1 and fabs(el1eta_alt) < 2.5) or (el2pt_alt > 40 and el2id_alt == 1 and fabs(el1eta_alt) < 2.45)) or 
+					 zeemass_alt < 60 or zeemass_alt > 120 or el1id_alt == el2id_alt or nmuons_alt != 0 or nphotons_alt != 0 or nelectrons_alt != 1)) continue;
+      // min-dphi
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and incjetmumetdphimin4_alt < 0.5) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and incjetelmetdphimin4_alt < 0.5) continue;
+      else if(sample == Sample::gam and incjetphmetdphimin4_alt < 0.5) continue;
+      
+      //
+      Double_t metden = 0.0;
+      if (sample == Sample::sig || sample == Sample::qcd) {metden = mmet_alt;}
+      else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = mmet_alt;}
+      else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = emet_alt;}
+      else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = pmet_alt;}    
+      if(fabs(met-metcalo_alt)/metden > 0.5) continue;
+      
+      if(category == Category::monojet){
+	
+	if(jetpt_alt->at(0) < 100) continue;
+	if(fabs(jeteta_alt->at(0)) > 2.5) continue;
+	if(chfrac_alt->at(0) < 0.1) continue;
+	if(nhfrac_alt->at(0) > 0.8) continue;
+	bool goodMonoV = false;
+	
+	if(boostedJetpt_alt->size() != 0 and boostedJetpt_alt->at(0) > 250 and fabs(boostedJeteta_alt->at(0)) < 2.4 and boostedJettau2_alt->at(0)/boostedJettau1_alt->at(0) < 0.6 and 
+	   prunedJetm_alt->at(0) > 65 and prunedJetm_alt->at(0) < 105 and metden > 250)
+	  goodMonoV = true;
+	if(goodMonoV) continue;     
+	
+	effectiveEntries++;
+	// access to the other tree
+	entry_status = chain_2->GetEntryWithIndex(run,event);
+	if(entry_status <= 0){
+	  notMatchedEvents++;
+	  if(sample == Sample::gam){
+	    bosonpt_histo_only2->Fill(phpt_alt);
+	    bosoneta_histo_only2->Fill(pheta_alt);
+	    bosonphi_histo_only2->Fill(phphi_alt);
+	    recoil_histo_only2->Fill(pmet_alt);
+	    recoilphi_histo_only2->Fill(pmetphi_alt);
+	    pfmet_histo_only2->Fill(pfmet_alt);
+	    pfmetphi_histo_only2->Fill(pfmetphi_alt);
+	    jetpt_histo_only2->Fill(jetpt_alt->at(0));
+	    jeteta_histo_only2->Fill(jeteta_alt->at(0));
+	    njet_histo_only2->Fill(njets_alt);
+	    if(jetpt_alt->size() > 1 and jetpt_alt->at(1) > 30)
+	      jetpt2_histo_only2->Fill(jetpt_alt->at(1));
+	    if(jeteta_alt->size() > 1 and jetpt_alt->at(1) > 30)
+	      jeteta2_histo_only2->Fill(jeteta_alt->at(1));
+	  }
+	}
+      }
+    }
   }
 
-
+  cout<<"Number of unmatched events that are in chain_2 but not in chain_1 is "<<notMatchedEvents<<" over "<<effectiveEntries<<" i.e. "<<100*double(notMatchedEvents)/effectiveEntries<<" %"<<endl;
+  
   TCanvas* canvas = new TCanvas("canvas","",600,650);
   canvas->cd();
 
@@ -521,7 +820,12 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot(canvas,recoilphi_histo,"Recoil #phi",outputDIR);  
   drawPlot(canvas,pfmet_histo,"Met",outputDIR);  
   drawPlot(canvas,pfmetphi_histo,"Met #phi",outputDIR);  
-
+  drawPlot(canvas,jetpt_histo,"p_{T}^{j1}",outputDIR);  
+  drawPlot(canvas,jetpt2_histo,"p_{T}^{j2}",outputDIR);  
+  drawPlot(canvas,jeteta_histo,"#eta_{j1}",outputDIR);  
+  drawPlot(canvas,jeteta2_histo,"#eta_{j2}",outputDIR);  
+  drawPlot(canvas,njet_histo,"N_{jet}",outputDIR);  
+  
   drawPlot2D(canvas,bosonpt_histo_2D,"boson p_{T}",outputDIR);  
   drawPlot2D(canvas,bosoneta_histo_2D,"boson #eta",outputDIR);  
   drawPlot2D(canvas,bosonphi_histo_2D,"boson #phi",outputDIR);  
@@ -529,7 +833,40 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot2D(canvas,recoilphi_histo_2D,"Recoil #phi",outputDIR);  
   drawPlot2D(canvas,pfmet_histo_2D,"Met",outputDIR);  
   drawPlot2D(canvas,pfmetphi_histo_2D,"Met #phi",outputDIR);  
+  drawPlot2D(canvas,jetpt_histo_2D,"p_{T}^{j1}",outputDIR);  
+  drawPlot2D(canvas,jetpt2_histo_2D,"p_{T}^{j2}",outputDIR);  
+  drawPlot2D(canvas,jeteta_histo_2D,"#eta_{j1}",outputDIR);  
+  drawPlot2D(canvas,jeteta2_histo_2D,"#eta_{j2}",outputDIR);  
+  drawPlot2D(canvas,njet_histo_2D,"N_{jet}",outputDIR);  
 
+  /////////////////////
+  drawPlot(canvas,bosonpt_histo_only1,"boson p_{T}",outputDIR);  
+  drawPlot(canvas,bosoneta_histo_only1,"boson #eta",outputDIR);  
+  drawPlot(canvas,bosonphi_histo_only1,"boson #phi",outputDIR);  
+  drawPlot(canvas,recoil_histo_only1,"Recoil",outputDIR);  
+  drawPlot(canvas,recoilphi_histo_only1,"Recoil #phi",outputDIR);  
+  drawPlot(canvas,pfmet_histo_only1,"Met",outputDIR);  
+  drawPlot(canvas,pfmetphi_histo_only1,"Met #phi",outputDIR);  
+  drawPlot(canvas,jetpt_histo_only1,"p_{T}^{j1}",outputDIR);  
+  drawPlot(canvas,jetpt2_histo_only1,"p_{T}^{j2}",outputDIR);  
+  drawPlot(canvas,jeteta_histo_only1,"#eta_{j1}",outputDIR);  
+  drawPlot(canvas,jeteta2_histo_only1,"#eta_{j2}",outputDIR);  
+  drawPlot(canvas,njet_histo_only1,"N_{jet}",outputDIR);  
+
+  if(doOppositeMatching){
+    drawPlot(canvas,bosonpt_histo_only2,"boson p_{T}",outputDIR);  
+    drawPlot(canvas,bosoneta_histo_only2,"boson #eta",outputDIR);  
+    drawPlot(canvas,bosonphi_histo_only2,"boson #phi",outputDIR);  
+    drawPlot(canvas,recoil_histo_only2,"Recoil",outputDIR);  
+    drawPlot(canvas,recoilphi_histo_only2,"Recoil #phi",outputDIR);  
+    drawPlot(canvas,pfmet_histo_only2,"Met",outputDIR);  
+    drawPlot(canvas,pfmetphi_histo_only2,"Met #phi",outputDIR);  
+    drawPlot(canvas,jetpt_histo_only2,"p_{T}^{j1}",outputDIR);  
+    drawPlot(canvas,jetpt2_histo_only2,"p_{T}^{j2}",outputDIR);  
+    drawPlot(canvas,jeteta_histo_only2,"#eta_{j1}",outputDIR);  
+    drawPlot(canvas,jeteta2_histo_only2,"#eta_{j2}",outputDIR);  
+    drawPlot(canvas,njet_histo_only2,"N_{jet}",outputDIR);  
+  }
   
 
 }

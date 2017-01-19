@@ -66,13 +66,18 @@ private:
   TTree* tree;
   
   // event information
-  uint32_t event, run, lumi;  
+  bool     readDMFromGenParticle;
   bool     addEvtInfo;
-  float    xsec;
-  float    wgt;  // gen level weight for right xs
-  float    wgtoriginal; // original weight to take into account other event weights
-  std::vector<float>  wgtpdf; //have id larger than 2000 for madgraph
-  std::vector<float>  wgtqcd; //have id [1000-2000] for madgraph 
+  bool     isSignalSample;
+  edm::InputTag lheRunTag;
+  double   minBosonPt;
+
+  uint32_t event, run, lumi;  
+  float    xsec, wgt, wgtoriginal;
+
+  std::vector<float>  wgtpdf; 
+  std::vector<float>  qcdscalewgt;
+  std::vector<int>    qcdscale;
 
   // boson pdgid, and leptons ids
   int32_t  wzid, mvid, l1id, l2id;
@@ -82,11 +87,17 @@ private:
   float   l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
   // store gen met info
   float   met, metphi;
-  // store gen jet informations
-  std::vector<float> jetpt, jeteta, jetphi, jetmass;
   // number of jets
   uint32_t njets, njetsinc;
-    
+  // store gen jet informations
+  std::vector<float> jetpt, jeteta, jetphi, jetmass;
+  // DM mediator info
+  float sampledmM, samplemedM;
+  float dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
+  int   dmid,dmX1id,dmX2id;
+  std::vector<float> couplingwgt, gDMV, gDMA, gV, gA, gTheta;
+
+
   template<typename T> 
   class PtSorter{
   public:
@@ -104,7 +115,8 @@ private:
 GenTreeMaker::GenTreeMaker(const edm::ParameterSet& iConfig) {
   isMiniAOD       = iConfig.getParameter<bool>("isMiniAOD");
   lheruntag       = iConfig.getParameter<edm::InputTag>("lherun");
-  addEvtInfo      = (iConfig.existsAs<bool>("addEventInfo")  ? iConfig.getParameter<double>("addEventInfo")  : false);
+  addEvtInfo      = (iConfig.existsAs<bool>("addEventInfo")    ? iConfig.getParameter<bool>("addEventInfo")  : false);
+  isSignalSample  = (iConfig.existsAs<bool>("isSignalSample")  ? iConfig.getParameter<bool>("isSignalSample")  : false);
   xsec            = (iConfig.existsAs<double>("xsec")        ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.);
   sample          = (iConfig.existsAs<int>("sample")         ? iConfig.getParameter<int>("sample")           : -1);    
   jetsToken       = consumes<std::vector<reco::GenJet> >   (iConfig.getParameter<edm::InputTag>("jets"));
@@ -114,9 +126,11 @@ GenTreeMaker::GenTreeMaker(const edm::ParameterSet& iConfig) {
     metTrueToken    = consumes<edm::View<reco::GenMET> >     (iConfig.getParameter<edm::InputTag>("met"));
 
   lheInfoToken    = consumes<LHEEventProduct>              (iConfig.getParameter<edm::InputTag>("lheevt")); 
+  lheRunTag       = iConfig.getParameter<edm::InputTag>("lherun");
   lheRunInfoToken = consumes<LHERunInfoProduct,edm::InRun> (iConfig.getParameter<edm::InputTag>("lherun"));
   genevtInfoToken = consumes<GenEventInfoProduct>          (iConfig.getParameter<edm::InputTag>("genevt"));
   gensToken       = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("gens"));   
+  minBosonPt      = (iConfig.existsAs<double>("minBosonPt")? iConfig.getParameter<double>("minBosonPt") : 100.);
   usesResource();
   usesResource("TFileService");    
 }
@@ -129,6 +143,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace edm;
   using namespace reco;
   using namespace std;
+  using namespace boost::algorithm;
     
   Handle<LHEEventProduct> lheInfoH;
   Handle<GenEventInfoProduct>  genevtInfoH;
@@ -180,36 +195,140 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // PDF and scale weights
   wgtpdf.clear();
-  wgtqcd.clear();
-  
+  qcdscalewgt.clear();
+  couplingwgt.clear();
+  gDMV.clear(); 
+  gDMA.clear(); 
+  gV.clear(); 
+  gA.clear(); 
+  couplingwgt.clear();
+
   vector<gen::WeightsInfo> weights = lheInfoH->weights();
+  std::vector<std::string> tokens;
   for (size_t i = 0; i < weights.size(); i++) {
-    bool isNumber = true;
-    for(size_t j = 0; j < weights[i].id.size(); j++){
-      if(not isdigit(weights[i].id[j]))
-	isNumber = false;
+    TString weight_name (weights[i].id);
+    split(tokens, weights[i].id, is_any_of("_"));
+    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+
+    if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")){ // DMsimp Scalar-PS                                           
+      gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+      gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+      gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+      gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
+      couplingwgt.push_back(weights[i].wgt);
     }
-    if(not isNumber) continue;
-    if(std::stoi(weights[i].id) >= 1001 and std::stoi(weights[i].id) <= 1009) // scale varions
-      wgtqcd.push_back(weights[i].wgt);
-    else if(std::stoi(weights[i].id) >= 2001 and std::stoi(weights[i].id) < 3000) // variations of NNPDF LO or NLO
-      wgtpdf.push_back(weights[i].wgt);
-    //else if(std::stoi(weights[i].id) >= 3001 and std::stoi(weights[i].id) < 4000) // variations of CT10                                                                                   
-    //      wgtpdf.push_back(weights[i].wgt);
-    //else if(std::stoi(weights[i].id) >= 4001 and std::stoi(weights[i].id) < 5000) // variations of MMHT                                                                                   
-    //      wgtpdf.push_back(weights[i].wgt);
-    //else if(std::stoi(weights[i].id) >= 5001 and std::stoi(weights[i].id) < 6000) // variations of HERAPDF                                                                                   
-    //      wgtpdf.push_back(weights[i].wgt);    
-    else
-      continue;
+    else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")){ // DMSimp V/AV                                           
+      gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+      gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+      gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+      gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
+      couplingwgt.push_back(weights[i].wgt);
+    }
+    else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")){ //SMM                                                                                     
+      gTheta.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
+      gDMV.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
+      gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
+      couplingwgt.push_back(weights[i].wgt);
+    }
+    else if(qcdscale.size() != 0){ // qcd scale variations                                                                                                                                         
+      if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
+	qcdscalewgt.push_back(weights[i].wgt);
+    }
+    else if(qcdscale.size() == 0 and ((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009)))
+      qcdscalewgt.push_back(weights[i].wgt);
   }
+  
   
   wzid = 0; wzmass = -99; wzpt  = -99; wzeta = -99; wzphi = -99;
   mvid = 0; mvmass = -99; mvpt  = -99; mveta = -99; mvphi = -99;
   l1id = 0; l1pt   = -99; l1eta = -99; l1phi = -99;
   l2id = 0; l2pt   = -99; l2eta = -99; l2phi = -99;
+
+  dmmass   = 0.; dmphi   = 0.; dmeta   = 0.; dmpt   = 0.; dmid   = 0;
+  dmX1mass = 0.; dmX1phi = 0.; dmX1eta = 0.; dmX1pt = 0.; dmX1id = 0;
+  dmX2mass = 0.; dmX2phi = 0.; dmX2eta = 0.; dmX2pt = 0.; dmX2id = 0;
+
+  if(gensH.isValid() && isSignalSample){
+
+    TLorentzVector dm1vec;
+    TLorentzVector dm2vec;
+    bool foundfirst = false;
+
+    // loop on gen particles looking for the DM particles --> then to the mediator                                                                                                                   
+    for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+      bool goodParticle = false;
+      if (abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
+	goodParticle = true;
+      else if(abs(gens_iter->pdgId()) >= 2000001 and abs(gens_iter->pdgId()) <= 2000015)
+	goodParticle = true;
+      else if(abs(gens_iter->pdgId()) == 9100012)
+	goodParticle = true;
+      else if(abs(gens_iter->pdgId()) == 18) // DM particles in MG DMSimp and SMM                                                                                                                    
+	goodParticle = true;
+
+      if(not goodParticle)
+	continue;
+
+      if(!foundfirst) { // first DM particle                                                                                                                                                         
+	dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
+	dmX1id = gens_iter->pdgId();
+	foundfirst = true;
+
+	if(readDMFromGenParticle)
+	  sampledmM = gens_iter->mass();
+      }
+      else{
+	dm2vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
+	dmX2id = gens_iter->pdgId();
+	break;
+      }
+    }
+
+    dmX1pt   = dm1vec.Pt();
+    dmX1eta  = dm1vec.Eta();
+    dmX1phi  = dm1vec.Phi();
+    dmX1mass = dm1vec.M();
+
+    dmX2pt   = dm2vec.Pt();
+    dmX2eta  = dm2vec.Eta();
+    dmX2phi  = dm2vec.Phi();
+    dmX2mass = dm2vec.M();
+
+    TLorentzVector medvec(dm1vec);
+    medvec += dm2vec;
+    dmpt  = medvec.Pt();
+    dmeta = medvec.Eta();
+    dmphi = medvec.Phi();
+    dmmass = medvec.M();
+    
+    
+    if(foundfirst == false){ //not found the DM particles and mediator --> look for Higgs invisible                                                                                                  
+      
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter){
+	if(gens_iter->pdgId() != 25) continue;
+	if(gens_iter->numberOfDaughters() <= 1) continue;
+
+	dmpt   = gens_iter->pt();
+	dmeta  = gens_iter->eta();
+	dmphi  = gens_iter->phi();
+	dmmass = gens_iter->mass();
+	dmid   = gens_iter->pdgId();
+	
+	dmX1pt   = gens_iter->daughter(0)->pt();
+	dmX1eta  = gens_iter->daughter(0)->eta();
+	dmX1phi  = gens_iter->daughter(0)->phi();
+	dmX1mass = gens_iter->daughter(0)->mass();
+	dmX1id   = gens_iter->daughter(0)->pdgId();
+	dmX2pt   = gens_iter->daughter(1)->pt();
+	dmX2eta  = gens_iter->daughter(1)->eta();
+	dmX2phi  = gens_iter->daughter(1)->phi();
+	dmX2mass = gens_iter->daughter(1)->mass();
+	dmX2id   = gens_iter->daughter(1)->pdgId();
+      }
+    }
+  }
   
-  if (gensH.isValid() && (sample == 23 || sample == 24)) { // Z+jets or W+jets
+  else  if (gensH.isValid() && (sample == 23 || sample == 24)) { // Z+jets or W+jets
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
       
       if (abs(gens_iter->pdgId()) == sample && gens_iter->status() == 22) { // take some specific status particles
@@ -299,7 +418,12 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
   }
   
-    // gen jets
+
+  // make bosonPt slections
+  if(isSignalSample and dmpt < minBosonPt) return;
+  else if(not isSignalSample and wzpt < minBosonPt) return;
+
+  // gen jets
   vector<GenJetRef> jets;
   if (jetsH.isValid()) {
     for (auto jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {
@@ -355,40 +479,136 @@ void GenTreeMaker::beginJob() {
   tree->Branch("wgt"                  , &wgt                  , "wgt/F");
   tree->Branch("wgtoriginal"          , &wgtoriginal          , "wgtoriginal/F");
   tree->Branch("wgtpdf"               , "std::vector<float>",  &wgtpdf);
-  tree->Branch("wgtqcd"               , "std::vector<float>",  &wgtqcd);
+  tree->Branch("wgtqcd"               , "std::vector<float>",  &qcdscalewgt);
   
   tree->Branch("njets"                , &njets                , "njets/i");
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
   tree->Branch("met"                  , &met                  , "met/F");
   tree->Branch("metphi"               , &metphi               , "metphi/F");
-  tree->Branch("mvid"                 , &mvid                 , "mvid/I");
-  tree->Branch("mvmass"               , &mvmass               , "mvmass/F");
-  tree->Branch("mvpt"                 , &mvpt                 , "mvpt/F");
-  tree->Branch("mveta"                , &mveta                , "mveta/F");
-  tree->Branch("mvphi"                , &mvphi                , "mvphi/F");
-  tree->Branch("wzid"                 , &wzid                 , "wzid/I");
-  tree->Branch("wzmass"               , &wzmass               , "wzmass/F");
-  tree->Branch("wzpt"                 , &wzpt                 , "wzpt/F");
-  tree->Branch("wzeta"                , &wzeta                , "wzeta/F");
-  tree->Branch("wzphi"                , &wzphi                , "wzphi/F");
-  tree->Branch("l1id"                 , &l1id                 , "l1id/I");
-  tree->Branch("l1pt"                 , &l1pt                 , "l1pt/F");
-  tree->Branch("l1eta"                , &l1eta                , "l1eta/F");
-  tree->Branch("l1phi"                , &l1phi                , "l1phi/F");
-  tree->Branch("l2id"                 , &l2id                 , "l2id/I");
-  tree->Branch("l2pt"                 , &l2pt                 , "l2pt/F");
-  tree->Branch("l2eta"                , &l2eta                , "l2eta/F");
-  tree->Branch("l2phi"                , &l2phi                , "l2phi/F");
+
+  if(not isSignalSample){
+    tree->Branch("mvid"                 , &mvid                 , "mvid/I");
+    tree->Branch("mvmass"               , &mvmass               , "mvmass/F");
+    tree->Branch("mvpt"                 , &mvpt                 , "mvpt/F");
+    tree->Branch("mveta"                , &mveta                , "mveta/F");
+    tree->Branch("mvphi"                , &mvphi                , "mvphi/F");
+    tree->Branch("wzid"                 , &wzid                 , "wzid/I");
+    tree->Branch("wzmass"               , &wzmass               , "wzmass/F");
+    tree->Branch("wzpt"                 , &wzpt                 , "wzpt/F");
+    tree->Branch("wzeta"                , &wzeta                , "wzeta/F");
+    tree->Branch("wzphi"                , &wzphi                , "wzphi/F");
+    tree->Branch("l1id"                 , &l1id                 , "l1id/I");
+    tree->Branch("l1pt"                 , &l1pt                 , "l1pt/F");
+    tree->Branch("l1eta"                , &l1eta                , "l1eta/F");
+    tree->Branch("l1phi"                , &l1phi                , "l1phi/F");
+    tree->Branch("l2id"                 , &l2id                 , "l2id/I");
+    tree->Branch("l2pt"                 , &l2pt                 , "l2pt/F");
+    tree->Branch("l2eta"                , &l2eta                , "l2eta/F");
+    tree->Branch("l2phi"                , &l2phi                , "l2phi/F");
+  }
+
   tree->Branch("jetpt"                , "std::vector<float>" , &jetpt);
   tree->Branch("jeteta"               , "std::vector<float>" , &jeteta);
   tree->Branch("jetphi"               , "std::vector<float>" , &jetphi);
   tree->Branch("jetmass"              , "std::vector<float>" , &jetmass);
+
+  if(isSignalSample){
+    tree->Branch("sampledmM",&sampledmM,"sampledmM/F");
+    tree->Branch("samplemedM",&samplemedM,"samplemedM/F");
+    tree->Branch("couplingwgt","std::vector<float>",&couplingwgt);
+    tree->Branch("gDMV","std::vector<float>",&gDMV);
+    tree->Branch("gTheta","std::vector<float>",&gTheta);
+    tree->Branch("gDMA","std::vector<float>",&gDMA);
+    tree->Branch("gV","std::vector<float>",&gV);
+    tree->Branch("gA","std::vector<float>",&gA);     
+    tree->Branch("dmmass",&dmmass,"dmmass/F");
+    tree->Branch("dmpt",&dmpt,"dmpt/F");
+    tree->Branch("dmeta",&dmeta,"dmeta/F");
+    tree->Branch("dmphi",&dmphi,"dmphi/F");
+    tree->Branch("dmid",&dmid,"dmid/I");
+
+    // DM particles                                                                                                                                                                                   
+    tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
+    tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/F");
+    tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/F");
+    tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/F");
+    tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/F");
+
+    tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
+    tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/F");
+    tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
+    tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
+    tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
+
+  }
+
 }
 
 void GenTreeMaker::endJob() {
 }
 
 void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+
+  using namespace boost::algorithm;
+  using namespace edm;
+
+  edm::Handle<LHERunInfoProduct> run;
+  iRun.getByLabel(lheRunTag,run);
+  LHERunInfoProduct myLHERunInfoProduct = *(run.product());
+  
+  if(isSignalSample){
+    for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+      std::vector<std::string> lines = iter->lines();
+      for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+	std::vector<std::string> tokens;
+	if(lines.at(iLine).find("DMmass") !=std::string::npos){// powheg mono-j                                                                                                                      
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  sampledmM = std::stod(tokens.at(1));
+	}
+	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){// powheg mono-j                                                                                                                
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  samplemedM = std::stod(tokens.at(1));
+	}
+	else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V                                                                                                        
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  std::vector<std::string> subtokens;
+	  split(subtokens,tokens.at(2),is_any_of("_"));
+	  if(subtokens.size() >= 5){
+	    samplemedM = std::stod(subtokens.at(3));
+	    sampledmM = std::stod(subtokens.at(4));
+	  }
+	  else{
+	    samplemedM = std::stod(subtokens.at(1));
+	    sampledmM = std::stod(subtokens.at(2));
+	  }
+	}
+	else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop                                                 
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  samplemedM = std::stod(tokens.at(3));
+	  sampledmM  = -1.;
+	  readDMFromGenParticle = true;
+	}
+  
+        // read-weights for scale variation                                                                                                                                                         
+	if(lines.at(iLine).find("Central scale variation") != std::string::npos or lines.at(iLine).find("scale_variation") != std::string::npos){
+	  for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
+	    TString line_string (lines.at(iLine2));
+	    if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
+	      split(tokens, lines.at(iLine2), is_any_of("\""));
+	      tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	      qcdscale.push_back(std::stoi(tokens.at(1)));
+	    }
+	    else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
+	      break;
+	  }
+	}
+      }
+    }
+  }
 }
 
 void GenTreeMaker::endRun(edm::Run const&, edm::EventSetup const&) {

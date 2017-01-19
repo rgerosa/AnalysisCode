@@ -276,8 +276,8 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->AddEntry(dthist, "Data","PEL");
-  leg->AddEntry(pohist, "Post-fit W #rightarrow e#nu","L");
-  leg->AddEntry(prhist, "Pre-fit W #rightarrow e#nu","L");
+  leg->AddEntry(pohist, "Post-fit W(e#nu)+jets","L");
+  leg->AddEntry(prhist, "Pre-fit W(e#nu)+jets","L");
   if(category == Category::VBF)
     leg->AddEntry(ewkwhist, "W-EWK","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");

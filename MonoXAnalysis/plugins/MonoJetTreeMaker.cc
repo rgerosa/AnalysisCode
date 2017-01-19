@@ -1312,7 +1312,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       qcdscalewgt.clear();
       couplingwgt.clear();
-      gDMV.clear(); gDMA.clear(); gV.clear(); gA.clear(); couplingwgt.clear();
+      gDMV.clear(); gDMA.clear(); gV.clear(); gA.clear(); couplingwgt.clear(); gTheta.clear();
 
       vector<gen::WeightsInfo> weights = lheInfoH->weights();
       std::vector<std::string> tokens;
