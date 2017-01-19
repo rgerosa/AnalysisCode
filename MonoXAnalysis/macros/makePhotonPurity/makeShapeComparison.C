@@ -173,8 +173,8 @@ void drawPlotBkg(TH1F* h1, TH1F* h2,
   ratio->Draw("EPsame");
   pad2->RedrawAxis("sameaxis");
 
-  canvas->SaveAs( (outputDIR + canvasTitle + ".pdf").c_str() );
-  canvas->SaveAs( (outputDIR + canvasTitle + ".png").c_str() );
+  // canvas->SaveAs( (outputDIR + canvasTitle + ".pdf").c_str() );
+  // canvas->SaveAs( (outputDIR + canvasTitle + ".png").c_str() );
 
   canvas->cd();
 
@@ -345,8 +345,8 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   pad2->RedrawAxis("sameaxis");
 
 
-  canvas->SaveAs( (outputDIR + canvasTitle + ".pdf").c_str() );
-  canvas->SaveAs( (outputDIR + canvasTitle + ".png").c_str() );
+  // canvas->SaveAs( (outputDIR + canvasTitle + ".pdf").c_str() );
+  // canvas->SaveAs( (outputDIR + canvasTitle + ".png").c_str() );
 
   canvas->cd();
 
