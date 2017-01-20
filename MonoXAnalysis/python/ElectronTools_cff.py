@@ -11,9 +11,9 @@ def ElectronTools(process,addEGMSmear,isMC):
 	switchOnVIDElectronIdProducer(process, dataFormat);
 	ele_id_modules = [];
 	ele_id_modules.append('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Summer16_80X_V1_cff');
-	#ele_id_modules.append('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff');
 	ele_id_modules.append('RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff');
 	ele_id_modules.append('RecoEgamma.ElectronIdentification.Identification.cutBasedElectronHLTPreselecition_Summer16_V1_cff');
+	ele_id_modules.append('RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring16_GeneralPurpose_V1_cff');
 
 	for idmod in ele_id_modules:
 	   	setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)

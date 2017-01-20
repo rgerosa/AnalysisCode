@@ -10,7 +10,7 @@ def PhotonTools(process,addEGMSmear,isMC):
 	switchOnVIDPhotonIdProducer(process, dataFormat);
 	ph_id_modules = []
 	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff')
-	#ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_25ns_V1_cff')
+	ph_id_modules.append('RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff')
 		
 	for idmod in ph_id_modules:
 		setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)

@@ -292,12 +292,12 @@ if options.inputFiles == []:
 
 	else:
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/0015A622-AA2B-E611-A12D-0023AEFDE888.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
 
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/7A9F1F4B-81D5-E611-A06C-02163E019DD1.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/7A9F1F4B-81D5-E611-A06C-02163E019DD1.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Pseudo_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/60000/D462BEC9-41DA-E611-83AD-02163E015C72.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoW_NLO_Mphi-1000_Mchi-300_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/747DC36C-A2D0-E611-B518-0CC47A4D75F0.root')
@@ -579,11 +579,15 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
 			      triggerelectrons = cms.InputTag("selectedObjects","triggerelectrons"),
 			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
+			      mvalooseelectrons   = cms.InputTag("selectedObjects", "mvalooseelectrons"),
+			      mvatightelectrons   = cms.InputTag("selectedObjects", "mvatightelectrons"),
 			      ## photons --> can be matched by reference 
 			      rho             = cms.InputTag("fixedGridRhoFastjetAll"),
 			      photons         = cms.InputTag("selectedObjects", "photons"),
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
 			      tightphotons    = cms.InputTag("selectedObjects", "tightphotons"),			     
+			      mvaloosephotons = cms.InputTag("selectedObjects", "mvaloosephotons"),			     
+			      mvatightphotons = cms.InputTag("selectedObjects", "mvatightphotons"),			     
 			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
 			      ## photon purity
 			      isPhotonPurity  = cms.bool(options.isPhotonPurity),
@@ -597,12 +601,12 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonCHiso = cms.InputTag("selectedObjects", "chhadiso"),
 			      photonNHiso = cms.InputTag("selectedObjects", "nhhadiso"),
 			      ## taus
-			      taus            = cms.InputTag("selectedObjects","tausNew"),
-			      tausOld         = cms.InputTag("selectedObjects","tausOld"),
-			      tausRaw         = cms.InputTag("selectedObjects","tausNewRaw"),
-			      tausOldRaw      = cms.InputTag("selectedObjects","tausOldRaw"),
-			      tausTight       = cms.InputTag("selectedObjects","tausTagNew"),
-			      tausTightOld    = cms.InputTag("selectedObjects","tausTagOld"),
+			      tausVLNew       = cms.InputTag("selectedObjects","tausVLNew"),
+			      tausVLOld       = cms.InputTag("selectedObjects","tausVLOld"),
+			      tausRawNew      = cms.InputTag("selectedObjects","tausRawNew"),
+			      tausRawOld      = cms.InputTag("selectedObjects","tausRawOld"),
+			      tausTightNew    = cms.InputTag("selectedObjects","tausTightNew"),
+			      tausTightOld    = cms.InputTag("selectedObjects","tausTightOld"),
 			      ## jets AK4
 			      jets            = cms.InputTag(jetCollName),
 			      addPuppiJets    = cms.bool(options.addPuppiJets),			      

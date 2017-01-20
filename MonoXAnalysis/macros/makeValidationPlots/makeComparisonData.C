@@ -4,8 +4,8 @@
 static float recoilSelection = 600;
 
 TH1F* bosonpt_histo   = new TH1F("bosonpt","",50,-100,100);
-TH1F* bosoneta_histo  = new TH1F("bosoneta","",50,-0.15,0.15);
-TH1F* bosonphi_histo  = new TH1F("bosonphi","",50,-0.1,0.1);
+TH1F* bosoneta_histo  = new TH1F("bosoneta","",50,-0.07,0.07);
+TH1F* bosonphi_histo  = new TH1F("bosonphi","",50,-0.01,0.01);
 TH1F* recoil_histo    = new TH1F("recoil","",50,-100,100);
 TH1F* recoilphi_histo = new TH1F("recoilphi","",50,-0.25,0.25);
 TH1F* pfmet_histo     = new TH1F("pfmet","",50,-100,100);
@@ -13,34 +13,10 @@ TH1F* pfmetphi_histo  = new TH1F("pfmetphi","",50,-0.25,0.25);
 TH1F* jetpt_histo     = new TH1F("jetpt","",50,-30,30);
 TH1F* jetpt2_histo    = new TH1F("jetpt2","",50,-30,30);
 TH1F* njet_histo      = new TH1F("njet","",10,-5,5);
+TH1F* njetinc_histo   = new TH1F("njetinc","",10,-5,5);
 TH1F* jeteta_histo    = new TH1F("jeteta","",50,-0.1,0.1);
 TH1F* jeteta2_histo   = new TH1F("jeteta2","",50,-0.1,0.1);
-
-TH1F* bosonpt_histo_only1   = new TH1F("bosonpt_only1","",40,120,1000);
-TH1F* bosoneta_histo_only1  = new TH1F("bosoneta_only1","",30,-1.5,1.5);
-TH1F* bosonphi_histo_only1  = new TH1F("bosonphi_only1","",30,-3.14,3.14);
-TH1F* recoil_histo_only1    = new TH1F("recoil_only1","",40,200,1200);
-TH1F* recoilphi_histo_only1 = new TH1F("recoilphi_only1","",30,-3.14,3.14);
-TH1F* pfmet_histo_only1     = new TH1F("pfmet_only1","",40,0,400);
-TH1F* pfmetphi_histo_only1  = new TH1F("pfmetphi_only1","",30,-3.14,3.14);
-TH1F* jetpt_histo_only1     = new TH1F("jetpt_only1","",40,100,1000);
-TH1F* jetpt2_histo_only1    = new TH1F("jetpt2_only1","",40,30,500);
-TH1F* njet_histo_only1      = new TH1F("njet_only1","",5,0,5);
-TH1F* jeteta_histo_only1    = new TH1F("jeteta_only1","",30,-1.5,1.5);
-TH1F* jeteta2_histo_only1   = new TH1F("jeteta2_only1","",50,-1.5,1.5);
-
-TH1F* bosonpt_histo_only2   = new TH1F("bosonpt_only2","",40,120,1000);
-TH1F* bosoneta_histo_only2  = new TH1F("bosoneta_only2","",30,-1.5,1.5);
-TH1F* bosonphi_histo_only2  = new TH1F("bosonphi_only2","",30,-3.14,3.14);
-TH1F* recoil_histo_only2    = new TH1F("recoil_only2","",40,200,1200);
-TH1F* recoilphi_histo_only2 = new TH1F("recoilphi_only2","",30,-3.14,3.14);
-TH1F* pfmet_histo_only2     = new TH1F("pfmet_only2","",40,0,400);
-TH1F* pfmetphi_histo_only2  = new TH1F("pfmetphi_only2","",30,-3.14,3.14);
-TH1F* jetpt_histo_only2     = new TH1F("jetpt_only2","",40,100,1000);
-TH1F* jetpt2_histo_only2    = new TH1F("jetpt2_only2","",40,30,500);
-TH1F* njet_histo_only2      = new TH1F("njet_only2","",5,0,5);
-TH1F* jeteta_histo_only2    = new TH1F("jeteta_only2","",30,-1.5,1.5);
-TH1F* jeteta2_histo_only2   = new TH1F("jeteta2_only2","",50,-1.5,1.5);
+TH1F* jetmetdphi_histo   = new TH1F("jetmetdphi","",50,-0.25,0.25);
 
 TH2F* bosonpt_histo_2D  = new TH2F("bosonpt_2d","",50,200,1100,50,200,1100);
 TH2F* bosoneta_histo_2D = new TH2F("bosoneta_2d","",50,-2.5,2.5,50,-2.5,2.5);
@@ -52,8 +28,71 @@ TH2F* pfmetphi_histo_2D  = new TH2F("pfmetphi_2d","",50,-3.14,3.14,50,-3.14,3.14
 TH2F* jetpt_histo_2D     = new TH2F("jetpt_2d","",50,100,900,50,100,900);
 TH2F* jetpt2_histo_2D    = new TH2F("jetpt2_2d","",50,100,900,50,100,900);
 TH2F* jeteta_histo_2D    = new TH2F("jeteta_2d","",30,-2.5,2.5,30,-2.5,2.5);
-TH2F* jeteta2_histo_2D    = new TH2F("jeteta2_2d","",30,-2.5,2.5,30,-2.5,2.5);
-TH2F* njet_histo_2D    = new TH2F("njet_2d","",5,0,5,5,0,5);
+TH2F* jeteta2_histo_2D   = new TH2F("jeteta2_2d","",30,-2.5,2.5,30,-2.5,2.5);
+TH2F* njet_histo_2D      = new TH2F("njet_2d","",5,0,5,5,0,5);
+TH2F* njetinc_histo_2D   = new TH2F("njetinc_2d","",5,0,5,5,0,5);
+TH2F* jetmetdphi_histo_2D = new TH2F("jetmetdphi_2d","",50,0,3.14,50,0,3.14);
+
+  
+TH1F* bosonpt_histo_only1   = new TH1F("bosonpt_only1","",40,120,1000);
+TH1F* bosoneta_histo_only1  = new TH1F("bosoneta_only1","",30,-1.5,1.5);
+TH1F* bosonphi_histo_only1  = new TH1F("bosonphi_only1","",30,-3.14,3.14);
+TH1F* recoil_histo_only1    = new TH1F("recoil_only1","",40,200,1200);
+TH1F* recoilphi_histo_only1 = new TH1F("recoilphi_only1","",30,-3.14,3.14);
+TH1F* pfmet_histo_only1     = new TH1F("pfmet_only1","",40,0,400);
+TH1F* pfmetphi_histo_only1  = new TH1F("pfmetphi_only1","",30,-3.14,3.14);
+TH1F* jetpt_histo_only1     = new TH1F("jetpt_only1","",40,100,1000);
+TH1F* jetpt2_histo_only1    = new TH1F("jetpt2_only1","",40,30,500);
+TH1F* njet_histo_only1      = new TH1F("njet_only1","",7,1,8);
+TH1F* njetinc_histo_only1      = new TH1F("njetinc_only1","",7,1,8);
+TH1F* jeteta_histo_only1    = new TH1F("jeteta_only1","",30,-2.5,2.5);
+TH1F* jeteta2_histo_only1   = new TH1F("jeteta2_only1","",50,-2.5,2.5);
+TH1F* jetmetdphi_histo_only1   = new TH1F("jetmetdphi_only1","",50,0.5,3.14);
+
+TH1F* bosonpt_histo_only2   = new TH1F("bosonpt_only2","",40,120,1000);
+TH1F* bosoneta_histo_only2  = new TH1F("bosoneta_only2","",30,-1.5,1.5);
+TH1F* bosonphi_histo_only2  = new TH1F("bosonphi_only2","",30,-3.14,3.14);
+TH1F* recoil_histo_only2    = new TH1F("recoil_only2","",40,200,1200);
+TH1F* recoilphi_histo_only2 = new TH1F("recoilphi_only2","",30,-3.14,3.14);
+TH1F* pfmet_histo_only2     = new TH1F("pfmet_only2","",40,0,400);
+TH1F* pfmetphi_histo_only2  = new TH1F("pfmetphi_only2","",30,-3.14,3.14);
+TH1F* jetpt_histo_only2     = new TH1F("jetpt_only2","",40,100,1000);
+TH1F* jetpt2_histo_only2    = new TH1F("jetpt2_only2","",40,30,500);
+TH1F* njet_histo_only2      = new TH1F("njet_only2","",7,1,7);
+TH1F* njetinc_histo_only2   = new TH1F("njetinc_only2","",7,1,7);
+TH1F* jeteta_histo_only2    = new TH1F("jeteta_only2","",30,-2.5,2.5);
+TH1F* jeteta2_histo_only2   = new TH1F("jeteta2_only2","",50,-2.5,2.5);
+TH1F* jetmetdphi_histo_only2   = new TH1F("jetmetdphi_only2","",50,0.5,3.14);
+  
+
+
+class eventID{
+
+public:
+  eventID(unsigned int & eventid, unsigned int & runid){
+    eventid_ = eventid;
+    runid_ = runid;
+  }
+
+ bool operator== (const eventID & a) const{
+    if(eventid_ == a.eventid_ and runid_ == a.runid_) return true;
+    else return false;
+  }
+
+ bool operator< (const eventID & a) const{
+    if(runid_ < a.runid_) return true;
+    else if(runid_ > a.runid_) return false;
+    else if(runid_ == a.runid_){
+      if(eventid_ <= a.eventid_) return true;
+      else return false;
+    }
+    else return false;
+  }
+  
+  unsigned int eventid_;
+  unsigned int runid_;
+
+};
 
 
 void drawPlot(TCanvas* pad1, TH1* histo_1, string observable, string outputDIR, bool logScale = true){
@@ -122,33 +161,7 @@ void drawPlot2D(TCanvas* pad1, TH2* histo_1, string observable, string outputDIR
 
 
 
-void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Category category, string outputDIR, bool useOnlyICHEP, bool doOppositeMatching){
-
-  bosonpt_histo->Sumw2();
-  bosoneta_histo->Sumw2();
-  bosonphi_histo->Sumw2();
-  recoil_histo->Sumw2();
-  recoilphi_histo->Sumw2();
-  pfmet_histo->Sumw2();
-  pfmetphi_histo->Sumw2();
-  jetpt_histo->Sumw2();
-  jetpt2_histo->Sumw2();
-  njet_histo->Sumw2();
-  jeteta_histo->Sumw2();
-  jeteta2_histo->Sumw2();
-
-  bosonpt_histo_2D->Sumw2();
-  bosoneta_histo_2D->Sumw2();
-  bosonphi_histo_2D->Sumw2();
-  recoil_histo_2D->Sumw2();
-  recoilphi_histo_2D->Sumw2();
-  pfmet_histo_2D->Sumw2();
-  pfmetphi_histo_2D->Sumw2();
-  jetpt_histo_2D->Sumw2();
-  jetpt2_histo_2D->Sumw2();
-  jeteta_histo_2D->Sumw2();
-  jeteta2_histo_2D->Sumw2();
-  njet_histo_2D->Sumw2();
+void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Category category, string outputDIR, bool useOnlyICHEP){
 
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
@@ -182,369 +195,190 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
     chain_2->Add((inputDIR_2+"/gamfilter/*root").c_str());
   }
 
+  TFile* outputFile = new TFile((outputDIR+"/outputTreeReduced.root").c_str(),"RECREATE");
+
+  TTree* tree_1 = new TTree("tree_1","tree_1");
+
+  float bosonpt = 0, bosoneta = 0, bosonphi = 0, recoil = 0, recoilphi = 0, pfmet = 0, pfmetphi = 0, leadingjetpt = 0, leadingjeteta = 0, secondjetpt = 0, secondjeteta = 0, jetmetdphi = 0;
+  unsigned int njetcentral = 0, njetinclusive = 0, runnumber = 0, eventnumber = 0;
+
+  tree_1->Branch("bosonpt",&bosonpt,"bosonpt/F");
+  tree_1->Branch("bosoneta",&bosoneta,"bosoneta/F");
+  tree_1->Branch("bosonphi",&bosoneta,"bosonphi/F");
+  tree_1->Branch("recoil",&recoil,"recoil/F");
+  tree_1->Branch("recoilphi",&recoilphi,"recoilphi/F");
+  tree_1->Branch("pfmet",&pfmet,"pfmet/F");
+  tree_1->Branch("pfmetphi",&pfmetphi,"pfmetphi/F");
+  tree_1->Branch("leadingjetpt",&leadingjetpt,"leadingjetpt/F");
+  tree_1->Branch("leadingjeteta",&leadingjeteta,"leadingjeteta/F");
+  tree_1->Branch("secondjetpt",&secondjetpt,"secondjetpt/F");
+  tree_1->Branch("secondjeteta",&secondjeteta,"secondjeteta/F");
+  tree_1->Branch("jetmetdphi",&jetmetdphi,"jetmetdphi/F");
+  tree_1->Branch("njetcentral",&njetcentral,"njetcentral/i");
+  tree_1->Branch("njetinclusive",&njetinclusive,"njetinclusive/i");
+  tree_1->Branch("runnumber",&runnumber,"runnumber/i");
+  tree_1->Branch("eventnumber",&eventnumber,"eventnumber/i");
+
   ///////////
   cout<<"Build first chain with index "<<endl;
-  unsigned int run=0;
-  unsigned int lumi=0;
-  unsigned int event=0;
-  UChar_t hltm90=0,hltm100=0,hltm110=0,hltm120=0,hltmwm120=0,hltmwm170=0,hltmwm300=0,hltmwm90=0,hlte=0,hltenoiso=0,hltp165=0,hltp175=0;
-  UChar_t fhbhe=0,fhbiso=0,fcsct=0,feeb=0,fetp=0,fvtx=0,fbadmu=0,fbadch=0,fcsc=0;
-  unsigned int njets=0,nmuons=0,nelectrons=0,nphotons=0,ntausraw=0,nincjets=0,nbjets=0;
-  vector<float> *jeteta=0, *jetpt=0, *jetphi=0,*jetm=0,*chfrac=0,*nhfrac=0;
-  float incjetmumetdphimin4=0,incjetelmetdphimin4=0,incjetphmetdphimin4=0;
-  float met=0,metphi=0,mmet=0,mmetphi=0,emet=0,emetphi=0,pmet=0,pmetphi=0,pfmet=0,pfmetphi=0,metcalo=0;
-  float jmmdphi=0,jemdphi=0,jpmdphi=0;
-  int   mu1pid=0,mu2pid=0,mu1id=0,mu2id=0;
-  float mu1pt=0,mu2pt=0,mu1eta=0,mu2eta=0,mu1phi=0,mu2phi=0;
-  int   el1pid=0,el2pid=0,el1id=0,el2id=0;
-  float el1pt=0,el2pt=0,el1eta=0,el2eta=0,el1phi=0,el2phi=0;
-  int   phidm=0;
-  float phpt=0,pheta=0,phphi=0;
-  float wmt=0,wemt=0,zmass=0,zeemass=0,zpt=0,zeept=0,zeeeta=0,zeta=0,zphi=0,zeephi=0;
-  vector<float> *boostedJetpt=0,*boostedJeteta=0,*boostedJetphi=0,*prunedJetm=0,*boostedJettau2=0,*boostedJettau1=0;
-
-  chain_1->SetBranchStatus("*",kFALSE);
-  chain_1->SetBranchStatus("run",kTRUE);
-  chain_1->SetBranchStatus("lumi",kTRUE);
-  chain_1->SetBranchStatus("event",kTRUE);
-  chain_1->SetBranchStatus("hlt*",kTRUE);
-  chain_1->SetBranchStatus("flag*",kTRUE);
-  chain_1->SetBranchStatus("njets",kTRUE);
-  chain_1->SetBranchStatus("nmuons",kTRUE);
-  chain_1->SetBranchStatus("nelectrons",kTRUE);
-  chain_1->SetBranchStatus("nphotons",kTRUE);
-  chain_1->SetBranchStatus("ntausraw",kTRUE);
-  chain_1->SetBranchStatus("njetsinc",kTRUE);
-  chain_1->SetBranchStatus("nbjetslowpt",kTRUE);
-  chain_1->SetBranchStatus("combinejeteta",kTRUE);
-  chain_1->SetBranchStatus("combinejetpt", kTRUE);
-  chain_1->SetBranchStatus("combinejetphi",kTRUE);
-  chain_1->SetBranchStatus("combinejetm",kTRUE);
-  chain_1->SetBranchStatus("combinejetCHfrac",kTRUE);
-  chain_1->SetBranchStatus("combinejetNHfrac",kTRUE);
-  chain_1->SetBranchStatus("t1*",kTRUE);
-  chain_1->SetBranchStatus("pfmet",kTRUE);
-  chain_1->SetBranchStatus("incjet*metdphimin4",kTRUE);
-  chain_1->SetBranchStatus("mu*",kTRUE);
-  chain_1->SetBranchStatus("el*",kTRUE);
-  chain_1->SetBranchStatus("ph*",kTRUE);
-  chain_1->SetBranchStatus("wmt",kTRUE);
-  chain_1->SetBranchStatus("wemt",kTRUE);
-  chain_1->SetBranchStatus("zmass",kTRUE);
-  chain_1->SetBranchStatus("zeemass",kTRUE);
-  chain_1->SetBranchStatus("zpt",kTRUE);
-  chain_1->SetBranchStatus("zeept",kTRUE);
-  chain_1->SetBranchStatus("boostedJet*",kTRUE);
-  chain_1->SetBranchStatus("prunedJetm",kTRUE);
-
-  chain_1->SetBranchAddress("run",&run);
-  chain_1->SetBranchAddress("lumi",&lumi);
-  chain_1->SetBranchAddress("event",&event);
-  chain_1->SetBranchAddress("hltmet90",&hltm90);
-  chain_1->SetBranchAddress("hltmet100",&hltm100);
-  chain_1->SetBranchAddress("hltmet110",&hltm110);
-  chain_1->SetBranchAddress("hltmet120",&hltm120);
-  chain_1->SetBranchAddress("hltmetwithmu170",&hltmwm170);
-  chain_1->SetBranchAddress("hltmetwithmu300",&hltmwm300);
-  chain_1->SetBranchAddress("hltmetwithmu90",&hltmwm90);
-  chain_1->SetBranchAddress("hltsingleel",&hlte);
-  chain_1->SetBranchAddress("hltelnoiso",&hltenoiso);
-  chain_1->SetBranchAddress("hltphoton165",&hltp165);
-  chain_1->SetBranchAddress("hltphoton175",&hltp175);
-  chain_1->SetBranchAddress("flaghbhenoise",&fhbhe);
-  chain_1->SetBranchAddress("flaghbheiso",&fhbiso);
-  chain_1->SetBranchAddress("flagcsctight",&fcsct);
-  chain_1->SetBranchAddress("flageebadsc",&feeb);
-  chain_1->SetBranchAddress("flagecaltp",&fetp);
-  chain_1->SetBranchAddress("flaggoodvertices",&fvtx);
-  chain_1->SetBranchAddress("flagbadpfmu",&fbadmu);
-  chain_1->SetBranchAddress("flagbadchpf",&fbadch);
-  chain_1->SetBranchAddress("flagglobaltighthalo",&fcsc);
-  chain_1->SetBranchAddress("njets",&njets);
-  chain_1->SetBranchAddress("nmuons",&nmuons);
-  chain_1->SetBranchAddress("nelectrons",&nelectrons);
-  chain_1->SetBranchAddress("nphotons",&nphotons);
-  chain_1->SetBranchAddress("nelectrons",&nelectrons);
-  chain_1->SetBranchAddress("ntausrawold",&ntausraw);
-  chain_1->SetBranchAddress("njetsinc",&nincjets);
-  chain_1->SetBranchAddress("nbjetslowpt",&nbjets);
-  chain_1->SetBranchAddress("combinejeteta",&jeteta);
-  chain_1->SetBranchAddress("combinejetpt", &jetpt);
-  chain_1->SetBranchAddress("combinejetphi",&jetphi);
-  chain_1->SetBranchAddress("combinejetm",&jetm);
-  chain_1->SetBranchAddress("combinejetCHfrac",&chfrac);
-  chain_1->SetBranchAddress("combinejetNHfrac",&nhfrac);
-  chain_1->SetBranchAddress("t1pfmet",&met);
-  chain_1->SetBranchAddress("t1pfmetphi",&metphi);
-  chain_1->SetBranchAddress("t1mumet",&mmet);
-  chain_1->SetBranchAddress("t1mumetphi",&mmetphi);
-  chain_1->SetBranchAddress("t1elmet",&emet);
-  chain_1->SetBranchAddress("t1elmetphi",&emetphi);
-  chain_1->SetBranchAddress("t1phmet",&pmet);
-  chain_1->SetBranchAddress("t1phmetphi",&pmetphi);
-  chain_1->SetBranchAddress("pfmet",&pfmet);
-  chain_1->SetBranchAddress("pfmetphi",&pfmetphi);
-  chain_1->SetBranchAddress("calomet",&metcalo);
-  chain_1->SetBranchAddress("incjetmumetdphimin4",&incjetmumetdphimin4);
-  chain_1->SetBranchAddress("incjetelmetdphimin4",&incjetelmetdphimin4);
-  chain_1->SetBranchAddress("incjetphmetdphimin4",&incjetphmetdphimin4);
-  chain_1->SetBranchAddress("mu1pid",&mu1pid);
-  chain_1->SetBranchAddress("mu2pid",&mu2pid);
-  chain_1->SetBranchAddress("mu1id",&mu1id);
-  chain_1->SetBranchAddress("mu2id",&mu2id);
-  chain_1->SetBranchAddress("mu1pt",&mu1pt);
-  chain_1->SetBranchAddress("mu2pt",&mu2pt);
-  chain_1->SetBranchAddress("mu1eta",&mu1eta);
-  chain_1->SetBranchAddress("mu2eta",&mu2eta);
-  chain_1->SetBranchAddress("mu1phi",&mu1phi);
-  chain_1->SetBranchAddress("mu2phi",&mu2phi);
-  chain_1->SetBranchAddress("el1pid",&el1pid);
-  chain_1->SetBranchAddress("el2pid",&el2pid);
-  chain_1->SetBranchAddress("el1id",&el1id);
-  chain_1->SetBranchAddress("el2id",&el2id);
-  chain_1->SetBranchAddress("el1pt",&el1pt);
-  chain_1->SetBranchAddress("el2pt",&el2pt);
-  chain_1->SetBranchAddress("el1eta",&el1eta);
-  chain_1->SetBranchAddress("el2eta",&el2eta);
-  chain_1->SetBranchAddress("el1phi",&el1phi);
-  chain_1->SetBranchAddress("el2phi",&el2phi);
-  chain_1->SetBranchAddress("phidm",&phidm);
-  chain_1->SetBranchAddress("phpt",&phpt);
-  chain_1->SetBranchAddress("pheta",&pheta);
-  chain_1->SetBranchAddress("phphi",&phphi);
-  chain_1->SetBranchAddress("wmt",&wmt);
-  chain_1->SetBranchAddress("wemt",&wemt);
-  chain_1->SetBranchAddress("zmass",&zmass);
-  chain_1->SetBranchAddress("zeemass",&zeemass);
-  chain_1->SetBranchAddress("zpt",&zpt);
-  chain_1->SetBranchAddress("zeept",&zeept);
-  chain_1->SetBranchAddress("zeta",&zeta);
-  chain_1->SetBranchAddress("zeeeta",&zeeeta);
-  chain_1->SetBranchAddress("zphi",&zphi);
-  chain_1->SetBranchAddress("zeephi",&zeephi);
-  chain_1->SetBranchAddress("boostedJetpt",&boostedJetpt);
-  chain_1->SetBranchAddress("boostedJeteta",&boostedJeteta);
-  chain_1->SetBranchAddress("boostedJetphi",&boostedJetphi);
-  chain_1->SetBranchAddress("boostedJettau2",&boostedJettau2);
-  chain_1->SetBranchAddress("boostedJettau1",&boostedJettau1);
-  chain_1->SetBranchAddress("prunedJetm",&prunedJetm);
-
-  chain_1->BuildIndex("run","event");
-  ///
-  cout<<"Build second chain with index "<<endl;
-  unsigned int run_alt   = 0;
-  unsigned int lumi_alt  = 0;
-  unsigned int event_alt = 0;
-  UChar_t hltm90_alt=0,hltm100_alt=0,hltm110_alt=0,hltm120_alt=0,hltmwm120_alt=0,hltmwm170_alt=0,hltmwm300_alt=0,hltmwm90_alt=0,hlte_alt=0,hltenoiso_alt=0,hltp165_alt=0,hltp175_alt=0;
-  UChar_t fhbhe_alt=0,fhbiso_alt=0,fcsct_alt=0,feeb_alt=0,fetp_alt=0,fvtx_alt=0,fbadmu_alt=0,fbadch_alt=0,fcsc_alt=0;
-  unsigned int njets_alt=0,nmuons_alt=0,nelectrons_alt=0,nphotons_alt=0,ntausraw_alt=0,nincjets_alt=0,nbjets_alt=0;
-  vector<double> *jeteta_alt=0, *jetpt_alt=0, *jetphi_alt=0,*jetm_alt=0,*chfrac_alt=0,*nhfrac_alt=0;
-  double incjetmumetdphimin4_alt=0,incjetelmetdphimin4_alt=0,incjetphmetdphimin4_alt=0;
-  double met_alt=0,metphi_alt=0,mmet_alt=0,mmetphi_alt=0,emet_alt=0,emetphi_alt=0,pmet_alt=0,pmetphi_alt=0,pfmet_alt=0,pfmetphi_alt=0,metcalo_alt=0;
-  double jmmdphi_alt=0,jemdphi_alt=0,jpmdphi_alt=0;
-  int    mu1pid_alt=0,mu2pid_alt=0,mu1id_alt=0,mu2id_alt=0;
-  double mu1pt_alt=0,mu2pt_alt=0,mu1eta_alt=0,mu2eta_alt=0,mu1phi_alt=0,mu2phi_alt=0;
-  int    el1pid_alt=0,el2pid_alt=0,el1id_alt=0,el2id_alt=0;
-  double el1pt_alt=0,el2pt_alt=0,el1eta_alt=0,el2eta_alt=0,el1phi_alt=0,el2phi_alt=0;
-  int    phidm_alt=0;
-  double phpt_alt=0,pheta_alt=0,phphi_alt=0;
-  double wmt_alt=0,wemt_alt=0,zmass_alt=0,zeemass_alt=0,zpt_alt=0,zeept_alt=0,zeeeta_alt=0,zeta_alt=0,zphi_alt=0,zeephi_alt=0;
-  vector<double> *boostedJetpt_alt=0,*boostedJeteta_alt=0,*boostedJetphi_alt=0,*prunedJetm_alt=0,*boostedJettau2_alt=0,*boostedJettau1_alt=0;
-
-  chain_2->SetBranchStatus("*",kFALSE);
-  chain_2->SetBranchStatus("run",kTRUE);
-  chain_2->SetBranchStatus("lumi",kTRUE);
-  chain_2->SetBranchStatus("event",kTRUE);
-  chain_2->SetBranchStatus("hlt*",kTRUE);
-  chain_2->SetBranchStatus("flag*",kTRUE);
-  chain_2->SetBranchStatus("njets",kTRUE);
-  chain_2->SetBranchStatus("nmuons",kTRUE);
-  chain_2->SetBranchStatus("nelectrons",kTRUE);
-  chain_2->SetBranchStatus("nphotons",kTRUE);
-  chain_2->SetBranchStatus("ntausraw",kTRUE);
-  chain_2->SetBranchStatus("njetsinc",kTRUE);
-  chain_2->SetBranchStatus("nbjetslowpt",kTRUE);
-  chain_2->SetBranchStatus("combinejeteta",kTRUE);
-  chain_2->SetBranchStatus("combinejetpt", kTRUE);
-  chain_2->SetBranchStatus("combinejetphi",kTRUE);
-  chain_2->SetBranchStatus("combinejetm",kTRUE);
-  chain_2->SetBranchStatus("combinejetCHfrac",kTRUE);
-  chain_2->SetBranchStatus("combinejetNHfrac",kTRUE);
-  chain_2->SetBranchStatus("t1*",kTRUE);
-  chain_2->SetBranchStatus("pfmet",kTRUE);
-  chain_2->SetBranchStatus("incjet*metdphimin4",kTRUE);
-  chain_2->SetBranchStatus("mu*",kTRUE);
-  chain_2->SetBranchStatus("el*",kTRUE);
-  chain_2->SetBranchStatus("ph*",kTRUE);
-  chain_2->SetBranchStatus("wmt",kTRUE);
-  chain_2->SetBranchStatus("wemt",kTRUE);
-  chain_2->SetBranchStatus("zmass",kTRUE);
-  chain_2->SetBranchStatus("zeemass",kTRUE);
-  chain_2->SetBranchStatus("zpt",kTRUE);
-  chain_2->SetBranchStatus("zeept",kTRUE);
-  chain_2->SetBranchStatus("boostedJet*",kTRUE);
-  chain_2->SetBranchStatus("prunedJetm",kTRUE);
-
-  chain_2->SetBranchAddress("run",&run_alt);
-  chain_2->SetBranchAddress("lumi",&lumi_alt);
-  chain_2->SetBranchAddress("event",&event_alt);
-  chain_2->SetBranchAddress("hltmet90",&hltm90_alt);
-  chain_2->SetBranchAddress("hltmet100",&hltm100_alt);
-  chain_2->SetBranchAddress("hltmet110",&hltm110_alt);
-  chain_2->SetBranchAddress("hltmet120",&hltm120_alt);
-  chain_2->SetBranchAddress("hltmetwithmu170",&hltmwm170_alt);
-  chain_2->SetBranchAddress("hltmetwithmu300",&hltmwm300_alt);
-  chain_2->SetBranchAddress("hltmetwithmu90",&hltmwm90_alt);
-  chain_2->SetBranchAddress("hltsingleel",&hlte_alt);
-  chain_2->SetBranchAddress("hltelnoiso",&hltenoiso_alt);
-  chain_2->SetBranchAddress("hltphoton165",&hltp165_alt);
-  chain_2->SetBranchAddress("hltphoton175",&hltp175_alt);
-  chain_2->SetBranchAddress("flaghbhenoise",&fhbhe_alt);
-  chain_2->SetBranchAddress("flaghbheiso",&fhbiso_alt);
-  chain_2->SetBranchAddress("flagcsctight",&fcsct_alt);
-  chain_2->SetBranchAddress("flageebadsc",&feeb_alt);
-  chain_2->SetBranchAddress("flagecaltp",&fetp_alt);
-  chain_2->SetBranchAddress("flaggoodvertices",&fvtx_alt);
-  chain_2->SetBranchAddress("flagbadpfmu",&fbadmu_alt);
-  chain_2->SetBranchAddress("flagbadchpf",&fbadch_alt);
-  chain_2->SetBranchAddress("flagglobaltighthalo",&fcsc_alt);
-  chain_2->SetBranchAddress("njets",&njets_alt);
-  chain_2->SetBranchAddress("nmuons",&nmuons_alt);
-  chain_2->SetBranchAddress("nelectrons",&nelectrons_alt);
-  chain_2->SetBranchAddress("nphotons",&nphotons_alt);
-  chain_2->SetBranchAddress("nelectrons",&nelectrons_alt);
-  chain_2->SetBranchAddress("ntausraw",&ntausraw_alt);
-  chain_2->SetBranchAddress("njetsinc",&nincjets_alt);
-  chain_2->SetBranchAddress("nbjetslowpt",&nbjets_alt);
-  chain_2->SetBranchAddress("combinejeteta",&jeteta_alt);
-  chain_2->SetBranchAddress("combinejetpt", &jetpt_alt);
-  chain_2->SetBranchAddress("combinejetphi",&jetphi_alt);
-  chain_2->SetBranchAddress("combinejetm",&jetm_alt);
-  chain_2->SetBranchAddress("combinejetCHfrac",&chfrac_alt);
-  chain_2->SetBranchAddress("combinejetNHfrac",&nhfrac_alt);
-  chain_2->SetBranchAddress("t1pfmet",&met_alt);
-  chain_2->SetBranchAddress("t1pfmetphi",&metphi_alt);
-  chain_2->SetBranchAddress("t1mumet",&mmet_alt);
-  chain_2->SetBranchAddress("t1mumetphi",&mmetphi_alt);
-  chain_2->SetBranchAddress("t1elmet",&emet_alt);
-  chain_2->SetBranchAddress("t1elmetphi",&emetphi_alt);
-  chain_2->SetBranchAddress("t1phmet",&pmet_alt);
-  chain_2->SetBranchAddress("t1phmetphi",&pmetphi_alt);
-  chain_2->SetBranchAddress("pfmet",&pfmet_alt);
-  chain_2->SetBranchAddress("pfmetphi",&pfmetphi_alt);
-  chain_2->SetBranchAddress("calomet",&metcalo_alt);
-  chain_2->SetBranchAddress("incjetmumetdphimin4",&incjetmumetdphimin4_alt);
-  chain_2->SetBranchAddress("incjetelmetdphimin4",&incjetelmetdphimin4_alt);
-  chain_2->SetBranchAddress("incjetphmetdphimin4",&incjetphmetdphimin4_alt);
-  chain_2->SetBranchAddress("mu1pid",&mu1pid_alt);
-  chain_2->SetBranchAddress("mu2pid",&mu2pid_alt);
-  chain_2->SetBranchAddress("mu1id",&mu1id_alt);
-  chain_2->SetBranchAddress("mu2id",&mu2id_alt);
-  chain_2->SetBranchAddress("mu1pt",&mu1pt_alt);
-  chain_2->SetBranchAddress("mu2pt",&mu2pt_alt);
-  chain_2->SetBranchAddress("mu1eta",&mu1eta_alt);
-  chain_2->SetBranchAddress("mu2eta",&mu2eta_alt);
-  chain_2->SetBranchAddress("mu1phi",&mu1phi_alt);
-  chain_2->SetBranchAddress("mu2phi",&mu2phi_alt);
-  chain_2->SetBranchAddress("el1pid",&el1pid_alt);
-  chain_2->SetBranchAddress("el2pid",&el2pid_alt);
-  chain_2->SetBranchAddress("el1id",&el1id_alt);
-  chain_2->SetBranchAddress("el2id",&el2id_alt);
-  chain_2->SetBranchAddress("el1pt",&el1pt_alt);
-  chain_2->SetBranchAddress("el2pt",&el2pt_alt);
-  chain_2->SetBranchAddress("el1eta",&el1eta_alt);
-  chain_2->SetBranchAddress("el2eta",&el2eta_alt);
-  chain_2->SetBranchAddress("el1phi",&el1phi_alt);
-  chain_2->SetBranchAddress("el2phi",&el2phi_alt);
-  chain_2->SetBranchAddress("phidm",&phidm_alt);
-  chain_2->SetBranchAddress("phpt",&phpt_alt);
-  chain_2->SetBranchAddress("pheta",&pheta_alt);
-  chain_2->SetBranchAddress("phphi",&phphi_alt);
-  chain_2->SetBranchAddress("wmt",&wmt_alt);
-  chain_2->SetBranchAddress("wemt",&wemt_alt);
-  chain_2->SetBranchAddress("zmass",&zmass_alt);
-  chain_2->SetBranchAddress("zeemass",&zeemass_alt);
-  chain_2->SetBranchAddress("zpt",&zpt_alt);
-  chain_2->SetBranchAddress("zeept",&zeept_alt);
-  chain_2->SetBranchAddress("zeta",&zeta_alt);
-  chain_2->SetBranchAddress("zeeeta",&zeeeta_alt);
-  chain_2->SetBranchAddress("zphi",&zphi_alt);
-  chain_2->SetBranchAddress("zeephi",&zeephi_alt);
-  chain_2->SetBranchAddress("boostedJetpt",&boostedJetpt_alt);
-  chain_2->SetBranchAddress("boostedJeteta",&boostedJeteta_alt);
-  chain_2->SetBranchAddress("boostedJetphi",&boostedJetphi_alt);
-  chain_2->SetBranchAddress("boostedJettau2",&boostedJettau2_alt);
-  chain_2->SetBranchAddress("boostedJettau1",&boostedJettau1_alt);
-  chain_2->SetBranchAddress("prunedJetm",&prunedJetm_alt);
-  chain_2->BuildIndex("run","event");
+  TTreeReader reader_1(chain_1);
+  // general info                                                                                                                                                                                     
+  TTreeReaderValue<unsigned int> run    (reader_1,"run");
+  TTreeReaderValue<unsigned int> lumi   (reader_1,"lumi");
+  TTreeReaderValue<unsigned int> event  (reader_1,"event");
+  TTreeReaderValue<UChar_t> hltm90      (reader_1,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm100     (reader_1,"hltmet100");
+  TTreeReaderValue<UChar_t> hltm110     (reader_1,"hltmet110");
+  TTreeReaderValue<UChar_t> hltm120     (reader_1,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120   (reader_1,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170   (reader_1,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300   (reader_1,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90    (reader_1,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hlte        (reader_1,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltenoiso   (reader_1,"hltelnoiso");
+  TTreeReaderValue<UChar_t> hltm        (reader_1,"hltsinglemu");
+  TTreeReaderValue<UChar_t> hltp165     (reader_1,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175     (reader_1,"hltphoton175");
+  TTreeReaderValue<UChar_t> fhbhe  (reader_1,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso (reader_1,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsct  (reader_1,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb   (reader_1,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp   (reader_1,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx   (reader_1,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu (reader_1,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (reader_1,"flagbadchpf");
+  TTreeReaderValue<UChar_t> fcsc   (reader_1,"flagglobaltighthalo");
+  TTreeReaderValue<unsigned int> njets      (reader_1,"njets");
+  TTreeReaderValue<unsigned int> nincjets   (reader_1,"njetsinc");
+  TTreeReaderValue<unsigned int> ntausraw   (reader_1,"ntausrawold");
+  TTreeReaderValue<unsigned int> nbjets     (reader_1,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> nmuons     (reader_1,"nmuons");
+  TTreeReaderValue<unsigned int> nphotons     (reader_1,"nphotons");
+  TTreeReaderValue<unsigned int> nelectrons     (reader_1,"nelectrons");
+  TTreeReaderValue<vector<float> > boostedJetpt    (reader_1,"boostedJetpt");
+  TTreeReaderValue<vector<float> > boostedJeteta   (reader_1,"boostedJeteta");
+  TTreeReaderValue<vector<float> > prunedJetm      (reader_1,"prunedJetm");
+  TTreeReaderValue<vector<float> > boostedJettau2  (reader_1,"boostedJettau2");
+  TTreeReaderValue<vector<float> > boostedJettau1  (reader_1,"boostedJettau1");
+  TTreeReaderValue<vector<float> > jeteta  (reader_1,"combinejeteta");
+  TTreeReaderValue<vector<float> > jetpt   (reader_1,"combinejetpt");
+  TTreeReaderValue<vector<float> > chfrac  (reader_1,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (reader_1,"combinejetNHfrac");
+  TTreeReaderValue<float> met         (reader_1,"t1pfmet");
+  TTreeReaderValue<float> metcalo     (reader_1,"calomet");
+  TTreeReaderValue<float> metphi      (reader_1,"t1pfmetphi");
+  TTreeReaderValue<float> mmet        (reader_1,"t1mumet");
+  TTreeReaderValue<float> mmetphi     (reader_1,"t1mumetphi");
+  TTreeReaderValue<float> emet        (reader_1,"t1elmet");
+  TTreeReaderValue<float> emetphi     (reader_1,"t1elmetphi");
+  TTreeReaderValue<float> pmet        (reader_1,"t1phmet");
+  TTreeReaderValue<float> pmetphi     (reader_1,"t1phmetphi");
+  TTreeReaderValue<float> jmmdphi (reader_1,"incjetmumetdphimin4");
+  TTreeReaderValue<float> jemdphi (reader_1,"incjetelmetdphimin4");
+  TTreeReaderValue<float> jpmdphi (reader_1,"incjetphmetdphimin4");
+  TTreeReaderValue<int>   mu1pid (reader_1,"mu1pid");
+  TTreeReaderValue<int>   mu2pid (reader_1,"mu2pid");
+  TTreeReaderValue<int>   mu1id  (reader_1,"mu1id");
+  TTreeReaderValue<int>   mu2id  (reader_1,"mu2id");
+  TTreeReaderValue<float> mu1pt  (reader_1,"mu1pt");
+  TTreeReaderValue<float> mu2pt  (reader_1,"mu2pt");
+  TTreeReaderValue<float> mu1eta (reader_1,"mu1eta");
+  TTreeReaderValue<float> mu2eta (reader_1,"mu2eta");
+  TTreeReaderValue<float> mu1phi (reader_1,"mu1phi");
+  TTreeReaderValue<float> mu2phi (reader_1,"mu2phi");
+  TTreeReaderValue<int>   el1pid (reader_1,"el1pid");
+  TTreeReaderValue<int>   el2pid (reader_1,"el2pid");
+  TTreeReaderValue<int>   el1id  (reader_1,"el1id");
+  TTreeReaderValue<int>   el2id  (reader_1,"el2id");
+  TTreeReaderValue<float> el1pt  (reader_1,"el1pt");
+  TTreeReaderValue<float> el2pt  (reader_1,"el2pt");
+  TTreeReaderValue<float> el1eta (reader_1,"el1eta");
+  TTreeReaderValue<float> el2eta (reader_1,"el2eta");
+  TTreeReaderValue<float> el1phi (reader_1,"el1phi");
+  TTreeReaderValue<float> el2phi (reader_1,"el2phi");
+  TTreeReaderValue<int>   phidm  (reader_1,"phidm");
+  TTreeReaderValue<float> phpt   (reader_1,"phpt");
+  TTreeReaderValue<float> pheta  (reader_1,"pheta");
+  TTreeReaderValue<float> phphi  (reader_1,"phphi");
+  TTreeReaderValue<float> wmt    (reader_1,"wmt");
+  TTreeReaderValue<float> wemt   (reader_1,"wemt");
+  TTreeReaderValue<float> zmass  (reader_1,"zmass");
+  TTreeReaderValue<float> zeemass(reader_1,"zeemass");
+  TTreeReaderValue<float> zmmpt  (reader_1,"zpt");
+  TTreeReaderValue<float> zeept  (reader_1,"zeept");
+  TTreeReaderValue<float> zeeeta (reader_1,"zeeeta");
+  TTreeReaderValue<float> zeephi (reader_1,"zeephi");
+  TTreeReaderValue<float> zmmeta (reader_1,"zeta");
+  TTreeReaderValue<float> zmmphi (reader_1,"zphi");
 
   cout<<"Number of events in chain 1 "<<chain_1->GetEntries()<<endl;
-  cout<<"Number of events in chain 2 "<<chain_2->GetEntries()<<endl;
 
   long int nEvents = 0;
   int nPart        = 10000;
   long int nTotal  = chain_1->GetEntries();
-  long int notMatchedEvents = 0;
-  long int effectiveEntries = 0;
 
-  for(long int entry = 0; entry < chain_1->GetEntries(); entry++){
+  vector<eventID> eventPassing_chain1;
 
-    int entry_status = chain_1->GetEntry(entry);
-    if(entry_status <= 0) continue;
+  while(reader_1.Next()){
+
+    bosonpt = 0; bosoneta = 0; bosonphi = 0; recoil = 0; recoilphi = 0; pfmet = 0; pfmetphi = 0; leadingjetpt = 0; leadingjeteta = 0; secondjetpt = 0; secondjeteta = 0;
+    njetcentral = 0; njetinclusive = 0; runnumber = 0; eventnumber = 0;
+    
 
     cout.flush();
     if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 1 "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
 
-    if(useOnlyICHEP and run > 276242) continue;
+    if(useOnlyICHEP and *run > 276811) continue;
 
     // recoil
-    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and mmet < recoilSelection) continue;
-    else if((sample == Sample::wen or sample == Sample::zee) and emet < recoilSelection) continue;
-    else if(sample == Sample::gam and pmet < recoilSelection) continue;
+    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *mmet < recoilSelection) continue;
+    else if((sample == Sample::wen or sample == Sample::zee) and *emet < recoilSelection) continue;
+    else if(sample == Sample::gam and *pmet < recoilSelection) continue;
 
     /// jets
-    if(njets < 1 and (category == Category::monojet or category == Category::monoV)) continue;
-    else if(category == Category::VBF and nincjets < 2) continue;
+    if(*njets < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+    else if(category == Category::VBF and *nincjets < 2) continue;
+
     // vetos
-    if(ntausraw != 0 ) continue;
-    if(nbjets != 0) continue;
+    if(*ntausraw != 0) continue;
+    if(*nbjets != 0) continue;
 
     /// apply met filters
-    if(not fhbhe or not fhbiso or not fcsct or not feeb or not feeb or not fetp or not fvtx or not fbadmu or not fbadch or not fcsc) continue;
+    if(not *fhbhe or not *fhbiso or not *fcsct or not *feeb or not *feeb or not *fetp or not *fvtx or not *fbadmu or not *fbadch or not *fcsc) continue;
 
         ////////
     int hlt = 0;
     if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
-      hlt = hltm90+hltm100+hltm110+hltm120+hltmwm120+hltmwm170+hltmwm300+hltmwm90;
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
     else if(sample == Sample::wen or sample == Sample::zee)
-      hlt = hlte+hltenoiso;
+      hlt = *hlte+*hltenoiso;
     else if(sample == Sample::gam)
-      hlt = hltp165+hltp175;
+      hlt = *hltp165+*hltp175;
     
     if(not hlt) continue;
      
     // tag objets
-    if(sample == Sample::wen and (el1pt < 40 or el1id != 1 or wemt > 160 or pfmet < 50 or nmuons != 0 or nphotons != 0 or nelectrons != 1)) continue;
-    else if(sample == Sample::wmn and (mu1pt < 20 or mu1id != 1 or wmt > 160 or nelectrons != 0 or nphotons != 0 or nmuons != 1)) continue;
-    else if(sample == Sample::gam and (phpt < 120 or fabs(pheta) > 1.442 or phidm != 1 or nmuons != 0 or nelectrons != 0 or nphotons != 1)) continue;
-    else if(sample == Sample::zmm and (not ((mu1pt > 20 and mu1id == 1 and fabs(mu1eta) < 2.4) or (mu2pt > 20 and mu2id == 1 and fabs(mu1eta) < 2.4)) or 
-				       zmass < 60 or zmass > 120 or mu1id == mu2id or nelectrons != 0 or nphotons != 0 or nmuons != 2)) continue;
-    else if(sample == Sample::zee and (not ((el1pt > 40 and el1id == 1 and fabs(el1eta) < 2.5) or (el2pt > 40 and el2id == 1 and fabs(el1eta) < 2.45)) or 
-				       zeemass < 60 or zeemass > 120 or el1id == el2id or nmuons != 0 or nphotons != 0 or nelectrons != 2)) continue;
+    if(sample == Sample::wen and (*el1pt < 40 or *el1id != 1 or *wemt > 160 or *met < 50 or *nmuons != 0 or *nphotons != 0 or *nelectrons != 1)) continue;
+    else if(sample == Sample::wmn and (*mu1pt < 20 or *mu1id != 1 or *wmt > 160 or *nelectrons != 0 or *nphotons != 0 or *nmuons != 1)) continue;
+    else if(sample == Sample::gam and (*phpt < 175 or fabs(*pheta) > 1.442 or *phidm != 1 or *nmuons != 0 or *nelectrons != 0 or *nphotons != 1)) continue;
+    else if(sample == Sample::zmm and (not ((*mu1pt > 20 and *mu1id == 1 and fabs(*mu1eta) < 2.4) or (*mu2pt > 20 and *mu2id == 1 and fabs(*mu1eta) < 2.4)) or 
+				       *zmass < 60 or *zmass > 120 or *mu1id == *mu2id or *nelectrons != 0 or *nphotons != 0 or *nmuons != 2)) continue;
+    else if(sample == Sample::zee and (not ((*el1pt > 40 and *el1id == 1 and fabs(*el1eta) < 2.5) or (*el2pt > 40 and *el2id == 1 and fabs(*el1eta) < 2.45)) or 
+				       *zeemass < 60 or *zeemass > 120 or *el1id == *el2id or *nmuons != 0 or *nphotons != 0 or *nelectrons != 2)) continue;
     // min-dphi
-    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and incjetmumetdphimin4 < 0.5) continue;
-    else if((sample == Sample::wen or sample == Sample::zee) and incjetelmetdphimin4 < 0.5) continue;
-    else if(sample == Sample::gam and incjetphmetdphimin4 < 0.5) continue;
+    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *jmmdphi < 0.5) continue;
+    else if((sample == Sample::wen or sample == Sample::zee) and *jemdphi < 0.5) continue;
+    else if(sample == Sample::gam and *jpmdphi < 0.5) continue;
 
 
     //
-    Double_t metden = 0.0;
-    if (sample == Sample::sig || sample == Sample::qcd) {metden = mmet;}
-    else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = mmet;}
-    else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = emet;}
-    else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = pmet;}    
-    if(fabs(met-metcalo)/metden > 0.5) continue;
+    Double_t metden = 0.0;    
+    if (sample == Sample::sig || sample == Sample::qcd) {metden = *mmet;}
+    else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = *mmet;}
+    else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = *emet;}
+    else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = *pmet;}    
+    if(fabs(*met-*metcalo)/metden > 0.5) continue;
 
     if(category == Category::monojet){
 
@@ -558,258 +392,556 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
 	 prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and metden > 250)
 	goodMonoV = true;
       if(goodMonoV) continue;     
-      
-      effectiveEntries++;
-      // access to the other tree
-      entry_status = chain_2->GetEntryWithIndex(run,event);
-
-      if(entry_status > 0){
-	
-	if(run != run_alt or lumi != lumi_alt or event != event_alt){
-	  cerr<<"Problem in associating: [run,lumi,event] = ["<<run<<","<<lumi<<","<<event<<"] with ["<<run_alt<<","<<lumi_alt<<","<<event_alt<<"]"<<endl;
-	  continue;
-	}
-
-	if(sample == Sample::zmm){
-	  bosonpt_histo->Fill(zpt-zpt_alt);
-	  bosoneta_histo->Fill(zeta-zeta_alt);
-	  bosonphi_histo->Fill(zphi-zphi_alt);
-	  recoil_histo->Fill(mmet-mmet_alt);
-	  recoilphi_histo->Fill(mmetphi-mmetphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-
-	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
-	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
-	  njet_histo->Fill(njets-njets_alt);
-	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
-
-	}
-	else if(sample == Sample::zee){
-	  bosonpt_histo->Fill(zeept-zeept_alt);
-	  bosoneta_histo->Fill(zeeeta-zeeeta_alt);
-	  bosonphi_histo->Fill(zeephi-zeephi_alt);
-	  recoil_histo->Fill(emet-emet_alt);
-	  recoilphi_histo->Fill(emetphi-emetphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-
-	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
-	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
-	  njet_histo->Fill(njets-njets_alt);
-	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
-
-	}
-	else if(sample == Sample::wen){
-	  bosonpt_histo->Fill(el1pt-el1pt_alt);
-	  bosoneta_histo->Fill(el1eta-el1eta_alt);
-	  bosonphi_histo->Fill(el1phi-el1phi_alt);
-	  recoil_histo->Fill(emet-emet_alt);
-	  recoilphi_histo->Fill(emetphi-emetphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-	}
-	else if(sample == Sample::wmn){
-	  bosonpt_histo->Fill(mu1pt-mu1pt_alt);
-	  bosoneta_histo->Fill(mu1eta-mu1eta_alt);
-	  bosonphi_histo->Fill(mu1phi-mu1phi_alt);
-	  recoil_histo->Fill(mmet-mmet_alt);
-	  recoilphi_histo->Fill(mmetphi-mmetphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-
-	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
-	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
-	  njet_histo->Fill(njets-njets_alt);
-	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
-
-	}
-	else if(sample == Sample::gam){	
-	  
-	  bosonpt_histo->Fill(phpt-phpt_alt);
-	  bosoneta_histo->Fill(pheta-pheta_alt);
-	  bosonphi_histo->Fill(phphi-phphi_alt);
-	  recoil_histo->Fill(pmet-pmet_alt);
-	  recoilphi_histo->Fill(pmetphi-pmetphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);
-	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
-	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
-	  njet_histo->Fill(double(njets)-double(njets_alt));
-	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
-	  
-	  bosonpt_histo_2D->Fill(phpt,phpt_alt);
-	  bosoneta_histo_2D->Fill(pheta,pheta_alt);
-	  bosonphi_histo_2D->Fill(phphi,phphi_alt);
-	  recoil_histo_2D->Fill(pmet,pmet_alt);
-	  recoilphi_histo_2D->Fill(pmetphi,pmetphi_alt);
-	  pfmet_histo_2D->Fill(pfmet,pfmet_alt);
-	  pfmetphi_histo_2D->Fill(pfmetphi,pfmetphi_alt);
-	  jetpt_histo_2D->Fill(jetpt->at(0),jetpt_alt->at(0));
-	  jeteta_histo_2D->Fill(jeteta->at(0),jeteta_alt->at(0));
-	  njet_histo_2D->Fill(double(njets),double(njets_alt));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30){
-	    jetpt2_histo_2D->Fill(jetpt->at(1),jetpt_alt->at(1));
-	    jeteta2_histo_2D->Fill(jeteta->at(1),jeteta_alt->at(1));  
-	  }
-	}
-	else if(sample == Sample::sig){
-	  recoil_histo->Fill(met-met_alt);
-	  recoilphi_histo->Fill(metphi-metphi_alt);
-	  pfmet_histo->Fill(pfmet-pfmet_alt);
-	  pfmetphi_histo->Fill(pfmetphi-pfmetphi_alt);	  
-	  jetpt_histo->Fill(jetpt->at(0)-jetpt_alt->at(0));
-	  jeteta_histo->Fill(jeteta->at(0)-jeteta_alt->at(0));
-	  njet_histo->Fill(njets-njets_alt);
-	  if(jetpt->size() > 1 and jetpt_alt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo->Fill(jetpt->at(1)-jetpt_alt->at(1));
-	  if(jeteta->size() > 1 and jeteta_alt->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo->Fill(jeteta->at(1)-jeteta_alt->at(1));
-
-	}
-      }
-      else{ // events only in re-reco
-	notMatchedEvents++;
-	if(sample == Sample::gam){
-	  bosonpt_histo_only1->Fill(phpt);
-	  bosoneta_histo_only1->Fill(pheta);
-	  bosonphi_histo_only1->Fill(phphi);
-	  recoil_histo_only1->Fill(pmet);
-	  recoilphi_histo_only1->Fill(pmetphi);
-	  pfmet_histo_only1->Fill(pfmet);
-	  pfmetphi_histo_only1->Fill(pfmetphi);
-	  jetpt_histo_only1->Fill(jetpt->at(0));
-	  jeteta_histo_only1->Fill(jeteta->at(0));
-	  njet_histo_only1->Fill(njets);
-	  if(jetpt->size() > 1 and jetpt->at(1) > 30)
-	    jetpt2_histo_only1->Fill(jetpt->at(1));
-	  if(jeteta->size() > 1 and jetpt->at(1) > 30)
-	    jeteta2_histo_only1->Fill(jeteta->at(1));
-	}
-      }
     }
-  }
-  cout<<"Number of unmatched events that are in chain_1 but not in chain_2 is "<<notMatchedEvents<<" over "<<effectiveEntries<<" i.e. "<<100*double(notMatchedEvents)/effectiveEntries<<" %"<<endl;
 
-  effectiveEntries = 0;
-  notMatchedEvents = 0;
+    eventPassing_chain1.push_back(eventID(*event,*run));
 
-  if(doOppositeMatching){
-    // events in 2 but not in 1
-    nEvents = 0;
-    nPart   = 10000;
-    nTotal  = chain_1->GetEntries();
-    for(long int entry = 0; entry < chain_2->GetEntries(); entry++){
-      
-      int entry_status = chain_2->GetEntry(entry);
-      if(entry_status <= 0) continue;
-      
-      cout.flush();
-      if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 2 "<<double(nEvents)/nTotal*100<<" % ";
-      nEvents++;
-      
-      if(useOnlyICHEP and run_alt > 276242) continue;
-
-      // recoil
-      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and mmet_alt < recoilSelection) continue;
-      else if((sample == Sample::wen or sample == Sample::zee) and emet_alt < recoilSelection) continue;
-      else if(sample == Sample::gam and pmet_alt < recoilSelection) continue;
-            
-      ////////
-      int hlt = 0;
-      if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
-	hlt = hltm90_alt+hltm100_alt+hltm110_alt+hltm120_alt+hltmwm120_alt+hltmwm170_alt+hltmwm300_alt+hltmwm90_alt;
-      else if(sample == Sample::wen or sample == Sample::zee)
-	hlt = hlte_alt+hltenoiso_alt;
-      else if(sample == Sample::gam)
-	hlt = hltp165_alt+hltp175_alt;
-      
-      if(not hlt) continue;
-
-      /// apply met filters
-      if(not fhbhe_alt or not fhbiso_alt or not fcsct_alt or not feeb_alt or not feeb_alt or not fetp_alt or not fvtx_alt or not fbadmu_alt or not fbadch_alt or not fcsc_alt) continue;
-
-      /// jets
-      if(njets_alt < 1 and (category == Category::monojet or category == Category::monoV)) continue;
-      else if(category == Category::VBF and nincjets_alt < 2) continue;
-      // vetos
-      if(ntausraw_alt != 0 ) continue;
-      if(nbjets_alt != 0) continue;
-      
-      // tag objets
-      if(sample == Sample::wen and (el1pt_alt < 40 or el1id_alt != 1 or wemt_alt > 160 or pfmet_alt < 50 or nmuons_alt != 0 or nphotons_alt != 0 or nelectrons_alt != 1)) continue;
-      else if(sample == Sample::wmn and (mu1pt_alt < 20 or mu1id_alt != 1 or wmt_alt > 160 or nelectrons_alt != 0 or nphotons_alt != 0 or nmuons_alt != 1)) continue;
-      else if(sample == Sample::gam and (phpt_alt < 120 or fabs(pheta_alt) > 1.442 or phidm_alt != 1 or nmuons_alt != 0 or nelectrons_alt != 0 or nphotons_alt != 1)) continue;
-      else if(sample == Sample::zmm and (not ((mu1pt > 20 and mu1id_alt == 1 and fabs(mu1eta_alt) < 2.4) or (mu2pt_alt > 20 and mu2id_alt == 1 and fabs(mu1eta_alt) < 2.4)) or 
-					 zmass_alt < 60 or zmass_alt > 120 or mu1id_alt == mu2id_alt or nelectrons_alt != 0 or nphotons_alt != 0 or nmuons_alt != 2)) continue;
-      else if(sample == Sample::zee and (not ((el1pt_alt > 40 and el1id_alt == 1 and fabs(el1eta_alt) < 2.5) or (el2pt_alt > 40 and el2id_alt == 1 and fabs(el1eta_alt) < 2.45)) or 
-					 zeemass_alt < 60 or zeemass_alt > 120 or el1id_alt == el2id_alt or nmuons_alt != 0 or nphotons_alt != 0 or nelectrons_alt != 1)) continue;
-      // min-dphi
-      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and incjetmumetdphimin4_alt < 0.5) continue;
-      else if((sample == Sample::wen or sample == Sample::zee) and incjetelmetdphimin4_alt < 0.5) continue;
-      else if(sample == Sample::gam and incjetphmetdphimin4_alt < 0.5) continue;
-      
-      //
-      Double_t metden = 0.0;
-      if (sample == Sample::sig || sample == Sample::qcd) {metden = mmet_alt;}
-      else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = mmet_alt;}
-      else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = emet_alt;}
-      else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = pmet_alt;}    
-      if(fabs(met-metcalo_alt)/metden > 0.5) continue;
-      
-      if(category == Category::monojet){
-	
-	if(jetpt_alt->at(0) < 100) continue;
-	if(fabs(jeteta_alt->at(0)) > 2.5) continue;
-	if(chfrac_alt->at(0) < 0.1) continue;
-	if(nhfrac_alt->at(0) > 0.8) continue;
-	bool goodMonoV = false;
-	
-	if(boostedJetpt_alt->size() != 0 and boostedJetpt_alt->at(0) > 250 and fabs(boostedJeteta_alt->at(0)) < 2.4 and boostedJettau2_alt->at(0)/boostedJettau1_alt->at(0) < 0.6 and 
-	   prunedJetm_alt->at(0) > 65 and prunedJetm_alt->at(0) < 105 and metden > 250)
-	  goodMonoV = true;
-	if(goodMonoV) continue;     
-	
-	effectiveEntries++;
-	// access to the other tree
-	entry_status = chain_2->GetEntryWithIndex(run,event);
-	if(entry_status <= 0){
-	  notMatchedEvents++;
-	  if(sample == Sample::gam){
-	    bosonpt_histo_only2->Fill(phpt_alt);
-	    bosoneta_histo_only2->Fill(pheta_alt);
-	    bosonphi_histo_only2->Fill(phphi_alt);
-	    recoil_histo_only2->Fill(pmet_alt);
-	    recoilphi_histo_only2->Fill(pmetphi_alt);
-	    pfmet_histo_only2->Fill(pfmet_alt);
-	    pfmetphi_histo_only2->Fill(pfmetphi_alt);
-	    jetpt_histo_only2->Fill(jetpt_alt->at(0));
-	    jeteta_histo_only2->Fill(jeteta_alt->at(0));
-	    njet_histo_only2->Fill(njets_alt);
-	    if(jetpt_alt->size() > 1 and jetpt_alt->at(1) > 30)
-	      jetpt2_histo_only2->Fill(jetpt_alt->at(1));
-	    if(jeteta_alt->size() > 1 and jetpt_alt->at(1) > 30)
-	      jeteta2_histo_only2->Fill(jeteta_alt->at(1));
-	  }
-	}
+    if (sample == Sample::sig || sample == Sample::qcd){ 
+      bosonpt = *mmet; bosoneta = 0; bosonphi = *mmetphi; recoil = *mmet; recoilphi = *mmetphi; pfmet = *mmet; pfmetphi = *mmetphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
       }
+      jetmetdphi = *jmmdphi;
     }
+    else if (sample == Sample::zmm){
+      TLorentzVector mu1, mu2;
+      mu1.SetPtEtaPhiM(*mu1pt,*mu1eta,*mu1phi,0);
+      mu2.SetPtEtaPhiM(*mu2pt,*mu2eta,*mu2phi,0);
+      bosonpt = (mu1+mu2).Pt(); bosoneta = (mu1+mu2).Eta(); bosonphi = (mu1+mu2).Phi(); recoil = *mmet; recoilphi = *mmetphi; pfmet = *met; pfmetphi = *metphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
+      }      
+      jetmetdphi = *jmmdphi;
+    }
+    else if (sample == Sample::zee){
+      TLorentzVector el1, el2;
+      el1.SetPtEtaPhiM(*el1pt,*el1eta,*el1phi,0);
+      el2.SetPtEtaPhiM(*el2pt,*el2eta,*el2phi,0);
+      bosonpt = (el1+el2).Pt(); bosoneta = (el1+el2).Eta(); bosonphi = (el1+el2).Phi(); recoil = *emet; recoilphi = *emetphi; pfmet = *met; pfmetphi = *metphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
+      }      
+      jetmetdphi = *jemdphi;
+    }
+    else if (sample == Sample::wen){
+      bosonpt = *el1pt; bosoneta = *el1eta; bosonphi = *el1phi; recoil = *emet; recoilphi = *emetphi; pfmet = *met; pfmetphi = *metphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
+      }      
+      jetmetdphi = *jemdphi;
+    }
+    else if (sample == Sample::wmn){
+      bosonpt = *mu1pt; bosoneta = *mu1eta; bosonphi = *mu1phi; recoil = *mmet; recoilphi = *mmetphi; pfmet = *met; pfmetphi = *metphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
+      }      
+      jetmetdphi = *jmmdphi;
+    }
+    else if (sample == Sample::gam){
+      bosonpt = *phpt; bosoneta = *pheta; bosonphi = *phphi; recoil = *pmet; recoilphi = *pmetphi; pfmet = *met; pfmetphi = *metphi; 
+      leadingjetpt = jetpt->at(0); leadingjeteta =  jeteta->at(0); njetcentral = *njets; njetinclusive = *nincjets; runnumber = *run; eventnumber = *event;
+      if(jetpt->size() > 1){
+	secondjetpt = jetpt->at(1);
+	secondjeteta = jeteta->at(1);
+      }      
+      jetmetdphi = *jpmdphi;
+    }
+    tree_1->Fill();
   }
+  cout<<endl;
+  cout<<"Number of events passing selections in chain_1 is "<<eventPassing_chain1.size()<<endl;
+  tree_1->Write();
 
-  cout<<"Number of unmatched events that are in chain_2 but not in chain_1 is "<<notMatchedEvents<<" over "<<effectiveEntries<<" i.e. "<<100*double(notMatchedEvents)/effectiveEntries<<" %"<<endl;
+  ///////////
+  TTreeReader reader_2(chain_2);
+  // general info                                                                                                                                                                                     
+  TTreeReaderValue<unsigned int> run_alt    (reader_2,"run");
+  TTreeReaderValue<unsigned int> lumi_alt   (reader_2,"lumi");
+  TTreeReaderValue<unsigned int> event_alt  (reader_2,"event");
+  TTreeReaderValue<UChar_t> hltm90_alt      (reader_2,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm100_alt     (reader_2,"hltmet100");
+  TTreeReaderValue<UChar_t> hltm110_alt     (reader_2,"hltmet110");
+  TTreeReaderValue<UChar_t> hltm120_alt     (reader_2,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm120_alt   (reader_2,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170_alt   (reader_2,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300_alt   (reader_2,"hltmetwithmu300");
+  TTreeReaderValue<UChar_t> hltmwm90_alt    (reader_2,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hlte_alt        (reader_2,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltenoiso_alt   (reader_2,"hltelnoiso");
+  TTreeReaderValue<UChar_t> hltm_alt        (reader_2,"hltsinglemu");
+  TTreeReaderValue<UChar_t> hltp165_alt     (reader_2,"hltphoton165");
+  TTreeReaderValue<UChar_t> hltp175_alt     (reader_2,"hltphoton175");
+  TTreeReaderValue<UChar_t> fhbhe_alt  (reader_2,"flaghbhenoise");
+  TTreeReaderValue<UChar_t> fhbiso_alt (reader_2,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsct_alt  (reader_2,"flagcsctight");
+  TTreeReaderValue<UChar_t> feeb_alt   (reader_2,"flageebadsc");
+  TTreeReaderValue<UChar_t> fetp_alt   (reader_2,"flagecaltp");
+  TTreeReaderValue<UChar_t> fvtx_alt   (reader_2,"flaggoodvertices");
+  TTreeReaderValue<UChar_t> fbadmu_alt (reader_2,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch_alt (reader_2,"flagbadchpf");
+  TTreeReaderValue<UChar_t> fcsc_alt   (reader_2,"flagglobaltighthalo");
+  TTreeReaderValue<unsigned int> njets_alt      (reader_2,"njets");
+  TTreeReaderValue<unsigned int> nincjets_alt   (reader_2,"njetsinc");
+  TTreeReaderValue<unsigned int> ntausraw_alt   (reader_2,"ntausraw");
+  TTreeReaderValue<unsigned int> nbjets_alt     (reader_2,"nbjetslowpt");
+  TTreeReaderValue<unsigned int> nmuons_alt     (reader_2,"nmuons");
+  TTreeReaderValue<unsigned int> nphotons_alt     (reader_2,"nphotons");
+  TTreeReaderValue<unsigned int> nelectrons_alt     (reader_2,"nelectrons");
+  TTreeReaderValue<vector<double> > boostedJetpt_alt    (reader_2,"boostedJetpt");
+  TTreeReaderValue<vector<double> > boostedJeteta_alt   (reader_2,"boostedJeteta");
+  TTreeReaderValue<vector<double> > prunedJetm_alt      (reader_2,"prunedJetm");
+  TTreeReaderValue<vector<double> > boostedJettau2_alt  (reader_2,"boostedJettau2");
+  TTreeReaderValue<vector<double> > boostedJettau1_alt  (reader_2,"boostedJettau1");
+  TTreeReaderValue<vector<double> > jeteta_alt  (reader_2,"combinejeteta");
+  TTreeReaderValue<vector<double> > jetpt_alt   (reader_2,"combinejetpt");
+  TTreeReaderValue<vector<double> > chfrac_alt  (reader_2,"combinejetCHfrac");
+  TTreeReaderValue<vector<double> > nhfrac_alt  (reader_2,"combinejetNHfrac");
+  TTreeReaderValue<double> met_alt         (reader_2,"t1pfmet");
+  TTreeReaderValue<double> metcalo_alt     (reader_2,"calomet");
+  TTreeReaderValue<double> metphi_alt      (reader_2,"t1pfmetphi");
+  TTreeReaderValue<double> mmet_alt        (reader_2,"t1mumet");
+  TTreeReaderValue<double> mmetphi_alt     (reader_2,"t1mumetphi");
+  TTreeReaderValue<double> emet_alt        (reader_2,"t1elmet");
+  TTreeReaderValue<double> emetphi_alt     (reader_2,"t1elmetphi");
+  TTreeReaderValue<double> pmet_alt        (reader_2,"t1phmet");
+  TTreeReaderValue<double> pmetphi_alt     (reader_2,"t1phmetphi");
+  TTreeReaderValue<double> jmmdphi_alt (reader_2,"incjetmumetdphimin4");
+  TTreeReaderValue<double> jemdphi_alt (reader_2,"incjetelmetdphimin4");
+  TTreeReaderValue<double> jpmdphi_alt (reader_2,"incjetphmetdphimin4");
+  TTreeReaderValue<int>   mu1pid_alt (reader_2,"mu1pid");
+  TTreeReaderValue<int>   mu2pid_alt (reader_2,"mu2pid");
+  TTreeReaderValue<int>   mu1id_alt  (reader_2,"mu1id");
+  TTreeReaderValue<int>   mu2id_alt  (reader_2,"mu2id");
+  TTreeReaderValue<double> mu1pt_alt  (reader_2,"mu1pt");
+  TTreeReaderValue<double> mu2pt_alt  (reader_2,"mu2pt");
+  TTreeReaderValue<double> mu1eta_alt (reader_2,"mu1eta");
+  TTreeReaderValue<double> mu2eta_alt (reader_2,"mu2eta");
+  TTreeReaderValue<double> mu1phi_alt (reader_2,"mu1phi");
+  TTreeReaderValue<double> mu2phi_alt (reader_2,"mu2phi");
+  TTreeReaderValue<int>   el1pid_alt (reader_2,"el1pid");
+  TTreeReaderValue<int>   el2pid_alt (reader_2,"el2pid");
+  TTreeReaderValue<int>   el1id_alt  (reader_2,"el1id");
+  TTreeReaderValue<int>   el2id_alt  (reader_2,"el2id");
+  TTreeReaderValue<double> el1pt_alt  (reader_2,"el1pt");
+  TTreeReaderValue<double> el2pt_alt  (reader_2,"el2pt");
+  TTreeReaderValue<double> el1eta_alt (reader_2,"el1eta");
+  TTreeReaderValue<double> el2eta_alt (reader_2,"el2eta");
+  TTreeReaderValue<double> el1phi_alt (reader_2,"el1phi");
+  TTreeReaderValue<double> el2phi_alt (reader_2,"el2phi");
+  TTreeReaderValue<int>    phidm_alt  (reader_2,"phidm");
+  TTreeReaderValue<double> phpt_alt   (reader_2,"phpt");
+  TTreeReaderValue<double> pheta_alt  (reader_2,"pheta");
+  TTreeReaderValue<double> phphi_alt  (reader_2,"phphi");
+  TTreeReaderValue<double> wmt_alt    (reader_2,"wmt");
+  TTreeReaderValue<double> wemt_alt   (reader_2,"wemt");
+  TTreeReaderValue<double> zmass_alt  (reader_2,"zmass");
+  TTreeReaderValue<double> zeemass_alt (reader_2,"zeemass");
+  TTreeReaderValue<double> zmmpt_alt  (reader_2,"zpt");
+  TTreeReaderValue<double> zeept_alt  (reader_2,"zeept");
+  TTreeReaderValue<double> zeeeta_alt (reader_2,"zeeeta");
+  TTreeReaderValue<double> zeephi_alt (reader_2,"zeephi");
+  TTreeReaderValue<double> zmmeta_alt (reader_2,"zeta");
+  TTreeReaderValue<double> zmmphi_alt (reader_2,"zphi");
+
+
+  TTree* tree_2 = new TTree("tree_2","tree_2");
+
+  bosonpt = 0, bosoneta = 0, bosonphi = 0, recoil = 0, recoilphi = 0, pfmet = 0, pfmetphi = 0, leadingjetpt = 0, leadingjeteta = 0, secondjetpt = 0, secondjeteta = 0; jetmetdphi = 0;
+  njetcentral = 0, njetinclusive = 0, runnumber = 0, eventnumber = 0;
+
+  tree_2->Branch("bosonpt",&bosonpt,"bosonpt/F");
+  tree_2->Branch("bosoneta",&bosoneta,"bosoneta/F");
+  tree_2->Branch("bosonphi",&bosoneta,"bosonphi/F");
+  tree_2->Branch("recoil",&recoil,"recoil/F");
+  tree_2->Branch("recoilphi",&recoilphi,"recoilphi/F");
+  tree_2->Branch("pfmet",&pfmet,"pfmet/F");
+  tree_2->Branch("pfmetphi",&pfmetphi,"pfmetphi/F");
+  tree_2->Branch("leadingjetpt",&leadingjetpt,"leadingjetpt/F");
+  tree_2->Branch("leadingjeteta",&leadingjeteta,"leadingjeteta/F");
+  tree_2->Branch("secondjetpt",&secondjetpt,"secondjetpt/F");
+  tree_2->Branch("secondjeteta",&secondjeteta,"secondjeteta/F");
+  tree_2->Branch("jetmetdphi",&jetmetdphi,"jetmetdphi/F");
+  tree_2->Branch("njetcentral",&njetcentral,"njetcentral/i");
+  tree_2->Branch("njetinclusive",&njetinclusive,"njetinclusive/i");
+  tree_2->Branch("runnumber",&runnumber,"runnumber/i");
+  tree_2->Branch("eventnumber",&eventnumber,"eventnumber/i");
+
+  cout<<"Number of events in chain 2 "<<chain_2->GetEntries()<<endl;
+  nEvents = 0;
+  nPart        = 10000;
+  nTotal  = chain_2->GetEntries();
+
+  vector<eventID> eventPassing_chain2;
+
+  while(reader_2.Next()){
+
+    bosonpt = 0, bosoneta = 0, bosonphi = 0, recoil = 0, recoilphi = 0, pfmet = 0, pfmetphi = 0, leadingjetpt = 0, leadingjeteta = 0, secondjetpt = 0, secondjeteta = 0; jetmetdphi = 0;
+    njetcentral = 0, njetinclusive = 0, runnumber = 0, eventnumber = 0;
+
+    cout.flush();
+    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 1 "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+
+    if(useOnlyICHEP and *run_alt > 276811) continue;
+
+    // recoil
+    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *mmet_alt < recoilSelection) continue;
+    else if((sample == Sample::wen or sample == Sample::zee) and *emet_alt < recoilSelection) continue;
+    else if(sample == Sample::gam and *pmet_alt < recoilSelection) continue;
+
+    /// jets
+    if(*njets_alt < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+    else if(category == Category::VBF and *nincjets_alt < 2) continue;
+
+    // vetos
+    if(*ntausraw_alt != 0) continue;
+    if(*nbjets_alt != 0) continue;
+
+    /// apply met filters
+    if(not *fhbhe_alt or not *fhbiso_alt or not *fcsct_alt or not *feeb_alt or not *feeb_alt or not *fetp_alt or not *fvtx_alt or not *fbadmu_alt or not *fbadch_alt or not *fcsc_alt) continue;
+
+        ////////
+    int hlt = 0;
+    if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
+      hlt = *hltm90_alt+*hltm100_alt+*hltm110_alt+*hltm120_alt+*hltmwm120_alt+*hltmwm170_alt+*hltmwm300_alt+*hltmwm90_alt;
+    else if(sample == Sample::wen or sample == Sample::zee)
+      hlt = *hlte_alt+*hltenoiso_alt;
+    else if(sample == Sample::gam)
+      hlt = *hltp165_alt+*hltp175_alt;
+    
+    if(not hlt) continue;
+     
+    // tag objets
+    if(sample == Sample::wen and (*el1pt_alt < 40 or *el1id_alt != 1 or *wemt_alt > 160 or *met_alt < 50 or *nmuons_alt != 0 or *nphotons_alt != 0 or *nelectrons_alt != 1)) continue;
+    else if(sample == Sample::wmn and (*mu1pt_alt < 20 or *mu1id_alt != 1 or *wmt_alt > 160 or *nelectrons_alt != 0 or *nphotons_alt != 0 or *nmuons_alt != 1)) continue;
+    else if(sample == Sample::gam and (*phpt_alt < 175 or fabs(*pheta_alt) > 1.442 or *phidm_alt != 1 or *nmuons_alt != 0 or *nelectrons_alt != 0 or *nphotons_alt != 1)) continue;
+    else if(sample == Sample::zmm and (not ((*mu1pt_alt > 20 and *mu1id_alt == 1 and fabs(*mu1eta_alt) < 2.4) or (*mu2pt_alt > 20 and *mu2id_alt == 1 and fabs(*mu1eta_alt) < 2.4)) or 
+				       *zmass_alt < 60 or *zmass_alt > 120 or *mu1id_alt == *mu2id_alt or *nelectrons_alt != 0 or *nphotons_alt != 0 or *nmuons_alt != 2)) continue;
+    else if(sample == Sample::zee and (not ((*el1pt_alt > 40 and *el1id_alt == 1 and fabs(*el1eta_alt) < 2.5) or (*el2pt_alt > 40 and *el2id_alt == 1 and fabs(*el1eta_alt) < 2.45)) or 
+				       *zeemass_alt < 60 or *zeemass_alt > 120 or *el1id_alt == *el2id_alt or *nmuons_alt != 0 or *nphotons_alt != 0 or *nelectrons_alt != 2)) continue;
+    // min-dphi
+    if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *jmmdphi_alt < 0.5) continue;
+    else if((sample == Sample::wen or sample == Sample::zee) and *jemdphi_alt < 0.5) continue;
+    else if(sample == Sample::gam and *jpmdphi_alt < 0.5) continue;
+
+
+    //
+    Double_t metden = 0.0;
+    if (sample == Sample::sig || sample == Sample::qcd) {metden = *mmet_alt;}
+    else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = *mmet_alt;}
+    else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = *emet_alt;}
+    else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = *pmet_alt;}    
+    if(fabs(*met_alt-*metcalo_alt)/metden > 0.5) continue;
+
+    if(category == Category::monojet){
+
+      if(jetpt_alt->at(0) < 100) continue;
+      if(fabs(jeteta_alt->at(0)) > 2.5) continue;
+      if(chfrac_alt->at(0) < 0.1) continue;
+      if(nhfrac_alt->at(0) > 0.8) continue;
+      bool goodMonoV = false;
+
+      if(boostedJetpt_alt->size() != 0 and boostedJetpt_alt->at(0) > 250 and fabs(boostedJeteta_alt->at(0)) < 2.4 and boostedJettau2_alt->at(0)/boostedJettau1_alt->at(0) < 0.6 and 
+	 prunedJetm_alt->at(0) > 65 and prunedJetm_alt->at(0) < 105 and metden > 250)
+	goodMonoV = true;
+      if(goodMonoV) continue;     
+    }
+
+    eventPassing_chain2.push_back(eventID(*event_alt,*run_alt));
+
+    if (sample == Sample::sig || sample == Sample::qcd){ 
+      bosonpt = *mmet_alt; bosoneta = 0; bosonphi = *mmetphi_alt; recoil = *mmet_alt; recoilphi = *mmetphi_alt; pfmet = *mmet_alt; pfmetphi = *mmetphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }
+      jetmetdphi = *jmmdphi_alt;
+    }
+    else if (sample == Sample::zmm){
+      TLorentzVector mu1, mu2;
+      mu1.SetPtEtaPhiM(*mu1pt_alt,*mu1eta_alt,*mu1phi_alt,0);
+      mu2.SetPtEtaPhiM(*mu2pt_alt,*mu2eta_alt,*mu2phi_alt,0);
+      bosonpt = (mu1+mu2).Pt(); bosoneta = (mu1+mu2).Eta(); bosonphi = (mu1+mu2).Phi(); recoil = *mmet_alt; recoilphi = *mmetphi_alt; pfmet = *met_alt; pfmetphi = *metphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }      
+      jetmetdphi = *jmmdphi_alt;
+    }
+    else if (sample == Sample::zee){
+      TLorentzVector el1, el2;
+      el1.SetPtEtaPhiM(*el1pt_alt,*el1eta_alt,*el1phi_alt,0);
+      el2.SetPtEtaPhiM(*el2pt_alt,*el2eta_alt,*el2phi_alt,0);
+      bosonpt = (el1+el2).Pt(); bosoneta = (el1+el2).Eta(); bosonphi = (el1+el2).Phi(); recoil = *emet_alt; recoilphi = *emetphi_alt; pfmet = *met_alt; pfmetphi = *metphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }      
+      jetmetdphi = *jemdphi_alt;
+    }
+    else if (sample == Sample::wen){
+      bosonpt = *el1pt_alt; bosoneta = *el1eta_alt; bosonphi = *el1phi_alt; recoil = *emet_alt; recoilphi = *emetphi_alt; pfmet = *met_alt; pfmetphi = *metphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }      
+      jetmetdphi = *jemdphi_alt;
+    }
+    else if (sample == Sample::wmn){
+      bosonpt = *mu1pt_alt; bosoneta = *mu1eta_alt; bosonphi = *mu1phi_alt; recoil = *mmet_alt; recoilphi = *mmetphi_alt; pfmet = *met_alt; pfmetphi = *metphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }      
+      jetmetdphi = *jmmdphi_alt;
+    }
+    else if (sample == Sample::gam){
+      bosonpt = *phpt_alt; bosoneta = *pheta_alt; bosonphi = *phphi_alt; recoil = *pmet_alt; recoilphi = *pmetphi_alt; pfmet = *met_alt; pfmetphi = *metphi_alt; 
+      leadingjetpt = jetpt_alt->at(0); leadingjeteta =  jeteta_alt->at(0); njetcentral = *njets_alt; njetinclusive = *nincjets_alt; runnumber = *run_alt; eventnumber = *event_alt;
+      if(jetpt_alt->size() > 1){
+	secondjetpt = jetpt_alt->at(1);
+	secondjeteta = jeteta_alt->at(1);
+      }      
+      jetmetdphi = *jpmdphi_alt;
+    }
+    tree_2->Fill();
+
+  }
+  cout<<endl;
+  cout<<"Number of events passing selections in chain_2 is "<<eventPassing_chain2.size()<<endl;
+  tree_2->Write();
+
   
+  std::sort(eventPassing_chain1.begin(),eventPassing_chain1.end());
+  std::sort(eventPassing_chain2.begin(),eventPassing_chain2.end());
+
+  vector<eventID> commonEvents;
+  vector<eventID> eventIn1Only;
+  vector<eventID> eventIn2Only;
+
+  for(auto event : eventPassing_chain1){
+    if(std::find(eventPassing_chain2.begin(),eventPassing_chain2.end(),event) != eventPassing_chain2.end())
+      commonEvents.push_back(event);
+    else
+      eventIn1Only.push_back(event);
+  }
+
+  for(auto event : eventPassing_chain2){
+    if(std::find(eventPassing_chain1.begin(),eventPassing_chain1.end(),event) != eventPassing_chain1.end()){
+      if(std::find(commonEvents.begin(),commonEvents.end(),event) == commonEvents.end()) cout<<"Problem in finding common events please check "<<endl;
+    }
+    else
+      eventIn2Only.push_back(event);
+  }
+
+  cout<<"Common events among the two datasets "<<commonEvents.size()<<" i.e. "<<100*double(commonEvents.size())/eventPassing_chain1.size()<<" % of dataset 1 and "<<100*double(commonEvents.size())/eventPassing_chain2.size()<<" % of dataset 2"<<endl;
+  cout<<"Events in 1 but non in 2 "<<eventIn1Only.size()<<" i.e. "<<100*double(eventIn1Only.size())/eventPassing_chain1.size()<<" % of dataset 1"<<endl;
+  cout<<"Events in 2 but non in 1 "<<eventIn2Only.size()<<" i.e. "<<100*double(eventIn2Only.size())/eventPassing_chain2.size()<<" % of dataset 2"<<endl;
+
+
+  // Loop over common events and fill diff histograms
+  bosonpt_histo->Sumw2();
+  bosoneta_histo->Sumw2();
+  bosonphi_histo->Sumw2();
+  recoil_histo->Sumw2();
+  recoilphi_histo->Sumw2();
+  pfmet_histo->Sumw2();
+  pfmetphi_histo->Sumw2();
+  jetpt_histo->Sumw2();
+  jetpt2_histo->Sumw2();
+  njet_histo->Sumw2();
+  njetinc_histo->Sumw2();
+  jeteta_histo->Sumw2();
+  jeteta2_histo->Sumw2();
+  jetmetdphi_histo->Sumw2();
+
+  bosonpt_histo_2D->Sumw2();
+  bosoneta_histo_2D->Sumw2();
+  bosonphi_histo_2D->Sumw2();
+  recoil_histo_2D->Sumw2();
+  recoilphi_histo_2D->Sumw2();
+  pfmet_histo_2D->Sumw2();
+  pfmetphi_histo_2D->Sumw2();
+  jetpt_histo_2D->Sumw2();
+  jetpt2_histo_2D->Sumw2();
+  jeteta_histo_2D->Sumw2();
+  jeteta2_histo_2D->Sumw2();
+  njet_histo_2D->Sumw2();
+  njetinc_histo_2D->Sumw2();
+  jetmetdphi_histo_2D->Sumw2();
+
+  bosonpt_histo_only1->Sumw2();
+  bosoneta_histo_only1->Sumw2();
+  bosonphi_histo_only1->Sumw2();
+  recoil_histo_only1->Sumw2();
+  recoilphi_histo_only1->Sumw2();
+  pfmet_histo_only1->Sumw2();
+  pfmetphi_histo_only1->Sumw2();
+  jetpt_histo_only1->Sumw2();
+  jetpt2_histo_only1->Sumw2();
+  njet_histo_only1->Sumw2();
+  njetinc_histo_only1->Sumw2();
+  jeteta_histo_only1->Sumw2();
+  jeteta2_histo_only1->Sumw2();
+  jetmetdphi_histo_only1->Sumw2();
+
+  bosonpt_histo_only2->Sumw2();
+  bosoneta_histo_only2->Sumw2();
+  bosonphi_histo_only2->Sumw2();
+  recoil_histo_only2->Sumw2();
+  recoilphi_histo_only2->Sumw2();
+  pfmet_histo_only2->Sumw2();
+  pfmetphi_histo_only2->Sumw2();
+  jetpt_histo_only2->Sumw2();
+  jetpt2_histo_only2->Sumw2();
+  njet_histo_only2->Sumw2();
+  njetinc_histo_only2->Sumw2();
+  jeteta_histo_only2->Sumw2();
+  jeteta2_histo_only2->Sumw2();
+  jetmetdphi_histo_only2->Sumw2();
+
+  // loop on tree_1 and tree_2 just checking common events
+  TTreeReader myreader1 ("tree_1",outputFile);
+  TTreeReaderValue<float> bosonpt_1 (myreader1,"bosonpt");
+  TTreeReaderValue<float> bosoneta_1 (myreader1,"bosoneta");
+  TTreeReaderValue<float> bosonphi_1 (myreader1,"bosonphi");
+  TTreeReaderValue<float> recoil_1 (myreader1,"recoil");
+  TTreeReaderValue<float> recoilphi_1 (myreader1,"recoilphi");
+  TTreeReaderValue<float> pfmet_1 (myreader1,"pfmet");
+  TTreeReaderValue<float> pfmetphi_1 (myreader1,"pfmetphi");
+  TTreeReaderValue<float> leadingjetpt_1 (myreader1,"leadingjetpt");
+  TTreeReaderValue<float> leadingjeteta_1 (myreader1,"leadingjeteta");
+  TTreeReaderValue<float> secondjetpt_1 (myreader1,"secondjetpt");
+  TTreeReaderValue<float> secondjeteta_1 (myreader1,"secondjeteta");
+  TTreeReaderValue<float> jetmetdphi_1 (myreader1,"jetmetdphi");
+  TTreeReaderValue<unsigned int> njetcentral_1   (myreader1,"njetcentral");
+  TTreeReaderValue<unsigned int> njetinclusive_1 (myreader1,"njetinclusive");
+  TTreeReaderValue<unsigned int> runnumber_1     (myreader1,"runnumber");
+  TTreeReaderValue<unsigned int> eventnumber_1   (myreader1,"eventnumber");
+
+  float bosonpt_2, bosoneta_2, bosonphi_2, recoil_2, recoilphi_2, pfmet_2, leadingjetpt_2, leadingjeteta_2, secondjetpt_2, secondjeteta_2, jetmetdphi_2, pfmetphi_2;
+  unsigned int njetcentral_2, njetinclusive_2, runnumber_2, eventnumber_2;
+
+  tree_2->SetBranchAddress("bosonpt",&bosonpt_2);
+  tree_2->SetBranchAddress("bosoneta",&bosoneta_2);
+  tree_2->SetBranchAddress("bosonphi",&bosonphi_2);
+  tree_2->SetBranchAddress("recoil",&recoil_2);
+  tree_2->SetBranchAddress("recoilphi",&recoilphi_2);
+  tree_2->SetBranchAddress("pfmet",&pfmet_2);
+  tree_2->SetBranchAddress("pfmetphi",&pfmetphi_2);
+  tree_2->SetBranchAddress("leadingjetpt",&leadingjetpt_2);
+  tree_2->SetBranchAddress("leadingjeteta",&leadingjeteta_2);
+  tree_2->SetBranchAddress("secondjetpt",&secondjetpt_2);
+  tree_2->SetBranchAddress("secondjeteta",&secondjeteta_2);
+  tree_2->SetBranchAddress("jetmetdphi",&jetmetdphi_2);
+  tree_2->SetBranchAddress("njetcentral",&njetcentral_2);
+  tree_2->SetBranchAddress("njetinclusive",&njetinclusive_2);
+  tree_2->SetBranchAddress("runnumber",&runnumber_2);
+  tree_2->SetBranchAddress("eventnumber",&eventnumber_2);
+
+  while(myreader1.Next()){
+    eventID event_tmp(*eventnumber_1,*runnumber_1);
+    auto iterator = std::find(commonEvents.begin(),commonEvents.end(),event_tmp);
+    if(iterator != commonEvents.end()){
+      // find a good event
+      for(long int iEvent = 0; iEvent < tree_2->GetEntries(); iEvent++){
+	tree_2->GetEntry(iEvent);
+	if(event_tmp.eventid_ != eventnumber_2) continue;
+	if(event_tmp.runid_ != runnumber_2) continue;
+	// when found
+	bosonpt_histo_2D->Fill(*bosonpt_1,bosonpt_2);
+	bosoneta_histo_2D->Fill(*bosoneta_1,bosoneta_2);
+	bosonphi_histo_2D->Fill(*bosonphi_1,bosonphi_2);
+	recoil_histo_2D->Fill(*recoil_1,recoil_2);
+	recoilphi_histo_2D->Fill(*recoilphi_1,recoilphi_2);
+	pfmet_histo_2D->Fill(*pfmet_1,pfmet_2);
+	pfmetphi_histo_2D->Fill(*pfmetphi_1,pfmetphi_2);
+	jetpt_histo_2D->Fill(*leadingjetpt_1,leadingjetpt_2);
+	jetpt2_histo_2D->Fill(*secondjetpt_1,secondjetpt_2);
+	jeteta_histo_2D->Fill(*leadingjeteta_1,leadingjeteta_2);
+	jeteta2_histo_2D->Fill(*secondjeteta_1,secondjeteta_2);
+	jetmetdphi_histo_2D->Fill(*jetmetdphi_1,jetmetdphi_2);	
+	njet_histo_2D->Fill(float(*njetcentral_1),float(njetcentral_2));
+	njetinc_histo_2D->Fill(float(*njetinclusive_1),float(njetinclusive_2));
+
+	bosonpt_histo->Fill(*bosonpt_1-bosonpt_2);
+	bosoneta_histo->Fill(*bosoneta_1-bosoneta_2);
+	bosonphi_histo->Fill(*bosonphi_1-bosonphi_2);
+	recoil_histo->Fill(*recoil_1-recoil_2);
+	recoilphi_histo->Fill(*recoilphi_1-recoilphi_2);
+	pfmet_histo->Fill(*pfmet_1-pfmet_2);
+	pfmetphi_histo->Fill(*pfmetphi_1-pfmetphi_2);
+	jetpt_histo->Fill(*leadingjetpt_1-leadingjetpt_2);
+	jetpt2_histo->Fill(*secondjetpt_1-secondjetpt_2);
+	jeteta_histo->Fill(*leadingjeteta_1-leadingjeteta_2);
+	jeteta2_histo->Fill(*secondjeteta_1-secondjeteta_2);
+	jetmetdphi_histo->Fill(*jetmetdphi_1-jetmetdphi_2);	
+	njet_histo->Fill(float(*njetcentral_1)-float(njetcentral_2));
+	njetinc_histo->Fill(float(*njetinclusive_1)-float(njetinclusive_2));
+
+	break;
+      }
+    }
+    else{
+      auto iterator = std::find(eventIn1Only.begin(),eventIn1Only.end(),event_tmp);
+      if(iterator != eventIn1Only.end()){
+	bosonpt_histo_only1->Fill(*bosonpt_1);
+	bosoneta_histo_only1->Fill(*bosoneta_1);
+	bosonphi_histo_only1->Fill(*bosonphi_1);
+	recoil_histo_only1->Fill(*recoil_1);
+	recoilphi_histo_only1->Fill(*recoilphi_1);
+	pfmet_histo_only1->Fill(*pfmet_1);
+	pfmetphi_histo_only1->Fill(*pfmetphi_1);
+	jetpt_histo_only1->Fill(*leadingjetpt_1);
+	jetpt2_histo_only1->Fill(*secondjetpt_1);
+	jeteta_histo_only1->Fill(*leadingjeteta_1);
+	jeteta2_histo_only1->Fill(*secondjeteta_1);
+	jetmetdphi_histo_only1->Fill(*jetmetdphi_1);
+	njet_histo_only1->Fill(float(*njetcentral_1));
+	njetinc_histo_only1->Fill(float(*njetinclusive_1));
+      }
+      else{cout<<" Event not found --> is a problem "<<endl;}
+    }
+  }
+
+  for(long int iEvent = 0; iEvent < tree_2->GetEntries(); iEvent++){
+    tree_2->GetEntry(iEvent);
+    eventID event_tmp(eventnumber_2,runnumber_2);
+    auto iterator = std::find(eventIn2Only.begin(),eventIn2Only.end(),event_tmp);
+    if(iterator != eventIn2Only.end()){
+	bosonpt_histo_only2->Fill(bosonpt_2);
+	bosoneta_histo_only2->Fill(bosoneta_2);
+	bosonphi_histo_only2->Fill(bosonphi_2);
+	recoil_histo_only2->Fill(recoil_2);
+	recoilphi_histo_only2->Fill(recoilphi_2);
+	pfmet_histo_only2->Fill(pfmet_2);
+	pfmetphi_histo_only2->Fill(pfmetphi_2);
+	jetpt_histo_only2->Fill(leadingjetpt_2);
+	jetpt2_histo_only2->Fill(secondjetpt_2);
+	jeteta_histo_only2->Fill(leadingjeteta_2);
+	jeteta2_histo_only2->Fill(secondjeteta_2);
+	jetmetdphi_histo_only2->Fill(jetmetdphi_2);
+	njet_histo_only2->Fill(float(njetcentral_2));
+	njetinc_histo_only2->Fill(float(njetinclusive_2));
+    }    
+  }
+
+  // Draw histograms
   TCanvas* canvas = new TCanvas("canvas","",600,650);
   canvas->cd();
 
@@ -825,6 +957,8 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot(canvas,jeteta_histo,"#eta_{j1}",outputDIR);  
   drawPlot(canvas,jeteta2_histo,"#eta_{j2}",outputDIR);  
   drawPlot(canvas,njet_histo,"N_{jet}",outputDIR);  
+  drawPlot(canvas,njetinc_histo,"N_{jet}",outputDIR);  
+  drawPlot(canvas,jetmetdphi_histo,"#Delta#phi(jet,met)",outputDIR);  
   
   drawPlot2D(canvas,bosonpt_histo_2D,"boson p_{T}",outputDIR);  
   drawPlot2D(canvas,bosoneta_histo_2D,"boson #eta",outputDIR);  
@@ -838,6 +972,8 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot2D(canvas,jeteta_histo_2D,"#eta_{j1}",outputDIR);  
   drawPlot2D(canvas,jeteta2_histo_2D,"#eta_{j2}",outputDIR);  
   drawPlot2D(canvas,njet_histo_2D,"N_{jet}",outputDIR);  
+  drawPlot2D(canvas,njetinc_histo_2D,"N_{jet}",outputDIR);  
+  drawPlot2D(canvas,jetmetdphi_histo_2D,"#Delta#phi(jet,met)",outputDIR);  
 
   /////////////////////
   drawPlot(canvas,bosonpt_histo_only1,"boson p_{T}",outputDIR);  
@@ -852,21 +988,23 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot(canvas,jeteta_histo_only1,"#eta_{j1}",outputDIR);  
   drawPlot(canvas,jeteta2_histo_only1,"#eta_{j2}",outputDIR);  
   drawPlot(canvas,njet_histo_only1,"N_{jet}",outputDIR);  
+  drawPlot(canvas,njetinc_histo_only1,"N_{jet}",outputDIR);  
+  drawPlot(canvas,jetmetdphi_histo_only1,"#Delta#phi(jet,met)",outputDIR);  
 
-  if(doOppositeMatching){
-    drawPlot(canvas,bosonpt_histo_only2,"boson p_{T}",outputDIR);  
-    drawPlot(canvas,bosoneta_histo_only2,"boson #eta",outputDIR);  
-    drawPlot(canvas,bosonphi_histo_only2,"boson #phi",outputDIR);  
-    drawPlot(canvas,recoil_histo_only2,"Recoil",outputDIR);  
-    drawPlot(canvas,recoilphi_histo_only2,"Recoil #phi",outputDIR);  
-    drawPlot(canvas,pfmet_histo_only2,"Met",outputDIR);  
-    drawPlot(canvas,pfmetphi_histo_only2,"Met #phi",outputDIR);  
-    drawPlot(canvas,jetpt_histo_only2,"p_{T}^{j1}",outputDIR);  
-    drawPlot(canvas,jetpt2_histo_only2,"p_{T}^{j2}",outputDIR);  
-    drawPlot(canvas,jeteta_histo_only2,"#eta_{j1}",outputDIR);  
-    drawPlot(canvas,jeteta2_histo_only2,"#eta_{j2}",outputDIR);  
-    drawPlot(canvas,njet_histo_only2,"N_{jet}",outputDIR);  
-  }
-  
+  drawPlot(canvas,bosonpt_histo_only2,"boson p_{T}",outputDIR);  
+  drawPlot(canvas,bosoneta_histo_only2,"boson #eta",outputDIR);  
+  drawPlot(canvas,bosonphi_histo_only2,"boson #phi",outputDIR);  
+  drawPlot(canvas,recoil_histo_only2,"Recoil",outputDIR);  
+  drawPlot(canvas,recoilphi_histo_only2,"Recoil #phi",outputDIR);  
+  drawPlot(canvas,pfmet_histo_only2,"Met",outputDIR);  
+  drawPlot(canvas,pfmetphi_histo_only2,"Met #phi",outputDIR);  
+  drawPlot(canvas,jetpt_histo_only2,"p_{T}^{j1}",outputDIR);  
+  drawPlot(canvas,jetpt2_histo_only2,"p_{T}^{j2}",outputDIR);  
+  drawPlot(canvas,jeteta_histo_only2,"#eta_{j1}",outputDIR);  
+  drawPlot(canvas,jeteta2_histo_only2,"#eta_{j2}",outputDIR);  
+  drawPlot(canvas,njet_histo_only2,"N_{jet}",outputDIR);  
+  drawPlot(canvas,jetmetdphi_histo_only2,"#Delta#phi(jet,met)",outputDIR);  
+
+  outputFile->Close();
 
 }

@@ -57,9 +57,13 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronMediumIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronTightIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > electronHLTSafeIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronMvaLooseMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > electronMvaTightMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonLooseIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonMediumIdMapToken;
   const edm::EDGetTokenT<edm::ValueMap<bool> > photonTightIdMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > photonMvaLooseMapToken;
+  const edm::EDGetTokenT<edm::ValueMap<bool> > photonMvaTightMapToken;
 
   // Additional selections for muons
   const edm::ParameterSet tagloosemuons;
@@ -87,9 +91,13 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
     electronMediumIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmediumid"))),
     electronTightIdMapToken   (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electrontightid"))),
     electronHLTSafeIdMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronhltsafeid"))),
+    electronMvaLooseMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmvalooseid"))),
+    electronMvaTightMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("electronmvatightid"))),
     photonLooseIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonlooseid"))),
     photonMediumIdMapToken (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmediumid"))),
     photonTightIdMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photontightid"))),
+    photonMvaLooseMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmvalooseid"))),
+    photonMvaTightMapToken  (consumes<edm::ValueMap<bool> >(iConfig.getParameter<edm::InputTag>("photonmvatightid"))),
     // addition
     tagloosemuons (iConfig.getParameter<edm::ParameterSet>("tagloosemuons")),
     tagtightmuons (iConfig.getParameter<edm::ParameterSet>("tagtightmuons")),
@@ -150,11 +158,15 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::ElectronRefVector>("mediumelectronrefs");
   produces<pat::ElectronRefVector>("tightelectronrefs");
   produces<pat::ElectronRefVector>("hltsafeelectronrefs");
+  produces<pat::ElectronRefVector>("mvalooseelectronrefs");
+  produces<pat::ElectronRefVector>("mvatightelectronrefs");
   produces<pat::ElectronCollection>("tightelectrons");
-
+  
   produces<pat::PhotonRefVector>("loosephotonrefs");
   produces<pat::PhotonRefVector>("mediumphotonrefs");
   produces<pat::PhotonRefVector>("tightphotonrefs");
+  produces<pat::PhotonRefVector>("mvaloosephotonrefs");
+  produces<pat::PhotonRefVector>("mvatightphotonrefs");
   produces<pat::PhotonRefVector>("recoelectronmatch");
 
 }
@@ -192,30 +204,32 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   Handle<edm::TriggerResults> triggerResultsH;
   iEvent.getByToken(triggerResultsToken, triggerResultsH);
+
   
   Handle<edm::ValueMap<bool> > electronVetoIdH;
   iEvent.getByToken(electronVetoIdMapToken, electronVetoIdH);
-  
   Handle<edm::ValueMap<bool> > electronLooseIdH;
-  iEvent.getByToken(electronLooseIdMapToken, electronLooseIdH);
-  
+  iEvent.getByToken(electronLooseIdMapToken, electronLooseIdH);  
   Handle<edm::ValueMap<bool> > electronMediumIdH;
-  iEvent.getByToken(electronMediumIdMapToken, electronMediumIdH);
-  
+  iEvent.getByToken(electronMediumIdMapToken, electronMediumIdH);  
   Handle<edm::ValueMap<bool> > electronTightIdH;
   iEvent.getByToken(electronTightIdMapToken, electronTightIdH);
-
   Handle<edm::ValueMap<bool> > electronHLTSafeIdH;
   iEvent.getByToken(electronHLTSafeIdMapToken, electronHLTSafeIdH);
-
+  Handle<edm::ValueMap<bool> > electronMvaLooseIdH;
+  iEvent.getByToken(electronMvaLooseMapToken, electronMvaLooseIdH);
+  Handle<edm::ValueMap<bool> > electronMvaTightIdH;
+  iEvent.getByToken(electronMvaTightMapToken, electronMvaTightIdH);
   Handle<edm::ValueMap<bool> > photonLooseIdH;
-  iEvent.getByToken(photonLooseIdMapToken, photonLooseIdH);
-  
+  iEvent.getByToken(photonLooseIdMapToken, photonLooseIdH);  
   Handle<edm::ValueMap<bool> > photonMediumIdH;
-  iEvent.getByToken(photonMediumIdMapToken, photonMediumIdH);
-  
+  iEvent.getByToken(photonMediumIdMapToken, photonMediumIdH); 
   Handle<edm::ValueMap<bool> > photonTightIdH;
   iEvent.getByToken(photonTightIdMapToken, photonTightIdH);
+  Handle<edm::ValueMap<bool> > photonMvaLooseIdH;
+  iEvent.getByToken(photonMvaLooseMapToken, photonMvaLooseIdH);
+  Handle<edm::ValueMap<bool> > photonMvaTightIdH;
+  iEvent.getByToken(photonMvaTightMapToken, photonMvaTightIdH);
 
   // output collection
   std::auto_ptr<edm::ValueMap<float> > outputmunvtxmap(new ValueMap<float>());
@@ -261,11 +275,15 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<pat::ElectronRefVector> outputmediumelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputtightelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronRefVector> outputhltsafeelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputmvalooseelectronrefs(new pat::ElectronRefVector);
+  std::auto_ptr<pat::ElectronRefVector> outputmvatightelectronrefs(new pat::ElectronRefVector);
   std::auto_ptr<pat::ElectronCollection> outputtightelectrons(new pat::ElectronCollection);
   //photon id
   std::auto_ptr<pat::PhotonRefVector> outputloosephotonrefs(new pat::PhotonRefVector);
   std::auto_ptr<pat::PhotonRefVector> outputmediumphotonrefs(new pat::PhotonRefVector);
   std::auto_ptr<pat::PhotonRefVector> outputtightphotonrefs(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonRefVector> outputmvaloosephotonrefs(new pat::PhotonRefVector);
+  std::auto_ptr<pat::PhotonRefVector> outputmvatightphotonrefs(new pat::PhotonRefVector);
   std::auto_ptr<pat::PhotonCollection> outputtightphotons(new pat::PhotonCollection);
   std::auto_ptr<pat::PhotonRefVector> outputrecoelectronmatchrefs (new pat::PhotonRefVector);
   
@@ -519,10 +537,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	passPVconstraints = false;
     }
       
-    std::cout<<"passPVconstraints "<<passPVconstraints<<std::endl;
     // veto electrons
     if (verticesH->size() != 0 and (*electronVetoIdH)  [electronPtr] and passPVconstraints) {
-      std::cout<<"passing electron veto id "<<std::endl;
       outputvetoelectronrefs  ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     }
     // loose electrons
@@ -533,12 +549,18 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       outputmediumelectronrefs->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     // tight electrons
     if (verticesH->size() != 0 and (*electronTightIdH) [electronPtr] and passPVconstraints) {
-      std::cout<<"passing electron tight id "<<std::endl;
       outputtightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    }
+    // mva-loose electrons
+    if (verticesH->size() != 0 and (*electronMvaLooseIdH) [electronPtr] and passPVconstraints) {
+      outputmvalooseelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
+    }
+    // mva-tight electrons
+    if (verticesH->size() != 0 and (*electronMvaTightIdH) [electronPtr] and passPVconstraints) {
+      outputmvatightelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     }
     // HLT safe electrons
     if (verticesH->size() != 0 and (*electronHLTSafeIdH) [electronPtr] and passPVconstraints) {
-      std::cout<<"passing electron hlt safe id "<<std::endl;
       outputhltsafeelectronrefs ->push_back(pat::ElectronRef(electronsH, electrons_iter - electronsH->begin()));
     }
     //
@@ -546,7 +568,6 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       if (triggermatched and 
 	  electrons_iter->pt() > tagelectrons.getParameter<double>("tagelectronptcut") and 
 	  fabs(electrons_iter->superCluster()->eta()) < tagelectrons.getParameter<double>("tagelectronetacut")) {
-	std::cout<<"fill tight electrons "<<std::endl;
 	outputtightelectrons->push_back(*electrons_iter);
       }
     }
@@ -595,6 +616,12 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // tight photons
     if (verticesH->size() != 0 and (*photonTightIdH) [photonPtr]) 
       outputtightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+    // tight photons
+    if (verticesH->size() != 0 and (*photonMvaLooseIdH) [photonPtr]) 
+      outputmvaloosephotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
+    // tight photons
+    if (verticesH->size() != 0 and (*photonMvaTightIdH) [photonPtr]) 
+      outputmvatightphotonrefs ->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
     // mathcing with reco electrons
     if (verticesH->size() != 0 and recoelectronmatch) 
       outputrecoelectronmatchrefs->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
@@ -702,12 +729,16 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(outputmediumelectronrefs,"mediumelectronrefs");
   iEvent.put(outputtightelectronrefs, "tightelectronrefs");
   iEvent.put(outputhltsafeelectronrefs, "hltsafeelectronrefs");
+  iEvent.put(outputmvalooseelectronrefs, "mvalooseelectronrefs");
+  iEvent.put(outputmvatightelectronrefs, "mvatightelectronrefs");
   iEvent.put(outputtightelectrons,    "tightelectrons");
 
   //photon id                                                                                                                                                                
   iEvent.put(outputloosephotonrefs, "loosephotonrefs");
   iEvent.put(outputmediumphotonrefs,"mediumphotonrefs");
   iEvent.put(outputtightphotonrefs, "tightphotonrefs");
+  iEvent.put(outputmvatightphotonrefs, "mvaloosephotonrefs");
+  iEvent.put(outputmvaloosephotonrefs, "mvatightphotonrefs");
   iEvent.put(outputrecoelectronmatchrefs,      "recoelectronmatch");
 
 }

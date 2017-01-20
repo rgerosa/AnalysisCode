@@ -91,6 +91,7 @@ process.probemuons = cms.EDFilter("PATMuonSelector",
 				  )
 	
 
+# Probe electron is just a reconstructed electron
 process.probeelectrons = cms.EDFilter("PATElectronSelector",
 				      src = cms.InputTag("slimmedElectrons"),
 				      cut = cms.string("pt > 10 && abs(eta) < 2.5"),
@@ -98,12 +99,13 @@ process.probeelectrons = cms.EDFilter("PATElectronSelector",
 				      )
 	
 
-
-
 # Electron ValueMaps for identification
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
 ElectronTools(process,False,options.isMC)
-process.egmGsfElectronIDs.physicsObjectSrc = "probeelectrons"
+process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("probeelectrons")
+process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("probeelectrons"); 
+process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag("probeelectrons");
+
 # Photon ValueMaps for identification
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
 PhotonTools(process,False,options.isMC)
@@ -134,7 +136,7 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   muons     = cms.InputTag("probemuons"),     
 				   electrons = cms.InputTag("probeelectrons"), 
 				   photons   = cms.InputTag("slimmedPhotons"), 
-				   ## in case of reco electron efficiency used to match probeelectorns with reco gsf ones
+				   ## in case of reco electron efficiency used to match probe-electorns with reco gsf ones
 				   electronsFullCollection = cms.InputTag("slimmedElectrons"),
 				   ## additional event info
 				   geninfo   = cms.InputTag("generator"),
@@ -179,10 +181,14 @@ process.probeinfo = cms.EDProducer("LeptonTnPInfoProducer",
 				   electronmediumid = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-medium"),
 				   electrontightid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-tight"),
 				   electronhltsafeid  = cms.InputTag("egmGsfElectronIDs:cutBasedElectronHLTPreselection-Summer16-V1"),
+				   electronmvalooseid = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp90"),
+				   electronmvatightid = cms.InputTag("egmGsfElectronIDs:mvaEleID-Spring16-GeneralPurpose-V1-wp80"),
 				   ### photon id
-				   photonlooseid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-loose"),
-				   photonmediumid = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-medium"),
-				   photontightid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring15-25ns-V1-standalone-tight")    				   
+				   photonlooseid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose"),
+				   photonmediumid = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-medium"),
+				   photontightid  = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-tight"),
+    				   photonmvalooseid = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp90"),
+    				   photonmvatightid = cms.InputTag("egmPhotonIDs:mvaPhoID-Spring16-nonTrig-V1-wp80"),				   
 				   )
 
 if options.isMC:
@@ -308,6 +314,8 @@ process.electrontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		mediumid  = cms.InputTag("probeinfo", "mediumelectronrefs"),
 		tightid   = cms.InputTag("probeinfo", "tightelectronrefs"),
 		hltsafeid = cms.InputTag("probeinfo", "hltsafeelectronrefs"),   
+		mvalooseid  = cms.InputTag("probeinfo", "mvalooseelectronrefs"),
+		mvatightid  = cms.InputTag("probeinfo", "mvatightelectronrefs")
 		),
 					 isMC = cms.bool(options.isMC)
 					 )
@@ -345,6 +353,8 @@ process.photontnptree = cms.EDAnalyzer("TagProbeFitTreeProducer",
 		looseid   = cms.InputTag("probeinfo", "loosephotonrefs"),
 		mediumid  = cms.InputTag("probeinfo", "mediumphotonrefs"),
 		tightid   = cms.InputTag("probeinfo", "tightphotonrefs"),
+		mvalooseid  = cms.InputTag("probeinfo", "mvaloosephotonrefs"),
+		mvatightid  = cms.InputTag("probeinfo", "mvatightphotonrefs"),
 		recoelectronmatch = cms.InputTag("probeinfo","recoelectronmatch")
 		),
 				       isMC = cms.bool(options.isMC)
