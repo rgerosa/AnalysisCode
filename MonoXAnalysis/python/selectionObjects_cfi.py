@@ -39,7 +39,7 @@ selectedObjects = cms.EDProducer("PFCleaner",
             isolation = cms.double(0.15))),
                                  ### electrons
                                  electrons = cms.InputTag("slimmedElectrons"),
-                                 calibratedElectrons = cms.InputTag("correctedElectrons"),
+                                 calibratedElectrons = cms.InputTag("calibratedElectrons"),
                                  useCalibratedElectrons = cms.bool(True),
                                  electronSelection = cms.VPSet(
         #### veto electrons
@@ -212,7 +212,7 @@ selectedObjects = cms.EDProducer("PFCleaner",
         ),
                                  #### photons
                                  photons   = cms.InputTag("slimmedPhotons"),
-                                 calibratedPhotons = cms.InputTag("correctedPhotons"),
+                                 calibratedPhotons = cms.InputTag("calibratedPhotons"),
                                  useCalibratedPhotons = cms.bool(True),
                                  addPhotonPurity = cms.bool(False),
                                  photonSelection = cms.VPSet(

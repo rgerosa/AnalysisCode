@@ -372,11 +372,11 @@ process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process,options.addEGMSmear,options.isMC)
+ElectronTools(process,options.addEGMSmear,options.isMC,addElectronCorrection = False)
 
 # run cut-based photon ID 
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
-PhotonTools(process,options.addEGMSmear,options.isMC)
+PhotonTools(process,options.addEGMSmear,options.isMC, addPhotonCorrection = False)
 
 # Apply JEC on jets and update them
 from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
@@ -396,6 +396,11 @@ process.selectedObjects.jets = cms.InputTag(jetCollName)
 process.selectedObjects.useCalibratedElectrons = cms.bool(True)
 process.selectedObjects.useCalibratedPhotons = cms.bool(True)
 process.selectedObjects.addPhotonPurity = cms.bool(options.isPhotonPurity)
+if hasattr(process,"correctedElectrons"):
+	process.selectedObjects.calibratedElectrons = cms.InputTag("correctedElectrons")
+if hasattr(process,"correctedPhotons"):
+	process.selectedObjects.calibratedPhotons = cms.InputTag("correctedPhotons")
+	
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 

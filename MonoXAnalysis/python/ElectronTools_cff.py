@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 import random
 
-def ElectronTools(process,addEGMSmear,isMC):
+def ElectronTools(process,addEGMSmear,isMC,addElectronCorrection):
 
 
 	# Electron ValueMaps for identification --> takes into account both id+iso
@@ -42,31 +42,32 @@ def ElectronTools(process,addEGMSmear,isMC):
 		
 		
 	#### apply gain corrections
-	setattr(process,"correctedElectrons",cms.EDProducer("PATElectronCorrector",
-							    src = cms.InputTag("slimmedElectrons"),
-							    isMC = cms.bool(isMC),
-							    correction = cms.VPSet(
-				cms.PSet(
-					eMin = cms.double(200),
-					eMax = cms.double(300),
-					value = cms.double(1.0199)),
-				cms.PSet(
-					eMin = cms.double(300),
-					eMax = cms.double(400),
-					value = cms.double(1.0520)),
-				cms.PSet(
-					eMin = cms.double(400),
-					eMax = cms.double(500),
-					value = cms.double(1.0150)),
-				cms.PSet(
-					eMin = cms.double(500),
-					eMax = cms.double(10000),
-					value = cms.double(1.0150))),
-							    recHitEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
-							    recHitEE = cms.InputTag("reducedEgamma","reducedEERecHits")
-							    ));
-	if addEGMSmear:
-		getattr(process,"correctedElectrons").src = cms.InputTag("calibratedElectrons");
+	if addElectronCorrection :
+		setattr(process,"correctedElectrons",cms.EDProducer("PATElectronCorrector",
+								    src = cms.InputTag("slimmedElectrons"),
+								    isMC = cms.bool(isMC),
+								    correction = cms.VPSet(
+					cms.PSet(
+						eMin = cms.double(200),
+						eMax = cms.double(300),
+						value = cms.double(1.0199)),
+					cms.PSet(
+						eMin = cms.double(300),
+						eMax = cms.double(400),
+						value = cms.double(1.0520)),
+					cms.PSet(
+						eMin = cms.double(400),
+						eMax = cms.double(500),
+						value = cms.double(1.0150)),
+					cms.PSet(
+						eMin = cms.double(500),
+						eMax = cms.double(10000),
+						value = cms.double(1.0150))),
+								    recHitEB = cms.InputTag("reducedEgamma","reducedEBRecHits"),
+								    recHitEE = cms.InputTag("reducedEgamma","reducedEERecHits")
+								    ));
+		if addEGMSmear:
+			getattr(process,"correctedElectrons").src = cms.InputTag("calibratedElectrons");
 						    
 			
 			
