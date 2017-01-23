@@ -529,15 +529,15 @@ void makePurityFit(RooWorkspace* ws,
                                                  
   double dataIntegralErr = 0;
   double dataIntegral    = 0;
-  if (uniformIsoBinning) {
+  //if (uniformIsoBinning) {
     dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
 							  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
 							  dataIntegralErr);
-  } else {                   
-    dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
-						  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
-						  dataIntegralErr,"width");
-  }
+    //} else {                   
+    //dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
+    //						  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
+    //						  dataIntegralErr,"width");
+    //}
 
   if(debug)
     cout<<"Data integral : [min,max] =  "<<dataTemplate.phHisto->GetBinLowEdge(1)<<","<<mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean<<" = "<<dataIntegral<<" error "<<dataIntegralErr<<endl;

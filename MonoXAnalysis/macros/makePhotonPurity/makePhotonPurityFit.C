@@ -292,22 +292,22 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
   for(int ibin = 0; ibin < dataHisto.size(); ibin++){
     mean = dataHisto.at(ibin).ptMean/dataHisto.at(ibin).phHisto->Integral();
     dataHisto.at(ibin).ptMean = mean;
-    if (not uniformIsoBinning) divideBinContentByBinWidth(dataHisto.at(ibin).phHisto); 
+    // if (not uniformIsoBinning) divideBinContentByBinWidth(dataHisto.at(ibin).phHisto); 
   }
   for(int ibin = 0; ibin < signalTemplateRND04_data.size(); ibin++){
     mean = signalTemplateRND04_data.at(ibin).ptMean/signalTemplateRND04_data.at(ibin).phHisto->Integral();
     signalTemplateRND04_data.at(ibin).ptMean = mean;
-    if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND04_data.at(ibin).phHisto); 
+    // if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND04_data.at(ibin).phHisto); 
   }
   for(int ibin = 0; ibin < signalTemplateRND08_data.size(); ibin++){
     mean = signalTemplateRND08_data.at(ibin).ptMean/signalTemplateRND08_data.at(ibin).phHisto->Integral();
     signalTemplateRND08_data.at(ibin).ptMean = mean;
-    if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND08_data.at(ibin).phHisto); 
+    // if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND08_data.at(ibin).phHisto); 
   }
   for(int ibin = 0; ibin < backgroundTemplate_data.size(); ibin++){
     mean = backgroundTemplate_data.at(ibin).ptMean/backgroundTemplate_data.at(ibin).phHisto->Integral();
     backgroundTemplate_data.at(ibin).ptMean = mean;
-    if (not uniformIsoBinning) divideBinContentByBinWidth(backgroundTemplate_data.at(ibin).phHisto); 
+    // if (not uniformIsoBinning) divideBinContentByBinWidth(backgroundTemplate_data.at(ibin).phHisto); 
   }
 
 
@@ -419,13 +419,13 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 
     for(size_t ibin = 0; ibin < signalTemplate_gjets.size(); ibin++) {
       signalTemplate_gjets.at(ibin).ptMean = signalTemplate_gjets.at(ibin).ptMean/signalTemplate_gjets.at(ibin).phHisto->Integral();
-      if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplate_gjets.at(ibin).phHisto);
+      // if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplate_gjets.at(ibin).phHisto);
     }
     // to calculate mean pt                                                                                                                                                
                       
     for(size_t ibin = 0; ibin < signalTemplateRND04_gjets.size(); ibin++) {
       signalTemplateRND04_gjets.at(ibin).ptMean = signalTemplateRND04_gjets.at(ibin).ptMean/signalTemplateRND04_gjets.at(ibin).phHisto->Integral();
-      if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND04_gjets.at(ibin).phHisto);
+      // if (not uniformIsoBinning) divideBinContentByBinWidth(signalTemplateRND04_gjets.at(ibin).phHisto);
     }
     // fillHistograms for qcd                                                                                                                        
                                   
@@ -434,7 +434,7 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
                                      
     for(size_t ibin = 0; ibin <  backgroundTemplate_qcd.size(); ibin++) {
       backgroundTemplate_qcd.at(ibin).ptMean = backgroundTemplate_qcd.at(ibin).ptMean/backgroundTemplate_qcd.at(ibin).phHisto->Integral();
-      if (not uniformIsoBinning) divideBinContentByBinWidth(backgroundTemplate_qcd.at(ibin).phHisto);
+      // if (not uniformIsoBinning) divideBinContentByBinWidth(backgroundTemplate_qcd.at(ibin).phHisto);
     }
     // make alternative fits
     outputFile->cd();
