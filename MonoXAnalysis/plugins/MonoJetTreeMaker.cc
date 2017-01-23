@@ -198,6 +198,7 @@ private:
   const edm::EDGetTokenT<double>  rhoToken;
   
   // muons
+  const bool applyDiMuonFilter;
   const edm::InputTag muonsTag;
   const edm::InputTag tightmuonsTag;
   const edm::InputTag highptmuonsTag;
@@ -207,6 +208,7 @@ private:
   edm::EDGetTokenT<pat::MuonRefVector> highptmuonsToken;
 
   // electrons
+  const bool applyDiElectronFilter;
   const edm::InputTag  electronsTag;
   const edm::InputTag  looseelectronsTag;
   const edm::InputTag  tightelectronsTag;
@@ -225,6 +227,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<bool> >    electronLooseIdToken;  
 
   // Photons
+  const bool applyPhotonJetsFilter;
   const edm::InputTag  photonsTag;
   const edm::InputTag  mediumphotonsTag;
   const edm::InputTag  tightphotonsTag;
@@ -700,10 +703,12 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   // rho
   rhoToken    (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   //muons
+  applyDiMuonFilter(iConfig.getParameter<bool>("applyDiMuonFilter")),
   muonsTag       (iConfig.getParameter<edm::InputTag>("muons")),
   tightmuonsTag  (iConfig.getParameter<edm::InputTag>("tightmuons")),
   highptmuonsTag (iConfig.getParameter<edm::InputTag>("highptmuons")),
   // electrons
+  applyDiElectronFilter(iConfig.getParameter<bool>("applyDiElectronFilter")),
   electronsTag      (iConfig.getParameter<edm::InputTag>("electrons")),
   looseelectronsTag (iConfig.getParameter<edm::InputTag>("looseelectrons")),
   tightelectronsTag (iConfig.getParameter<edm::InputTag>("tightelectrons")),
@@ -712,6 +717,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   mvalooseelectronsTag  (iConfig.getParameter<edm::InputTag>("mvalooseelectrons")),
   mvatightelectronsTag  (iConfig.getParameter<edm::InputTag>("mvatightelectrons")),
   // photons
+  applyPhotonJetsFilter(iConfig.getParameter<bool>("applyPhotonJetsFilter")),
   photonsTag        (iConfig.getParameter<edm::InputTag>("photons")),
   mediumphotonsTag  (iConfig.getParameter<edm::InputTag>("mediumphotons")),
   tightphotonsTag   (iConfig.getParameter<edm::InputTag>("tightphotons")),
@@ -2751,7 +2757,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
     // Substructure CHS
-    if(addSubstructureCHS and not isTriggerTree and not isPhotonPurity){      
+    if(addSubstructureCHS and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){      
       //sort collection to make sure it is ordered
       vector<pat::JetRef> jetsBoosted;
       if(boostedJetsH.isValid())
@@ -3121,7 +3127,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Substructure Puppi
-    if(addSubstructurePuppi and not isTriggerTree and not isPhotonPurity){      
+    if(addSubstructurePuppi and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){      
       //sort collection to make sure it is ordered
       vector<pat::JetRef> puppiJetsBoosted;
       if(boostedPuppiJetsH.isValid())
@@ -3479,7 +3485,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // phtoon and electron ID info
-    if(photonIDH.isValid() and addPhotonIDVariables and not isTriggerTree){
+    if(photonIDH.isValid() and addPhotonIDVariables and not isTriggerTree and not applyDiMuonFilter and not applyDiElectronFilter){
 
       photonPt.clear();
       photonEta.clear();
@@ -3526,7 +3532,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }      
     }
 
-    if(electronIDH.isValid() and addElectronIDVariables and not isTriggerTree and not isPhotonPurity){
+    if(electronIDH.isValid() and addElectronIDVariables and not isTriggerTree and not applyDiMuonFilter and not applyPhotonJetsFilter){
 
       electronPt.clear();
       electronEta.clear();
@@ -3963,7 +3969,6 @@ void MonoJetTreeMaker::beginJob() {
     //
     tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/F"); //ND
     tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/F"); //ND
-
 
   }
 
@@ -4408,7 +4413,7 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("el2idmvat"            , &el2idmvat            , "el2idmvat/I");
   tree->Branch("el2idmval"            , &el2idmval            , "el2idmval/I");
 
-  if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
+  if(not isTriggerTree and not isPhotonPurity and not isQCDTree and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
     tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
     tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/F");
     tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/F");
@@ -4433,28 +4438,32 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("zeta"                 , &zeta                 , "zeta/F");
     tree->Branch("zphi"                 , &zphi                 , "zphi/F");
     tree->Branch("wmt"                  , &wmt                  , "wmt/F");
-    tree->Branch("emumass"              , &emumass              , "emumass/F");
-    tree->Branch("emupt"                , &emupt                , "emupt/F");
-    tree->Branch("emueta"               , &emueta               , "emueta/F");
-    tree->Branch("emuphi"               , &emuphi               , "emuphi/F");
+    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
+      tree->Branch("emumass"              , &emumass              , "emumass/F");
+      tree->Branch("emupt"                , &emupt                , "emupt/F");
+      tree->Branch("emueta"               , &emueta               , "emueta/F");
+      tree->Branch("emuphi"               , &emuphi               , "emuphi/F");
+    }
     tree->Branch("zeemass"              , &zeemass              , "zeemass/F");
     tree->Branch("zeept"                , &zeept                , "zeept/F");
     tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/F");
     tree->Branch("zeephi"               , &zeephi               , "zeephi/F");
     tree->Branch("wemt"                 , &wemt                 , "wemt/F");
-    tree->Branch("zttmass"              , &zttmass              , "zttmass/F");
-    tree->Branch("zttpt"                , &zttpt                , "zttept/F");
-    tree->Branch("ztteta"               , &ztteta               , "ztteta/F");
-    tree->Branch("zttphi"               , &zttphi               , "zttphi/F");
-    tree->Branch("wtmt"                 , &wtmt                 , "wtmt/F");
-    tree->Branch("taumumass"              , &taumumass              , "taumumass/F");
-    tree->Branch("taumupt"                , &taumupt                , "taumupt/F");
-    tree->Branch("taumueta"               , &taumueta               , "taumueta/F");
-    tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/F");
-    tree->Branch("tauemass"              , &tauemass              , "tauemass/F");
-    tree->Branch("tauept"                , &tauept                , "tauept/F");
-    tree->Branch("taueeta"               , &taueeta               , "taueeta/F");
-    tree->Branch("tauephi"               , &tauephi               , "tauephi/F");
+    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
+      tree->Branch("zttmass"              , &zttmass              , "zttmass/F");
+      tree->Branch("zttpt"                , &zttpt                , "zttept/F");
+      tree->Branch("ztteta"               , &ztteta               , "ztteta/F");
+      tree->Branch("zttphi"               , &zttphi               , "zttphi/F");
+      tree->Branch("wtmt"                 , &wtmt                 , "wtmt/F");
+      tree->Branch("taumumass"              , &taumumass              , "taumumass/F");
+      tree->Branch("taumupt"                , &taumupt                , "taumupt/F");
+      tree->Branch("taumueta"               , &taumueta               , "taumueta/F");
+      tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/F");
+      tree->Branch("tauemass"              , &tauemass              , "tauemass/F");
+      tree->Branch("tauept"                , &tauept                , "tauept/F");
+      tree->Branch("taueeta"               , &taueeta               , "taueeta/F");
+      tree->Branch("tauephi"               , &tauephi               , "tauephi/F");
+    }
   }
   // Photon info
   tree->Branch("phidm"                , &phidm                , "phidm/I");
@@ -4530,65 +4539,69 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("q2phi"                , &q2phi                , "q2phi/F");
     
     // Top info
-    tree->Branch("topmass"               , &topmass               , "topmass/F");
-    tree->Branch("toppt"                 , &toppt                 , "toppt/F");
-    tree->Branch("topeta"                , &topeta                , "topeta/F");
-    tree->Branch("topphi"                , &topphi                , "topphi/F");
-    tree->Branch("atopmass"               , &atopmass               , "atopmass/F");
-    tree->Branch("atoppt"                 , &atoppt                 , "atoppt/F");
-    tree->Branch("atopeta"                , &atopeta                , "atopeta/F");
-    tree->Branch("atopphi"                , &atopphi                , "atopphi/F");
-    
-    // photon gen info
-    tree->Branch("parid"                , &parid                , "parid/I");
-    tree->Branch("parpt"                , &parpt                , "parpt/F");
-    tree->Branch("pareta"               , &pareta               , "pareta/F");
-    tree->Branch("parphi"               , &parphi               , "parphi/F");
-    tree->Branch("parmass"              , &parmass              , "parmass/F");
-    tree->Branch("ancid"                , &ancid                , "ancid/I");
-    tree->Branch("ancpt"                , &ancpt                , "ancpt/F");
-    tree->Branch("anceta"               , &anceta               , "anceta/F");
-    tree->Branch("ancphi"               , &ancphi               , "ancphi/F");
-    tree->Branch("ancmass"              , &ancmass              , "ancmass/F");
-    
-    // DM mediator
-    tree->Branch("dmmass",&dmmass,"dmmass/F");
-    tree->Branch("dmpt",&dmpt,"dmpt/F");
-    tree->Branch("dmeta",&dmeta,"dmeta/F");
-    tree->Branch("dmphi",&dmphi,"dmphi/F");
-    tree->Branch("dmid",&dmid,"dmid/I");
-    
-    // DM particles
-    tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
-    tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/F");
-    tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/F");
-    tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/F");
-    tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/F");
-    
-    tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
-    tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/F");
-    tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
-    tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
-    tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
-
-    if(uselheweights){
-      tree->Branch("qcdscalewgt","std::vector<float>",&qcdscalewgt);
-      if(isSignalSample){
-	tree->Branch("couplingwgt","std::vector<float>",&couplingwgt);
-	tree->Branch("gDMV","std::vector<float>",&gDMV);
-	tree->Branch("gTheta","std::vector<float>",&gTheta);
-	tree->Branch("gDMA","std::vector<float>",&gDMA);
-	tree->Branch("gV","std::vector<float>",&gV);
-	tree->Branch("gA","std::vector<float>",&gA);
-      }
+    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
+      tree->Branch("topmass"               , &topmass               , "topmass/F");
+      tree->Branch("toppt"                 , &toppt                 , "toppt/F");
+      tree->Branch("topeta"                , &topeta                , "topeta/F");
+      tree->Branch("topphi"                , &topphi                , "topphi/F");
+      tree->Branch("atopmass"               , &atopmass               , "atopmass/F");
+      tree->Branch("atoppt"                 , &atoppt                 , "atoppt/F");
+      tree->Branch("atopeta"                , &atopeta                , "atopeta/F");
+      tree->Branch("atopphi"                , &atopphi                , "atopphi/F");
+      
+      // photon gen info
+      tree->Branch("parid"                , &parid                , "parid/I");
+      tree->Branch("parpt"                , &parpt                , "parpt/F");
+      tree->Branch("pareta"               , &pareta               , "pareta/F");
+      tree->Branch("parphi"               , &parphi               , "parphi/F");
+      tree->Branch("parmass"              , &parmass              , "parmass/F");
+      tree->Branch("ancid"                , &ancid                , "ancid/I");
+      tree->Branch("ancpt"                , &ancpt                , "ancpt/F");
+      tree->Branch("anceta"               , &anceta               , "anceta/F");
+      tree->Branch("ancphi"               , &ancphi               , "ancphi/F");
+      tree->Branch("ancmass"              , &ancmass              , "ancmass/F");
     }
 
-    // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
-    tree->Branch("samplemedM",   &samplemedM, "samplemedM/F");
-    tree->Branch("sampledmM",    &sampledmM, "sampledmM/F");
+    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
+      // DM mediator
+      tree->Branch("dmmass",&dmmass,"dmmass/F");
+      tree->Branch("dmpt",&dmpt,"dmpt/F");
+      tree->Branch("dmeta",&dmeta,"dmeta/F");
+      tree->Branch("dmphi",&dmphi,"dmphi/F");
+      tree->Branch("dmid",&dmid,"dmid/I");
+      
+      // DM particles
+      tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
+      tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/F");
+      tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/F");
+      tree->Branch("dmX1phi",&dmX1phi,"dmX1phi/F");
+      tree->Branch("dmX1mass",&dmX1mass,"dmX1mass/F");
+      
+      tree->Branch("dmX2id",&dmX2id,"dmX2id/I");
+      tree->Branch("dmX2pt",&dmX2pt,"dmX2pt/F");
+      tree->Branch("dmX2eta",&dmX2eta,"dmX2eta/F");
+      tree->Branch("dmX2phi",&dmX2phi,"dmX2phi/F");
+      tree->Branch("dmX2mass",&dmX2mass,"dmX2mass/F");
+      
+      if(uselheweights){
+	tree->Branch("qcdscalewgt","std::vector<float>",&qcdscalewgt);
+	if(isSignalSample){
+	  tree->Branch("couplingwgt","std::vector<float>",&couplingwgt);
+	  tree->Branch("gDMV","std::vector<float>",&gDMV);
+	  tree->Branch("gTheta","std::vector<float>",&gTheta);
+	  tree->Branch("gDMA","std::vector<float>",&gDMA);
+	  tree->Branch("gV","std::vector<float>",&gV);
+	  tree->Branch("gA","std::vector<float>",&gA);
+	}
+      }
+      
+      // sample info: mediator and DM mass, useful for fast sim                                                                                                                     
+      tree->Branch("samplemedM",   &samplemedM, "samplemedM/F");
+      tree->Branch("sampledmM",    &sampledmM, "sampledmM/F");
+    }
   }
   // AK8 Puppi jets                                                                                                                                                             
-  if(addSubstructureCHS and not isTriggerTree and not isPhotonPurity){
+  if(addSubstructureCHS and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
 
     tree->Branch("boostedJetpt",  "std::vector<float>", &boostedJetpt);
     tree->Branch("boostedJeteta", "std::vector<float>", &boostedJeteta);
@@ -4735,8 +4748,8 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<float>", &softDropSubJetBtagSFDown_2);
   }
 
-  if(addSubstructurePuppi and not isTriggerTree and not isPhotonPurity){
-
+  if(addSubstructurePuppi and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
+    
     tree->Branch("boostedPuppiJetpt", "std::vector<float>", &boostedPuppiJetpt);
     tree->Branch("boostedPuppiJeteta", "std::vector<float>", &boostedPuppiJeteta);
     tree->Branch("boostedPuppiJetphi", "std::vector<float>", &boostedPuppiJetphi);
@@ -4883,7 +4896,7 @@ void MonoJetTreeMaker::beginJob() {
 
   }
 
-  if(addPhotonIDVariables and not isTriggerTree and not isQCDTree){
+  if(addPhotonIDVariables and not isTriggerTree and not isQCDTree and not applyDiMuonFilter and not applyDiElectronFilter){
     if(not isPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("photonPt", "std::vector<float>", &photonPt);
@@ -4901,7 +4914,7 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("photonEMIso", "std::vector<float>", &photonEMIso);
     tree->Branch("photonElectronVeto", "std::vector<float>", &photonElectronVeto);
   }
-  if(addElectronIDVariables and not isTriggerTree and not isPhotonPurity and not isQCDTree){
+  if(addElectronIDVariables and not isTriggerTree and not isPhotonPurity and not isQCDTree and not applyDiMuonFilter and not applyPhotonJetsFilter){
     if(not isPhotonPurity)
       tree->Branch("rho"             , &rho             , "rho/F");
     tree->Branch("electronPt", "std::vector<float>", &electronPt);

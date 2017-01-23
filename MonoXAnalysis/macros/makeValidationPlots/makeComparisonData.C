@@ -1005,6 +1005,248 @@ void makeComparisonData(string inputDIR_1, string inputDIR_2, Sample sample, Cat
   drawPlot(canvas,njet_histo_only2,"N_{jet}",outputDIR);  
   drawPlot(canvas,jetmetdphi_histo_only2,"#Delta#phi(jet,met)",outputDIR);  
 
+  /// Make a larger check --> take eventIn1Only and see if these events are in chain_2 and if they fail a specific cut somewhere
+  cout<<"Event found in chain_1 but not in chain_2 --> check what selection are failing"<<endl;
+  reader_2.SetEntry(0);
+  TH1F* selections = new TH1F("selections","",12,0,12);
+  selections->GetXaxis()->SetBinLabel(1,"Found events "); selections->SetBinContent(1,0);
+  selections->GetXaxis()->SetBinLabel(2,"Recoil       "); selections->SetBinContent(2,0);
+  selections->GetXaxis()->SetBinLabel(3,"Njet         "); selections->SetBinContent(3,0);
+  selections->GetXaxis()->SetBinLabel(4,"Tau-veto     "); selections->SetBinContent(4,0);
+  selections->GetXaxis()->SetBinLabel(5,"B-veto       "); selections->SetBinContent(5,0);
+  selections->GetXaxis()->SetBinLabel(6,"Met filters  "); selections->SetBinContent(6,0);
+  selections->GetXaxis()->SetBinLabel(7,"Trigger      "); selections->SetBinContent(7,0);
+  selections->GetXaxis()->SetBinLabel(8,"Photon-id    "); selections->SetBinContent(8,0);
+  selections->GetXaxis()->SetBinLabel(9,"min-dphi     "); selections->SetBinContent(9,0);
+  selections->GetXaxis()->SetBinLabel(10,"metcalo      "); selections->SetBinContent(10,0);
+  selections->GetXaxis()->SetBinLabel(11,"mono-jet id  "); selections->SetBinContent(11,0);
+  selections->GetXaxis()->SetBinLabel(12,"mono-V veto  "); selections->SetBinContent(12,0);
+
+  nEvents=0;
+  nTotal = chain_2->GetEntries();
+  while(reader_2.Next()){
+
+    cout.flush();
+    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 2 "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+
+    eventID event_tmp(*event_alt,*run_alt);
+    auto iterator = std::find(eventIn1Only.begin(),eventIn1Only.end(),event_tmp);
+    if(iterator != eventIn1Only.end()){
+      // found event in the trees
+      selections->SetBinContent(1,selections->GetBinContent(1)+1);      
+
+      // recoil                                                                                                                                                                                   
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *mmet_alt < recoilSelection) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and *emet_alt < recoilSelection) continue;
+      else if(sample == Sample::gam and *pmet_alt < recoilSelection) continue;
+      selections->SetBinContent(2,selections->GetBinContent(2)+1);
+
+      /// jets                                                                                                                                                                                 
+      if(*njets_alt < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+      else if(category == Category::VBF and *nincjets_alt < 2) continue;
+      selections->SetBinContent(3,selections->GetBinContent(3)+1);
+
+      // vetos                                                                                                                                                                                     
+      if(*ntausraw_alt != 0) continue;
+      selections->SetBinContent(4,selections->GetBinContent(4)+1);
+      if(*nbjets_alt != 0) continue;
+      selections->SetBinContent(5,selections->GetBinContent(5)+1);
+
+      /// apply met filters                                                                                                                                                                         
+      if(not *fhbhe_alt or not *fhbiso_alt or not *fcsct_alt or not *feeb_alt or not *feeb_alt or not *fetp_alt or not *fvtx_alt or not *fbadmu_alt or not *fbadch_alt or not *fcsc_alt) continue;
+      selections->SetBinContent(6,selections->GetBinContent(6)+1);
+
+      ////////                                                                                                                                                                                       
+      int hlt = 0;
+      if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
+	hlt = *hltm90_alt+*hltm100_alt+*hltm110_alt+*hltm120_alt+*hltmwm120_alt+*hltmwm170_alt+*hltmwm300_alt+*hltmwm90_alt;
+      else if(sample == Sample::wen or sample == Sample::zee)
+	hlt = *hlte_alt+*hltenoiso_alt;
+      else if(sample == Sample::gam)
+	hlt = *hltp165_alt+*hltp175_alt;
+
+      if(not hlt) continue;
+      selections->SetBinContent(7,selections->GetBinContent(7)+1);
+
+      // tag objets                                                                                                                                                                   
+      if(sample == Sample::wen and (*el1pt_alt < 40 or *el1id_alt != 1 or *wemt_alt > 160 or *met_alt < 50 or *nmuons_alt != 0 or *nphotons_alt != 0 or *nelectrons_alt != 1)) continue;
+      else if(sample == Sample::wmn and (*mu1pt_alt < 20 or *mu1id_alt != 1 or *wmt_alt > 160 or *nelectrons_alt != 0 or *nphotons_alt != 0 or *nmuons_alt != 1)) continue;
+      else if(sample == Sample::gam and (*phpt_alt < 175 or fabs(*pheta_alt) > 1.442 or *phidm_alt != 1 or *nmuons_alt != 0 or *nelectrons_alt != 0 or *nphotons_alt != 1)) continue;
+      else if(sample == Sample::zmm and (not ((*mu1pt_alt > 20 and *mu1id_alt == 1 and fabs(*mu1eta_alt) < 2.4) or (*mu2pt_alt > 20 and *mu2id_alt == 1 and fabs(*mu1eta_alt) < 2.4)) or
+					 *zmass_alt < 60 or *zmass_alt > 120 or *mu1id_alt == *mu2id_alt or *nelectrons_alt != 0 or *nphotons_alt != 0 or *nmuons_alt != 2)) continue;
+      else if(sample == Sample::zee and (not ((*el1pt_alt > 40 and *el1id_alt == 1 and fabs(*el1eta_alt) < 2.5) or (*el2pt_alt > 40 and *el2id_alt == 1 and fabs(*el1eta_alt) < 2.45)) or
+					 *zeemass_alt < 60 or *zeemass_alt > 120 or *el1id_alt == *el2id_alt or *nmuons_alt != 0 or *nphotons_alt != 0 or *nelectrons_alt != 2)) continue;
+
+      selections->SetBinContent(8,selections->GetBinContent(8)+1);
+
+      // min-dphi                                                                                                                                                                                     
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *jmmdphi_alt < 0.5) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and *jemdphi_alt < 0.5) continue;
+      else if(sample == Sample::gam and *jpmdphi_alt < 0.5) continue;
+
+      selections->SetBinContent(9,selections->GetBinContent(9)+1);
+
+      //                                                                                                                                                                                        
+      Double_t metden = 0.0;
+      if (sample == Sample::sig || sample == Sample::qcd) {metden = *mmet_alt;}
+      else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = *mmet_alt;}
+      else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = *emet_alt;}
+      else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = *pmet_alt;}
+      if(fabs(*met_alt-*metcalo_alt)/metden > 0.5) continue;
+
+      selections->SetBinContent(10,selections->GetBinContent(10)+1);
+
+
+      if(category == Category::monojet){
+
+	if(jetpt_alt->at(0) < 100) continue;
+	if(fabs(jeteta_alt->at(0)) > 2.5) continue;
+	if(chfrac_alt->at(0) < 0.1) continue;
+	if(nhfrac_alt->at(0) > 0.8) continue;
+	selections->SetBinContent(11,selections->GetBinContent(11)+1);
+	
+	bool goodMonoV = false;
+
+	if(boostedJetpt_alt->size() != 0 and boostedJetpt_alt->at(0) > 250 and fabs(boostedJeteta_alt->at(0)) < 2.4 and boostedJettau2_alt->at(0)/boostedJettau1_alt->at(0) < 0.6 and
+	   prunedJetm_alt->at(0) > 65 and prunedJetm_alt->at(0) < 105 and metden > 250)
+	  goodMonoV = true;
+	if(goodMonoV) continue;
+
+	selections->SetBinContent(12,selections->GetBinContent(12)+1);
+      }
+    }
+  }
+  cout<<endl;
+  cout<<"Total events = "<<eventIn1Only.size()<<endl;
+  for(int iBin = 1; iBin <= selections->GetNbinsX(); iBin++){
+    if(iBin != 1)
+      cout<<selections->GetXaxis()->GetBinLabel(iBin)<<" = "<<selections->GetBinContent(iBin)<<" reduction "<<fabs(selections->GetBinContent(iBin)-selections->GetBinContent(iBin-1))/eventIn1Only.size()<<endl;
+    else
+      cout<<selections->GetXaxis()->GetBinLabel(iBin)<<" = "<<selections->GetBinContent(iBin)<<endl;
+  }
+  
+  /// Make a larger check --> take eventIn2Only and see if these events are in chain_1 and if they fail a specific cut somewhere
+  cout<<"Event found in chain_2 but not in chain_1 --> check what selection are failing"<<endl;
+  reader_1.SetEntry(0);
+  selections->Reset();
+  selections->GetXaxis()->SetBinLabel(1,"Found events "); selections->SetBinContent(1,0);
+  selections->GetXaxis()->SetBinLabel(2,"Recoil       "); selections->SetBinContent(2,0);
+  selections->GetXaxis()->SetBinLabel(3,"Njet         "); selections->SetBinContent(3,0);
+  selections->GetXaxis()->SetBinLabel(4,"Tau-veto     "); selections->SetBinContent(4,0);
+  selections->GetXaxis()->SetBinLabel(5,"B-veto       "); selections->SetBinContent(5,0);
+  selections->GetXaxis()->SetBinLabel(6,"Met filters  "); selections->SetBinContent(6,0);
+  selections->GetXaxis()->SetBinLabel(7,"Trigger      "); selections->SetBinContent(7,0);
+  selections->GetXaxis()->SetBinLabel(8,"Photon-id    "); selections->SetBinContent(8,0);
+  selections->GetXaxis()->SetBinLabel(9,"min-dphi     "); selections->SetBinContent(9,0);
+  selections->GetXaxis()->SetBinLabel(10,"metcalo      "); selections->SetBinContent(10,0);
+  selections->GetXaxis()->SetBinLabel(11,"mono-jet id  "); selections->SetBinContent(11,0);
+  selections->GetXaxis()->SetBinLabel(12,"mono-V veto  "); selections->SetBinContent(12,0);
+  nEvents=0;
+  nTotal = chain_1->GetEntries();
+  while(reader_1.Next()){
+
+    cout.flush();
+    if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events chain 1 "<<double(nEvents)/nTotal*100<<" % ";
+    nEvents++;
+
+    eventID event_tmp(*event,*run);
+    auto iterator = std::find(eventIn2Only.begin(),eventIn2Only.end(),event_tmp);
+    if(iterator != eventIn2Only.end()){
+      // found event in the trees
+      selections->SetBinContent(1,selections->GetBinContent(1)+1);      
+
+      // recoil                                                                                                                                                                                   
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *mmet < recoilSelection) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and *emet < recoilSelection) continue;
+      else if(sample == Sample::gam and *pmet < recoilSelection) continue;
+      selections->SetBinContent(2,selections->GetBinContent(2)+1);
+
+      /// jets                                                                                                                                                                                 
+      if(*njets < 1 and (category == Category::monojet or category == Category::monoV)) continue;
+      else if(category == Category::VBF and *nincjets < 2) continue;
+      selections->SetBinContent(3,selections->GetBinContent(3)+1);
+
+      // vetos                                                                                                                                                                                     
+      if(*ntausraw != 0) continue;
+      selections->SetBinContent(4,selections->GetBinContent(4)+1);
+      if(*nbjets != 0) continue;
+      selections->SetBinContent(5,selections->GetBinContent(5)+1);
+
+      /// apply met filters                                                                                                                                                                         
+      if(not *fhbhe or not *fhbiso or not *fcsct or not *feeb or not *feeb or not *fetp or not *fvtx or not *fbadmu or not *fbadch or not *fcsc) continue;
+      selections->SetBinContent(6,selections->GetBinContent(6)+1);
+
+      ////////                                                                                                                                                                                       
+      int hlt = 0;
+      if(sample == Sample::sig or sample == Sample::wmn or sample == Sample::zmm)
+	hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm120+*hltmwm170+*hltmwm300+*hltmwm90;
+      else if(sample == Sample::wen or sample == Sample::zee)
+	hlt = *hlte+*hltenoiso;
+      else if(sample == Sample::gam)
+	hlt = *hltp165+*hltp175;
+
+      if(not hlt) continue;
+      selections->SetBinContent(7,selections->GetBinContent(7)+1);
+
+      // tag objets                                                                                                                                                                   
+      if(sample == Sample::wen and (*el1pt < 40 or *el1id != 1 or *wemt > 160 or *met < 50 or *nmuons != 0 or *nphotons != 0 or *nelectrons != 1)) continue;
+      else if(sample == Sample::wmn and (*mu1pt < 20 or *mu1id != 1 or *wmt > 160 or *nelectrons != 0 or *nphotons != 0 or *nmuons != 1)) continue;
+      else if(sample == Sample::gam and (*phpt < 175 or fabs(*pheta) > 1.442 or *phidm != 1 or *nmuons != 0 or *nelectrons != 0 or *nphotons != 1)) continue;
+      else if(sample == Sample::zmm and (not ((*mu1pt > 20 and *mu1id == 1 and fabs(*mu1eta) < 2.4) or (*mu2pt > 20 and *mu2id == 1 and fabs(*mu1eta) < 2.4)) or
+					 *zmass < 60 or *zmass > 120 or *mu1id == *mu2id or *nelectrons != 0 or *nphotons != 0 or *nmuons != 2)) continue;
+      else if(sample == Sample::zee and (not ((*el1pt > 40 and *el1id == 1 and fabs(*el1eta) < 2.5) or (*el2pt > 40 and *el2id == 1 and fabs(*el1eta) < 2.45)) or
+					 *zeemass < 60 or *zeemass > 120 or *el1id == *el2id or *nmuons != 0 or *nphotons != 0 or *nelectrons != 2)) continue;
+
+      selections->SetBinContent(8,selections->GetBinContent(8)+1);
+
+      // min-dphi                                                                                                                                                                                     
+      if((sample == Sample::wmn or sample == Sample::zmm or sample == Sample::sig) and *jmmdphi < 0.5) continue;
+      else if((sample == Sample::wen or sample == Sample::zee) and *jemdphi < 0.5) continue;
+      else if(sample == Sample::gam and *jpmdphi < 0.5) continue;
+
+      selections->SetBinContent(9,selections->GetBinContent(9)+1);
+
+      //                                                                                                                                                                                        
+      Double_t metden = 0.0;
+      if (sample == Sample::sig || sample == Sample::qcd) {metden = *mmet;}
+      else if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu){ metden = *mmet;}
+      else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel){ metden = *emet;}
+      else if (sample == Sample::qcdgam || sample == Sample::gam)  { metden = *pmet;}
+      if(fabs(*met-*metcalo)/metden > 0.5) continue;
+
+      selections->SetBinContent(10,selections->GetBinContent(10)+1);
+
+
+      if(category == Category::monojet){
+
+	if(jetpt->at(0) < 100) continue;
+	if(fabs(jeteta->at(0)) > 2.5) continue;
+	if(chfrac->at(0) < 0.1) continue;
+	if(nhfrac->at(0) > 0.8) continue;
+	selections->SetBinContent(11,selections->GetBinContent(11)+1);
+	
+	bool goodMonoV = false;
+
+	if(boostedJetpt->size() != 0 and boostedJetpt->at(0) > 250 and fabs(boostedJeteta->at(0)) < 2.4 and boostedJettau2->at(0)/boostedJettau1->at(0) < 0.6 and
+	   prunedJetm->at(0) > 65 and prunedJetm->at(0) < 105 and metden > 250)
+	  goodMonoV = true;
+	if(goodMonoV) continue;
+
+	selections->SetBinContent(12,selections->GetBinContent(12)+1);
+      }
+    }
+  }
+  cout<<endl;
+  cout<<"Total events = "<<eventIn2Only.size()<<endl;
+  for(int iBin = 1; iBin <= selections->GetNbinsX(); iBin++){
+    if(iBin != 1)
+      cout<<selections->GetXaxis()->GetBinLabel(iBin)<<" = "<<selections->GetBinContent(iBin)<<" reduction "<<fabs(selections->GetBinContent(iBin)-selections->GetBinContent(iBin-1))/eventIn2Only.size()<<endl;
+    else
+      cout<<selections->GetXaxis()->GetBinLabel(iBin)<<" = "<<selections->GetBinContent(iBin)<<endl;
+  }
+  
+  
   outputFile->Close();
 
 }

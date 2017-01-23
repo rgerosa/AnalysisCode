@@ -581,10 +581,12 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      ## vertexes			    
 			      vertices       = cms.InputTag("goodVertices"),
 			      ## muons    
+			      applyDiMuonFilter = cms.bool(options.applyDiMuonFilter),
 			      muons          = cms.InputTag("selectedObjects","muons"),
 			      tightmuons     = cms.InputTag("selectedObjects","tightmuons"),
 			      highptmuons    = cms.InputTag("selectedObjects","highptmuons"),
 			      ## electrons
+			      applyDiElectronFilter = cms.bool(options.applyDiElectronFilter),
 			      electrons       = cms.InputTag("selectedObjects", "electrons"),
 			      looseelectrons  = cms.InputTag("selectedObjects", "looseelectrons"),
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
@@ -593,6 +595,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      mvalooseelectrons   = cms.InputTag("selectedObjects", "mvalooseelectrons"),
 			      mvatightelectrons   = cms.InputTag("selectedObjects", "mvatightelectrons"),
 			      ## photons --> can be matched by reference 
+			      applyPhotonJetsFilter = cms.bool(options.applyPhotonJetsFilter),
 			      rho             = cms.InputTag("fixedGridRhoFastjetAll"),
 			      photons         = cms.InputTag("selectedObjects", "photons"),
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
