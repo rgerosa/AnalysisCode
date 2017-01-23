@@ -40,7 +40,7 @@
 
 using namespace std;
 
-static vector<int> ptBins = {175,200,225,250,280,320,370,420,1000};  // must be consistent with input file content
+static vector<int> ptBins = {175,200,225,250,280,320,370,420,520,1000};  // must be consistent with input file content
 
 //==============================================
 
@@ -201,7 +201,9 @@ void drawPlotBkg(TH1F* h1, TH1F* h2,
 
 //==============================================
 
-void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
+
+// assume histograms are: data(RND04), data(RND08), MC(matched, noRND04), MC(RND04), last one is optional
+void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4 = NULL,
 	      const string& xAxisName = "", 
 	      const string& canvasTitle = "", 
 	      const string& outputDIR = "./", 
@@ -238,13 +240,13 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   h1->SetLineColor(kBlack);
   h2->SetLineColor(kRed);
   h3->SetLineColor(kBlue);
-  h4->SetLineColor(kGreen+2);
+  if (h4 != NULL ) h4->SetLineColor(kGreen+2);
 
 
   h1->SetLineWidth(2);
   h2->SetLineWidth(2);
   h3->SetLineWidth(2);
-  h4->SetLineWidth(2);
+  if (h4 != NULL ) h4->SetLineWidth(2);
 
   h1->GetXaxis()->SetTitle(xAxisName.c_str());
   h1->GetXaxis()->SetLabelSize(0);
@@ -267,7 +269,7 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   h1->Scale(1./h1->Integral());
   h2->Scale(1./h2->Integral());
   h3->Scale(1./h3->Integral());
-  h4->Scale(1./h4->Integral());
+  if (h4 != NULL ) h4->Scale(1./h4->Integral());
   
   Double_t maximumYaxisValue = -100000.0;
   Double_t minimumYaxisValue = 100000.0;
@@ -276,7 +278,7 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   maximumYaxisValue = TMath::Max(maximumYaxisValue,h4->GetBinContent(h4->GetMaximumBin()));
   minimumYaxisValue = TMath::Min(h1->GetBinContent(h1->GetMinimumBin()),h2->GetBinContent(h2->GetMinimumBin()));
   minimumYaxisValue = TMath::Min(minimumYaxisValue,h3->GetBinContent(h3->GetMinimumBin()));
-  minimumYaxisValue = TMath::Min(minimumYaxisValue,h4->GetBinContent(h4->GetMinimumBin()));
+  if (h4 != NULL ) minimumYaxisValue = TMath::Min(minimumYaxisValue,h4->GetBinContent(h4->GetMinimumBin()));
 
   h1->SetMaximum(maximumYaxisValue * 1.2);
   h1->SetMinimum(0);
@@ -284,14 +286,14 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
   h1->Draw("EP");
   h2->Draw("EP SAME");  
   h3->Draw("HIST SAME");  
-  h4->Draw("HIST SAME");  
+  if (h4 != NULL ) h4->Draw("HIST SAME");  
 
   TLegend *leg = new TLegend(0.4,0.6,0.9,0.90);
   leg->AddEntry((TObject*)0,Form("%d < p_{T} < %d",ptmin,ptmax),"");
   leg->AddEntry(h1,"signal data RND04","PLE");
   leg->AddEntry(h2,"signal data RND08","PLE");
   leg->AddEntry(h3,"signal #gamma+jets matched","L");
-  leg->AddEntry(h4,"signal #gamma+jets RND04","L");
+  if (h4 != NULL ) leg->AddEntry(h4,"signal #gamma+jets RND04","L");
   leg->Draw();
   leg->SetMargin(0.3);
   leg->SetBorderSize(0);
@@ -375,7 +377,7 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4,
 
 //=====================
 
-void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2) {
+void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2, const bool& noGJetsMC_RND04 = false) {
 
   // assume the input file is called PhotonPurityFitResult.root, but can choose its location with inputDIR (default is current directory)
 
@@ -452,11 +454,12 @@ void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2
     hSig_mcGJETS_matched = (TH1F*) hist->Clone();
     //cout << hSig_mcGJETS_matched->GetName() << endl;
 
-    hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_RND04).c_str());
-    checkHistogramInFile(hist,hname_Sig_mcGJETS_RND04,inputfilename);
-    hSig_mcGJETS_RND04 = (TH1F*) hist->Clone();
-    //cout << hSig_mcGJETS_RND04->GetName() << endl;
-
+    if (not noGJetsMC_RND04) {
+      hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_RND04).c_str());
+      checkHistogramInFile(hist,hname_Sig_mcGJETS_RND04,inputfilename);
+      hSig_mcGJETS_RND04 = (TH1F*) hist->Clone();
+      //cout << hSig_mcGJETS_RND04->GetName() << endl;
+    }
 
     //drawPlotBkg(TH1F* h1, TH1F* h2, const string& xAxisName = "", const string& canvasTitle = "", const string& outputDIR = "./")
     drawPlotBkg(hBkg_data, hBkg_mcQCD, 

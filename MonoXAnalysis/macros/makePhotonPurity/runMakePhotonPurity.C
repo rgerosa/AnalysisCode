@@ -21,11 +21,12 @@ void runMakePhotonPurity(const string& inputDirectory = "", // directory with da
 			 const string& addSystematics = "false",
                          const string& inputDirectorySignalMC = "",   // here there must be only MC signal root files                                     
                          const string& inputDirectoryBackgroundMC = "",  // here there must be only MC background root files              
-                         const string& makeFitBasedOnlyOnTemplates = "false"
+                         const string& makeFitBasedOnlyOnTemplates = "false",
+			 const string& uniformIsoBinning = "true"
                          ){
 
 
-  string command = "makePhotonPurityFit(\"" + inputDirectory + "\"," + lumi + ",\"" + outputDIR + "\"," + addSystematics + ",\"" + inputDirectorySignalMC + "\",\"" + inputDirectoryBackgroundMC + "\"," + makeFitBasedOnlyOnTemplates + ")";
+  string command = "makePhotonPurityFit(\"" + inputDirectory + "\"," + lumi + ",\"" + outputDIR + "\"," + addSystematics + ",\"" + inputDirectorySignalMC + "\",\"" + inputDirectoryBackgroundMC + "\"," + makeFitBasedOnlyOnTemplates + "," + uniformIsoBinning + ")";
 
   gROOT->ProcessLine(".L makePhotonPurityPDFs.cc+");
   gSystem->Load("makePhotonPurityPDFs_cc.so");

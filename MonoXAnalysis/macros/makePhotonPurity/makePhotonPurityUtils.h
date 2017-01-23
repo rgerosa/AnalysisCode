@@ -501,13 +501,22 @@ void makePurityFit(RooWorkspace* ws,
 		   const photonID & mediumID,
 		   const bool & debug,
 		   const bool & makeFitBasedOnlyOnTemplates = false,
+		   const bool & uniformIsoBinning = true,
 		   const bool & useAlternativeSigShape = false,
 		   const bool & useAlternativeBkgShape = false){
 
 
-  // create observable                                                                                                                                
-                                             
-  RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()+1));
+  // create observable                         
+
+  // get binning from histograms (use data, binning is the same for all)
+  vector<double> phIsoBinning;
+  for (int i = 1; i < (dataTemplate.phHisto->GetNbinsX()+2); i++) {                                                                                                       
+    phIsoBinning.push_back(dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(i));
+  }
+  RooBinning *binning = new RooBinning(phIsoBinning.size()-1,&phIsoBinning[0],"phIsoBinning");                                      
+  RooRealVar observable ("photoniso","",phIsoBinning.front(),phIsoBinning.back());
+  observable.setBinning(*binning);
+  //RooRealVar observable ("photoniso","",0,dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(1),dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(dataTemplate.phHisto->GetNbinsX()+1));
   if(debug)
     observable.Print();
 
@@ -519,8 +528,16 @@ void makePurityFit(RooWorkspace* ws,
   // integral in data wrt neutral iso selection                                                                                                     
                                                  
   double dataIntegralErr = 0;
-  double dataIntegral    =  dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
-								   dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),dataIntegralErr);
+  double dataIntegral    = 0;
+  if (uniformIsoBinning) {
+    dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
+							  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
+							  dataIntegralErr);
+  } else {                   
+    dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
+						  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
+						  dataIntegralErr,"width");
+  }
 
   if(debug)
     cout<<"Data integral : [min,max] =  "<<dataTemplate.phHisto->GetBinLowEdge(1)<<","<<mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean<<" = "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
@@ -564,10 +581,11 @@ void makePurityFit(RooWorkspace* ws,
   RooRealVar  n_sig      ("n_sig","",1,0,4);
   RooCBShape  cb_sig     ("cb_sig","",observable,mean_sig,var_sig,alpha_sig,n_sig);
   
-  RooRealVar  c_bkg      ("c_bkg","",-0.01,-4.,0.);
-  RooExponential exp_bkg ("exp_bkg","",observable,c_bkg);  
+  RooRealVar  c_exp_bkg  ("c_exp_bkg","",-0.001,-0.1,0.);
+  RooRealVar  c_pow_bkg  ("c_pow_bkg","",-0.01,-4.0,0.);
+  RooExponential exp_bkg ("exp_bkg","",observable,c_exp_bkg);  
   // alternative bkg
-  RooPowPdf pow_bkg("pow_bkg","",observable,c_bkg);
+  RooPowPdf pow_bkg("pow_bkg","",observable,c_pow_bkg);
   if(debug){
     gauss_sig.Print();
     cb_sig.Print();
@@ -713,7 +731,11 @@ void plotFitResult(TCanvas* canvas,
 		   const string & outputDIR, const int & ptMin, const int & ptMax, const string & postfix,
 		   const float & lumi = 36.2){
 
-  
+  vector<double> phIsoBinning;
+  for (int i = 1; i < (data->GetNbinsX()+2); i++) {                                                                                                       
+    phIsoBinning.push_back(data->GetXaxis()->GetBinLowEdge(i));
+  }
+  RooBinning *binning = new RooBinning(phIsoBinning.size()-1,&phIsoBinning[0],"phIsoBinning");                                      
   
   RooAbsPdf*  signalPdf = ws->pdf("signalExtendPdf");
   RooAbsPdf*  backgroundPdf = ws->pdf("backgroundExtendPdf");
@@ -724,11 +746,11 @@ void plotFitResult(TCanvas* canvas,
 
 
   //create histograms from pdfs
-  TH1F* signal_hist = (TH1F*) signalPdf->createHistogram(Form("signal%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
+  TH1F* signal_hist = (TH1F*) signalPdf->createHistogram(Form("signal%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(*binning));
   signal_hist->Sumw2();
   signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral());
 
-  TH1F* background_hist = (TH1F*) backgroundPdf->createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(data->GetNbinsX(),data->GetXaxis()->GetBinLowEdge(1),data->GetXaxis()->GetBinLowEdge(data->GetNbinsX()+1)));
+  TH1F* background_hist = (TH1F*) backgroundPdf->createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(*binning));
   background_hist->Sumw2();
   background_hist->Scale(bkgNorm->getVal()/background_hist->Integral());
 
@@ -760,8 +782,9 @@ void plotFitResult(TCanvas* canvas,
   data->GetXaxis()->SetLabelSize(0);
   data->GetYaxis()->SetTitle("Events / GeV");
   data->GetYaxis()->SetTitleOffset(1.03);
-  if(postfix == "RND08")
-     data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.01,totalHist->GetMaximum()*100);     
+  //if(postfix == "RND08")
+  //   data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.01,totalHist->GetMaximum()*100);    
+  data->GetYaxis()->SetRangeUser(0.1,totalHist->GetMaximum()*50);     
   data->Draw("EP");
      
   background_hist->SetLineColor(kGreen+1);
