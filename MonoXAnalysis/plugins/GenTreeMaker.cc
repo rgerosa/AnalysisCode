@@ -209,7 +209,6 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     TString weight_name (weights[i].id);
     split(tokens, weights[i].id, is_any_of("_"));
     tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-
     if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")){ // DMsimp Scalar-PS                                           
       gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
       gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
@@ -231,13 +230,16 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       couplingwgt.push_back(weights[i].wgt);
     }
     else if(qcdscale.size() != 0){ // qcd scale variations                                                                                                                                         
+      if(weight_name.Contains("rwgt")) continue;
       if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
 	qcdscalewgt.push_back(weights[i].wgt);
     }
-    else if(qcdscale.size() == 0 and ((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009)))
-      qcdscalewgt.push_back(weights[i].wgt);
+    else if(qcdscale.size() == 0){
+      if(weight_name.Contains("rwgt")) continue;
+      else if((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009))
+	qcdscalewgt.push_back(weights[i].wgt);
+    }
   }
-  
   
   wzid = 0; wzmass = -99; wzpt  = -99; wzeta = -99; wzphi = -99;
   mvid = 0; mvmass = -99; mvpt  = -99; mveta = -99; mvphi = -99;
@@ -567,6 +569,11 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	  sampledmM = std::stod(tokens.at(1));
 	}
 	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){// powheg mono-j                                                                                                                
+	  split(tokens, lines.at(iLine), is_any_of(" "));
+	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	  samplemedM = std::stod(tokens.at(1));
+	}
+	else if(lines.at(iLine).find("DMSmass") !=std::string::npos){// powheg mono-j                                                                                                                
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  samplemedM = std::stod(tokens.at(1));
