@@ -46,7 +46,7 @@ options.register (
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
-	'JECEra','Spring16_25nsV10',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Summer16_23Sep2016V3',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
 
 ## JET information
@@ -169,7 +169,7 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','80X_dataRun2_Prompt_ICHEP16JEC_v0',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','80X_dataRun2_Prompt_v14',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## Dump Gen Level info
@@ -211,8 +211,8 @@ options.parseArguments()
 
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
-	options.globalTag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1';
-	options.JECEra  = 'Spring16_25nsV10';
+	options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6';
+	options.JECEra  = 'Summer16_23Sep2016V3';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 	

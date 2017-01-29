@@ -1,7 +1,7 @@
 ######### VBF
 samples['VBF_HToInvisible_M110']    = ['/VBF_HToInvisible_M110_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=4.434e+00','triggerName=HLT']]
 
-samples['VBF_HToInvisible_M125']    = ['/VBF_HToInvisible_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-FlatPU28to62HcalNZSRAW_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=3.782','triggerName=HLT']]
+samples['VBF_HToInvisible_M125']    = ['/VBF_HToInvisible_M125_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=3.782','triggerName=HLT']]
 
 samples['VBF_HToInvisible_M150']    = ['/VBF_HToInvisible_M150_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=3.239e+00','triggerName=HLT']]
 
@@ -11,7 +11,7 @@ samples['VBF_HToInvisible_M300']    = ['/VBF_HToInvisible_M300_13TeV_powheg_pyth
 
 samples['VBF_HToInvisible_M400']    = ['/VBF_HToInvisible_M400_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=7.580e-01','triggerName=HLT']]
 
-samples['VBF_HToInvisible_M500']    = ['',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=4.872e-01','triggerName=HLT']]
+samples['VBF_HToInvisible_M500']    = ['/VBF_HToInvisible_M500_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=4.872e-01','triggerName=HLT']]
 
 samples['VBF_HToInvisible_M600']    = ['/VBF_HToInvisible_M600_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=3.274e-01','triggerName=HLT']]
 
@@ -37,7 +37,7 @@ samples['GluGlu_HToInvisible_M600']    = ['/GluGlu_HToInvisible_M600_13TeV_powhe
 samples['GluGlu_HToInvisible_M800']    = ['/GluGlu_HToInvisible_M800_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=4.015e-01','triggerName=HLT']]
 
 ######## WH
-samples['WminusH_HToInvisible_WToQQ_M110'] = ['',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=8.587e-01','triggerName=HLT']]
+samples['WminusH_HToInvisible_WToQQ_M110'] = ['/WminusH_HToInvisible_WToQQ_M110_13TeV_powheg_pythia8/RunIISummer16MiniAODv2-PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/MINIAODSIM',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=8.587e-01','triggerName=HLT']]
 
 samples['WminusH_HToInvisible_WToQQ_M150'] = ['',['useLHEWeights=True','addQCDPDFWeights=True','isSignalSample=True','addGenParticles=True','crossSection=3.498e-01','triggerName=HLT']]
 

@@ -9,7 +9,7 @@ static float detajj         = 2.75;
 static float detajjrelaxed  = 1.75;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float dphijj         = 2.0;
+static float dphijj         = 2.5;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;

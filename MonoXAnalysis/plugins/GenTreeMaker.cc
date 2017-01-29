@@ -202,6 +202,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   gV.clear(); 
   gA.clear(); 
   couplingwgt.clear();
+  gTheta.clear();
 
   vector<gen::WeightsInfo> weights = lheInfoH->weights();
   std::vector<std::string> tokens;

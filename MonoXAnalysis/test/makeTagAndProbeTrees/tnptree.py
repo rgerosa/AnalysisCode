@@ -10,15 +10,27 @@ options.register (
         'flag to indicate data or MC');
 
 options.register (
-        'globalTag','80X_dataRun2_Prompt_v8',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+        'globalTag','80X_dataRun2_Prompt_v14',VarParsing.multiplicity.singleton,VarParsing.varType.string,
         'gloabl tag to be uses');
+
+options.register (
+        'usePrivateSQliteJEC',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'if a private SQL file with JEC to be found in test directory');
+
+options.register (
+        'JECEra','Summer16_23Sep2016V3',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+        'JEC correction era');
+
+options.register (
+        'isCrab',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'if a private SQL file with JEC to be used via crab');
 
 
 ## parsing command line arguments                                                                                                                                            
 options.parseArguments()
 
 if options.isMC and 'dataRun2' in options.globalTag:
-        options.globalTag = '80X_mcRun2_asymptotic_2016_miniAODv2';
+        options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6';
 
 print "##### Settings ######"
 print "Running with isMC                = ",options.isMC
@@ -76,6 +88,12 @@ process.TFileService = cms.Service("TFileService", fileName = cms.string("tnptre
 # Set the global tag depending on the sample type
 process.GlobalTag.globaltag = options.globalTag
 
+## Setup the private SQLite -- Ripped from PhysicsTools/PatAlgos/test/corMETFromMiniAOD.py                                                                                                            
+from AnalysisCode.MonoXAnalysis.JECConfiguration_cff import JECConfiguration
+## connect to a local SQLite file or take corrections from GT                                                                                                                                         
+JECConfiguration(process,options.usePrivateSQliteJEC,options.JECEra,options.isMC,True,options.isCrab)
+
+
 # Select good primary vertices
 process.goodVertices = cms.EDFilter("VertexSelector",
 				    src = cms.InputTag("offlineSlimmedPrimaryVertices"),
@@ -101,14 +119,14 @@ process.probeelectrons = cms.EDFilter("PATElectronSelector",
 
 # Electron ValueMaps for identification
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process,False,options.isMC)
+ElectronTools(process,False,options.isMC,False)
 process.egmGsfElectronIDs.physicsObjectSrc = cms.InputTag("probeelectrons")
 process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag("probeelectrons"); 
 process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag("probeelectrons");
 
 # Photon ValueMaps for identification
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
-PhotonTools(process,False,options.isMC)
+PhotonTools(process,False,options.isMC,False)
 
 ##### set of single muons triggers --> no eta restricted path are neeeded 
 tagmuontriggernames = cms.vstring([

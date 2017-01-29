@@ -77,13 +77,44 @@ void makeCouplingVaritionDMSimp(string inputDIR,
     }
   }
 
+
+  cout<<"Sum of weights monojet "<<endl;
+  vector<double> sumwgt_monojet;
+  for(auto tree : chain_monojet){
+
+    TTreeReader reader (tree);
+    TTreeReaderValue<float> wgt (reader,"wgt");
+    TTreeReaderValue<float> xsec (reader,"xsec");
+    TTreeReaderValue<float> sampledmM (reader,"sampledmM");
+    TTreeReaderValue<float> samplemedM (reader,"samplemedM");
+    TTreeReaderValue<float> dmpt (reader,"dmpt");
+    TTreeReaderValue<vector<float> > gDMV (reader,"gDMV");
+    TTreeReaderValue<vector<float> > gDMA (reader,"gDMA");
+    TTreeReaderValue<vector<float> > gV (reader,"gV");
+    TTreeReaderValue<vector<float> > gA (reader,"gA");
+    TTreeReaderValue<vector<float> >gTheta (reader,"gTheta");
+
+    sumwgt_monojet.push_back(0);
+    while(reader.Next()){
+
+      if(sample == Sample::vector and (gDMV->size() == 0 or gV->size() == 0)) continue;
+      if(sample == Sample::scalar and (gDMV->size() == 0 or gV->size() == 0)) continue;
+      if(sample == Sample::axial and (gDMV->size() == 0 or gV->size() == 0)) continue;
+      if(sample == Sample::pseudoscalar and (gDMA->size() == 0 or gA->size() == 0)) continue;
+
+      sumwgt_monojet.back() += *wgt;
+    }
+  }
+
+
   system("rm list.temp");
 
   // each loop is 1 mass point
   cout<<"Loop on monojet chain "<<endl; 
   vector<massPoint> bosonPtSpectrum;
-
+  int ifile = 0;
   for(auto tree : chain_monojet){
+    ifile++;
     TTreeReader reader (tree);
     TTreeReaderValue<float> wgt (reader,"wgt");
     TTreeReaderValue<float> xsec (reader,"xsec");
@@ -98,7 +129,6 @@ void makeCouplingVaritionDMSimp(string inputDIR,
     TTreeReaderValue<vector<float> >gTheta (reader,"gTheta");
 
     long int iEvent = 0;
-
     while(reader.Next()){
       iEvent++;
       
@@ -129,7 +159,13 @@ void makeCouplingVaritionDMSimp(string inputDIR,
 	    bosonPtSpectrum.back().bosonpt.push_back(new TH1F(Form("bosonpt_med_%d_dm_%d_nominal",int(*samplemedM),int(*sampledmM)),"",metBin.size()-1,&metBin[0]));
 	    bosonPtSpectrum.back().bosonpt.back()->Sumw2();
 	    bosonPtSpectrum.back().gsm.push_back(0.25);
-	    bosonPtSpectrum.back().gdm.push_back(1.0);
+	    bosonPtSpectrum.back().gdm.push_back(1.0);	    
+	  }
+	  if(sample == Sample::scalar){
+	    bosonPtSpectrum.back().bosonpt.push_back(new TH1F(Form("bosonpt_med_%d_dm_%d_nominal",int(*samplemedM),int(*sampledmM)),"",metBin.size()-1,&metBin[0]));
+            bosonPtSpectrum.back().bosonpt.back()->Sumw2();
+            bosonPtSpectrum.back().gsm.push_back(1.0);
+            bosonPtSpectrum.back().gdm.push_back(1.0);
 	  }
 	}
 	else if(sample == Sample::axial or sample == Sample::pseudoscalar){
@@ -150,24 +186,40 @@ void makeCouplingVaritionDMSimp(string inputDIR,
 	    bosonPtSpectrum.back().gsm.push_back(0.25);
 	    bosonPtSpectrum.back().gdm.push_back(1.0);
 	  }
+	  if(sample == Sample::pseudoscalar){
+	    bosonPtSpectrum.back().bosonpt.push_back(new TH1F(Form("bosonpt_med_%d_dm_%d_nominal",int(*samplemedM),int(*sampledmM)),"",metBin.size()-1,&metBin[0]));
+	    bosonPtSpectrum.back().bosonpt.back()->Sumw2();
+	    bosonPtSpectrum.back().gsm.push_back(1.0);
+	    bosonPtSpectrum.back().gdm.push_back(1.0);
+	  }
 	}	
       }
       
       // appply boson ot cut
       if(*dmpt < minBosonPt) continue;
       
+      double wgt_central = *wgt;
+      if(sample == Sample::scalar or sample == Sample::pseudoscalar){ // find weight in a more robust way
+	for(size_t iwgt = 0; iwgt < gDMV->size(); iwgt++){
+	  if(sample == Sample::scalar and gV->at(iwgt) == float(1.0) and gDMV->at(iwgt) == float(1.0))
+	    wgt_central = couplingwgt->at(iwgt);
+	  else if(sample == Sample::pseudoscalar and gA->at(iwgt) == float(1.0) and gDMA->at(iwgt) == float(1.0))
+	    wgt_central = couplingwgt->at(iwgt);
+	}	  
+      }
+
       if(sample == Sample::vector or sample == Sample::scalar){
-	bosonPtSpectrum.back().bosonpt.back()->Fill(*dmpt,*wgt*lumi);
+	bosonPtSpectrum.back().bosonpt.back()->Fill(*dmpt,*xsec*(*wgt)*lumi/sumwgt_monojet.at(ifile-1));
 	for(size_t iwgt = 0; iwgt < gDMV->size(); iwgt++){
 	  if(gV->at(iwgt) == 0 and gDMV->at(iwgt) == 0) break;
-	  bosonPtSpectrum.back().bosonpt.at(iwgt)->Fill(*dmpt,*wgt*lumi*couplingwgt->at(iwgt)/(*wgt));
+	  bosonPtSpectrum.back().bosonpt.at(iwgt)->Fill(*dmpt,*xsec*(*wgt)*lumi*couplingwgt->at(iwgt)/(wgt_central)*1./sumwgt_monojet.at(ifile-1));
 	}
       }
       if(sample == Sample::axial or sample == Sample::pseudoscalar){
-	bosonPtSpectrum.back().bosonpt.back()->Fill(*dmpt,*wgt*lumi);
+	bosonPtSpectrum.back().bosonpt.back()->Fill(*dmpt,*xsec*(*wgt)*lumi/sumwgt_monojet.at(ifile-1));
 	for(size_t iwgt = 0; iwgt < gDMA->size(); iwgt++){
 	  if(gA->at(iwgt) == 0 and gDMA->at(iwgt) == 0) break;
-	  bosonPtSpectrum.back().bosonpt.at(iwgt)->Fill(*dmpt,*wgt*lumi*couplingwgt->at(iwgt)/(*wgt));
+	  bosonPtSpectrum.back().bosonpt.at(iwgt)->Fill(*dmpt,*xsec*(*wgt)*lumi*couplingwgt->at(iwgt)/(wgt_central)*1./sumwgt_monojet.at(ifile-1));
 	}
       }      
     }
@@ -242,6 +294,7 @@ void makeCouplingVaritionDMSimp(string inputDIR,
 	    histo->SetMarkerColor(color_V.at(icolor));
 	    histo->Draw("hist same");
 	    histo->Draw("P same");
+	    cout<<"histo name "<<histo->GetName()<<" integral "<<histo->Integral()<<endl;
 	  }
 	  else if(sample == Sample::scalar or sample == Sample::pseudoscalar){
 	    histo->SetLineWidth(2);
@@ -250,6 +303,7 @@ void makeCouplingVaritionDMSimp(string inputDIR,
 	    histo->SetMarkerColor(color_S.at(icolor));
 	    histo->Draw("hist same");
 	    histo->Draw("P same");
+	    cout<<"histo name "<<histo->GetName()<<" integral "<<histo->Integral()<<endl;
 	  }
 	  leg.AddEntry(histo,Form("g_{SM} = %.2f, g_{DM} = %.2f",gSM.at(ig),gDM.at(ig)),"PL");
 	  icolor++;	  	  
