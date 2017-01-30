@@ -40,7 +40,7 @@
 
 using namespace std;
 
-static vector<int> ptBins = {175,200,225,250,280,320,370,420,520,1000};  // must be consistent with input file content
+static vector<int> ptBins = {175,200,225,250,280,320,370,420,480,1000};  // must be consistent with input file content
 
 //==============================================
 
@@ -377,7 +377,7 @@ void drawPlotSig(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4 = NULL,
 
 //=====================
 
-void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2, const bool& noGJetsMC_RND04 = false) {
+void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2, const bool& useOnlyData = false, const bool& noGJetsMC_RND04 = false) {
 
   // assume the input file is called PhotonPurityFitResult.root, but can choose its location with inputDIR (default is current directory)
 
@@ -407,7 +407,7 @@ void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2
   }
 
 
-  TH1F* hist = NULL; // dummy pointer to get histogram in file, the we clone it 
+  TH1F* hist = NULL; // dummy pointer to get histogram in file, then we clone it 
   int nptBins = ( (int)ptBins.size() ) - 1; 
 
   // loop on pt bins
@@ -434,11 +434,6 @@ void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2
     hBkg_data = (TH1F*) hist->Clone();
     //cout << hBkg_data->GetName() << endl;
 
-    hist = (TH1F*) inputfile->Get((infileDir+hname_Bkg_mcQCD).c_str());
-    checkHistogramInFile(hist,hname_Bkg_mcQCD,inputfilename);
-    hBkg_mcQCD = (TH1F*) hist->Clone();
-    //cout << hBkg_mcQCD->GetName() << endl;
-
     hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_data_RND04).c_str());
     checkHistogramInFile(hist,hname_Sig_data_RND04,inputfilename);
     hSig_data_RND04 = (TH1F*) hist->Clone();
@@ -449,25 +444,37 @@ void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2
     hSig_data_RND08 = (TH1F*) hist->Clone();
     //cout << hSig_data_RND08->GetName() << endl;
 
-    hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_matched).c_str());
-    checkHistogramInFile(hist,hname_Sig_mcGJETS_matched,inputfilename);
-    hSig_mcGJETS_matched = (TH1F*) hist->Clone();
-    //cout << hSig_mcGJETS_matched->GetName() << endl;
+    if (not useOnlyData) {
 
-    if (not noGJetsMC_RND04) {
-      hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_RND04).c_str());
-      checkHistogramInFile(hist,hname_Sig_mcGJETS_RND04,inputfilename);
-      hSig_mcGJETS_RND04 = (TH1F*) hist->Clone();
-      //cout << hSig_mcGJETS_RND04->GetName() << endl;
+      hist = (TH1F*) inputfile->Get((infileDir+hname_Bkg_mcQCD).c_str());
+      checkHistogramInFile(hist,hname_Bkg_mcQCD,inputfilename);
+      hBkg_mcQCD = (TH1F*) hist->Clone();
+      //cout << hBkg_mcQCD->GetName() << endl;
+
+      hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_matched).c_str());
+      checkHistogramInFile(hist,hname_Sig_mcGJETS_matched,inputfilename);
+      hSig_mcGJETS_matched = (TH1F*) hist->Clone();
+      //cout << hSig_mcGJETS_matched->GetName() << endl;
+
+      if (not noGJetsMC_RND04) {
+	hist = (TH1F*) inputfile->Get((infileDir+hname_Sig_mcGJETS_RND04).c_str());
+	checkHistogramInFile(hist,hname_Sig_mcGJETS_RND04,inputfilename);
+	hSig_mcGJETS_RND04 = (TH1F*) hist->Clone();
+	//cout << hSig_mcGJETS_RND04->GetName() << endl;
+      }
+
     }
 
-    //drawPlotBkg(TH1F* h1, TH1F* h2, const string& xAxisName = "", const string& canvasTitle = "", const string& outputDIR = "./")
-    drawPlotBkg(hBkg_data, hBkg_mcQCD, 
-	     hBkg_data->GetXaxis()->GetTitle(), 
-	     Form("comp_bkg_data_mcQCD_pt%dTo%d",ptBins[ipt],ptBins[ipt+1]), 
-	     outputDIR+bkgDIR,
-	     lumi,
-	     ptBins[ipt],ptBins[ipt+1]);
+
+    if (useOnlyData)  {
+      //drawPlotBkg(TH1F* h1, TH1F* h2, const string& xAxisName = "", const string& canvasTitle = "", const string& outputDIR = "./")
+      drawPlotBkg(hBkg_data, hBkg_mcQCD, 
+		  hBkg_data->GetXaxis()->GetTitle(), 
+		  Form("comp_bkg_data_mcQCD_pt%dTo%d",ptBins[ipt],ptBins[ipt+1]), 
+		  outputDIR+bkgDIR,
+		  lumi,
+		  ptBins[ipt],ptBins[ipt+1]);
+    }
 
     drawPlotSig(hSig_data_RND04,hSig_data_RND08,hSig_mcGJETS_matched,hSig_mcGJETS_RND04, 
 	     hSig_data_RND04->GetXaxis()->GetTitle(), 
