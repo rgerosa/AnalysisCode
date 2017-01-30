@@ -501,7 +501,6 @@ void makePurityFit(RooWorkspace* ws,
 		   const photonID & mediumID,
 		   const bool & debug,
 		   const bool & makeFitBasedOnlyOnTemplates = false,
-		   const bool & uniformIsoBinning = true,
 		   const bool & useAlternativeSigShape = false,
 		   const bool & useAlternativeBkgShape = false){
 
@@ -513,6 +512,7 @@ void makePurityFit(RooWorkspace* ws,
   for (int i = 1; i < (dataTemplate.phHisto->GetNbinsX()+2); i++) {                                                                                                       
     phIsoBinning.push_back(dataTemplate.phHisto->GetXaxis()->GetBinLowEdge(i));
   }
+
   RooBinning *binning = new RooBinning(phIsoBinning.size()-1,&phIsoBinning[0],"phIsoBinning");                                      
   RooRealVar observable ("photoniso","",phIsoBinning.front(),phIsoBinning.back());
   observable.setBinning(*binning);
@@ -529,15 +529,11 @@ void makePurityFit(RooWorkspace* ws,
                                                  
   double dataIntegralErr = 0;
   double dataIntegral    = 0;
-  //if (uniformIsoBinning) {
-    dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
-							  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
-							  dataIntegralErr);
-    //} else {                   
-    //dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
-    //						  dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
-    //						  dataIntegralErr,"width");
-    //}
+  dataIntegral = dataTemplate.phHisto->IntegralAndError(dataTemplate.phHisto->FindBin(dataTemplate.phHisto->GetBinLowEdge(1)),
+							dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean),
+							dataIntegralErr);
+  // try using explicitply 1 as starting bin (1 is the first bin, the underflow bin number is 0
+  //dataIntegral = dataTemplate.phHisto->IntegralAndError(1, dataTemplate.phHisto->FindBin(mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean), dataIntegralErr);
 
   if(debug)
     cout<<"Data integral : [min,max] =  "<<dataTemplate.phHisto->GetBinLowEdge(1)<<","<<mediumID.phiso0+mediumID.phiso1*dataTemplate.ptMean<<" = "<<dataIntegral<<" error "<<dataIntegralErr<<endl;
@@ -581,10 +577,10 @@ void makePurityFit(RooWorkspace* ws,
   RooRealVar  n_sig      ("n_sig","",1,0,4);
   RooCBShape  cb_sig     ("cb_sig","",observable,mean_sig,var_sig,alpha_sig,n_sig);
   
-  RooRealVar  c_exp_bkg  ("c_exp_bkg","",-0.001,-0.1,0.);
-  RooRealVar  c_pow_bkg  ("c_pow_bkg","",-0.01,-4.0,0.);
+  RooRealVar  c_exp_bkg  ("c_exp_bkg","",-0.01,-4.0,0.0); // -0.001, -0.1, 0.0
   RooExponential exp_bkg ("exp_bkg","",observable,c_exp_bkg);  
   // alternative bkg
+  RooRealVar  c_pow_bkg  ("c_pow_bkg","",-0.01,-4.0,0.);
   RooPowPdf pow_bkg("pow_bkg","",observable,c_pow_bkg);
   if(debug){
     gauss_sig.Print();
@@ -729,11 +725,23 @@ void plotFitResult(TCanvas* canvas,
 		   TH1F* data,   
 		   RooWorkspace* ws,
 		   const string & outputDIR, const int & ptMin, const int & ptMax, const string & postfix,
-		   const float & lumi = 36.2){
+		   const float & lumi = 36.2,
+  		   const bool & uniformIsoBinning = true) {
+		     
+  //here I create a clone of the data histogram and divide its bin contents by bin width to use it in the plotFtResults function. This is or a test                        
+  TH1F* data_new = (TH1F*) data->Clone("data_new");
+  data_new->Sumw2();
+
+  if (not uniformIsoBinning) {
+    for (int i = 0; i < data_new->GetNbinsX()+1; i++) {
+      data_new->SetBinContent(i, data_new->GetBinContent(i)/data_new->GetBinWidth(i));
+      data_new->SetBinError(i, data_new->GetBinError(i)/data_new->GetBinWidth(i));
+    }
+  }
 
   vector<double> phIsoBinning;
-  for (int i = 1; i < (data->GetNbinsX()+2); i++) {                                                                                                       
-    phIsoBinning.push_back(data->GetXaxis()->GetBinLowEdge(i));
+  for (int i = 1; i < (data_new->GetNbinsX()+2); i++) {                                                                                                       
+    phIsoBinning.push_back(data_new->GetXaxis()->GetBinLowEdge(i));
   }
   RooBinning *binning = new RooBinning(phIsoBinning.size()-1,&phIsoBinning[0],"phIsoBinning");                                      
   
@@ -744,15 +752,16 @@ void plotFitResult(TCanvas* canvas,
   RooRealVar* sigNorm = ws->var("signalNorm");
   RooRealVar* bkgNorm = ws->var("backgroundNorm");
 
-
   //create histograms from pdfs
   TH1F* signal_hist = (TH1F*) signalPdf->createHistogram(Form("signal%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(*binning));
   signal_hist->Sumw2();
-  signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral());
+  if (uniformIsoBinning) signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral());
+  else signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral("width"));
 
   TH1F* background_hist = (TH1F*) backgroundPdf->createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(*binning));
   background_hist->Sumw2();
-  background_hist->Scale(bkgNorm->getVal()/background_hist->Integral());
+  if (uniformIsoBinning) background_hist->Scale(bkgNorm->getVal()/background_hist->Integral());
+  else background_hist->Scale(bkgNorm->getVal()/background_hist->Integral("width"));
 
   TH1F* totalHist = (TH1F*) signal_hist->Clone(Form("totalHist%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
   totalHist->Add(background_hist);
@@ -771,21 +780,21 @@ void plotFitResult(TCanvas* canvas,
   pad2->SetGridy(1);
   pad2->SetFillStyle(0);
   
-  TH1* frame =  (TH1*) data->Clone(Form("frame_pt_%d_%d",ptMin,ptMax));
+  TH1* frame =  (TH1*) data_new->Clone(Form("frame_pt_%d_%d",ptMin,ptMax));
   frame->GetXaxis()->SetLabelSize(0.04);
 
-  data->SetLineColor(kBlack);
-  data->SetMarkerColor(kBlack);
-  data->SetMarkerStyle(20);
-  data->SetMarkerSize(1);
+  data_new->SetLineColor(kBlack);
+  data_new->SetMarkerColor(kBlack);
+  data_new->SetMarkerStyle(20);
+  data_new->SetMarkerSize(1);
 
-  data->GetXaxis()->SetLabelSize(0);
-  data->GetYaxis()->SetTitle("Events / GeV");
-  data->GetYaxis()->SetTitleOffset(1.03);
+  data_new->GetXaxis()->SetLabelSize(0);
+  data_new->GetYaxis()->SetTitle("Events / GeV");
+  data_new->GetYaxis()->SetTitleOffset(1.03);
   //if(postfix == "RND08")
-  //   data->GetYaxis()->SetRangeUser(data->GetMinimum()*0.01,totalHist->GetMaximum()*100);    
-  data->GetYaxis()->SetRangeUser(0.1,totalHist->GetMaximum()*50);     
-  data->Draw("EP");
+  //   data_new->GetYaxis()->SetRangeUser(data_new->GetMinimum()*0.01,totalHist->GetMaximum()*100);    
+  data_new->GetYaxis()->SetRangeUser(0.1,totalHist->GetMaximum()*50);     
+  data_new->Draw("EP");
      
   background_hist->SetLineColor(kGreen+1);
   background_hist->SetLineWidth(2);
@@ -803,7 +812,7 @@ void plotFitResult(TCanvas* canvas,
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
-  leg.AddEntry(data,"Data","PLE");
+  leg.AddEntry(data_new,"Data","PLE");
   leg.AddEntry(totalHist,"Total Fit","L");
   leg.AddEntry(signal_hist,"Signal Component","L");
   leg.AddEntry(background_hist,"Background Component","L");
@@ -821,7 +830,7 @@ void plotFitResult(TCanvas* canvas,
   frame->GetYaxis()->SetTitle("Data/Fit");
   frame->GetXaxis()->SetTitle("Photon Isolation [GeV]");
 
-  TH1F* ratio = (TH1F*) data->Clone(Form("ratio%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
+  TH1F* ratio = (TH1F*) data_new->Clone(Form("ratio%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
   TH1F* denFit_noerr = (TH1F*) totalHist->Clone(Form("denFit_noerr%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
   TH1F* denFit = (TH1F*) totalHist->Clone(Form("denFit%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
   for(int iBin = 1; iBin < denFit->GetNbinsX()+1; iBin++)
@@ -843,7 +852,7 @@ void plotFitResult(TCanvas* canvas,
   pad2->RedrawAxis("sameaxis");
 
   // Calculate chi2
-  double chi2 = data->Chi2Test(totalHist,"CHI2/NDF UW");
+  double chi2 = data_new->Chi2Test(totalHist,"CHI2/NDF UW");
   TLegend leg2 (0.14,0.25,0.32,0.28,NULL,"brNDC");
   leg2.SetFillColor(0);
   leg2.SetFillStyle(1);
