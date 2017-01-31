@@ -1,15 +1,17 @@
 #include "../CMS_lumi.h"
 
-vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
-vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
+//vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
+//vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
+vector<float> bosonPt          {150.,250.,400,650,1000};
+vector<float> bosonPt_vbf      {150.,250.,400,650,1000};
 
-static float mjj            = 800;
+static float mjj            = 1300;
 static float mjjrelaxed     = 350;
-static float detajj         = 2.75;
+static float detajj         = 3.5;
 static float detajjrelaxed  = 1.75;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float dphijj         = 2.5;
+static float dphijj         = 0.75;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -158,43 +160,61 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
       
+      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
+
+
+      vector<TLorentzVector> jets;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
+	if(sample == Sample::wjet or sample == Sample::znn or sample == Sample::zll){
+	  float dphi1 = fabs(jetphi->at(ijet)-*l1phi);
+	  float dphi2 = fabs(jetphi->at(ijet)-*l2phi);
+	  if(dphi1 > TMath::Pi())
+	    dphi1 = 2*TMath::Pi()-dphi1;
+	  if(dphi2 > TMath::Pi())
+	    dphi2 = 2*TMath::Pi()-dphi2;
+	  if(sqrt(dphi1*dphi1+fabs(jeteta->at(ijet)-*l1eta)*fabs(jeteta->at(ijet)-*l1eta)) > 0.4 and
+	     sqrt(dphi2*dphi2+fabs(jeteta->at(ijet)-*l2eta)*fabs(jeteta->at(ijet)-*l2eta)) > 0.4
+	     ){ // check cleaning
+	    jets.push_back(jet4V);
+	  }
+	}
+      }
+
+      if(jets.size() < 1) continue;
+
       // calculate min-dphi at gen level where met is boson 4V
       float mindphi   = 100;
-      for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
+      for(size_t ijet = 0; ijet < jets.size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
-	float dphi = fabs(*wzphi-jetphi->at(ijet));
+	float dphi = fabs(*wzphi-jets.at(ijet).Phi());
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
 	if(dphi < mindphi)
 	  mindphi = dphi;	
       }
       
-      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
-
+      
       // apply monojet-like selections
-      if(*njets >= 1 and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and *wzpt >= 150 and mindphi > 0.5)
+      if(jets.size() >= 1 and jets.at(0).Pt() > 100 and fabs(jets.at(0).Eta()) < 2.5 and *wzpt >= 150 and mindphi > 0.5)
 	bosonPt_LO_monojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 
-      if(*njetsinc >= 2 and jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)) < 4.7 and  fabs(jeteta->at(1)) < 4.7 and mindphi > 0.5){      
+      if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
 
 	// fill two jet phase space
 	bosonPt_LO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
-
-	TLorentzVector jet1, jet2;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
-	if((jet1+jet2).M() < mjjrelaxed) continue;
-	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
-	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+			 
+	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
+	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
+	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
 	bosonPt_LO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
 
-	if((jet1+jet2).M() < mjj) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
-
+	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
+	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
       }
     }
     ifile++;
@@ -241,38 +261,56 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
 
-      float mindphi = 100;
-      for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
+      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
+
+      vector<TLorentzVector> jets;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
+	if(sample == Sample::wjet or sample == Sample::znn or sample == Sample::zll){
+	  float dphi1 = fabs(jetphi->at(ijet)-*l1phi);
+	  float dphi2 = fabs(jetphi->at(ijet)-*l2phi);
+	  if(dphi1 > TMath::Pi())
+	    dphi1 = 2*TMath::Pi()-dphi1;
+	  if(dphi2 > TMath::Pi())
+	    dphi2 = 2*TMath::Pi()-dphi2;
+	  if(sqrt(dphi1*dphi1+fabs(jeteta->at(ijet)-*l1eta)*fabs(jeteta->at(ijet)-*l1eta)) > 0.4 and
+	     sqrt(dphi2*dphi2+fabs(jeteta->at(ijet)-*l2eta)*fabs(jeteta->at(ijet)-*l2eta)) > 0.4){ // check cleaning
+	    jets.push_back(jet4V);
+	  }
+	}
+      }
+
+      if(jets.size() < 1) continue;
+      
+      // calculate min-dphi at gen level where met is boson 4V
+      float mindphi   = 100;
+      for(size_t ijet = 0; ijet < jets.size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
-	float dphi = fabs(*wzphi-jetphi->at(ijet));
+	float dphi = fabs(*wzphi-jets.at(ijet).Phi());
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
 	if(dphi < mindphi)
 	  mindphi = dphi;	
       }
 
-      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
       
       // apply monojet-like selections
-      if(*njets >= 1 and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and *wzpt >= 150 and mindphi > 0.5){
+      if(jets.size() >= 1 and jets.at(0).Pt() > 100 and fabs(jets.at(0).Eta()) < 2.5 and *wzpt >= 150 and mindphi > 0.5){
 	  bosonPt_NLO_monojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
       }
-
-      if(*njetsinc >= 2 and jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)) < 4.7 and  fabs(jeteta->at(1)) < 4.7 and mindphi > 0.5){      
+      
+      if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
 	bosonPt_NLO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
-	TLorentzVector jet1, jet2;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
-	if((jet1+jet2).M() < mjjrelaxed) continue;
-	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
-	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
+	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
+	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
 	bosonPt_NLO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
-
-	if((jet1+jet2).M() < mjj) continue;
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
+	
+	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
 	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
       }
     }

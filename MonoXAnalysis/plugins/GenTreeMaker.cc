@@ -435,8 +435,10 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	// remove overlap with boson
 	if (sample == 22 && wzid == 22 && deltaR(jets_iter->eta(), jets_iter->phi(), wzeta, wzphi) < 0.4) continue;
 	// remove overlpas with leptons
-	if ((sample == 23 || sample == 24) && (abs(l1id) == 11 || abs(l1id) == 13 || abs(l1id) == 15) && deltaR(jets_iter->eta(), jets_iter->phi(), l1eta, l1phi) < 0.4) continue;
-	if ((sample == 23 || sample == 24) && (abs(l2id) == 11 || abs(l2id) == 13 || abs(l2id) == 15) && deltaR(jets_iter->eta(), jets_iter->phi(), l2eta, l2phi) < 0.4) continue;
+	if ((sample == 23 || sample == 24) && (abs(l1id) == 11 || abs(l1id) == 12 || abs(l1id) == 13 || abs(l1id) == 14 || abs(l1id) == 15 || abs(l1id) == 16) &&
+	    deltaR(jets_iter->eta(), jets_iter->phi(), l1eta, l1phi) < 0.4) continue;
+	if ((sample == 23 || sample == 24) && (abs(l2id) == 11 || abs(l2id) == 12 || abs(l2id) == 13 || abs(l2id) == 14 || abs(l2id) == 15 || abs(l2id) == 16) &&
+	    deltaR(jets_iter->eta(), jets_iter->phi(), l2eta, l2phi) < 0.4) continue;
 	jets.push_back(jetref);
       }
     }

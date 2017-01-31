@@ -171,6 +171,12 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio.png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio.pdf").c_str(),"pdf");
 
+    TFile* theory_unc = new TFile("theory_unc_ZW.root","RECREATE");
+    zw_qcdscale_unc->Write();
+    zw_nloewk_unc->Write();
+    zw_sudewk_unc->Write();
+    zw_ewkqcd_unc->Write();
+      
   }
 
 
