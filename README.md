@@ -19,8 +19,9 @@ Recipe for 80X:
        git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
        git cms-merge-topic -u cms-met:METRecipe_8020
        git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
-       git cms-merge-topic -u ikrav:egm_id_80X_v1
+       git cms-merge-topic -u ikrav:egm_id_80X_v2
        git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
+       git cms-merge-topic -u gpetruc:badMuonFilters_80X_v2
        git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
        scramv1 b j 4;
        cd $CMSSW_BASE/external/$SCRAM_ARCH;
@@ -30,7 +31,7 @@ Recipe for 80X:
        git checkout remotes/origin/egm_id_80X_v1;
        cd -
        cd RecoEgamma/ElectronIdentification/data;
-       git checkout remotes/origin/egm_id_80X_v1;
+       git checkout remotes/origin/egm_id_80X_v2;
        cd -
        scp -r RecoEgamma/PhotonIdentification/data/* $CMSSW_BASE/src/RecoEgamma/PhotonIdentification/data/;
        scp -r RecoEgamma/ElectronIdentification/data/* $CMSSW_BASE/src/RecoEgamma/ElectronIdentification/data/;

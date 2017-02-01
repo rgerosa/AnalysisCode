@@ -45,7 +45,7 @@ const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 1.5;
+const float dphijj          = 2.0;
 const float dphijjrelaxed   = 2.0;
 // Additional selections
 const float photonPt        = 120;
@@ -185,6 +185,8 @@ void makehist4(TTree* tree, /*input tree*/
   if(useMoriondSetup){
     sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid.root");
     sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid.root");
+    //sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+    //sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
     sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_tightid.root");
     sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_looseid.root");
   }
@@ -209,10 +211,14 @@ void makehist4(TTree* tree, /*input tree*/
     msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
     esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_17");
     esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_17");
+    //esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
+    //esftight_lowpu  = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
     msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
     msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
     esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_17_50");
     esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_17_50");
+    //esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
+    //esftight_highpu = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
   }
   else{
     msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape");
@@ -275,6 +281,9 @@ void makehist4(TTree* tree, /*input tree*/
     trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_Moriond/scaleFactor_electron_recoelectronmatch.root");
     trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_17");
     trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_17_50");
+    //trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+    //trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiency_electron->Get("scalefactors_Reco_Electron");
+    //trackingefficiency_electron_highpu = (TH2F*) trackingefficiency_electron->Get("scalefactors_Reco_Electron"); 
   }
   else{
     trackingefficiency_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackEfficiency/trackEfficiency_ICHEP/scaleFactor_electron_recoelectronmatch.root");  
@@ -503,6 +512,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
+  TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
   TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
   TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausrawold");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
@@ -819,10 +829,11 @@ void makehist4(TTree* tree, /*input tree*/
     // control regions with two leptons --> one should be tight
     if ((sample == Sample::zmm || sample == Sample::zee)){
       if(sample == Sample::zmm){	
-	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;
+	if(not ((pt1 > 20 and id1 == 1) or (pt2 > 20 and id2 == 1))) continue;	
       }
       else if(sample == Sample::zee){
 	if(not ((pt1 > 40 and id1 == 1) or (pt2 > 40 and id2 == 1))) continue;
+	if(id1t == 0 and id2t == 0) continue;
       }
     }
     
@@ -832,7 +843,6 @@ void makehist4(TTree* tree, /*input tree*/
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
-    if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1)) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt  > 160) continue;
     if (sample == Sample::wmn and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
@@ -904,14 +914,43 @@ void makehist4(TTree* tree, /*input tree*/
     Double_t sfwgt = 1.0;
     // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection)
+	/*
+	if(pt1 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
+	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
+	else
+	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));	
+	*/
+      }
+      if(pt2 > 0. and *nvtx <= numberOfVtxCorrection){
 	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-      if(pt1 > 0. and *nvtx > numberOfVtxCorrection)
+	/*  
+	if(pt2 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
+	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
+	else
+	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));
+	*/
+      }
+      if(pt1 > 0. and *nvtx > numberOfVtxCorrection){
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-      if(pt2 > 0. and *nvtx > numberOfVtxCorrection)
+	/*
+	if(pt1 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
+	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
+	else
+	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
+	*/
+      }
+      
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection){
 	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
+	/*
+	if(pt2 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
+	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
+	else
+	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
+	*/
+      }
     }
 
     // reco-muon scale factor    
@@ -953,20 +992,28 @@ void makehist4(TTree* tree, /*input tree*/
 	if(*nvtx <= numberOfVtxCorrection){
 	  if (id1 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta1),min(pt1,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
 	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta1),min(pt1,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	  //if (id1 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(eta1,min(pt1,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  //else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(eta1,min(pt1,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
 	}
 	else{
 	  if (id1 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta1),min(pt1,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
 	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta1),min(pt1,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	  //if (id1 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(eta1,min(pt1,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  //else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(eta1,min(pt1,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
 	}
       }
       if (pt2 > 0.) {
 	if(*nvtx <= numberOfVtxCorrection){
 	  if (id2 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(fabs(eta2),min(pt2,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
 	  else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(fabs(eta2),min(pt2,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
+	  //if (id2 == 1) sfwgt *= sfthist_lowpu->GetBinContent(sfthist_lowpu->FindBin(eta2,min(pt2,sfthist_lowpu->GetYaxis()->GetBinLowEdge(sfthist_lowpu->GetNbinsY()+1)-1))); 
+	  //else sfwgt *= sflhist_lowpu->GetBinContent(sflhist_lowpu->FindBin(eta2,min(pt2,sflhist_lowpu->GetYaxis()->GetBinLowEdge(sflhist_lowpu->GetNbinsY()+1)-1))); 
 	}
 	else{
 	  if (id2 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(fabs(eta2),min(pt2,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
 	  else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(fabs(eta2),min(pt2,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
+	  //if (id2 == 1) sfwgt *= sfthist_highpu->GetBinContent(sfthist_highpu->FindBin(eta2,min(pt2,sfthist_highpu->GetYaxis()->GetBinLowEdge(sfthist_highpu->GetNbinsY()+1)-1))); 
+	  //else sfwgt *= sflhist_highpu->GetBinContent(sflhist_highpu->FindBin(eta2,min(pt2,sflhist_highpu->GetYaxis()->GetBinLowEdge(sflhist_highpu->GetNbinsY()+1)-1))); 
 	}
       }
     }
@@ -1306,6 +1353,16 @@ void makehist4(TTree* tree, /*input tree*/
       // Z-mass peak to ee
       else if(name.Contains("zeemass")) 
 	fillvar = *zeemass;
+      else if(name.Contains("dRmumu")){
+	float dphi = fabs(*mu1phi-*mu2phi);
+	if(dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
+	fillvar = sqrt(dphi*dphi+fabs(*mu1eta-*mu2eta)*fabs(*mu1eta-*mu2eta));
+      }
+      else if(name.Contains("dRee")){
+	float dphi = fabs(*el1phi-*el2phi);
+	if(dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
+	fillvar = sqrt(dphi*dphi+fabs(*el1eta-*el2eta)*fabs(*el1eta-*el2eta));
+      }
       // met-phi with type-I correction 
       else if(name.Contains("t1pfmetphi"))
 	fillvar = *metphi;      

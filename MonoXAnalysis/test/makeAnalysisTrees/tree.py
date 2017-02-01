@@ -46,7 +46,7 @@ options.register (
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
-	'JECEra','Spring16_25nsV10',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Summer16_23Sep2016V3',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
 
 ## JET information
@@ -102,6 +102,21 @@ options.register (
         'isPhotonPurity',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'photon purity studies --> add some more branches');
 
+## Di-muon skim
+options.register (
+        'applyDiMuonFilter',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'select zmm events --> useful for response/resolution studies');
+
+## Di-electron skim
+options.register (
+        'applyDiElectronFilter',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'select zee events --> useful for response/resolution studies');
+
+## photon+jets skim
+options.register (
+        'applyPhotonJetsFilter',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'select gamma+jets events --> useful for response/resolution studies');
+
 ## QCD background studies
 options.register (
         'isQCDTree',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -154,7 +169,7 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','80X_dataRun2_Prompt_ICHEP16JEC_v0',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','80X_dataRun2_Prompt_v14',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## Dump Gen Level info
@@ -196,8 +211,8 @@ options.parseArguments()
 
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
-	options.globalTag = '80X_mcRun2_asymptotic_2016_miniAODv2_v1';
-	options.JECEra  = 'Spring16_25nsV10';
+	options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6';
+	options.JECEra  = 'Summer16_23Sep2016V3';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 	
@@ -239,18 +254,21 @@ print "Running with addPileupJetID      = ",options.addPileupJetID
 print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addPuppiJets        = ",options.addPuppiJets
 print "##### Missing energy #####"
-print "Running with addPuppiMET         = ",options.addPuppiMET
-print "Running with addMETSystematics   = ",options.addMETSystematics
+print "Running with addPuppiMET            = ",options.addPuppiMET
+print "Running with addMETSystematics      = ",options.addMETSystematics
 print "Running with addPuppiMETSystematics = ",options.addPuppiMETSystematics
-print "Running with addMETBreakDown     = ",options.addMETBreakDown	
-print "Running with addMVAMet           = ",options.addMVAMet
-print "Running with useMiniAODMet       = ",options.useMiniAODMet
+print "Running with addMETBreakDown        = ",options.addMETBreakDown	
+print "Running with addMVAMet              = ",options.addMVAMet
+print "Running with useMiniAODMet          = ",options.useMiniAODMet
 print "Running with useOfficialMETSystematics = ",options.useOfficialMETSystematics
 print "##### Electrons/Photons #####"
-print "Running with addEGMSmear          = ",options.addEGMSmear
-print "Running with isPhotonPurity       = ",options.isPhotonPurity	
-print "Running with addPhotonIDVariables = ",options.addPhotonIDVariables
+print "Running with addEGMSmear            = ",options.addEGMSmear
+print "Running with isPhotonPurity         = ",options.isPhotonPurity	
+print "Running with addPhotonIDVariables   = ",options.addPhotonIDVariables
+print "Running with applyPhotonJetsFilter  = ",options.applyPhotonJetsFilter
 print "Running with addElectronIDVariables = ",options.addElectronIDVariables
+print "Running with applyDiMuonFilter      = ",options.applyDiMuonFilter
+print "Running with applyDiElectronFilter  = ",options.applyDiElectronFilter
 print "##### Jet Substructure #####"
 print "Running with addSubstructureCHS   = ",options.addSubstructureCHS
 print "Running with addSubstructurePuppi = ",options.addSubstructurePuppi
@@ -292,12 +310,21 @@ if options.inputFiles == []:
 
 	else:
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/0015A622-AA2B-E611-A12D-0023AEFDE888.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-40To100_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/00455E99-5021-E611-998E-003048CF5C10.root')
+#		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
-		#process.source.fileNames.append('/store/relval/CMSSW_8_0_20/RelValTTbar_13/MINIAODSIM/PU25ns_80X_mcRun2_asymptotic_2016_TrancheIV_v4_Tr4GT_v4-v1/00000/A8C282AE-D37A-E611-8603-0CC47A4C8ECE.root')
-		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
-		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/VectorMonoW_Mphi-100_Mchi-1_gSM-0p25_gDM-1p0_v2_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/EA4716D4-DCC8-E611-8702-B083FED045ED.root')
+		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
+
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
+		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/7A9F1F4B-81D5-E611-A06C-02163E019DD1.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Pseudo_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/60000/D462BEC9-41DA-E611-83AD-02163E015C72.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoW_NLO_Mphi-1000_Mchi-300_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/747DC36C-A2D0-E611-B518-0CC47A4D75F0.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoZ_NLO_Mphi-300_Mchi-50_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/9E496385-49D0-E611-948B-047D7B881DD4.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoW_NLO_Mphi-1750_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/92A53279-1DD5-E611-A6EA-7845C4F92F87.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DMS_NNPDF30_Scalar_Mphi-350_Mchi-100_gSM-1p0_gDM-1p0_v2_13TeV-powheg/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/120000/768DDA99-E8C5-E611-817B-A0000420FE80.root')
+#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/VectorMonoW_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_v2_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/BEC73603-86CC-E611-ACA7-A0000420FE80.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/SMM_MonoJ_Mphi-300_Mchi-100_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/1019B0E7-4ED0-E611-9C34-0025905A611C.root')
 
 else:
    process.source = cms.Source("PoolSource",
@@ -345,11 +372,11 @@ process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process,options.addEGMSmear,options.isMC)
+ElectronTools(process,options.addEGMSmear,options.isMC,addElectronCorrection = False)
 
 # run cut-based photon ID 
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
-PhotonTools(process,options.addEGMSmear,options.isMC)
+PhotonTools(process,options.addEGMSmear,options.isMC, addPhotonCorrection = False)
 
 # Apply JEC on jets and update them
 from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
@@ -369,6 +396,11 @@ process.selectedObjects.jets = cms.InputTag(jetCollName)
 process.selectedObjects.useCalibratedElectrons = cms.bool(True)
 process.selectedObjects.useCalibratedPhotons = cms.bool(True)
 process.selectedObjects.addPhotonPurity = cms.bool(options.isPhotonPurity)
+if hasattr(process,"correctedElectrons"):
+	process.selectedObjects.calibratedElectrons = cms.InputTag("correctedElectrons")
+if hasattr(process,"correctedPhotons"):
+	process.selectedObjects.calibratedPhotons = cms.InputTag("correctedPhotons")
+	
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
@@ -411,7 +443,6 @@ if options.addMETBreakDown:
 	process.METBreakDown = cms.EDProducer("PATMETBreakDownProducer",
 					      pfcands = cms.InputTag("packedPFCandidates"))
 	
-
 ## Create output file
 if options.dropAnalyzerDumpEDM == False:	
    ## Setup the service to make a ROOT TTree
@@ -486,37 +517,29 @@ if options.addSubstructurePuppi:
 						    addQJets = False,
 						    addQGLikelihood = False);
 
-# MET filter --> making the or of different met
-process.filterHighRecoil = cms.EDFilter("PATMETFilter",					
-    metCollections = cms.VPSet(
-		cms.PSet( srcMet = cms.InputTag("slimmedMETs","",options.processName),
-			  metCut = cms.double(options.metCut)),
-		cms.PSet(srcMet = cms.InputTag("t1mumet","",options.processName),
-			 metCut = cms.double(options.metCut)),
-		cms.PSet(srcMet = cms.InputTag("t1elmet","",options.processName),
-			 metCut = cms.double(options.metCut)),
-		cms.PSet(srcMet = cms.InputTag("t1phmet","",options.processName),
-			 metCut = cms.double(options.metCut)),
-		),
-					filterEvents = cms.bool(options.filterHighMETEvents),
-					graterThan = cms.bool(True),
-					applyAndInsteadOfOr = cms.bool(False)
-					)
 
-if options.isPhotonPurity:
-	if options.filterHighMETEvents and options.metCut != 0:
-		process.filterHighRecoil.metCollections[0].metCut = cms.double(0);
-		process.filterHighRecoil.metCollections[1].metCut = cms.double(0);
-		process.filterHighRecoil.metCollections[2].metCut = cms.double(0);
-		process.filterHighRecoil.metCollections[3].metCut = cms.double(0);
+### apply event selections
+from AnalysisCode.MonoXAnalysis.applyEventFilters_cff import applyEventFilters
+looseMuonPt = 10. ; tightMuonPt = 20.; 
+looseElectronPt = 10.; tightElectronPt = 35.; useMVAElectronID = False;
+photonPt = 50.; useMVAPhotonID = False;
+
+applyEventFilters(process,
+		  options.processName,
+		  options.filterHighMETEvents, ### if apply or not filter on MET
+		  options.metCut, ## value for reoil selection
+		  options.isPhotonPurity, ### in case one wants to make a specific filter
+		  options.applyDiMuonFilter, ### in case one wants to apply di-muon Zmm filter
+		  looseMuonPt,
+		  tightMuonPt,	
+		  options.applyDiElectronFilter, ### in case one wants to apply di-electron Zee filter
+		  looseElectronPt,
+		  tightElectronPt,
+		  useMVAElectronID,
+		  options.applyPhotonJetsFilter, ### in case one wants to apply single-photon filter
+		  photonPt,
+		  useMVAPhotonID)
 	
-	process.filterPhotonCandidates = cms.EDFilter("PhotonRefCountFilter",
-						      src = cms.InputTag("selectedObjects","photonsPurity"),
-						      minNumber = cms.int32(1),
-						      maxNumber = cms.int32(999)
-						      )
-
-
 if options.useMiniAODMet:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
      					
@@ -562,20 +585,27 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      ## vertexes			    
 			      vertices       = cms.InputTag("goodVertices"),
 			      ## muons    
+			      applyDiMuonFilter = cms.bool(options.applyDiMuonFilter),
 			      muons          = cms.InputTag("selectedObjects","muons"),
 			      tightmuons     = cms.InputTag("selectedObjects","tightmuons"),
 			      highptmuons    = cms.InputTag("selectedObjects","highptmuons"),
 			      ## electrons
+			      applyDiElectronFilter = cms.bool(options.applyDiElectronFilter),
 			      electrons       = cms.InputTag("selectedObjects", "electrons"),
 			      looseelectrons  = cms.InputTag("selectedObjects", "looseelectrons"),
 			      tightelectrons  = cms.InputTag("selectedObjects", "tightelectrons"),
 			      triggerelectrons = cms.InputTag("selectedObjects","triggerelectrons"),
 			      heepelectrons   = cms.InputTag("selectedObjects", "heepelectrons"),
+			      mvalooseelectrons   = cms.InputTag("selectedObjects", "mvalooseelectrons"),
+			      mvatightelectrons   = cms.InputTag("selectedObjects", "mvatightelectrons"),
 			      ## photons --> can be matched by reference 
+			      applyPhotonJetsFilter = cms.bool(options.applyPhotonJetsFilter),
 			      rho             = cms.InputTag("fixedGridRhoFastjetAll"),
 			      photons         = cms.InputTag("selectedObjects", "photons"),
 			      mediumphotons   = cms.InputTag("selectedObjects", "mediumphotons"),
 			      tightphotons    = cms.InputTag("selectedObjects", "tightphotons"),			     
+			      mvaloosephotons = cms.InputTag("selectedObjects", "mvaloosephotons"),			     
+			      mvatightphotons = cms.InputTag("selectedObjects", "mvatightphotons"),			     
 			      photonHighPtId  = cms.InputTag("selectedObjects", "photonHighPtId"),
 			      ## photon purity
 			      isPhotonPurity  = cms.bool(options.isPhotonPurity),
@@ -589,12 +619,12 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonCHiso = cms.InputTag("selectedObjects", "chhadiso"),
 			      photonNHiso = cms.InputTag("selectedObjects", "nhhadiso"),
 			      ## taus
-			      taus            = cms.InputTag("selectedObjects","tausNew"),
-			      tausOld         = cms.InputTag("selectedObjects","tausOld"),
-			      tausRaw         = cms.InputTag("selectedObjects","tausNewRaw"),
-			      tausOldRaw      = cms.InputTag("selectedObjects","tausOldRaw"),
-			      tausTight       = cms.InputTag("selectedObjects","tausTagNew"),
-			      tausTightOld    = cms.InputTag("selectedObjects","tausTagOld"),
+			      tausVLNew       = cms.InputTag("selectedObjects","tausVLNew"),
+			      tausVLOld       = cms.InputTag("selectedObjects","tausVLOld"),
+			      tausRawNew      = cms.InputTag("selectedObjects","tausRawNew"),
+			      tausRawOld      = cms.InputTag("selectedObjects","tausRawOld"),
+			      tausTightNew    = cms.InputTag("selectedObjects","tausTightNew"),
+			      tausTightOld    = cms.InputTag("selectedObjects","tausTightOld"),
 			      ## jets AK4
 			      jets            = cms.InputTag(jetCollName),
 			      addPuppiJets    = cms.bool(options.addPuppiJets),			      
@@ -767,10 +797,8 @@ if options.isFastSIM:
 	## fix LHE info
 	process.tree.lheinfo = cms.InputTag("source")
 	process.tree.lheRuninfo = cms.InputTag("source")
-
 	process.gentree.lheinfo = cms.InputTag("source")
-	process.gentree.lheRuninfo = cms.InputTag("source")
-	
+	process.gentree.lheRuninfo = cms.InputTag("source")	
 	process.tree.pileup = cms.InputTag("addPileupInfo");
 	
 # Set up the path
@@ -779,14 +807,14 @@ if options.dropAnalyzerDumpEDM == False:
 		process.treePath = cms.Path(process.gentree + 					    
 					    process.metFilters+
 					    process.btageff+
-					    process.filterHighRecoil +
+					    getattr(process,"eventFilters")+
 					    process.tree)
 		if(options.addPuppiJets):
 			process.treePath = cms.Path(process.gentree +
 						    process.metFilters+
 						    process.btageff+
 						    process.btageffPuppi+
-						    process.filterHighRecoil +
+						    getattr(process,"eventFilters")+
 						    process.tree)		
 
 		if options.addSubstructureCHS:
@@ -794,23 +822,17 @@ if options.dropAnalyzerDumpEDM == False:
 		if options.addSubstructurePuppi:
 			process.treePath.replace(process.btageffPuppi,process.btageffPuppi+process.btageffBooostedPuppiJet);
 		if options.addMETBreakDown:
-			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
-		if options.isPhotonPurity:
-			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil + process.filterPhotonCandidates);
-
-
-
+			process.treePath.replace(getattr(process,"process.filterHighRecoil"),getattr(process,"process.filterHighRecoil")+ process.METBreakDown)
 			
 	else :
 		process.treePath = cms.Path(
 			process.metFilters+
-			process.filterHighRecoil + 
+			getattr(process,"eventFilters")+
 			process.tree)
 
 		if options.addMETBreakDown:
-			process.treePath.replace(process.filterHighRecoil, process.filterHighRecoil+ process.METBreakDown)
-		if options.isPhotonPurity:
-			process.treePath.replace(process.filterHighRecoil,process.filterHighRecoil + process.filterPhotonCandidates);
+			process.treePath.replace(getattr(process,"process.filterHighRecoil"), getattr(process,"process.filterHighRecoil")+process.METBreakDown)
+
 
 processDumpFile = open('processDump.py', 'w')
 print >> processDumpFile, process.dumpPython()

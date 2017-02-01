@@ -129,7 +129,6 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   photonPurityID           (iConfig.getParameter<edm::ParameterSet>("photonPurityID")),
   userandomphi             (iConfig.existsAs<bool>("userandomphiforRC") ? iConfig.getParameter<bool>("userandomphiforRC") : true),
   addPhotonPurity          (iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false)
-
 {
 
   rand.SetSeed(0);
@@ -326,6 +325,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // bool for the electron id
       bool passesid = (*electronMapH.at(ipos))[electronPtr];      
+
       // bool for dxy and dz cut that are taken out from standard electron VID
       bool pass_dxy = false;
       bool pass_dz  = false;
@@ -368,8 +368,12 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  pass_dz = true;
       }
 
-
-
+      // in case no IP selections needs to be applied
+      if(iele.getParameter<bool>("applyPVSelection") == false){
+	pass_dxy = true;
+	pass_dz  = true;
+      }
+      
       if(passesid and pass_dxy and pass_dz){
 	// match with calibrate electrons if possible
 	if(calibratedElectronsH.isValid()){ // check if it exists

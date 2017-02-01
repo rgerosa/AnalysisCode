@@ -19,6 +19,8 @@ def JECConfiguration(process,usePrivateSQlite,JECEra,isMC,applyL2L3Residuals,isC
 				era_payload = "Spring16_25nsV10All_DATA";
 			elif JECEra == "Spring16_23Sep2016V1":
 				era_payload = "Spring16_23Sep2016AllV1_DATA";
+			elif JECEra == "Summer16_23Sep2016V3":
+				era_payload = "Summer16_23Sep2016AllV3_DATA";
 			else:
 				era_payload += "_DATA";
 			

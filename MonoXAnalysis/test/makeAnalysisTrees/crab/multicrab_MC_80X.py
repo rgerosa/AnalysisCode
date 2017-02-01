@@ -24,7 +24,7 @@ pyCfgParams = ['isMC=True',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
                'outputFileName=tree.root',
                'usePrivateSQliteJEC=True',
                'nThreads=3',
@@ -46,8 +46,8 @@ config.JobType.numCores         = 3
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_02_12_2016/'
+config.Data.unitsPerJob   = 35000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_28_01_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

@@ -509,9 +509,9 @@ void sigdatamchist(TFile* outfile,
   TFile* kfactgjet_vbf = NULL;
 
   if(category == Category::VBF and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
@@ -1013,9 +1013,9 @@ void gamdatamchist(TFile* outfile,
   TChain* vltree = new TChain("tree/tree");
 
 
-  dttree->Add((baseInputTreePath+"/SinglePhoton_jecReReco/gamfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
   if(useJetHT)
-    dttree->Add((baseInputTreePath+"/JetHT_jecReReco/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/JetHT/gamfilter/*root").c_str());
   
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
@@ -1164,8 +1164,8 @@ void gamdatamchist(TFile* outfile,
   TFile* kfactgjet_vbf = NULL;
 
   if(category == Category::VBF  and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
     TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
@@ -1860,9 +1860,9 @@ void lepdatamchist(TFile* outfile,
   TFile* kfactgjet_vbf = NULL;
 
   if(category == Category::VBF and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1F* zjet_nlo_mj  = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
@@ -2338,9 +2338,9 @@ void topdatamchist(TFile* outfile,
   tttree->Add((baseInputTreePath+"/TopAlternative/"+suffix+"filter/*root").c_str());
   tttree_alt->Add((baseInputTreePath+"/Top/"+suffix+"filter/*root").c_str());
   if(sample == Sample::topmu)
-    dttree->Add((baseInputTreePath+"/MET_jecReReco/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/MET/"+suffix+"filter/*root").c_str());
   else if(sample == Sample::topel)
-    dttree->Add((baseInputTreePath+"/SingleElectron_jecReReco/"+suffix+"filter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/SingleElectron/"+suffix+"filter/*root").c_str());
   
   vector<TH1*> dthist;
   vector<TH1*> tthist;
@@ -3054,7 +3054,7 @@ void qcddatamchist(TFile* outfile,
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
-  dttree->Add((baseInputTreePath+"/MET_jecReReco/sigfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/MET/sigfilter/*root").c_str());
 
   // make met histograms                                                                                                                                                        
   vector<TH1*> vnnhist;

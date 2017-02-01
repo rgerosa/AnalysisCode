@@ -1,19 +1,17 @@
-
 #include "../CMS_lumi.h"
 
-//vector<float> bosonPt      {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
-//vector<float> bosonPt_vbf  {150.,200.,250.,300.,350.,400.,450.,500.,550.,600.,700.,850.,1000.,1300.};
-//vector<float> bosonPt_vbf_gam  {150.,250.,350.,450.,550.,750.,1000.,1300.};
+//vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
+//vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
+vector<float> bosonPt          {150.,250.,400,650,1000};
+vector<float> bosonPt_vbf      {150.,250.,400,650,1000};
 
-vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
-vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
-vector<float> bosonPt_vbf_gam  {150.,200.,250.,350,500.,700.,1000};
-
-static float mjj            = 750;
-static float detajj         = 2.5;
+static float mjj            = 1300;
+static float mjjrelaxed     = 350;
+static float detajj         = 3.5;
+static float detajjrelaxed  = 1.75;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float dphijj         = 2.0;
+static float dphijj         = 0.75;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -74,7 +72,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     double sumwgt = 0;
     while(reader.Next()){
 
-      // filter away bad events with no matching
+      // filter away bad events
       if((sample == Sample::znn or sample == Sample::zll) and fabs(*wzid) != 23) continue;
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
@@ -110,21 +108,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   TH1F* bosonPt_NLO_monojet = new TH1F("bosonPt_NLO_monojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_LO_twojet   = new TH1F("bosonPt_LO_twojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_NLO_twojet  = new TH1F("bosonPt_NLO_twojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_LO_vbf      = NULL;
-  TH1F* bosonPt_NLO_vbf     = NULL;
-  if(sample != Sample::gam){
-    bosonPt_LO_vbf  = new TH1F("bosonPt_LO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
-    bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf.size()-1,&bosonPt_vbf[0]);    
-  }
-  else{
-    bosonPt_LO_vbf  = new TH1F("bosonPt_LO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);
-    bosonPt_NLO_vbf = new TH1F("bosonPt_NLO_vbf","",bosonPt_vbf_gam.size()-1,&bosonPt_vbf_gam[0]);    
-  }
+  TH1F* bosonPt_LO_vbf_relaxed      = new TH1F("bosonPt_LO_vbf_relaxed","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+  TH1F* bosonPt_NLO_vbf_relaxed     = new TH1F("bosonPt_NLO_vbf_relaxed","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+  TH1F* bosonPt_LO_vbf      = new TH1F("bosonPt_LO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+  TH1F* bosonPt_NLO_vbf     = new TH1F("bosonPt_NLO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
 
   bosonPt_LO_monojet->Sumw2();
   bosonPt_NLO_monojet->Sumw2();
   bosonPt_LO_twojet->Sumw2();
   bosonPt_NLO_twojet->Sumw2();
+  bosonPt_LO_vbf_relaxed->Sumw2();
+  bosonPt_NLO_vbf_relaxed->Sumw2();
   bosonPt_LO_vbf->Sumw2();
   bosonPt_NLO_vbf->Sumw2();
 
@@ -166,36 +160,61 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
       
+      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
+
+
+      vector<TLorentzVector> jets;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
+	if(sample == Sample::wjet or sample == Sample::znn or sample == Sample::zll){
+	  float dphi1 = fabs(jetphi->at(ijet)-*l1phi);
+	  float dphi2 = fabs(jetphi->at(ijet)-*l2phi);
+	  if(dphi1 > TMath::Pi())
+	    dphi1 = 2*TMath::Pi()-dphi1;
+	  if(dphi2 > TMath::Pi())
+	    dphi2 = 2*TMath::Pi()-dphi2;
+	  if(sqrt(dphi1*dphi1+fabs(jeteta->at(ijet)-*l1eta)*fabs(jeteta->at(ijet)-*l1eta)) > 0.4 and
+	     sqrt(dphi2*dphi2+fabs(jeteta->at(ijet)-*l2eta)*fabs(jeteta->at(ijet)-*l2eta)) > 0.4
+	     ){ // check cleaning
+	    jets.push_back(jet4V);
+	  }
+	}
+      }
+
+      if(jets.size() < 1) continue;
+
       // calculate min-dphi at gen level where met is boson 4V
       float mindphi   = 100;
-      for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
+      for(size_t ijet = 0; ijet < jets.size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
-	float dphi = fabs(*wzphi-jetphi->at(ijet));
+	float dphi = fabs(*wzphi-jets.at(ijet).Phi());
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
 	if(dphi < mindphi)
 	  mindphi = dphi;	
       }
       
-      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
-
+      
       // apply monojet-like selections
-      if(*njets >= 1 and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and *wzpt >= 150 and mindphi > 0.5)
+      if(jets.size() >= 1 and jets.at(0).Pt() > 100 and fabs(jets.at(0).Eta()) < 2.5 and *wzpt >= 150 and mindphi > 0.5)
 	bosonPt_LO_monojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 
-      if(*njetsinc >= 2 and jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)) < 4.7 and  fabs(jeteta->at(1)) < 4.7 and mindphi > 0.5){      
-	
+      if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
+
+	// fill two jet phase space
 	bosonPt_LO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
-	TLorentzVector jet1, jet2;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
-	if((jet1+jet2).M() < mjj) continue;
-	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+			 
+	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
+	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
+	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
-	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+	bosonPt_LO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+
+	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
+	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
       }
     }
     ifile++;
@@ -232,9 +251,9 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   
     cout<<"Loop on NLO file "<<file_NLO.at(ifile)->GetName()<<endl;
 
-    if(TString(file_NLO.at(ifile)->GetName()).Contains("600ToInf") and sample == Sample::wjet)
-      scale_nlo = 0.924314;
-
+    if(sample == Sample::zll)
+      scale_nlo = 1.07;
+    
     while(reader.Next()){
       
       // filter away bad events with no matching
@@ -242,55 +261,68 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       else if(sample == Sample::wjet and fabs(*wzid) != 24) continue;
       else if(sample == Sample::gam and fabs(*wzid) != 22) continue;
 
-      float mindphi = 100;
-      for(size_t ijet = 0; ijet < jetphi->size(); ijet++){
+      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
+
+      vector<TLorentzVector> jets;
+      for(size_t ijet = 0; ijet < jetpt->size(); ijet++){
+	TLorentzVector jet4V; jet4V.SetPtEtaPhiM(jetpt->at(ijet),jeteta->at(ijet),jetphi->at(ijet),jetmass->at(ijet));
+	if(sample == Sample::wjet or sample == Sample::znn or sample == Sample::zll){
+	  float dphi1 = fabs(jetphi->at(ijet)-*l1phi);
+	  float dphi2 = fabs(jetphi->at(ijet)-*l2phi);
+	  if(dphi1 > TMath::Pi())
+	    dphi1 = 2*TMath::Pi()-dphi1;
+	  if(dphi2 > TMath::Pi())
+	    dphi2 = 2*TMath::Pi()-dphi2;
+	  if(sqrt(dphi1*dphi1+fabs(jeteta->at(ijet)-*l1eta)*fabs(jeteta->at(ijet)-*l1eta)) > 0.4 and
+	     sqrt(dphi2*dphi2+fabs(jeteta->at(ijet)-*l2eta)*fabs(jeteta->at(ijet)-*l2eta)) > 0.4){ // check cleaning
+	    jets.push_back(jet4V);
+	  }
+	}
+      }
+
+      if(jets.size() < 1) continue;
+      
+      // calculate min-dphi at gen level where met is boson 4V
+      float mindphi   = 100;
+      for(size_t ijet = 0; ijet < jets.size(); ijet++){
 	if(ijet > 3) break; // limiting min dphi to first 4 leading jets
-	float dphi = fabs(*wzphi-jetphi->at(ijet));
+	float dphi = fabs(*wzphi-jets.at(ijet).Phi());
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
 	if(dphi < mindphi)
 	  mindphi = dphi;	
       }
 
-      if(sample == Sample::wjet and (fabs(*l1id) == 15 or fabs(*l1id) == 16 or fabs(*l2id) == 15 or fabs(*l2id) == 16)) continue; // skip taus
-
       
       // apply monojet-like selections
-      if(*njets >= 1 and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and *wzpt >= 150 and mindphi > 0.5){
+      if(jets.size() >= 1 and jets.at(0).Pt() > 100 and fabs(jets.at(0).Eta()) < 2.5 and *wzpt >= 150 and mindphi > 0.5){
 	  bosonPt_NLO_monojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
       }
-
-      if(*njetsinc >= 2 and jetpt->at(0) > leadingJetVBF and jetpt->at(1) > trailingJetVBF and fabs(jeteta->at(0)) < 4.7 and  fabs(jeteta->at(1)) < 4.7 and mindphi > 0.5){      
+      
+      if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
 	bosonPt_NLO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
-	TLorentzVector jet1, jet2;
-	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
-	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
-	if((jet1+jet2).M() < mjj) continue;
-	if(jet1.Eta()*jet2.Eta()  > 0) continue; 
-	if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
-	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
+	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
+	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
+	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
-	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
+	bosonPt_NLO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
+	
+	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
+	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
+	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
       }
     }
     ifile++;
   }
-
+  
   string postfix;
   if(sample == Sample::znn)       postfix = "znn";
   else if(sample == Sample::zll)  postfix = "zll";
   else if(sample == Sample::wjet) postfix = "wjet";
   else if(sample == Sample::gam)  postfix = "gam";
 
-  TFile* output = new TFile((outputDIR+"/kfactor_"+postfix+".root").c_str(),"RECREATE");
-  output->cd();
-  bosonPt_NLO_monojet->Write();
-  bosonPt_NLO_twojet->Write();
-  bosonPt_NLO_vbf->Write();
-  bosonPt_LO_monojet->Write();
-  bosonPt_LO_twojet->Write();
-  bosonPt_LO_vbf->Write();
 
   TCanvas* canvas = new TCanvas("canvas", "canvas", 600, 700);
   canvas->SetTickx(1);
@@ -313,13 +345,15 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_monojet->Divide(bosonPt_LO_monojet);
   TH1F* kfactor_twojet = (TH1F*) bosonPt_NLO_twojet->Clone("kfactor_twojet");
   kfactor_twojet->Divide(bosonPt_LO_twojet);
+  TH1F* kfactor_vbf_relaxed = (TH1F*) bosonPt_NLO_vbf_relaxed->Clone("kfactor_vbf_relaxed");
+  kfactor_vbf_relaxed->Divide(bosonPt_LO_vbf_relaxed);
   TH1F* kfactor_vbf = (TH1F*) bosonPt_NLO_vbf->Clone("kfactor_vbf");
   kfactor_vbf->Divide(bosonPt_LO_vbf);
-
+  
   kfactor_monojet->GetYaxis()->SetTitleOffset(1.1);
   kfactor_monojet->GetXaxis()->SetTitleOffset(1.1);
-  kfactor_monojet->GetYaxis()->SetRangeUser(min(kfactor_monojet->GetMinimum(),min(kfactor_twojet->GetMinimum(),kfactor_vbf->GetMinimum()))*0.7,
-					    max(kfactor_monojet->GetMaximum(),max(kfactor_twojet->GetMaximum(),kfactor_vbf->GetMaximum()))*1.3);
+  kfactor_monojet->GetYaxis()->SetRangeUser(min(kfactor_monojet->GetMinimum(),min(kfactor_twojet->GetMinimum(),min(kfactor_vbf_relaxed->GetMinimum(),kfactor_vbf->GetMinimum())))*0.7,
+					    max(kfactor_monojet->GetMaximum(),max(kfactor_twojet->GetMaximum(),max(kfactor_vbf_relaxed->GetMaximum(),kfactor_vbf->GetMaximum())))*1.3);
 
   kfactor_monojet->SetLineColor(kBlack);
   kfactor_monojet->SetMarkerColor(kBlack);
@@ -330,6 +364,11 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_twojet->SetMarkerColor(kBlue);
   kfactor_twojet->SetLineWidth(2);
   kfactor_twojet->SetMarkerSize(1);
+
+  kfactor_vbf_relaxed->SetLineColor(kOrange+1);
+  kfactor_vbf_relaxed->SetMarkerColor(kOrange+1);
+  kfactor_vbf_relaxed->SetLineWidth(2);
+  kfactor_vbf_relaxed->SetMarkerSize(1);
 
   kfactor_vbf->SetLineColor(kRed);
   kfactor_vbf->SetMarkerColor(kRed);
@@ -344,6 +383,10 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_twojet_band->SetFillColor(kBlue);
   kfactor_twojet_band->SetFillStyle(3001);
 
+  TH1F* kfactor_vbf_relaxed_band = (TH1F*) kfactor_vbf_relaxed->Clone("kfactor_vbf_relaxed_band");
+  kfactor_vbf_relaxed_band->SetFillColor(kOrange+1);
+  kfactor_vbf_relaxed_band->SetFillStyle(3001);
+
   TH1F* kfactor_vbf_band = (TH1F*) kfactor_vbf->Clone("kfactor_vbf_band");
   kfactor_vbf_band->SetFillColor(kRed);
   kfactor_vbf_band->SetFillStyle(3001);
@@ -354,18 +397,21 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   kfactor_monojet->Draw("hist");
   kfactor_monojet_band->Draw("E2 same");
   kfactor_twojet_band->Draw("E2 same");
+  kfactor_vbf_relaxed_band->Draw("E2 same");
   kfactor_vbf_band->Draw("E2 same");
 
   kfactor_monojet->Draw("hist same");
   kfactor_twojet->Draw("hist same");
+  kfactor_vbf_relaxed->Draw("hist same");
   kfactor_vbf->Draw("hist same");
 
-  TLegend leg (0.7,0.7,0.9,0.9);
+  TLegend leg (0.65,0.65,0.9,0.9);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
   leg.AddEntry(kfactor_monojet_band,"K-factor monojet","FL");
   leg.AddEntry(kfactor_twojet_band, "K-factor 2-jet","FL");
+  leg.AddEntry(kfactor_vbf_relaxed_band,    "K-factor VBF relaxed","FL");
   leg.AddEntry(kfactor_vbf_band,    "K-factor VBF","FL");
   leg.Draw("same");
 
@@ -389,29 +435,44 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   //ratio plot
   TH1* ratio_1 = (TH1*) kfactor_vbf->Clone("ratio_1");
   ratio_1->Divide(kfactor_monojet);
-  TH1* ratio_2 = (TH1*) kfactor_twojet->Clone("ratio_2");
+  TH1* ratio_2 = (TH1*) kfactor_vbf_relaxed->Clone("ratio_2");
   ratio_2->Divide(kfactor_monojet);
+  TH1* ratio_3 = (TH1*) kfactor_twojet->Clone("ratio_3");
+  ratio_3->Divide(kfactor_monojet);
 
-  ratio_2->SetLineColor(kBlue);
-  ratio_2->SetMarkerColor(kBlue);
-  ratio_2->GetYaxis()->SetTitle("Ratio");
-  ratio_2->GetYaxis()->SetRangeUser(0.9,1.5);
-  ratio_2->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
-  ratio_2->GetYaxis()->CenterTitle();
-  ratio_2->GetYaxis()->SetTitleOffset(1.5);
-  ratio_2->GetYaxis()->SetLabelSize(0.04);
-  ratio_2->GetYaxis()->SetTitleSize(0.04);
-  ratio_2->GetXaxis()->SetLabelSize(0.04);
-  ratio_2->GetXaxis()->SetTitleSize(0.05);  
-  ratio_2->GetYaxis()->SetNdivisions(5);
-  ratio_2->Draw("hist");
+  ratio_3->SetLineColor(kBlue);
+  ratio_3->SetMarkerColor(kBlue);
+  ratio_3->GetYaxis()->SetTitle("Ratio");
+  if(sample == Sample::gam)
+    ratio_3->GetYaxis()->SetRangeUser(0.85,1.5);
+  else
+    ratio_3->GetYaxis()->SetRangeUser(0.85,1.25);
+  
+  ratio_3->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
+  ratio_3->GetYaxis()->CenterTitle();
+  ratio_3->GetYaxis()->SetTitleOffset(1.5);
+  ratio_3->GetYaxis()->SetLabelSize(0.04);
+  ratio_3->GetYaxis()->SetTitleSize(0.04);
+  ratio_3->GetXaxis()->SetLabelSize(0.04);
+  ratio_3->GetXaxis()->SetTitleSize(0.05);  
+  ratio_3->GetYaxis()->SetNdivisions(5);
+  ratio_3->Draw("hist");
+
+  ratio_2->SetLineColor(kOrange+1);
+  ratio_2->SetMarkerColor(kOrange+1);
+  ratio_2->Draw("hist same");
 
   ratio_1->SetLineColor(kRed);
   ratio_1->SetMarkerColor(kRed);
   ratio_1->Draw("hist same");
 
+  TH1F* ratio_3_band = (TH1F*) ratio_3->Clone("ratio_3_band");
+  ratio_3_band->SetFillColor(kBlue);
+  ratio_3_band->SetFillStyle(3001);
+  ratio_3_band->Draw("E2 same");
+
   TH1F* ratio_2_band = (TH1F*) ratio_2->Clone("ratio_2_band");
-  ratio_2_band->SetFillColor(kBlue);
+  ratio_2_band->SetFillColor(kOrange+1);
   ratio_2_band->SetFillStyle(3001);
   ratio_2_band->Draw("E2 same");
 
@@ -420,6 +481,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   ratio_1_band->SetFillStyle(3001);
   ratio_1_band->Draw("E2 same");
 
+  ratio_3->Draw("hist same");
   ratio_2->Draw("hist same");
   ratio_1->Draw("hist same");
 
@@ -439,4 +501,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
     canvas->SaveAs((outputDIR+"/kfactor_gam.png").c_str(),"png");
     canvas->SaveAs((outputDIR+"/kfactor_gam.pdf").c_str(),"pdf");
   }
+
+  TFile* output = new TFile((outputDIR+"/kfactor_"+postfix+".root").c_str(),"RECREATE");
+  output->cd();
+  bosonPt_NLO_monojet->Write();
+  bosonPt_NLO_twojet->Write();
+  bosonPt_NLO_vbf_relaxed->Write();
+  bosonPt_NLO_vbf->Write();
+  bosonPt_LO_monojet->Write();
+  bosonPt_LO_twojet->Write();
+  bosonPt_LO_vbf_relaxed->Write();
+  bosonPt_LO_vbf->Write();
+  output->Close();
+
 }

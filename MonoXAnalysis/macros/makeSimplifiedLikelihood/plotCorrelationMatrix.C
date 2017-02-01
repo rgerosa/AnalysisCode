@@ -11,6 +11,8 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
+  gStyle->SetPalette(kBlackBody);
+  gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");
   string dir = "ch1_ch1";
@@ -31,7 +33,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
   canvas->cd();  
   canvas->SetGrid();
-  canvas->SetRightMargin(0.15);
+  canvas->SetRightMargin(0.12);
   canvas->SetBottomMargin(0.24);
   canvas->SetLeftMargin(0.2);
 
@@ -123,11 +125,23 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   corr->GetYaxis()->LabelsOption("v");
   corr->GetXaxis()->SetLabelSize(0.027);
   corr->GetYaxis()->SetLabelSize(0.027);
-  corr->GetZaxis()->SetTitleOffset(1.25);
+  corr->GetZaxis()->SetLabelSize(0.030);
+  corr->GetZaxis()->SetTitleSize(0.035);
+  corr->GetZaxis()->SetTitleOffset(1.10);
 
   gStyle->SetPaintTextFormat("1.2f");
+  corr->SetMarkerColor(kWhite);
   corr->Draw("COLZTEXT");
-  CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.09);
+  CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.06);
+  gPad->Update();
+  TPaletteAxis *palette = (TPaletteAxis*)corr->GetListOfFunctions()->FindObject("palette");
+  
+  // the following lines moe the paletter. Choose the values you need for the position.
+  palette->SetX1NDC(0.885);
+  palette->SetX2NDC(0.92);
+  gPad->Modified();
+  gPad->Update();
+
 
   if(category == Category::monojet){
     canvas->SaveAs((outputDIR+"/correlation_monojet.pdf").c_str());
@@ -138,6 +152,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
+    corr->SetMarkerColor(kBlack);
     CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.png").c_str());
@@ -151,6 +166,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
+    corr->SetMarkerColor(kBlack);
     CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monov_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monov_text.png").c_str());
@@ -164,6 +180,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
+    corr->SetMarkerColor(kBlack);
     CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_total_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.png").c_str());

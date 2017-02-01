@@ -12,18 +12,19 @@ pyCfgParams = ['isMC=True',
                'filterHighMETEvents=False',
                'metCut=0',
                'applyL2L3Residuals=False',
-               'addQGLikelihood=True',
+               'addQGLikelihood=False',
                'addPileupJetID=False',
                'addPuppiJets=True',
                'addPuppiMET=True',
                'addEGMSmear=True',
-               'addMETSystematics=True',
+               'addMETSystematics=False',
                'useOfficialMETSystematics=True',
+               'addPuppiMETSystematics=False',
                'addMETBreakDown=False',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
                'outputFileName=tree.root',
                'nThreads=3',
                'usePrivateSQliteJEC=True',
@@ -45,8 +46,8 @@ config.JobType.numCores         = 3
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 45000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_02_12_2016/'
+config.Data.unitsPerJob   = 20000
+config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_Signal_28_01_2017/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
