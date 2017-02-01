@@ -382,7 +382,7 @@ void makeShapeComparison(const string& inputDIR = "./", const float& lumi = 36.2
   // assume the input file is called PhotonPurityFitResult.root, but can choose its location with inputDIR (default is current directory)
 
   string outputDIR = inputDIR + "shapeComparison/";
-  if (outputDIR != "./") system(("mkdir -p "+outputDIR).c_str());
+  system(("mkdir -p "+outputDIR).c_str());
   string bkgDIR = "/background/";
   string sigDIR = "/signal/";
   system(("mkdir -p "+outputDIR+bkgDIR).c_str());
