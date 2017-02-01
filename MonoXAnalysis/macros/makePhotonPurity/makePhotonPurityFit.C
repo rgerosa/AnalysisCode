@@ -31,10 +31,15 @@ static vector<float> photonIsoVariableBinWidth_mediumPt = {0.0, 0.5, 0.8, 1.1, 1
 static float highPt = 419.0;
 static vector<float> photonIsoVariableBinWidth_highPt = {0.0, 0.6, 1.0, 1.4, 1.8, 2.2,
 							 2.8, 3.4, 4.0, 4.6, 5.2, 5.8, 
-							 6.6, 7.4, 8.2, 9.0, 9.8, 10.6, 11.4, 12.2, 13.0, 
-							 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0};//, 
-//22.5, 24.0};
-
+							 6.6, 7.4, 8.2, 9.0, 9.8, 10.6, 11.4, 12.2, 13.0,
+							 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0};//,
+							 //6.6, 7.4, 8.2, 9.0, 
+							 //10.0, 11.0, 12.5, 14.0,  
+							 //15.5, 17.0, 21.0};
+static float veryHighPt = 9999.0;
+static vector<float> photonIsoVariableBinWidth_veryHighPt = {0.0, 0.6, 1.0, 1.4, 1.8, 2.2,
+							     2.8, 3.4, 4.0, 4.6, 5.2, 5.8, 
+							     6.6, 7.4, 8.2, 9.0, 9.8, 10.6, 11.4}; 
 
 //------------------------------------------------
 
@@ -55,7 +60,8 @@ static vector<float> photonIsoVariableBinWidth_highPt = {0.0, 0.6, 1.0, 1.4, 1.8
 int getNbinsPhIsoVarWidth(const float pt) {
 
   if (useTestVector)      return ((int) testVector.size()) -1; 
-  if (pt > highPt)        return ((int) photonIsoVariableBinWidth_highPt.size()) -1;
+  if (pt > veryHighPt)    return ((int) photonIsoVariableBinWidth_veryHighPt.size()) -1;
+  else if (pt > highPt)   return ((int) photonIsoVariableBinWidth_highPt.size()) -1;
   else if (pt > mediumPt) return ((int) photonIsoVariableBinWidth_mediumPt.size()) -1;
   else                    return ((int) photonIsoVariableBinWidth_lowPt.size()) -1;
 
@@ -66,7 +72,8 @@ int getNbinsPhIsoVarWidth(const float pt) {
 float* getPhIsoBinArray(const float pt) {
 
   if (useTestVector)      return testVector.data();
-  if (pt > highPt)        return photonIsoVariableBinWidth_highPt.data();
+  if (pt > veryHighPt)    return photonIsoVariableBinWidth_veryHighPt.data();
+  else if (pt > highPt)   return photonIsoVariableBinWidth_highPt.data();
   else if (pt > mediumPt) return photonIsoVariableBinWidth_mediumPt.data();
   else                    return photonIsoVariableBinWidth_lowPt.data();
 
@@ -77,7 +84,8 @@ float* getPhIsoBinArray(const float pt) {
 vector<float> getPhIsoBinVector(const float pt) {
 
   if (useTestVector)      return testVector;
-  if (pt > highPt)        return photonIsoVariableBinWidth_highPt;
+  if (pt > veryHighPt)    return photonIsoVariableBinWidth_veryHighPt;
+  else if (pt > highPt)   return photonIsoVariableBinWidth_highPt;
   else if (pt > mediumPt) return photonIsoVariableBinWidth_mediumPt;
   else                    return photonIsoVariableBinWidth_lowPt;
 
@@ -104,7 +112,7 @@ void divideBinContentByBinWidth(TH1* h) {
 
 
 // debug mode
-static bool debug = true;
+//static bool debug = false;  // implemented as an option
 static bool saveHistograms = true;
 // k-facotr file
 static string kfactorFileName = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
@@ -116,7 +124,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 			 string inputDirectorySignalMC = "",   // here there must be only MC signal root files
 			 string inputDirectoryBackgroundMC = "",  // here there must be only MC background root files
 			 bool   makeFitBasedOnlyOnTemplates = false,
-			 bool   uniformIsoBinning = true     // decide to use or not a uniform or variable width binning (bin width depends on photon pt)
+			 bool   uniformIsoBinning = true,     // decide to use or not a uniform or variable width binning (bin width depends on photon pt)
+			 bool   debug = false
 			 ){
 
   system(("mkdir -p "+outputDIR).c_str());
@@ -602,8 +611,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 	double err_y_high_sys = sqrt(fabs(y_rnd08-y)*fabs(y_rnd08-y)+fabs(y_gjets-y)*fabs(y_gjets-y)+fabs(y_qcd-y)*fabs(y_qcd-y));	
 
 	// inflate a bit if it is too low
-	if(err_y_low_sys < 0.015)  err_y_low_sys = err_y_low_sys+0.008;
-	if(err_y_high_sys < 0.015) err_y_high_sys = err_y_high_sys+0.008;
+	// if(err_y_low_sys < 0.015)  err_y_low_sys = err_y_low_sys+0.008;
+	// if(err_y_high_sys < 0.015) err_y_high_sys = err_y_high_sys+0.008;
 
 	finalPurity->SetPointError(ipoint,err_x_low,err_x_high,sqrt(err_y_low_stat*err_y_low_stat+err_y_low_sys*err_y_low_sys),sqrt(err_y_high_stat*err_y_high_stat+err_y_high_sys*err_y_high_sys));
 	
@@ -627,8 +636,8 @@ void makePhotonPurityFit(string inputDirectory, // directory with dataFiles (fil
 				     fabs(y_altSig-y)*fabs(y_altSig-y)+fabs(y_altBkg-y)*fabs(y_altBkg-y));
 
 	// inflate a bit if it is too low
-	if(err_y_low_sys < 0.015) err_y_low_sys = err_y_low_sys+0.008;
-	if(err_y_high_sys < 0.015) err_y_high_sys = err_y_high_sys+0.008;
+	// if(err_y_low_sys < 0.015) err_y_low_sys = err_y_low_sys+0.008;
+	// if(err_y_high_sys < 0.015) err_y_high_sys = err_y_high_sys+0.008;
 	
 	finalPurity->SetPointError(ipoint,err_x_low,err_x_high,sqrt(err_y_low_stat*err_y_low_stat+err_y_low_sys*err_y_low_sys),sqrt(err_y_high_stat*err_y_high_stat+err_y_high_sys*err_y_high_sys));
 

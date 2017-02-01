@@ -757,13 +757,21 @@ void plotFitResult(TCanvas* canvas,
   signal_hist->Sumw2();
   if (uniformIsoBinning) signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral());
   else signal_hist->Scale(sigNorm->getVal()/signal_hist->Integral("width"));
+  // createHistogram doesn't assign uncertainty to histogram. Here we assign poissonian uncertainty
+  for (int i = 1; i <= signal_hist->GetNbinsX(); i++) {
+    if (signal_hist->GetBinError(i) == 0.0) signal_hist->SetBinError(i, sqrt(signal_hist->GetBinContent(i)));
+  }
 
   TH1F* background_hist = (TH1F*) backgroundPdf->createHistogram(Form("background%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax),*x,RooFit::Binning(*binning));
   background_hist->Sumw2();
   if (uniformIsoBinning) background_hist->Scale(bkgNorm->getVal()/background_hist->Integral());
   else background_hist->Scale(bkgNorm->getVal()/background_hist->Integral("width"));
+  for (int i = 1; i <= background_hist->GetNbinsX(); i++) {
+    if (background_hist->GetBinError(i) == 0.0) background_hist->SetBinError(i, sqrt(background_hist->GetBinContent(i)));
+  }
 
   TH1F* totalHist = (TH1F*) signal_hist->Clone(Form("totalHist%s_pt_%d_%d",postfix.c_str(),ptMin,ptMax));
+  totalHist->Sumw2();
   totalHist->Add(background_hist);
 
   canvas->cd();
