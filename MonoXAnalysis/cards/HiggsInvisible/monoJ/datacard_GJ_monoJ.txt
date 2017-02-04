@@ -51,7 +51,6 @@ Znunu_GJ_MJ_bin19_Runc      param    0           1
 Znunu_GJ_MJ_bin20_Runc      param    0           1
 Znunu_GJ_MJ_bin21_Runc      param    0           1
 Znunu_GJ_MJ_bin22_Runc      param    0           1
-Znunu_GJ_MJ_bin23_Runc      param    0           1
 Znunu_GJ_MJ_bin1_ZG_EWK    param    0           1 
 Znunu_GJ_MJ_bin2_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin3_ZG_EWK    param    0           1  
@@ -74,6 +73,5 @@ Znunu_GJ_MJ_bin19_ZG_EWK    param    0           1
 Znunu_GJ_MJ_bin20_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin21_ZG_EWK    param    0           1  
 Znunu_GJ_MJ_bin22_ZG_EWK    param    0           1  
-Znunu_GJ_MJ_bin23_ZG_EWK    param    0           1  
 ---------------------------------------------------------
 

@@ -19,8 +19,8 @@ process                             2           13           4               5  
 rate                                1          -1           -1             -1            -1
 ------------------------------------------------------------------------------------------------
 lumi_13TeV                lnN       -           1.062       1.062           1.062         1.062
-CMS_eff_e                 lnN       1.010       1.010       1.010           1.010         1.010
-CMS_reco_e                lnN       1.005       1.005       1.005           1.005         1.005
+CMS_eff_e                 lnN       1.020       1.020       1.020           1.020         1.020
+CMS_reco_e                lnN       1.010       1.010       1.010           1.010         1.010
 CMS_eff_trig_e            lnN       1.010       1.010       1.010           1.010         1.010
 CMS_eff_lepVeto_13TeV     lnN       1.030       -           -               -             -
 CMS_met_trig              lnN       1.010       -           -               -             -      
@@ -40,7 +40,6 @@ Dibosons_WE_MV_CMS_bin4_stat shape -           -           1              -     
 Dibosons_WE_MV_CMS_bin5_stat shape -           -           1              -             -
 Dibosons_WE_MV_CMS_bin6_stat shape -           -           1              -             -
 Dibosons_WE_MV_CMS_bin7_stat shape -           -           1              -             -
-Dibosons_WE_MV_CMS_bin8_stat shape -           -           1              -             -
 Top_WE_MV_CMS_bin1_stat shape -           -           -              1             -
 Top_WE_MV_CMS_bin2_stat shape -           -           -              1             -
 Top_WE_MV_CMS_bin3_stat shape -           -           -              1             -
@@ -48,7 +47,6 @@ Top_WE_MV_CMS_bin4_stat shape -           -           -              1          
 Top_WE_MV_CMS_bin5_stat shape -           -           -              1             -
 Top_WE_MV_CMS_bin6_stat shape -           -           -              1             -
 Top_WE_MV_CMS_bin7_stat shape -           -           -              1             -
-Top_WE_MV_CMS_bin8_stat shape -           -           -              1             -
 QCD_WE_MV_CMS_bin1_stat shape -           -           -              -             1
 QCD_WE_MV_CMS_bin2_stat shape -           -           -              -             1
 QCD_WE_MV_CMS_bin3_stat shape -           -           -              -             1
@@ -56,7 +54,6 @@ QCD_WE_MV_CMS_bin4_stat shape -           -           -              -          
 QCD_WE_MV_CMS_bin5_stat shape -           -           -              -             1
 QCD_WE_MV_CMS_bin6_stat shape -           -           -              -             1
 QCD_WE_MV_CMS_bin7_stat shape -           -           -              -             1
-QCD_WE_MV_CMS_bin8_stat shape -           -           -              -             1
 WJets_WE_MV_bin1_Runc     param     0     1
 WJets_WE_MV_bin2_Runc     param     0     1
 WJets_WE_MV_bin3_Runc     param     0     1
@@ -64,6 +61,5 @@ WJets_WE_MV_bin4_Runc     param     0     1
 WJets_WE_MV_bin5_Runc     param     0     1
 WJets_WE_MV_bin6_Runc     param     0     1
 WJets_WE_MV_bin7_Runc     param     0     1
-WJets_WE_MV_bin8_Runc     param     0     1
 ------------------------------------------------------------------------------------------------
 
