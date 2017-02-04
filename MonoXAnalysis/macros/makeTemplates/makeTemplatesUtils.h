@@ -156,7 +156,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     zmmcorhist.push_back( (TH1*)zmmcorfile->FindObjectAny(("zmmcor"+ext+"hist_"+obs).c_str()));
     zmmcorhist_num.push_back( (TH1*)zmmcorfile->FindObjectAny(("nhist_zmm"+ext+"_"+obs).c_str()));
     zmmcorhist_den.push_back( (TH1*)zmmcorfile->FindObjectAny(("dhist_zmm"+ext+"_"+obs).c_str()));
-
+    
     zeecorhist.push_back( (TH1*)zeecorfile->FindObjectAny(("zeecor"+ext+"hist_"+obs).c_str()));
     zeecorhist_num.push_back( (TH1*)zeecorfile->FindObjectAny(("nhist_zee"+ext+"_"+obs).c_str()));
     zeecorhist_den.push_back( (TH1*)zeecorfile->FindObjectAny(("dhist_zee"+ext+"_"+obs).c_str()));
@@ -922,10 +922,13 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
   TFile* wmncorfile = TFile::Open((outDir+"/wewkmncor"+ext+".root").c_str());
   TFile* wencorfile = TFile::Open((outDir+"/wewkencor"+ext+".root").c_str());
   TFile* zwjcorfile = TFile::Open((outDir+"/zwjewkcor"+ext+".root").c_str());
-  TFile* gamcorfile = TFile::Open((outDir+"/gamewkcor"+ext+".root").c_str());
+  TFile* gamcorfile = NULL;
   TFile* wgamcorfile = NULL;
-  if(addWgamma)
+
+  if(addWgamma){
+    gamcorfile = TFile::Open((outDir+"/gamewkcor"+ext+".root").c_str());
     wgamcorfile = TFile::Open((outDir+"/wgamewkcor"+ext+".root").c_str());
+  }
 
   // get histograms                                                                                                                                                                                   
   vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist, gamcorhist, wgamcorhist;
@@ -956,11 +959,12 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
     zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_ewk_zwj"+ext+"_"+obs).c_str()));
     zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_ewk_zwj"+ext+"_"+obs).c_str()));
 
-    gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamewkcor"+ext+"hist_"+obs).c_str()));
-    gamcorhist_num.push_back( (TH1*)gamcorfile->FindObjectAny(("nhist_ewk_gam"+ext+"_"+obs).c_str()));
-    gamcorhist_den.push_back( (TH1*)gamcorfile->FindObjectAny(("dhist_ewk_gam"+ext+"_"+obs).c_str()));
-
     if(addWgamma){
+
+      gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamewkcor"+ext+"hist_"+obs).c_str()));
+      gamcorhist_num.push_back( (TH1*)gamcorfile->FindObjectAny(("nhist_ewk_gam"+ext+"_"+obs).c_str()));
+      gamcorhist_den.push_back( (TH1*)gamcorfile->FindObjectAny(("dhist_ewk_gam"+ext+"_"+obs).c_str()));
+      
       wgamcorhist.push_back( (TH1*) wgamcorfile->FindObjectAny(("wgamewkcor"+ext+"hist_"+obs).c_str()));
       wgamcorhist_num.push_back( (TH1*) wgamcorfile->FindObjectAny(("nhist_ewk_wgam"+ext+"_"+obs).c_str()));
       wgamcorhist_den.push_back( (TH1*) wgamcorfile->FindObjectAny(("dhist_ewk_wgam"+ext+"_"+obs).c_str()));
@@ -1024,28 +1028,28 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
 
     outputFile.cd();
 
-    if(not outputFile.GetDirectory("TF_GJ_EWK"))
-      outputFile.mkdir("TF_GJ_EWK");
-    outputFile.cd("TF_GJ_EWK");
-    if(gamcorhist.size() !=0 and gamcorhist.back() != NULL)
-      gamcorhist.back()->Write();
-    
-    if(addHistoForCutAndCount){
-      if(gamcorhist_num.back())
-	gamcorhist_num.back()->Write();
-      if(gamcorhist_den.back())
-	gamcorhist_den.back()->Write();
-    }
-    
-    cout<<"WGamma+jets"<<endl;
-    outputFile.cd();
     if(addWgamma){
+      if(not outputFile.GetDirectory("TF_GJ_EWK"))
+	outputFile.mkdir("TF_GJ_EWK");
+      outputFile.cd("TF_GJ_EWK");
+      if(gamcorhist.size() !=0 and gamcorhist.back() != NULL)
+	gamcorhist.back()->Write();
+      
+      if(addHistoForCutAndCount){
+	if(gamcorhist_num.back())
+	  gamcorhist_num.back()->Write();
+	if(gamcorhist_den.back())
+	  gamcorhist_den.back()->Write();
+      }
+      
+      cout<<"WGamma+jets"<<endl;
+      outputFile.cd();
       if(not outputFile.GetDirectory("TF_WG_EWK"))
         outputFile.mkdir("TF_WG_EWK");
       outputFile.cd("TF_WG_EWK");
       if(wgamcorhist.size() != 0 and wgamcorhist.back() != NULL)
 	wgamcorhist.back()->Write();
-
+      
       if(addHistoForCutAndCount){
 	if(wgamcorhist_num.back())
 	  wgamcorhist_num.back()->Write();

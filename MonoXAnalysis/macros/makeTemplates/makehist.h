@@ -45,7 +45,7 @@ const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 2.0;
+const float dphijj          = 1.5;
 const float dphijjrelaxed   = 2.0;
 // Additional selections
 const float photonPt        = 120;
@@ -103,21 +103,21 @@ double getVtaggingScaleFactor(const double & tau2tau1, const string & sysName){
 
   double sfwgt = 1;
 
-  if(tau2tau1 == 0.45){
+  if(tau2tau1 == 0.40 or tau2tau1 == 0.45){
     if(sysName == "VtagUp")
-      sfwgt *= (0.96+0.109);
+      sfwgt *= (0.92+0.109);
     else if(sysName == "VtagDown")
-      sfwgt *= (0.96-0.109);
+      sfwgt *= (0.92-0.109);
     else
-      sfwgt *= 0.96;
+      sfwgt *= 0.92;
   }
   else if(tau2tau1 == 0.6){
     if(sysName == "VtagUp")
-      sfwgt *= (0.96+0.109);
+      sfwgt *= (0.92+0.109);
     else if(sysName == "VtagDown")
-      sfwgt *= (0.96-0.109);
+      sfwgt *= (0.92-0.109);
     else
-      sfwgt *= 0.96;
+      sfwgt *= 0.92;
   }
   
   return sfwgt;
@@ -514,11 +514,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
   TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
   TTreeReaderValue<unsigned int> ntaus      (myReader,"ntaus");
-  TTreeReaderValue<unsigned int> ntausraw   (myReader,"ntausrawold");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
   TTreeReaderValue<float> ht                (myReader,"ht");
 
   // AK8 jet
+
   TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");
   TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedJetQGL");
   TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
@@ -648,7 +648,7 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<float> el1phi (myReader,"el1phi");
   TTreeReaderValue<float> el2phi (myReader,"el2phi");
   
-  TTreeReaderValue<int>    phidm (myReader,"phidm");
+  TTreeReaderValue<int>   phidm (myReader,"phidm");
   TTreeReaderValue<float> phpt  (myReader,"phpt");
   TTreeReaderValue<float> pheta (myReader,"pheta");
   TTreeReaderValue<float> phphi (myReader,"phphi");
@@ -666,6 +666,11 @@ void makehist4(TTree* tree, /*input tree*/
   TTreeReaderValue<float> zeephi (myReader,"zeephi");
   TTreeReaderValue<float> zmmeta (myReader,"zeta");
   TTreeReaderValue<float> zmmphi (myReader,"zphi");
+
+  TTreeReaderValue<float> l1eta (myReader,"l1eta");
+  TTreeReaderValue<float> l1phi (myReader,"l1phi");
+  TTreeReaderValue<float> l2eta (myReader,"l2eta");
+  TTreeReaderValue<float> l2phi (myReader,"l2phi");
 
   TTreeReaderValue<float> dmpt (myReader,"dmpt");
 
@@ -729,7 +734,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
 
     // noise cleaner
-    if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
+    //if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
 
     // set lepton info
     Int_t    id1   = 0;
@@ -818,7 +823,7 @@ void makehist4(TTree* tree, /*input tree*/
       bosonPhi = (lep4V+met4V).Phi();
     }
 
-    if (*ntausraw != 0) continue;
+    if (*ntaus != 0) continue;
     // B-veto, not for top control sample
     if (*nbjets > 0 and sample != Sample::topmu and sample != Sample::topel) continue; 
 
@@ -833,10 +838,9 @@ void makehist4(TTree* tree, /*input tree*/
       }
       else if(sample == Sample::zee){
 	if(not ((pt1 > 40 and id1 == 1) or (pt2 > 40 and id2 == 1))) continue;
-	if(id1t == 0 and id2t == 0) continue;
       }
     }
-    
+        
     // number of central jets
     if (category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and *njets < 1) continue; 
     else if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed) and *nincjets < 2) continue;

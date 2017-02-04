@@ -8,13 +8,13 @@ float phsf = 0.02;
 float mutrack = 0.01;
 float eltrack = 0.01;
 float mettrig = 0.01;
-float eltrig = 0.02;
-float phtrig = 0.02;
+float eltrig = 0.01;
+float phtrig = 0.01;
 float lepveto = 0.03;
 float inflateWZ_ewk = sqrt(2);
 
 
-void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const int & rebinFactor){
+void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const bool & useNewTheoryUncertainty){
 
   // final plot
   TCanvas* canvas = new TCanvas(("canvas_"+postfix).c_str(),"",600,650);
@@ -36,11 +36,6 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   pad1->Draw();
   canvas->cd();
   pad2->Draw();
-
-  if(rebinFactor > 1){
-    histoData->Rebin(rebinFactor);
-    histoMC->Rebin(rebinFactor);
-  }
 
   pad1->cd();
   vector<double> bins = selectBinning(observable,category);
@@ -79,7 +74,8 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
       minmc = histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1);
   }
       
-  frame->GetYaxis()->SetRangeUser(min(mindata,minmc)*0.5,max(maxdata,maxmc)*1.5);
+  //  frame->GetYaxis()->SetRangeUser(min(mindata,minmc)*0.5,max(maxdata,maxmc)*1.5);
+  frame->GetYaxis()->SetRangeUser(0.0,0.2);
 
   // histo style
   histoData->SetLineColor(kBlack);
@@ -146,15 +142,24 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
 
   canvas->cd();
   pad2->cd();
-
-  TH1* frame2 = NULL;
-  if(category == Category::monojet)
-    frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
-  else if(category == Category::monoV)
-    frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
-  else if(category == Category::VBF)
-    frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
   
+  TH1* frame2 = NULL;
+  if(not useNewTheoryUncertainty){
+    if(category == Category::monojet)
+      frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+    else if(category == Category::monoV)
+      frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+    else if(category == Category::VBF)
+      frame2 = pad2->DrawFrame(bins.front(), 0.0, bins.back(), 2.0, "");
+  }
+  else{
+    if(category == Category::monojet)
+      frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+    else if(category == Category::monoV)
+      frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+    else if(category == Category::VBF)
+      frame2 = pad2->DrawFrame(bins.front(), 0.5, bins.back(), 1.5, "");
+  }
 
   frame2->GetXaxis()->SetLabelSize(0.10);
   frame2->GetXaxis()->SetLabelOffset(0.03);
@@ -205,6 +210,12 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* data_wen = (TH1*) inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
   TH1* data_wmn = (TH1*) inputFile->FindObjectAny(("datahistwmn_"+observable).c_str());
   TH1* data_gam = (TH1*) inputFile->FindObjectAny(("datahistgam_"+observable).c_str());
+
+  data_zmm->Rebin(rebinFactor);
+  data_zee->Rebin(rebinFactor);
+  data_wen->Rebin(rebinFactor);
+  data_wmn->Rebin(rebinFactor);
+  data_gam->Rebin(rebinFactor);
     
   // ZMM control region  
   TH1* vllbkg_zmm = (TH1*) inputFile->FindObjectAny(("vllbkghistzmm_"+observable).c_str());
@@ -224,6 +235,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   }
   vllbkg_zmm->Add(gambkg_zmm);
   vllbkg_zmm->Add(qcdbkg_zmm);
+  
+  vllbkg_zmm->Rebin(rebinFactor);
 
   // ZEE  control region
   TH1* vllbkg_zee = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
@@ -244,6 +257,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   vllbkg_zee->Add(gambkg_zee);
   vllbkg_zee->Add(qcdbkg_zee);
 
+  vllbkg_zee->Rebin(rebinFactor);
+
   // WEN  control region
   TH1* vlbkg_wen   = (TH1*) inputFile->FindObjectAny(("vlbkghistwen_"+observable).c_str());
   TH1* vllbkg_wen  = (TH1*) inputFile->FindObjectAny(("vllbkghistwen_"+observable).c_str());
@@ -262,6 +277,9 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     vlbkg_wen->Add(ewkwbkg_wen);
     vlbkg_wen->Add(ewkzbkg_wen);
   }
+
+  vlbkg_wen->Rebin(rebinFactor);
+
   // WMN  control region
   TH1* vlbkg_wmn   = (TH1*) inputFile->FindObjectAny(("vlbkghistwmn_"+observable).c_str());
   TH1* vllbkg_wmn  = (TH1*) inputFile->FindObjectAny(("vllbkghistwmn_"+observable).c_str());
@@ -281,6 +299,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     vlbkg_wmn->Add(ewkzbkg_wmn);
   }
 
+  vlbkg_wmn->Rebin(rebinFactor);
+
   // GAM  control region
   TH1* gbkg_gam   = NULL;
   TH1* qbkg_gam   = NULL;
@@ -295,6 +315,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     gbkg_gam->Add(vgbkg_gam);
     gbkg_gam->Add(vlbkg_gam);
   }
+
+  gbkg_gam->Rebin(rebinFactor);
 
   //SYS Unc on ratios
   TH1*  ZG_ewk = NULL;
@@ -507,7 +529,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     WGMC_l = (TH1*) vlbkg_wmn->Clone("WGMC_l");
     WGMC_l->Add(vlbkg_wen);
     WGMC_l->Divide(gbkg_gam);
-    
+
     //Add systematic uncertainties
     for(int iBin = 0; iBin < ZGMC_mm->GetNbinsX(); iBin++){
       double err = 0.;
@@ -526,7 +548,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
       ZGMC_mm->SetBinError(iBin+1,sqrt(err));
     }
-    
+
     for(int iBin = 0; iBin < ZGMC_ee->GetNbinsX(); iBin++){
       double err = 0.;
       err += ZGMC_ee->GetBinError(iBin+1)*ZGMC_ee->GetBinError(iBin+1);
@@ -563,8 +585,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
       ZGMC_ll->SetBinError(iBin+1,sqrt(err));
     }
-    
-    
+
     if(addWgamma){
       
       for(int iBin = 0; iBin < WGMC_m->GetNbinsX(); iBin++){
@@ -621,21 +642,25 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       }
     }
   }
+
   // make plots
-  
-  makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm",rebinFactor);
-  makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee",rebinFactor);
-  makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll",rebinFactor);  
+  string theory_new = "";
+  if(useNewTheoryUncertainty)
+    theory_new = "_new_unc";
+
+  makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm"+theory_new,useNewTheoryUncertainty);
+  makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee"+theory_new,useNewTheoryUncertainty);
+  makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll"+theory_new,useNewTheoryUncertainty);  
 
   if(category != Category::VBF){
-    makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm",rebinFactor);  
-    makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee",rebinFactor);
-    makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll",rebinFactor);
+    makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm"+theory_new,useNewTheoryUncertainty);  
+    makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee"+theory_new,useNewTheoryUncertainty);
+    makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll"+theory_new,useNewTheoryUncertainty);
     
     if(addWgamma){
-      makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m",rebinFactor);
-      makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e",rebinFactor);
-      makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l",rebinFactor);    
+      makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m"+theory_new,useNewTheoryUncertainty);
+      makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e"+theory_new,useNewTheoryUncertainty);
+      makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l"+theory_new,useNewTheoryUncertainty);    
     }
   }
 }

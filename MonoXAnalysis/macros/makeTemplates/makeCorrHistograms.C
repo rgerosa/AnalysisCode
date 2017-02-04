@@ -154,7 +154,7 @@ void makezmmcorhist( const string &   signalRegionFile,
   TFile* kfactzjet_vbf = NULL;
   if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
 
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
     zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
@@ -414,7 +414,7 @@ void makezeecorhist( const string &   signalRegionFile,
   
   TFile* kfactzjet_vbf = NULL;
   if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                               
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
     zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
@@ -652,7 +652,7 @@ void makewmncorhist( const string &  signalRegionFile,
 
   TFile* kfactwjet_vbf = NULL;
   if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                            
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
     wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
@@ -872,7 +872,7 @@ void makewencorhist( const string &  signalRegionFile,
 
   TFile* kfactwjet_vbf = NULL;
   if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
     wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
@@ -1105,16 +1105,38 @@ void  makezwjcorhist(const string & znunuFile,
       reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
 
   }
-  
-  // in order to make uncertainties use the old file
-  TFile* kffileUnc = NULL;
-  TFile* kfactzjet_vbf = NULL;
-  TFile* kfactwjet_vbf = NULL;
-  TFile* kffile_zvv = NULL;
-  TFile* kffile_wln = NULL;
+
+  // further k-factors for VBF
   vector<TH1*> zhists;
   vector<TH1*> whists;
   vector<TH1*> ehists;
+  TFile* kfactzjet_vbf = NULL;
+  TFile* kfactwjet_vbf = NULL;
+  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                                                
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);      
+    
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+  }
+
+  // in order to make uncertainties use the old file
+  TFile* kffileUnc = NULL;
+  TFile* kffile_zvv = NULL;
+  TFile* kffile_wln = NULL;
   
   if(kfact == 1 or kfact == 2){    
     if(not useTheoristKfactors){ // generate central prediction from old k-factors      
@@ -1295,17 +1317,6 @@ void  makezwjcorhist(const string & znunuFile,
       // Z/W NLO QCD fac EWK up / Z/W NLO QCD                                                                                                                                       
       fa2hist->Divide(nomhist);
 
-      //kfact == 1 --> Znunu corrected for by NLO QCD, Wlnu by NLO QCD                                                                                                              
-      if (kfact == 1 and not nloSamples.useZJetsNLO) zhists.push_back(znlohist);
-      if (kfact == 1 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
-      
-      //kfact == 2 --> Znunu corrected for by NLO QCD+EWK, Wlnu by NLO QCD+EWK                                                                                                      
-      if (kfact == 2 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
-      else if(kfact == 2 and nloSamples.useZJetsNLO) zhists.push_back(zewkhist);
-      
-      if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
-      else if (kfact == 2 and nloSamples.useWJetsNLO) whists.push_back(wewkhist);
-      
       //kfact == 3 --> Znunu and Wlnu by NLO QCD, ratio for ren scale up QCD                                                                                                        
       if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist);}
       else if(kfact == 3 and nloSamples.useZJetsNLO) zhists.push_back(re1hist);      
@@ -1331,28 +1342,7 @@ void  makezwjcorhist(const string & znunuFile,
       else if(kfact == 7 and nloSamples.useZJetsNLO) zhists.push_back(zpdfhist);
       
       if (kfact == 7 and not nloSamples.useWJetsNLO)  {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
-      else if (kfact == 7 and nloSamples.useWJetsNLO) whists.push_back(wpdfhist);
-      
-      if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                                                
-	kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
-	kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
-	
-	TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
-	TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-	zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
-	zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
-	zjet_nlo_vbf->Divide(zjet_nlo_mj);
-	if(not nloSamples.useZJetsNLO)
-	  zhists.push_back(zjet_nlo_vbf);      
-	
-	TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-	TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-	wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-	wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-	wjet_nlo_vbf->Divide(wjet_nlo_mj);
-	if(not nloSamples.useWJetsNLO)
-	  whists.push_back(wjet_nlo_vbf);
-      }
+      else if (kfact == 7 and nloSamples.useWJetsNLO) whists.push_back(wpdfhist);      
     }
   }
 
@@ -1640,8 +1630,8 @@ void makegamcorhist( const string & znunuFile,
 
   if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                           
   
-    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
@@ -1952,8 +1942,8 @@ void makewgamcorhist( const string & wlnuFile,
 
   if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                                
 
-    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets.root");
-    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
