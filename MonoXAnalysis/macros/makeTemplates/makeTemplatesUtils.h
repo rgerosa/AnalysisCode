@@ -433,7 +433,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       for (int i = 0; i <= zwjuncewkqcdhist->GetNbinsX()+1; i++)
         zwjuncewkqcdhist->SetBinContent(i,fabs(zwjcorewkqcduphist.back()->GetBinContent(i)-zwjcorewkqcddwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
       zwjuncewkqcdhist->SetName(("ZW_QCDEWK_"+obs).c_str());
-      
+
 
     }
 

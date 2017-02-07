@@ -46,7 +46,7 @@ void makeSignalTemplates(
   if(interactionType == "")
     filename = outDir+"/templates_signal_"+templateSuffix+".root";
   else
-    outDir+"/templates_signal_"+interactionType+"_"+templateSuffix+".root";
+    filename = outDir+"/templates_signal_"+interactionType+"_"+templateSuffix+".root";
 
   TFile outfile(filename.c_str(), "RECREATE");
   

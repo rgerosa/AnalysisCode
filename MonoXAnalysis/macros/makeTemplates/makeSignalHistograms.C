@@ -791,8 +791,8 @@ void signalmchist(TFile* outfile,
 					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
     }
     else if(iPoint.interaction == interaction and interaction == "Axial"){
-      monoJfile .push_back(TFile::Open((baseInputTreePath+"DMV_Axial/sigfilter/sig_tree_DMV_NNPDF30_Axial_Mphi-"+iPoint.mediatorMass+
-					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-powheg.root").c_str()));
+      monoJfile .push_back(TFile::Open((baseInputTreePath+"Axial_MonoJ/tree_Axial_MonoJ_NLO_Mphi-"+iPoint.mediatorMass+
+					"_Mchi-"+iPoint.dmMass).c_str()));
       monoWfile .push_back(TFile::Open((baseInputTreePath+"MonoW_Axial/sigfilter/sig_tree_AxialMonoW_Mphi-"+iPoint.mediatorMass+
 					"_Mchi-"+iPoint.dmMass+"_gSM-0p25_gDM-1p0_v2_13TeV-madgraph.root").c_str()));
       monoZfile .push_back(TFile::Open((baseInputTreePath+"MonoZ_Axial/sigfilter/sig_tree_AxialMonoZ_Mphi-"+iPoint.mediatorMass+
@@ -1195,7 +1195,7 @@ void signalmchist(TFile* outfile,
   // store tempaltes in the output file
   outfile->cd();
   if(not outfile->GetDirectory("monoJ"))
-    outfile->mkdir("monoJ");
+    outfile->mkdir("monoJ"); 
   outfile->cd("monoJ");
   for(auto sample : monoJhist){ for(auto hist : sample) hist->Write();}
   outfile->cd();
@@ -1356,7 +1356,7 @@ void findAllPossibleMassPoints(vector<signalSample> & signalMassPoint, string in
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Vector/sigfilter/";
   }
   else if(interaction == "Axial"){
-    baseDirMonoJet = baseInputTreePath+"/DMV_Axial/sigfilter/";
+    baseDirMonoJet = baseInputTreePath+"/Axial_MonoJ/";
     baseDirMonoW   = baseInputTreePath+"/MonoW_Axial/sigfilter/";
     baseDirMonoZ   = baseInputTreePath+"/MonoZ_Axial/sigfilter/";
   }

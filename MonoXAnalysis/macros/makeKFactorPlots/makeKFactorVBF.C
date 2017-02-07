@@ -1,9 +1,7 @@
 #include "../CMS_lumi.h"
 
-//vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
-//vector<float> bosonPt_vbf      {150.,200.,250.,350,500.,700.,1000};
-vector<float> bosonPt          {150.,250.,400,650,1000};
-vector<float> bosonPt_vbf      {150.,250.,400,650,1000};
+vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
+vector<float> mjj_bin          {150.,200.,250.,350,500.,700.,1000};
 
 static float mjj            = 1300;
 static float mjjrelaxed     = 350;
@@ -108,10 +106,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   TH1F* bosonPt_NLO_monojet = new TH1F("bosonPt_NLO_monojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_LO_twojet   = new TH1F("bosonPt_LO_twojet","",bosonPt.size()-1,&bosonPt[0]);
   TH1F* bosonPt_NLO_twojet  = new TH1F("bosonPt_NLO_twojet","",bosonPt.size()-1,&bosonPt[0]);
-  TH1F* bosonPt_LO_vbf_relaxed      = new TH1F("bosonPt_LO_vbf_relaxed","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
-  TH1F* bosonPt_NLO_vbf_relaxed     = new TH1F("bosonPt_NLO_vbf_relaxed","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
-  TH1F* bosonPt_LO_vbf      = new TH1F("bosonPt_LO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
-  TH1F* bosonPt_NLO_vbf     = new TH1F("bosonPt_NLO_vbf","", bosonPt_vbf.size()-1,&bosonPt_vbf[0]);
+  TH1F* bosonPt_LO_vbf_relaxed      = new TH1F("bosonPt_LO_vbf_relaxed","", bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_NLO_vbf_relaxed     = new TH1F("bosonPt_NLO_vbf_relaxed","", bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_LO_vbf      = new TH1F("bosonPt_LO_vbf","", bosonPt.size()-1,&bosonPt[0]);
+  TH1F* bosonPt_NLO_vbf     = new TH1F("bosonPt_NLO_vbf","", bosonPt.size()-1,&bosonPt[0]);
+
+  TH1F* mjj_LO_twojet   = new TH1F("mjj_LO_twojet","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* mjj_NLO_twojet  = new TH1F("mjj_NLO_twojet","",mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* mjj_LO_vbf_relaxed      = new TH1F("mjj_LO_vbf_relaxed","", mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* mjj_NLO_vbf_relaxed     = new TH1F("mjj_NLO_vbf_relaxed","", mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* mjj_LO_vbf      = new TH1F("mjj_LO_vbf","", mjj_bin.size()-1,&mjj_bin[0]);
+  TH1F* mjj_NLO_vbf     = new TH1F("mjj_NLO_vbf","", mjj_bin.size()-1,&mjj_bin[0]);
 
   bosonPt_LO_monojet->Sumw2();
   bosonPt_NLO_monojet->Sumw2();
@@ -121,6 +126,13 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   bosonPt_NLO_vbf_relaxed->Sumw2();
   bosonPt_LO_vbf->Sumw2();
   bosonPt_NLO_vbf->Sumw2();
+
+  mjj_LO_twojet->Sumw2();
+  mjj_NLO_twojet->Sumw2();
+  mjj_LO_vbf_relaxed->Sumw2();
+  mjj_NLO_vbf_relaxed->Sumw2();
+  mjj_LO_vbf->Sumw2();
+  mjj_NLO_vbf->Sumw2();
 
   // Loop on LO trees
   ifile = 0;
@@ -203,6 +215,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 
 	// fill two jet phase space
 	bosonPt_LO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
+	mjj_LO_twojet->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 			 
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
 	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
@@ -211,10 +224,12 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
 	bosonPt_LO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+	mjj_LO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
 
 	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
 	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
+	mjj_LO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
       }
     }
     ifile++;
@@ -301,6 +316,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       
       if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
 	bosonPt_NLO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
+	mjj_NLO_twojet->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
 	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
@@ -308,10 +324,12 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
 	bosonPt_NLO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
+	mjj_NLO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
 	
 	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
 	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
+	mjj_NLO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
       }
     }
     ifile++;
@@ -512,6 +530,14 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
   bosonPt_LO_twojet->Write();
   bosonPt_LO_vbf_relaxed->Write();
   bosonPt_LO_vbf->Write();
+
+  mjj_NLO_twojet->Write();
+  mjj_NLO_vbf_relaxed->Write();
+  mjj_NLO_vbf->Write();
+  mjj_LO_twojet->Write();
+  mjj_LO_vbf_relaxed->Write();
+  mjj_LO_vbf->Write();
+
   output->Close();
 
 }

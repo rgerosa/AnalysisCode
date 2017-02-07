@@ -25,7 +25,7 @@ static bool skipTFsystematics     = false;
 static bool skipDataAnalysis      = false;
 static SamplesNLO nloSamples (false,false,false,false);
 static bool useTheoriestKFactors  = false;
-static bool useNewTheoryUncertainty = true;
+static bool useNewTheoryUncertainty = false;
 
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors

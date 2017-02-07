@@ -47,6 +47,7 @@ const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
 const float dphijjrelaxed   = 2.0;
+const bool  removeVBF       = false;
 // Additional selections
 const float photonPt        = 120;
 const int   vBosonCharge    = 0;
@@ -72,7 +73,7 @@ string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/dat
 string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/eej.root";
 
 /// basic trees
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/";
 
 VectorSorter jetSorter;
 
@@ -471,12 +472,10 @@ void makehist4(TTree* tree, /*input tree*/
   string hltphotonname;
 
   TTreeReaderValue<double>* wgtsum = NULL;
-  TTreeReaderValue<float>* wgtbtag = NULL;
 
   if(isMC){
     // defined branches for re-weigthing only in MC
     wgtsum  = new TTreeReaderValue<double>(myReader,"wgtsum");
-    wgtbtag = new TTreeReaderValue<float>(myReader,"wgtbtag");
   }
   
   // trigger
@@ -734,7 +733,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
 
     // noise cleaner
-    //if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
+    if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
 
     // set lepton info
     Int_t    id1   = 0;
@@ -919,41 +918,33 @@ void makehist4(TTree* tree, /*input tree*/
     // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
       if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){
-	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-	/*
+	//	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));	
 	if(pt1 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
 	else
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));	
-	*/
       }
       if(pt2 > 0. and *nvtx <= numberOfVtxCorrection){
-	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-	/*  
+	//	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
 	if(pt2 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
 	else
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));
-	*/
       }
       if(pt1 > 0. and *nvtx > numberOfVtxCorrection){
-	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-	/*
+	//	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
 	if(pt1 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
-	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
+	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
 	else
-	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
-	*/
+	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
       }
       
       if(pt2 > 0. and *nvtx > numberOfVtxCorrection){
-	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
-	/*
+	//	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
 	if(pt2 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
 	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
 	else
 	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
-	*/
       }
     }
 
@@ -1191,8 +1182,9 @@ void makehist4(TTree* tree, /*input tree*/
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj)
-	  goodMonoJet = false;
+	if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+	  if(removeVBF) goodMonoJet = false;
+	}
       }
 
       // V-tagging
@@ -1271,9 +1263,9 @@ void makehist4(TTree* tree, /*input tree*/
         TLorentzVector jet2 ;
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-        if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj)
-          goodMonoV = false;
-	
+        if((jet1+jet2).M() > mjj and fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) < dphijj){
+          if(removeVBF) goodMonoV = false;
+	}
       }
              
     }
