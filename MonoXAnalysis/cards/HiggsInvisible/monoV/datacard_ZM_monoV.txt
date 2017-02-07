@@ -18,8 +18,8 @@ process                             1           8           4               5
 rate                                1          -1          -1              -1
 ----------------------------------------------------------------------------------
 lumi_13TeV                lnN       -           1.062       1.062           1.062
-CMS_eff_m                 lnN       1.020       1.020       1.020           1.020
-CMS_reco_m                lnN       1.010       1.010       1.010           1.010
+CMS_eff_m                 lnN       1.040       1.040       1.040           1.040
+CMS_reco_m                lnN       1.020       1.020       1.020           1.020
 CMS_met_trig              lnN       -           1.010       1.010           1.010 
 WJets_ZM_Norm13TeV        lnN       -           1.200       -               -
 Dibosons_Norm13TeV        lnN       -           -           1.150           -
@@ -36,7 +36,6 @@ Dibosons_ZM_MV_CMS_bin4_stat shape -           -           1           -
 Dibosons_ZM_MV_CMS_bin5_stat shape -           -           1           -               
 Dibosons_ZM_MV_CMS_bin6_stat shape -           -           1           -               
 Dibosons_ZM_MV_CMS_bin7_stat shape -           -           1           -               
-Dibosons_ZM_MV_CMS_bin8_stat shape -           -           1           -               
 Top_ZM_MV_CMS_bin1_stat shape      -           -           -           1
 Top_ZM_MV_CMS_bin2_stat shape      -           -           -           1
 Top_ZM_MV_CMS_bin3_stat shape      -           -           -           1
@@ -44,7 +43,6 @@ Top_ZM_MV_CMS_bin4_stat shape      -           -           -           1
 Top_ZM_MV_CMS_bin5_stat shape      -           -           -           1
 Top_ZM_MV_CMS_bin6_stat shape      -           -           -           1
 Top_ZM_MV_CMS_bin7_stat shape      -           -           -           1
-Top_ZM_MV_CMS_bin8_stat shape      -           -           -           1
 Znunu_ZM_MV_bin1_Runc     param     0     1
 Znunu_ZM_MV_bin2_Runc     param     0     1
 Znunu_ZM_MV_bin3_Runc     param     0     1
@@ -52,6 +50,5 @@ Znunu_ZM_MV_bin4_Runc     param     0     1
 Znunu_ZM_MV_bin5_Runc     param     0     1
 Znunu_ZM_MV_bin6_Runc     param     0     1
 Znunu_ZM_MV_bin7_Runc     param     0     1
-Znunu_ZM_MV_bin8_Runc     param     0     1
 ----------------------------------------------------------------------------------
 
