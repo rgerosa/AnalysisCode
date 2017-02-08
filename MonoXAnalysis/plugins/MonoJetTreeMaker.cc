@@ -146,6 +146,7 @@ private:
 
   // Gen Particles and MC info
   const bool isMC;
+  const bool isReMiniAOD;
   const bool isTriggerTree;
   const bool addTriggerObjects;
   const bool uselheweights;
@@ -290,16 +291,36 @@ private:
 
   // MET
   const edm::InputTag t1metTag;
+  edm::InputTag t1metEGCleanTag;
+  edm::InputTag t1metMuCleanTag;
   const edm::InputTag t1mumetTag;
+  edm::InputTag t1mumetEGCleanTag;
+  edm::InputTag t1mumetMuCleanTag;
   const edm::InputTag t1elmetTag;
+  edm::InputTag t1elmetEGCleanTag;
+  edm::InputTag t1elmetMuCleanTag;
   const edm::InputTag t1phmetTag;
+  edm::InputTag t1phmetEGCleanTag;
+  edm::InputTag t1phmetMuCleanTag;
   const edm::InputTag t1taumetTag;
+  edm::InputTag t1taumetEGCleanTag;
+  edm::InputTag t1taumetMuCleanTag;
 
   edm::EDGetTokenT<edm::View<pat::MET> >  t1metToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1metEGCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1metMuCleanToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetToken;
-  edm::EDGetTokenT<edm::View<pat::MET> >  t1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetEGCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1mumetMuCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1elmetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1elmetEGCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1elmetMuCleanToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetEGCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1phmetMuCleanToken;
   edm::EDGetTokenT<edm::View<pat::MET> >  t1taumetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1taumetEGCleanToken;
+  edm::EDGetTokenT<edm::View<pat::MET> >  t1taumetMuCleanToken;
 
   // MET breakdown
   const bool addMETBreakDown;
@@ -316,7 +337,7 @@ private:
   const bool addPuppiMET;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1metToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1mumetToken;
-  edm::EDGetTokenT<edm::View<pat::MET> > puppit1elemetToken;
+  edm::EDGetTokenT<edm::View<pat::MET> > puppit1elmetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1phmetToken;
   edm::EDGetTokenT<edm::View<pat::MET> > puppit1taumetToken;
 
@@ -380,6 +401,9 @@ private:
 
   std::unique_ptr<HLTPrescaleProvider> hltPrescaleProvider_;
 
+  // fake muon colections --> effect of HIP mitigation
+  edm::EDGetTokenT<edm::View<reco::Candidate> > fakeMuonCollToken;
+
   // tree
   TTree* tree;
 
@@ -408,6 +432,7 @@ private:
   uint32_t njetsincup,npuppijetsincup; 
   uint32_t njetsincdw,npuppijetsincdw;
   uint32_t njetsincjer,npuppijetsincjer;
+  uint32_t nmuonsfake;
 
   // trigger and met filters flags 
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
@@ -436,6 +461,8 @@ private:
   float tau1pt,tau1eta,tau1phi,tau1m,tau1id,tau1idold,tau2pt,tau2eta,tau2phi,tau2m,tau2id,tau2idold;
   float zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
   float emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
+  // fake muons in 2016 HIP mitigated data
+  vector<float> fakemupt, fakemueta, fakemuphi;
 
   // photon purity studies
   uint32_t nphotonsPurity;
@@ -446,6 +473,8 @@ private:
   // PF MET info (typeI and Raw)
   float rho;
   float t1pfmet,t1pfmetphi,t1mumet,t1mumetphi,t1elmet,t1elmetphi,t1phmet,t1phmetphi,t1taumet,t1taumetphi;
+  float t1pfmetEGClean,t1pfmetphiEGClean,t1mumetEGClean,t1mumetphiEGClean,t1elmetEGClean,t1elmetphiEGClean,t1phmetEGClean,t1phmetphiEGClean,t1taumetEGClean,t1taumetphiEGClean;
+  float t1pfmetMuClean,t1pfmetphiMuClean,t1mumetMuClean,t1mumetphiMuClean,t1elmetMuClean,t1elmetphiMuClean,t1phmetMuClean,t1phmetphiMuClean,t1taumetMuClean,t1taumetphiMuClean;
   float pfmet,pfmetphi,mumet,mumetphi,elmet,elmetphi,phmet,phmetphi,taumet,taumetphi;
   float calomet, calometphi;
 
@@ -673,6 +702,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   ///////////// GEN INFO
   // isMC or Data --> default Data
   isMC          (iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
+  isReMiniAOD   (iConfig.existsAs<bool>("isReMiniAOD") ? iConfig.getParameter<bool>("isReMiniAOD") : false),
   isTriggerTree (iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false),
   addTriggerObjects (iConfig.existsAs<bool>("addTriggerObjects") ? iConfig.getParameter<bool>("addTriggerObjects") : false),
   // use lhe weights or not
@@ -852,9 +882,35 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   
   t1metToken    = consumes<edm::View<pat::MET> > (t1metTag);
   t1mumetToken  = consumes<edm::View<pat::MET> > (t1mumetTag);
-  t1elemetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
+  t1elmetToken = consumes<edm::View<pat::MET> > (t1elmetTag);
   t1phmetToken  = consumes<edm::View<pat::MET> > (t1phmetTag);
   t1taumetToken  = consumes<edm::View<pat::MET> > (t1taumetTag);
+
+  if(isReMiniAOD){
+
+    t1metEGCleanTag = iConfig.getParameter<edm::InputTag>("t1metEGClean");
+    t1metMuCleanTag = iConfig.getParameter<edm::InputTag>("t1metMuClean");
+    t1mumetEGCleanTag = iConfig.getParameter<edm::InputTag>("t1mumetEGClean");
+    t1mumetMuCleanTag = iConfig.getParameter<edm::InputTag>("t1mumetMuClean");
+    t1elmetEGCleanTag = iConfig.getParameter<edm::InputTag>("t1elmetEGClean");
+    t1elmetMuCleanTag = iConfig.getParameter<edm::InputTag>("t1elmetMuClean");
+    t1phmetEGCleanTag = iConfig.getParameter<edm::InputTag>("t1phmetEGClean");
+    t1phmetMuCleanTag = iConfig.getParameter<edm::InputTag>("t1phmetMuClean");
+    t1taumetEGCleanTag = iConfig.getParameter<edm::InputTag>("t1taumetEGClean");
+    t1taumetMuCleanTag = iConfig.getParameter<edm::InputTag>("t1taumetMuClean");
+
+    t1metEGCleanToken    = consumes<edm::View<pat::MET> > (t1metEGCleanTag);
+    t1metMuCleanToken    = consumes<edm::View<pat::MET> > (t1metMuCleanTag);
+    t1mumetEGCleanToken    = consumes<edm::View<pat::MET> > (t1mumetEGCleanTag);
+    t1mumetMuCleanToken    = consumes<edm::View<pat::MET> > (t1mumetMuCleanTag);
+    t1elmetEGCleanToken    = consumes<edm::View<pat::MET> > (t1elmetEGCleanTag);
+    t1elmetMuCleanToken    = consumes<edm::View<pat::MET> > (t1elmetMuCleanTag);
+    t1phmetEGCleanToken    = consumes<edm::View<pat::MET> > (t1phmetEGCleanTag);
+    t1phmetMuCleanToken    = consumes<edm::View<pat::MET> > (t1phmetMuCleanTag);
+    t1taumetEGCleanToken    = consumes<edm::View<pat::MET> > (t1taumetEGCleanTag);
+    t1taumetMuCleanToken    = consumes<edm::View<pat::MET> > (t1taumetMuCleanTag);
+
+  }
 
   if(addMETBreakDown){
     pfMetHadronHFToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("pfMetHadronHF"));
@@ -897,7 +953,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   if(addPuppiMET){
     puppit1metToken    = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1met"));
     puppit1mumetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1mumet"));
-    puppit1elemetToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1elmet"));
+    puppit1elmetToken = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1elmet"));
     puppit1phmetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1phmet"));		      
     puppit1taumetToken  = consumes<edm::View<pat::MET> > (iConfig.getParameter<edm::InputTag>("puppit1taumet"));		      
   }
@@ -976,6 +1032,11 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   readDMFromGenParticle = false;
 
   hltPrescaleProvider_.reset(new HLTPrescaleProvider(iConfig, consumesCollector(), *this)); //ND
+
+  if(isReMiniAOD){
+    fakeMuonCollToken = consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("fakeMuonCandidates"));
+  } 
+
 }
 
 
@@ -1199,17 +1260,38 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(addPuppiMET)
       iEvent.getByToken(puppit1metToken, puppit1metH);
 
+    Handle<View<pat::MET> > t1metEGCleanH;
+    Handle<View<pat::MET> > t1metMuCleanH;
+    if(isReMiniAOD){
+      iEvent.getByToken(t1metEGCleanToken, t1metEGCleanH);
+      iEvent.getByToken(t1metMuCleanToken, t1metMuCleanH);
+    }
+
     Handle<View<pat::MET> > t1mumetH;
     iEvent.getByToken(t1mumetToken, t1mumetH);
     Handle<View<pat::MET> > puppit1mumetH;
     if(addPuppiMET)
       iEvent.getByToken(puppit1mumetToken, puppit1mumetH);
 
+    Handle<View<pat::MET> > t1mumetEGCleanH;
+    Handle<View<pat::MET> > t1mumetMuCleanH;
+    if(isReMiniAOD){
+      iEvent.getByToken(t1mumetEGCleanToken, t1mumetEGCleanH);
+      iEvent.getByToken(t1mumetMuCleanToken, t1mumetMuCleanH);
+    }
+
     Handle<View<pat::MET> > t1elmetH;
-    iEvent.getByToken(t1elemetToken, t1elmetH);
+    iEvent.getByToken(t1elmetToken, t1elmetH);
     Handle<View<pat::MET> > puppit1elmetH;
     if(addPuppiMET)
-      iEvent.getByToken(puppit1elemetToken, puppit1elmetH);
+      iEvent.getByToken(puppit1elmetToken, puppit1elmetH);
+
+    Handle<View<pat::MET> > t1elmetEGCleanH;
+    Handle<View<pat::MET> > t1elmetMuCleanH;
+    if(isReMiniAOD){
+      iEvent.getByToken(t1elmetEGCleanToken, t1elmetEGCleanH);
+      iEvent.getByToken(t1elmetMuCleanToken, t1elmetMuCleanH);
+    }
 
     Handle<View<pat::MET> > t1phmetH;
     iEvent.getByToken(t1phmetToken, t1phmetH);
@@ -1217,11 +1299,25 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(addPuppiMET)
       iEvent.getByToken(puppit1phmetToken, puppit1phmetH);
 
+    Handle<View<pat::MET> > t1phmetEGCleanH;
+    Handle<View<pat::MET> > t1phmetMuCleanH;
+    if(isReMiniAOD){
+      iEvent.getByToken(t1phmetEGCleanToken, t1phmetEGCleanH);
+      iEvent.getByToken(t1phmetMuCleanToken, t1phmetMuCleanH);
+    }
+
     Handle<View<pat::MET> > t1taumetH;
     iEvent.getByToken(t1taumetToken, t1taumetH);
     Handle<View<pat::MET> > puppit1taumetH;
     if(addPuppiMET)
       iEvent.getByToken(puppit1taumetToken, puppit1taumetH);
+
+    Handle<View<pat::MET> > t1taumetEGCleanH;
+    Handle<View<pat::MET> > t1taumetMuCleanH;
+    if(isReMiniAOD){
+      iEvent.getByToken(t1taumetEGCleanToken, t1taumetEGCleanH);
+      iEvent.getByToken(t1taumetMuCleanToken, t1taumetMuCleanH);
+    }
 
     // MET breakdown 
     Handle<View<pat::MET> > pfMetHadronHFH;
@@ -1272,7 +1368,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     Handle<vector<pat::Electron> > electronIDH;
     if(addElectronIDVariables)
       iEvent.getByToken(electronIDCollectionToken,electronIDH);
-    
+   
+    Handle<edm::View<reco::Candidate> > fakeMuonsH;
+    if(isReMiniAOD)
+      iEvent.getByToken(fakeMuonCollToken,fakeMuonsH);
 
     // Event, lumi, run info
     event = iEvent.id().event();
@@ -1413,6 +1512,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     phmet      = -99;   phmetphi   = -99;
     t1taumet    = -99;  t1taumetphi = -99;
     taumet      = -99;  taumetphi   = -99;
+
+    t1pfmetEGClean    = -99. ; t1pfmetphiEGClean = -99. ;
+    t1pfmetMuClean    = -99. ; t1pfmetphiMuClean = -99. ;
+    t1mumetEGClean    = -99. ; t1mumetphiEGClean = -99. ;
+    t1mumetMuClean    = -99. ; t1mumetphiMuClean = -99. ;
+    t1elmetEGClean    = -99. ; t1elmetphiEGClean = -99. ;
+    t1elmetMuClean    = -99. ; t1elmetphiMuClean = -99. ;
+    t1phmetEGClean    = -99. ; t1phmetphiEGClean = -99. ;
+    t1phmetMuClean    = -99. ; t1phmetphiMuClean = -99. ;
+    t1taumetEGClean    = -99. ; t1taumetphiEGClean = -99. ;
+    t1taumetMuClean    = -99. ; t1taumetphiMuClean = -99. ;
+
     
     if(t1metH.isValid()){      
 
@@ -1422,15 +1533,14 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	genmetphi = t1metH->front().genMET()->phi();
       }
       
-      t1pfmet    = t1metH->front().corPt();
+      t1pfmet    = t1metH->front().corPt();    
       t1pfmetphi = t1metH->front().corPhi();
       pfmet      = t1metH->front().uncorPt();
       pfmetphi   = t1metH->front().uncorPhi();
       calomet    = t1metH->front().caloMETPt();
       calometphi = t1metH->front().caloMETPhi(); 
     }
-      
-      
+            
     if(addMVAMet && mvaMetH.isValid()){
       mvamet    = mvaMetH->front().pt();
       mvametphi = mvaMetH->front().phi();
@@ -1463,6 +1573,61 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       taumet      = t1taumetH->front().uncorPt();
       taumetphi   = t1taumetH->front().uncorPhi();
     }
+
+    // only for re-miniAOD
+    if(isReMiniAOD){ 
+      if(t1metEGCleanH.isValid()){
+	t1pfmetEGClean    = t1metEGCleanH->front().corPt();
+	t1pfmetphiEGClean = t1metEGCleanH->front().corPhi();
+      }
+      
+      if(t1metMuCleanH.isValid()){
+	t1pfmetMuClean    = t1metMuCleanH->front().corPt();
+	t1pfmetphiMuClean = t1metMuCleanH->front().corPhi();
+      }
+      
+      if(t1mumetEGCleanH.isValid()){
+	t1mumetEGClean    = t1mumetEGCleanH->front().corPt();
+	t1mumetphiEGClean = t1mumetEGCleanH->front().corPhi();
+      }
+      
+      if(t1mumetMuCleanH.isValid()){
+	t1mumetMuClean    = t1mumetMuCleanH->front().corPt();
+	t1mumetphiMuClean = t1mumetMuCleanH->front().corPhi();
+      }
+      
+      
+      if(t1elmetEGCleanH.isValid()){
+	t1elmetEGClean    = t1elmetEGCleanH->front().corPt();
+	t1elmetphiEGClean = t1elmetEGCleanH->front().corPhi();
+      }
+      
+      if(t1elmetMuCleanH.isValid()){
+	t1elmetMuClean    = t1elmetMuCleanH->front().corPt();
+	t1elmetphiMuClean = t1elmetMuCleanH->front().corPhi();
+      }
+
+      if(t1phmetEGCleanH.isValid()){
+	t1phmetEGClean    = t1phmetEGCleanH->front().corPt();
+	t1phmetphiEGClean = t1phmetEGCleanH->front().corPhi();
+      }
+      
+      if(t1phmetMuCleanH.isValid()){
+	t1phmetMuClean    = t1phmetMuCleanH->front().corPt();
+	t1phmetphiMuClean = t1phmetMuCleanH->front().corPhi();
+      }
+
+      if(t1taumetEGCleanH.isValid()){
+	t1taumetEGClean    = t1taumetEGCleanH->front().corPt();
+	t1taumetphiEGClean = t1taumetEGCleanH->front().corPhi();
+      }
+      
+      if(t1phmetMuCleanH.isValid()){
+	t1taumetMuClean    = t1taumetMuCleanH->front().corPt();
+	t1taumetphiMuClean = t1taumetMuCleanH->front().corPhi();
+      }      
+    }
+
 
     if(addMETSystematics  and not isTriggerTree and not isPhotonPurity){          
       if(t1metH.isValid()){
@@ -3582,6 +3747,20 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       }      
     }
 
+    // fake muons
+    nmuonsfake = 0;
+    fakemupt.clear();
+    fakemueta.clear();
+    fakemuphi.clear();
+    if(fakeMuonsH.isValid()){
+      for(size_t imu = 0; imu < fakeMuonsH->size(); imu++){
+	nmuonsfake++;
+	fakemupt.push_back(fakeMuonsH->at(imu).pt());
+	fakemueta.push_back(fakeMuonsH->at(imu).eta());
+	fakemuphi.push_back(fakeMuonsH->at(imu).phi());
+      }
+    }
+
     // Generator-level information
     wzid          = 0; wzmass        = 0.0; wzpt          = 0.0; wzeta         = 0.0; wzphi         = 0.0;
     l1id          = 0; l1pt          = 0.0; l1eta         = 0.0; l1phi         = 0.0;
@@ -4023,37 +4202,58 @@ void MonoJetTreeMaker::beginJob() {
   // MET
   tree->Branch("pfmet"                , &pfmet                , "pfmet/F");
   tree->Branch("pfmetphi"             , &pfmetphi             , "pfmetphi/F");
-  tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/F");
-  tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/F");
   tree->Branch("calomet"              , &calomet              , "calomet/F");   //ND
   tree->Branch("calometphi"           , &calometphi           , "calometphi/F");//ND
+
+  tree->Branch("t1pfmet"              , &t1pfmet              , "t1pfmet/F");
+  tree->Branch("t1pfmetphi"           , &t1pfmetphi           , "t1pfmetphi/F");
+  tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/F");
+  tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/F");
+  tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/F");
+  tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/F");
+  tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/F");
+  tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/F");
+  tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/F");
+  tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/F");
+
+  if(isReMiniAOD){
+
+    tree->Branch("t1pfmetEGClean"              , &t1pfmetEGClean              , "t1pfmetEGClean/F");
+    tree->Branch("t1pfmetphiEGClean"           , &t1pfmetphiEGClean           , "t1pfmetphiEGClean/F");
+    tree->Branch("t1mumetEGClean"              , &t1mumetEGClean              , "t1mumetEGClean/F");
+    tree->Branch("t1mumetphiEGClean"           , &t1mumetphiEGClean           , "t1mumetphiEGClean/F");
+    tree->Branch("t1elmetEGClean"              , &t1elmetEGClean              , "t1elmetEGClean/F");
+    tree->Branch("t1elmetphiEGClean"           , &t1elmetphiEGClean           , "t1elmetphiEGClean/F");
+    tree->Branch("t1phmetEGClean"              , &t1phmetEGClean              , "t1phmetEGClean/F");
+    tree->Branch("t1phmetphiEGClean"           , &t1phmetphiEGClean           , "t1phmetphiEGClean/F");
+    tree->Branch("t1taumetEGClean"              , &t1taumetEGClean              , "t1taumetEGClean/F");
+    tree->Branch("t1taumetphiEGClean"           , &t1taumetphiEGClean           , "t1taumetphiEGClean/F");
+
+    tree->Branch("t1pfmetMuClean"              , &t1pfmetMuClean              , "t1pfmetMuClean/F");
+    tree->Branch("t1pfmetphiMuClean"           , &t1pfmetphiMuClean           , "t1pfmetphiMuClean/F");
+    tree->Branch("t1mumetMuClean"              , &t1mumetMuClean              , "t1mumetMuClean/F");
+    tree->Branch("t1mumetphiMuClean"           , &t1mumetphiMuClean           , "t1mumetphiMuClean/F");
+    tree->Branch("t1elmetMuClean"              , &t1elmetMuClean              , "t1elmetMuClean/F");
+    tree->Branch("t1elmetphiMuClean"           , &t1elmetphiMuClean           , "t1elmetphiMuClean/F");
+    tree->Branch("t1phmetMuClean"              , &t1phmetMuClean              , "t1phmetMuClean/F");
+    tree->Branch("t1phmetphiMuClean"           , &t1phmetphiMuClean           , "t1phmetphiMuClean/F");
+    tree->Branch("t1taumetMuClean"              , &t1taumetMuClean              , "t1taumetMuClean/F");
+    tree->Branch("t1taumetphiMuClean"           , &t1taumetphiMuClean           , "t1taumetphiMuClean/F");
+
+  }
 
   if(not isTriggerTree){    
     tree->Branch("mumet"                , &mumet                , "mumet/F");
     tree->Branch("mumetphi"             , &mumetphi             , "mumetphi/F");
-  }
-  tree->Branch("t1mumet"              , &t1mumet              , "t1mumet/F");
-  tree->Branch("t1mumetphi"           , &t1mumetphi           , "t1mumetphi/F");
-
-  if(not isTriggerTree){
     tree->Branch("elmet"                , &elmet                , "elmet/F");
     tree->Branch("elmetphi"             , &elmetphi             , "elmetphi/F");
-  }
-  tree->Branch("t1elmet"              , &t1elmet              , "t1elmet/F");
-  tree->Branch("t1elmetphi"           , &t1elmetphi           , "t1elmetphi/F");
-
-  if(not isTriggerTree){
     tree->Branch("phmet"                , &phmet                , "phmet/F");
     tree->Branch("phmetphi"             , &phmetphi             , "phmetphi/F");
   }
-  tree->Branch("t1phmet"              , &t1phmet              , "t1phmet/F");
-  tree->Branch("t1phmetphi"           , &t1phmetphi           , "t1phmetphi/F");
 
   if(not isTriggerTree and not isPhotonPurity and not isQCDTree){
     tree->Branch("taumet"                , &taumet                , "taumet/F");
     tree->Branch("taumetphi"             , &taumetphi             , "taumetphi/F");
-    tree->Branch("t1taumet"              , &t1taumet              , "t1taumet/F");
-    tree->Branch("t1taumetphi"           , &t1taumetphi           , "t1taumetphi/F");
     tree->Branch("genmet",    &genmet,   "genmet/F");
     tree->Branch("genmetphi", &genmetphi,"genmetphi/F");
   }
@@ -4392,6 +4592,13 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("mu2idm"               , &mu2idm               , "mu2idm/I");
   tree->Branch("mu2idt"               , &mu2idt               , "mu2idt/I");
   tree->Branch("mu2iso"               , &mu2iso               , "mu2iso/F");
+
+  if(isReMiniAOD){
+    tree->Branch("nmuonsfake"                , &nmuonsfake                , "nmuonsfake/I");
+    tree->Branch("fakemupt","std::vector<float>",&fakemupt);
+    tree->Branch("fakemueta","std::vector<float>",&fakemueta);
+    tree->Branch("fakemuphi","std::vector<float>",&fakemuphi);
+  }
 
   tree->Branch("el1pid"               , &el1pid               , "el1pid/I");
   tree->Branch("el1pt"                , &el1pt                , "el1pt/F");

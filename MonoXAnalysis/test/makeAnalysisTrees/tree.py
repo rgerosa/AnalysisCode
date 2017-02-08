@@ -11,6 +11,10 @@ options.register (
 	'flag to indicate data or MC');
 
 options.register (
+	'isReMiniAOD',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'flag to indicate new re-miniAOD');
+
+options.register (
 	'isFastSIM',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate full or fast SIM for MC');
 
@@ -69,8 +73,12 @@ options.register (
 
 #### Add scale and smear corrections for electrons and photons
 options.register (
-	'addEGMSmear',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addEGMSmear',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add e-gamma scale and resolution corrections for electrons and photons');
+
+options.register (
+	'addEGMRegression',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'add new regression for photons/electrons');
 
 ## MET options
 options.register (
@@ -82,11 +90,11 @@ options.register (
 	'compute MVAMet');
   	
 options.register (
-	'addMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
 options.register (
-	'addPuppiMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPuppiMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'recompute Puppi MET propagating JEC from Jet + systematics');
 
 options.register (
@@ -146,7 +154,7 @@ options.register (
 	'process name to be considered');
 
 options.register (
-	'miniAODProcess','RECO',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'miniAODProcess','PAT',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'process name used for miniAOD production (target is miniAODv2)');
 
 ## specific to produce trees for trigger studies
@@ -169,7 +177,7 @@ options.register (
 
 ## GT to be used    
 options.register (
-	'globalTag','80X_dataRun2_Prompt_v14',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'globalTag','80X_dataRun2_2016SeptRepro_v7',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'gloabl tag to be uses');
 
 ## Dump Gen Level info
@@ -211,7 +219,7 @@ options.parseArguments()
 
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
-	options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v6';
+	options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8';
 	options.JECEra  = 'Summer16_23Sep2016V3';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
@@ -222,9 +230,13 @@ if not options.isMC:
 if options.isMC and options.miniAODProcess != 'PAT':
 	options.miniAODProcess  = 'PAT'
 
+if options.isMC and options.isReMiniAOD :
+	sys.exit("Cannot be isMC and isReMiniAOD at the same time");
+
 print "##### Settings ######"
 print "##### General #####"
 print "Running with isMC                = ",options.isMC	
+print "Running with isReMiniAOD         = ",options.isReMiniAOD	
 print "Running with isFastSIM           = ",options.isFastSIM
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
@@ -263,6 +275,7 @@ print "Running with useMiniAODMet          = ",options.useMiniAODMet
 print "Running with useOfficialMETSystematics = ",options.useOfficialMETSystematics
 print "##### Electrons/Photons #####"
 print "Running with addEGMSmear            = ",options.addEGMSmear
+print "Running with addEGMRegression       = ",options.addEGMRegression
 print "Running with isPhotonPurity         = ",options.isPhotonPurity	
 print "Running with addPhotonIDVariables   = ",options.addPhotonIDVariables
 print "Running with applyPhotonJetsFilter  = ",options.applyPhotonJetsFilter
@@ -305,18 +318,17 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/48E5D6C8-F93C-E611-8A3E-02163E014439.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/528A6ECD-F93C-E611-B0A1-02163E01383E.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
-		process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/23Sep2016-v1/50000/004F3A63-2E84-E611-AEFB-00266CFFC43C.root')
+		process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/03Feb2017_ver2-v2/100000/000C0045-12EB-E611-9BEC-008CFA197C34.root')
 		#process.source.fileNames.append('/store/data/Run2016G/MET/MINIAOD/23Sep2016-v1/90000/124A2693-B38A-E611-BC48-002590FC5ACC.root')
 
 	else:
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 #		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
 
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/7A9F1F4B-81D5-E611-A06C-02163E019DD1.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Pseudo_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/60000/D462BEC9-41DA-E611-83AD-02163E015C72.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoW_NLO_Mphi-1000_Mchi-300_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/747DC36C-A2D0-E611-B518-0CC47A4D75F0.root')
@@ -372,18 +384,17 @@ process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process,options.addEGMSmear,options.isMC,addElectronCorrection = False)
+ElectronTools(process,options.addEGMSmear,options.isMC,options.addEGMRegression,addElectronCorrection = False)
 
 # run cut-based photon ID 
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
-PhotonTools(process,options.addEGMSmear,options.isMC, addPhotonCorrection = False)
+PhotonTools(process,options.addEGMSmear,options.isMC, options.addEGMRegression, addPhotonCorrection = False)
 
 # Apply JEC on jets and update them
 from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
 ## apply JEC and propagation on MET for AK4PFchs
 jetCollName      = "slimmedJets"
 jetPuppiCollName = "slimmedJetsPuppi"
-
 jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.applyL2L3Residuals)
 ## apply JEC and propagation on MET for AK4PFPuppi
 if options.addPuppiJets:
@@ -414,9 +425,10 @@ if options.addQGLikelihood:
 
 ### correct the MET
 from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
-if not options.useMiniAODMet:
-	metCollection = "slimmedMETs"
-	metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);	
+if not options.isReMiniAOD: #### don't 
+	if not options.useMiniAODMet:
+		metCollection = "slimmedMETs"
+		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);	
 	if options.addPuppiMET:
 		metCollectionPuppi = "slimmedMETsPuppi"
 		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addPuppiMETSystematics,options.useOfficialMETSystematics);
@@ -434,9 +446,9 @@ if options.addMVAMet:
 
 # Define all the METs corrected for lepton/photon momenta
 from AnalysisCode.MonoXAnalysis.recoil_cff import recoilComputation
-recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,False)
+recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,False,options.isReMiniAOD)
 if options.addPuppiMET:
-	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,True)
+	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,True,options.isReMiniAOD)
 
 ### met breakdown
 if options.addMETBreakDown:
@@ -526,6 +538,7 @@ photonPt = 50.; useMVAPhotonID = False;
 
 applyEventFilters(process,
 		  options.processName,
+		  options.miniAODProcess,
 		  options.filterHighMETEvents, ### if apply or not filter on MET
 		  options.metCut, ## value for reoil selection
 		  options.isPhotonPurity, ### in case one wants to make a specific filter
@@ -538,9 +551,10 @@ applyEventFilters(process,
 		  useMVAElectronID,
 		  options.applyPhotonJetsFilter, ### in case one wants to apply single-photon filter
 		  photonPt,
-		  useMVAPhotonID)
+		  useMVAPhotonID,
+		  options.isReMiniAOD)
 	
-if options.useMiniAODMet:
+if options.useMiniAODMet and not options.isReMiniAOD:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
      					
 # Tree for the generator weights
@@ -554,10 +568,16 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
     addqcdpdfweights = cms.bool(options.addQCDPDFWeights),
     isSignalSample = cms.bool(options.isSignalSample))
 
+### fix the trigger label for data and MC
+triggerLabel = "RECO";
+if options.isMC:
+	triggerLabel = "PAT";
+
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      ## gen info			     
 			      isMC                   = cms.bool(options.isMC),
+			      isReMiniAOD            = cms.bool(options.isReMiniAOD),
 			      uselheweights          = cms.bool(options.useLHEWeights),
 			      isSignalSample         = cms.bool(options.isSignalSample),			      
 			      addGenParticles        = cms.bool(options.addGenParticles),			      
@@ -572,7 +592,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      addTriggerObjects = cms.bool(options.addTriggerObjects),
 			      triggerResults = cms.InputTag("TriggerResults", "",options.triggerName),
 			      prescales      = cms.InputTag("patTrigger"),    
-			      filterResults  = cms.InputTag("TriggerResults", "", options.miniAODProcess),
+			      filterResults  = cms.InputTag("TriggerResults", "",triggerLabel),
 			      triggerObjects = cms.InputTag("selectedPatTrigger"),
 			      triggerL1EG    = cms.InputTag("caloStage2Digis"   , "EGamma"),
 			      triggerL1Jet   = cms.InputTag("caloStage2Digis"   , "Jet"   ),
@@ -588,7 +608,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      applyDiMuonFilter = cms.bool(options.applyDiMuonFilter),
 			      muons          = cms.InputTag("selectedObjects","muons"),
 			      tightmuons     = cms.InputTag("selectedObjects","tightmuons"),
-			      highptmuons    = cms.InputTag("selectedObjects","highptmuons"),
+			      highptmuons    = cms.InputTag("selectedObjects","highptmuons"),			      
 			      ## electrons
 			      applyDiElectronFilter = cms.bool(options.applyDiElectronFilter),
 			      electrons       = cms.InputTag("selectedObjects", "electrons"),
@@ -694,6 +714,28 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 if options.useMiniAODMet:
 	process.tree.t1met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
 	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
+
+if options.isReMiniAOD:
+	process.tree.fakeMuonCandidates = cms.InputTag("packedPFCandidatesDiscarded");
+	process.tree.t1met = cms.InputTag("slimmedMETsMuEGClean","",options.miniAODProcess);
+	process.tree.t1metEGClean = cms.InputTag("slimmedMETsEGClean","",options.miniAODProcess);
+	process.tree.t1metMuClean = cms.InputTag("slimmedMETs","",options.miniAODProcess);
+
+	process.tree.t1mumet = cms.InputTag("t1mumet");
+	process.tree.t1mumetEGClean = cms.InputTag("t1mumetEGClean");
+	process.tree.t1mumetMuClean = cms.InputTag("t1mumetMuClean");
+
+	process.tree.t1elmet = cms.InputTag("t1elmet");
+	process.tree.t1elmetEGClean = cms.InputTag("t1elmetEGClean");
+	process.tree.t1elmetMuClean = cms.InputTag("t1elmetMuClean");
+
+	process.tree.t1phmet = cms.InputTag("t1phmet");
+	process.tree.t1phmetEGClean = cms.InputTag("t1phmetEGClean");
+	process.tree.t1phmetMuClean = cms.InputTag("t1phmetMuClean");
+
+	process.tree.t1taumet = cms.InputTag("t1taumet");
+	process.tree.t1taumetEGClean = cms.InputTag("t1taumetEGClean");
+	process.tree.t1taumetMuClean = cms.InputTag("t1taumetMuClean");	
 
 if options.addMETSystematics : 
 	if options.useOfficialMETSystematics :

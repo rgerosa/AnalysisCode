@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 import random
 
-def ElectronTools(process,addEGMSmear,isMC,addElectronCorrection):
+def ElectronTools(process,addEGMSmear,isMC,addEGMRegression,addElectronCorrection):
 
 
 	# Electron ValueMaps for identification --> takes into account both id+iso
@@ -68,6 +68,12 @@ def ElectronTools(process,addEGMSmear,isMC,addElectronCorrection):
 								    ));
 		if addEGMSmear:
 			getattr(process,"correctedElectrons").src = cms.InputTag("calibratedElectrons");
-						    
-			
-			
+
+	#######
+	if addEGMRegression:
+		### read from DB
+		from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+		process = regressionWeights(process)
+		process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+		process.electronMVAValueMapProducer.srcMiniAOD = cms.InputTag('slimmedElectrons')
+		process.electronRegressionValueMapProducer.srcMiniAOD = cms.InputTag('slimmedElectrons')

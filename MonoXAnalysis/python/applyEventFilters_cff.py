@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 ########################################    
 def applyEventFilters(process,
                       processName,
+                      miniAODProcess,
                       filterHighMETEvents = True,
                       metCut = 0,
                       isPhotonPurity = False,
@@ -16,7 +17,8 @@ def applyEventFilters(process,
                       useMVAElectronID = False,
                       applyPhotonJetsFilter = False,
                       photonPt = 50,
-                      useMVAPhotonID = False):
+                      useMVAPhotonID = False,
+                      isReMiniAOD = False):
 
 
     ########################################    
@@ -41,21 +43,55 @@ def applyEventFilters(process,
         
     ########################################    
     ########################################    
-    setattr(process,"filterHighRecoil", cms.EDFilter("PATMETFilter",
-                                                     metCollections = cms.VPSet(
-                cms.PSet( srcMet = cms.InputTag("slimmedMETs","",processName),
-                          metCut = cms.double(metCut)),
-                cms.PSet(srcMet = cms.InputTag("t1mumet","",processName),
+    if not isReMiniAOD:
+        setattr(process,"filterHighRecoil", cms.EDFilter("PATMETFilter",
+                                                         metCollections = cms.VPSet(
+                    cms.PSet( srcMet = cms.InputTag("slimmedMETs","",processName),
+                              metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1mumet","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1elmet","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1phmet","",processName),
                          metCut = cms.double(metCut)),
-                cms.PSet(srcMet = cms.InputTag("t1elmet","",processName),
+                    ),
+                                                         filterEvents = cms.bool(filterHighMETEvents),
+                                                         graterThan = cms.bool(True),
+                                                         applyAndInsteadOfOr = cms.bool(False)
+                                                         ))
+    else:
+        setattr(process,"filterHighRecoil", cms.EDFilter("PATMETFilter",
+                                                         metCollections = cms.VPSet(
+                    cms.PSet( srcMet = cms.InputTag("slimmedMETs","",miniAODProcess),
+                              metCut = cms.double(metCut)),
+                    cms.PSet( srcMet = cms.InputTag("slimmedMETsEGClean","",miniAODProcess),
+                              metCut = cms.double(metCut)),
+                    cms.PSet( srcMet = cms.InputTag("slimmedMETsEGMuClean","",miniAODProcess),
+                              metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1mumet","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1mumetEGClean","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1mumetMuClean","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1elmet","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1elmetEGClean","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1elmetMuClean","",processName),
+                             metCut = cms.double(metCut)),
+                    cms.PSet(srcMet = cms.InputTag("t1phmet","",processName),
                          metCut = cms.double(metCut)),
-                cms.PSet(srcMet = cms.InputTag("t1phmet","",processName),
+                    cms.PSet(srcMet = cms.InputTag("t1phmetEGClean","",processName),
                          metCut = cms.double(metCut)),
-                ),
-                                                     filterEvents = cms.bool(filterHighMETEvents),
-                                                     graterThan = cms.bool(True),
-                                                     applyAndInsteadOfOr = cms.bool(False)
-                                                     ))
+                    cms.PSet(srcMet = cms.InputTag("t1phmetMuClean","",processName),
+                         metCut = cms.double(metCut)),
+                    ),
+                                                         filterEvents = cms.bool(filterHighMETEvents),
+                                                         graterThan = cms.bool(True),
+                                                         applyAndInsteadOfOr = cms.bool(False)
+                                                         ))
+
     
 
     recoilSequence = cms.Sequence(getattr(process,"filterHighRecoil"))
@@ -69,10 +105,8 @@ def applyEventFilters(process,
     ########################################    
     if isPhotonPurity:
         if filterHighMETEvents and metCut != 0:
-            getattr(process,"filterHighRecoil").metCollections[0].metCut = cms.double(0);
-            getattr(process,"filterHighRecoil").metCollections[1].metCut = cms.double(0);
-            getattr(process,"filterHighRecoil").metCollections[2].metCut = cms.double(0);
-            getattr(process,"filterHighRecoil").metCollections[3].metCut = cms.double(0);
+            for j in range(getattr(process,"filterHighRecoil").metCollections):
+                getattr(process,"filterHighRecoil").metCollections[j].metCut = cms.double(0);
             
         setattr(process,"filterPhotonCandidates",cms.EDFilter("PhotonRefCountFilter",
                                                               src = cms.InputTag("selectedObjects","photonsPurity"),
