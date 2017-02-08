@@ -1099,7 +1099,7 @@ void  makezwjcorhist(const string & znunuFile,
     TH1* kfact_nloewk_wln = (TH1*) kffile_alt->Get("evj_pTV_kappa_NLO_EW");
     TH1* kfact_sudewk_wln = (TH1*) kffile_alt->Get("evj_pTV_kappa_NNLO_Sud");
     
-    reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_zvv");
+    reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
     reweight_wln->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
       reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
@@ -1168,6 +1168,7 @@ void  makezwjcorhist(const string & znunuFile,
       TH1* dkfact_nloqcd_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_d1K_NLO");
       TH1* kfact_nloewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NLO_EW");
       TH1* kfact_sudewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
 
       kffile_wln = TFile::Open(kFactorTheoristFile_wln.c_str());
       TH1* kfact_loqcd_wln  = (TH1*) kffile_wln->Get("evj_pTV_K_LO");
@@ -1175,6 +1176,7 @@ void  makezwjcorhist(const string & znunuFile,
       TH1* dkfact_nloqcd_wln = (TH1*) kffile_wln->Get("evj_pTV_d1K_NLO");
       TH1* kfact_nloewk_wln = (TH1*) kffile_wln->Get("evj_pTV_kappa_NLO_EW");
       TH1* kfact_sudewk_wln = (TH1*) kffile_wln->Get("evj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
       
       if(kfact == 3){// QCD scale up
 	TH1* kfact_nloqcd_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_nloqcd_zvv_up");
@@ -1290,6 +1292,48 @@ void  makezwjcorhist(const string & znunuFile,
 	zhists.push_back(kfact_ewkqcd_zvv_dw);
 	whists.push_back(kfact_ewkqcd_wln_dw);            
 	
+      }
+
+      else if(kfact == 11){ // qcdshape
+	TH1* kfact_qcdshape_zvv_up = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_up");
+	kfact_qcdshape_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_up->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_up");
+	kfact_qcdshape_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_up->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdshape_zvv_up);
+	whists.push_back(kfact_qcdshape_wln_up);                   
+      }
+
+      else if(kfact == 12){ // qcdshape
+	TH1* kfact_qcdshape_zvv_dw = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_dw");
+	kfact_qcdshape_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_dw->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_dw");
+	kfact_qcdshape_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_dw->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdshape_zvv_dw);
+	whists.push_back(kfact_qcdshape_wln_dw);                   
+      }
+
+      else if(kfact == 13){ // PDF unc
+
+	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
+	TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
+	TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");  
+	zpdfhist->Divide(znloOrig);
+	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+	zhists.push_back(znlohist); 	
+	zhists.push_back(zpdfhist);
+	whists.push_back(wpdfhist);
       }
     }    
     else{
@@ -1467,7 +1511,9 @@ void makegamcorhist( const string & znunuFile,
 		     const string & sysName = "", 
 		     const bool &   isHiggsInvisible = false,
 		     const bool &   isEWK = false,
-		     const string & ext = "",
+		     const bool &   useTheoristKfactors = false,
+                     const bool &   useNewTheoryUncertainty = false,
+ 		     const string & ext = "",
 		     int    kfact = 0) {
 
   // open files                                                                                                                                                                
@@ -1529,101 +1575,59 @@ void makegamcorhist( const string & znunuFile,
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile (kfactorFile.c_str());
-  TH1*  znlohist = (TH1*) kffile.Get("ZJets_012j_NLO/nominal");
-  TH1*  zlohist  = (TH1*) kffile.Get("ZJets_LO/inv_pt");
-  TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
-  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
-  TH1* zewkhist  = (TH1*) kffile.Get("EWKcorr/Z");
-  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
-
-  if(zewkhist)
-    zewkhist->Divide(znlohist);
-  if(znlohist)
-    znlohist->Divide(zlohist);
-  if(aewkhist)
-    aewkhist->Divide(anlohist);
-  if(anlohist)
-    anlohist->Divide(alohist);
-
-  TFile kffileUnc (kfactorFileUnc.c_str());
-  TH1* nomhist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1");
-  TH1* zpdfhist = (TH1*) kffileUnc.Get("znlo012/znlo012_pdfUp");
-  TH1* apdfhist = (TH1*) kffileUnc.Get("anlo1/anlo1_pdfUp");
-  TH1* re1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
-  TH1* re2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
-  TH1* fa1hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
-  TH1* fa2hist  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
-
-  TH1* znloOrig = (TH1*) kffileUnc.Get("znlo012/znlo012_nominal");
-  TH1* anloOrig = (TH1*) kffileUnc.Get("anlo1/anlo1_nominal");
-
-
-  zpdfhist->Divide(znloOrig);
-  apdfhist->Divide(anloOrig);
-
-  // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
-  re1hist->Divide(nomhist);
-  // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        
-  re2hist->Divide(nomhist);
-  // Z/gam NLO fact QCD Up / Z/gamma NLO                                                                                                                                      
-  fa1hist->Divide(nomhist);
-  // Z/gam NLO fact EWK Up / Z/gamma NLO                                                                                                                                      
-  fa2hist->Divide(nomhist);
-
-  TFile fpfile(fPfile.c_str());
-  TH1* afpchist = (TH1*)fpfile.Get("FP_Down");
-
+  TFile* kffile  = NULL;
+  TFile* kffile_alt  = NULL;
+  TH1*   znlohist  = NULL;
+  TH1*   zlohist   = NULL;
+  TH1*   zewkhist  = NULL;
+  TH1*   anlohist  = NULL;
+  TH1*   alohist   = NULL;
+  TH1*   aewkhist  = NULL;
+  TH1*   reweight_zvv = NULL;
+  TH1*   reweight_gam = NULL;
+  
   vector<TH1*> zhists;
   vector<TH1*> ahists;
   vector<TH1*> ehists;
-  // ZNLO QCD and Gamma NLO QCD                                                                                                                                                
-  if (kfact == 1 and not nloSamples.useZJetsNLO)      zhists.push_back(znlohist);
-  if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
 
-  //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
-  if (kfact == 2 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
-  else if (kfact == 2 and nloSamples.useZJetsNLO) {zhists.push_back(zewkhist);}
-  if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
-  else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+  if(not useTheoristKfactors){
+    kffile  = TFile::Open(kfactorFile.c_str()); 
+    znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+    zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
+    anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
+    alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
+    zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
+    aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
 
-  // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
-  if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
-  else if (kfact == 3 and nloSamples.useZJetsNLO) {zhists.push_back(re1hist) ;}
-
-  if(kfact == 3 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
-
-  // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
-  if (kfact == 4 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
-  else if (kfact == 4 and nloSamples.useZJetsNLO) {zhists.push_back(fa1hist) ;}
-
-  if(kfact == 4 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
-
-  // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
-  if (kfact == 5 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
-  else if (kfact == 5 and nloSamples.useZJetsNLO) {zhists.push_back(re2hist) ;}
-
-  if(kfact == 5 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
-
-  // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
-  if (kfact == 6 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
-  else if (kfact == 6 and nloSamples.useZJetsNLO) {zhists.push_back(fa2hist) ;}
-
-  if(kfact == 6 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
-
-  // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
-  if (kfact == 7 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
-  else if (kfact == 7 and nloSamples.useZJetsNLO) {zhists.push_back(zpdfhist);}
-  
-  if(kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
-  else if(kfact == 7  and nloSamples.usePhotonJetsNLO) ahists.push_back(apdfhist);
-
-  // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
-  if (kfact == 8 and not nloSamples.useZJetsNLO) zhists.push_back(znlohist);
-
-  if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
-  else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
-
+    if(zewkhist)
+      zewkhist->Divide(znlohist);
+    if(znlohist)
+      znlohist->Divide(zlohist);
+    if(aewkhist)
+      aewkhist->Divide(anlohist);
+    if(anlohist)
+      anlohist->Divide(alohist);
+  }
+  else{
+    kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
+    TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
+    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NLO_EW");
+    TH1* kfact_sudewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NNLO_Sud");
+    reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
+    reweight_zvv->Reset("ICES");
+    for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
+      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+    
+    kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
+    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("gam_pTV_K_NLO");
+    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NLO_EW");
+    TH1* kfact_sudewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NNLO_Sud");
+    
+    reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
+    reweight_gam->Reset("ICES");
+    for(int iBin = 1; iBin <= reweight_gam->GetNbinsX(); iBin++)
+      reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+  }
 
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
@@ -1648,6 +1652,286 @@ void makegamcorhist( const string & znunuFile,
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
     if(not nloSamples.usePhotonJetsNLO)
       ahists.push_back(gjet_nlo_vbf);
+  }
+
+  // in order to make uncertainties use the old file                                                                                                                                        
+  TFile* kffileUnc = NULL;
+  TFile* kffile_zvv = NULL;
+  TFile* kffile_gam = NULL;
+  TFile* fpfile = NULL;
+
+  if(kfact == 1 or kfact == 2){
+    if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                     
+      
+      if (kfact == 1 and not nloSamples.useZJetsNLO)      zhists.push_back(znlohist);
+      if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+
+      //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
+      if (kfact == 2 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
+      else if (kfact == 2 and nloSamples.useZJetsNLO) {zhists.push_back(zewkhist);}
+      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
+      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+    }
+    else{
+      // only QCD                                                                                                                                                                                      
+      if(kfact == 1){ zhists.push_back((TH1*) kffile->Get("vvj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("gam_pTV_K_NLO"));}
+      // QCD and EWK corrections                                                                                                                                                                    
+      else if(kfact == 2){ zhists.push_back(reweight_zvv); ahists.push_back(reweight_gam);}
+    }
+  }
+  else{ // make systematics                                                                                                                                                                             
+
+    if(useNewTheoryUncertainty){
+
+      // make systematics
+      kffile_zvv = TFile::Open(kFactorTheoristFile_zvv.c_str());
+      TH1* kfact_loqcd_zvv   = (TH1*) kffile_zvv->Get("vvj_pTV_K_LO");
+      TH1* kfact_nloqcd_zvv  = (TH1*) kffile_zvv->Get("vvj_pTV_K_NLO");
+      TH1* dkfact_nloqcd_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_d1K_NLO");
+      TH1* kfact_nloewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NLO_EW");
+      TH1* kfact_sudewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
+
+      kffile_gam = TFile::Open(kFactorTheoristFile_gam.c_str());
+      TH1* kfact_loqcd_gam  = (TH1*) kffile_gam->Get("gam_pTV_K_LO");
+      TH1* kfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_K_NLO");
+      TH1* dkfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_d1K_NLO");
+      TH1* kfact_nloewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NLO_EW");
+      TH1* kfact_sudewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
+      
+      if(kfact == 3){// QCD scale up
+	TH1* kfact_nloqcd_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_nloqcd_zvv_up");
+	kfact_nloqcd_zvv_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_nloqcd_zvv_up->GetNbinsX(); iBin++)
+	  kfact_nloqcd_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+dkfact_nloqcd_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nloqcd_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_up");
+	kfact_nloqcd_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_gam_up->GetNbinsX(); iBin++)
+	  kfact_nloqcd_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_nloqcd_zvv_up);      
+	ahists.push_back(kfact_nloqcd_gam_up);
+      }
+      else if(kfact == 4){//QCD scale dw
+	TH1* kfact_nloqcd_zvv_dw = (TH1*) kfact_nloqcd_zvv->Clone("kfact_nloqcd_zvv_dw");
+	kfact_nloqcd_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_nloqcd_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)-dkfact_nloqcd_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nloqcd_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_dw");
+	kfact_nloqcd_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_gam_dw->GetNbinsX(); iBin++)
+	  kfact_nloqcd_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_nloqcd_zvv_dw);
+	ahists.push_back(kfact_nloqcd_gam_dw);      
+      }
+      else if(kfact == 5){ //NLO ewk up    
+	TH1* kfact_nloewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_nloewk_zvv_up");
+	kfact_nloewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_nloewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)+0.1*kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_up");
+	kfact_nloewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_nloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.1*kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_nloewk_zvv_up);
+	ahists.push_back(kfact_nloewk_gam_up);      
+      }
+      else if(kfact == 6){//NLO ewk dw
+	TH1* kfact_nloewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_nloewk_zvv_dw");
+	kfact_nloewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_nloewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)-0.1*kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_dw");
+	kfact_nloewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_nloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.1*kfact_nloewk_gam->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_nloewk_zvv_dw);
+	ahists.push_back(kfact_nloewk_gam_dw);            
+      }
+      else if(kfact == 7){ // NLO sud up
+	TH1* kfact_sudewk_zvv_up = (TH1*) kfact_sudewk_zvv->Clone("kfact_sudewk_zvv_up");
+	kfact_sudewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_sudewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)+0.67*kfact_nloewk_zvv->GetBinContent(iBin)*kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_sudewk_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_up");
+	kfact_sudewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_sudewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_sudewk_zvv_up);
+	ahists.push_back(kfact_sudewk_gam_up);            
+	
+      }
+      else if(kfact == 8){// NLO sud dw
+	TH1* kfact_sudewk_zvv_dw = (TH1*) kfact_sudewk_zvv->Clone("kfact_sudewk_zvv_dw");
+	kfact_sudewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_sudewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)-0.67*kfact_nloewk_zvv->GetBinContent(iBin)*kfact_sudewk_zvv->GetBinContent(iBin)));
+
+	TH1* kfact_sudewk_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_dw");
+	kfact_sudewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_sudewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_sudewk_zvv_dw);
+	ahists.push_back(kfact_sudewk_gam_dw);            
+      }
+      else if(kfact == 9){ // QCD-EWK mix up
+	TH1* kfact_ewkqcd_zvv_up = (TH1*) kfact_sudewk_zvv->Clone("kfact_ewkqcd_zvv_up");
+	kfact_ewkqcd_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_zvv_up->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_loqcd_zvv->GetBinContent(iBin)/(kfact_loqcd_zvv->GetBinContent(iBin)+0.5*(kfact_nloqcd_zvv->GetBinContent(iBin)-kfact_loqcd_zvv->GetBinContent(iBin)))*(kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin))));
+	
+	TH1* kfact_ewkqcd_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_up");
+	kfact_ewkqcd_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin < kfact_ewkqcd_gam_up->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)+0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
+	
+	zhists.push_back(kfact_ewkqcd_zvv_up);
+	ahists.push_back(kfact_ewkqcd_gam_up);            	
+      }
+      else if(kfact == 10){ // QCD-EWK mix dw
+	TH1* kfact_ewkqcd_zvv_dw = (TH1*) kfact_sudewk_zvv->Clone("kfact_ewkqcd_zvv_dw");
+	kfact_ewkqcd_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_loqcd_zvv->GetBinContent(iBin)/(kfact_loqcd_zvv->GetBinContent(iBin)-0.5*(kfact_nloqcd_zvv->GetBinContent(iBin)-kfact_loqcd_zvv->GetBinContent(iBin)))*(kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin))));
+	
+	TH1* kfact_ewkqcd_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_dw");
+	kfact_ewkqcd_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_gam_dw->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)-0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
+	
+	zhists.push_back(kfact_ewkqcd_zvv_dw);
+	ahists.push_back(kfact_ewkqcd_gam_dw);            	
+      }
+
+      else if(kfact == 11){ // qcdshape
+	TH1* kfact_qcdshape_zvv_up = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_up");
+	kfact_qcdshape_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_up->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_gam_up = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_up");
+	kfact_qcdshape_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_gam_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_up->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdshape_zvv_up);
+	ahists.push_back(kfact_qcdshape_gam_up);                   
+      }
+
+      else if(kfact == 12){ // qcdshape
+	TH1* kfact_qcdshape_zvv_dw = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_dw");
+	kfact_qcdshape_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_dw->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_gam_dw = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_dw");
+	kfact_qcdshape_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_gam_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_dw->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdshape_zvv_dw);
+	ahists.push_back(kfact_qcdshape_gam_dw);                   
+      }
+
+      else if(kfact == 13){ // PDF unc
+
+	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
+	TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
+	TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");  
+	zpdfhist->Divide(znloOrig);
+	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+	zhists.push_back(znlohist); 	
+	zhists.push_back(zpdfhist);
+	ahists.push_back(wpdfhist);
+      }
+
+      else if(kfact == 14){ // PDF unc
+	fpfile = TFile::Open(fPfile.c_str());
+	TH1* afpchist = (TH1*)fpfile->Get("FP_Down");
+	// ZNLO QCD and Gamma NLO QCD + FP             
+	zhists.push_back(znlohist);
+	ahists.push_back(anlohist); 
+	zhists.push_back(afpchist);
+      }      
+    }
+    else{
+
+      kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
+      TH1* nomhist  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1");
+      TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
+      TH1* apdfhist = (TH1*) kffileUnc->Get("anlo1/anlo1_pdfUp");
+      TH1* re1hist  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
+      TH1* re2hist  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
+      TH1* fa1hist  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
+      TH1* fa2hist  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
+      
+      TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");
+      TH1* anloOrig = (TH1*) kffileUnc->Get("anlo1/anlo1_nominal");
+            
+      zpdfhist->Divide(znloOrig);
+      apdfhist->Divide(anloOrig);
+
+      // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
+      re1hist->Divide(nomhist);
+      // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        
+      re2hist->Divide(nomhist);
+      // Z/gam NLO fact QCD Up / Z/gamma NLO                                                                                                                                      
+      fa1hist->Divide(nomhist);
+      // Z/gam NLO fact EWK Up / Z/gamma NLO                                                                                                                                      
+      fa2hist->Divide(nomhist);
+      
+      fpfile = TFile::Open(fPfile.c_str());
+      TH1* afpchist = (TH1*) fpfile->Get("FP_Down");
+
+      // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
+      if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
+      else if (kfact == 3 and nloSamples.useZJetsNLO) {zhists.push_back(re1hist) ;}
+      
+      if(kfact == 3 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      
+      // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
+      if (kfact == 4 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
+      else if (kfact == 4 and nloSamples.useZJetsNLO) {zhists.push_back(fa1hist) ;}
+      
+      if(kfact == 4 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      
+      // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
+      if (kfact == 5 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
+      else if (kfact == 5 and nloSamples.useZJetsNLO) {zhists.push_back(re2hist) ;}
+      
+      if(kfact == 5 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      
+      // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
+      if (kfact == 6 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
+      else if (kfact == 6 and nloSamples.useZJetsNLO) {zhists.push_back(fa2hist) ;}
+      
+      if(kfact == 6 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      
+      // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
+      if (kfact == 7 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
+      else if (kfact == 7 and nloSamples.useZJetsNLO) {zhists.push_back(zpdfhist);}
+  
+      if(kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
+      else if(kfact == 7  and nloSamples.usePhotonJetsNLO) ahists.push_back(apdfhist);
+      
+      // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
+      if (kfact == 8 and not nloSamples.useZJetsNLO) zhists.push_back(znlohist);
+      
+      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
+      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
+      
+    }
   }
 
 
@@ -1729,13 +2013,22 @@ void makegamcorhist( const string & znunuFile,
   }
 
   outfile.Close();
-  kffile.Close();
-  kffileUnc.Close();
-  fpfile.Close();
+  if(kffile)
+    kffile->Close();
+  if(kffile_alt)
+    kffile_alt->Close();
+  if(kffileUnc)
+    kffileUnc->Close();
   if(kfactzjet_vbf)
     kfactzjet_vbf->Close();
   if(kfactgjet_vbf)
     kfactgjet_vbf->Close();
+  if(kffile_zvv)
+    kffile_zvv->Close();
+  if(kffile_gam)
+    kffile_gam->Close();
+  if(fpfile)
+    fpfile->Close();
 
   nhist.clear();
   dhist.clear();
@@ -1747,7 +2040,6 @@ void makegamcorhist( const string & znunuFile,
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
-
 
 void makewgamcorhist( const string & wlnuFile,  
 		      const string & photonFile,  
@@ -1761,7 +2053,9 @@ void makewgamcorhist( const string & wlnuFile,
 		      const string & sysName = "", 
 		      const bool &  isHiggsInvisible = false,
 		      const bool &  isEWK = false,
-		      const string & ext = "",
+		      const bool &   useTheoristKfactors = false,
+		      const bool &   useNewTheoryUncertainty = false,
+ 		      const string & ext = "",
 		      int    kfact = 0) {
 
   // open files                                                                                                                                                                
@@ -1823,123 +2117,64 @@ void makewgamcorhist( const string & wlnuFile,
   }
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile kffile (kfactorFile.c_str());
-  TH1*  wnlohist = (TH1*) kffile.Get("WJets_012j_NLO/nominal");
-  TH1*  wlohist  = (TH1*) kffile.Get("WJets_LO/inv_pt");
-  TH1* anlohist  = (TH1*) kffile.Get("GJets_1j_NLO/nominal_G");
-  TH1*  alohist  = (TH1*) kffile.Get("GJets_LO/inv_pt_G");
-  TH1* wewkhist  = (TH1*) kffile.Get("EWKcorr/W");
-  TH1* aewkhist  = (TH1*) kffile.Get("EWKcorr/photon");
-
-  if(wewkhist)
-    wewkhist->Divide(wnlohist);
-  if(wnlohist)
-    wnlohist->Divide(wlohist);
-  if(aewkhist)
-    aewkhist->Divide(anlohist);
-  if(anlohist)
-    anlohist->Divide(alohist);
-
-  // take open loop hitogram                                                                                                                                                    
-  TFile kffileUnc (kfactorFileUnc.c_str());
-  TH1* nomhist    = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1");
-  TH1* nomhist_2  = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1");
-  nomhist->Multiply(nomhist_2);
-
-  TH1* wpdfhist = (TH1*) kffileUnc.Get("wnlo012/wnlo012_pdfUp");
-  TH1* apdfhist = (TH1*) kffileUnc.Get("anlo1/anlo1_pdfUp");
+  TFile* kffile  = NULL;
+  TFile* kffile_alt  = NULL;
+  TH1*   anlohist  = NULL;
+  TH1*   alohist   = NULL;
+  TH1*   aewkhist  = NULL;
+  TH1*   wnlohist  = NULL;
+  TH1*   wlohist   = NULL;
+  TH1*   wewkhist  = NULL;
+  TH1*   reweight_wln = NULL;
+  TH1*   reweight_gam = NULL;
   
-  TH1* re1hist   = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1_renCorrUp");
-  TH1* re1hist_2 = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
-  re1hist->Multiply(re1hist_2);
-
-  TH1* re2hist   = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1_renAcorrUp");
-  TH1* re2hist_2 = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
-  re2hist->Multiply(re2hist_2);
-
-  TH1* fa1hist   = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1_facCorrUp");
-  TH1* fa1hist_2 = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
-  fa1hist->Multiply(fa1hist_2);
-
-
-  TH1* fa2hist   = (TH1*) kffileUnc.Get("wnlo1_over_znlo1/wnlo1_over_znlo1_facAcorrUp");
-  TH1* fa2hist_2 = (TH1*) kffileUnc.Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
-  fa2hist->Multiply(fa2hist_2);
-
-  TH1* wnloOrig = (TH1*) kffileUnc.Get("wnlo012/wnlo012_nominal");
-  TH1* anloOrig = (TH1*) kffileUnc.Get("anlo1/anlo1_nominal");
-  
-  wpdfhist->Divide(wnloOrig);
-  apdfhist->Divide(anloOrig);
-
-  // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
-  re1hist->Divide(nomhist);  
-  // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        
-  re2hist->Divide(nomhist);
-  // Z/gam NLO fact QCD Up / Z/gamma NLO                                                                                                                                      
-  fa1hist->Divide(nomhist);
-  // Z/gam NLO fact EWK Up / Z/gamma NLO                                                                                                                                      
-  fa2hist->Divide(nomhist);
-
-  TFile fpfile(fPfile.c_str());
-  TH1* afpchist = (TH1*)fpfile.Get("FP_Down");
-
   vector<TH1*> whists;
   vector<TH1*> ahists;
   vector<TH1*> ehists;
 
-  // ZNLO QCD and Gamma NLO QCD                                                                                                                                                
-  if (kfact == 1 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
-  if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+  if(not useTheoristKfactors){
 
-  //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
-  if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
-  else if (kfact == 2 and nloSamples.useWJetsNLO) {whists.push_back(wewkhist);}
+    kffile  = TFile::Open(kfactorFile.c_str()); 
+    wnlohist = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+    wlohist  = (TH1*) kffile->Get("WJets_LO/inv_pt");
+    anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
+    alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
+    wewkhist  = (TH1*) kffile->Get("EWKcorr/W");
+    aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
 
-  if (kfact == 2 and not  nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
-  else if (kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+    if(wewkhist)
+      wewkhist->Divide(wnlohist);
+    if(wnlohist)
+      wnlohist->Divide(wlohist);
+    if(aewkhist)
+      aewkhist->Divide(anlohist);
+    if(anlohist)
+      anlohist->Divide(alohist);
+  }
   
-  // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
-  if (kfact == 3 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re1hist) ;}
-  else if (kfact == 3 and nloSamples.useWJetsNLO) {whists.push_back(re1hist) ;}
-
-  if (kfact == 3 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+  else{
+    kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
+    TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");
+    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NLO_EW");
+    TH1* kfact_sudewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NNLO_Sud");
+    reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
+    reweight_wln->Reset("ICES");
+    for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
+      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+    
+    kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
+    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("gam_pTV_K_NLO");
+    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NLO_EW");
+    TH1* kfact_sudewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NNLO_Sud");
+    
+    reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
+    reweight_gam->Reset("ICES");
+    for(int iBin = 1; iBin <= reweight_gam->GetNbinsX(); iBin++)
+      reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+  }
   
-  // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
-  if (kfact == 4 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa1hist) ;}
-  else if (kfact == 4 and nloSamples.useWJetsNLO) {whists.push_back(fa1hist) ;}
-
-  if (kfact == 4 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
-
-  // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
-  if (kfact == 5 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re2hist) ;}
-  else if (kfact == 5 and nloSamples.useWJetsNLO) {whists.push_back(re2hist) ;}
-
-  if (kfact == 5 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
-
-  // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
-  if (kfact == 6 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa2hist) ;}
-  else if (kfact == 6 and nloSamples.useWJetsNLO) {whists.push_back(fa2hist) ;}
-
-  if (kfact == 6 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
-
-  // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
-  if (kfact == 7 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
-  else if (kfact == 7 and nloSamples.useWJetsNLO) {whists.push_back(wpdfhist);}
-
-  if (kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
-  else if(kfact == 7 and nloSamples.usePhotonJetsNLO) {ahists.push_back(apdfhist);}
-
-  // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
-  if (kfact == 8 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
-
-  if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(afpchist);}
-  else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
-  
-
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
-
   if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                                
 
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
@@ -1962,6 +2197,304 @@ void makewgamcorhist( const string & wlnuFile,
       ahists.push_back(gjet_nlo_vbf);
   }
 
+  // in order to make uncertainties use the old file                                                                                                                                        
+  TFile* kffileUnc = NULL;
+  TFile* kffile_wln = NULL;
+  TFile* kffile_gam = NULL;
+  TFile* fpfile = NULL;
+
+  if(kfact == 1 or kfact == 2){
+    if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                     
+      
+      if (kfact == 1 and not nloSamples.useWJetsNLO)      whists.push_back(wnlohist);
+      if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+
+      //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
+      if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
+      else if (kfact == 2 and nloSamples.useWJetsNLO) {whists.push_back(wewkhist);}
+      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
+      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+    }
+    else{
+      // only QCD                                                                                                                                                                                      
+      if(kfact == 1){ whists.push_back((TH1*) kffile->Get("evj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("gam_pTV_K_NLO"));}
+      // QCD and EWK corrections                                                                                                                                                                    
+      else if(kfact == 2){ ahists.push_back(reweight_wln); ahists.push_back(reweight_gam);}
+    }
+  }
+  else{
+
+    if(useNewTheoryUncertainty){
+
+      // make systematics
+      kffile_wln = TFile::Open(kFactorTheoristFile_wln.c_str());
+      TH1* kfact_loqcd_wln   = (TH1*) kffile_wln->Get("vvj_pTV_K_LO");
+      TH1* kfact_nloqcd_wln  = (TH1*) kffile_wln->Get("vvj_pTV_K_NLO");
+      TH1* dkfact_nloqcd_wln = (TH1*) kffile_wln->Get("vvj_pTV_d1K_NLO");
+      TH1* kfact_nloewk_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NLO_EW");
+      TH1* kfact_sudewk_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
+
+      kffile_gam = TFile::Open(kFactorTheoristFile_gam.c_str());
+      TH1* kfact_loqcd_gam  = (TH1*) kffile_gam->Get("gam_pTV_K_LO");
+      TH1* kfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_K_NLO");
+      TH1* dkfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_d1K_NLO");
+      TH1* kfact_nloewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NLO_EW");
+      TH1* kfact_sudewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
+      TH1* kfact_qcdshape_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
+      
+      if(kfact == 3){// QCD scale up
+	TH1* kfact_nloqcd_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_up");
+	kfact_nloqcd_wln_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_nloqcd_wln_up->GetNbinsX(); iBin++)
+	  kfact_nloqcd_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nloqcd_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_up");
+	kfact_nloqcd_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_gam_up->GetNbinsX(); iBin++)
+	  kfact_nloqcd_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_nloqcd_wln_up);      
+	ahists.push_back(kfact_nloqcd_gam_up);
+      }
+      else if(kfact == 4){//QCD scale dw
+	TH1* kfact_nloqcd_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_dw");
+	kfact_nloqcd_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_wln_dw->GetNbinsX(); iBin++)
+	  kfact_nloqcd_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nloqcd_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_dw");
+	kfact_nloqcd_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloqcd_gam_dw->GetNbinsX(); iBin++)
+	  kfact_nloqcd_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_nloqcd_wln_dw);
+	ahists.push_back(kfact_nloqcd_gam_dw);      
+      }
+      else if(kfact == 5){ //NLO ewk up    
+	TH1* kfact_nloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_up");
+	kfact_nloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_nloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.1*kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_up");
+	kfact_nloewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_nloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.1*kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_nloewk_wln_up);
+	ahists.push_back(kfact_nloewk_gam_up);      
+      }
+      else if(kfact == 6){//NLO ewk dw
+	TH1* kfact_nloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_dw");
+	kfact_nloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_nloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.1*kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_dw");
+	kfact_nloewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nloewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_nloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.1*kfact_nloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_nloewk_wln_dw);
+	ahists.push_back(kfact_nloewk_gam_dw);            
+      }
+      else if(kfact == 7){ // NLO sud up
+	TH1* kfact_sudewk_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_up");
+	kfact_sudewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_sudewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_sudewk_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_up");
+	kfact_sudewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_sudewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_sudewk_wln_up);
+	ahists.push_back(kfact_sudewk_gam_up);            
+	
+      }
+      else if(kfact == 8){// NLO sud dw
+	TH1* kfact_sudewk_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_dw");
+	kfact_sudewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_sudewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
+
+	TH1* kfact_sudewk_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_dw");
+	kfact_sudewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_sudewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_sudewk_wln_dw);
+	ahists.push_back(kfact_sudewk_gam_dw);            
+      }
+      else if(kfact == 9){ // QCD-EWK mix up
+	TH1* kfact_ewkqcd_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_up");
+	kfact_ewkqcd_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_wln_up->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)+0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
+	
+	TH1* kfact_ewkqcd_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_up");
+	kfact_ewkqcd_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin < kfact_ewkqcd_gam_up->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)+0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
+	
+	whists.push_back(kfact_ewkqcd_wln_up);
+	ahists.push_back(kfact_ewkqcd_gam_up);            	
+      }
+      else if(kfact == 10){ // QCD-EWK mix dw
+	TH1* kfact_ewkqcd_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_dw");
+	kfact_ewkqcd_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_wln_dw->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)-0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
+	
+	TH1* kfact_ewkqcd_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_dw");
+	kfact_ewkqcd_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_ewkqcd_gam_dw->GetNbinsX(); iBin++)
+	  kfact_ewkqcd_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)-0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
+	
+	whists.push_back(kfact_ewkqcd_wln_dw);
+	ahists.push_back(kfact_ewkqcd_gam_dw);            	
+      }
+
+      else if(kfact == 11){ // qcdshape
+	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_up");
+	kfact_qcdshape_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_up->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_gam_up = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_up");
+	kfact_qcdshape_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_gam_up->GetNbinsX(); iBin++)
+	  kfact_qcdshape_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_up->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_qcdshape_wln_up);
+	ahists.push_back(kfact_qcdshape_gam_up);                   
+      }
+
+      else if(kfact == 12){ // qcdshape
+	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_dw");
+	kfact_qcdshape_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_dw->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_qcdshape_gam_dw = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_dw");
+	kfact_qcdshape_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdshape_gam_dw->GetNbinsX(); iBin++)
+	  kfact_qcdshape_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_dw->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_qcdshape_wln_dw);
+	ahists.push_back(kfact_qcdshape_gam_dw);                   
+      }
+
+      else if(kfact == 13){ // PDF unc
+
+	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
+	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+	TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");  
+	wpdfhist->Divide(wnloOrig);
+	TH1* apdfhist = (TH1*) kffileUnc->Get("anlo1/anlo1_pdfUp");
+	whists.push_back(wnlohist); 	
+	whists.push_back(wpdfhist);
+	ahists.push_back(wpdfhist);
+      }
+      
+      else if(kfact == 14){ // PDF unc
+	fpfile = TFile::Open(fPfile.c_str());
+	TH1* afpchist = (TH1*)fpfile->Get("FP_Down");
+	// ZNLO QCD and Gamma NLO QCD + FP             
+	whists.push_back(wnlohist);
+	ahists.push_back(anlohist); 
+	whists.push_back(afpchist);
+      }                  
+    }
+    else{
+
+      // take open loop hitogram                                                                                                                                                    
+      kffileUnc = TFile::Open(kfactorFileUnc.c_str());
+      TH1* nomhist    = (TH1*) kffileUnc->Get("wnlo1_over_znlo1/wnlo1_over_znlo1");
+      TH1* nomhist_2  = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1");
+      nomhist->Multiply(nomhist_2);
+      
+      TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+      TH1* apdfhist = (TH1*) kffileUnc->Get("anlo1/anlo1_pdfUp");
+      
+      TH1* re1hist   = (TH1*) kffileUnc->Get("wnlo1_over_znlo1/wnlo1_over_znlo1_renCorrUp");
+      TH1* re1hist_2 = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_renCorrUp");
+      re1hist->Multiply(re1hist_2);
+
+      TH1* re2hist   = (TH1*) kffileUnc->Get("wnlo1_over_znlo1/wnlo1_over_znlo1_renAcorrUp");
+      TH1* re2hist_2 = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_renAcorrUp");
+      re2hist->Multiply(re2hist_2);
+      
+      TH1* fa1hist   = (TH1*) kffileUnc->Get("wnlo1_over_znlo1/wnlo1_over_znlo1_facCorrUp");
+      TH1* fa1hist_2 = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_facCorrUp");
+      fa1hist->Multiply(fa1hist_2);
+      
+      
+      TH1* fa2hist   = (TH1*) kffileUnc->Get("wnlo1_over_znlo1/wnlo1_over_znlo1_facAcorrUp");
+      TH1* fa2hist_2 = (TH1*) kffileUnc->Get("znlo1_over_anlo1/znlo1_over_anlo1_facAcorrUp");
+      fa2hist->Multiply(fa2hist_2);
+      
+      TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");
+      TH1* anloOrig = (TH1*) kffileUnc->Get("anlo1/anlo1_nominal");
+      
+      wpdfhist->Divide(wnloOrig);
+      apdfhist->Divide(anloOrig);
+
+      // Z/gam NLO re QCD Up / Z/gamma NLO                                                                                                                                       
+      re1hist->Divide(nomhist);  
+      // Z/gam NLO re EWK Up / Z/gamma NLO                                                                                                                                        
+      re2hist->Divide(nomhist);
+      // Z/gam NLO fact QCD Up / Z/gamma NLO                                                                                                                                      
+      fa1hist->Divide(nomhist);
+      // Z/gam NLO fact EWK Up / Z/gamma NLO                                                                                                                                      
+      fa2hist->Divide(nomhist);
+      
+      fpfile = TFile::Open(fPfile.c_str());
+      TH1* afpchist = (TH1*)fpfile->Get("FP_Down");
+
+      // ZNLO QCD+Re up and Gamma NLO QCD                                                                                                                                          
+      if (kfact == 3 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re1hist) ;}
+      else if (kfact == 3 and nloSamples.useWJetsNLO) {whists.push_back(re1hist) ;}
+      
+      if (kfact == 3 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      
+      // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
+      if (kfact == 4 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa1hist) ;}
+      else if (kfact == 4 and nloSamples.useWJetsNLO) {whists.push_back(fa1hist) ;}
+      
+      if (kfact == 4 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      
+      // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
+      if (kfact == 5 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re2hist) ;}
+      else if (kfact == 5 and nloSamples.useWJetsNLO) {whists.push_back(re2hist) ;}
+      
+      if (kfact == 5 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      
+      // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
+      if (kfact == 6 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa2hist) ;}
+      else if (kfact == 6 and nloSamples.useWJetsNLO) {whists.push_back(fa2hist) ;}
+      
+      if (kfact == 6 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+
+      // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
+      if (kfact == 7 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
+      else if (kfact == 7 and nloSamples.useWJetsNLO) {whists.push_back(wpdfhist);}
+      
+      if (kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
+      else if(kfact == 7 and nloSamples.usePhotonJetsNLO) {ahists.push_back(apdfhist);}
+      
+      // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
+      if (kfact == 8 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
+      
+      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(afpchist);}
+      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
+            
+    }
+  }
+  
+  
 
   // loop over ntree and dtree events isMC=true, sample 0 == signal region, sample 1 == di-muon, 
   if(not isEWK){
@@ -2038,9 +2571,6 @@ void makewgamcorhist( const string & wlnuFile,
   }
 
   outfile.Close();
-  kffile.Close();
-  kffileUnc.Close();
-  fpfile.Close();
   nhist.clear();
   dhist.clear();
   tfhist.clear();
@@ -2049,10 +2579,23 @@ void makewgamcorhist( const string & wlnuFile,
   tfhist_2D.clear();
   unrolled.clear();
 
+  if(kffile)
+    kffile->Close();
+  if(kffile_alt)
+    kffile_alt->Close();
+  if(kffileUnc)
+    kffileUnc->Close();
   if(kfactwjet_vbf)
     kfactwjet_vbf->Close();
   if(kfactgjet_vbf)
     kfactgjet_vbf->Close();
+  if(kffile_wln)
+    kffile_wln->Close();
+  if(kffile_gam)
+    kffile_gam->Close();
+  if(fpfile)
+    fpfile->Close();
+
 
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }

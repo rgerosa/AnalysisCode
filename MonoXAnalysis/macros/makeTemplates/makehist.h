@@ -71,6 +71,7 @@ string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFac
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/vvj.root";
 string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/evj.root";
 string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/eej.root";
+string kFactorTheoristFile_gam = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/gam.root";
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_28_11_2016/";
@@ -251,9 +252,10 @@ void makehist4(TTree* tree, /*input tree*/
   // Photon Purity                                                                                                                                                              
   TFile* purityfile_photon = NULL;
   TH2*   purhist           = NULL; 
+  TGraphAsymmErrors*   purgraph  = NULL; 
   if(useMoriondSetup){
-    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");
-    purhist = (TH2*) purityfile_photon->Get("purity");
+    purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/finalPurity_weightedAverage_36fb.root");
+    purgraph = (TGraphAsymmErrors*) purityfile_photon->Get("purity_weightedAverage_totUnc");
   }
   else{
     purityfile_photon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/PhotonSFandEffandPurity_Lumi12p9fb_28072016.root");  
@@ -914,33 +916,29 @@ void makehist4(TTree* tree, /*input tree*/
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
 
        
+    // apply tracking efficiency for electrons from POGs
     Double_t sfwgt = 1.0;
-    // apply tracking efficiency for electrons
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){
-	//	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));	
-	if(pt1 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
+      if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){	
+	if(pt1 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
 	else
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));	
       }
       if(pt2 > 0. and *nvtx <= numberOfVtxCorrection){
-	//	sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-	if(pt2 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1))
+	if(pt2 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
 	else
 	  sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));
       }
       if(pt1 > 0. and *nvtx > numberOfVtxCorrection){
-	//	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta1),min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-	if(pt1 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
+	if(pt1 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
 	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
 	else
 	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
       }
       
-      if(pt2 > 0. and *nvtx > numberOfVtxCorrection){
-	//	sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(fabs(eta2),min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
+      if(pt2 > 0. and *nvtx > numberOfVtxCorrection){ // above minimum
 	if(pt2 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
 	  sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
 	else
@@ -948,7 +946,7 @@ void makehist4(TTree* tree, /*input tree*/
       }
     }
 
-    // reco-muon scale factor    
+    // reco-muon scale factor --> private scale factors aleady starting at 10 GeV
     if(isMC && (sample == Sample::zmm or sample == Sample::wmn or sample == Sample::topmu)){
       double trackwgt = 1;
       if(pt1 > 0. and *nvtx <= numberOfVtxCorrection)
@@ -981,7 +979,7 @@ void makehist4(TTree* tree, /*input tree*/
 	sfthist_highpu = esftight_highpu;
     }
    
-    // apply lepton id scale factors
+    // apply lepton id scale factors 
     if (isMC && sflhist_lowpu && sfthist_lowpu && sflhist_highpu && sfthist_highpu) {
       if (pt1 > 0.) {
 	if(*nvtx <= numberOfVtxCorrection){
@@ -1031,22 +1029,34 @@ void makehist4(TTree* tree, /*input tree*/
     // photon id scale factor
     if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
       if (pt1 > 0. && id1 == 1) {
-	if(*nvtx <= numberOfVtxCorrection){
+	if(*nvtx <= numberOfVtxCorrection)
 	  sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
-	}
 	else
 	  sfwgt *= psfmedium_highpu->GetBinContent(psfmedium_highpu->FindBin(fabs(eta1),min(pt1,psfmedium_highpu->GetYaxis()->GetBinLowEdge(psfmedium_highpu->GetNbinsY()+1)-1)));
       }
     }
     
     // photon purity
-    if (!isMC && purhist && sample == Sample::qcdgam) {
-      if(pt1 > purhist->GetXaxis()->GetBinLowEdge(1))
-	sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(pt1,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(eta1))));
-      else
-	sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(max(pt1,purhist->GetXaxis()->GetBinLowEdge(1)),fabs(eta1))));		  
+    if (!isMC && sample == Sample::qcdgam) {
+      if(useMoriondSetup){
+	double xleft, yleft, xright, yright;
+	purgraph->GetPoint(0,xleft,yleft);
+	purgraph->GetPoint(purgraph->GetN()-1,xright,yright);	
+	if(pt1 >= xleft and pt1 <= xright) // check graph extremes
+	  sfwgt *= (1.0 - purgraph->Eval(pt1));
+	else if(pt1 < xleft)
+	  sfwgt *= (1.0 - purgraph->Eval(xleft));
+	else if(pt1 > xright)
+	  sfwgt *= (1.0 - purgraph->Eval(xright));
+      }      
+      else{
+	if(pt1 > purhist->GetXaxis()->GetBinLowEdge(1))
+	  sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(min(pt1,purhist->GetXaxis()->GetBinLowEdge(purhist->GetNbinsX()+1)-1), fabs(eta1))));
+	else
+	  sfwgt *= (1.0 - purhist->GetBinContent(purhist->FindBin(max(pt1,purhist->GetXaxis()->GetBinLowEdge(1)),fabs(eta1))));		  
+      }
     }
-    
+
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd)) {
       if(triggermet_graph)
@@ -1080,9 +1090,9 @@ void makehist4(TTree* tree, /*input tree*/
     // B-tag weight to be adjusted
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
-      btagw = 0.98;
+      btagw = 0.92;
     else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam)
-      btagw = 0.98;
+      btagw = 0.99;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
