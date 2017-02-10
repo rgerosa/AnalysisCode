@@ -101,23 +101,21 @@ void makezmmcorhist( const string &   signalRegionFile,
   else{
     kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
     TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
     reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
     reweight_zvv->Reset("ICES");
 
     for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++) 
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
 
     kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
     TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
-    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
     reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
     reweight_zll->Reset("ICES");
 
     for(int iBin = 1; iBin < reweight_zll->GetNbinsX(); iBin++) 
-      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)+kfact_sudewk_zll->GetBinContent(iBin)));
+      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
   }
 
   vector<TH1*> ehists;
@@ -365,23 +363,21 @@ void makezeecorhist( const string &   signalRegionFile,
   else{
     kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
     TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
     reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
     reweight_zvv->Reset("ICES");
 
     for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
 
     kffile_alt = TFile::Open(kFactorTheoristFile_zll.c_str());
     TH1* kfact_nloqcd_zll = (TH1*) kffile_alt->Get("eej_pTV_K_NLO");
-    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_zll = (TH1*) kffile_alt->Get("eej_pTV_kappa_EW");
     reweight_zll = (TH1*) kfact_nloqcd_zll->Clone("reweight_zll");
     reweight_zll->Reset("ICES");
 
     for(int iBin = 1; iBin <= reweight_zll->GetNbinsX(); iBin++)
-      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)+kfact_sudewk_zll->GetBinContent(iBin)));
+      reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
   }
   
   vector<TH1*> ehists;
@@ -627,13 +623,12 @@ void makewmncorhist( const string &  signalRegionFile,
 
     kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
     TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
-    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_EW");
 
     reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
     reweight_wln->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
   }
 
   vector<TH1*> ehists;
@@ -847,13 +842,12 @@ void makewencorhist( const string &  signalRegionFile,
 
     kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
     TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");    
-    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("ecj_pTV_kappa_EW");
 
     reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
     reweight_wln->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
   }
 
   vector<TH1*> ehists;
@@ -1087,22 +1081,20 @@ void  makezwjcorhist(const string & znunuFile,
 
     kffile = TFile::Open(kFactorTheoristFile_zvv.c_str());
     TH1* kfact_nloqcd_zvv = (TH1*) kffile->Get("vvj_pTV_K_NLO");
-    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_zvv = (TH1*) kffile->Get("vvj_pTV_kappa_EW");
     reweight_zvv = (TH1*) kfact_nloqcd_zvv->Clone("reweight_zvv");
     reweight_zvv->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_zvv->GetNbinsX(); iBin++)
-      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
+      reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
 
     kffile_alt = TFile::Open(kFactorTheoristFile_wln.c_str());
     TH1* kfact_nloqcd_wln = (TH1*) kffile_alt->Get("evj_pTV_K_NLO");
-    TH1* kfact_nloewk_wln = (TH1*) kffile_alt->Get("evj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_wln = (TH1*) kffile_alt->Get("evj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_wln = (TH1*) kffile_alt->Get("evj_pTV_kappa_EW");
     
     reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
     reweight_wln->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
 
   }
 
@@ -1163,176 +1155,303 @@ void  makezwjcorhist(const string & znunuFile,
 
       // make systematics
       kffile_zvv = TFile::Open(kFactorTheoristFile_zvv.c_str());
-      TH1* kfact_loqcd_zvv   = (TH1*) kffile_zvv->Get("vvj_pTV_K_LO");
-      TH1* kfact_nloqcd_zvv  = (TH1*) kffile_zvv->Get("vvj_pTV_K_NLO");
-      TH1* dkfact_nloqcd_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_d1K_NLO");
-      TH1* kfact_nloewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NLO_EW");
-      TH1* kfact_sudewk_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
-      TH1* kfact_qcdshape_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_nloqcd_zvv    = (TH1*) kffile_zvv->Get("vvj_pTV_K_NLO");
+      TH1* kfact_nloewk_zvv    = (TH1*) kffile_zvv->Get("vvj_pTV_kappa_EW");
+      TH1* dkfact_qcdscale_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_d1K_NLO");
+      TH1* dkfact_qcdshape_zvv = (TH1*) kffile_zvv->Get("vvj_pTV_d2K_NLO");
+      TH1* dkfact_qcdcorr_zvv  = (TH1*) kffile_zvv->Get("vvj_pTV_d3K_NLO");
+      TH1* kfact_dnnloewk_zvv  = (TH1*) kffile_zvv->Get("vvj_pTV_d1kappa_EW");
+      TH1* kfact_dnloewk_zvv   = (TH1*) kffile_zvv->Get("vvj_pTV_d2kappa_EW");
+      TH1* kfact_dsudewk_zvv   = (TH1*) kffile_zvv->Get("vvj_pTV_d3kappa_EW");
+      TH1* kfact_dmix_zvv      = (TH1*) kffile_zvv->Get("vvj_pTV_dK_NLO_mix");
 
       kffile_wln = TFile::Open(kFactorTheoristFile_wln.c_str());
-      TH1* kfact_loqcd_wln  = (TH1*) kffile_wln->Get("evj_pTV_K_LO");
-      TH1* kfact_nloqcd_wln = (TH1*) kffile_wln->Get("evj_pTV_K_NLO");
-      TH1* dkfact_nloqcd_wln = (TH1*) kffile_wln->Get("evj_pTV_d1K_NLO");
-      TH1* kfact_nloewk_wln = (TH1*) kffile_wln->Get("evj_pTV_kappa_NLO_EW");
-      TH1* kfact_sudewk_wln = (TH1*) kffile_wln->Get("evj_pTV_kappa_NNLO_Sud");
-      TH1* kfact_qcdshape_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
-      
-      if(kfact == 3){// QCD scale up
-	TH1* kfact_nloqcd_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_nloqcd_zvv_up");
-	kfact_nloqcd_zvv_up->Reset("ICES");					
-	for(int iBin = 1; iBin <= kfact_nloqcd_zvv_up->GetNbinsX(); iBin++)
-	  kfact_nloqcd_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+dkfact_nloqcd_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_nloqcd_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_up");
-	kfact_nloqcd_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_wln_up->GetNbinsX(); iBin++)
-	  kfact_nloqcd_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	zhists.push_back(kfact_nloqcd_zvv_up);      
-	whists.push_back(kfact_nloqcd_wln_up);
-      }
-      else if(kfact == 4){//QCD scale dw
-	TH1* kfact_nloqcd_zvv_dw = (TH1*) kfact_nloqcd_zvv->Clone("kfact_nloqcd_zvv_dw");
-	kfact_nloqcd_zvv_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_nloqcd_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)-dkfact_nloqcd_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_nloqcd_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_dw");
-	kfact_nloqcd_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_wln_dw->GetNbinsX(); iBin++)
-	  kfact_nloqcd_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	zhists.push_back(kfact_nloqcd_zvv_dw);
-	whists.push_back(kfact_nloqcd_wln_dw);      
-      }
-      else if(kfact == 5){ //NLO ewk up    
-	TH1* kfact_nloewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_nloewk_zvv_up");
-	kfact_nloewk_zvv_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_zvv_up->GetNbinsX(); iBin++)
-	  kfact_nloewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)+0.1*kfact_nloewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_nloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_up");
-	kfact_nloewk_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_wln_up->GetNbinsX(); iBin++)
-	  kfact_nloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.1*kfact_nloewk_wln->GetBinContent(iBin)));
-	
-	zhists.push_back(kfact_nloewk_zvv_up);
-	whists.push_back(kfact_nloewk_wln_up);      
-      }
-      else if(kfact == 6){//NLO ewk dw
-	TH1* kfact_nloewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_nloewk_zvv_dw");
-	kfact_nloewk_zvv_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_nloewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)-0.1*kfact_nloewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_nloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_dw");
-	kfact_nloewk_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_wln_dw->GetNbinsX(); iBin++)
-	  kfact_nloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.1*kfact_nloewk_wln->GetBinContent(iBin)));
+      TH1* kfact_nloqcd_wln    = (TH1*) kffile_wln->Get("evj_pTV_K_NLO");
+      TH1* kfact_nloewk_wln    = (TH1*) kffile_wln->Get("evj_pTV_kappa_EW");
+      TH1* dkfact_qcdscale_wln = (TH1*) kffile_wln->Get("evj_pTV_d1K_NLO");
+      TH1* dkfact_qcdshape_wln = (TH1*) kffile_wln->Get("evj_pTV_d2K_NLO");
+      TH1* dkfact_qcdcorr_wln  = (TH1*) kffile_wln->Get("evj_pTV_d3K_NLO");
+      TH1* kfact_dnnloewk_wln  = (TH1*) kffile_wln->Get("evj_pTV_d1kappa_EW");
+      TH1* kfact_dnloewk_wln   = (TH1*) kffile_wln->Get("evj_pTV_d2kappa_EW");
+      TH1* kfact_dsudewk_wln   = (TH1*) kffile_wln->Get("evj_pTV_d3kappa_EW");
+      TH1* kfact_dmix_wln      = (TH1*) kffile_wln->Get("evj_pTV_dK_NLO_mix");
 
-	zhists.push_back(kfact_nloewk_zvv_dw);
-	whists.push_back(kfact_nloewk_wln_dw);            
+      /// QCD Scale @NLO
+      if(kfact == 3){
+	TH1* kfact_qcdscale_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdscale_zvv_up");
+	kfact_qcdscale_zvv_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdscale_zvv_up->GetNbinsX(); iBin++)
+	  kfact_qcdscale_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+dkfact_qcdscale_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdscale_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdscale_wln_up");
+	kfact_qcdscale_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdscale_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdscale_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdscale_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdscale_zvv_up);      
+	whists.push_back(kfact_qcdscale_wln_up);
       }
-      else if(kfact == 7){ // NLO sud up
-	TH1* kfact_sudewk_zvv_up = (TH1*) kfact_sudewk_zvv->Clone("kfact_sudewk_zvv_up");
-	kfact_sudewk_zvv_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_zvv_up->GetNbinsX(); iBin++)
-	  kfact_sudewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)+0.67*kfact_nloewk_zvv->GetBinContent(iBin)*kfact_sudewk_zvv->GetBinContent(iBin)));
+      else if(kfact == 4){
+	TH1* kfact_qcdscale_zvv_dw = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdscale_zvv_dw");
+	kfact_qcdscale_zvv_dw->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdscale_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_qcdscale_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)-dkfact_qcdscale_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdscale_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdscale_wln_dw");
+	kfact_qcdscale_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdscale_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdscale_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdscale_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
 	
-	TH1* kfact_sudewk_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_up");
-	kfact_sudewk_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_wln_up->GetNbinsX(); iBin++)
-	  kfact_sudewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
-
-	zhists.push_back(kfact_sudewk_zvv_up);
-	whists.push_back(kfact_sudewk_wln_up);            
-	
+	zhists.push_back(kfact_qcdscale_zvv_dw);      
+	whists.push_back(kfact_qcdscale_wln_dw);
       }
-      else if(kfact == 8){// NLO sud dw
-	TH1* kfact_sudewk_zvv_dw = (TH1*) kfact_sudewk_zvv->Clone("kfact_sudewk_zvv_dw");
-	kfact_sudewk_zvv_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_sudewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)-0.67*kfact_nloewk_zvv->GetBinContent(iBin)*kfact_sudewk_zvv->GetBinContent(iBin)));
-
-	TH1* kfact_sudewk_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_dw");
-	kfact_sudewk_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_wln_dw->GetNbinsX(); iBin++)
-	  kfact_sudewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	zhists.push_back(kfact_sudewk_zvv_dw);
-	whists.push_back(kfact_sudewk_wln_dw);            
-      }
-      else if(kfact == 9){ // QCD-EWK mix up
-	TH1* kfact_ewkqcd_zvv_up = (TH1*) kfact_sudewk_zvv->Clone("kfact_ewkqcd_zvv_up");
-	kfact_ewkqcd_zvv_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_zvv_up->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_loqcd_zvv->GetBinContent(iBin)/(kfact_loqcd_zvv->GetBinContent(iBin)+0.5*(kfact_nloqcd_zvv->GetBinContent(iBin)-kfact_loqcd_zvv->GetBinContent(iBin)))*(kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin))));
-	
-	TH1* kfact_ewkqcd_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_up");
-	kfact_ewkqcd_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin < kfact_ewkqcd_wln_up->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)+0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
-	
-	zhists.push_back(kfact_ewkqcd_zvv_up);
-	whists.push_back(kfact_ewkqcd_wln_up);            
-	
-      }
-      else if(kfact == 10){ // QCD-EWK mix dw
-	TH1* kfact_ewkqcd_zvv_dw = (TH1*) kfact_sudewk_zvv->Clone("kfact_ewkqcd_zvv_dw");
-	kfact_ewkqcd_zvv_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_loqcd_zvv->GetBinContent(iBin)/(kfact_loqcd_zvv->GetBinContent(iBin)-0.5*(kfact_nloqcd_zvv->GetBinContent(iBin)-kfact_loqcd_zvv->GetBinContent(iBin)))*(kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin))));
-	
-	TH1* kfact_ewkqcd_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_dw");
-	kfact_ewkqcd_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_wln_dw->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)-0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
-	
-	zhists.push_back(kfact_ewkqcd_zvv_dw);
-	whists.push_back(kfact_ewkqcd_wln_dw);            
-	
-      }
-
-      else if(kfact == 11){ // qcdshape
-	TH1* kfact_qcdshape_zvv_up = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_up");
-	kfact_qcdshape_zvv_up->Reset("ICES");
+      /// QCD Shape @NLO
+      else if(kfact == 5){ //QCD shape up
+	TH1* kfact_qcdshape_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdshape_zvv_up");
+	kfact_qcdshape_zvv_up->Reset("ICES");					
 	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_up->GetNbinsX(); iBin++)
-	  kfact_qcdshape_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_up->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_up");
+	  kfact_qcdshape_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+dkfact_qcdshape_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdshape_wln_up");
 	kfact_qcdshape_wln_up->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_qcdshape_wln_up->GetNbinsX(); iBin++)
-	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_up->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdshape_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
 	
-	zhists.push_back(kfact_qcdshape_zvv_up);
-	whists.push_back(kfact_qcdshape_wln_up);                   
+	zhists.push_back(kfact_qcdshape_zvv_up);      
+	whists.push_back(kfact_qcdshape_wln_up);
       }
-
-      else if(kfact == 12){ // qcdshape
-	TH1* kfact_qcdshape_zvv_dw = (TH1*) kfact_qcdshape_zvv->Clone("kfact_qcdshape_zvv_dw");
-	kfact_qcdshape_zvv_dw->Reset("ICES");
+      else if(kfact == 6){ 
+	TH1* kfact_qcdshape_zvv_dw = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdshape_zvv_dw");
+	kfact_qcdshape_zvv_dw->Reset("ICES");					
 	for(int iBin = 1; iBin <= kfact_qcdshape_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_qcdshape_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+kfact_qcdshape_zvv_dw->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_sudewk_zvv->GetBinContent(iBin)));
-	
-	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_dw");
+	  kfact_qcdshape_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)-dkfact_qcdshape_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdshape_wln_dw");
 	kfact_qcdshape_wln_dw->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_qcdshape_wln_dw->GetNbinsX(); iBin++)
-	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_dw->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdshape_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
 	
-	zhists.push_back(kfact_qcdshape_zvv_dw);
-	whists.push_back(kfact_qcdshape_wln_dw);                   
+	zhists.push_back(kfact_qcdshape_zvv_dw);      
+	whists.push_back(kfact_qcdshape_wln_dw);
+      }
+      /// QCD Process
+      else if(kfact == 7){ //QCD process-dependent up
+	TH1* kfact_qcdcorr_zvv_up = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdcorr_zvv_up");
+	kfact_qcdcorr_zvv_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdcorr_zvv_up->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_zvv_up->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)+dkfact_qcdcorr_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdcorr_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdcorr_wln_up");
+	kfact_qcdcorr_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdcorr_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdcorr_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdcorr_zvv_up);      
+	whists.push_back(kfact_qcdcorr_wln_up);
+      }
+      else if(kfact == 8){ //QCD process-dependent dw
+	TH1* kfact_qcdcorr_zvv_dw = (TH1*) kfact_nloqcd_zvv->Clone("kfact_qcdcorr_zvv_dw");
+	kfact_qcdcorr_zvv_dw->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdcorr_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_zvv_dw->SetBinContent(iBin,(kfact_nloqcd_zvv->GetBinContent(iBin)-dkfact_qcdcorr_zvv->GetBinContent(iBin))*(1+kfact_nloewk_zvv->GetBinContent(iBin)));	
+	TH1* kfact_qcdcorr_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdcorr_wln_dw");
+	kfact_qcdcorr_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdcorr_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdcorr_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_qcdcorr_zvv_dw);      
+	whists.push_back(kfact_qcdcorr_wln_dw);
+      }
+      /// EWK beyond NNLO
+      else if(kfact == 9){
+	TH1* kfact_nnloewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_nnloewk_zvv_up");
+	kfact_nnloewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_nnloewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_dnnloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_nnloewk_wln_up");
+	kfact_nnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_nnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dnnloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_nnloewk_zvv_up);
+	whists.push_back(kfact_nnloewk_wln_up);            
       }
 
-      else if(kfact == 13){ // PDF unc
+      else if(kfact == 10){
+	TH1* kfact_nnloewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_nnloewk_zvv_dw");
+	kfact_nnloewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_nnloewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)-kfact_dnnloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_nnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_nnloewk_wln_dw");
+	kfact_nnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_nnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dnnloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_nnloewk_zvv_dw);
+	whists.push_back(kfact_nnloewk_wln_dw);            
+      }
+
+      /// EWK missing NNLO --> uncorrelated between processes
+      else if(kfact == 11){
+	TH1* kfact_missnnloewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_missnnloewk_zvv_up_1");
+	kfact_missnnloewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_dnloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_up_1");
+	kfact_missnnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_missnnloewk_zvv_up);
+	whists.push_back(kfact_missnnloewk_wln_up);            
+      }
+
+      else if(kfact == 12){
+	TH1* kfact_missnnloewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_missnnloewk_zvv_dw_1");
+	kfact_missnnloewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)-kfact_dnloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_dw_1");
+	kfact_missnnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_missnnloewk_zvv_dw);
+	whists.push_back(kfact_missnnloewk_wln_dw);            
+      }
+
+      else if(kfact == 13){
+	TH1* kfact_missnnloewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_missnnloewk_zvv_up_2");
+	kfact_missnnloewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_up_2");
+	kfact_missnnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dnloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_missnnloewk_zvv_up);
+	whists.push_back(kfact_missnnloewk_wln_up);            
+      }
+
+      else if(kfact == 14){
+	TH1* kfact_missnnloewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_missnnloewk_zvv_dw_2");
+	kfact_missnnloewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_dw_2");
+	kfact_missnnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dnloewk_wln->GetBinContent(iBin)));
+
+	zhists.push_back(kfact_missnnloewk_zvv_dw);
+	whists.push_back(kfact_missnnloewk_wln_dw);            
+      }
+
+      // SUDAKOV EWK
+      else if(kfact == 15){
+	TH1* kfact_sudakovewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_sudakovewk_zvv_up_1");
+	kfact_sudakovewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)+kfact_dsudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_up_1");
+	kfact_sudakovewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_sudakovewk_zvv_up);
+	whists.push_back(kfact_sudakovewk_wln_up);            
+      }
+      else if(kfact == 16){
+	TH1* kfact_sudakovewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_sudakovewk_zvv_dw_1");
+	kfact_sudakovewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)-kfact_dsudewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_dw_1");
+	kfact_sudakovewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_sudakovewk_zvv_dw);
+	whists.push_back(kfact_sudakovewk_wln_dw);            
+      }
+
+      else if(kfact == 17){
+	TH1* kfact_sudakovewk_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_sudakovewk_zvv_up_2");
+	kfact_sudakovewk_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_zvv_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_up_2");
+	kfact_sudakovewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dsudewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_sudakovewk_zvv_up);
+	whists.push_back(kfact_sudakovewk_wln_up);            
+      }
+      else if(kfact == 18){
+	TH1* kfact_sudakovewk_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_sudakovewk_zvv_dw");
+	kfact_sudakovewk_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_dw");
+	kfact_sudakovewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dsudewk_wln->GetBinContent(iBin)));
+	
+	zhists.push_back(kfact_sudakovewk_zvv_dw);
+	whists.push_back(kfact_sudakovewk_wln_dw);            
+      }
+      
+      // MIX EWK-QCD
+      else if(kfact == 19){
+	TH1* kfact_mix_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_mix_zvv_up");
+	kfact_mix_zvv_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_zvv_up->GetNbinsX(); iBin++)
+	  kfact_mix_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))+0.1*kfact_dmix_zvv->GetBinContent(iBin));
+	
+	TH1* kfact_mix_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_up");
+	kfact_mix_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_wln_up->GetNbinsX(); iBin++)
+	  kfact_mix_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))+0.1*kfact_dmix_wln->GetBinContent(iBin));
+	
+	zhists.push_back(kfact_mix_zvv_up);
+	whists.push_back(kfact_mix_wln_up);            
+      }
+
+      else if(kfact == 20){
+	TH1* kfact_mix_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_mix_zvv_dw");
+	kfact_mix_zvv_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_zvv_dw->GetNbinsX(); iBin++)
+	  kfact_mix_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))-0.1*kfact_dmix_zvv->GetBinContent(iBin));
+	
+	TH1* kfact_mix_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_dw");
+	kfact_mix_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_wln_dw->GetNbinsX(); iBin++)
+	  kfact_mix_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))-0.1*kfact_dmix_wln->GetBinContent(iBin));
+	
+	zhists.push_back(kfact_mix_zvv_dw);
+	whists.push_back(kfact_mix_wln_dw);            
+      }
+      
+      else if(kfact == 21){ // PDF unc
 
 	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
 	TH1* zpdfhist = (TH1*) kffileUnc->Get("znlo012/znlo012_pdfUp");
 	TH1* znloOrig = (TH1*) kffileUnc->Get("znlo012/znlo012_nominal");  
 	zpdfhist->Divide(znloOrig);
 	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
+	TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");
+	wpdfhist->Divide(wnloOrig);
+
 	zhists.push_back(znlohist); 	
 	zhists.push_back(zpdfhist);
+	whists.push_back(wnlohist);
 	whists.push_back(wpdfhist);
       }
     }    

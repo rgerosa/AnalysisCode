@@ -18,9 +18,9 @@ static float prunedMassMax  = 105.;
 static float tau2tau1       = 0.6;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float detajjVBF      = 3.5;
-static float mjjVBF         = 1000;
-static float dphijjVBF      = 1.5;
+static float detajjVBF      = 10;
+static float mjjVBF         = 10000;
+static float dphijjVBF      = 0;
 static bool  useMoriondSetup = true;
 
 void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory){
@@ -54,7 +54,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   if(not useMoriondSetup)
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   else
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");
   TH1* puhist = (TH1*) pufile->Get("puhist");
 
   ////////////
@@ -72,7 +72,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   else
     triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");    
   
-  
+
+  /// take trigger efficiency curve
   TEfficiency*       triggermet       = NULL;
   TGraphAsymmErrors* triggermet_graph = NULL;
   if(triggerfile_MET != NULL){
@@ -89,12 +90,10 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     for(auto ifile : triggerfile_MET_binned)
       triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));
   }
-
-
     
-  ////////////
-  /// output file
-  ////////////
+  /////////////////////
+  //// output file ////
+  /////////////////////
 
   TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -116,8 +115,12 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   float  recoLeadAK4JetPt,recoLeadAK4JetEta,recoLeadAK4JetPhi,recoLeadAK4JetMass; // reco leading jet
   float  recoTrailingAK4JetPt,recoTrailingAK4JetEta,recoTrailingAK4JetPhi,recoTrailingAK4JetMass; // reco leading jet
   float  recoMjj, recoDetajj, recoDphijj;
+  float  xsec;
+  double sumwgt;
 
   outputTree->Branch("id",&id,"id/I");  // id = 0 means event not selections, id = 1 means mono-jet, id = 2 means mono-V, id = 3 means VBF 
+  outputTree->Branch("xsec",   &xsec,   "xsec/F");
+  outputTree->Branch("sumwgt",   &sumwgt,   "sumwgt/D");
 
   outputTree->Branch("genVBosonPt",   &genVBosonPt,   "genVBosonPt/F");  
   outputTree->Branch("genVBosonEta",  &genVBosonEta,  "genVBosonEta/F");  
@@ -162,7 +165,6 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   outputTree->Branch("genX2Phi", &genX2Phi, "genX2Phi/F");  
   outputTree->Branch("genX2Mass", &genX2Mass, "genX2Mass/F");  
   outputTree->Branch("genX2RealMass", &genX2RealMass, "genX2RealMass/F");  
-
   outputTree->Branch("genMetPt", &genMetPt, "genMetPt/F");  
   outputTree->Branch("genMetPhi", &genMetPhi, "genMetPhi/F");  
 
@@ -200,6 +202,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<unsigned int> nvtx (myReader,"nvtx");
   TTreeReaderValue<unsigned int> event (myReader,"event");
   TTreeReaderValue<float>  wgt        (myReader,"wgt");
+  TTreeReaderValue<float>  xs         (myReader,"xsec");
 
   TTreeReaderValue<UChar_t> hltm90    (myReader,"hltmet90");
   TTreeReaderValue<UChar_t> hltm100   (myReader,"hltmet100");
@@ -277,72 +280,62 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<float> genmet     (myReader,"genmet");
   TTreeReaderValue<float> genmetphi  (myReader,"genmetphi");
   TTreeReaderValue<float> jmmdphi    (myReader,"incjetmumetdphimin4");
- 
+  TTreeReaderValue<float> samplemedM (myReader,"samplemedM");
+  TTreeReaderValue<float> sampledmM (myReader,"sampledmM");
 
   // loop on the event and apply selections
   cout<<"Events in the chain "<<chain->GetEntries()<<endl;
 
-  TString fileName;
-  string dmMass;
-  string medMass;
-  vector<string> seglist;
   long int nEvents = 0;
   long int nTotal  = chain->GetEntries();
+  string currentFile = "";
+  int ifile = 0;
+
+  vector<double> sumwgt_vec;
+  cout<<"Calculate sumwgt vector "<<endl;
+  while(myReader.Next()){
+    if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      ifile ++;
+      sumwgt_vec.push_back(0.);
+    }
+    else if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      sumwgt_vec.push_back(0.);
+    }
+    sumwgt_vec.back() += *wgt;    
+  }
+  
+  myReader.SetEntry(0);
+  ifile = 0;
+  currentFile = "";
+
+  cout<<"Loop for event selection "<<endl;
   while(myReader.Next()){
  
     if(int(nEvents) %10000 == 0){
       std::cout.flush();
-      std::cout<<"\r"<<"Events "<<nEvents/nTotal*100<<"%";
+      std::cout<<"\r"<<"Events "<<float(nEvents)/float(nTotal)*100<<"%";
     }
     nEvents++;
-    // extract real mass value of the sample for the interpolation --> read the string of the tree-name
-    TString name_tmp(myReader.GetTree()->GetCurrentFile()->GetName());
-    name_tmp.ReplaceAll(inputDirectory.c_str(),"");
-    if(fileName != name_tmp){
-      seglist.clear();
-      fileName = name_tmp;
-      stringstream name(fileName.Data());
-      string segment;
-    
-      while(getline(name, segment, '/')){
-	seglist.push_back(segment);
-      }
-      
-      TString name_tmp_2 (seglist.at(0).c_str());
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-madgraph","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-JHUGen","");
-      name_tmp_2.ReplaceAll("_13TeV_powheg_pythia8","");
-      vector<string> seglist_2;
-      string segment_2;
-      stringstream name_2(name_tmp_2.Data());
-      if(interaction != "HiggsInv"){
-	while(getline(name_2, segment_2, '-')){
-	  seglist_2.push_back(segment_2);
-	}
-	dmMass = seglist_2.back();
-	TString tmp (seglist_2.at(seglist_2.size()-2).c_str());
-	tmp.ReplaceAll("_Mchi","");
-	medMass = tmp;
-      }
-      else{
-	while(getline(name_2, segment_2, '_')){
-          seglist_2.push_back(string(TString(segment_2).ReplaceAll("M","").Data()));
-        }
-        medMass = seglist_2.back();
-        dmMass  = "1";
-      }
+
+    if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      ifile ++;
+      cout<<endl;
+      cout<<"Reading current File "<<currentFile<<endl;
     }
-    
+    else if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      cout<<endl;
+      cout<<"Reading current file "<<currentFile<<endl;
+    }
+
 
     // Set Branches
-    id = -1;
-    
+    id = -1;    
+    sumwgt = 0;
+    xsec   = 0;
     genVBosonPt   = 0.; genVBosonEta  = 0.; genVBosonPhi  = 0.; genVBosonMass = 0.;
     genAK8JetPt   = 0.; genAK8JetEta  = 0.; genAK8JetPhi  = 0.; genAK8JetMass = 0.; 
     genAK8JetTau2Tau1 = 0.; genAK8JetPrunedMass = 0.;
@@ -438,6 +431,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     
     
     // fill branches
+    xsec = *xs;
+    sumwgt = sumwgt_vec.at(ifile);
     genVBosonPt   = *bosonPt;  
     genVBosonPhi  = *bosonPhi;  
     genVBosonEta  = *bosonEta;  
@@ -479,18 +474,18 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     genX1Eta  = *x1Eta;
     genX1Phi  = *x1Phi;
     genX1RealMass = *x1Mass;
-    genX1Mass = stod(dmMass);
+    genX1Mass = *sampledmM;
     genX2Pt   = *x2Pt;
     genX2Eta  = *x2Eta;
     genX2Phi  = *x2Phi;
     genX2RealMass = *x2Mass;
-    genX2Mass = stod(dmMass);
+    genX2Mass = *sampledmM;
 
     genMediatorPt   = *mediatorPt;
     genMediatorEta  = *mediatorEta;
     genMediatorPhi  = *mediatorPhi;
     genMediatorRealMass = *mediatorMass;
-    genMediatorMass = stod(medMass);
+    genMediatorMass = *samplemedM;
 
     pfMetPt   = *mmet;
     pfMetPhi  = *mmetphi;

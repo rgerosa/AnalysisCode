@@ -23,11 +23,16 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
   TH1* zw_pdf_unc = NULL;
   TH1* zw_ewk_unc = NULL;
   TH1* zw_qcdscale_unc = NULL;
-  TH1* zw_nloewk_unc = NULL;
-  TH1* zw_sudewk_unc = NULL;
-  TH1* zw_ewkqcd_unc = NULL;
+  TH1* zw_qcdshape_unc = NULL;
+  TH1* zw_qcdproc_unc = NULL;
+  TH1* zw_nnloewk_unc = NULL;
+  TH1* zw_nnlomiss1_unc = NULL;
+  TH1* zw_nnlomiss2_unc = NULL;
+  TH1* zw_sudakov1_unc = NULL;
+  TH1* zw_sudakov2_unc = NULL;
+  TH1* zw_mix_unc = NULL;
 
-  TCanvas* canvas = new TCanvas("canvas","",600,625);
+  TCanvas* canvas = new TCanvas("canvas","",600,600);
   canvas->SetTickx();
   canvas->SetTicky();
   canvas->cd();
@@ -107,74 +112,159 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
 
   }
   else{
-    zw_qcdscale_unc = (TH1*) inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str());
-    zw_nloewk_unc = (TH1*) inputFile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str());
-    zw_sudewk_unc = (TH1*) inputFile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str());
-    zw_ewkqcd_unc = (TH1*) inputFile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str());
+
+    zw_qcdscale_unc  = (TH1*) inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str());
+    zw_qcdshape_unc  = (TH1*) inputFile->FindObjectAny(("ZW_QCDShape_"+observable).c_str());
+    zw_qcdproc_unc   = (TH1*) inputFile->FindObjectAny(("ZW_QCDProcess_"+observable).c_str());
+    zw_nnloewk_unc   = (TH1*) inputFile->FindObjectAny(("ZW_NNLOEWK_"+observable).c_str());
+    zw_nnlomiss1_unc = (TH1*) inputFile->FindObjectAny(("ZW_NNLOMiss1_"+observable).c_str());
+    zw_nnlomiss2_unc = (TH1*) inputFile->FindObjectAny(("ZW_NNLOMiss2_"+observable).c_str());
+    zw_sudakov1_unc  = (TH1*) inputFile->FindObjectAny(("ZW_Sudakov1_"+observable).c_str());
+    zw_sudakov2_unc  = (TH1*) inputFile->FindObjectAny(("ZW_Sudakov2_"+observable).c_str());
+    zw_mix_unc       = (TH1*) inputFile->FindObjectAny(("ZW_MIX_"+observable).c_str());
+    zw_pdf_unc  = (TH1*) inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
 
     TH1* zw_qcdscale_unc_flip = flipHisto(zw_qcdscale_unc);
-    TH1* zw_nloewk_unc_flip = flipHisto(zw_nloewk_unc);
-    TH1* zw_sudewk_unc_flip = flipHisto(zw_sudewk_unc);
-    TH1* zw_ewkqcd_unc_flip = flipHisto(zw_ewkqcd_unc);
+    TH1* zw_qcdshape_unc_flip = flipHisto(zw_qcdshape_unc);
+    TH1* zw_qcdproc_unc_flip = flipHisto(zw_qcdproc_unc);
+    TH1* zw_nnloewk_unc_flip = flipHisto(zw_nnloewk_unc);
+    TH1* zw_nnlomiss1_unc_flip = flipHisto(zw_nnlomiss1_unc);
+    TH1* zw_nnlomiss2_unc_flip = flipHisto(zw_nnlomiss2_unc);
+    TH1* zw_sudakov1_unc_flip = flipHisto(zw_sudakov1_unc);
+    TH1* zw_sudakov2_unc_flip = flipHisto(zw_sudakov2_unc);
+    TH1* zw_mix_unc_flip = flipHisto(zw_mix_unc);
+    TH1* zw_pdf_unc_flip = flipHisto(zw_pdf_unc);
 
-    zw_qcdscale_unc->SetLineColor(kGreen+1);
-    zw_qcdscale_unc->SetLineWidth(2);
-    zw_qcdscale_unc_flip->SetLineColor(kGreen+1);
-    zw_qcdscale_unc_flip->SetLineWidth(2);
     zw_qcdscale_unc->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
-    zw_qcdscale_unc->GetXaxis()->SetTitleOffset(1.1);
+    zw_qcdscale_unc->GetXaxis()->SetTitleOffset(1.15);
     zw_qcdscale_unc->GetXaxis()->SetTitleSize(0.05);
     zw_qcdscale_unc->GetYaxis()->SetTitle("Z/W Variation/Nominal");
     zw_qcdscale_unc->GetYaxis()->SetTitleSize(0.045);
     zw_qcdscale_unc->GetYaxis()->SetTitleOffset(1.15);
+    
+    zw_qcdscale_unc->GetYaxis()->SetRangeUser(-0.03,0.05);
+    zw_qcdscale_unc->SetLineColor(kBlack);
+    zw_qcdscale_unc->SetLineWidth(2);
+    zw_qcdscale_unc_flip->SetLineColor(kBlack);
+    zw_qcdscale_unc_flip->SetLineWidth(2);
 
-    zw_qcdscale_unc->GetYaxis()->SetRangeUser(-0.06,0.06);
     zw_qcdscale_unc->Draw("hist");
     zw_qcdscale_unc_flip->Draw("hist same");
-    
-    zw_nloewk_unc_flip->SetLineColor(kRed);
-    zw_nloewk_unc_flip->SetLineWidth(2);
-    zw_nloewk_unc->SetLineColor(kRed);
-    zw_nloewk_unc->SetLineWidth(2);
-    
-    zw_nloewk_unc->Draw("hist same");
-    zw_nloewk_unc_flip->Draw("hist same");
+    CMS_lumi(canvas,"");
 
-    zw_sudewk_unc_flip->SetLineColor(kBlack);
-    zw_sudewk_unc_flip->SetLineWidth(2);
-    zw_sudewk_unc->SetLineColor(kBlack);
-    zw_sudewk_unc->SetLineWidth(2);
+    zw_qcdshape_unc->SetLineColor(kRed);
+    zw_qcdshape_unc->SetLineWidth(2);
+    zw_qcdshape_unc_flip->SetLineColor(kRed);
+    zw_qcdshape_unc_flip->SetLineWidth(2);
+    zw_qcdshape_unc->Draw("hist same");
+    zw_qcdshape_unc_flip->Draw("hist same");
 
-    zw_sudewk_unc->Draw("hist same");
-    zw_sudewk_unc_flip->Draw("hist same");
+    zw_qcdproc_unc->SetLineColor(kBlue);
+    zw_qcdproc_unc->SetLineWidth(2);
+    zw_qcdproc_unc_flip->SetLineColor(kBlue);
+    zw_qcdproc_unc_flip->SetLineWidth(2);
+    zw_qcdproc_unc->Draw("hist same");
+    zw_qcdproc_unc_flip->Draw("hist same");
 
-    zw_ewkqcd_unc_flip->SetLineColor(kBlue);
-    zw_ewkqcd_unc_flip->SetLineWidth(2);
-    zw_ewkqcd_unc->SetLineColor(kBlue);
-    zw_ewkqcd_unc->SetLineWidth(2);
+    zw_pdf_unc_flip->SetLineColor(kCyan);
+    zw_pdf_unc_flip->SetLineWidth(2);
+    zw_pdf_unc->SetLineColor(kCyan);
+    zw_pdf_unc->SetLineWidth(2);
+    zw_pdf_unc->Draw("hist same");
+    zw_pdf_unc_flip->Draw("hist same");
 
-    zw_ewkqcd_unc->Draw("hist same");
-    zw_ewkqcd_unc_flip->Draw("hist same");
-    
-    TLegend leg (0.2,0.8,0.7,0.9);
+    zw_mix_unc_flip->SetLineColor(kOrange+1);
+    zw_mix_unc_flip->SetLineWidth(2);
+    zw_mix_unc->SetLineColor(kOrange+1);
+    zw_mix_unc->SetLineWidth(2);
+    zw_mix_unc->Draw("hist same");
+    zw_mix_unc_flip->Draw("hist same");
+
+    TLegend leg (0.4,0.6,0.7,0.9);
     leg.SetFillColor(0);
     leg.SetFillStyle(0);
     leg.SetBorderSize(0);
-    leg.SetNColumns(2);
     leg.AddEntry(zw_qcdscale_unc,"QCD #mu_{r},#mu_{f}","L");
-    leg.AddEntry(zw_nloewk_unc,"NLO-EWK","L");
-    leg.AddEntry(zw_sudewk_unc,"NNLO Sudakov","L");
-    leg.AddEntry(zw_ewkqcd_unc,"QCD-EWK Mix","L");
+    leg.AddEntry(zw_qcdshape_unc,"QCD Shape","L");
+    leg.AddEntry(zw_qcdproc_unc,"QCD Process","L");
+    leg.AddEntry(zw_mix_unc,"QCD-EWK Mix","L");
+    leg.AddEntry(zw_pdf_unc,"PDF","L");
     leg.Draw("same");
 
-    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio.png").c_str(),"png");
-    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio_qcdPart.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio_qcdPart.pdf").c_str(),"pdf");
+
+
+    zw_nnloewk_unc->GetXaxis()->SetTitle("Boson p_{T} [GeV]");
+    zw_nnloewk_unc->GetXaxis()->SetTitleOffset(1.15);
+    zw_nnloewk_unc->GetXaxis()->SetTitleSize(0.05);
+    zw_nnloewk_unc->GetYaxis()->SetTitle("Z/W Variation/Nominal");
+    zw_nnloewk_unc->GetYaxis()->SetTitleSize(0.045);
+    zw_nnloewk_unc->GetYaxis()->SetTitleOffset(1.15);
+    zw_nnloewk_unc->GetYaxis()->SetRangeUser(-0.03,0.05);
+    zw_nnloewk_unc->Draw("hist");
+    zw_nnloewk_unc_flip->SetLineColor(kBlack);
+    zw_nnloewk_unc_flip->SetLineWidth(2);
+    zw_nnloewk_unc->SetLineColor(kBlack);
+    zw_nnloewk_unc->SetLineWidth(2);    
+    zw_nnloewk_unc_flip->Draw("hist same");
+    CMS_lumi(canvas,"");
+    
+
+    zw_sudakov1_unc_flip->SetLineColor(kRed);
+    zw_sudakov1_unc_flip->SetLineWidth(2);
+    zw_sudakov1_unc->SetLineColor(kRed);
+    zw_sudakov1_unc->SetLineWidth(2);
+    zw_sudakov1_unc->Draw("hist same");
+    zw_sudakov1_unc_flip->Draw("hist same");
+
+    zw_sudakov2_unc_flip->SetLineColor(kCyan);
+    zw_sudakov2_unc_flip->SetLineWidth(2);
+    zw_sudakov2_unc->SetLineColor(kCyan);
+    zw_sudakov2_unc->SetLineWidth(2);
+    zw_sudakov2_unc->Draw("hist same");
+    zw_sudakov2_unc_flip->Draw("hist same");
+
+    zw_nnlomiss1_unc_flip->SetLineColor(kBlue);
+    zw_nnlomiss1_unc_flip->SetLineWidth(2);
+    zw_nnlomiss1_unc->SetLineColor(kBlue);
+    zw_nnlomiss1_unc->SetLineWidth(2);
+    zw_nnlomiss1_unc->Draw("hist same");
+    zw_nnlomiss1_unc_flip->Draw("hist same");
+
+    zw_nnlomiss2_unc_flip->SetLineColor(kOrange+1);
+    zw_nnlomiss2_unc_flip->SetLineWidth(2);
+    zw_nnlomiss2_unc->SetLineColor(kOrange+1);
+    zw_nnlomiss2_unc->SetLineWidth(2);
+    zw_nnlomiss2_unc->Draw("hist same");
+    zw_nnlomiss2_unc_flip->Draw("hist same");
+
+    leg.Clear();
+    leg.SetFillColor(0);
+    leg.SetFillStyle(0);
+    leg.SetBorderSize(0);
+    leg.AddEntry(zw_nnloewk_unc,"N^{3}LO","L");
+    leg.AddEntry(zw_sudakov1_unc,"Sudakov 1","L");
+    leg.AddEntry(zw_sudakov2_unc,"Sudakov 2","L");
+    leg.AddEntry(zw_nnlomiss1_unc,"NNLO miss 1","L");
+    leg.AddEntry(zw_nnlomiss2_unc,"NNLO miss 2","L");
+    leg.Draw("same");
+
+    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio_ewkPart.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/thoeryUnc_ZW_ratio_ewkPart.pdf").c_str(),"pdf");
+
 
     TFile* theory_unc = new TFile("theory_unc_ZW.root","RECREATE");
     zw_qcdscale_unc->Write();
-    zw_nloewk_unc->Write();
-    zw_sudewk_unc->Write();
-    zw_ewkqcd_unc->Write();
+    zw_qcdshape_unc->Write();
+    zw_qcdproc_unc->Write();
+    zw_nnloewk_unc->Write();
+    zw_sudakov1_unc->Write();
+    zw_sudakov2_unc->Write();
+    zw_nnlomiss1_unc->Write();
+    zw_nnlomiss2_unc->Write();
+    zw_mix_unc->Write();
+    zw_pdf_unc->Write();
       
   }
 
