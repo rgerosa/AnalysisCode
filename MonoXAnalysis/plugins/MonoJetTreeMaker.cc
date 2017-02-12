@@ -1381,6 +1381,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
 	  couplingwgt.push_back(weights[i].wgt);
 	}
+	else if(weight_name.Contains("rwgt")) continue;
 	else if(qcdscale.size() != 0){ // qcd scale variations
 	  if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
 	    qcdscalewgt.push_back(weights[i].wgt);
