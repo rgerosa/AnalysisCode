@@ -1737,8 +1737,8 @@ void makegamcorhist( const string & znunuFile,
       reweight_zvv->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin)));
     
     kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
-    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("gam_pTV_K_NLO");
-    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_EW");
+    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("aj_pTV_K_NLO");
+    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("aj_pTV_kappa_EW");
     
     reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
     reweight_gam->Reset("ICES");
@@ -1790,7 +1790,7 @@ void makegamcorhist( const string & znunuFile,
     }
     else{
       // only QCD                                                                                                                                                                                     
-      if(kfact == 1){ zhists.push_back((TH1*) kffile->Get("vvj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("gam_pTV_K_NLO"));}
+      if(kfact == 1){ zhists.push_back((TH1*) kffile->Get("vvj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("aj_pTV_K_NLO"));}
       // QCD and EWK corrections                                                                                                                                                                    
       else if(kfact == 2){ zhists.push_back(reweight_zvv); ahists.push_back(reweight_gam);}
     }
@@ -2389,22 +2389,20 @@ void makewgamcorhist( const string & wlnuFile,
   else{
     kffile = TFile::Open(kFactorTheoristFile_wln.c_str());
     TH1* kfact_nloqcd_wln = (TH1*) kffile->Get("evj_pTV_K_NLO");
-    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloewk_wln = (TH1*) kffile->Get("evj_pTV_kappa_EW");
     reweight_wln = (TH1*) kfact_nloqcd_wln->Clone("reweight_wln");
     reweight_wln->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_wln->GetNbinsX(); iBin++)
-      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
+      reweight_wln->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
     
     kffile_alt = TFile::Open(kFactorTheoristFile_gam.c_str());
-    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("gam_pTV_K_NLO");
-    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NLO_EW");
-    TH1* kfact_sudewk_gam = (TH1*) kffile_alt->Get("gam_pTV_kappa_NNLO_Sud");
+    TH1* kfact_nloqcd_gam = (TH1*) kffile_alt->Get("aj_pTV_K_NLO");
+    TH1* kfact_nloewk_gam = (TH1*) kffile_alt->Get("aj_pTV_kappa_EW");
     
     reweight_gam = (TH1*) kfact_nloqcd_gam->Clone("reweight_gam");
     reweight_gam->Reset("ICES");
     for(int iBin = 1; iBin <= reweight_gam->GetNbinsX(); iBin++)
-      reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+      reweight_gam->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
   }
   
   TFile* kfactwjet_vbf = NULL;
@@ -2438,11 +2436,9 @@ void makewgamcorhist( const string & wlnuFile,
   TFile* fpfile = NULL;
 
   if(kfact == 1 or kfact == 2){
-    if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                     
-      
+    if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                    
       if (kfact == 1 and not nloSamples.useWJetsNLO)      whists.push_back(wnlohist);
       if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
-
       //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
       if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
       else if (kfact == 2 and nloSamples.useWJetsNLO) {whists.push_back(wewkhist);}
@@ -2450,8 +2446,8 @@ void makewgamcorhist( const string & wlnuFile,
       else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
     }
     else{
-      // only QCD                                                                                                                                                                                      
-      if(kfact == 1){ whists.push_back((TH1*) kffile->Get("evj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("gam_pTV_K_NLO"));}
+      // only QCD                                                                                                                                                                                 
+      if(kfact == 1){ whists.push_back((TH1*) kffile->Get("evj_pTV_K_NLO")); ahists.push_back((TH1*) kffile_alt->Get("aj_pTV_K_NLO"));}
       // QCD and EWK corrections                                                                                                                                                                    
       else if(kfact == 2){ ahists.push_back(reweight_wln); ahists.push_back(reweight_gam);}
     }
@@ -2459,189 +2455,308 @@ void makewgamcorhist( const string & wlnuFile,
   else{
 
     if(useNewTheoryUncertainty){
-
       // make systematics
       kffile_wln = TFile::Open(kFactorTheoristFile_wln.c_str());
-      TH1* kfact_loqcd_wln   = (TH1*) kffile_wln->Get("vvj_pTV_K_LO");
-      TH1* kfact_nloqcd_wln  = (TH1*) kffile_wln->Get("vvj_pTV_K_NLO");
-      TH1* dkfact_nloqcd_wln = (TH1*) kffile_wln->Get("vvj_pTV_d1K_NLO");
-      TH1* kfact_nloewk_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NLO_EW");
-      TH1* kfact_sudewk_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
-      TH1* kfact_qcdshape_wln = (TH1*) kffile_wln->Get("vvj_pTV_kappa_NNLO_Sud");
+      TH1* kfact_nloqcd_wln    = (TH1*) kffile_wln->Get("evj_pTV_K_NLO");
+      TH1* kfact_nloewk_wln    = (TH1*) kffile_wln->Get("evj_pTV_kappa_EW");
+      TH1* dkfact_qcdscale_wln = (TH1*) kffile_wln->Get("evj_pTV_d1K_NLO");
+      TH1* dkfact_qcdshape_wln = (TH1*) kffile_wln->Get("evj_pTV_d2K_NLO");
+      TH1* dkfact_qcdcorr_wln  = (TH1*) kffile_wln->Get("evj_pTV_d3K_NLO");
+      TH1* kfact_dnnloewk_wln  = (TH1*) kffile_wln->Get("evj_pTV_d1kappa_EW");
+      TH1* kfact_dnloewk_wln   = (TH1*) kffile_wln->Get("evj_pTV_d2kappa_EW");
+      TH1* kfact_dsudewk_wln   = (TH1*) kffile_wln->Get("evj_pTV_d3kappa_EW");
+      TH1* kfact_dmix_wln      = (TH1*) kffile_wln->Get("evj_pTV_dK_NLO_mix");
 
       kffile_gam = TFile::Open(kFactorTheoristFile_gam.c_str());
-      TH1* kfact_loqcd_gam  = (TH1*) kffile_gam->Get("gam_pTV_K_LO");
-      TH1* kfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_K_NLO");
-      TH1* dkfact_nloqcd_gam = (TH1*) kffile_gam->Get("gam_pTV_d1K_NLO");
-      TH1* kfact_nloewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NLO_EW");
-      TH1* kfact_sudewk_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
-      TH1* kfact_qcdshape_gam = (TH1*) kffile_gam->Get("gam_pTV_kappa_NNLO_Sud");
-      
-      if(kfact == 3){// QCD scale up
-	TH1* kfact_nloqcd_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_up");
-	kfact_nloqcd_wln_up->Reset("ICES");					
-	for(int iBin = 1; iBin <= kfact_nloqcd_wln_up->GetNbinsX(); iBin++)
-	  kfact_nloqcd_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_nloqcd_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_up");
-	kfact_nloqcd_gam_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_gam_up->GetNbinsX(); iBin++)
-	  kfact_nloqcd_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
-	
-	whists.push_back(kfact_nloqcd_wln_up);      
-	ahists.push_back(kfact_nloqcd_gam_up);
-      }
-      else if(kfact == 4){//QCD scale dw
-	TH1* kfact_nloqcd_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_nloqcd_wln_dw");
-	kfact_nloqcd_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_wln_dw->GetNbinsX(); iBin++)
-	  kfact_nloqcd_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_nloqcd_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_nloqcd_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_nloqcd_gam_dw");
-	kfact_nloqcd_gam_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloqcd_gam_dw->GetNbinsX(); iBin++)
-	  kfact_nloqcd_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_nloqcd_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
-	
-	whists.push_back(kfact_nloqcd_wln_dw);
-	ahists.push_back(kfact_nloqcd_gam_dw);      
-      }
-      else if(kfact == 5){ //NLO ewk up    
-	TH1* kfact_nloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_up");
-	kfact_nloewk_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_wln_up->GetNbinsX(); iBin++)
-	  kfact_nloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.1*kfact_nloewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_nloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_up");
-	kfact_nloewk_gam_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_gam_up->GetNbinsX(); iBin++)
-	  kfact_nloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.1*kfact_nloewk_gam->GetBinContent(iBin)));
-	
-	whists.push_back(kfact_nloewk_wln_up);
-	ahists.push_back(kfact_nloewk_gam_up);      
-      }
-      else if(kfact == 6){//NLO ewk dw
-	TH1* kfact_nloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_nloewk_wln_dw");
-	kfact_nloewk_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_wln_dw->GetNbinsX(); iBin++)
-	  kfact_nloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.1*kfact_nloewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_nloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_nloewk_gam_dw");
-	kfact_nloewk_gam_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_nloewk_gam_dw->GetNbinsX(); iBin++)
-	  kfact_nloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.1*kfact_nloewk_gam->GetBinContent(iBin)));
+      TH1* kfact_nloqcd_gam    = (TH1*) kffile_gam->Get("aj_pTV_K_NLO");
+      TH1* kfact_nloewk_gam    = (TH1*) kffile_gam->Get("aj_pTV_kappa_EW");
+      TH1* dkfact_qcdscale_gam = (TH1*) kffile_gam->Get("aj_pTV_d1K_NLO");
+      TH1* dkfact_qcdshape_gam = (TH1*) kffile_gam->Get("aj_pTV_d2K_NLO");
+      TH1* dkfact_qcdcorr_gam  = (TH1*) kffile_gam->Get("aj_pTV_d3K_NLO");
+      TH1* kfact_dnnloewk_gam  = (TH1*) kffile_gam->Get("aj_pTV_d1kappa_EW");
+      TH1* kfact_dnloewk_gam   = (TH1*) kffile_gam->Get("aj_pTV_d2kappa_EW");
+      TH1* kfact_dsudewk_gam   = (TH1*) kffile_gam->Get("aj_pTV_d3kappa_EW");
+      TH1* kfact_dmix_gam      = (TH1*) kffile_gam->Get("aj_pTV_dK_NLO_mix");
 
-	whists.push_back(kfact_nloewk_wln_dw);
-	ahists.push_back(kfact_nloewk_gam_dw);            
+      /// QCD Scale @NLO
+      if(kfact == 3){
+	TH1* kfact_qcdscale_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdscale_wln_up");
+	kfact_qcdscale_wln_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdscale_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdscale_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdscale_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdscale_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdscale_gam_up");
+	kfact_qcdscale_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdscale_gam_up->GetNbinsX(); iBin++)
+	  kfact_qcdscale_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_qcdscale_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_qcdscale_wln_up);      
+	ahists.push_back(kfact_qcdscale_gam_up);
       }
-      else if(kfact == 7){ // NLO sud up
-	TH1* kfact_sudewk_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_up");
-	kfact_sudewk_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_wln_up->GetNbinsX(); iBin++)
-	  kfact_sudewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)+0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
+      else if(kfact == 4){
+	TH1* kfact_qcdscale_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdscale_wln_dw");
+	kfact_qcdscale_wln_dw->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdscale_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdscale_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdscale_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdscale_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdscale_gam_dw");
+	kfact_qcdscale_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdscale_gam_dw->GetNbinsX(); iBin++)
+	  kfact_qcdscale_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_qcdscale_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
 	
-	TH1* kfact_sudewk_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_up");
-	kfact_sudewk_gam_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_gam_up->GetNbinsX(); iBin++)
-	  kfact_sudewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)+0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
-
-	whists.push_back(kfact_sudewk_wln_up);
-	ahists.push_back(kfact_sudewk_gam_up);            
-	
+	whists.push_back(kfact_qcdscale_wln_dw);      
+	ahists.push_back(kfact_qcdscale_gam_dw);
       }
-      else if(kfact == 8){// NLO sud dw
-	TH1* kfact_sudewk_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_sudewk_wln_dw");
-	kfact_sudewk_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_wln_dw->GetNbinsX(); iBin++)
-	  kfact_sudewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)-0.67*kfact_nloewk_wln->GetBinContent(iBin)*kfact_sudewk_wln->GetBinContent(iBin)));
-
-	TH1* kfact_sudewk_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_sudewk_gam_dw");
-	kfact_sudewk_gam_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_sudewk_gam_dw->GetNbinsX(); iBin++)
-	  kfact_sudewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)-0.67*kfact_nloewk_gam->GetBinContent(iBin)*kfact_sudewk_gam->GetBinContent(iBin)));
-	
-	whists.push_back(kfact_sudewk_wln_dw);
-	ahists.push_back(kfact_sudewk_gam_dw);            
-      }
-      else if(kfact == 9){ // QCD-EWK mix up
-	TH1* kfact_ewkqcd_wln_up = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_up");
-	kfact_ewkqcd_wln_up->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_wln_up->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)+0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
-	
-	TH1* kfact_ewkqcd_gam_up = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_up");
-	kfact_ewkqcd_gam_up->Reset("ICES");
-	for(int iBin = 1; iBin < kfact_ewkqcd_gam_up->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)+0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
-	
-	whists.push_back(kfact_ewkqcd_wln_up);
-	ahists.push_back(kfact_ewkqcd_gam_up);            	
-      }
-      else if(kfact == 10){ // QCD-EWK mix dw
-	TH1* kfact_ewkqcd_wln_dw = (TH1*) kfact_sudewk_wln->Clone("kfact_ewkqcd_wln_dw");
-	kfact_ewkqcd_wln_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_wln_dw->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_loqcd_wln->GetBinContent(iBin)/(kfact_loqcd_wln->GetBinContent(iBin)-0.5*(kfact_nloqcd_wln->GetBinContent(iBin)-kfact_loqcd_wln->GetBinContent(iBin)))*(kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin))));
-	
-	TH1* kfact_ewkqcd_gam_dw = (TH1*) kfact_sudewk_gam->Clone("kfact_ewkqcd_gam_dw");
-	kfact_ewkqcd_gam_dw->Reset("ICES");
-	for(int iBin = 1; iBin <= kfact_ewkqcd_gam_dw->GetNbinsX(); iBin++)
-	  kfact_ewkqcd_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_loqcd_gam->GetBinContent(iBin)/(kfact_loqcd_gam->GetBinContent(iBin)-0.5*(kfact_nloqcd_gam->GetBinContent(iBin)-kfact_loqcd_gam->GetBinContent(iBin)))*(kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin))));
-	
-	whists.push_back(kfact_ewkqcd_wln_dw);
-	ahists.push_back(kfact_ewkqcd_gam_dw);            	
-      }
-
-      else if(kfact == 11){ // qcdshape
-	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_up");
-	kfact_qcdshape_wln_up->Reset("ICES");
+      /// QCD Shape @NLO
+      else if(kfact == 5){ //QCD shape up
+	TH1* kfact_qcdshape_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdshape_wln_up");
+	kfact_qcdshape_wln_up->Reset("ICES");					
 	for(int iBin = 1; iBin <= kfact_qcdshape_wln_up->GetNbinsX(); iBin++)
-	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_up->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_qcdshape_gam_up = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_up");
+	  kfact_qcdshape_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdshape_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdshape_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdshape_gam_up");
 	kfact_qcdshape_gam_up->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_qcdshape_gam_up->GetNbinsX(); iBin++)
-	  kfact_qcdshape_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_up->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	  kfact_qcdshape_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_qcdshape_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
 	
-	whists.push_back(kfact_qcdshape_wln_up);
-	ahists.push_back(kfact_qcdshape_gam_up);                   
+	whists.push_back(kfact_qcdshape_wln_up);      
+	ahists.push_back(kfact_qcdshape_gam_up);
       }
-
-      else if(kfact == 12){ // qcdshape
-	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_qcdshape_wln->Clone("kfact_qcdshape_wln_dw");
-	kfact_qcdshape_wln_dw->Reset("ICES");
+      else if(kfact == 6){ 
+	TH1* kfact_qcdshape_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdshape_wln_dw");
+	kfact_qcdshape_wln_dw->Reset("ICES");					
 	for(int iBin = 1; iBin <= kfact_qcdshape_wln_dw->GetNbinsX(); iBin++)
-	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+kfact_qcdshape_wln_dw->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_sudewk_wln->GetBinContent(iBin)));
-	
-	TH1* kfact_qcdshape_gam_dw = (TH1*) kfact_qcdshape_gam->Clone("kfact_qcdshape_gam_dw");
+	  kfact_qcdshape_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdshape_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdshape_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdshape_gam_dw");
 	kfact_qcdshape_gam_dw->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_qcdshape_gam_dw->GetNbinsX(); iBin++)
-	  kfact_qcdshape_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+kfact_qcdshape_gam_dw->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_sudewk_gam->GetBinContent(iBin)));
+	  kfact_qcdshape_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_qcdshape_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
 	
-	whists.push_back(kfact_qcdshape_wln_dw);
-	ahists.push_back(kfact_qcdshape_gam_dw);                   
+	whists.push_back(kfact_qcdshape_wln_dw);      
+	ahists.push_back(kfact_qcdshape_gam_dw);
+      }
+      /// QCD Process
+      else if(kfact == 7){ //QCD process-dependent up
+	TH1* kfact_qcdcorr_wln_up = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdcorr_wln_up");
+	kfact_qcdcorr_wln_up->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdcorr_wln_up->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_wln_up->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)+dkfact_qcdcorr_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdcorr_gam_up = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdcorr_gam_up");
+	kfact_qcdcorr_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdcorr_gam_up->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_gam_up->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)+dkfact_qcdcorr_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_qcdcorr_wln_up);      
+	ahists.push_back(kfact_qcdcorr_gam_up);
+      }
+      else if(kfact == 8){ //QCD process-dependent dw
+	TH1* kfact_qcdcorr_wln_dw = (TH1*) kfact_nloqcd_wln->Clone("kfact_qcdcorr_wln_dw");
+	kfact_qcdcorr_wln_dw->Reset("ICES");					
+	for(int iBin = 1; iBin <= kfact_qcdcorr_wln_dw->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_wln_dw->SetBinContent(iBin,(kfact_nloqcd_wln->GetBinContent(iBin)-dkfact_qcdcorr_wln->GetBinContent(iBin))*(1+kfact_nloewk_wln->GetBinContent(iBin)));	
+	TH1* kfact_qcdcorr_gam_dw = (TH1*) kfact_nloqcd_gam->Clone("kfact_qcdcorr_gam_dw");
+	kfact_qcdcorr_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_qcdcorr_gam_dw->GetNbinsX(); iBin++)
+	  kfact_qcdcorr_gam_dw->SetBinContent(iBin,(kfact_nloqcd_gam->GetBinContent(iBin)-dkfact_qcdcorr_gam->GetBinContent(iBin))*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_qcdcorr_wln_dw);      
+	ahists.push_back(kfact_qcdcorr_gam_dw);
+      }
+      /// EWK beyond NNLO
+      else if(kfact == 9){
+	TH1* kfact_nnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_nnloewk_wln_up");
+	kfact_nnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_nnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dnnloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nnloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_nnloewk_gam_up");
+	kfact_nnloewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_nnloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_dnnloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_nnloewk_wln_up);
+	ahists.push_back(kfact_nnloewk_gam_up);            
       }
 
-      else if(kfact == 13){ // PDF unc
+      else if(kfact == 10){
+	TH1* kfact_nnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_nnloewk_wln_dw");
+	kfact_nnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_nnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dnnloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_nnloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_nnloewk_gam_dw");
+	kfact_nnloewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_nnloewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_nnloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)-kfact_dnnloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_nnloewk_wln_dw);
+	ahists.push_back(kfact_nnloewk_gam_dw);            
+      }
+
+      /// EWK missing NNLO --> uncorrelated between processes
+      else if(kfact == 11){
+	TH1* kfact_missnnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_up_1");
+	kfact_missnnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dnloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_missnnloewk_gam_up_1");
+	kfact_missnnloewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_missnnloewk_wln_up);
+	ahists.push_back(kfact_missnnloewk_gam_up);            
+      }
+
+      else if(kfact == 12){
+	TH1* kfact_missnnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_dw_1");
+	kfact_missnnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dnloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_missnnloewk_gam_dw_1");
+	kfact_missnnloewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_missnnloewk_wln_dw);
+	ahists.push_back(kfact_missnnloewk_gam_dw);            
+      }
+
+      else if(kfact == 13){
+	TH1* kfact_missnnloewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_up_2");
+	kfact_missnnloewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_missnnloewk_gam_up_2");
+	kfact_missnnloewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_dnloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_missnnloewk_wln_up);
+	ahists.push_back(kfact_missnnloewk_gam_up);            
+      }
+
+      else if(kfact == 14){
+	TH1* kfact_missnnloewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_missnnloewk_wln_dw_2");
+	kfact_missnnloewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_missnnloewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_missnnloewk_gam_dw_2");
+	kfact_missnnloewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_missnnloewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_missnnloewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)-kfact_dnloewk_gam->GetBinContent(iBin)));
+
+	whists.push_back(kfact_missnnloewk_wln_dw);
+	ahists.push_back(kfact_missnnloewk_gam_dw);            
+      }
+
+      // SUDAKOV EWK
+      else if(kfact == 15){
+	TH1* kfact_sudakovewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_up_1");
+	kfact_sudakovewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)+kfact_dsudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_sudakovewk_gam_up_1");
+	kfact_sudakovewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_sudakovewk_wln_up);
+	ahists.push_back(kfact_sudakovewk_gam_up);            
+      }
+      else if(kfact == 16){
+	TH1* kfact_sudakovewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_dw_1");
+	kfact_sudakovewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)-kfact_dsudewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_sudakovewk_gam_dw_1");
+	kfact_sudakovewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_sudakovewk_wln_dw);
+	ahists.push_back(kfact_sudakovewk_gam_dw);            
+      }
+
+      else if(kfact == 17){
+	TH1* kfact_sudakovewk_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_up_2");
+	kfact_sudakovewk_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_sudakovewk_gam_up_2");
+	kfact_sudakovewk_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_gam_up->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)+kfact_dsudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_sudakovewk_wln_up);
+	ahists.push_back(kfact_sudakovewk_gam_up);            
+      }
+      else if(kfact == 18){
+	TH1* kfact_sudakovewk_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_sudakovewk_wln_dw");
+	kfact_sudakovewk_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_wln_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin)));
+	
+	TH1* kfact_sudakovewk_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_sudakovewk_gam_dw");
+	kfact_sudakovewk_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_sudakovewk_gam_dw->GetNbinsX(); iBin++)
+	  kfact_sudakovewk_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin)-kfact_dsudewk_gam->GetBinContent(iBin)));
+	
+	whists.push_back(kfact_sudakovewk_wln_dw);
+	ahists.push_back(kfact_sudakovewk_gam_dw);            
+      }
+      
+      // MIX EWK-QCD
+      else if(kfact == 19){
+	TH1* kfact_mix_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_up");
+	kfact_mix_wln_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_wln_up->GetNbinsX(); iBin++)
+	  kfact_mix_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))+0.1*kfact_dmix_wln->GetBinContent(iBin));
+	
+	TH1* kfact_mix_gam_up = (TH1*) kfact_nloewk_gam->Clone("kfact_mix_gam_up");
+	kfact_mix_gam_up->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_gam_up->GetNbinsX(); iBin++)
+	  kfact_mix_gam_up->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin))+0.1*kfact_dmix_gam->GetBinContent(iBin));
+	
+	whists.push_back(kfact_mix_wln_up);
+	ahists.push_back(kfact_mix_gam_up);            
+      }
+
+      else if(kfact == 20){
+	TH1* kfact_mix_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_dw");
+	kfact_mix_wln_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_wln_dw->GetNbinsX(); iBin++)
+	  kfact_mix_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))-0.1*kfact_dmix_wln->GetBinContent(iBin));
+	
+	TH1* kfact_mix_gam_dw = (TH1*) kfact_nloewk_gam->Clone("kfact_mix_gam_dw");
+	kfact_mix_gam_dw->Reset("ICES");
+	for(int iBin = 1; iBin <= kfact_mix_gam_dw->GetNbinsX(); iBin++)
+	  kfact_mix_gam_dw->SetBinContent(iBin,kfact_nloqcd_gam->GetBinContent(iBin)*(1+kfact_nloewk_gam->GetBinContent(iBin))-0.1*kfact_dmix_gam->GetBinContent(iBin));
+	
+	whists.push_back(kfact_mix_wln_dw);
+	ahists.push_back(kfact_mix_gam_dw);            
+      }
+      
+      else if(kfact == 21){ // PDF unc
 
 	kffileUnc =  TFile::Open(kfactorFileUnc.c_str());
 	TH1* wpdfhist = (TH1*) kffileUnc->Get("wnlo012/wnlo012_pdfUp");
 	TH1* wnloOrig = (TH1*) kffileUnc->Get("wnlo012/wnlo012_nominal");  
 	wpdfhist->Divide(wnloOrig);
 	TH1* apdfhist = (TH1*) kffileUnc->Get("anlo1/anlo1_pdfUp");
+	TH1* anloOrig = (TH1*) kffileUnc->Get("anlo1/anlo1_nominal");
+	apdfhist->Divide(anloOrig);
 	whists.push_back(wnlohist); 	
 	whists.push_back(wpdfhist);
-	ahists.push_back(wpdfhist);
-      }
-      
-      else if(kfact == 14){ // PDF unc
-	fpfile = TFile::Open(fPfile.c_str());
-	TH1* afpchist = (TH1*)fpfile->Get("FP_Down");
-	// ZNLO QCD and Gamma NLO QCD + FP             
-	whists.push_back(wnlohist);
-	ahists.push_back(anlohist); 
-	whists.push_back(afpchist);
-      }                  
+	ahists.push_back(anlohist);
+	ahists.push_back(apdfhist);
+      }      
     }
+
     else{
 
       // take open loop hitogram                                                                                                                                                    

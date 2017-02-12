@@ -24,6 +24,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 				  TFile & outputFile, // output file
 				  const string & outDir,  // output directory
 				  const Category & category,
+				  const bool & addZWratio,
 				  const bool & addZgamma,
 				  const bool & addWgamma, 
 				  const bool & addTop, 
@@ -118,7 +119,8 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     }
   }
 
-  // QCD, EWK, factm re and footprint on W/gamma                                                                                                                                                      
+
+  // QCD, EWK, factm re and footprint on W/gamma                                                                                                                                                    
   TFile* wgamcorqcdfile = NULL;
   TFile* wgamcorewkfile = NULL;
   TFile* wgamcorre1file = NULL;
@@ -129,14 +131,22 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   TFile* wgamcorfpcfile = NULL;
   TFile* wgamcorqcdscaleupfile = NULL;
   TFile* wgamcorqcdscaledwfile = NULL;
-  TFile* wgamcornloewkupfile = NULL;
-  TFile* wgamcornloewkdwfile = NULL;
-  TFile* wgamcorsudewkupfile = NULL;
-  TFile* wgamcorsudewkdwfile = NULL;
-  TFile* wgamcorewkqcdupfile = NULL;
-  TFile* wgamcorewkqcddwfile = NULL;
   TFile* wgamcorqcdshapeupfile = NULL;
   TFile* wgamcorqcdshapedwfile = NULL;
+  TFile* wgamcorqcdprocupfile = NULL;
+  TFile* wgamcorqcdprocdwfile = NULL;
+  TFile* wgamcornnloewkupfile = NULL;
+  TFile* wgamcornnloewkdwfile = NULL;
+  TFile* wgamcorsudakovupfile_1 = NULL;
+  TFile* wgamcorsudakovdwfile_1 = NULL;
+  TFile* wgamcorsudakovupfile_2 = NULL;
+  TFile* wgamcorsudakovdwfile_2 = NULL;
+  TFile* wgamcornnlomissupfile_1 = NULL;
+  TFile* wgamcornnlomissdwfile_1 = NULL;
+  TFile* wgamcornnlomissupfile_2 = NULL;
+  TFile* wgamcornnlomissdwfile_2 = NULL;
+  TFile* wgamcormixupfile = NULL;
+  TFile* wgamcormixdwfile = NULL;
 
   if(addWgamma){
     if(not useNewTheoryUncertainty){
@@ -150,24 +160,34 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
       wgamcorfpcfile = TFile::Open((outDir+"/wgamcorfpc"+ext+".root").c_str());
     }
     else{
+      wgamcorewkfile = TFile::Open((outDir+"/wgamcorewk"+ext+".root").c_str());
+      wgamcorqcdfile = TFile::Open((outDir+"/wgamcorqcd"+ext+".root").c_str());
       wgamcorpdffile = TFile::Open((outDir+"/wgamcorpdf"+ext+".root").c_str());
-      wgamcorfpcfile = TFile::Open((outDir+"/wgamcorfpc"+ext+".root").c_str());
-      wgamcorqcdscaleupfile = TFile::Open((outDir+"/zwjcorqcd_scaledw"+ext+".root").c_str());
-      wgamcorqcdscaledwfile = TFile::Open((outDir+"/zwjcorqcd_scaledw"+ext+".root").c_str());
-      wgamcornloewkupfile = TFile::Open((outDir+"/zwjcornloewk_up"+ext+".root").c_str());
-      wgamcornloewkdwfile = TFile::Open((outDir+"/zwjcornloewk_dw"+ext+".root").c_str());
-      wgamcorsudewkupfile = TFile::Open((outDir+"/zwjcorsudewk_up"+ext+".root").c_str());
-      wgamcorsudewkdwfile = TFile::Open((outDir+"/zwjcorsudewk_dw"+ext+".root").c_str());
-      wgamcorewkqcdupfile = TFile::Open((outDir+"/zwjcorewkqcd_up"+ext+".root").c_str());
-      wgamcorewkqcddwfile = TFile::Open((outDir+"/zwjcorewkqcd_dw"+ext+".root").c_str());
-      wgamcorqcdshapeupfile = TFile::Open((outDir+"/zwjcorqcdshape_up"+ext+".root").c_str());
-      wgamcorqcdshapedwfile = TFile::Open((outDir+"/zwjcorqcdshape_dw"+ext+".root").c_str());
+      wgamcorqcdscaleupfile = TFile::Open((outDir+"/wgamcorqcdscale_up"+ext+".root").c_str());
+      wgamcorqcdscaledwfile = TFile::Open((outDir+"/wgamcorqcdscale_dw"+ext+".root").c_str());
+      wgamcorqcdshapeupfile = TFile::Open((outDir+"/wgamcorqcdshape_up"+ext+".root").c_str());
+      wgamcorqcdshapedwfile = TFile::Open((outDir+"/wgamcorqcdshape_dw"+ext+".root").c_str());
+      wgamcorqcdprocupfile = TFile::Open((outDir+"/wgamcorqcdproc_up"+ext+".root").c_str());
+      wgamcorqcdprocdwfile = TFile::Open((outDir+"/wgamcorqcdproc_dw"+ext+".root").c_str());
+      wgamcornnloewkupfile = TFile::Open((outDir+"/wgamcornnloewk_up"+ext+".root").c_str());
+      wgamcornnloewkdwfile = TFile::Open((outDir+"/wgamcornnloewk_dw"+ext+".root").c_str());
+      wgamcorsudakovupfile_1 = TFile::Open((outDir+"/wgamcorsudakov_up_1"+ext+".root").c_str());
+      wgamcorsudakovdwfile_1 = TFile::Open((outDir+"/wgamcorsudakov_dw_1"+ext+".root").c_str());
+      wgamcorsudakovupfile_2 = TFile::Open((outDir+"/wgamcorsudakov_up_2"+ext+".root").c_str());
+      wgamcorsudakovdwfile_2 = TFile::Open((outDir+"/wgamcorsudakov_dw_2"+ext+".root").c_str());
+      wgamcornnlomissupfile_1 = TFile::Open((outDir+"/wgamcornnlomiss_up_1"+ext+".root").c_str());
+      wgamcornnlomissdwfile_1 = TFile::Open((outDir+"/wgamcornnlomiss_dw_1"+ext+".root").c_str());
+      wgamcornnlomissupfile_2 = TFile::Open((outDir+"/wgamcornnlomiss_up_2"+ext+".root").c_str());
+      wgamcornnlomissdwfile_2 = TFile::Open((outDir+"/wgamcornnlomiss_dw_2"+ext+".root").c_str());
+      wgamcormixupfile = TFile::Open((outDir+"/wgamcormix_up"+ext+".root").c_str());
+      wgamcormixdwfile = TFile::Open((outDir+"/wgamcormix_dw"+ext+".root").c_str());
     }
   }
 
+
   // QCD, EWK, factm re and footprint on Z/W                                                                                                                                                          
-  TFile* zwjcorqcdfile = TFile::Open((outDir+"/zwjcorqcd"+ext+".root").c_str());
-  TFile* zwjcorewkfile = TFile::Open((outDir+"/zwjcorewk"+ext+".root").c_str());
+  TFile* zwjcorqcdfile = NULL;
+  TFile* zwjcorewkfile = NULL;
   TFile* zwjcorre1file = NULL;
   TFile* zwjcorfa1file = NULL;
   TFile* zwjcorre2file = NULL;
@@ -195,42 +215,47 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   TFile* zwjcormixupfile = NULL;
   TFile* zwjcormixdwfile = NULL;
 
-  if(not useNewTheoryUncertainty){
-    zwjcorre1file = TFile::Open((outDir+"/zwjcorre1"+ext+".root").c_str());
-    zwjcorfa1file = TFile::Open((outDir+"/zwjcorfa1"+ext+".root").c_str());
-    zwjcorre2file = TFile::Open((outDir+"/zwjcorre2"+ext+".root").c_str());
-    zwjcorfa2file = TFile::Open((outDir+"/zwjcorfa2"+ext+".root").c_str());
-    zwjcorpdffile = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
+  if(addZWratio){
+    if(not useNewTheoryUncertainty){
+      zwjcorqcdfile = TFile::Open((outDir+"/zwjcorqcd"+ext+".root").c_str());
+      zwjcorewkfile = TFile::Open((outDir+"/zwjcorewk"+ext+".root").c_str());
+      zwjcorre1file = TFile::Open((outDir+"/zwjcorre1"+ext+".root").c_str());
+      zwjcorfa1file = TFile::Open((outDir+"/zwjcorfa1"+ext+".root").c_str());
+      zwjcorre2file = TFile::Open((outDir+"/zwjcorre2"+ext+".root").c_str());
+      zwjcorfa2file = TFile::Open((outDir+"/zwjcorfa2"+ext+".root").c_str());
+      zwjcorpdffile = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
+    }
+    else{
+      zwjcorqcdfile = TFile::Open((outDir+"/zwjcorqcd"+ext+".root").c_str());
+      zwjcorewkfile = TFile::Open((outDir+"/zwjcorewk"+ext+".root").c_str());
+      
+      zwjcorqcdscaleupfile = TFile::Open((outDir+"/zwjcorqcd_scaleup"+ext+".root").c_str());
+      zwjcorqcdscaledwfile = TFile::Open((outDir+"/zwjcorqcd_scaledw"+ext+".root").c_str());
+      
+      zwjcorqcdshapeupfile = TFile::Open((outDir+"/zwjcorqcdshape_up"+ext+".root").c_str());
+      zwjcorqcdshapedwfile = TFile::Open((outDir+"/zwjcorqcdshape_dw"+ext+".root").c_str());
+      
+      zwjcorqcdprocupfile  = TFile::Open((outDir+"/zwjcorqcdproc_up"+ext+".root").c_str());
+      zwjcorqcdprocdwfile  = TFile::Open((outDir+"/zwjcorqcdproc_dw"+ext+".root").c_str());
+      
+      zwjcornnloewkupfile = TFile::Open((outDir+"/zwjcornnloewk_up"+ext+".root").c_str());
+      zwjcornnloewkdwfile = TFile::Open((outDir+"/zwjcornnloewk_dw"+ext+".root").c_str());
+      
+      zwjcornnlomissupfile_1 = TFile::Open((outDir+"/zwjcornnlomiss_up_1"+ext+".root").c_str());
+      zwjcornnlomissupfile_2 = TFile::Open((outDir+"/zwjcornnlomiss_up_2"+ext+".root").c_str());
+      zwjcornnlomissdwfile_1 = TFile::Open((outDir+"/zwjcornnlomiss_dw_1"+ext+".root").c_str());
+      zwjcornnlomissdwfile_2 = TFile::Open((outDir+"/zwjcornnlomiss_dw_2"+ext+".root").c_str());
+      
+      zwjcorsudakovupfile_1 = TFile::Open((outDir+"/zwjcorsudakov_up_1"+ext+".root").c_str());
+      zwjcorsudakovupfile_2 = TFile::Open((outDir+"/zwjcorsudakov_up_2"+ext+".root").c_str());
+      zwjcorsudakovdwfile_1 = TFile::Open((outDir+"/zwjcorsudakov_dw_1"+ext+".root").c_str());
+      zwjcorsudakovdwfile_2 = TFile::Open((outDir+"/zwjcorsudakov_dw_2"+ext+".root").c_str());
+      
+      zwjcormixupfile = TFile::Open((outDir+"/zwjcormix_up"+ext+".root").c_str());
+      zwjcormixdwfile = TFile::Open((outDir+"/zwjcormix_dw"+ext+".root").c_str());
+      zwjcorpdffile   = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
+    }
   }
-  else{
-
-    zwjcorqcdscaleupfile = TFile::Open((outDir+"/zwjcorqcd_scaleup"+ext+".root").c_str());
-    zwjcorqcdscaledwfile = TFile::Open((outDir+"/zwjcorqcd_scaledw"+ext+".root").c_str());
-
-    zwjcorqcdshapeupfile = TFile::Open((outDir+"/zwjcorqcdshape_up"+ext+".root").c_str());
-    zwjcorqcdshapedwfile = TFile::Open((outDir+"/zwjcorqcdshape_dw"+ext+".root").c_str());
-
-    zwjcorqcdprocupfile  = TFile::Open((outDir+"/zwjcorqcdproc_up"+ext+".root").c_str());
-    zwjcorqcdprocdwfile  = TFile::Open((outDir+"/zwjcorqcdproc_dw"+ext+".root").c_str());
-
-    zwjcornnloewkupfile = TFile::Open((outDir+"/zwjcornnloewk_up"+ext+".root").c_str());
-    zwjcornnloewkdwfile = TFile::Open((outDir+"/zwjcornnloewk_dw"+ext+".root").c_str());
-
-    zwjcornnlomissupfile_1 = TFile::Open((outDir+"/zwjcornnlomiss_up_1"+ext+".root").c_str());
-    zwjcornnlomissupfile_2 = TFile::Open((outDir+"/zwjcornnlomiss_up_2"+ext+".root").c_str());
-    zwjcornnlomissdwfile_1 = TFile::Open((outDir+"/zwjcornnlomiss_dw_1"+ext+".root").c_str());
-    zwjcornnlomissdwfile_2 = TFile::Open((outDir+"/zwjcornnlomiss_dw_2"+ext+".root").c_str());
-
-    zwjcorsudakovupfile_1 = TFile::Open((outDir+"/zwjcorsudakov_up_1"+ext+".root").c_str());
-    zwjcorsudakovupfile_2 = TFile::Open((outDir+"/zwjcorsudakov_up_2"+ext+".root").c_str());
-    zwjcorsudakovdwfile_1 = TFile::Open((outDir+"/zwjcorsudakov_dw_1"+ext+".root").c_str());
-    zwjcorsudakovdwfile_2 = TFile::Open((outDir+"/zwjcorsudakov_dw_2"+ext+".root").c_str());
-
-    zwjcormixupfile = TFile::Open((outDir+"/zwjcormix_up"+ext+".root").c_str());
-    zwjcormixdwfile = TFile::Open((outDir+"/zwjcormix_dw"+ext+".root").c_str());
-    zwjcorpdffile   = TFile::Open((outDir+"/zwjcorpdf"+ext+".root").c_str());
-  }
-
   // Top btag up and down                                                                                                                                                                             
   TFile* topmucorbupfile   = NULL;
   TFile* topmucorbdownfile = NULL;
@@ -292,18 +317,25 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   vector<TH1*> zwjcorsudakovuphist_1_den, zwjcorsudakovdwhist_1_den, zwjcorsudakovuphist_2_den,   zwjcorsudakovdwhist_2_den;
   vector<TH1*> zwjcormixuphist_den, zwjcormixdwhist_den;
   
-  
-  ///
+  ///W/wgamma
   vector<TH1*> wgamcorewkhist, wgamcorqcdhist, wgamcorre1hist, wgamcorfa1hist, wgamcorre2hist, wgamcorfa2hist, wgamcorpdfhist, wgamcorfpchist;
-  vector<TH1*> wgamcorqcdscaleuphist, wgamcorqcdscaledwhist, wgamcornloewkuphist, wgamcornloewkdwhist, wgamcorsudewkuphist, wgamcorsudewkdwhist, wgamcorewkqcduphist, wgamcorewkqcddwhist;
-  vector<TH1*> wgamcorqcdshapeuphist, wgamcorqcdshapedwhist;
+  vector<TH1*> wgamcorewkhist_num, wgamcorqcdhist_num, wgamcorre1hist_num, wgamcorfa1hist_num, wgamcorre2hist_num, wgamcorpdfhist_num, wgamcorfa2hist_num, wgamcorfpchist_num;
+  vector<TH1*> wgamcorewkhist_den, wgamcorqcdhist_den, wgamcorre1hist_den, wgamcorfa1hist_den, wgamcorre2hist_den, wgamcorpdfhist_den, wgamcorfa2hist_den, wgamcorfpchist_den;
 
-  vector<TH1*> wgamcorewkhist_num, wgamcorqcdhist_num, wgamcorre1hist_num, wgamcorfa1hist_num, wgamcorre2hist_num, wgamcorfa2hist_num, wgamcorpdfhist_num, wgamcorfpchist_num;
-  vector<TH1*> wgamcorewkhist_den, wgamcorqcdhist_den, wgamcorre1hist_den, wgamcorfa1hist_den, wgamcorre2hist_den, wgamcorfa2hist_den, wgamcorpdfhist_den, wgamcorfpchist_den;
-  vector<TH1*> wgamcorqcdscaleuphist_num, wgamcorqcdscaledwhist_num, wgamcornloewkuphist_num, wgamcornloewkdwhist_num, wgamcorsudewkuphist_num, wgamcorsudewkdwhist_num;
-  vector<TH1*> wgamcorewkqcduphist_num, wgamcorewkqcddwhist_num, wgamcorqcdshapeuphist_num, wgamcorqcdshapedwhist_num;
-  vector<TH1*> wgamcorqcdscaleuphist_den, wgamcorqcdscaledwhist_den, wgamcornloewkuphist_den, wgamcornloewkdwhist_den, wgamcorsudewkuphist_den, wgamcorsudewkdwhist_den;
-  vector<TH1*> wgamcorewkqcduphist_den, wgamcorewkqcddwhist_den, wgamcorqcdshapeuphist_den, wgamcorqcdshapedwhist_den;
+  vector<TH1*> wgamcorqcdscaleuphist, wgamcorqcdscaledwhist, wgamcorqcdshapeuphist, wgamcorqcdshapedwhist, wgamcorqcdprocuphist, wgamcorqcdprocdwhist;
+  vector<TH1*> wgamcornnloewkuphist, wgamcornnloewkdwhist, wgamcornnlomissuphist_1, wgamcornnlomissuphist_2, wgamcornnlomissdwhist_1, wgamcornnlomissdwhist_2;
+  vector<TH1*> wgamcorsudakovuphist_1, wgamcorsudakovdwhist_1, wgamcorsudakovuphist_2, wgamcorsudakovdwhist_2;
+  vector<TH1*> wgamcormixuphist, wgamcormixdwhist;
+
+  vector<TH1*> wgamcorqcdscaleuphist_num, wgamcorqcdscaledwhist_num, wgamcorqcdshapeuphist_num,   wgamcorqcdshapedwhist_num,   wgamcorqcdprocuphist_num,    wgamcorqcdprocdwhist_num;
+  vector<TH1*> wgamcornnloewkuphist_num,  wgamcornnloewkdwhist_num,  wgamcornnlomissuphist_1_num, wgamcornnlomissuphist_2_num, wgamcornnlomissdwhist_1_num, wgamcornnlomissdwhist_2_num;
+  vector<TH1*> wgamcorsudakovuphist_1_num, wgamcorsudakovdwhist_1_num, wgamcorsudakovuphist_2_num,   wgamcorsudakovdwhist_2_num;
+  vector<TH1*> wgamcormixuphist_num, wgamcormixdwhist_num;
+
+  vector<TH1*> wgamcorqcdscaleuphist_den, wgamcorqcdscaledwhist_den, wgamcorqcdshapeuphist_den,   wgamcorqcdshapedwhist_den,   wgamcorqcdprocuphist_den,    wgamcorqcdprocdwhist_den;
+  vector<TH1*> wgamcornnloewkuphist_den,  wgamcornnloewkdwhist_den,  wgamcornnlomissuphist_1_den, wgamcornnlomissuphist_2_den, wgamcornnlomissdwhist_1_den, wgamcornnlomissdwhist_2_den;
+  vector<TH1*> wgamcorsudakovuphist_1_den, wgamcorsudakovdwhist_1_den, wgamcorsudakovuphist_2_den,   wgamcorsudakovdwhist_2_den;
+  vector<TH1*> wgamcormixuphist_den, wgamcormixdwhist_den;
 
   ////
   vector<TH1*> topmucorbuphist, topmucorbdownhist, topelcorbuphist, topelcorbdownhist;
@@ -692,263 +724,267 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     TH1* zwjuncsudakovhist_2 = NULL;
     TH1* zwjuncmixhist = NULL;
 
-    if(not useNewTheoryUncertainty){
+    if(addZWratio){
+      if(not useNewTheoryUncertainty){
+	
+	zwjcorre1hist.push_back( (TH1*)zwjcorre1file->FindObjectAny(("zwjcorre1"+ext+"hist_"+obs).c_str()));
+	zwjcorre1hist_num.push_back( (TH1*)zwjcorre1file->FindObjectAny(("nhist_zwj_re1"+ext+"_"+obs).c_str()));
+	zwjcorre1hist_den.push_back( (TH1*)zwjcorre1file->FindObjectAny(("dhist_zwj_re1"+ext+"_"+obs).c_str()));
+	
+	zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("zwjcorfa1"+ext+"hist_"+obs).c_str()));
+	zwjcorfa1hist_num.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("nhist_zwj_fa1"+ext+"_"+obs).c_str()));
+	zwjcorfa1hist_den.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("dhist_zwj_fa1"+ext+"_"+obs).c_str()));
+	
+	zwjcorre2hist.push_back( (TH1*)zwjcorre2file->FindObjectAny(("zwjcorre2"+ext+"hist_"+obs).c_str()));
+	zwjcorre2hist_num.push_back( (TH1*)zwjcorre2file->FindObjectAny(("nhist_zwj_re2"+ext+"_"+obs).c_str()));
+	zwjcorre2hist_den.push_back( (TH1*)zwjcorre2file->FindObjectAny(("dhist_zwj_re2"+ext+"_"+obs).c_str()));
+	
+	zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("zwjcorfa2"+ext+"hist_"+obs).c_str()));
+	zwjcorfa2hist_num.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("nhist_zwj_fa2"+ext+"_"+obs).c_str()));
+	zwjcorfa2hist_den.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("dhist_zwj_fa2"+ext+"_"+obs).c_str()));
+	
+	zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));
+	zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist_zwj_pdf"+ext+"_"+obs).c_str()));
+	zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist_zwj_pdf"+ext+"_"+obs).c_str()));
+	
+	zwjuncewkhist = (TH1*)zwjcorewkhist.back()->Clone(("zwjuncewk"+ext+"hist_"+obs).c_str());
+	zwjuncewkhist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncewkhist->GetNbinsX(); i++)
+	  zwjuncewkhist->SetBinContent(i, fabs(zwjuncewkhist->GetBinContent(i)-1.0));
+	zwjuncewkhist->SetName(("ZW_EWK_"+obs).c_str());
+	
+	////                                                                                                                                                                                  
+	zwjuncre1hist = (TH1*)zwjcorre1hist.back()->Clone(("zwjuncre1"+ext+"hist_"+obs).c_str());
+	zwjuncre1hist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncre1hist->GetNbinsX(); i++)
+	  zwjuncre1hist->SetBinContent(i, fabs(zwjuncre1hist->GetBinContent(i)-1.0));
+	zwjuncre1hist->SetName(("ZW_RenScale1_"+obs).c_str());
+	
+	///                                                                                                                                                                                
+	zwjuncfa1hist = (TH1*)zwjcorfa1hist.back()->Clone(("zwjuncfa1"+ext+"hist_"+obs).c_str());
+	zwjuncfa1hist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncfa1hist->GetNbinsX(); i++)
+	  zwjuncfa1hist->SetBinContent(i, fabs(zwjuncfa1hist->GetBinContent(i)-1.0));
+	zwjuncfa1hist->SetName(("ZW_FactScale1_"+obs).c_str());
+	
+	zwjuncre2hist = (TH1*)zwjcorre2hist.back()->Clone(("zwjuncre2"+ext+"hist_"+obs).c_str());
+	zwjuncre2hist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncre2hist->GetNbinsX(); i++)
+	  zwjuncre2hist->SetBinContent(i, fabs(zwjuncre2hist->GetBinContent(i)-1.0));
+	zwjuncre2hist->SetName(("ZW_RenScale2_"+obs).c_str());
+	
+	zwjuncfa2hist = (TH1*)zwjcorfa2hist.back()->Clone(("zwjuncfa2"+ext+"hist_"+obs).c_str());
+	zwjuncfa2hist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncfa2hist->GetNbinsX(); i++)
+	  zwjuncfa2hist->SetBinContent(i, fabs(zwjuncfa2hist->GetBinContent(i)-1.0));
+	zwjuncfa2hist->SetName(("ZW_FactScale2_"+obs).c_str());
 
-      zwjcorre1hist.push_back( (TH1*)zwjcorre1file->FindObjectAny(("zwjcorre1"+ext+"hist_"+obs).c_str()));
-      zwjcorre1hist_num.push_back( (TH1*)zwjcorre1file->FindObjectAny(("nhist_zwj_re1"+ext+"_"+obs).c_str()));
-      zwjcorre1hist_den.push_back( (TH1*)zwjcorre1file->FindObjectAny(("dhist_zwj_re1"+ext+"_"+obs).c_str()));
-      
-      zwjcorfa1hist.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("zwjcorfa1"+ext+"hist_"+obs).c_str()));
-      zwjcorfa1hist_num.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("nhist_zwj_fa1"+ext+"_"+obs).c_str()));
-      zwjcorfa1hist_den.push_back( (TH1*)zwjcorfa1file->FindObjectAny(("dhist_zwj_fa1"+ext+"_"+obs).c_str()));
-      
-      zwjcorre2hist.push_back( (TH1*)zwjcorre2file->FindObjectAny(("zwjcorre2"+ext+"hist_"+obs).c_str()));
-      zwjcorre2hist_num.push_back( (TH1*)zwjcorre2file->FindObjectAny(("nhist_zwj_re2"+ext+"_"+obs).c_str()));
-      zwjcorre2hist_den.push_back( (TH1*)zwjcorre2file->FindObjectAny(("dhist_zwj_re2"+ext+"_"+obs).c_str()));
-      
-      zwjcorfa2hist.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("zwjcorfa2"+ext+"hist_"+obs).c_str()));
-      zwjcorfa2hist_num.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("nhist_zwj_fa2"+ext+"_"+obs).c_str()));
-      zwjcorfa2hist_den.push_back( (TH1*)zwjcorfa2file->FindObjectAny(("dhist_zwj_fa2"+ext+"_"+obs).c_str()));
-      
-      zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));
-      zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist_zwj_pdf"+ext+"_"+obs).c_str()));
-      zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist_zwj_pdf"+ext+"_"+obs).c_str()));
-      
-      zwjuncewkhist = (TH1*)zwjcorewkhist.back()->Clone(("zwjuncewk"+ext+"hist_"+obs).c_str());
-      zwjuncewkhist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncewkhist->GetNbinsX(); i++)
-	zwjuncewkhist->SetBinContent(i, fabs(zwjuncewkhist->GetBinContent(i)-1.0));
-      zwjuncewkhist->SetName(("ZW_EWK_"+obs).c_str());
-
-      ////                                                                                                                                                                                            
-      zwjuncre1hist = (TH1*)zwjcorre1hist.back()->Clone(("zwjuncre1"+ext+"hist_"+obs).c_str());
-      zwjuncre1hist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncre1hist->GetNbinsX(); i++)
-	zwjuncre1hist->SetBinContent(i, fabs(zwjuncre1hist->GetBinContent(i)-1.0));
-      zwjuncre1hist->SetName(("ZW_RenScale1_"+obs).c_str());
-      
-      ///                                                                                                                                                                                            
-      zwjuncfa1hist = (TH1*)zwjcorfa1hist.back()->Clone(("zwjuncfa1"+ext+"hist_"+obs).c_str());
-      zwjuncfa1hist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncfa1hist->GetNbinsX(); i++)
-	zwjuncfa1hist->SetBinContent(i, fabs(zwjuncfa1hist->GetBinContent(i)-1.0));
-      zwjuncfa1hist->SetName(("ZW_FactScale1_"+obs).c_str());
-
-      zwjuncre2hist = (TH1*)zwjcorre2hist.back()->Clone(("zwjuncre2"+ext+"hist_"+obs).c_str());
-      zwjuncre2hist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncre2hist->GetNbinsX(); i++)
-	zwjuncre2hist->SetBinContent(i, fabs(zwjuncre2hist->GetBinContent(i)-1.0));
-      zwjuncre2hist->SetName(("ZW_RenScale2_"+obs).c_str());
-      
-      zwjuncfa2hist = (TH1*)zwjcorfa2hist.back()->Clone(("zwjuncfa2"+ext+"hist_"+obs).c_str());
-      zwjuncfa2hist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncfa2hist->GetNbinsX(); i++)
-	zwjuncfa2hist->SetBinContent(i, fabs(zwjuncfa2hist->GetBinContent(i)-1.0));
-      zwjuncfa2hist->SetName(("ZW_FactScale2_"+obs).c_str());
-
-      zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("zwjuncpdf"+ext+"hist_"+obs).c_str());
-      zwjuncpdfhist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++)
-	zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
-      zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());      
-    }
-    else{ 
-
-      // new theory uncertainties
-      zwjcorqcdscaleuphist.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("zwjcorqcd_scaleup"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdscaleuphist_num.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("nhist_zwj_qcd_scaleup"+ext+"_"+obs).c_str()));
-      zwjcorqcdscaleuphist_den.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("dhist_zwj_qcd_scaleup"+ext+"_"+obs).c_str()));
-
-      zwjcorqcdscaledwhist.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("zwjcorqcd_scaledw"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdscaledwhist_num.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("nhist_zwj_qcd_scaledw"+ext+"_"+obs).c_str()));
-      zwjcorqcdscaledwhist_den.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("dhist_zwj_qcd_scaledw"+ext+"_"+obs).c_str()));
-
-      zwjcorqcdshapeuphist.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("zwjcorqcdshape_up"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdshapeuphist_num.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("nhist_zwj_qcdshape_up"+ext+"_"+obs).c_str()));
-      zwjcorqcdshapeuphist_den.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("dhist_zwj_qcdshape_up"+ext+"_"+obs).c_str()));
-
-      zwjcorqcdshapedwhist.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("zwjcorqcdshape_dw"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdshapedwhist_num.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("nhist_zwj_qcdshape_dw"+ext+"_"+obs).c_str()));
-      zwjcorqcdshapedwhist_den.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("dhist_zwj_qcdshape_dw"+ext+"_"+obs).c_str()));
-
-      zwjcorqcdprocuphist.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("zwjcorqcdproc_up"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdprocuphist_num.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("nhist_zwj_qcdproc_up"+ext+"_"+obs).c_str()));
-      zwjcorqcdprocuphist_den.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("dhist_zwj_qcdproc_up"+ext+"_"+obs).c_str()));
-
-      zwjcorqcdprocdwhist.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("zwjcorqcdproc_dw"+ext+"hist_"+obs).c_str()));
-      zwjcorqcdprocdwhist_num.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("nhist_zwj_qcdproc_dw"+ext+"_"+obs).c_str()));
-      zwjcorqcdprocdwhist_den.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("dhist_zwj_qcdproc_dw"+ext+"_"+obs).c_str()));
-
-      zwjcornnloewkuphist.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("zwjcornnloewk_up"+ext+"hist_"+obs).c_str()));
-      zwjcornnloewkuphist_num.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("nhist_zwj_nnloewk_up"+ext+"_"+obs).c_str()));
-      zwjcornnloewkuphist_den.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("dhist_zwj_nnloewk_up"+ext+"_"+obs).c_str()));
-
-      zwjcornnloewkdwhist.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("zwjcornnloewk_dw"+ext+"hist_"+obs).c_str()));
-      zwjcornnloewkdwhist_num.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("nhist_zwj_nnloewk_dw"+ext+"_"+obs).c_str()));
-      zwjcornnloewkdwhist_den.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("dhist_zwj_nnloewk_dw"+ext+"_"+obs).c_str()));
-
-      zwjcorsudakovuphist_1.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("zwjcorsudakov_up_1"+ext+"hist_"+obs).c_str()));
-      zwjcorsudakovuphist_1_num.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("nhist_zwj_sudakov_up_1"+ext+"_"+obs).c_str()));
-      zwjcorsudakovuphist_1_den.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("dhist_zwj_sudakov_up_1"+ext+"_"+obs).c_str()));
-
-      zwjcorsudakovdwhist_1.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("zwjcorsudakov_dw_1"+ext+"hist_"+obs).c_str()));
-      zwjcorsudakovdwhist_1_num.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("nhist_zwj_sudakov_dw_1"+ext+"_"+obs).c_str()));
-      zwjcorsudakovdwhist_1_den.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("dhist_zwj_sudakov_dw_1"+ext+"_"+obs).c_str()));
-
-      zwjcorsudakovuphist_2.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("zwjcorsudakov_up_2"+ext+"hist_"+obs).c_str()));
-      zwjcorsudakovuphist_2_num.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("nhist_zwj_sudakov_up_2"+ext+"_"+obs).c_str()));
-      zwjcorsudakovuphist_2_den.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("dhist_zwj_sudakov_up_2"+ext+"_"+obs).c_str()));
-
-      zwjcorsudakovdwhist_2.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("zwjcorsudakov_dw_2"+ext+"hist_"+obs).c_str()));
-      zwjcorsudakovdwhist_2_num.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("nhist_zwj_sudakov_dw_2"+ext+"_"+obs).c_str()));
-      zwjcorsudakovdwhist_2_den.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("dhist_zwj_sudakov_dw_2"+ext+"_"+obs).c_str()));
-
-      zwjcornnlomissuphist_1.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("zwjcornnlomiss_up_1"+ext+"hist_"+obs).c_str()));
-      zwjcornnlomissuphist_1_num.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("nhist_zwj_nnlomiss_up_1"+ext+"_"+obs).c_str()));
-      zwjcornnlomissuphist_1_den.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("dhist_zwj_nnlomiss_up_1"+ext+"_"+obs).c_str()));
-
-      zwjcornnlomissdwhist_1.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("zwjcornnlomiss_dw_1"+ext+"hist_"+obs).c_str()));
-      zwjcornnlomissdwhist_1_num.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("nhist_zwj_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
-      zwjcornnlomissdwhist_1_den.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("dhist_zwj_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
-
-      zwjcornnlomissuphist_2.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("zwjcornnlomiss_up_2"+ext+"hist_"+obs).c_str()));
-      zwjcornnlomissuphist_2_num.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("nhist_zwj_nnlomiss_up_2"+ext+"_"+obs).c_str()));
-      zwjcornnlomissuphist_2_den.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("dhist_zwj_nnlomiss_up_2"+ext+"_"+obs).c_str()));
-
-      zwjcornnlomissdwhist_2.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("zwjcornnlomiss_dw_2"+ext+"hist_"+obs).c_str()));
-      zwjcornnlomissdwhist_2_num.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("nhist_zwj_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
-      zwjcornnlomissdwhist_2_den.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("dhist_zwj_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
-
-      zwjcormixuphist.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("zwjcormix_up"+ext+"hist_"+obs).c_str()));
-      zwjcormixuphist_num.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("nhist_zwj_mix_up"+ext+"_"+obs).c_str()));
-      zwjcormixuphist_den.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("dhist_zwj_mix_up"+ext+"_"+obs).c_str()));
-
-      zwjcormixdwhist.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("zwjcormix_dw"+ext+"hist_"+obs).c_str()));
-      zwjcormixdwhist_num.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("nhist_zwj_mix_dw"+ext+"_"+obs).c_str()));
-      zwjcormixdwhist_den.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("dhist_zwj_mix_dw"+ext+"_"+obs).c_str()));
-
-      zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));
-      zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist_zwj_pdf"+ext+"_"+obs).c_str()));
-      zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist_zwj_pdf"+ext+"_"+obs).c_str()));
-
-      // QCD scale --> to be symmetrized
-      zwjuncqcdscalehist = (TH1*) zwjcorqcdscaleuphist.back()->Clone(("zwjuncqcdscale"+ext+"hist_"+obs).c_str());
-      zwjuncqcdscalehist->Reset("ICES");
-      bool sign = hasSameSign(zwjcorqcdscaleuphist.back(),zwjcorqcdscaledwhist.back());
-      for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncqcdscalehist->SetBinContent(i,(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("zwjuncpdf"+ext+"hist_"+obs).c_str());
+	zwjuncpdfhist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++)
+	  zwjuncpdfhist->SetBinContent(i, fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
+	zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());      
       }
-      zwjuncqcdscalehist->SetName(("ZW_QCDScale_"+obs).c_str());
+      else{ 
+	
+	// new theory uncertainties
+	zwjcorqcdscaleuphist.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("zwjcorqcd_scaleup"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdscaleuphist_num.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("nhist_zwj_qcd_scaleup"+ext+"_"+obs).c_str()));
+	zwjcorqcdscaleuphist_den.push_back( (TH1*)zwjcorqcdscaleupfile->FindObjectAny(("dhist_zwj_qcd_scaleup"+ext+"_"+obs).c_str()));
 
-      // QCD Shape --> to be symmetrized
-      zwjuncqcdshapehist = (TH1*) zwjcorqcdshapeuphist.back()->Clone(("zwjuncqcdshape"+ext+"hist_"+obs).c_str());
-      zwjuncqcdshapehist->Reset("ICES");
-      sign = hasSameSign(zwjcorqcdshapeuphist.back(),zwjcorqcdshapedwhist.back());
-      for (int i = 0; i <= zwjuncqcdshapehist->GetNbinsX()+1; i++){
-	if(sign)	  
-	  zwjuncqcdshapehist->SetBinContent(i,fabs(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncqcdshapehist->SetBinContent(i,(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncqcdshapehist->SetBinContent(1,zwjuncqcdshapehist->GetBinContent(1)+0.0025);
-      zwjuncqcdshapehist->SetName(("ZW_QCDShape_"+obs).c_str());
+	zwjcorqcdscaledwhist.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("zwjcorqcd_scaledw"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdscaledwhist_num.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("nhist_zwj_qcd_scaledw"+ext+"_"+obs).c_str()));
+	zwjcorqcdscaledwhist_den.push_back( (TH1*)zwjcorqcdscaledwfile->FindObjectAny(("dhist_zwj_qcd_scaledw"+ext+"_"+obs).c_str()));
+	
+	zwjcorqcdshapeuphist.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("zwjcorqcdshape_up"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdshapeuphist_num.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("nhist_zwj_qcdshape_up"+ext+"_"+obs).c_str()));
+	zwjcorqcdshapeuphist_den.push_back( (TH1*)zwjcorqcdshapeupfile->FindObjectAny(("dhist_zwj_qcdshape_up"+ext+"_"+obs).c_str()));
+	
+	zwjcorqcdshapedwhist.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("zwjcorqcdshape_dw"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdshapedwhist_num.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("nhist_zwj_qcdshape_dw"+ext+"_"+obs).c_str()));
+	zwjcorqcdshapedwhist_den.push_back( (TH1*)zwjcorqcdshapedwfile->FindObjectAny(("dhist_zwj_qcdshape_dw"+ext+"_"+obs).c_str()));
+	
+	zwjcorqcdprocuphist.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("zwjcorqcdproc_up"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdprocuphist_num.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("nhist_zwj_qcdproc_up"+ext+"_"+obs).c_str()));
+	zwjcorqcdprocuphist_den.push_back( (TH1*)zwjcorqcdprocupfile->FindObjectAny(("dhist_zwj_qcdproc_up"+ext+"_"+obs).c_str()));
+	
+	zwjcorqcdprocdwhist.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("zwjcorqcdproc_dw"+ext+"hist_"+obs).c_str()));
+	zwjcorqcdprocdwhist_num.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("nhist_zwj_qcdproc_dw"+ext+"_"+obs).c_str()));
+	zwjcorqcdprocdwhist_den.push_back( (TH1*)zwjcorqcdprocdwfile->FindObjectAny(("dhist_zwj_qcdproc_dw"+ext+"_"+obs).c_str()));
+	
+	zwjcornnloewkuphist.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("zwjcornnloewk_up"+ext+"hist_"+obs).c_str()));
+	zwjcornnloewkuphist_num.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("nhist_zwj_nnloewk_up"+ext+"_"+obs).c_str()));
+	zwjcornnloewkuphist_den.push_back( (TH1*)zwjcornnloewkupfile->FindObjectAny(("dhist_zwj_nnloewk_up"+ext+"_"+obs).c_str()));
+	
+	zwjcornnloewkdwhist.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("zwjcornnloewk_dw"+ext+"hist_"+obs).c_str()));
+	zwjcornnloewkdwhist_num.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("nhist_zwj_nnloewk_dw"+ext+"_"+obs).c_str()));
+	zwjcornnloewkdwhist_den.push_back( (TH1*)zwjcornnloewkdwfile->FindObjectAny(("dhist_zwj_nnloewk_dw"+ext+"_"+obs).c_str()));
+	
+	zwjcorsudakovuphist_1.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("zwjcorsudakov_up_1"+ext+"hist_"+obs).c_str()));
+	zwjcorsudakovuphist_1_num.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("nhist_zwj_sudakov_up_1"+ext+"_"+obs).c_str()));
+	zwjcorsudakovuphist_1_den.push_back( (TH1*)zwjcorsudakovupfile_1->FindObjectAny(("dhist_zwj_sudakov_up_1"+ext+"_"+obs).c_str()));
 
+	zwjcorsudakovdwhist_1.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("zwjcorsudakov_dw_1"+ext+"hist_"+obs).c_str()));
+	zwjcorsudakovdwhist_1_num.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("nhist_zwj_sudakov_dw_1"+ext+"_"+obs).c_str()));
+	zwjcorsudakovdwhist_1_den.push_back( (TH1*)zwjcorsudakovdwfile_1->FindObjectAny(("dhist_zwj_sudakov_dw_1"+ext+"_"+obs).c_str()));
+	
+	zwjcorsudakovuphist_2.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("zwjcorsudakov_up_2"+ext+"hist_"+obs).c_str()));
+	zwjcorsudakovuphist_2_num.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("nhist_zwj_sudakov_up_2"+ext+"_"+obs).c_str()));
+	zwjcorsudakovuphist_2_den.push_back( (TH1*)zwjcorsudakovupfile_2->FindObjectAny(("dhist_zwj_sudakov_up_2"+ext+"_"+obs).c_str()));
+	
+	zwjcorsudakovdwhist_2.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("zwjcorsudakov_dw_2"+ext+"hist_"+obs).c_str()));
+	zwjcorsudakovdwhist_2_num.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("nhist_zwj_sudakov_dw_2"+ext+"_"+obs).c_str()));
+	zwjcorsudakovdwhist_2_den.push_back( (TH1*)zwjcorsudakovdwfile_2->FindObjectAny(("dhist_zwj_sudakov_dw_2"+ext+"_"+obs).c_str()));
+	
+	zwjcornnlomissuphist_1.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("zwjcornnlomiss_up_1"+ext+"hist_"+obs).c_str()));
+	zwjcornnlomissuphist_1_num.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("nhist_zwj_nnlomiss_up_1"+ext+"_"+obs).c_str()));
+	zwjcornnlomissuphist_1_den.push_back( (TH1*)zwjcornnlomissupfile_1->FindObjectAny(("dhist_zwj_nnlomiss_up_1"+ext+"_"+obs).c_str()));
+	
+	zwjcornnlomissdwhist_1.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("zwjcornnlomiss_dw_1"+ext+"hist_"+obs).c_str()));
+	zwjcornnlomissdwhist_1_num.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("nhist_zwj_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
+	zwjcornnlomissdwhist_1_den.push_back( (TH1*)zwjcornnlomissdwfile_1->FindObjectAny(("dhist_zwj_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
+	
+	zwjcornnlomissuphist_2.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("zwjcornnlomiss_up_2"+ext+"hist_"+obs).c_str()));
+	zwjcornnlomissuphist_2_num.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("nhist_zwj_nnlomiss_up_2"+ext+"_"+obs).c_str()));
+	zwjcornnlomissuphist_2_den.push_back( (TH1*)zwjcornnlomissupfile_2->FindObjectAny(("dhist_zwj_nnlomiss_up_2"+ext+"_"+obs).c_str()));
+	
+	zwjcornnlomissdwhist_2.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("zwjcornnlomiss_dw_2"+ext+"hist_"+obs).c_str()));
+	zwjcornnlomissdwhist_2_num.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("nhist_zwj_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
+	zwjcornnlomissdwhist_2_den.push_back( (TH1*)zwjcornnlomissdwfile_2->FindObjectAny(("dhist_zwj_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
+	
+	zwjcormixuphist.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("zwjcormix_up"+ext+"hist_"+obs).c_str()));
+	zwjcormixuphist_num.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("nhist_zwj_mix_up"+ext+"_"+obs).c_str()));
+	zwjcormixuphist_den.push_back( (TH1*)zwjcormixupfile->FindObjectAny(("dhist_zwj_mix_up"+ext+"_"+obs).c_str()));
+	
+	zwjcormixdwhist.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("zwjcormix_dw"+ext+"hist_"+obs).c_str()));
+	zwjcormixdwhist_num.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("nhist_zwj_mix_dw"+ext+"_"+obs).c_str()));
+	zwjcormixdwhist_den.push_back( (TH1*)zwjcormixdwfile->FindObjectAny(("dhist_zwj_mix_dw"+ext+"_"+obs).c_str()));
+	
+	zwjcorpdfhist.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("zwjcorpdf"+ext+"hist_"+obs).c_str()));
+	zwjcorpdfhist_num.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("nhist_zwj_pdf"+ext+"_"+obs).c_str()));
+	zwjcorpdfhist_den.push_back( (TH1*)zwjcorpdffile->FindObjectAny(("dhist_zwj_pdf"+ext+"_"+obs).c_str()));
+	
+	// QCD scale --> to be symmetrized
+	zwjuncqcdscalehist = (TH1*) zwjcorqcdscaleuphist.back()->Clone(("zwjuncqcdscale"+ext+"hist_"+obs).c_str());
+	zwjuncqcdscalehist->Reset("ICES");
+	bool sign = hasSameSign(zwjcorqcdscaleuphist.back(),zwjcorqcdscaledwhist.back());
+	for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
+	    zwjuncqcdscalehist->SetBinContent(i,(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncqcdscalehist->SetName(("ZW_QCDScale_"+obs).c_str());
+	
+	// QCD Shape --> to be symmetrized
+	zwjuncqcdshapehist = (TH1*) zwjcorqcdshapeuphist.back()->Clone(("zwjuncqcdshape"+ext+"hist_"+obs).c_str());
+	zwjuncqcdshapehist->Reset("ICES");
+	sign = hasSameSign(zwjcorqcdshapeuphist.back(),zwjcorqcdshapedwhist.back());
+	for (int i = 0; i <= zwjuncqcdshapehist->GetNbinsX()+1; i++){
+	  if(sign)	  
+	    zwjuncqcdshapehist->SetBinContent(i,fabs(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
+	    zwjuncqcdshapehist->SetBinContent(i,(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncqcdshapehist->SetBinContent(1,zwjuncqcdshapehist->GetBinContent(1)+0.0025);
+	zwjuncqcdshapehist->SetName(("ZW_QCDShape_"+obs).c_str());
+	
       // QCD Process --> to be symmetrized
-      zwjuncqcdprochist = (TH1*) zwjcorqcdprocuphist.back()->Clone(("zwjuncqcdproc"+ext+"hist_"+obs).c_str());
-      zwjuncqcdprochist->Reset("ICES");
-      sign = hasSameSign(zwjcorqcdprocuphist.back(),zwjcorqcdprocdwhist.back());
-      for (int i = 0; i <= zwjuncqcdprochist->GetNbinsX()+1; i++){
-	if(sign)	  
-	  zwjuncqcdprochist->SetBinContent(i,fabs(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncqcdprochist->SetBinContent(i,(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncqcdprochist->SetName(("ZW_QCDProcess_"+obs).c_str());
-
-      // NNLO EWK --> to be symmetrized
-      zwjuncnnloewkhist = (TH1*) zwjcornnloewkuphist.back()->Clone(("zwjuncnnloewk"+ext+"hist_"+obs).c_str());
-      zwjuncnnloewkhist->Reset("ICES");
-      sign = hasSameSign(zwjcornnloewkuphist.back(),zwjcornnloewkdwhist.back());
-      for (int i = 0; i <= zwjuncnnloewkhist->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncnnloewkhist->SetBinContent(i,fabs(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
+	zwjuncqcdprochist = (TH1*) zwjcorqcdprocuphist.back()->Clone(("zwjuncqcdproc"+ext+"hist_"+obs).c_str());
+	zwjuncqcdprochist->Reset("ICES");
+	sign = hasSameSign(zwjcorqcdprocuphist.back(),zwjcorqcdprocdwhist.back());
+	for (int i = 0; i <= zwjuncqcdprochist->GetNbinsX()+1; i++){
+	  if(sign)	  
+	    zwjuncqcdprochist->SetBinContent(i,fabs(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
+	    zwjuncqcdprochist->SetBinContent(i,(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncqcdprochist->SetName(("ZW_QCDProcess_"+obs).c_str());
+	
+	// NNLO EWK --> to be symmetrized
+	zwjuncnnloewkhist = (TH1*) zwjcornnloewkuphist.back()->Clone(("zwjuncnnloewk"+ext+"hist_"+obs).c_str());
+	zwjuncnnloewkhist->Reset("ICES");
+	sign = hasSameSign(zwjcornnloewkuphist.back(),zwjcornnloewkdwhist.back());
+	for (int i = 0; i <= zwjuncnnloewkhist->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncnnloewkhist->SetBinContent(i,fabs(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
 	  zwjuncnnloewkhist->SetBinContent(i,(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncnnloewkhist->SetName(("ZW_NNLOEWK_"+obs).c_str());
-      
-      // NLO EWK Sud --> to be symmetrized
-      zwjuncsudakovhist_1 = (TH1*) zwjcorsudakovuphist_1.back()->Clone(("zwjuncsudakov1"+ext+"hist_"+obs).c_str());
-      zwjuncsudakovhist_1->Reset("ICES");
-      sign = hasSameSign(zwjcorsudakovuphist_1.back(),zwjcorsudakovdwhist_1.back());
-      for (int i = 0; i <= zwjuncsudakovhist_1->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncsudakovhist_1->SetBinContent(i,fabs(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
+	}
+	zwjuncnnloewkhist->SetName(("ZW_NNLOEWK_"+obs).c_str());
+	
+	// NLO EWK Sud --> to be symmetrized
+	zwjuncsudakovhist_1 = (TH1*) zwjcorsudakovuphist_1.back()->Clone(("zwjuncsudakov1"+ext+"hist_"+obs).c_str());
+	zwjuncsudakovhist_1->Reset("ICES");
+	sign = hasSameSign(zwjcorsudakovuphist_1.back(),zwjcorsudakovdwhist_1.back());
+	for (int i = 0; i <= zwjuncsudakovhist_1->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncsudakovhist_1->SetBinContent(i,fabs(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
 	  zwjuncsudakovhist_1->SetBinContent(i,(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncsudakovhist_1->SetName(("ZW_Sudakov1_"+obs).c_str());
-
-      // NLO EWK Sud --> to be symmetrized
-      zwjuncsudakovhist_2 = (TH1*) zwjcorsudakovuphist_2.back()->Clone(("zwjuncsudakov2"+ext+"hist_"+obs).c_str());
-      zwjuncsudakovhist_2->Reset("ICES");
-      sign = hasSameSign(zwjcorsudakovuphist_2.back(),zwjcorsudakovdwhist_2.back());
-      for (int i = 0; i <= zwjuncsudakovhist_2->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncsudakovhist_2->SetBinContent(i,fabs(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncsudakovhist_2->SetBinContent(i,(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncsudakovhist_2->SetName(("ZW_Sudakov2_"+obs).c_str());
-
-      // NNLO Miss --> to be symmetrized
-      zwjuncnnlomisshist_1 = (TH1*) zwjcornnlomissuphist_1.back()->Clone(("zwjuncnnlomiss1"+ext+"hist_"+obs).c_str());
-      zwjuncnnlomisshist_1->Reset("ICES");
-      sign = hasSameSign(zwjcornnlomissuphist_1.back(),zwjcornnlomissdwhist_1.back());
-      for (int i = 0; i <= zwjuncnnlomisshist_1->GetNbinsX()+1; i++){
-	if(sign)
+	}
+	zwjuncsudakovhist_1->SetName(("ZW_Sudakov1_"+obs).c_str());
+	
+	// NLO EWK Sud --> to be symmetrized
+	zwjuncsudakovhist_2 = (TH1*) zwjcorsudakovuphist_2.back()->Clone(("zwjuncsudakov2"+ext+"hist_"+obs).c_str());
+	zwjuncsudakovhist_2->Reset("ICES");
+	sign = hasSameSign(zwjcorsudakovuphist_2.back(),zwjcorsudakovdwhist_2.back());
+	for (int i = 0; i <= zwjuncsudakovhist_2->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncsudakovhist_2->SetBinContent(i,fabs(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
+	    zwjuncsudakovhist_2->SetBinContent(i,(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncsudakovhist_2->SetName(("ZW_Sudakov2_"+obs).c_str());
+	
+	// NNLO Miss --> to be symmetrized
+	zwjuncnnlomisshist_1 = (TH1*) zwjcornnlomissuphist_1.back()->Clone(("zwjuncnnlomiss1"+ext+"hist_"+obs).c_str());
+	zwjuncnnlomisshist_1->Reset("ICES");
+	sign = hasSameSign(zwjcornnlomissuphist_1.back(),zwjcornnlomissdwhist_1.back());
+	for (int i = 0; i <= zwjuncnnlomisshist_1->GetNbinsX()+1; i++){
+	  if(sign)
 	  zwjuncnnlomisshist_1->SetBinContent(i,fabs(zwjcornnlomissuphist_1.back()->GetBinContent(i)-zwjcornnlomissdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncnnlomisshist_1->SetBinContent(i,(zwjcornnlomissuphist_1.back()->GetBinContent(i)-zwjcornnlomissdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncnnlomisshist_1->SetName(("ZW_NNLOMiss1_"+obs).c_str());
-
-      // NNLO Miss --> to be symmetrized
-      zwjuncnnlomisshist_2 = (TH1*) zwjcornnlomissuphist_2.back()->Clone(("zwjuncnnlomiss2"+ext+"hist_"+obs).c_str());
-      zwjuncnnlomisshist_2->Reset("ICES");
-      sign = hasSameSign(zwjcornnlomissuphist_2.back(),zwjcornnlomissdwhist_2.back());
-      for (int i = 0; i <= zwjuncnnlomisshist_2->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncnnlomisshist_2->SetBinContent(i,fabs(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
-	  zwjuncnnlomisshist_2->SetBinContent(i,(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-      }
-      zwjuncnnlomisshist_2->SetName(("ZW_NNLOMiss2_"+obs).c_str());
-      
-      // NLO QCD+EWK --> to be symmetrized
-      zwjuncmixhist = (TH1*) zwjcormixuphist.back()->Clone(("zwjuncmix"+ext+"hist_"+obs).c_str());
-      zwjuncmixhist->Reset("ICES");
-      sign = hasSameSign(zwjcormixuphist.back(),zwjcormixdwhist.back());
-      for (int i = 0; i <= zwjuncmixhist->GetNbinsX()+1; i++){
-	if(sign)
-	  zwjuncmixhist->SetBinContent(i,fabs(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	else
+	  else
+	    zwjuncnnlomisshist_1->SetBinContent(i,(zwjcornnlomissuphist_1.back()->GetBinContent(i)-zwjcornnlomissdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncnnlomisshist_1->SetName(("ZW_NNLOMiss1_"+obs).c_str());
+	
+	// NNLO Miss --> to be symmetrized
+	zwjuncnnlomisshist_2 = (TH1*) zwjcornnlomissuphist_2.back()->Clone(("zwjuncnnlomiss2"+ext+"hist_"+obs).c_str());
+	zwjuncnnlomisshist_2->Reset("ICES");
+	sign = hasSameSign(zwjcornnlomissuphist_2.back(),zwjcornnlomissdwhist_2.back());
+	for (int i = 0; i <= zwjuncnnlomisshist_2->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncnnlomisshist_2->SetBinContent(i,fabs(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
+	    zwjuncnnlomisshist_2->SetBinContent(i,(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncnnlomisshist_2->SetName(("ZW_NNLOMiss2_"+obs).c_str());
+	
+	// NLO QCD+EWK --> to be symmetrized
+	zwjuncmixhist = (TH1*) zwjcormixuphist.back()->Clone(("zwjuncmix"+ext+"hist_"+obs).c_str());
+	zwjuncmixhist->Reset("ICES");
+	sign = hasSameSign(zwjcormixuphist.back(),zwjcormixdwhist.back());
+	for (int i = 0; i <= zwjuncmixhist->GetNbinsX()+1; i++){
+	  if(sign)
+	    zwjuncmixhist->SetBinContent(i,fabs(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  else
 	  zwjuncmixhist->SetBinContent(i,(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	}
+	zwjuncmixhist->SetName(("ZW_MIX_"+obs).c_str());
+      
+	// NLO PDF
+	zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("zwjuncpdf"+ext+"hist_"+obs).c_str());
+	zwjuncpdfhist->Divide(zwjcorqcdhist.back());
+	for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++)
+	  zwjuncpdfhist->SetBinContent(i,fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
+	zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());
       }
-      zwjuncmixhist->SetName(("ZW_MIX_"+obs).c_str());
-
-      // NLO PDF
-      zwjuncpdfhist = (TH1*)zwjcorpdfhist.back()->Clone(("zwjuncpdf"+ext+"hist_"+obs).c_str());
-      zwjuncpdfhist->Divide(zwjcorqcdhist.back());
-      for (int i = 1; i <= zwjuncpdfhist->GetNbinsX(); i++)
-        zwjuncpdfhist->SetBinContent(i,fabs(zwjuncpdfhist->GetBinContent(i)-1.0));
-      zwjuncpdfhist->SetName(("ZW_PDF_"+obs).c_str());
     }
 
-    /////                                                                                                                                                                                             
+    /////////////
+
+    // get histograms W/gamma               
     TH1* wgamuncewkhist = NULL;
     TH1* wgamuncre1hist = NULL;
     TH1* wgamuncfa1hist = NULL;
@@ -957,194 +993,304 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     TH1* wgamuncpdfhist = NULL;
     TH1* wgamuncfpchist = NULL;
     TH1* wgamuncqcdscalehist = NULL;
-    TH1* wgamuncnloewkhist = NULL;
-    TH1* wgamuncsudewkhist = NULL;
-    TH1* wgamuncewkqcdhist = NULL;
     TH1* wgamuncqcdshapehist = NULL;
+    TH1* wgamuncqcdprochist = NULL;
+    TH1* wgamuncnnloewkhist = NULL;
+    TH1* wgamuncsudakovhist_1 = NULL;
+    TH1* wgamuncsudakovhist_2 = NULL;
+    TH1* wgamuncnnlomisshist_1 = NULL;
+    TH1* wgamuncnnlomisshist_2 = NULL;
+    TH1* wgamuncmixhist = NULL;
 
-
+    //////
     if(addWgamma){
 
       if(not useNewTheoryUncertainty){
-
-	cout<<"Make W/gamma sys histograms"<<endl;
-	wgamcorewkhist.push_back( (TH1*) wgamcorewkfile->FindObjectAny(("wgamcor"+ext+"ewkhist_"+obs).c_str()));
-	wgamcorewkhist_num.push_back( (TH1*) wgamcorewkfile->FindObjectAny(("nhist_wgam_ewk"+ext+"_"+obs).c_str()));
-	wgamcorewkhist_den.push_back( (TH1*) wgamcorewkfile->FindObjectAny(("dhist_wgam_ewk"+ext+"_"+obs).c_str()));
+	cout<<"Make W/gamma sys histograms"<<endl;    
+	wgamcorewkhist.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("wgamcor"+ext+"ewkhist_"+obs).c_str()));
+	wgamcorewkhist_num.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("nhist_wgam_ewk"+ext+"_"+obs).c_str()));
+	wgamcorewkhist_den.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("dhist_wgam_ewk"+ext+"_"+obs).c_str()));
 	
-	wgamcorqcdhist.push_back( (TH1*) wgamcorqcdfile->FindObjectAny(("wgamcor"+ext+"qcdhist_"+obs).c_str()));
-	wgamcorqcdhist_num.push_back( (TH1*) wgamcorqcdfile->FindObjectAny(("nhist_wgam_qcd"+ext+"_"+obs).c_str()));
-	wgamcorqcdhist_den.push_back( (TH1*) wgamcorqcdfile->FindObjectAny(("dhist_wgam_qcd"+ext+"_"+obs).c_str()));
+	wgamcorqcdhist.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("wgamcor"+ext+"qcdhist_"+obs).c_str()));
+	wgamcorqcdhist_num.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("nhist_wgam_qcd"+ext+"_"+obs).c_str()));
+	wgamcorqcdhist_den.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("dhist_wgam_qcd"+ext+"_"+obs).c_str()));
 	
-	wgamcorre1hist.push_back( (TH1*) wgamcorre1file->FindObjectAny(("wgamcor"+ext+"re1hist_"+obs).c_str()));
-	wgamcorre1hist_num.push_back( (TH1*) wgamcorre1file->FindObjectAny(("nhist_wgam_re1"+ext+"_"+obs).c_str()));
-	wgamcorre1hist_den.push_back( (TH1*) wgamcorre1file->FindObjectAny(("dhist_wgam_re1"+ext+"_"+obs).c_str()));
+	wgamcorre1hist.push_back( (TH1*)wgamcorre1file->FindObjectAny(("wgamcor"+ext+"re1hist_"+obs).c_str()));
+	wgamcorre1hist_num.push_back( (TH1*)wgamcorre1file->FindObjectAny(("nhist_wgam_re1"+ext+"_"+obs).c_str()));
+	wgamcorre1hist_den.push_back( (TH1*)wgamcorre1file->FindObjectAny(("dhist_wgam_re1"+ext+"_"+obs).c_str()));
 	
-	wgamcorfa1hist.push_back( (TH1*) wgamcorfa1file->FindObjectAny(("wgamcor"+ext+"fa1hist_"+obs).c_str()));
-	wgamcorfa1hist_num.push_back( (TH1*) wgamcorfa1file->FindObjectAny(("nhist_wgam_fa1"+ext+"_"+obs).c_str()));
-	wgamcorfa1hist_den.push_back( (TH1*) wgamcorfa1file->FindObjectAny(("dhist_wgam_fa1"+ext+"_"+obs).c_str()));
+	wgamcorfa1hist.push_back( (TH1*)wgamcorfa1file->FindObjectAny(("wgamcor"+ext+"fa1hist_"+obs).c_str()));
+	wgamcorfa1hist_num.push_back( (TH1*)wgamcorfa1file->FindObjectAny(("nhist_wgam_fa1"+ext+"_"+obs).c_str()));
+	wgamcorfa1hist_den.push_back( (TH1*)wgamcorfa1file->FindObjectAny(("dhist_wgam_fa1"+ext+"_"+obs).c_str()));
 	
-	wgamcorre2hist.push_back( (TH1*) wgamcorre2file->FindObjectAny(("wgamcor"+ext+"re2hist_"+obs).c_str()));
-	wgamcorre2hist_num.push_back( (TH1*) wgamcorre2file->FindObjectAny(("nhist_wgam_re2"+ext+"_"+obs).c_str()));
-	wgamcorre2hist_den.push_back( (TH1*) wgamcorre2file->FindObjectAny(("dhist_wgam_re2"+ext+"_"+obs).c_str()));
-
-	wgamcorfa2hist.push_back( (TH1*) wgamcorfa2file->FindObjectAny(("wgamcor"+ext+"fa2hist_"+obs).c_str()));
-	wgamcorfa2hist_num.push_back( (TH1*) wgamcorfa2file->FindObjectAny(("nhist_wgam_fa2"+ext+"_"+obs).c_str()));
-	wgamcorfa2hist_den.push_back( (TH1*) wgamcorfa2file->FindObjectAny(("dhist_wgam_fa2"+ext+"_"+obs).c_str()));
+	wgamcorre2hist.push_back( (TH1*)wgamcorre2file->FindObjectAny(("wgamcor"+ext+"re2hist_"+obs).c_str()));
+	wgamcorre2hist_num.push_back( (TH1*)wgamcorre2file->FindObjectAny(("nhist_wgam_re2"+ext+"_"+obs).c_str()));
+	wgamcorre2hist_den.push_back( (TH1*)wgamcorre2file->FindObjectAny(("dhist_wgam_re2"+ext+"_"+obs).c_str()));
 	
-	wgamcorpdfhist.push_back( (TH1*) wgamcorpdffile->FindObjectAny(("wgamcor"+ext+"pdfhist_"+obs).c_str()));
-	wgamcorpdfhist_num.push_back( (TH1*) wgamcorpdffile->FindObjectAny(("nhist_wgam_pdf"+ext+"_"+obs).c_str()));
-	wgamcorpdfhist_den.push_back( (TH1*) wgamcorpdffile->FindObjectAny(("dhist_wgam_pdf"+ext+"_"+obs).c_str()));
+	wgamcorfa2hist.push_back( (TH1*)wgamcorfa2file->FindObjectAny(("wgamcor"+ext+"fa2hist_"+obs).c_str()));
+	wgamcorfa2hist_num.push_back( (TH1*)wgamcorfa2file->FindObjectAny(("nhist_wgam_fa2"+ext+"_"+obs).c_str()));
+	wgamcorfa2hist_den.push_back( (TH1*)wgamcorfa2file->FindObjectAny(("dhist_wgam_fa2"+ext+"_"+obs).c_str()));
 	
-	wgamcorfpchist.push_back( (TH1*) wgamcorfpcfile->FindObjectAny(("wgamcor"+ext+"fpchist_"+obs).c_str()));
-	wgamcorfpchist_num.push_back( (TH1*) wgamcorfpcfile->FindObjectAny(("nhist_wgam_fpc"+ext+"_"+obs).c_str()));
-	wgamcorfpchist_den.push_back( (TH1*) wgamcorfpcfile->FindObjectAny(("dhist_wgam_fpc"+ext+"_"+obs).c_str()));
+	wgamcorpdfhist.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("wgamcor"+ext+"pdfhist_"+obs).c_str()));
+	wgamcorpdfhist_num.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("nhist_wgam_pdf"+ext+"_"+obs).c_str()));
+	wgamcorpdfhist_den.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("dhist_wgam_pdf"+ext+"_"+obs).c_str()));
 	
-	// uncertainty histogram for combine                                                                                                                                                           
-	wgamuncewkhist = (TH1*) wgamcorewkhist.back()->Clone(("wgamuncewk"+ext+"hist_"+obs).c_str());
+	wgamcorfpchist.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("wgamcor"+ext+"fpchist_"+obs).c_str()));
+	wgamcorfpchist_num.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("nhist_wgam_fpc"+ext+"_"+obs).c_str()));
+	wgamcorfpchist_den.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("dhist_wgam_fpc"+ext+"_"+obs).c_str()));
+	
+	// ZG ewk uncertainty
+	wgamuncewkhist = (TH1*)wgamcorewkhist.back()->Clone(("wgamuncewk"+ext+"hist_"+obs).c_str());
 	wgamuncewkhist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncewkhist->GetNbinsX(); i++)
-	  wgamuncewkhist->SetBinContent(i, 0.5*fabs(wgamuncewkhist->GetBinContent(i)-1.0));
+	  wgamuncewkhist->SetBinContent(i, fabs(wgamuncewkhist->GetBinContent(i)-1.0));
 	wgamuncewkhist->SetName(("WG_EWK_"+obs).c_str());
 	
-	///                                                                                                                                                                                       
-	wgamuncre1hist = (TH1*) wgamcorre1hist.back()->Clone(("wgamuncre1"+ext+"hist_"+obs).c_str());
+	/// ZG renormalization scale                                                                                                                                                           
+	wgamuncre1hist = (TH1*)wgamcorre1hist.back()->Clone(("wgamuncre1"+ext+"hist_"+obs).c_str());
 	wgamuncre1hist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncre1hist->GetNbinsX(); i++)
-	  wgamuncre1hist->SetBinContent(i, 0.5*fabs(wgamuncre1hist->GetBinContent(i)-1.0));
+	  wgamuncre1hist->SetBinContent(i, fabs(wgamuncre1hist->GetBinContent(i)-1.0));
 	wgamuncre1hist->SetName(("WG_RenScale1_"+obs).c_str());
 	
-	////                                                                                                                                                                              
-	wgamuncfa1hist = (TH1*) wgamcorfa1hist.back()->Clone(("wgamuncfa1"+ext+"hist_"+obs).c_str());
+	/// ZG renormalization scale                                                                                                                                                           
+	wgamuncfa1hist = (TH1*)wgamcorfa1hist.back()->Clone(("wgamuncfa1"+ext+"hist_"+obs).c_str());
 	wgamuncfa1hist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncfa1hist->GetNbinsX(); i++)
-	  wgamuncfa1hist->SetBinContent(i, 0.5*fabs(wgamuncfa1hist->GetBinContent(i)-1.0));
+	  wgamuncfa1hist->SetBinContent(i, fabs(wgamuncfa1hist->GetBinContent(i)-1.0));
 	wgamuncfa1hist->SetName(("WG_FactScale1_"+obs).c_str());
 	
-	////                                                                                                                                                                                 
-	wgamuncre2hist = (TH1*) wgamcorre2hist.back()->Clone(("wgamuncre2"+ext+"hist_"+obs).c_str());
+	/// ZG renormalization scale                                                                                                                                                           
+	wgamuncre2hist = (TH1*)wgamcorre2hist.back()->Clone(("wgamuncre2"+ext+"hist_"+obs).c_str());
 	wgamuncre2hist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncre2hist->GetNbinsX(); i++)
-	  wgamuncre2hist->SetBinContent(i, 0.5*fabs(wgamuncre2hist->GetBinContent(i)-1.0));
+	  wgamuncre2hist->SetBinContent(i, fabs(wgamuncre2hist->GetBinContent(i)-1.0));
 	wgamuncre2hist->SetName(("WG_RenScale2_"+obs).c_str());
-	
-	///                                                                                                                                                                           
-	wgamuncfa2hist = (TH1*) wgamcorfa2hist.back()->Clone(("wgamuncfa2"+ext+"hist_"+obs).c_str());
+      
+	/// ZG factorization scale                                                                                                                                                                 
+	wgamuncfa2hist = (TH1*)wgamcorfa2hist.back()->Clone(("wgamuncfa2"+ext+"hist_"+obs).c_str());
 	wgamuncfa2hist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncfa2hist->GetNbinsX(); i++)
-	  wgamuncfa2hist->SetBinContent(i, 0.5*fabs(wgamuncfa2hist->GetBinContent(i)-1.0));
+	  wgamuncfa2hist->SetBinContent(i, fabs(wgamuncfa2hist->GetBinContent(i)-1.0));
 	wgamuncfa2hist->SetName(("WG_FactScale2_"+obs).c_str());
 	
-	///                                                                                                                                                                                         
-	wgamuncpdfhist = (TH1*) wgamcorpdfhist.back()->Clone(("wgamuncpdf"+ext+"hist_"+obs).c_str());
-	wgamuncpdfhist->Divide(wgamcorqcdhist.back());
-	for (int i = 1; i <= wgamuncpdfhist->GetNbinsX(); i++)
-	  wgamuncpdfhist->SetBinContent(i, 0.5*fabs(wgamuncpdfhist->GetBinContent(i)-1.0));
-	wgamuncpdfhist->SetName(("WG_PDF_"+obs).c_str());
-
-	///                                                                                                                                                                                        
-	wgamuncfpchist = (TH1*) wgamcorfpchist.back()->Clone(("wgamuncfpc"+ext+"hist_"+obs).c_str());
-	wgamuncfpchist->Divide(wgamcorqcdhist.back());
-	for (int i = 1; i <= wgamuncfpchist->GetNbinsX(); i++)
-	  wgamuncfpchist->SetBinContent(i, 0.5*fabs(wgamuncfpchist->GetBinContent(i)-1.0));
-	wgamuncfpchist->SetName(("WG_Footprint_"+obs).c_str());
-      }
-      else{
-
-	cout<<"Make W/gamma sys histograms"<<endl;    
-	wgamcorpdfhist.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("wgamcor"+ext+"pdfhist_"+obs).c_str()));
-        wgamcorpdfhist_num.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("nhist_wgam_pdf"+ext+"_"+obs).c_str()));
-        wgamcorpdfhist_den.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("dhist_wgam_pdf"+ext+"_"+obs).c_str()));
-
-        wgamcorfpchist.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("wgamcor"+ext+"fpchist_"+obs).c_str()));
-        wgamcorfpchist_num.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("nhist_wgam_fpc"+ext+"_"+obs).c_str()));
-        wgamcorfpchist_den.push_back( (TH1*)wgamcorfpcfile->FindObjectAny(("dhist_wgam_fpc"+ext+"_"+obs).c_str()));
-
-	wgamcorqcdscaleuphist.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("wgamcorqcd_scaleup"+ext+"hist_"+obs).c_str()));
-	wgamcorqcdscaleuphist_num.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("nhist_wgamqcd_scaleup"+ext+"_"+obs).c_str()));
-	wgamcorqcdscaleuphist_den.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("dhist_wgamqcd_scaleup"+ext+"_"+obs).c_str()));
-
-	wgamcorqcdscaledwhist.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("wgamcorqcd_scaledw"+ext+"hist_"+obs).c_str()));
-	wgamcorqcdscaledwhist_num.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("nhist_wgamqcd_scaledw"+ext+"_"+obs).c_str()));
-	wgamcorqcdscaledwhist_den.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("dhist_wgamqcd_scaledw"+ext+"_"+obs).c_str()));
-
-	wgamcornloewkuphist.push_back( (TH1*)wgamcornloewkupfile->FindObjectAny(("wgamcornloewk_up"+ext+"hist_"+obs).c_str()));
-	wgamcornloewkuphist_num.push_back( (TH1*)wgamcornloewkupfile->FindObjectAny(("nhist_wgamnloewk_up"+ext+"_"+obs).c_str()));
-	wgamcornloewkuphist_den.push_back( (TH1*)wgamcornloewkupfile->FindObjectAny(("dhist_wgamnloewk_up"+ext+"_"+obs).c_str()));
-
-	wgamcornloewkdwhist.push_back( (TH1*)wgamcornloewkdwfile->FindObjectAny(("wgamcornloewk_dw"+ext+"hist_"+obs).c_str()));
-	wgamcornloewkdwhist_num.push_back( (TH1*)wgamcornloewkdwfile->FindObjectAny(("nhist_wgamnloewk_dw"+ext+"_"+obs).c_str()));
-	wgamcornloewkdwhist_den.push_back( (TH1*)wgamcornloewkdwfile->FindObjectAny(("dhist_wgamnloewk_dw"+ext+"_"+obs).c_str()));
-
-	wgamcorsudewkuphist.push_back( (TH1*)wgamcorsudewkupfile->FindObjectAny(("wgamcorsudewk_up"+ext+"hist_"+obs).c_str()));
-	wgamcorsudewkuphist_num.push_back( (TH1*)wgamcorsudewkupfile->FindObjectAny(("nhist_wgamsudewk_up"+ext+"_"+obs).c_str()));
-	wgamcorsudewkuphist_den.push_back( (TH1*)wgamcorsudewkupfile->FindObjectAny(("dhist_wgamsudewk_up"+ext+"_"+obs).c_str()));
-
-	wgamcorsudewkdwhist.push_back( (TH1*)wgamcorsudewkdwfile->FindObjectAny(("wgamcorsudewk_dw"+ext+"hist_"+obs).c_str()));
-	wgamcorsudewkdwhist_num.push_back( (TH1*)wgamcorsudewkdwfile->FindObjectAny(("nhist_wgamsudewk_dw"+ext+"_"+obs).c_str()));
-	wgamcorsudewkdwhist_den.push_back( (TH1*)wgamcorsudewkdwfile->FindObjectAny(("dhist_wgamsudewk_dw"+ext+"_"+obs).c_str()));
-
-	wgamcorewkqcduphist.push_back( (TH1*)wgamcorewkqcdupfile->FindObjectAny(("wgamcorewkqcd_up"+ext+"hist_"+obs).c_str()));
-	wgamcorewkqcduphist_num.push_back( (TH1*)wgamcorewkqcdupfile->FindObjectAny(("nhist_wgamewkqcd_up"+ext+"_"+obs).c_str()));
-	wgamcorewkqcduphist_den.push_back( (TH1*)wgamcorewkqcdupfile->FindObjectAny(("dhist_wgamewkqcd_up"+ext+"_"+obs).c_str()));
-
-	wgamcorewkqcddwhist.push_back( (TH1*)wgamcorewkqcddwfile->FindObjectAny(("wgamcorewkqcd_dw"+ext+"hist_"+obs).c_str()));
-	wgamcorewkqcddwhist_num.push_back( (TH1*)wgamcorewkqcddwfile->FindObjectAny(("nhist_wgamewkqcd_dw"+ext+"_"+obs).c_str()));
-	wgamcorewkqcddwhist_den.push_back( (TH1*)wgamcorewkqcddwfile->FindObjectAny(("dhist_wgamewkqcd_dw"+ext+"_"+obs).c_str()));
-
-	wgamcorqcdshapedwhist.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("wgamcorqcdshape_dw"+ext+"hist_"+obs).c_str()));
-	wgamcorqcdshapedwhist_num.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("nhist_wgamqcdshape_dw"+ext+"_"+obs).c_str()));
-	wgamcorqcdshapedwhist_den.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("dhist_wgamqcdshape_dw"+ext+"_"+obs).c_str()));
-
-	///                                                                                                                                                                                           
+	/// ZG pdfs                                                                                                                                                                 
 	wgamuncpdfhist = (TH1*)wgamcorpdfhist.back()->Clone(("wgamuncpdf"+ext+"hist_"+obs).c_str());
 	wgamuncpdfhist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncpdfhist->GetNbinsX(); i++)
 	  wgamuncpdfhist->SetBinContent(i, fabs(wgamuncpdfhist->GetBinContent(i)-1.0));
 	wgamuncpdfhist->SetName(("WG_PDF_"+obs).c_str());
       
-	///                                                                                                                                                                                           
+	/// ZG footprint                                                                                                                                                                            
 	wgamuncfpchist = (TH1*)wgamcorfpchist.back()->Clone(("wgamuncfpc"+ext+"hist_"+obs).c_str());
 	wgamuncfpchist->Divide(wgamcorqcdhist.back());
 	for (int i = 1; i <= wgamuncfpchist->GetNbinsX(); i++)
 	  wgamuncfpchist->SetBinContent(i, fabs(wgamuncfpchist->GetBinContent(i)-1.0));
 	wgamuncfpchist->SetName(("WG_Footprint_"+obs).c_str());
-      
-	// QCD scale --> to be symmetrized
-	wgamuncqcdscalehist = (TH1*) wgamcorqcdscaleuphist.back()->Clone(("wgamuncqcdscale"+ext+"hist_"+obs).c_str());
-	wgamuncqcdscalehist->Reset("ICES");
-	for (int i = 0; i <= wgamuncqcdscalehist->GetNbinsX()+1; i++)
-	  wgamuncqcdscalehist->SetBinContent(i,fabs(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	wgamuncqcdscalehist->SetName(("WG_QCDScale_"+obs).c_str());
+      }
+      else{
 
-	// NLO EWK --> to be symmetrized
-	wgamuncnloewkhist = (TH1*) wgamcornloewkuphist.back()->Clone(("wgamuncnloewk"+ext+"hist_"+obs).c_str());
-	wgamuncnloewkhist->Reset("ICES");
-	for (int i = 0; i <= wgamuncnloewkhist->GetNbinsX()+1; i++)
-	  wgamuncnloewkhist->SetBinContent(i,fabs(wgamcornloewkuphist.back()->GetBinContent(i)-wgamcornloewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	wgamuncnloewkhist->SetName(("WG_NLOEWK_"+obs).c_str());
+	cout<<"Make W/gamma sys histograms"<<endl;    
+	wgamcorewkhist.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("wgamcor"+ext+"ewkhist_"+obs).c_str()));
+	wgamcorewkhist_num.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("nhist_wgam_ewk"+ext+"_"+obs).c_str()));
+	wgamcorewkhist_den.push_back( (TH1*)wgamcorewkfile->FindObjectAny(("dhist_wgam_ewk"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdhist.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("wgamcor"+ext+"qcdhist_"+obs).c_str()));
+	wgamcorqcdhist_num.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("nhist_wgam_qcd"+ext+"_"+obs).c_str()));
+	wgamcorqcdhist_den.push_back( (TH1*)wgamcorqcdfile->FindObjectAny(("dhist_wgam_qcd"+ext+"_"+obs).c_str()));
 	
-	// NLO EWK Sud --> to be symmetrized
-	wgamuncsudewkhist = (TH1*) wgamcorsudewkuphist.back()->Clone(("wgamuncsudewk"+ext+"hist_"+obs).c_str());
-	wgamuncsudewkhist->Reset("ICES");
-	for (int i = 0; i <= wgamuncsudewkhist->GetNbinsX()+1; i++)
-	  wgamuncsudewkhist->SetBinContent(i,fabs(wgamcorsudewkuphist.back()->GetBinContent(i)-wgamcorsudewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	wgamuncsudewkhist->SetName(("WG_EWKSudakov_"+obs).c_str());
+	wgamcorpdfhist.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("wgamcor"+ext+"pdfhist_"+obs).c_str()));
+        wgamcorpdfhist_num.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("nhist_wgam_pdf"+ext+"_"+obs).c_str()));
+        wgamcorpdfhist_den.push_back( (TH1*)wgamcorpdffile->FindObjectAny(("dhist_wgam_pdf"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdscaleuphist.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("wgamcorqcdscale_up"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdscaleuphist_num.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("nhist_wgam_qcdscale_up"+ext+"_"+obs).c_str()));
+	wgamcorqcdscaleuphist_den.push_back( (TH1*)wgamcorqcdscaleupfile->FindObjectAny(("dhist_wgam_qcdscale_up"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdscaledwhist.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("wgamcorqcdscale_dw"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdscaledwhist_num.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("nhist_wgam_qcdscale_dw"+ext+"_"+obs).c_str()));
+	wgamcorqcdscaledwhist_den.push_back( (TH1*)wgamcorqcdscaledwfile->FindObjectAny(("dhist_wgam_qcdscale_dw"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdshapeuphist.push_back( (TH1*)wgamcorqcdshapeupfile->FindObjectAny(("wgamcorqcdshape_up"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdshapeuphist_num.push_back( (TH1*)wgamcorqcdshapeupfile->FindObjectAny(("nhist_wgam_qcdshape_up"+ext+"_"+obs).c_str()));
+	wgamcorqcdshapeuphist_den.push_back( (TH1*)wgamcorqcdshapeupfile->FindObjectAny(("dhist_wgam_qcdshape_up"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdshapedwhist.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("wgamcorqcdshape_dw"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdshapedwhist_num.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("nhist_wgam_qcdshape_dw"+ext+"_"+obs).c_str()));
+	wgamcorqcdshapedwhist_den.push_back( (TH1*)wgamcorqcdshapedwfile->FindObjectAny(("dhist_wgam_qcdshape_dw"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdprocuphist.push_back( (TH1*)wgamcorqcdprocupfile->FindObjectAny(("wgamcorqcdproc_up"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdprocuphist_num.push_back( (TH1*)wgamcorqcdprocupfile->FindObjectAny(("nhist_wgam_qcdproc_up"+ext+"_"+obs).c_str()));
+	wgamcorqcdprocuphist_den.push_back( (TH1*)wgamcorqcdprocupfile->FindObjectAny(("dhist_wgam_qcdproc_up"+ext+"_"+obs).c_str()));
+
+	wgamcorqcdprocdwhist.push_back( (TH1*)wgamcorqcdprocdwfile->FindObjectAny(("wgamcorqcdproc_dw"+ext+"hist_"+obs).c_str()));
+	wgamcorqcdprocdwhist_num.push_back( (TH1*)wgamcorqcdprocdwfile->FindObjectAny(("nhist_wgam_qcdproc_dw"+ext+"_"+obs).c_str()));
+	wgamcorqcdprocdwhist_den.push_back( (TH1*)wgamcorqcdprocdwfile->FindObjectAny(("dhist_wgam_qcdproc_dw"+ext+"_"+obs).c_str()));
+
+	wgamcornnloewkuphist.push_back( (TH1*)wgamcornnloewkupfile->FindObjectAny(("wgamcornnloewk_up"+ext+"hist_"+obs).c_str()));
+	wgamcornnloewkuphist_num.push_back( (TH1*)wgamcornnloewkupfile->FindObjectAny(("nhist_wgam_nnloewk_up"+ext+"_"+obs).c_str()));
+	wgamcornnloewkuphist_den.push_back( (TH1*)wgamcornnloewkupfile->FindObjectAny(("dhist_wgam_nnloewk_up"+ext+"_"+obs).c_str()));
+
+	wgamcornnloewkdwhist.push_back( (TH1*)wgamcornnloewkdwfile->FindObjectAny(("wgamcornnloewk_dw"+ext+"hist_"+obs).c_str()));
+	wgamcornnloewkdwhist_num.push_back( (TH1*)wgamcornnloewkdwfile->FindObjectAny(("nhist_wgam_nnloewk_dw"+ext+"_"+obs).c_str()));
+	wgamcornnloewkdwhist_den.push_back( (TH1*)wgamcornnloewkdwfile->FindObjectAny(("dhist_wgam_nnloewk_dw"+ext+"_"+obs).c_str()));
+
+	wgamcorsudakovuphist_1.push_back( (TH1*)wgamcorsudakovupfile_1->FindObjectAny(("wgamcorsudakov_up_1"+ext+"hist_"+obs).c_str()));
+	wgamcorsudakovuphist_1_num.push_back( (TH1*)wgamcorsudakovupfile_1->FindObjectAny(("nhist_wgam_sudakov_up_1"+ext+"_"+obs).c_str()));
+	wgamcorsudakovuphist_1_den.push_back( (TH1*)wgamcorsudakovupfile_1->FindObjectAny(("dhist_wgam_sudakov_up_1"+ext+"_"+obs).c_str()));
 	
-	// NLO QCD+EWK --> to be symmetrized
-	wgamuncewkqcdhist = (TH1*) wgamcorewkqcduphist.back()->Clone(("wgamuncewkqcd"+ext+"hist_"+obs).c_str());
-	wgamuncewkqcdhist->Reset("ICES");
-	for (int i = 0; i <= wgamuncewkqcdhist->GetNbinsX()+1; i++)
-        wgamuncewkqcdhist->SetBinContent(i,fabs(wgamcorewkqcduphist.back()->GetBinContent(i)-wgamcorewkqcddwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	wgamuncewkqcdhist->SetName(("WG_MIX_"+obs).c_str());
+	wgamcorsudakovdwhist_1.push_back( (TH1*)wgamcorsudakovdwfile_1->FindObjectAny(("wgamcorsudakov_dw_1"+ext+"hist_"+obs).c_str()));
+	wgamcorsudakovdwhist_1_num.push_back( (TH1*)wgamcorsudakovdwfile_1->FindObjectAny(("nhist_wgam_sudakov_dw_1"+ext+"_"+obs).c_str()));
+	wgamcorsudakovdwhist_1_den.push_back( (TH1*)wgamcorsudakovdwfile_1->FindObjectAny(("dhist_wgam_sudakov_dw_1"+ext+"_"+obs).c_str()));
 	
-	// NLO QCD Shape --> to be symmetrized
+	wgamcorsudakovuphist_2.push_back( (TH1*)wgamcorsudakovupfile_2->FindObjectAny(("wgamcorsudakov_up_2"+ext+"hist_"+obs).c_str()));
+	wgamcorsudakovuphist_2_num.push_back( (TH1*)wgamcorsudakovupfile_2->FindObjectAny(("nhist_wgam_sudakov_up_2"+ext+"_"+obs).c_str()));
+	wgamcorsudakovuphist_2_den.push_back( (TH1*)wgamcorsudakovupfile_2->FindObjectAny(("dhist_wgam_sudakov_up_2"+ext+"_"+obs).c_str()));
+
+	wgamcorsudakovdwhist_2.push_back( (TH1*)wgamcorsudakovdwfile_2->FindObjectAny(("wgamcorsudakov_dw_2"+ext+"hist_"+obs).c_str()));
+	wgamcorsudakovdwhist_2_num.push_back( (TH1*)wgamcorsudakovdwfile_2->FindObjectAny(("nhist_wgam_sudakov_dw_2"+ext+"_"+obs).c_str()));
+	wgamcorsudakovdwhist_2_den.push_back( (TH1*)wgamcorsudakovdwfile_2->FindObjectAny(("dhist_wgam_sudakov_dw_2"+ext+"_"+obs).c_str()));
+	
+	wgamcornnlomissuphist_1.push_back( (TH1*)wgamcornnlomissupfile_1->FindObjectAny(("wgamcornnlomiss_up_1"+ext+"hist_"+obs).c_str()));
+	wgamcornnlomissuphist_1_num.push_back( (TH1*)wgamcornnlomissupfile_1->FindObjectAny(("nhist_wgam_nnlomiss_up_1"+ext+"_"+obs).c_str()));
+	wgamcornnlomissuphist_1_den.push_back( (TH1*)wgamcornnlomissupfile_1->FindObjectAny(("dhist_wgam_nnlomiss_up_1"+ext+"_"+obs).c_str()));
+	
+	wgamcornnlomissdwhist_1.push_back( (TH1*)wgamcornnlomissdwfile_1->FindObjectAny(("wgamcornnlomiss_dw_1"+ext+"hist_"+obs).c_str()));
+	wgamcornnlomissdwhist_1_num.push_back( (TH1*)wgamcornnlomissdwfile_1->FindObjectAny(("nhist_wgam_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
+	wgamcornnlomissdwhist_1_den.push_back( (TH1*)wgamcornnlomissdwfile_1->FindObjectAny(("dhist_wgam_nnlomiss_dw_1"+ext+"_"+obs).c_str()));
+	
+	wgamcornnlomissuphist_2.push_back( (TH1*)wgamcornnlomissupfile_2->FindObjectAny(("wgamcornnlomiss_up_2"+ext+"hist_"+obs).c_str()));
+	wgamcornnlomissuphist_2_num.push_back( (TH1*)wgamcornnlomissupfile_2->FindObjectAny(("nhist_wgam_nnlomiss_up_2"+ext+"_"+obs).c_str()));
+	wgamcornnlomissuphist_2_den.push_back( (TH1*)wgamcornnlomissupfile_2->FindObjectAny(("dhist_wgam_nnlomiss_up_2"+ext+"_"+obs).c_str()));
+	
+	wgamcornnlomissdwhist_2.push_back( (TH1*)wgamcornnlomissdwfile_2->FindObjectAny(("wgamcornnlomiss_dw_2"+ext+"hist_"+obs).c_str()));
+	wgamcornnlomissdwhist_2_num.push_back( (TH1*)wgamcornnlomissdwfile_2->FindObjectAny(("nhist_wgam_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
+	wgamcornnlomissdwhist_2_den.push_back( (TH1*)wgamcornnlomissdwfile_2->FindObjectAny(("dhist_wgam_nnlomiss_dw_2"+ext+"_"+obs).c_str()));
+	
+	wgamcormixuphist.push_back( (TH1*)wgamcormixupfile->FindObjectAny(("wgamcormix_up"+ext+"hist_"+obs).c_str()));
+	wgamcormixuphist_num.push_back( (TH1*)wgamcormixupfile->FindObjectAny(("nhist_wgam_mix_up"+ext+"_"+obs).c_str()));
+	wgamcormixuphist_den.push_back( (TH1*)wgamcormixupfile->FindObjectAny(("dhist_wgam_mix_up"+ext+"_"+obs).c_str()));
+
+	wgamcormixdwhist.push_back( (TH1*)wgamcormixdwfile->FindObjectAny(("wgamcormix_dw"+ext+"hist_"+obs).c_str()));
+	wgamcormixdwhist_num.push_back( (TH1*)wgamcormixdwfile->FindObjectAny(("nhist_wgam_mix_dw"+ext+"_"+obs).c_str()));
+	wgamcormixdwhist_den.push_back( (TH1*)wgamcormixdwfile->FindObjectAny(("dhist_wgam_mix_dw"+ext+"_"+obs).c_str()));
+
+	// QCD scale --> to be symmetrized
+	wgamuncqcdscalehist = (TH1*) wgamcorqcdscaleuphist.back()->Clone(("wgamuncqcdscale"+ext+"hist_"+obs).c_str());	
+	wgamuncqcdscalehist->Reset("ICES");
+	bool sign = hasSameSign(wgamcorqcdscaleuphist.back(),wgamcorqcdscaledwhist.back());
+	for (int i = 0; i <= wgamuncqcdscalehist->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncqcdscalehist->SetBinContent(i,fabs(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));	
+	  else
+	    wgamuncqcdscalehist->SetBinContent(i,(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));	
+	}
+
+	wgamuncqcdscalehist->SetName(("WG_QCDScale_"+obs).c_str());
+	
+	// QCD Shape --> to be symmetrized
 	wgamuncqcdshapehist = (TH1*) wgamcorqcdshapeuphist.back()->Clone(("wgamuncqcdshape"+ext+"hist_"+obs).c_str());
 	wgamuncqcdshapehist->Reset("ICES");
-	for (int i = 0; i <= wgamuncqcdshapehist->GetNbinsX()+1; i++)
-	  wgamuncqcdshapehist->SetBinContent(i,fabs(wgamcorqcdshapeuphist.back()->GetBinContent(i)-wgamcorqcdshapedwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	wgamuncqcdshapehist->SetName(("WG_QCDShape_"+obs).c_str());	
-      }            
+	sign = hasSameSign(wgamcorqcdshapeuphist.back(),wgamcorqcdshapedwhist.back());
+	for (int i = 0; i <= wgamuncqcdshapehist->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncqcdshapehist->SetBinContent(i,fabs(wgamcorqcdshapeuphist.back()->GetBinContent(i)-wgamcorqcdshapedwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncqcdshapehist->SetBinContent(i,(wgamcorqcdshapeuphist.back()->GetBinContent(i)-wgamcorqcdshapedwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncqcdshapehist->SetName(("WG_QCDShape_"+obs).c_str());
+
+	// QCD Process --> to be symmetrized
+	wgamuncqcdprochist = (TH1*) wgamcorqcdprocuphist.back()->Clone(("wgamuncqcdproc"+ext+"hist_"+obs).c_str());
+	wgamuncqcdprochist->Reset("ICES");
+	sign = hasSameSign(wgamcorqcdprocuphist.back(),wgamcorqcdprocdwhist.back());
+	for (int i = 0; i <= wgamuncqcdprochist->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncqcdprochist->SetBinContent(i,fabs(wgamcorqcdprocuphist.back()->GetBinContent(i)-wgamcorqcdprocdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncqcdprochist->SetBinContent(i,(wgamcorqcdprocuphist.back()->GetBinContent(i)-wgamcorqcdprocdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncqcdprochist->SetName(("WG_QCDProcess_"+obs).c_str());
+
+	// NNLO EWK --> to be symmetrized
+	wgamuncnnloewkhist = (TH1*) wgamcornnloewkuphist.back()->Clone(("wgamuncnnloewk"+ext+"hist_"+obs).c_str());
+	wgamuncnnloewkhist->Reset("ICES");
+	sign = hasSameSign(wgamcornnloewkuphist.back(),wgamcornnloewkdwhist.back());
+	for (int i = 0; i <= wgamuncnnloewkhist->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncnnloewkhist->SetBinContent(i,fabs(wgamcornnloewkuphist.back()->GetBinContent(i)-wgamcornnloewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncnnloewkhist->SetBinContent(i,(wgamcornnloewkuphist.back()->GetBinContent(i)-wgamcornnloewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncnnloewkhist->SetName(("WG_NNLOEWK_"+obs).c_str());
+	
+	// NLO EWK Sud --> to be symmetrized
+	wgamuncsudakovhist_1 = (TH1*) wgamcorsudakovuphist_1.back()->Clone(("wgamuncsudakov1"+ext+"hist_"+obs).c_str());
+	wgamuncsudakovhist_1->Reset("ICES");
+	sign = hasSameSign(wgamcorsudakovuphist_1.back(),wgamcorsudakovdwhist_1.back());
+	for (int i = 0; i <= wgamuncsudakovhist_1->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncsudakovhist_1->SetBinContent(i,fabs(wgamcorsudakovuphist_1.back()->GetBinContent(i)-wgamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncsudakovhist_1->SetBinContent(i,(wgamcorsudakovuphist_1.back()->GetBinContent(i)-wgamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncsudakovhist_1->SetName(("WG_Sudakov1_"+obs).c_str());
+
+	// NLO EWK Sud --> to be symmetrized
+	wgamuncsudakovhist_2 = (TH1*) wgamcorsudakovuphist_2.back()->Clone(("wgamuncsudakov2"+ext+"hist_"+obs).c_str());
+	wgamuncsudakovhist_2->Reset("ICES");
+	sign = hasSameSign(wgamcorsudakovuphist_2.back(),wgamcorsudakovdwhist_2.back());
+	for (int i = 0; i <= wgamuncsudakovhist_2->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncsudakovhist_2->SetBinContent(i,fabs(wgamcorsudakovuphist_2.back()->GetBinContent(i)-wgamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncsudakovhist_2->SetBinContent(i,(wgamcorsudakovuphist_2.back()->GetBinContent(i)-wgamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncsudakovhist_2->SetName(("WG_Sudakov2_"+obs).c_str());
+
+	// NNLO Miss --> to be symmetrized
+	wgamuncnnlomisshist_1 = (TH1*) wgamcornnlomissuphist_1.back()->Clone(("wgamuncnnlomiss1"+ext+"hist_"+obs).c_str());
+	wgamuncnnlomisshist_1->Reset("ICES");
+	sign = hasSameSign(wgamcornnlomissuphist_1.back(),wgamcornnlomissdwhist_1.back());
+	for (int i = 0; i <= wgamuncnnlomisshist_1->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncnnlomisshist_1->SetBinContent(i,fabs(wgamcornnlomissuphist_1.back()->GetBinContent(i)-wgamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncnnlomisshist_1->SetBinContent(i,(wgamcornnlomissuphist_1.back()->GetBinContent(i)-wgamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncnnlomisshist_1->SetName(("WG_NNLOMiss1_"+obs).c_str());
+	
+	// NNLO Miss --> to be symmetrized
+	wgamuncnnlomisshist_2 = (TH1*) wgamcornnlomissuphist_2.back()->Clone(("wgamuncnnlomiss2"+ext+"hist_"+obs).c_str());
+	wgamuncnnlomisshist_2->Reset("ICES");
+	sign = hasSameSign(wgamcornnlomissuphist_2.back(),wgamcornnlomissdwhist_2.back());
+	for (int i = 0; i <= wgamuncnnlomisshist_2->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncnnlomisshist_2->SetBinContent(i,fabs(wgamcornnlomissuphist_2.back()->GetBinContent(i)-wgamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncnnlomisshist_2->SetBinContent(i,(wgamcornnlomissuphist_2.back()->GetBinContent(i)-wgamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncnnlomisshist_2->SetName(("WG_NNLOMiss2_"+obs).c_str());
+
+	// NLO QCD+EWK --> to be symmetrized
+	wgamuncmixhist = (TH1*) wgamcormixuphist.back()->Clone(("wgamuncmix"+ext+"hist_"+obs).c_str());
+	wgamuncmixhist->Reset("ICES");
+	sign = hasSameSign(wgamcormixuphist.back(),wgamcormixdwhist.back());
+	for (int i = 0; i <= wgamuncmixhist->GetNbinsX()+1; i++){
+	  if(sign)
+	    wgamuncmixhist->SetBinContent(i,fabs(wgamcormixuphist.back()->GetBinContent(i)-wgamcormixdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	  else
+	    wgamuncmixhist->SetBinContent(i,(wgamcormixuphist.back()->GetBinContent(i)-wgamcormixdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	}
+	wgamuncmixhist->SetName(("WG_MIX_"+obs).c_str());
+
+	// NLO PDF
+	wgamuncpdfhist = (TH1*)wgamcorpdfhist.back()->Clone(("wgamuncpdf"+ext+"hist_"+obs).c_str());
+	wgamuncpdfhist->Divide(wgamcorqcdhist.back());
+	for (int i = 1; i <= wgamuncpdfhist->GetNbinsX(); i++)
+	  wgamuncpdfhist->SetBinContent(i,fabs(wgamuncpdfhist->GetBinContent(i)-1.0));
+	wgamuncpdfhist->SetName(("WG_PDF_"+obs).c_str());
+      }
     }
 
     // make b-tagging top                                                                                                                                                                             
@@ -1475,13 +1621,14 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     outputFile.cd();
     if(addWgamma){
       if(not outputFile.GetDirectory("TF_WG"))
-        outputFile.mkdir("TF_WG");
+	outputFile.mkdir("TF_WG");
       outputFile.cd("TF_WG");
       wgamcorhist.back()->Write();
       wgamcorqcdhist.back()->Write();
       wgamcorewkhist.back()->Write();
 
       if(not useNewTheoryUncertainty){
+	
 	wgamcorre1hist.back()->Write();
 	wgamcorfa1hist.back()->Write();
 	wgamcorre2hist.back()->Write();
@@ -1507,7 +1654,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	  wgamcorfpchist_num.back()->Write();
 	  wgamcorfpchist_den.back()->Write();
 	}
-
+	
 	wgamuncewkhist->Write();
 	wgamuncre1hist->Write();
 	wgamuncfa1hist->Write();
@@ -1515,52 +1662,80 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	wgamuncfa2hist->Write();
 	wgamuncpdfhist->Write();
 	wgamuncfpchist->Write();
-      }
-      else{
+      }    
 
+      else{
+	
 	wgamcorqcdscaleuphist.back()->Write();
 	wgamcorqcdscaledwhist.back()->Write();
-	wgamcornloewkuphist.back()->Write();
-	wgamcornloewkdwhist.back()->Write();
-	wgamcorsudewkuphist.back()->Write();
-	wgamcorsudewkdwhist.back()->Write();
-	wgamcorewkqcduphist.back()->Write();
-	wgamcorewkqcddwhist.back()->Write();
-	wgamcorpdfhist.back()->Write();
 	wgamcorqcdshapeuphist.back()->Write();
 	wgamcorqcdshapedwhist.back()->Write();
+	wgamcorqcdprocuphist.back()->Write();
+	wgamcorqcdprocdwhist.back()->Write();
+	wgamcornnloewkuphist.back()->Write();
+	wgamcornnloewkdwhist.back()->Write();
+	wgamcorsudakovuphist_1.back()->Write();
+	wgamcorsudakovdwhist_1.back()->Write();
+	wgamcorsudakovuphist_2.back()->Write();
+	wgamcorsudakovdwhist_2.back()->Write();
+	wgamcornnlomissuphist_1.back()->Write();
+	wgamcornnlomissdwhist_1.back()->Write();
+	wgamcornnlomissuphist_2.back()->Write();
+	wgamcornnlomissdwhist_2.back()->Write();
+	wgamcormixuphist.back()->Write();
+	wgamcormixdwhist.back()->Write();
+	wgamcorpdfhist.back()->Write();
 	
 	if(addHistoForCutAndCount){
 	  wgamcorqcdscaleuphist_num.back()->Write();
 	  wgamcorqcdscaledwhist_num.back()->Write();
-	  wgamcornloewkuphist_num.back()->Write();
-	  wgamcornloewkdwhist_num.back()->Write();
-	  wgamcorsudewkuphist_num.back()->Write();
-	  wgamcorsudewkdwhist_num.back()->Write();
-	  wgamcorewkqcduphist_num.back()->Write();
-	  wgamcorewkqcddwhist_num.back()->Write();
 	  wgamcorqcdshapeuphist_num.back()->Write();
 	  wgamcorqcdshapedwhist_num.back()->Write();
-
+	  wgamcorqcdprocuphist_num.back()->Write();
+	  wgamcorqcdprocdwhist_num.back()->Write();
+	  wgamcornnloewkuphist_num.back()->Write();
+	  wgamcornnloewkdwhist_num.back()->Write();
+	  wgamcorsudakovuphist_1_num.back()->Write();
+	  wgamcorsudakovdwhist_1_num.back()->Write();
+	  wgamcorsudakovuphist_2_num.back()->Write();
+	  wgamcorsudakovdwhist_2_num.back()->Write();
+	  wgamcornnlomissuphist_1_num.back()->Write();
+	  wgamcornnlomissdwhist_1_num.back()->Write();
+	  wgamcornnlomissuphist_2_num.back()->Write();
+	  wgamcornnlomissdwhist_2_num.back()->Write();
+	  wgamcormixuphist_num.back()->Write();
+	  wgamcormixdwhist_num.back()->Write();
+	  
 	  wgamcorqcdscaleuphist_den.back()->Write();
 	  wgamcorqcdscaledwhist_den.back()->Write();
-	  wgamcornloewkuphist_den.back()->Write();
-	  wgamcornloewkdwhist_den.back()->Write();
-	  wgamcorsudewkuphist_den.back()->Write();
-	  wgamcorsudewkdwhist_den.back()->Write();
-	  wgamcorewkqcduphist_den.back()->Write();
-	  wgamcorewkqcddwhist_den.back()->Write();
 	  wgamcorqcdshapeuphist_den.back()->Write();
 	  wgamcorqcdshapedwhist_den.back()->Write();
+	  wgamcorqcdprocuphist_den.back()->Write();
+	  wgamcorqcdprocdwhist_den.back()->Write();
+	  wgamcornnloewkuphist_den.back()->Write();
+	  wgamcornnloewkdwhist_den.back()->Write();
+	  wgamcorsudakovuphist_1_den.back()->Write();
+	  wgamcorsudakovdwhist_1_den.back()->Write();
+	  wgamcorsudakovuphist_2_den.back()->Write();
+	  wgamcorsudakovdwhist_2_den.back()->Write();
+	  wgamcornnlomissuphist_1_den.back()->Write();
+	  wgamcornnlomissdwhist_1_den.back()->Write();
+	  wgamcornnlomissuphist_2_den.back()->Write();
+	  wgamcornnlomissdwhist_2_den.back()->Write();
+	  wgamcormixuphist_den.back()->Write();
+	  wgamcormixdwhist_den.back()->Write();
 	}
-      
+	
 	wgamuncqcdscalehist->Write();
-	wgamuncnloewkhist->Write();
-	wgamuncsudewkhist->Write();
-	wgamuncewkqcdhist->Write();      
+	wgamuncqcdshapehist->Write();
+	wgamuncqcdprochist->Write();
+	wgamuncnnloewkhist->Write();
+	wgamuncsudakovhist_1->Write();
+	wgamuncsudakovhist_2->Write();
+	wgamuncnnlomisshist_1->Write();
+	wgamuncnnlomisshist_2->Write();
+	wgamuncmixhist->Write();      
 	wgamuncpdfhist->Write();
-	wgamuncqcdshapehist->Write();      
-
       }
     }
 
@@ -1602,7 +1777,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   }
 
   // clear vectors
-  zmmcorhist.clear(); zeecorhist.clear(); wmncorhist.clear(); wencorhist.clear(); zwjcorhist.clear(); gamcorhist.clear(); wgamcorhist.clear(); topmucorhist.clear(); topelcorhist.clear();
+  zmmcorhist.clear(); zeecorhist.clear(); wmncorhist.clear(); wencorhist.clear(); zwjcorhist.clear(); wgamcorhist.clear(); wgamcorhist.clear(); topmucorhist.clear(); topelcorhist.clear();
   topmucorbuphist.clear(); topmucorbdownhist.clear(); topelcorbuphist.clear(); topelcorbdownhist.clear();
 
   gamcorewkhist.clear(); gamcorqcdhist.clear(); gamcorre1hist.clear(); gamcorfa1hist.clear(); gamcorre2hist.clear(); gamcorfa2hist.clear(); gamcorpdfhist.clear(); gamcorfpchist.clear();
@@ -1616,8 +1791,9 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcormixuphist.clear(); zwjcormixdwhist.clear(); 
 
   wgamcorewkhist.clear(); wgamcorqcdhist.clear(); wgamcorre1hist.clear(); wgamcorfa1hist.clear(); wgamcorre2hist.clear(); wgamcorfa2hist.clear(); wgamcorpdfhist.clear(); wgamcorfpchist.clear();
-  wgamcorqcdscaleuphist.clear(); wgamcorqcdscaledwhist.clear(); wgamcornloewkuphist.clear(); wgamcornloewkdwhist.clear(); wgamcorsudewkuphist.clear(); 
-  wgamcorsudewkdwhist.clear(); wgamcorewkqcduphist.clear(); wgamcorewkqcddwhist.clear(); wgamcorqcdshapeuphist.clear(); wgamcorqcdshapedwhist.clear();
+  wgamcorqcdscaleuphist.clear(); wgamcorqcdscaledwhist.clear(); wgamcorqcdshapeuphist.clear(); wgamcorqcdshapedwhist.clear(); wgamcorqcdprocuphist.clear(); wgamcorqcdprocdwhist.clear();
+  wgamcornnloewkuphist.clear(); wgamcornnloewkdwhist.clear();   wgamcorsudakovuphist_1.clear(); wgamcorsudakovuphist_2.clear(); wgamcorsudakovdwhist_1.clear(); wgamcorsudakovdwhist_2.clear(); 
+  wgamcormixuphist.clear(); wgamcormixdwhist.clear(); 
 
   zmmcorhist_num.clear(); zeecorhist_num.clear(); wmncorhist_num.clear(); wencorhist_num.clear(); gamcorhist_num.clear(); wgamcorhist_num.clear(); zwjcorhist_num.clear();
   zmmcorhist_den.clear(); zeecorhist_den.clear(); wmncorhist_den.clear(); wencorhist_den.clear(); gamcorhist_den.clear(); wgamcorhist_den.clear(); zwjcorhist_den.clear();
@@ -1651,15 +1827,21 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   zwjcornnloewkuphist_den.clear(); zwjcornnloewkdwhist_den.clear();   zwjcorsudakovuphist_1_den.clear(); zwjcorsudakovuphist_2_den.clear(); zwjcorsudakovdwhist_1_den.clear(); 
   zwjcorsudakovdwhist_2_den.clear(); 
   zwjcormixuphist_den.clear(); zwjcormixdwhist_den.clear(); 
-  
-  wgamcorewkhist_num.clear(); wgamcorqcdhist_num.clear(); wgamcorre1hist_num.clear(); wgamcorfa1hist_num.clear(); wgamcorre2hist_num.clear(); wgamcorfa2hist_num.clear(); 
-  wgamcorpdfhist_num.clear(); wgamcorfpchist_num.clear();
-  wgamcorewkhist_den.clear(); wgamcorqcdhist_den.clear(); wgamcorre1hist_den.clear(); wgamcorfa1hist_den.clear(); wgamcorre2hist_den.clear(); wgamcorfa2hist_den.clear();
-  wgamcorpdfhist_den.clear(); wgamcorfpchist_den.clear();
-  wgamcorqcdscaleuphist_num.clear(); wgamcorqcdscaledwhist_num.clear(); wgamcornloewkuphist_num.clear(); wgamcornloewkdwhist_num.clear(); wgamcorsudewkuphist_num.clear(); 
-  wgamcorsudewkdwhist_num.clear(); wgamcorewkqcduphist_num.clear(); wgamcorewkqcddwhist_num.clear();
-  wgamcorqcdscaleuphist_den.clear(); wgamcorqcdscaledwhist_den.clear(); wgamcornloewkuphist_den.clear(); wgamcornloewkdwhist_den.clear(); wgamcorsudewkuphist_den.clear(); 
-  wgamcorsudewkdwhist_den.clear(); wgamcorewkqcduphist_den.clear(); wgamcorewkqcddwhist_den.clear();
+
+  wgamcorewkhist_num.clear(); wgamcorqcdhist_num.clear(); wgamcorre1hist_num.clear(); wgamcorfa1hist_num.clear(); wgamcorre2hist_num.clear(); wgamcorpdfhist_num.clear(); 
+  wgamcorfa2hist_num.clear(); wgamcorfpchist_num.clear();
+  wgamcorewkhist_den.clear(); wgamcorqcdhist_den.clear(); wgamcorre1hist_den.clear(); wgamcorfa1hist_den.clear(); wgamcorre2hist_den.clear(); wgamcorpdfhist_den.clear(); 
+  wgamcorfa2hist_den.clear(); wgamcorfpchist_den.clear();
+  wgamcorqcdscaleuphist_num.clear(); wgamcorqcdscaledwhist_num.clear(); wgamcorqcdshapeuphist_num.clear(); wgamcorqcdshapedwhist_num.clear(); wgamcorqcdprocuphist_num.clear(); 
+  wgamcorqcdprocdwhist_num.clear();
+  wgamcornnloewkuphist_num.clear(); wgamcornnloewkdwhist_num.clear();   wgamcorsudakovuphist_1_num.clear(); wgamcorsudakovuphist_2_num.clear(); wgamcorsudakovdwhist_1_num.clear(); 
+  wgamcorsudakovdwhist_2_num.clear(); 
+  wgamcormixuphist_num.clear(); wgamcormixdwhist_num.clear(); 
+  wgamcorqcdscaleuphist_den.clear(); wgamcorqcdscaledwhist_den.clear(); wgamcorqcdshapeuphist_den.clear(); wgamcorqcdshapedwhist_den.clear(); wgamcorqcdprocuphist_den.clear(); 
+  wgamcorqcdprocdwhist_den.clear();
+  wgamcornnloewkuphist_den.clear(); wgamcornnloewkdwhist_den.clear();   wgamcorsudakovuphist_1_den.clear(); wgamcorsudakovuphist_2_den.clear(); wgamcorsudakovdwhist_1_den.clear(); 
+  wgamcorsudakovdwhist_2_den.clear(); 
+  wgamcormixuphist_den.clear(); wgamcormixdwhist_den.clear(); 
 
   topmucorbuphist_num.clear(); topmucorbdownhist_num.clear(); topelcorbuphist_num.clear(); topelcorbdownhist_num.clear();
   topmucorbuphist_den.clear(); topmucorbdownhist_den.clear(); topelcorbuphist_den.clear(); topelcorbdownhist_den.clear();
@@ -1701,21 +1883,26 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   if(wgamcorqcdfile) wgamcorqcdfile->Close();
   if(wgamcorewkfile) wgamcorewkfile->Close();
   if(wgamcorre1file) wgamcorre1file->Close();
-  if(wgamcorfa1file) wgamcorfa1file->Close();
   if(wgamcorre2file) wgamcorre2file->Close();
   if(wgamcorfa2file) wgamcorfa2file->Close();
   if(wgamcorpdffile) wgamcorpdffile->Close();
   if(wgamcorfpcfile) wgamcorfpcfile->Close();
   if(wgamcorqcdscaleupfile) wgamcorqcdscaleupfile->Close();
   if(wgamcorqcdscaledwfile) wgamcorqcdscaledwfile->Close();
-  if(wgamcornloewkupfile) wgamcornloewkupfile->Close();
-  if(wgamcornloewkdwfile) wgamcornloewkdwfile->Close();
-  if(wgamcorsudewkupfile) wgamcorsudewkupfile->Close();
-  if(wgamcorsudewkdwfile) wgamcorsudewkdwfile->Close();
-  if(wgamcorewkqcdupfile) wgamcorewkqcdupfile->Close();
-  if(wgamcorewkqcddwfile) wgamcorewkqcddwfile->Close();
-  if(wgamcorqcdshapeupfile) wgamcorqcdshapeupfile->Close();
-  if(wgamcorqcdshapedwfile) wgamcorqcdshapedwfile->Close();
+  if(wgamcorqcdprocupfile) wgamcorqcdprocupfile->Close();
+  if(wgamcorqcdprocdwfile) wgamcorqcdprocdwfile->Close();
+  if(wgamcornnloewkupfile) wgamcornnloewkupfile->Close();
+  if(wgamcornnloewkdwfile) wgamcornnloewkdwfile->Close();
+  if(wgamcorsudakovupfile_1) wgamcorsudakovupfile_1->Close();
+  if(wgamcorsudakovdwfile_1) wgamcorsudakovdwfile_1->Close();
+  if(wgamcorsudakovupfile_2) wgamcorsudakovupfile_2->Close();
+  if(wgamcorsudakovdwfile_2) wgamcorsudakovdwfile_2->Close();
+  if(wgamcornnlomissupfile_1) wgamcornnlomissupfile_1->Close();
+  if(wgamcornnlomissdwfile_1) wgamcornnlomissdwfile_1->Close();
+  if(wgamcornnlomissupfile_2) wgamcornnlomissupfile_2->Close();
+  if(wgamcornnlomissdwfile_2) wgamcornnlomissdwfile_2->Close();
+  if(wgamcormixupfile) wgamcormixupfile->Close();
+  if(wgamcormixdwfile) wgamcormixdwfile->Close();
 
   if(zwjcorqcdfile) zwjcorqcdfile->Close();
   if(zwjcorewkfile) zwjcorewkfile->Close();
@@ -1753,7 +1940,7 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
 				  TFile & outputFile, // output file
 				  const string & outDir,  // output directory
 				  const Category & category,
-				  const bool & addWgamma, 
+				  const bool & addZWratio, 
 				  const bool & addTop, 
 				  const string & ext,
 				  const bool & addHistoForCutAndCount = false){
@@ -1764,18 +1951,11 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
   TFile* wmncorfile = TFile::Open((outDir+"/wewkmncor"+ext+".root").c_str());
   TFile* wencorfile = TFile::Open((outDir+"/wewkencor"+ext+".root").c_str());
   TFile* zwjcorfile = TFile::Open((outDir+"/zwjewkcor"+ext+".root").c_str());
-  TFile* gamcorfile = NULL;
-  TFile* wgamcorfile = NULL;
-
-  if(addWgamma){
-    gamcorfile = TFile::Open((outDir+"/gamewkcor"+ext+".root").c_str());
-    wgamcorfile = TFile::Open((outDir+"/wgamewkcor"+ext+".root").c_str());
-  }
 
   // get histograms                                                                                                                                                                                   
-  vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist, gamcorhist, wgamcorhist;
-  vector<TH1*> zmmcorhist_num, zeecorhist_num, wmncorhist_num, wencorhist_num, zwjcorhist_num, gamcorhist_num, wgamcorhist_num;
-  vector<TH1*> zmmcorhist_den, zeecorhist_den, wmncorhist_den, wencorhist_den, zwjcorhist_den, gamcorhist_den, wgamcorhist_den;
+  vector<TH1*> zmmcorhist, zeecorhist, wmncorhist, wencorhist, zwjcorhist;
+  vector<TH1*> zmmcorhist_num, zeecorhist_num, wmncorhist_num, wencorhist_num, zwjcorhist_num;
+  vector<TH1*> zmmcorhist_den, zeecorhist_den, wmncorhist_den, wencorhist_den, zwjcorhist_den;
 
   // output file                                                                                                                                                                                      
   for(auto obs : observables){
@@ -1797,19 +1977,10 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
     wencorhist_num.push_back( (TH1*)wencorfile->FindObjectAny(("nhist_ewk_wen"+ext+"_"+obs).c_str()));
     wencorhist_den.push_back( (TH1*)wencorfile->FindObjectAny(("dhist_ewk_wen"+ext+"_"+obs).c_str()));
 
-    zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjewkcor"+ext+"hist_"+obs).c_str()));
-    zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_ewk_zwj"+ext+"_"+obs).c_str()));
-    zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_ewk_zwj"+ext+"_"+obs).c_str()));
-
-    if(addWgamma){
-
-      gamcorhist.push_back( (TH1*)gamcorfile->FindObjectAny(("gamewkcor"+ext+"hist_"+obs).c_str()));
-      gamcorhist_num.push_back( (TH1*)gamcorfile->FindObjectAny(("nhist_ewk_gam"+ext+"_"+obs).c_str()));
-      gamcorhist_den.push_back( (TH1*)gamcorfile->FindObjectAny(("dhist_ewk_gam"+ext+"_"+obs).c_str()));
-      
-      wgamcorhist.push_back( (TH1*) wgamcorfile->FindObjectAny(("wgamewkcor"+ext+"hist_"+obs).c_str()));
-      wgamcorhist_num.push_back( (TH1*) wgamcorfile->FindObjectAny(("nhist_ewk_wgam"+ext+"_"+obs).c_str()));
-      wgamcorhist_den.push_back( (TH1*) wgamcorfile->FindObjectAny(("dhist_ewk_wgam"+ext+"_"+obs).c_str()));
+    if(addZWratio){
+      zwjcorhist.push_back( (TH1*)zwjcorfile->FindObjectAny(("zwjewkcor"+ext+"hist_"+obs).c_str()));
+      zwjcorhist_num.push_back( (TH1*)zwjcorfile->FindObjectAny(("nhist_ewk_zwj"+ext+"_"+obs).c_str()));
+      zwjcorhist_den.push_back( (TH1*)zwjcorfile->FindObjectAny(("dhist_ewk_zwj"+ext+"_"+obs).c_str()));
     }
     
     
@@ -1856,56 +2027,26 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
       wencorhist_den.back()->Write();
     }
 
-    cout<<"Z/W"<<endl;
-    outputFile.cd();
-    if(not outputFile.GetDirectory("TF_WZ_EWK"))
-      outputFile.mkdir("TF_WZ_EWK");
-    outputFile.cd("TF_WZ_EWK");
-    zwjcorhist.back()->Write();
-
-    if(addHistoForCutAndCount){
-      zwjcorhist_num.back()->Write();
-      zwjcorhist_den.back()->Write();
-    }
-
-    outputFile.cd();
-
-    if(addWgamma){
-      if(not outputFile.GetDirectory("TF_GJ_EWK"))
-	outputFile.mkdir("TF_GJ_EWK");
-      outputFile.cd("TF_GJ_EWK");
-      if(gamcorhist.size() !=0 and gamcorhist.back() != NULL)
-	gamcorhist.back()->Write();
-      
-      if(addHistoForCutAndCount){
-	if(gamcorhist_num.back())
-	  gamcorhist_num.back()->Write();
-	if(gamcorhist_den.back())
-	  gamcorhist_den.back()->Write();
-      }
-      
-      cout<<"WGamma+jets"<<endl;
+    if(addZWratio){
+      cout<<"Z/W"<<endl;
       outputFile.cd();
-      if(not outputFile.GetDirectory("TF_WG_EWK"))
-        outputFile.mkdir("TF_WG_EWK");
-      outputFile.cd("TF_WG_EWK");
-      if(wgamcorhist.size() != 0 and wgamcorhist.back() != NULL)
-	wgamcorhist.back()->Write();
+      if(not outputFile.GetDirectory("TF_WZ_EWK"))
+	outputFile.mkdir("TF_WZ_EWK");
+      outputFile.cd("TF_WZ_EWK");
+      zwjcorhist.back()->Write();
       
       if(addHistoForCutAndCount){
-	if(wgamcorhist_num.back())
-	  wgamcorhist_num.back()->Write();
-	if(wgamcorhist_den.back())
-	  wgamcorhist_den.back()->Write();
+	zwjcorhist_num.back()->Write();
+	zwjcorhist_den.back()->Write();
       }
     }
     outputFile.cd();
   }
 
   // clear vectors
-  zmmcorhist.clear(); zeecorhist.clear(); wmncorhist.clear(); wencorhist.clear(); zwjcorhist.clear(); gamcorhist.clear(); wgamcorhist.clear();
-  zmmcorhist_num.clear(); zeecorhist_num.clear(); wmncorhist_num.clear(); wencorhist_num.clear(); zwjcorhist_num.clear(); gamcorhist_num.clear(); wgamcorhist_num.clear();
-  zmmcorhist_den.clear(); zeecorhist_den.clear(); wmncorhist_den.clear(); wencorhist_den.clear(); zwjcorhist_den.clear(); gamcorhist_den.clear(); wgamcorhist_den.clear();
+  zmmcorhist.clear(); zeecorhist.clear(); wmncorhist.clear(); wencorhist.clear(); zwjcorhist.clear(); 
+  zmmcorhist_num.clear(); zeecorhist_num.clear(); wmncorhist_num.clear(); wencorhist_num.clear(); zwjcorhist_num.clear(); 
+  zmmcorhist_den.clear(); zeecorhist_den.clear(); wmncorhist_den.clear(); wencorhist_den.clear(); zwjcorhist_den.clear(); 
 
 
   // Close files
@@ -1914,7 +2055,5 @@ void fillAndSaveCorrEWKHistograms(const vector<string> & observables, // observa
   if(wmncorfile) wmncorfile->Close();
   if(wencorfile) wencorfile->Close();
   if(zwjcorfile) zwjcorfile->Close();
-  if(gamcorfile) gamcorfile->Close();
-  if(wgamcorfile) wgamcorfile->Close();
   
 }

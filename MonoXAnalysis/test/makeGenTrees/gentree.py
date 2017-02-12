@@ -43,10 +43,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 if options.inputFiles == []:
     process.source = cms.Source("PoolSource", 
                                 fileNames = cms.untracked.vstring(
-            'root://cms-xrd-global.cern.ch//store/mc/RunIISummer15wmLHEGS/G1Jet_Pt-100To250_TuneCUETP8M1_13TeV-amcatnlo-pythia8/GEN-SIM/MCRUN2_71_V1-v1/00000/0672093C-6F4A-E611-85F5-0CC47A009E26.root'))
+            '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/620000/0429E5A7-80C3-E611-B89C-0242AC130003.root'))
 else:
     process.source = cms.Source("PoolSource", 
                                 fileNames = cms.untracked.vstring(options.inputFiles))
+
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:1450:1672340')
     
 # Output file
 process.TFileService = cms.Service("TFileService", 
