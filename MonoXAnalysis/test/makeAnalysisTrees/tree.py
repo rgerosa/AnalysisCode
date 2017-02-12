@@ -77,7 +77,7 @@ options.register (
 	'add e-gamma scale and resolution corrections for electrons and photons');
 
 options.register (
-	'addEGMRegression',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addEGMRegression',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add new regression for photons/electrons');
 
 ## MET options
@@ -322,12 +322,12 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/data/Run2016G/MET/MINIAOD/23Sep2016-v1/90000/124A2693-B38A-E611-BC48-002590FC5ACC.root')
 
 	else:
-		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
+#		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 #		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
-
+		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/620000/0429E5A7-80C3-E611-B89C-0242AC130003.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Pseudo_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/60000/D462BEC9-41DA-E611-83AD-02163E015C72.root')
@@ -356,7 +356,7 @@ else:
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('1:4:303');
+#process.source.eventsToProcess = cms.untracked.VEventRange('1:887:1672340','1:1450:1672623','1:1450:1023397');
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #					ignoreTotal = cms.untracked.int32(1),
 #					moduleMemorySummary = cms.untracked.bool(True)
@@ -399,7 +399,7 @@ jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.
 ## apply JEC and propagation on MET for AK4PFPuppi
 if options.addPuppiJets:
 	jetPuppiCollName = JetCorrector(process,jetPuppiCollName,"AK4PFPuppi",options.isMC,options.applyL2L3Residuals)
-	
+
 # to apply analysis selections
 process.load('AnalysisCode.MonoXAnalysis.selectionObjects_cfi')
 process.selectedObjects.jets = cms.InputTag(jetCollName)
@@ -433,10 +433,8 @@ if not options.isReMiniAOD: #### don't
 		metCollectionPuppi = "slimmedMETsPuppi"
 		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addPuppiMETSystematics,options.useOfficialMETSystematics);
 		
-
 ## in case run the MVA met producer
 from AnalysisCode.MonoXAnalysis.MVAMet_cff import runMVAMet
-
 if options.addMVAMet:
 	## to parse leptons we need a list of CandidateView not a value map with Refs
 	#leptons = ["PFCleaner:tightmuons","PFCleaner:tightelectrons"]

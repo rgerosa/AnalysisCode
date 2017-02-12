@@ -54,7 +54,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   if(not useMoriondSetup)
     pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");
   else
-    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");
+    pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");
   TH1* puhist = (TH1*) pufile->Get("puhist");
 
   ////////////
@@ -72,7 +72,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   else
     triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/metTriggerEfficiency_12p9.root");    
   
-  
+
+  /// take trigger efficiency curve
   TEfficiency*       triggermet       = NULL;
   TGraphAsymmErrors* triggermet_graph = NULL;
   if(triggerfile_MET != NULL){
@@ -92,9 +93,9 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
 
 
     
-  ////////////
-  /// output file
-  ////////////
+  /////////////////////
+  //// output file ////
+  /////////////////////
 
   TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+".root").c_str(),"RECREATE");
   outputFile->cd();
@@ -118,7 +119,6 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   float  recoMjj, recoDetajj, recoDphijj;
 
   outputTree->Branch("id",&id,"id/I");  // id = 0 means event not selections, id = 1 means mono-jet, id = 2 means mono-V, id = 3 means VBF 
-
   outputTree->Branch("genVBosonPt",   &genVBosonPt,   "genVBosonPt/F");  
   outputTree->Branch("genVBosonEta",  &genVBosonEta,  "genVBosonEta/F");  
   outputTree->Branch("genVBosonPhi",  &genVBosonPhi,  "genVBosonPhi/F");  
@@ -162,7 +162,6 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   outputTree->Branch("genX2Phi", &genX2Phi, "genX2Phi/F");  
   outputTree->Branch("genX2Mass", &genX2Mass, "genX2Mass/F");  
   outputTree->Branch("genX2RealMass", &genX2RealMass, "genX2RealMass/F");  
-
   outputTree->Branch("genMetPt", &genMetPt, "genMetPt/F");  
   outputTree->Branch("genMetPhi", &genMetPhi, "genMetPhi/F");  
 
@@ -292,7 +291,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
  
     if(int(nEvents) %10000 == 0){
       std::cout.flush();
-      std::cout<<"\r"<<"Events "<<nEvents/nTotal*100<<"%";
+      std::cout<<"\r"<<"Events "<<float(nEvents)/float(nTotal)*100<<"%";
     }
     nEvents++;
     // extract real mass value of the sample for the interpolation --> read the string of the tree-name

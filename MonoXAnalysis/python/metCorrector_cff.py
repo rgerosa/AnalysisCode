@@ -18,7 +18,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 	#### run the right recipe for puppi candidates for MET (as well taking last for jets)
 	if postfix == "Puppi" and not hasattr(process,"puppi") and not hasattr(process,"puppiForMET"):
 		from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
-		makePuppiesFromMiniAOD( process, False);
+		makePuppiesFromMiniAOD(process, False);
 		process.puppi.useExistingWeights = cms.bool(False)
 		process.puppiNoLep.useExistingWeights = cms.bool(False)
 		process.puppiForMET.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
