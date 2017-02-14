@@ -292,15 +292,16 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0,2.5);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0,2.5);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
-  frame2->GetYaxis()->SetNdivisions(5);
+  //  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->GetYaxis()->SetNdivisions(3);
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
@@ -402,10 +403,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   pad2->RedrawAxis("G sameaxis");
 
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
-  leg2->SetFillColor(0);
-  leg2->SetFillStyle(1);
+  //leg2->SetFillColor(0);
+  //leg2->SetFillStyle(1);
+  //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
-  leg2->SetLineColor(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"post-fit","PLE");
   leg2->AddEntry(d1hist,"pre-fit","PLE");

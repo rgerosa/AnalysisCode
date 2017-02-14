@@ -670,10 +670,10 @@ void prepostSig(string   fitFilename,
   pad2->RedrawAxis("G sameaxis");
 
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
-  leg2->SetFillColor(0);
-  leg2->SetFillStyle(1);
+  //leg2->SetFillColor(0);
+  //leg2->SetFillStyle(1);
+  //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
-  leg2->SetLineColor(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"post-fit","PLE");
   leg2->AddEntry(dphist,"pre-fit","PLE");

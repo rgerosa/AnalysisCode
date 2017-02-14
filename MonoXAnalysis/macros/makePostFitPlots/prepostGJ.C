@@ -232,9 +232,9 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -339,18 +339,19 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   unhist->SetFillColor(0);
   unhist->Draw("hist same");  
 
+  pad2->RedrawAxis("G sameaxis");
+
+
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
-  leg2->SetFillColor(0);
-  leg2->SetFillStyle(1);
+  //leg2->SetFillColor(0);
+  //leg2->SetFillStyle(0);
+  //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
-  leg2->SetLineColor(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"post-fit","PLE");
   leg2->AddEntry(d1hist,"pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");                                                                                                                                                      
-
-  pad2->RedrawAxis("G sameaxis");
 
   if(addPullPlot){
     pad3->Draw();
