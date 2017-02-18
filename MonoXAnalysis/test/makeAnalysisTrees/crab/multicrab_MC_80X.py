@@ -46,7 +46,7 @@ config.JobType.numCores         = 4
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 30000
+config.Data.unitsPerJob   = 10000
 config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_28_01_2016/'
 config.Data.allowNonValidInputDataset = True
 

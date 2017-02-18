@@ -363,7 +363,6 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"sigfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -490,7 +489,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }
   
-  // write tree in the file
+  // write tree in the file  
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree"); 
@@ -592,7 +591,6 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -833,7 +831,6 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"zeefilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1072,7 +1069,6 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   if(isMC){
 
@@ -1295,7 +1291,6 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"wenfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1526,7 +1521,6 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"gamfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1752,7 +1746,6 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"topfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1990,7 +1983,6 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   frtree->SetBranchStatus("emu*",0);
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
-  frtree->SetBranchStatus("pswgt_ht*",0);
 
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
