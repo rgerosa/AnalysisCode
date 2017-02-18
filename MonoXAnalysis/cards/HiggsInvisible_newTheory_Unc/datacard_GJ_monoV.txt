@@ -24,16 +24,16 @@ CMS_met_trig              lnN       1.010       -           -         -
 CMS_trig_ph               lnN       1.010       -           1.010     1.010
 VGamma_Norm13TeV          lnN       -           -           1.200     -
 WJets_GJ_Norm13TeV        lnN       -           -           -         1.500
-Znunu_GJ_QCDScale         param     0     1
-Znunu_GJ_QCDShape         param     0     1
-Znunu_GJ_QCDProcess       param     0     1
-Znunu_GJ_PDF              param     0     1
-Znunu_GJ_NNLOEWK          param     0     1
-Znunu_GJ_Sudakov_1        param     0     1
-Znunu_GJ_Sudakov_2        param     0     1
-Znunu_GJ_NNLOMiss_1       param     0     1
-Znunu_GJ_NNLOMiss_2       param     0     1
-Znunu_GJ_EWKQCDMIX_2      param     0     1
+ZG_GJ_QCDScale         param     0     1
+ZG_GJ_QCDShape         param     0     1
+ZG_GJ_QCDProcess       param     0     1
+ZG_GJ_PDF              param     0     1
+ZG_GJ_NNLOEWK          param     0     1
+Znunu_SR_Sudakov       param     0     1
+Gamma_GJ_Sudakov       param     0     1
+Znunu_SR_NNLOMiss      param     0     1
+Gamma_GJ_NNLOMiss      param     0     1
+ZG_GJ_QCDEWKMIX        param     0     1
 Znunu_GJ_MV_bin1_Runc     param     0     1
 Znunu_GJ_MV_bin2_Runc     param     0     1
 Znunu_GJ_MV_bin3_Runc     param     0     1

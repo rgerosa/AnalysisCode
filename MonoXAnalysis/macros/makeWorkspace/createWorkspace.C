@@ -566,16 +566,16 @@ void createWorkspace(string   inputName,                        // input templat
       else{
 	
 	// uncertainty on Z/W-QCD
-	RooRealVar* wln_SR_qcdscale = new RooRealVar("WJets_SR_QCDScale",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdshape = new RooRealVar("WJets_SR_QCDShape",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdproc  = new RooRealVar("WJets_SR_QCDProcess","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf      = new RooRealVar("WJets_SR_PDF",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnloewk  = new RooRealVar("WJets_SR_NNLOEWK",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("WJets_SR_Sudakov_1",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_SR_Sudakov_2",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("WJets_SR_NNLOMiss_1",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_SR_NNLOMiss_2",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("WJets_SR_QCDEWKMIX",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZW_SR_QCDScale",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZW_SR_QCDShape",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZW_SR_QCDProcess","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_pdf      = new RooRealVar("ZW_SR_PDF",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZW_SR_NNLOEWK",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_SR_Sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_SR_NNLOMiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_SR_NNLOMiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZW_SR_QCDEWKMIX",""  ,0.,-5.,5.);
 
 	// in case of a flat nuisance
 	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
@@ -1137,15 +1137,16 @@ void createWorkspace(string   inputName,                        // input templat
 
     else{
       vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;      	
-      znn_GJ_qcdscale = new RooRealVar("Znunu_GJ_QCDScale","",0.,-5.,5.);
-      znn_GJ_qcdshape = new RooRealVar("Znunu_GJ_QCDShape","",0.,-5.,5.);
-      znn_GJ_qcdproc  = new RooRealVar("Znunu_GJ_QCDProcess","",0.,-5.,5.);
-      znn_GJ_nnloewk  = new RooRealVar("Znunu_GJ_NNLOEWK","",0.,-5.,5.);
-      znn_GJ_sudakov_1  = new RooRealVar("Znunu_GJ_Sudakov_1","",0.,-5.,5.);
-      znn_GJ_sudakov_2  = new RooRealVar("Znunu_GJ_Sudakov_2","",0.,-5.,5.);
-      znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_GJ_NNLOMiss_1","",0.,-5.,5.);
-      znn_GJ_nnlomiss_2 = new RooRealVar("Znunu_GJ_NNLOMiss_2","",0.,-5.,5.);
-      znn_GJ_qcdewkmix  = new RooRealVar("Znunu_GJ_QCDEWKMIX","",0.,-5.,5.);
+      znn_GJ_qcdscale = new RooRealVar("ZG_GJ_QCDScale","",0.,-5.,5.);
+      znn_GJ_qcdshape = new RooRealVar("ZG_GJ_QCDShape","",0.,-5.,5.);
+      znn_GJ_qcdproc  = new RooRealVar("ZG_GJ_QCDProcess","",0.,-5.,5.);
+      znn_GJ_nnloewk  = new RooRealVar("ZG_GJ_NNLOEWK","",0.,-5.,5.);
+      znn_GJ_pdf      = new RooRealVar("ZG_GJ_PDF","",0.,-5.,5.);
+      znn_GJ_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov","",0.,-5.,5.);
+      znn_GJ_sudakov_2  = new RooRealVar("Gamma_GJ_Sudakov","",0.,-5.,5.);
+      znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_SR_NNLOMiss","",0.,-5.,5.);
+      znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_GJ_NNLOMiss","",0.,-5.,5.);
+      znn_GJ_qcdewkmix  = new RooRealVar("ZG_GJ_QCDEWKMIX","",0.,-5.,5.);
       znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
 
       if(not addFlatZgammaUncertainty){
