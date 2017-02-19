@@ -11,8 +11,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
-  gStyle->SetPalette(kBlackBody);
-  //gStyle->SetPalette(kBrownCyan);
+  gStyle->SetPalette(70);
   gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");
@@ -28,7 +27,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   if(category == Category::monoV)
     canvas = new TCanvas("canvas","",900,900);
   else if(category == Category::monojet)
-    canvas = new TCanvas("canvas","",1150,900);
+    canvas = new TCanvas("canvas","",1250,900);
   else if(category == Category::total)
     canvas = new TCanvas("canvas","",1600,1000);
 
