@@ -84,19 +84,19 @@ options.register (
 options.register (
         'useMiniAODMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'use the default MET in minoAOD without re-applying corrections');
+
+options.register (
+        'useMiniAODPuppiMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'use the default puppi MET in minoAOD without re-applying corrections');
+
+options.register (
+        'addMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'store met sys variation in the output tree');
 	
 options.register (
-	'addMVAMet',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-	'compute MVAMet');
+	'addBadMuonClean',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'Cleaning Bad muons from MET --> as done in 2016 re-miniAOD');
   	
-options.register (
-	'addMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-	'recompute Puppi MET propagating JEC from Jet + systematics');
-
-options.register (
-	'addPuppiMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-	'recompute Puppi MET propagating JEC from Jet + systematics');
-
 options.register (
 	'useOfficialMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run the official tool for met uncertainty --> does a lot of things but slow .. otherwise minimal home made validated code');
@@ -267,12 +267,11 @@ print "Running with addQGLikelihood     = ",options.addQGLikelihood
 print "Running with addPuppiJets        = ",options.addPuppiJets
 print "##### Missing energy #####"
 print "Running with addPuppiMET            = ",options.addPuppiMET
-print "Running with addMETSystematics      = ",options.addMETSystematics
-print "Running with addPuppiMETSystematics = ",options.addPuppiMETSystematics
-print "Running with addMETBreakDown        = ",options.addMETBreakDown	
-print "Running with addMVAMet              = ",options.addMVAMet
 print "Running with useMiniAODMet          = ",options.useMiniAODMet
+print "Running with useMiniAODPuppiMet     = ",options.useMiniAODPuppiMet
+print "Running with addMETSystematics      = ",options.addMETSystematics
 print "Running with useOfficialMETSystematics = ",options.useOfficialMETSystematics
+print "Running with addMETBreakDown        = ",options.addMETBreakDown	
 print "##### Electrons/Photons #####"
 print "Running with addEGMSmear            = ",options.addEGMSmear
 print "Running with addEGMRegression       = ",options.addEGMRegression
@@ -428,25 +427,33 @@ from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
 if not options.isReMiniAOD: #### don't 
 	if not options.useMiniAODMet:
 		metCollection = "slimmedMETs"
-		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.addMETSystematics,options.useOfficialMETSystematics);	
-	if options.addPuppiMET:
+		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addBadMuonClean);	
+	if options.addPuppiMET and not options.useMiniAODPuppiMet:
 		metCollectionPuppi = "slimmedMETsPuppi"
-		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.addPuppiMETSystematics,options.useOfficialMETSystematics);
-		
-## in case run the MVA met producer
-from AnalysisCode.MonoXAnalysis.MVAMet_cff import runMVAMet
-if options.addMVAMet:
-	## to parse leptons we need a list of CandidateView not a value map with Refs
-	#leptons = ["PFCleaner:tightmuons","PFCleaner:tightelectrons"]
-	leptons = [];
-	runMVAMet(process,isMC = options.isMC,leptons = leptons )
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addBadMuonClean);
+#### e-gamma fix in met for re-miniAOD
+elif options.isReMiniAOD and not options.useMiniAODMet:
+	from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
+	from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+	runMetCorAndUncFromMiniAOD(process,
+				   isData=True,
+				   )
+	corMETFromMuonAndEG(process,pfCandCollection="",electronCollection="slimmedElectronsBeforeGSFix",photonCollection="slimmedPhotonsBeforeGSFix",
+			    corElectronCollection="slimmedElectrons", corPhotonCollection="slimmedPhotons",
+			    allMETEGCorrected=True,muCorrection=False,eGCorrection=True,runOnMiniAOD=True,postfix="MuEGClean")
+
+	process.slimmedMETsMuEGClean = process.slimmedMETs.clone()
+	process.slimmedMETsMuEGClean.src = cms.InputTag("patPFMetT1MuEGClean")
+	process.slimmedMETsMuEGClean.rawVariation =  cms.InputTag("patPFMetRawMuEGClean")
+	process.slimmedMETsMuEGClean.t1Uncertainties = cms.InputTag("patPFMetT1%sMuEGClean")
+	del process.slimmedMETsMuEGClean.caloMET
 
 
 # Define all the METs corrected for lepton/photon momenta
 from AnalysisCode.MonoXAnalysis.recoil_cff import recoilComputation
-recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,False,options.isReMiniAOD)
+recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,False,options.isReMiniAOD,options.addBadMuonClean)
 if options.addPuppiMET:
-	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODMet,True,options.isReMiniAOD)
+	recoilComputation(process,options.processName,options.miniAODProcess,options.useMiniAODPuppiMet,True,options.isReMiniAOD,options.addBadMuonClean)
 
 ### met breakdown
 if options.addMETBreakDown:
@@ -550,7 +557,8 @@ applyEventFilters(process,
 		  options.applyPhotonJetsFilter, ### in case one wants to apply single-photon filter
 		  photonPt,
 		  useMVAPhotonID,
-		  options.isReMiniAOD)
+		  options.isReMiniAOD,
+		  options.addBadMuonClean)
 	
 if options.useMiniAODMet and not options.isReMiniAOD:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
@@ -576,6 +584,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      ## gen info			     
 			      isMC                   = cms.bool(options.isMC),
 			      isReMiniAOD            = cms.bool(options.isReMiniAOD),
+			      addBadMuonClean        = cms.bool(options.addBadMuonClean),
 			      uselheweights          = cms.bool(options.useLHEWeights),
 			      isSignalSample         = cms.bool(options.isSignalSample),			      
 			      addGenParticles        = cms.bool(options.addGenParticles),			      
@@ -672,9 +681,6 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      puppit1taumet = cms.InputTag("puppit1taumet"),
 			      ## MET systematics
 			      addMETSystematics = cms.bool(options.addMETSystematics),    			      
-			      ## mvaMet
-			      addMVAMet = cms.bool(options.addMVAMet),			     
-			      mvaMET    = cms.InputTag("mvaMET"),			      
 			      ## trigger filter
 			      applyHLTFilter = cms.bool(options.filterOnHLT),
 			      setHLTFilterFlag = cms.bool(options.setHLTFilterFlag),
@@ -715,9 +721,19 @@ if options.useMiniAODMet:
 
 if options.isReMiniAOD:
 	process.tree.fakeMuonCandidates = cms.InputTag("packedPFCandidatesDiscarded");
-	process.tree.t1met = cms.InputTag("slimmedMETsMuEGClean","",options.miniAODProcess);
+	## re-run on the fly EGMUclean met
+	if not options.useMiniAODMet:
+		process.tree.t1met = cms.InputTag("slimmedMETsMuEGClean","",options.processName);
+	else:
+		process.tree.t1met = cms.InputTag("slimmedMETsMuEGClean","",options.miniAODProcess);
+
 	process.tree.t1metEGClean = cms.InputTag("slimmedMETsEGClean","",options.miniAODProcess);
-	process.tree.t1metMuClean = cms.InputTag("slimmedMETs","",options.miniAODProcess);
+	## whether bad muons done again or taken from miniAOD
+	if not options.addBadMuonClean:
+		process.tree.t1metMuClean = cms.InputTag("slimmedMETs","",options.miniAODProcess);
+	else:
+		process.tree.t1metMuClean = cms.InputTag("slimmedMETsMuClean");
+	process.tree.t1metOriginal = cms.InputTag("slimmedMETsUncorrected","",options.miniAODProcess);
 
 	process.tree.t1mumet = cms.InputTag("t1mumet");
 	process.tree.t1mumetEGClean = cms.InputTag("t1mumetEGClean");
@@ -735,30 +751,36 @@ if options.isReMiniAOD:
 	process.tree.t1taumetEGClean = cms.InputTag("t1taumetEGClean");
 	process.tree.t1taumetMuClean = cms.InputTag("t1taumetMuClean");	
 
-if options.addMETSystematics : 
-	if options.useOfficialMETSystematics :
-		process.tree.jetsJESUp = cms.InputTag("shiftedPatJetEnUp")
-		process.tree.jetsJESDw = cms.InputTag("shiftedPatJetEnDown")
-		process.tree.jetsJER   = cms.InputTag("patSmearedJets")
-		if options.addPuppiJets and options.addPuppiMET:
-			process.tree.puppijetsJESUp = cms.InputTag("shiftedPatJetEnUpPuppi")
-			process.tree.puppijetsJESDw = cms.InputTag("shiftedPatJetEnDownPuppi")
-			process.tree.puppijetsJER   = cms.InputTag("patSmearedJetsPuppi")
-	else:
-		process.tree.jetsJESUp = cms.InputTag("metSysProducer",jetCollName+"EnUp")
-		process.tree.jetsJESDw = cms.InputTag("metSysProducer",jetCollName+"EnDown")
-		process.tree.jetsJER   = cms.InputTag("metSysProducer",jetCollName+"Smear")
-		if options.addPuppiJets and options.addPuppiMET:
-			 process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
-			 process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
-			 process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
-else:
-	process.tree.jetsJESUp = cms.InputTag("");
-	process.tree.jetsJESDw = cms.InputTag("");
-	process.tree.jetsJER   = cms.InputTag("");
-	process.tree.puppijetsJESUp =  cms.InputTag("");
-	process.tree.puppijetsJESDw =  cms.InputTag("");
-	process.tree.puppijetsJER   =  cms.InputTag("");
+if options.isMC and options.addBadMuonClean:
+	process.tree.t1met = cms.InputTag("slimmedMETsMuClean");
+	process.tree.t1metOriginal = cms.InputTag("slimmedMETs");
+
+if options.addBadMuonClean:
+	process.patCaloMet.metSource = cms.InputTag("metrawCaloMuClean")
+
+###### sys scaling objects 
+process.tree.jetsJESUp = cms.InputTag("");
+process.tree.jetsJESDw = cms.InputTag("");
+process.tree.jetsJER   = cms.InputTag("");
+process.tree.puppijetsJESUp =  cms.InputTag("");
+process.tree.puppijetsJESDw =  cms.InputTag("");
+process.tree.puppijetsJER   =  cms.InputTag("");
+
+if options.useOfficialMETSystematics and not options.useMiniAODMet: 
+	process.tree.jetsJESUp = cms.InputTag("shiftedPatJetEnUp")
+	process.tree.jetsJESDw = cms.InputTag("shiftedPatJetEnDown")
+	process.tree.jetsJER   = cms.InputTag("patSmearedJets")
+	process.tree.jetsJESUp = cms.InputTag("metSysProducer",jetCollName+"EnUp")
+	process.tree.jetsJESDw = cms.InputTag("metSysProducer",jetCollName+"EnDown")
+	process.tree.jetsJER   = cms.InputTag("metSysProducer",jetCollName+"Smear")
+
+if options.addPuppiJets and options.addPuppiMET and not options.useMiniAODPuppiMet:
+	process.tree.puppijetsJESUp = cms.InputTag("shiftedPatJetEnUpPuppi")
+	process.tree.puppijetsJESDw = cms.InputTag("shiftedPatJetEnDownPuppi")
+	process.tree.puppijetsJER   = cms.InputTag("patSmearedJetsPuppi")
+	process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
+	process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
+	process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
 
 
 # Histo for Btag efficiency
@@ -833,7 +855,6 @@ if options.addSubstructurePuppi:
 
 ## fast sim business
 if options.isFastSIM:
-
 	## fix LHE info
 	process.tree.lheinfo = cms.InputTag("source")
 	process.tree.lheRuninfo = cms.InputTag("source")

@@ -18,7 +18,9 @@ def applyEventFilters(process,
                       applyPhotonJetsFilter = False,
                       photonPt = 50,
                       useMVAPhotonID = False,
-                      isReMiniAOD = False):
+                      isReMiniAOD = False,
+                      addBadMuonClean = False,
+                      useMiniAODMet = False):
 
 
     ########################################    
@@ -44,9 +46,13 @@ def applyEventFilters(process,
     ########################################    
     ########################################    
     if not isReMiniAOD:
+        metCollectionName = "slimmedMETs";
+        if addBadMuonClean:
+            metCollectionName = "slimmedMETsMuClean";
+
         setattr(process,"filterHighRecoil", cms.EDFilter("PATMETFilter",
                                                          metCollections = cms.VPSet(
-                    cms.PSet( srcMet = cms.InputTag("slimmedMETs","",processName),
+                    cms.PSet( srcMet = cms.InputTag(metCollectionName,"",processName),
                               metCut = cms.double(metCut)),
                     cms.PSet(srcMet = cms.InputTag("t1mumet","",processName),
                              metCut = cms.double(metCut)),
@@ -60,9 +66,12 @@ def applyEventFilters(process,
                                                          applyAndInsteadOfOr = cms.bool(False)
                                                          ))
     else:
+        metCollectionName = "slimmedMETs";
+        if addBadMuonClean:
+            metCollectionName = "slimmedMETsMuClean";
         setattr(process,"filterHighRecoil", cms.EDFilter("PATMETFilter",
                                                          metCollections = cms.VPSet(
-                    cms.PSet( srcMet = cms.InputTag("slimmedMETs","",miniAODProcess),
+                    cms.PSet( srcMet = cms.InputTag(metCollectionName,"",miniAODProcess),
                               metCut = cms.double(metCut)),
                     cms.PSet( srcMet = cms.InputTag("slimmedMETsEGClean","",miniAODProcess),
                               metCut = cms.double(metCut)),
@@ -92,7 +101,8 @@ def applyEventFilters(process,
                                                          applyAndInsteadOfOr = cms.bool(False)
                                                          ))
 
-    
+        if not useMiniAODMet:
+            getattr(process,"filterHighRecoil").metCollections[2].srcMet = cms.InputTag("slimmedMETsMuEGClean","",processName)
 
     recoilSequence = cms.Sequence(getattr(process,"filterHighRecoil"))
     puritySequence = cms.Sequence();

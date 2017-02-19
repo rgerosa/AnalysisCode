@@ -22,6 +22,7 @@ Recipe for 80X:
        git cms-merge-topic -u ikrav:egm_id_80X_v2
        git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
        git cms-merge-topic -u gpetruc:badMuonFilters_80X_v2
+       git cms-merge-topic mmarionncern:METRecipe_80X_part2 -u	
        git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
        scramv1 b j 4;
        cd $CMSSW_BASE/external/$SCRAM_ARCH;

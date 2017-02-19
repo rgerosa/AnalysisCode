@@ -1,10 +1,13 @@
 import os
 import FWCore.ParameterSet.Config as cms
 
-def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,isReMiniAOD):
+def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,isReMiniAOD,addBadMuonClean):
     
     if not isPuppi:
-        metName = "slimmedMETs";
+        if not addBadMuonClean:
+            metName = "slimmedMETs";
+        else:
+            metName = "slimmedMETsMuClean";
         postfix = "";
     else:
         metName = "slimmedMETsPuppi";
@@ -61,12 +64,18 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                   cands   = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
                                                                   isPuppi = cms.bool(isPuppi),
                                                                   pfCandidates = cms.InputTag("packedPFCandidates")))
+
+            if not useMiniAODMet:
+                getattr(process,postfix+"t1mumet").met = cms.InputTag(metName+"MuEGClean","",processName)
+
             if not hasattr(process,postfix+"t1mumetEGClean"):
                 setattr(process, postfix+"t1mumetEGClean",cms.EDProducer("MuonCorrectedMETProducer",
                                                                          met     = cms.InputTag(metName+"EGClean","",miniAODProcess),
                                                                          cands   = cms.VInputTag(cms.InputTag("selectedObjects", "muons")),
                                                                          isPuppi = cms.bool(isPuppi),
                                                                          pfCandidates = cms.InputTag("packedPFCandidates")))                
+
+
             if not hasattr(process,postfix+"t1mumetMuClean"):
                 setattr(process, postfix+"t1mumetMuClean",cms.EDProducer("MuonCorrectedMETProducer",
                                                                          met     = cms.InputTag(metName,"",miniAODProcess),
@@ -81,6 +90,9 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                   isPuppi = cms.bool(isPuppi),
                                                                   pfCandidates = cms.InputTag("packedPFCandidates")))
 
+            if not useMiniAODMet:
+                getattr(process,postfix+"t1elmet").met = cms.InputTag(metName+"MuEGClean","",processName)
+
             if not hasattr(process,postfix+"t1elmetEGClean"):
                 setattr(process, postfix+"t1elmetEGClean",cms.EDProducer("ElectronCorrectedMETProducer",
                                                                          met     = cms.InputTag(metName+"EGClean","",miniAODProcess),
@@ -88,6 +100,7 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                          isPuppi = cms.bool(isPuppi),
                                                                          pfCandidates = cms.InputTag("packedPFCandidates")))
                 
+
             if not hasattr(process,postfix+"t1elmetMuClean"):
                 setattr(process, postfix+"t1elmetMuClean",cms.EDProducer("ElectronCorrectedMETProducer",
                                                                          met     = cms.InputTag(metName,"",miniAODProcess),
@@ -103,6 +116,8 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                   isPuppi = cms.bool(isPuppi),
                                                                   pfCandidates = cms.InputTag("packedPFCandidates")))
 
+            if not useMiniAODMet:
+                getattr(process,postfix+"t1phmet").met = cms.InputTag(metName+"MuEGClean","",processName)
 
             if not hasattr(process,postfix+"t1phmetEGClean"):
                 setattr(process, postfix+"t1phmetEGClean",cms.EDProducer("PhotonCorrectedMETProducer",
@@ -110,6 +125,7 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                          cands   = cms.VInputTag(cms.InputTag("selectedObjects", "photons")),
                                                                          isPuppi = cms.bool(isPuppi),
                                                                          pfCandidates = cms.InputTag("packedPFCandidates")))
+
 
             if not hasattr(process,postfix+"t1phmetMuClean"):
                 setattr(process, postfix+"t1phmetMuClean",cms.EDProducer("PhotonCorrectedMETProducer",
@@ -127,12 +143,16 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                    pfCandidates = cms.InputTag("packedPFCandidates")))
 
 
+            if not useMiniAODMet:
+                getattr(process,postfix+"t1taumet").met = cms.InputTag(metName+"MuEGClean","",processName)
+
             if not hasattr(process,postfix+"t1taumetEGClean"):
                 setattr(process, postfix+"t1taumetEGClean",cms.EDProducer("TauCorrectedMETProducer",
                                                                           met     = cms.InputTag(metName+"EGClean","",miniAODProcess),
                                                                           cands   = cms.VInputTag(cms.InputTag("selectedObjects", "tausVLNew")),
                                                                           isPuppi = cms.bool(isPuppi),
                                                                           pfCandidates = cms.InputTag("packedPFCandidates")))
+
                 
             if not hasattr(process,postfix+"t1taumetMuClean"):
                 setattr(process, postfix+"t1taumetMuClean",cms.EDProducer("TauCorrectedMETProducer",
@@ -140,6 +160,7 @@ def recoilComputation(process,processName,miniAODProcess,useMiniAODMet,isPuppi,i
                                                                           cands   = cms.VInputTag(cms.InputTag("selectedObjects", "tausVLNew")),
                                                                           isPuppi = cms.bool(isPuppi),
                                                                           pfCandidates = cms.InputTag("packedPFCandidates")))
+
         else:
 
             if not hasattr(process,postfix+"t1mumet"):
