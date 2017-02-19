@@ -74,8 +74,13 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
       minmc = histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1);
   }
       
-  //  frame->GetYaxis()->SetRangeUser(min(mindata,minmc)*0.5,max(maxdata,maxmc)*1.5);
-  frame->GetYaxis()->SetRangeUser(0.0,0.2);
+  if(TString(postfix).Contains("ZW"))
+    frame->GetYaxis()->SetRangeUser(0.0,0.2);
+  if(TString(postfix).Contains("ZG"))
+    frame->GetYaxis()->SetRangeUser(0.0,0.25);
+  else
+  if(TString(postfix).Contains("WG"))
+    frame->GetYaxis()->SetRangeUser(0.0,2.2);
 
   // histo style
   histoData->SetLineColor(kBlack);
@@ -202,6 +207,11 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   setTDRStyle();
   initializeBinning();
 
+  if(useNewTheoryUncertainty and category == Category::VBF){
+    cerr<<"New theory uncertainties valid on for mono-jet and mono-V"<<endl;
+    return;
+  }
+
   // open the input file with all the templates
   TFile* inputFile = TFile::Open(inputFileName.c_str());
 
@@ -326,10 +336,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  ZG_fa2 = NULL;
   TH1*  ZG_pdf = NULL;
   TH1*  ZG_fp  = NULL;
-  TH1*  ZG_QCDscale = NULL;
-  TH1*  ZG_NLOEwk = NULL;
-  TH1*  ZG_SudEwk = NULL;
-  TH1*  ZG_EwkQcd = NULL;
+  TH1*  ZG_QCDScale = NULL;
+  TH1*  ZG_QCDShape = NULL;
+  TH1*  ZG_QCDProcess = NULL;
+  TH1*  ZG_NNLOEWK = NULL;
+  TH1*  ZG_Sudakov_1 = NULL;
+  TH1*  ZG_Sudakov_2 = NULL;
+  TH1*  ZG_NNLOMiss_1 = NULL;
+  TH1*  ZG_NNLOMiss_2 = NULL;
+  TH1*  ZG_QCDEWKMix  = NULL;
+
   if(category != Category::VBF and not useNewTheoryUncertainty){
     ZG_ewk = (TH1*)inputFile->FindObjectAny(("ZG_EWK_"+observable).c_str());
     ZG_re1 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
@@ -340,16 +356,18 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     ZG_fp  = (TH1*)inputFile->FindObjectAny(("ZG_Footprint_"+observable).c_str());
   }
   else if(category != Category::VBF and useNewTheoryUncertainty){
-    ZG_QCDscale = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()))->Clone("ZG_QCDscale");
-    ZG_NLOEwk   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str()))->Clone("ZG_NLOEwk");
-    ZG_SudEwk   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str()))->Clone("ZG_SudEwk");
-    ZG_EwkQcd   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str()))->Clone("ZG_EwkQcd");
-    ZG_QCDscale->Scale(2);
-    ZG_NLOEwk->Scale(2);
-    ZG_SudEwk->Scale(2);
-    ZG_EwkQcd->Scale(2);
+    ZG_QCDScale = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDScale_"+observable).c_str()))->Clone("ZG_QCDScale");
+    ZG_QCDShape = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDShape_"+observable).c_str()))->Clone("ZG_QCDShape");
+    ZG_QCDProcess = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDProcess_"+observable).c_str()))->Clone("ZG_QCDProcess");
+    ZG_NNLOEWK  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_NNLOEWK_"+observable).c_str()))->Clone("ZG_NNLOEWK");
+    ZG_QCDEWKMix  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_MIX_"+observable).c_str()))->Clone("ZG_MIX");
+    ZG_pdf = (TH1*)inputFile->FindObjectAny(("ZG_PDF_"+observable).c_str());
+    ZG_Sudakov_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_Sudakov1_"+observable).c_str()))->Clone("ZG_Sudakov1");
+    ZG_Sudakov_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_Sudakov2_"+observable).c_str()))->Clone("ZG_Sudakov2");
+    ZG_NNLOMiss_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_NNLOMiss1_"+observable).c_str()))->Clone("ZG_NNLOMiss1");
+    ZG_NNLOMiss_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_NNLOMiss2_"+observable).c_str()))->Clone("ZG_NNLOMiss2");  
   }
-
+  
   ////
   TH1*  ZW_ewk = NULL;
   TH1*  ZW_re1 = NULL;
@@ -357,10 +375,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  ZW_fa1 = NULL;
   TH1*  ZW_fa2 = NULL;
   TH1*  ZW_pdf = NULL;
-  TH1*  ZW_QCDscale = NULL;
-  TH1*  ZW_NLOEwk = NULL;
-  TH1*  ZW_SudEwk = NULL;
-  TH1*  ZW_EwkQcd = NULL;
+  TH1*  ZW_QCDScale = NULL;
+  TH1*  ZW_QCDShape = NULL;
+  TH1*  ZW_QCDProcess = NULL;
+  TH1*  ZW_NNLOEWK = NULL;
+  TH1*  ZW_Sudakov_1 = NULL;
+  TH1*  ZW_Sudakov_2 = NULL;
+  TH1*  ZW_NNLOMiss_1 = NULL;
+  TH1*  ZW_NNLOMiss_2 = NULL;
+  TH1*  ZW_QCDEWKMix  = NULL;
+
 
   if(not useNewTheoryUncertainty){
     ZW_ewk = (TH1*)inputFile->FindObjectAny(("ZW_EWK_"+observable).c_str());
@@ -371,10 +395,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     ZW_pdf = (TH1*)inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
   }
   else{
-    ZW_QCDscale = (TH1*)inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str());
-    ZW_NLOEwk   = (TH1*)inputFile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str());
-    ZW_SudEwk   = (TH1*)inputFile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str());
-    ZW_EwkQcd   = (TH1*)inputFile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str());
+    ZW_QCDScale = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()))->Clone("ZW_QCDScale");
+    ZW_QCDShape = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDShape_"+observable).c_str()))->Clone("ZW_QCDShape");
+    ZW_QCDProcess = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDProcess_"+observable).c_str()))->Clone("ZW_QCDProcess");
+    ZW_NNLOEWK  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_NNLOEWK_"+observable).c_str()))->Clone("ZW_NNLOEWK");
+    ZW_QCDEWKMix  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_MIX_"+observable).c_str()))->Clone("ZW_MIX");
+    ZW_pdf = (TH1*)inputFile->FindObjectAny(("ZW_PDF_"+observable).c_str());
+    ZW_Sudakov_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_Sudakov1_"+observable).c_str()))->Clone("ZW_Sudakov1");
+    ZW_Sudakov_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_Sudakov2_"+observable).c_str()))->Clone("ZW_Sudakov2");
+    ZW_NNLOMiss_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_NNLOMiss1_"+observable).c_str()))->Clone("ZW_NNLOMiss1");
+    ZW_NNLOMiss_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_NNLOMiss2_"+observable).c_str()))->Clone("ZW_NNLOMiss2");  
   }
 
   TH1*  WG_ewk = NULL;
@@ -384,10 +414,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  WG_fa2 = NULL;
   TH1*  WG_pdf = NULL;
   TH1*  WG_fp  = NULL;
-  TH1*  WG_QCDscale = NULL;
-  TH1*  WG_NLOEwk = NULL;
-  TH1*  WG_SudEwk = NULL;
-  TH1*  WG_EwkQcd = NULL;
+  TH1*  WG_QCDScale = NULL;
+  TH1*  WG_QCDShape = NULL;
+  TH1*  WG_QCDProcess = NULL;
+  TH1*  WG_NNLOEWK = NULL;
+  TH1*  WG_Sudakov_1 = NULL;
+  TH1*  WG_Sudakov_2 = NULL;
+  TH1*  WG_NNLOMiss_1 = NULL;
+  TH1*  WG_NNLOMiss_2 = NULL;
+  TH1*  WG_QCDEWKMix  = NULL;
+
   if(category != Category::VBF and not useNewTheoryUncertainty){
     WG_ewk = (TH1*)inputFile->FindObjectAny(("WG_EWK_"+observable).c_str());
     WG_re1 = (TH1*)inputFile->FindObjectAny(("WG_RenScale1_"+observable).c_str());
@@ -398,14 +434,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     WG_fp = (TH1*)inputFile->FindObjectAny(("WG_Footprint_"+observable).c_str());
   }
   else if(category != Category::VBF and useNewTheoryUncertainty){
-    WG_QCDscale = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()))->Clone("WG_QCDscale");
-    WG_NLOEwk   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str()))->Clone("WG_NLOEwk");
-    WG_SudEwk   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str()))->Clone("WG_SudEwk");
-    WG_EwkQcd   = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str()))->Clone("WG_EwkQcd");
-    WG_QCDscale->Scale(2);
-    WG_NLOEwk->Scale(2);
-    WG_SudEwk->Scale(2);
-    WG_EwkQcd->Scale(2);
+    WG_QCDScale = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDScale_"+observable).c_str()))->Clone("WG_QCDScale");
+    WG_QCDShape = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDShape_"+observable).c_str()))->Clone("WG_QCDShape");
+    WG_QCDProcess = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDProcess_"+observable).c_str()))->Clone("WG_QCDProcess");
+    WG_NNLOEWK  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_NNLOEWK_"+observable).c_str()))->Clone("WG_NNLOEWK");
+    WG_QCDEWKMix  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_MIX_"+observable).c_str()))->Clone("WG_MIX");
+    WG_pdf = (TH1*)inputFile->FindObjectAny(("WG_PDF_"+observable).c_str());
+    WG_Sudakov_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_Sudakov1_"+observable).c_str()))->Clone("WG_Sudakov1");
+    WG_Sudakov_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_Sudakov2_"+observable).c_str()))->Clone("WG_Sudakov2");
+    WG_NNLOMiss_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_NNLOMiss1_"+observable).c_str()))->Clone("WG_NNLOMiss1");
+    WG_NNLOMiss_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_NNLOMiss2_"+observable).c_str()))->Clone("WG_NNLOMiss2");  
   }
 
   TH1* ZWData_ee = (TH1*) data_zee->Clone("ZWData_e");
@@ -431,8 +469,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZWMC_mm->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_mm->GetBinError(iBin+1)*ZWMC_mm->GetBinError(iBin+1);
-    err += pow(ZWMC_mm->GetBinContent(iBin+1)*musf,2);
-    err += pow(ZWMC_mm->GetBinContent(iBin+1)*mutrack,2);
+    err += pow(ZWMC_mm->GetBinContent(iBin+1)*musf*2,2);
+    err += pow(ZWMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
       err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
@@ -442,23 +480,28 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     }
     else{
-      err += pow(ZW_QCDscale->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_NLOEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_SudEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_EwkQcd->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDScale->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDShape->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDProcess->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOEWK->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDEWKMix->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_2->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     }
     if(category == Category::VBF)
       ZWMC_mm->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
     else
       ZWMC_mm->SetBinError(iBin+1,sqrt(err));
-
   }
   
   for(int iBin = 0; iBin < ZWMC_ee->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_ee->GetBinError(iBin+1)*ZWMC_ee->GetBinError(iBin+1);
-    err += pow(ZWMC_ee->GetBinContent(iBin+1)*elsf,2);
-    err += pow(ZWMC_ee->GetBinContent(iBin+1)*eltrack,2);
+    err += pow(ZWMC_ee->GetBinContent(iBin+1)*elsf*2,2);
+    err += pow(ZWMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
       err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
@@ -468,10 +511,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     }
     else{
-      err += pow(ZW_QCDscale->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_NLOEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_SudEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_EwkQcd->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDScale->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDShape->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDProcess->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOEWK->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDEWKMix->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_2->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     }
     if(category == Category::VBF)
       ZWMC_ee->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
@@ -482,11 +531,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   for(int iBin = 0; iBin < ZWMC_ll->GetNbinsX(); iBin++){
     double err = 0.;
     err += ZWMC_ll->GetBinError(iBin+1)*ZWMC_ll->GetBinError(iBin+1);
-    err += pow(ZWMC_ll->GetBinContent(iBin+1)*elsf,2);
-    err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrack,2);
-    err += pow(ZWMC_ll->GetBinContent(iBin+1)*musf,2);
-    err += pow(ZWMC_ll->GetBinContent(iBin+1)*mutrack,2);
-    err += pow(ZWMC_ll->GetBinContent(iBin+1)*lepveto,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*elsf*2,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrack*2,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*musf*2,2);
+    err += pow(ZWMC_ll->GetBinContent(iBin+1)*mutrack*2,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*mettrig,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*eltrig,2);
     if(not useNewTheoryUncertainty){
@@ -498,10 +546,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     }
     else{
-      err += pow(ZW_QCDscale->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_NLOEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_SudEwk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
-      err += pow(ZW_EwkQcd->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDScale->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDShape->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDProcess->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_pdf->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOEWK->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_QCDEWKMix->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_Sudakov_2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
+      err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     }
     if(category == Category::VBF)
       ZWMC_ll->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
@@ -577,10 +631,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
       }
       else{
-	err += pow(ZG_QCDscale->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-	err += pow(ZG_NLOEwk->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-	err += pow(ZG_SudEwk->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
-	err += pow(ZG_EwkQcd->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);    
+	err += pow(ZG_QCDScale->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDShape->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDProcess->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOEWK->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDEWKMix->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_1->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_2->GetBinContent(iBin+1)*ZGMC_mm->GetBinContent(iBin+1), 2);
       }
       ZGMC_mm->SetBinError(iBin+1,sqrt(err));
     }
@@ -590,6 +650,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += ZGMC_ee->GetBinError(iBin+1)*ZGMC_ee->GetBinError(iBin+1);
       err += pow(ZGMC_ee->GetBinContent(iBin+1)*elsf*2,2);
       err += pow(ZGMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
+      err += pow(ZGMC_ee->GetBinContent(iBin+1)*eltrig,2);
       err += pow(ZGMC_ee->GetBinContent(iBin+1)*phtrig,2);
       err += pow(ZGMC_ee->GetBinContent(iBin+1)*phsf,2);
       if(not useNewTheoryUncertainty){
@@ -602,10 +663,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
       }
       else{
-	err += pow(ZG_QCDscale->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-	err += pow(ZG_NLOEwk->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-	err += pow(ZG_SudEwk->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
-	err += pow(ZG_EwkQcd->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);    
+	err += pow(ZG_QCDScale->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDShape->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDProcess->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOEWK->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDEWKMix->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_1->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_2->GetBinContent(iBin+1)*ZGMC_ee->GetBinContent(iBin+1), 2);
       }
       ZGMC_ee->SetBinError(iBin+1,sqrt(err));
     }
@@ -618,6 +685,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZGMC_ll->GetBinContent(iBin+1)*mettrig,2);
       err += pow(ZGMC_ll->GetBinContent(iBin+1)*elsf*2,2);
       err += pow(ZGMC_ll->GetBinContent(iBin+1)*eltrack*2,2);
+      err += pow(ZGMC_ll->GetBinContent(iBin+1)*eltrig,2);
       err += pow(ZGMC_ll->GetBinContent(iBin+1)*phtrig,2);
       err += pow(ZGMC_ll->GetBinContent(iBin+1)*phsf,2);
       if(not useNewTheoryUncertainty){
@@ -630,10 +698,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += pow(ZG_fp->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
       }
       else{
-	err += pow(ZG_QCDscale->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-	err += pow(ZG_NLOEwk->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-	err += pow(ZG_SudEwk->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
-	err += pow(ZG_EwkQcd->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);    
+	err += pow(ZG_QCDScale->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDShape->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDProcess->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_pdf->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOEWK->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_QCDEWKMix->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_Sudakov_2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_1->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
+	err += pow(ZG_NNLOMiss_2->GetBinContent(iBin+1)*ZGMC_ll->GetBinContent(iBin+1), 2);
       }
       ZGMC_ll->SetBinError(iBin+1,sqrt(err));
     }
@@ -646,6 +720,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += pow(WGMC_m->GetBinContent(iBin+1)*musf,2);
 	err += pow(WGMC_m->GetBinContent(iBin+1)*mutrack,2);
 	err += pow(WGMC_m->GetBinContent(iBin+1)*phtrig,2);
+	err += pow(WGMC_m->GetBinContent(iBin+1)*mettrig,2);
 	err += pow(WGMC_m->GetBinContent(iBin+1)*phsf,2);
 	if(not useNewTheoryUncertainty){
 	  err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
@@ -657,10 +732,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	  err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
 	}
 	else{
-	  err += pow(WG_QCDscale->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-	  err += pow(WG_NLOEwk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-	  err += pow(WG_SudEwk->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
-	  err += pow(WG_EwkQcd->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);    
+	  err += pow(WG_QCDScale->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDShape->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDProcess->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOEWK->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDEWKMix->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_1->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_2->GetBinContent(iBin+1)*WGMC_m->GetBinContent(iBin+1), 2);
 	}
 	WGMC_m->SetBinError(iBin+1,0,sqrt(err));
       }
@@ -671,6 +752,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += pow(WGMC_e->GetBinContent(iBin+1)*elsf,2);
 	err += pow(WGMC_e->GetBinContent(iBin+1)*eltrack,2);
 	err += pow(WGMC_e->GetBinContent(iBin+1)*phtrig,2);
+	err += pow(WGMC_e->GetBinContent(iBin+1)*eltrig,2);
 	err += pow(WGMC_e->GetBinContent(iBin+1)*phsf,2);
 	if(not useNewTheoryUncertainty){
 	  err += pow(WG_ewk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
@@ -682,10 +764,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	  err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
 	}
 	else{
-	  err += pow(WG_QCDscale->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-	  err += pow(WG_NLOEwk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-	  err += pow(WG_SudEwk->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
-	  err += pow(WG_EwkQcd->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);    
+	  err += pow(WG_QCDScale->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDShape->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDProcess->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOEWK->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDEWKMix->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_1->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_2->GetBinContent(iBin+1)*WGMC_e->GetBinContent(iBin+1), 2);
 	}
 	WGMC_e->SetBinError(iBin+1,sqrt(err));
       }
@@ -695,8 +783,10 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	err += WGMC_l->GetBinError(iBin+1)*WGMC_l->GetBinError(iBin+1);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*elsf,2);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*eltrack,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*eltrig,2);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*musf,2);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*mutrack,2);
+	err += pow(WGMC_l->GetBinContent(iBin+1)*mettrig,2);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*phtrig,2);
 	err += pow(WGMC_l->GetBinContent(iBin+1)*phsf,2);
 	if(not useNewTheoryUncertainty){
@@ -709,10 +799,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
 	  err += pow(WG_fp->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
 	}
 	else{
-	  err += pow(WG_QCDscale->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-	  err += pow(WG_NLOEwk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-	  err += pow(WG_SudEwk->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
-	  err += pow(WG_EwkQcd->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);    
+	  err += pow(WG_QCDScale->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDShape->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDProcess->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_pdf->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOEWK->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_QCDEWKMix->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_Sudakov_2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_1->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
+	  err += pow(WG_NNLOMiss_2->GetBinContent(iBin+1)*WGMC_l->GetBinContent(iBin+1), 2);
 	}
 	WGMC_l->SetBinError(iBin+1,sqrt(err));
       }

@@ -30,6 +30,8 @@ void sigdatamchist(TFile* outfile,
   TChain* qcdtree = new TChain("tree/tree");
   TChain* ewkwtree = new TChain("tree/tree");
   TChain* ewkztree = new TChain("tree/tree");
+  TChain* zgtree = new TChain("tree/tree");
+  TChain* wgtree = new TChain("tree/tree");
   TChain* dttree = new TChain("tree/tree");
 
   zntree->Add((baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/*root").c_str());
@@ -45,6 +47,8 @@ void sigdatamchist(TFile* outfile,
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/sigfilter/*root").c_str());
   ewkztree->Add((baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/*root").c_str());
   ewkwtree->Add((baseInputTreePath+"/WJetsEWK/sigfilter/*root").c_str());
+  zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
+  wgtree->Add((baseInputTreePath+"/WGJets/gamfilter/*root").c_str());
   dttree->Add((baseInputTreePath+"/MET_jecReReco/sigfilter/*root").c_str());
   // make met histograms                                                                                                                                                        
   vector<TH1*> znhist;
@@ -91,9 +95,9 @@ void sigdatamchist(TFile* outfile,
   vector<TH1*> gmhist_metUncDw;
 
   vector<TH1*> qcdhist;
-
   vector<TH1*> ewkwhist;
   vector<TH1*> ewkzhist;
+  vector<TH1*> vghist;
 
   vector<TH1*> dthist;
 
@@ -114,6 +118,7 @@ void sigdatamchist(TFile* outfile,
     TH1F* qcdhist_temp = new TH1F(("qbkghist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* ewkwhist_temp = new TH1F(("ewkbkgwhist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* ewkzhist_temp = new TH1F(("ewkbkgzhist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* vghist_temp = new TH1F(("vgzhist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* dthist_temp = new TH1F(("datahist_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
 
     znhist.push_back(dynamic_cast<TH1*>(znhist_temp));
@@ -125,6 +130,7 @@ void sigdatamchist(TFile* outfile,
     gmhist.push_back(dynamic_cast<TH1*>(gmhist_temp));
     ewkwhist.push_back(dynamic_cast<TH1*>(ewkwhist_temp));
     ewkzhist.push_back(dynamic_cast<TH1*>(ewkzhist_temp));
+    vghist.push_back(dynamic_cast<TH1*>(vghist_temp));
     dthist.push_back(dynamic_cast<TH1*>(dthist_temp));
 
     if(doAlternativeTop){
@@ -219,6 +225,7 @@ void sigdatamchist(TFile* outfile,
   vector<TH2*> tthist_alt_2D;
   vector<TH2*> dihist_2D;
   vector<TH2*> gmhist_2D;
+  vector<TH2*> vghist_2D;
   vector<TH2*> qcdhist_2D;
 
   vector<TH2*> zlhist_metJetUp_2D;
@@ -272,6 +279,7 @@ void sigdatamchist(TFile* outfile,
     TH2F* qcdhist_temp = new TH2F(("qbkghist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* ewkwhist_temp = new TH2F(("ewkwbkghist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* ewkzhist_temp = new TH2F(("ewkzbkghist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+    TH2F* vghist_temp = new TH2F(("vgbkghist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
     TH2F* dthist_temp = new TH2F(("datahist_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
 
     znhist_2D.push_back(dynamic_cast<TH2*>(znhist_temp));
@@ -283,6 +291,7 @@ void sigdatamchist(TFile* outfile,
     gmhist_2D.push_back(dynamic_cast<TH2*>(gmhist_temp));
     ewkwhist_2D.push_back(dynamic_cast<TH2*>(ewkwhist_temp));
     ewkzhist_2D.push_back(dynamic_cast<TH2*>(ewkzhist_temp));
+    vghist_2D.push_back(dynamic_cast<TH2*>(vghist_temp));
     dthist_2D.push_back(dynamic_cast<TH2*>(dthist_temp));
 
     if(doAlternativeTop){
@@ -541,7 +550,6 @@ void sigdatamchist(TFile* outfile,
       ahists.push_back(gjet_nlo_vbf);
   }
 
-    
   bool isWJet = false;
   if(category == Category::monoV)
     isWJet = true;
@@ -564,7 +572,6 @@ void sigdatamchist(TFile* outfile,
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
   cout<<"signal region: TTbar sample "<<endl;
   makehist4(tttree,tthist,tthist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-
     //alternative ttbar             
   if(doAlternativeTop){
     cout<<"signal region: TTbar alternative sample "<<endl;
@@ -573,6 +580,11 @@ void sigdatamchist(TFile* outfile,
 
   cout<<"signal region: Diboson sample "<<endl;  
   makehist4(ditree,dihist,dihist_2D,true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"signal region: Wgamma+jets"<<endl;
+  makehist4(wgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  cout<<"signal region: Zgamma+jets"<<endl;
+  makehist4(zgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+ 
   cout<<"signal region: QCD sample "<<endl;
   makehist4(qcdtree,qcdhist,qcdhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
@@ -796,6 +808,7 @@ void sigdatamchist(TFile* outfile,
   for(auto hist : qcdhist) hist->Write();
   for(auto hist : ewkwhist) hist->Write();
   for(auto hist : ewkzhist) hist->Write();
+  for(auto hist : vghist) hist->Write();
   for(auto hist : dthist) hist->Write();
 
   //
@@ -847,6 +860,7 @@ void sigdatamchist(TFile* outfile,
   for(auto hist_2D : qcdhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : ewkwhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : ewkzhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  for(auto hist_2D : vghist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : dthist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
 
 
@@ -932,6 +946,7 @@ void sigdatamchist(TFile* outfile,
   qcdhist.clear();
   ewkwhist.clear();
   ewkzhist.clear();
+  vghist.clear();
   dthist.clear();
 
   znhist_2D.clear();
@@ -974,6 +989,7 @@ void sigdatamchist(TFile* outfile,
   qcdhist_2D.clear();
   ewkwhist_2D.clear();
   ewkzhist_2D.clear();
+  vghist_2D.clear();
   dthist_2D.clear();
 
   if(kfactzjet_vbf)

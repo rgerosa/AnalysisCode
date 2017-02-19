@@ -267,7 +267,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
- 
+
   TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
@@ -300,16 +300,16 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
-  //  frame2->GetYaxis()->SetNdivisions(5);
   frame2->GetYaxis()->SetNdivisions(3);
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
     if(category == Category::VBF and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
     frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetYaxis()->SetLabelSize(0.04);
     frame2->GetYaxis()->SetTitleSize(0.04);
     frame2->GetXaxis()->SetLabelSize(0.04);
@@ -318,9 +318,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
     frame2->GetYaxis()->SetLabelSize(0.03);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
 
@@ -408,8 +409,8 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
   leg2->SetNColumns(2);
-  leg2->AddEntry(d2hist,"post-fit","PLE");
-  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  leg2->AddEntry(d2hist,"Post-fit","PLE");
+  leg2->AddEntry(d1hist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");
 

@@ -258,10 +258,10 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     leg.SetFillStyle(0);
     leg.SetBorderSize(0);
     leg.AddEntry(zw_nnloewk_unc,"N^{3}LO","L");
-    leg.AddEntry(zw_sudakov1_unc,"Sudakov 1","L");
-    leg.AddEntry(zw_sudakov2_unc,"Sudakov 2","L");
-    leg.AddEntry(zw_nnlomiss1_unc,"NNLO miss 1","L");
-    leg.AddEntry(zw_nnlomiss2_unc,"NNLO miss 2","L");
+    leg.AddEntry(zw_sudakov1_unc,"Z+jets Sudakov","L");
+    leg.AddEntry(zw_sudakov2_unc,"W+jets Sudakov","L");
+    leg.AddEntry(zw_nnlomiss1_unc,"Z+jets NNLO Miss","L");
+    leg.AddEntry(zw_nnlomiss2_unc,"W+jets NNLO Miss","L");
     leg.Draw("same");
 
     canvas->SaveAs((outputDIR+"/theoryUnc_ZW_ratio_ewkPart.png").c_str(),"png");
@@ -417,8 +417,10 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     zg_qcdscale_unc_flip->SetLineWidth(2);
 
     zg_qcdscale_unc->Draw("hist");
-    if(twoSided)
+    if(twoSided){
+      zg_qcdscale_unc_flip->SetLineStyle(2);
       zg_qcdscale_unc_flip->Draw("hist same");
+    }
     CMS_lumi(canvas,"");
 
     zg_qcdshape_unc->SetLineColor(kRed);
@@ -434,8 +436,10 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     zg_qcdproc_unc_flip->SetLineColor(kBlue);
     zg_qcdproc_unc_flip->SetLineWidth(2);
     zg_qcdproc_unc->Draw("hist same");
-    if(twoSided)
+    if(twoSided){
+      zg_qcdproc_unc_flip->SetLineStyle(2);
       zg_qcdproc_unc_flip->Draw("hist same");
+    }
 
     zg_pdf_unc_flip->SetLineColor(kCyan);
     zg_pdf_unc_flip->SetLineWidth(2);
@@ -522,10 +526,10 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     leg.SetFillStyle(0);
     leg.SetBorderSize(0);
     leg.AddEntry(zg_nnloewk_unc,"N^{3}LO","L");
-    leg.AddEntry(zg_sudakov1_unc,"Sudakov 1","L");
-    leg.AddEntry(zg_sudakov2_unc,"Sudakov 2","L");
-    leg.AddEntry(zg_nnlomiss1_unc,"NNLO miss 1","L");
-    leg.AddEntry(zg_nnlomiss2_unc,"NNLO miss 2","L");
+    leg.AddEntry(zg_sudakov1_unc,"Z+jets Sudakov","L");
+    leg.AddEntry(zg_sudakov2_unc,"#gamma+jets Sudakov","L");
+    leg.AddEntry(zg_nnlomiss1_unc,"Z+jets NNLO Miss","L");
+    leg.AddEntry(zg_nnlomiss2_unc,"#gamma+jets NNLO Miss","L");
     leg.Draw("same");
 
     canvas->SaveAs((outputDIR+"/theoryUnc_ZG_ratio_ewkPart.png").c_str(),"png");

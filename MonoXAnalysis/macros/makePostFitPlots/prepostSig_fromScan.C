@@ -486,7 +486,7 @@ void prepostSig_fromScan(string   fitFilename,
   if(not plotSBFit)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
   if(not plotSBFit)
-    leg->AddEntry(mjhist_av, "Axial-vector, M_{med} = 1.6 TeV","L");
+    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 1.6 TeV","L");
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -518,20 +518,21 @@ void prepostSig_fromScan(string   fitFilename,
     frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
     if(category == Category::VBF and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
     frame2->GetYaxis()->SetTitleOffset(1.5);
     frame2->GetYaxis()->SetLabelSize(0.04);
     frame2->GetYaxis()->SetTitleSize(0.04);
     frame2->GetXaxis()->SetLabelSize(0.04);
-    frame2->GetXaxis()->SetTitleSize(0.05);
+    frame2->GetXaxis()->SetTitleSize(0.05); 
+    frame2->GetXaxis()->SetTitleOffset(1.1);
   }
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
     frame2->GetYaxis()->SetLabelSize(0.03);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
 
@@ -626,8 +627,8 @@ void prepostSig_fromScan(string   fitFilename,
   leg2->SetBorderSize(0);
   leg2->SetLineColor(0);
   leg2->SetNColumns(2);
-  leg2->AddEntry(dahist,"post-fit","PLE");
-  leg2->AddEntry(dphist,"pre-fit","PLE");
+  leg2->AddEntry(dahist,"Post-fit","PLE");
+  leg2->AddEntry(dphist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");
 
@@ -655,6 +656,7 @@ void prepostSig_fromScan(string   fitFilename,
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
+    frame3->GetXaxis()->SetTitleOffset(0.9);
     frame3->GetYaxis()->SetLabelSize(0.03);
     frame3->GetYaxis()->SetTitleSize(0.03);
     frame3->GetXaxis()->SetLabelSize(0.04);
@@ -665,11 +667,11 @@ void prepostSig_fromScan(string   fitFilename,
 
     TH1F* data_pull_post = (TH1F*) tohist->Clone("data_pull_post");
     data_pull_post->Reset();
-    for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
+    for(int iPoint = 1; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
-      data_pull_post->SetBinContent(iPoint+1,y);
-      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
+      dthist->GetPoint(iPoint,x,y);
+      data_pull_post->SetBinContent(iPoint,y);
+      data_pull_post->SetBinError(iPoint,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
     }
     data_pull_post->Add(mchist,-1);
     data_pull_post->SetMarkerColor(kBlue);

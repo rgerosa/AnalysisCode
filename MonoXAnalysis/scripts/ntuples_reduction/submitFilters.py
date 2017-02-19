@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     print dirList
     for dir in dirList:
-        command = "python scripts/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS --metCut "+options.metCut+" ";
+        command = "python scripts/ntuples_reduction/runFilters.py --inputDIR "+options.inputDIR+"/"+dir+" --outputDIR "+options.outputDIR+" --filterName "+options.filterName+" --jobDIR "+options.jobDIR+" --queque "+options.queque+" --batchMode --submit --isOnEOS --metCut "+options.metCut+" ";
         if options.calculateXSfromSW:
           command += "--calculateXSfromSW ";
         if options.calculateXSfromLHE:

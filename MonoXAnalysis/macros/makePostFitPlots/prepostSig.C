@@ -620,16 +620,16 @@ void prepostSig(string   fitFilename,
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < dphist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < dphist->GetN(); iPoint++){
     double x,y;
     dphist->GetPoint(iPoint,x,y);
-    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint));
+    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint+1));
     dphist->SetPointError(iPoint,dphist->GetErrorXlow(iPoint),dphist->GetErrorXhigh(iPoint),
-                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint));
+                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint+1),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint+1));
     dahist->GetPoint(iPoint,x,y);
-    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint));
+    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint+1));
     dahist->SetPointError(iPoint,dahist->GetErrorXlow(iPoint),dahist->GetErrorXhigh(iPoint),
-                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint));
+                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint+1),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint+1));
   }
 
   
