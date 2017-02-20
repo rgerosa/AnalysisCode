@@ -1696,12 +1696,14 @@ void makegamcorhist( const string & znunuFile,
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile* kffile  = NULL;
   TFile* kffile_alt  = NULL;
+  TFile* kffile_unlops = NULL;
   TH1*   znlohist  = NULL;
   TH1*   zlohist   = NULL;
   TH1*   zewkhist  = NULL;
   TH1*   anlohist  = NULL;
   TH1*   alohist   = NULL;
   TH1*   aewkhist  = NULL;
+  TH1*   aunlopshist = NULL;
   TH1*   reweight_zvv = NULL;
   TH1*   reweight_gam = NULL;
   
@@ -1711,12 +1713,14 @@ void makegamcorhist( const string & znunuFile,
 
   if(not useTheoristKfactors){
     kffile  = TFile::Open(kfactorFile.c_str()); 
+    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
     znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
     zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
     anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
     alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
+    aunlopshist = (TH1*) kffile_unlops->Get("Func");
 
     if(zewkhist)
       zewkhist->Divide(znlohist);
@@ -1780,13 +1784,13 @@ void makegamcorhist( const string & znunuFile,
   if(kfact == 1 or kfact == 2){
     if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                 
       if (kfact == 1 and not nloSamples.useZJetsNLO)      zhists.push_back(znlohist);
-      if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 1 and not nloSamples.usePhotonJetsNLO){ ahists.push_back(anlohist); ahists.push_back(aunlopshist);}
 
       //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
       if (kfact == 2 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zewkhist);}
       else if (kfact == 2 and nloSamples.useZJetsNLO) {zhists.push_back(zewkhist);}
-      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
-      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist); ahists.push_back(aunlopshist);}
+      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist); ahists.push_back(aunlopshist);}
     }
     else{
       // only QCD                                                                                                                                                                                     
@@ -2132,13 +2136,13 @@ void makegamcorhist( const string & znunuFile,
       if (kfact == 3 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re1hist) ;}
       else if (kfact == 3 and nloSamples.useZJetsNLO) {zhists.push_back(re1hist) ;}
       
-      if(kfact == 3 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      if(kfact == 3 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
       if (kfact == 4 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa1hist) ;}
       else if (kfact == 4 and nloSamples.useZJetsNLO) {zhists.push_back(fa1hist) ;}
       
-      if(kfact == 4 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      if(kfact == 4 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
       if (kfact == 5 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(re2hist) ;}
@@ -2150,20 +2154,20 @@ void makegamcorhist( const string & znunuFile,
       if (kfact == 6 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(fa2hist) ;}
       else if (kfact == 6 and nloSamples.useZJetsNLO) {zhists.push_back(fa2hist) ;}
       
-      if(kfact == 6 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);}
+      if(kfact == 6 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
       if (kfact == 7 and not nloSamples.useZJetsNLO) {zhists.push_back(znlohist); zhists.push_back(zpdfhist);}
       else if (kfact == 7 and nloSamples.useZJetsNLO) {zhists.push_back(zpdfhist);}
   
-      if(kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
-      else if(kfact == 7  and nloSamples.usePhotonJetsNLO) ahists.push_back(apdfhist);
+      if(kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);ahists.push_back(aunlopshist);}
+      else if(kfact == 7  and nloSamples.usePhotonJetsNLO) {ahists.push_back(apdfhist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
       if (kfact == 8 and not nloSamples.useZJetsNLO) zhists.push_back(znlohist);
       
-      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); zhists.push_back(afpchist);}
-      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
+      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); zhists.push_back(afpchist);ahists.push_back(aunlopshist);}
+      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);ahists.push_back(aunlopshist);}
       
     }
   }
@@ -2263,6 +2267,8 @@ void makegamcorhist( const string & znunuFile,
     kffile_gam->Close();
   if(fpfile)
     fpfile->Close();
+  if(kffile_unlops)
+    kffile_unlops->Close();
 
   nhist.clear();
   dhist.clear();
@@ -2353,6 +2359,7 @@ void makewgamcorhist( const string & wlnuFile,
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
   TFile* kffile  = NULL;
   TFile* kffile_alt  = NULL;
+  TFile* kffile_unlops = NULL;
   TH1*   anlohist  = NULL;
   TH1*   alohist   = NULL;
   TH1*   aewkhist  = NULL;
@@ -2361,7 +2368,8 @@ void makewgamcorhist( const string & wlnuFile,
   TH1*   wewkhist  = NULL;
   TH1*   reweight_wln = NULL;
   TH1*   reweight_gam = NULL;
-  
+  TH1*   aunlopshist = NULL;
+
   vector<TH1*> whists;
   vector<TH1*> ahists;
   vector<TH1*> ehists;
@@ -2369,12 +2377,14 @@ void makewgamcorhist( const string & wlnuFile,
   if(not useTheoristKfactors){
 
     kffile  = TFile::Open(kfactorFile.c_str()); 
+    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
     wnlohist = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
     wlohist  = (TH1*) kffile->Get("WJets_LO/inv_pt");
     anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
     alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     wewkhist  = (TH1*) kffile->Get("EWKcorr/W");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
+    aunlopshist = (TH1*) kffile_unlops->Get("Func");
 
     if(wewkhist)
       wewkhist->Divide(wnlohist);
@@ -2438,12 +2448,12 @@ void makewgamcorhist( const string & wlnuFile,
   if(kfact == 1 or kfact == 2){
     if(not useTheoristKfactors){ // generate central prediction from old k-factors                                                                                                                    
       if (kfact == 1 and not nloSamples.useWJetsNLO)      whists.push_back(wnlohist);
-      if (kfact == 1 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 1 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aunlopshist);}
       //ZNLO QCD+EWK and Gamma NLO QCD+EWK                                                                                                                                         
       if (kfact == 2 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wewkhist);}
       else if (kfact == 2 and nloSamples.useWJetsNLO) {whists.push_back(wewkhist);}
-      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);}
-      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);}
+      if (kfact == 2 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aewkhist);ahists.push_back(aunlopshist);}
+      else if(kfact == 2 and nloSamples.usePhotonJetsNLO) {ahists.push_back(aewkhist);ahists.push_back(aunlopshist);}
     }
     else{
       // only QCD                                                                                                                                                                                 
@@ -2753,6 +2763,7 @@ void makewgamcorhist( const string & wlnuFile,
 	whists.push_back(wnlohist); 	
 	whists.push_back(wpdfhist);
 	ahists.push_back(anlohist);
+	ahists.push_back(aunlopshist);
 	ahists.push_back(apdfhist);
       }      
     }
@@ -2807,39 +2818,40 @@ void makewgamcorhist( const string & wlnuFile,
       if (kfact == 3 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re1hist) ;}
       else if (kfact == 3 and nloSamples.useWJetsNLO) {whists.push_back(re1hist) ;}
       
-      if (kfact == 3 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 3 and not nloSamples.usePhotonJetsNLO){ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
+
       
       // ZNLO QCD + fact Up and Gamma NLO QCD                                                                                                                                      
       if (kfact == 4 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa1hist) ;}
       else if (kfact == 4 and nloSamples.useWJetsNLO) {whists.push_back(fa1hist) ;}
       
-      if (kfact == 4 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 4 and not nloSamples.usePhotonJetsNLO){ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD + re EWK up and Gamma NLO QCD                                                                                                                                   
       if (kfact == 5 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(re2hist) ;}
       else if (kfact == 5 and nloSamples.useWJetsNLO) {whists.push_back(re2hist) ;}
       
-      if (kfact == 5 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 5 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD + fact EWK up and Gamma NLO QCD                                                                                                                                  
       if (kfact == 6 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(fa2hist) ;}
       else if (kfact == 6 and nloSamples.useWJetsNLO) {whists.push_back(fa2hist) ;}
       
-      if (kfact == 6 and not nloSamples.usePhotonJetsNLO) ahists.push_back(anlohist);
+      if (kfact == 6 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist);ahists.push_back(aunlopshist);}
 
       // ZNLO QCD + PDF up and Gamma NLO QCD + PDF Up                                                                                                                               
       if (kfact == 7 and not nloSamples.useWJetsNLO) {whists.push_back(wnlohist); whists.push_back(wpdfhist);}
       else if (kfact == 7 and nloSamples.useWJetsNLO) {whists.push_back(wpdfhist);}
       
-      if (kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(apdfhist);}
-      else if(kfact == 7 and nloSamples.usePhotonJetsNLO) {ahists.push_back(apdfhist);}
+      if (kfact == 7 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(aunlopshist); ahists.push_back(apdfhist);}
+      else if(kfact == 7 and nloSamples.usePhotonJetsNLO) {ahists.push_back(apdfhist);ahists.push_back(aunlopshist);}
       
       // ZNLO QCD and Gamma NLO QCD + FP                                                                                                                                            
       if (kfact == 8 and not nloSamples.useWJetsNLO) whists.push_back(wnlohist);
       
-      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(afpchist);}
-      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);}
-            
+      if (kfact == 8 and not nloSamples.usePhotonJetsNLO) {ahists.push_back(anlohist); ahists.push_back(afpchist);ahists.push_back(aunlopshist);}
+      else if(kfact == 8 and nloSamples.usePhotonJetsNLO) {ahists.push_back(afpchist);ahists.push_back(aunlopshist);}
+      
     }
   }
   
@@ -2944,6 +2956,8 @@ void makewgamcorhist( const string & wlnuFile,
     kffile_gam->Close();
   if(fpfile)
     fpfile->Close();
+  if(kffile_unlops)
+    kffile_unlops->Close();
 
 
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;

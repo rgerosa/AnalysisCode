@@ -379,6 +379,8 @@ void sigdatamchist(TFile* outfile,
   TFile* kffile = NULL;
   TFile* kffile_alt = NULL;
   TFile* kffile_alt2 = NULL;
+  TFile* kffile_unlops = NULL;
+  TH1*   aunlopshist = NULL;
   TH1*  znlohist = NULL;
   TH1*  zlohist  = NULL;
   TH1* zewkhist  = NULL;
@@ -413,6 +415,8 @@ void sigdatamchist(TFile* outfile,
     if(wnlohist)
       wnlohist->Divide(wlohist);
     
+    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
+    aunlopshist = (TH1*) kffile_unlops->Get("Func");
     anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
     alohist  = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
@@ -483,6 +487,7 @@ void sigdatamchist(TFile* outfile,
     whists.push_back(wewkhist);    
     ahists.push_back(anlohist);
     ahists.push_back(aewkhist);
+    ahists.push_back(aunlopshist);
   }
   else{
     zhists.push_back(reweight_zvv);
@@ -510,6 +515,7 @@ void sigdatamchist(TFile* outfile,
   if(nloSamples.usePhotonJetsNLO){
     ahists.clear();
     ahists.push_back(aewkhist);
+    ahists.push_back(aunlopshist);
   }
 
   
@@ -1004,6 +1010,8 @@ void sigdatamchist(TFile* outfile,
     kffile_alt->Close();
   if(kffile_alt2)
     kffile_alt2->Close();
+  if(kffile_unlops)
+    kffile_unlops->Close();
 
   cout << "Templates for the signal region computed ..." << endl;
 }
@@ -1029,9 +1037,9 @@ void gamdatamchist(TFile* outfile,
   TChain* vltree = new TChain("tree/tree");
 
 
-  dttree->Add((baseInputTreePath+"/SinglePhoton/gamfilter/*root").c_str());
+  dttree->Add((baseInputTreePath+"/SinglePhoton_jecReReco/gamfilter/*root").c_str());
   if(useJetHT)
-    dttree->Add((baseInputTreePath+"/JetHT/gamfilter/*root").c_str());
+    dttree->Add((baseInputTreePath+"/JetHT_jecReReco/gamfilter/*root").c_str());
   
   gmtree->Add((baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/*root").c_str());
   zgtree->Add((baseInputTreePath+"/ZnunuGJets/gamfilter/*root").c_str());
@@ -1097,17 +1105,20 @@ void gamdatamchist(TFile* outfile,
 
   TFile* kffile = NULL;
   TFile* kffile_alt = NULL;
+  TFile* kffile_unlops = NULL;
   TH1*  alohist  = NULL;
   TH1*  anlohist = NULL;
+  TH1*  aunlopshist = NULL;
   TH1*  aewkhist = NULL;
   TH1*  wnlohist = NULL;
   TH1*  wlohist  = NULL;
-  TH1* wewkhist  = NULL;
-  TH1* reweight_wln = NULL;
+  TH1*  wewkhist  = NULL;
+  TH1*  reweight_wln = NULL;
 
   if(not useTheoriestKFactors){
-
     kffile    = TFile::Open(kfactorFile.c_str());
+    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
+    aunlopshist = (TH1*) kffile_unlops->Get("Func");
     alohist   = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
@@ -1157,10 +1168,12 @@ void gamdatamchist(TFile* outfile,
   if(not useTheoriestKFactors){
     if(nloSamples.usePhotonJetsNLO){
       ahists.push_back(aewkhist);
+      ahists.push_back(aunlopshist);
     }
     else{
       ahists.push_back(aewkhist);
       ahists.push_back(anlohist);
+      ahists.push_back(aunlopshist);
     }
     if(nloSamples.useWJetsNLO){
       whists.push_back(wewkhist);
@@ -1264,6 +1277,8 @@ void gamdatamchist(TFile* outfile,
     kffile->Close();
   if(kffile_alt)
     kffile->Close();
+  if(kffile_unlops)
+    kffile_unlops->Close();
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
 
@@ -1763,6 +1778,7 @@ void lepdatamchist(TFile* outfile,
 
   TFile* kffile = NULL;
   TFile* kffile_alt = NULL;
+  TFile* kffile_unlops = NULL;
   TH1*  znlohist = NULL;
   TH1*  zlohist  = NULL;
   TH1* zewkhist  = NULL;
@@ -1772,6 +1788,7 @@ void lepdatamchist(TFile* outfile,
   TH1* anlohist  = NULL;
   TH1*  alohist  = NULL;
   TH1* aewkhist  = NULL;
+  TH1* aunlopshist = NULL;
   TH1* reweight_zvv =  NULL;
   TH1* reweight_zll =  NULL;
   TH1* reweight_wln =  NULL;
@@ -1797,10 +1814,12 @@ void lepdatamchist(TFile* outfile,
     if(wnlohist)
       wnlohist->Divide(wlohist);
     
+    kffile_unlops = TFile::Open(kfactorFileUNLOPS.c_str());
     anlohist  = (TH1*) kffile->Get("GJets_1j_NLO/nominal_G");
     alohist   = (TH1*) kffile->Get("GJets_LO/inv_pt_G");
     aewkhist  = (TH1*) kffile->Get("EWKcorr/photon");
-
+    aunlopshist = (TH1*) kffile_unlops->Get("Func");
+ 
     if(aewkhist)
       aewkhist->Divide(anlohist);
     if(anlohist)
@@ -1850,6 +1869,7 @@ void lepdatamchist(TFile* outfile,
     // apply NLO QCD and EWK corrections for Zll and Wlnu                                                                                                                      
     ahists.push_back(anlohist);
     ahists.push_back(aewkhist);
+    ahists.push_back(aunlopshist);
     vlhists.push_back(wnlohist);
     vlhists.push_back(wewkhist);
     vllhists.push_back(znlohist);
@@ -1866,7 +1886,7 @@ void lepdatamchist(TFile* outfile,
   }
   else{
     ahists.push_back(anlohist);
-    ahists.push_back(aewkhist);
+    ahists.push_back(aewkhist);    
     vlhists.push_back(reweight_wln);
     vllhists.push_back(reweight_zll);
   }
@@ -2312,6 +2332,8 @@ void lepdatamchist(TFile* outfile,
      kffile->Close();
   if(kffile_alt)
     kffile_alt->Close();
+  if(kffile_unlops)
+    kffile_unlops->Close();
   cout << "Templates for the lepton control region computed ..." << endl;
 }
 

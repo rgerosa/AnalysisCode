@@ -650,7 +650,7 @@ void makeControlPlots(string templateFileName,
 
   // set Y-axis range
   if(category == Category::monojet and isLog)
-    frame->GetYaxis()->SetRangeUser(1.0e-2,datahist->GetMaximum()*500);  
+    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::inclusive and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::monojet and not isLog)
@@ -689,7 +689,7 @@ void makeControlPlots(string templateFileName,
     frame->GetXaxis()->SetNdivisions(504);
   
   frame->Draw();
-  CMS_lumi(canvas,"36.4");
+  CMS_lumi(canvas,"35.9");
   
   stack ->Draw("HIST SAME");
   datahist->Draw("PE SAME");

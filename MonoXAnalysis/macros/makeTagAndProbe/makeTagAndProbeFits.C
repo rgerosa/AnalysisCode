@@ -42,10 +42,9 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
 			 bool doAnalyticalFit = false // if analytical fit need to be perfomred
 			 ){
 
-  gSystem->Load("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/PDFs/RooErfExpPdf_cc.so");
   gSystem->Load("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/PDFs/RooCMSShape_cc.so");
+  gSystem->Load("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/PDFs/RooErfExpPdf_cc.so");
   gROOT->SetBatch(kTRUE);
-
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 
   cout<<"############ Tag and probe analysis ###########"<<endl;
@@ -130,7 +129,7 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
   else if(leptonPID == 22)
     postfix = "photon";
 
-  postfix += "_"+typeID+"_pt_"+Form("%.1f",selectionBin.ptMin)+"_"+Form("%.1f",selectionBin.ptMax)+"_eta_"+Form("%.1f",selectionBin.etaMin)+"_"+Form("%.1f",selectionBin.etaMax)+"_pu_"+Form("%.1f",selectionBin.nvtxMin)+"_"+Form("%.1f",selectionBin.nvtxMax);
+  postfix += "_"+typeID+"_pt_"+Form("%.1f",selectionBin.ptMin)+"_"+Form("%.1f",selectionBin.ptMax)+"_eta_"+Form("%.2f",selectionBin.etaMin)+"_"+Form("%.2f",selectionBin.etaMax)+"_pu_"+Form("%.1f",selectionBin.nvtxMin)+"_"+Form("%.1f",selectionBin.nvtxMax);
 
   ///////////////////
   string outputFileName;
@@ -152,34 +151,26 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
   TTreeReaderValue<float> pt   (reader, "pt");
   TTreeReaderValue<float> nvtx (reader, "nvtx");
   TTreeReaderValue<int>   id   (reader, typeID.c_str());
-  string addVar = "";
-  if(leptonPID == 11 and not isRecoEff){
-    addVar = "hltsafeid";
-  }
-  else
-    addVar = typeID;
-  TTreeReaderValue<int>   id2 (reader, addVar.c_str());
-
+ 
   // open template file and load the binning
+  system(("mkdir -p "+outputDIR).c_str());
+  TFile* outputFile = new TFile((outputDIR+"/"+outputFileName+".root").c_str(),"RECREATE");
+  outputFile->cd();
+
   TFile* templateFile = TFile::Open(templateFileName.c_str());
   RooWorkspace* workspace = (RooWorkspace*) templateFile->Get("w");
   RooRealVar* mass = (RooRealVar*) workspace->obj("mass");
   TH1F* passingEvents = new TH1F("passingEvents","passingEvents", mass->getBinning().numBins(), mass->getBinning().array());
   TH1F* failingEvents = new TH1F("failingEvents","failingEvents", mass->getBinning().numBins(), mass->getBinning().array());
-
-  system(("mkdir -p "+outputDIR).c_str());
-  TFile* outputFile = new TFile((outputDIR+"/"+outputFileName+".root").c_str(),"RECREATE");
-  outputFile->cd();
-
+  
   cout<<"######### Loop on data "<<endl;
   long int nEvents = 0;
   long int nPart   = 100000;
   long int nTotal  = tree->GetEntries();
-  while(reader.Next()){
+  while(reader.Next()){    
     cout.flush();
     if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
     nEvents++;
-
     if(*pt <= selectionBin.ptMin) continue;
     if(*pt > selectionBin.ptMax) continue;
     if(isAbsEta and fabs(*eta) <= selectionBin.etaMin) continue;
@@ -188,14 +179,13 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
     if(not isAbsEta and *eta > selectionBin.etaMax) continue;
     if(*nvtx <= selectionBin.nvtxMin) continue;
     if(*nvtx > selectionBin.nvtxMax) continue;
-
-    if(*id2 and *id)
+    if(*id)
       passingEvents->Fill(*m);
     else
       failingEvents->Fill(*m);    
   }
   cout<<endl;
-  
+
   ///////////////////////////
   cout<<"####### Passing events "<<passingEvents->Integral()<<endl;
   cout<<"####### Failing events "<<failingEvents->Integral()<<endl;
@@ -301,7 +291,7 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
   simPdf->addPdf(*pdfFail,"Fail");
   simPdf->Print();
 
-  // combined dataset                                                                                                                                                                                  
+  // combined dataset                                                                                                                                                                                 
   std::map <string,RooDataHist*> histoMap;
   histoMap ["Pass"] = passDataHist;
   histoMap ["Fail"] = failDataHist;
@@ -312,7 +302,6 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
   cout<<"######### Start the fit"<<endl;
   RooAbsReal* simNLL = simPdf->createNLL(*combData,RooFit::Extended(true));
   simNLL->Print();
-
   RooMinimizer minimizer(*simNLL);   
   minimizer.Print();
   cout<<"######### Start a scan fit "<<endl;
@@ -419,5 +408,5 @@ void makeTagAndProbeFits(string inputDIR, // input directory where download file
   }
   w.Write();
   outputFile->Close();
-  
+  cout<<"Close application "<<endl;
 }

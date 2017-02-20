@@ -791,16 +791,16 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,true,applyPostFitWeights,useTheoriestKFactors);
+    //gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,true,applyPostFitWeights,useTheoriestKFactors);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
+    //lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wmunu region data"<<endl;
-    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
-    cout<<"start zee region data"<<endl;
-    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
-    cout<<"start wenu region data"<<endl;
-    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
+    //lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
+    //cout<<"start zee region data"<<endl;
+    //lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
+    //cout<<"start wenu region data"<<endl;
+    //lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;
@@ -822,7 +822,10 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
-      
+      qcd_nominal->Scale(lumi/12.9);
+      qcd_nominal_up->Scale(lumi/12.9);
+      qcd_nominal_dw->Scale(lumi/12.9);
+
       TH1F* temp = NULL;
       if(category ==  Category::monojet)
 	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_nominal");

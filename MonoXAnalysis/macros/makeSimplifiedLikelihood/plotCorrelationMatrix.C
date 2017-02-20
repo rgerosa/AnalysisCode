@@ -5,13 +5,12 @@ static bool skipCorrelations = false;
 #include "../CMS_lumi.h"
 
 
-void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR){
+void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false){
 
   system(("mkdir -p "+outputDIR).c_str());
-
+  initializeBinning();
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
-  gStyle->SetPalette(kBlackBody);
   gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");
@@ -34,9 +33,10 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   canvas->cd();  
   canvas->SetGrid();
   canvas->SetRightMargin(0.12);
-  canvas->SetBottomMargin(0.24);
-  canvas->SetLeftMargin(0.2);
-
+  if(addLabel){
+    canvas->SetBottomMargin(0.24);
+    canvas->SetLeftMargin(0.2);
+  }
   TH1F* bkg   = NULL;
   TH2F* covar = NULL;
   TH2F* covar_total = NULL;
@@ -98,22 +98,32 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
       // calculate the standard deviation (diagonal term)
       double sigb = TMath::Sqrt(covar->GetBinContent(b,b));
       double sigj = TMath::Sqrt(covar->GetBinContent(j,j));
-      corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));
-      if(category != Category::total){
-	if(b == 1)
-	  corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(j)),int(bkg->GetXaxis()->GetBinLowEdge(j+1))));
-	if(j == 1) 
-	  corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(b)),int(bkg->GetXaxis()->GetBinLowEdge(b+1))));
+      corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
+      if(addLabel){
+	if(category != Category::total){
+	  if(b == 1)
+	    corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(j)),int(bkg->GetXaxis()->GetBinLowEdge(j+1))));
+	  if(j == 1) 
+	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(b)),int(bkg->GetXaxis()->GetBinLowEdge(b+1))));
+	}
+	else{
+	  if(b == 1 and j <= bkg_monojet->GetNbinsX())
+	    corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(j)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(j+1))));
+	  if(b == 1 and j > bkg_monojet->GetNbinsX())
+	    corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monov->GetXaxis()->GetBinLowEdge(j-bkg_monojet->GetNbinsX())),int(bkg_monov->GetXaxis()->GetBinLowEdge(j+1-bkg_monojet->GetNbinsX()))));
+	  if(j == 1 and b <= bkg_monojet->GetNbinsX())
+	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(b)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(b+1))));
+	  if(j == 1 and b > bkg_monojet->GetNbinsX())
+	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monov->GetXaxis()->GetBinLowEdge(b-bkg_monojet->GetNbinsX())),int(bkg_monov->GetXaxis()->GetBinLowEdge(b+1-bkg_monojet->GetNbinsX()))));
+	}
       }
       else{
-	if(b == 1 and j <= bkg_monojet->GetNbinsX())
-	  corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(j)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(j+1))));
-	if(b == 1 and j > bkg_monojet->GetNbinsX())
-	  corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monov->GetXaxis()->GetBinLowEdge(j-bkg_monojet->GetNbinsX())),int(bkg_monov->GetXaxis()->GetBinLowEdge(j+1-bkg_monojet->GetNbinsX()))));
-	if(j == 1 and b <= bkg_monojet->GetNbinsX())
-	  corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(b)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(b+1))));
-	if(j == 1 and b > bkg_monojet->GetNbinsX())
-	  corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monov->GetXaxis()->GetBinLowEdge(b-bkg_monojet->GetNbinsX())),int(bkg_monov->GetXaxis()->GetBinLowEdge(b+1-bkg_monojet->GetNbinsX()))));
+	if(b == 1)
+	  corr->GetYaxis()->SetBinLabel(j,Form("%d",int(bkg->GetXaxis()->GetBinLowEdge(j))));
+	if(j == 1)
+	  corr->GetXaxis()->SetBinLabel(b,Form("%d",int(bkg->GetXaxis()->GetBinLowEdge(b))));
+	corr->GetXaxis()->CenterLabels(kFALSE);
+	corr->GetYaxis()->CenterLabels(kFALSE);
       }
     }
   }
@@ -121,15 +131,15 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   corr->GetXaxis()->SetTitle("");
   corr->GetYaxis()->SetTitle("");
   corr->GetZaxis()->SetTitle("Correlation");
-  corr->GetXaxis()->LabelsOption("v");
+  if(addLabel)
+    corr->GetXaxis()->LabelsOption("v");
   corr->GetYaxis()->LabelsOption("v");
   corr->GetXaxis()->SetLabelSize(0.027);
-  corr->GetYaxis()->SetLabelSize(0.027);
+  corr->GetYaxis()->SetLabelSize(0.027);  
   corr->GetZaxis()->SetLabelSize(0.030);
   corr->GetZaxis()->SetTitleSize(0.035);
 
   gStyle->SetPaintTextFormat("1.2f");
-  //corr->SetMarkerColor(kWhite);
   corr->Draw("COLZTEXT");
   CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.06);
   gPad->Update();
@@ -140,7 +150,6 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   palette->SetX2NDC(0.92);
   gPad->Modified();
   gPad->Update();
-
 
   if(category == Category::monojet){
     canvas->SaveAs((outputDIR+"/correlation_monojet.pdf").c_str());

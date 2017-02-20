@@ -25,27 +25,6 @@ vector<TH2F*> histoEfficiencySF_RooCMSShape;
 vector<TH2F*> histoEfficiencySF_Exp;
 vector<TH2F*> histoEfficiencySF_Analytical;
 
-void checkHistoEfficinecy(TH2* histo){
-  
-  int ipu = 0;
-  if(TString(histo->GetName()).Contains("pu_17.0_50"))
-    ipu = 1;
-  
-  for(int iBinX = 0; iBinX < histo->GetNbinsX(); iBinX++){
-    for(int iBinY = 0; iBinY < histo->GetNbinsY(); iBinY++){
-      if(histo->GetYaxis()->GetBinLowEdge(iBinY+1) == 10 and histo->GetYaxis()->GetBinLowEdge(iBinY+2) == 20 and 
-	 histo->GetXaxis()->GetBinLowEdge(iBinX+1) == 0.8 and histo->GetXaxis()->GetBinLowEdge(iBinX+2) == 1.5)
-	histo->SetBinContent(iBinX+1,iBinY+1,histoEfficiencySF_Exp.at(ipu)->GetBinContent(iBinX+1,iBinY+1));
-      else if(histo->GetYaxis()->GetBinLowEdge(iBinY+1) == 10 and histo->GetYaxis()->GetBinLowEdge(iBinY+2) == 20 and
-	      histo->GetXaxis()->GetBinLowEdge(iBinX+1) == 1.5 and histo->GetXaxis()->GetBinLowEdge(iBinX+2) == 2.0)
-	histo->SetBinContent(iBinX+1,iBinY+1,histoEfficiencySF_Exp.at(ipu)->GetBinContent(iBinX+1,iBinY+1));
-      else if(histo->GetYaxis()->GetBinLowEdge(iBinY+1) == 20 and histo->GetYaxis()->GetBinLowEdge(iBinY+2) == 30 and
-	      histo->GetXaxis()->GetBinLowEdge(iBinX+1) == 1.5 and histo->GetXaxis()->GetBinLowEdge(iBinX+2) == 2.0)
-	histo->SetBinContent(iBinX+1,iBinY+1,histoEfficiencySF_Exp.at(ipu)->GetBinContent(iBinX+1,iBinY+1));
-    }
-  }
-}
-
 
 // take proper mc efficiency
 void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string & leptonType, const string & typeID, const int & ipu){
@@ -73,7 +52,7 @@ void fillEfficiencyMC(TH2F* efficiency, const string & directory, const string &
   //////////////////
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
-      system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))+" > file_"+leptonType).c_str());
+      system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))+" > file_"+leptonType).c_str());
       ifstream file;
       file.open(("file_"+leptonType).c_str());
       int nFiles = 0;
@@ -131,13 +110,11 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
   for(size_t ipt = 0; ipt < ptBin.size()-1; ipt++){
     for(size_t ieta = 0; ieta < etaBin.size()-1; ieta++){
       if(postfix != "Analytical"){
-	system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%0.1f",puBin.at(ipu)))+"_"+string(Form("%0.1f",puBin.at(ipu+1)))+" | grep "+postfix+" | grep -v Alternative | grep -v Analytical > file_"+leptype).c_str());
+	system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%0.1f",puBin.at(ipu)))+"_"+string(Form("%0.1f",puBin.at(ipu+1)))+" | grep "+postfix+" | grep -v Alternative | grep -v Analytical > file_"+leptype).c_str());
       }
       else
-	system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%0.1f",puBin.at(ipu)))+"_"+string(Form("%0.1f",puBin.at(ipu+1)))+" | grep "+postfix+" | grep -v Alternative | grep Analytical > file_"+leptype).c_str());
-
+	system(("ls "+directory+" | grep root | grep "+leptype+" | grep "+typeID+" | grep _pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%0.1f",puBin.at(ipu)))+"_"+string(Form("%0.1f",puBin.at(ipu+1)))+" | grep "+postfix+" | grep -v Alternative | grep Analytical > file_"+leptype).c_str());
       
-
       ifstream file;
       file.open(("file_"+leptype).c_str());
       int nFiles = 0;
@@ -161,11 +138,11 @@ void fillEfficiencyData(TH2F* efficiency, const string & directory, const string
       inputFile = TFile::Open((directory+"/"+name).c_str(),"READ");
       if(inputFile->TestBit(TFile::kRecovered)) continue;
       if(postfix == "RooCMSShape")
-	tagAndProbeFits_RooCMSShape["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
+	tagAndProbeFits_RooCMSShape["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
       else if(postfix == "Exp")
-	tagAndProbeFits_Exp["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
+	tagAndProbeFits_Exp["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;
       else if(postfix == "Analytical")
-	tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.1f",etaBin.at(ieta)))+"_"+string(Form("%.1f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;      
+	tagAndProbeFits_Analytical["pt_"+string(Form("%.1f",ptBin.at(ipt)))+"_"+string(Form("%.1f",ptBin.at(ipt+1)))+"_eta_"+string(Form("%.2f",etaBin.at(ieta)))+"_"+string(Form("%.2f",etaBin.at(ieta+1)))+"_pu_"+string(Form("%.1f",puBin.at(ipu)))+"_"+string(Form("%.1f",puBin.at(ipu+1)))] = inputFile;      
 
       RooWorkspace* workspace = (RooWorkspace*) inputFile->FindObjectAny("w");
       RooFitResult* fitResult = (RooFitResult*) workspace->obj("fitresults");
@@ -190,15 +167,11 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
     for(int iBinX = 0; iBinX < histoEfficiency->GetNbinsX(); iBinX++){
       for(int iBinY = 0; iBinY < histoEfficiency->GetNbinsY(); iBinY++){
 	// some fix by hand --> not so fair :)
-	if(histoEfficiency->GetBinContent(iBinX+1,iBinY+1)/projectionMC.at(iBinX)->GetBinContent(iBinY+1) < 0.5 or histoEfficiency->GetBinContent(iBinX+1,iBinY+1)/projectionMC.at(iBinX)->GetBinContent(iBinY+1) > 1.5)
+	if(histoEfficiency->GetBinContent(iBinX+1,iBinY+1)/projectionMC.at(iBinX)->GetBinContent(iBinY+1) < 0.6 or histoEfficiency->GetBinContent(iBinX+1,iBinY+1)/projectionMC.at(iBinX)->GetBinContent(iBinY+1) > 1.5)
 	  histoEfficiency->SetBinContent(iBinX+1,iBinY+1,histoEfficiency->GetBinContent(iBinX+1,iBinY+2)*0.9);
       }
     }
   }
-  
-  // temp check
-  if(TString(histoEfficiency->GetName()).Contains("RooCMSShape") and not TString(histoEfficiency->GetName()).Contains("Analytical") and isScaleFactor)
-    checkHistoEfficinecy(histoEfficiency);
   
   if(leptonType == "muon"){
     histoEfficiency->GetYaxis()->SetTitle("Muon p_{T} (GeV)");
@@ -227,22 +200,22 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
   if(TString(histoEfficiency->GetName()).Contains("MC")){
     system(("mkdir -p "+outputDIR+"/MC/").c_str());
     canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+".pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
+    //    canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
   }
   else if(TString(histoEfficiency->GetName()).Contains("Analytical")){
     system(("mkdir -p "+outputDIR+"/Analytical/").c_str());
     canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+".pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
+    //    canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
   }
   else if(TString(histoEfficiency->GetName()).Contains("Exp")){
     system(("mkdir -p "+outputDIR+"/Exp/").c_str());
     canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+".pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
+    //    canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
   }
   else if(TString(histoEfficiency->GetName()).Contains("RooCMSShape")){
     system(("mkdir -p "+outputDIR+"/RooCMSShape/").c_str());
     canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+".pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
+    //    canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+".png").c_str(),"png");
   }
   canvas->SetLogy(0);
 
@@ -314,24 +287,24 @@ void plotEfficiency(TCanvas* canvas, TH2* histoEfficiency, const string & output
     leg.SetBorderSize(0);
     leg.SetFillStyle(0);
     leg.SetFillColor(0);
-    leg.AddEntry(new TObject(),Form(" %.1f < |#eta| <  %.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1),histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)),"");
+    leg.AddEntry(new TObject(),Form(" %.2f < |#eta| <  %.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1),histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)),"");
     leg.Draw("same");
-    
+ 
     if(TString(histoEfficiency->GetName()).Contains("MC")){
-      canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
-      canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
+      canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
+      //      canvas->SaveAs((outputDIR+"/MC/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
     }
     else if(TString(histoEfficiency->GetName()).Contains("Analytical")){
-      canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
-      canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
+      canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
+      //      canvas->SaveAs((outputDIR+"/Analytical/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
     }
     else if(TString(histoEfficiency->GetName()).Contains("Exp")){
-      canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
-      canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
+      canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
+      //      canvas->SaveAs((outputDIR+"/Exp/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
     }
     else if(TString(histoEfficiency->GetName()).Contains("RooCMSShape")){
-      canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
-      canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.1f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
+      canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".pdf").c_str(),"pdf");
+      //      canvas->SaveAs((outputDIR+"/RooCMSShape/"+string(histoEfficiency->GetName())+"_vs_pt_eta_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+1)))+"_"+string(Form("%.2f",histoEfficiency->GetXaxis()->GetBinLowEdge(iBinX+2)))+".png").c_str(),"png");
     }
     // store projections in eta bins
     if(not isScaleFactor){
@@ -460,7 +433,7 @@ void makeTagAndProbeFits(const map<string,TFile*> & tagAndProbeFits, const strin
     leg2->Draw("same");
     CMS_lumi(pad2,string(Form("%.2f",lumi)),true,false);    
     canvas->SaveAs((outputDIR+"/"+imap.first+".pdf").c_str(),"pdf");
-    canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
+    //    canvas->SaveAs((outputDIR+"/"+imap.first+".png").c_str(),"png");
     
     delete histPass;
     delete histFail;
@@ -773,8 +746,8 @@ void makeLeptonRecoScaleFactors(string inputTagAndProbeFitDIR,       // direcory
     pad3->RedrawAxis("sameaxis");    
     sysUnc.push_back(sysError); // store histogram with systematic uncertainty
     sysUnc_alt.push_back(sysError_alt); // store histogram with systematic uncertainty
-    can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_eta_"+string(Form("%.1f_%.1f",etaBins.at(ieta),etaBins.at(ieta+1)))+"_pu_"+string(Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)))+".png").c_str(),"png");
-    can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_eta_"+string(Form("%.1f_%.1f",etaBins.at(ieta),etaBins.at(ieta+1)))+"_pu_"+string(Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)))+".pdf").c_str(),"pdf");
+    //    can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_eta_"+string(Form("%.1f_%.1f",etaBins.at(ieta),etaBins.at(ieta+1)))+"_pu_"+string(Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)))+".png").c_str(),"png");
+    can->SaveAs((outputDIR+"/summaryScaleFactor_vs_pt_eta_"+string(Form("%.2f_%.2f",etaBins.at(ieta),etaBins.at(ieta+1)))+"_pu_"+string(Form("%.1f_%.1f",puBins.at(ipu),puBins.at(ipu+1)))+".pdf").c_str(),"pdf");
   }      
   
   // use RooCMSShape as central value + uncertaint from alternative background description --> total 2D hist SF stored in root file.

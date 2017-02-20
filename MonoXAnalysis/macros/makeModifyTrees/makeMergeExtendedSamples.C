@@ -36,6 +36,7 @@ void makeMergeExtendedSamples(vector<string> inputFileName, string outputFileNam
   }
   
   // copy sipping sumwgt
+  cout<<"Clone tree "<<endl;
   inputTree->SetBranchStatus("*wgtsum*",0);
   TTree* outputTree = inputTree->CopyTree("");
 
