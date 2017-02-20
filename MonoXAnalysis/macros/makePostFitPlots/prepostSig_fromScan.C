@@ -11,6 +11,7 @@ void prepostSig_fromScan(string   fitFilename,
 			 bool     isCombinedFit = false,
 			 bool     plotSBFit   = false,
 			 bool     addPullPlot = false,  
+			 bool     addPreFitOnPull = false,
 			 int      scaleSig = 1, 
 			 bool     blind    = false){
   
@@ -36,7 +37,7 @@ void prepostSig_fromScan(string   fitFilename,
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    pad2->SetGridy(1);
+    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -61,7 +62,7 @@ void prepostSig_fromScan(string   fitFilename,
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    pad2->SetGridy();
+    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -69,7 +70,7 @@ void prepostSig_fromScan(string   fitFilename,
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    pad3->SetGridy();
+    //    pad3->SetGridy();
   }
 
   TColor *color; // for color definition with alpha                                                                                                                             
@@ -535,7 +536,7 @@ void prepostSig_fromScan(string   fitFilename,
     frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
-
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
 
 
@@ -546,8 +547,8 @@ void prepostSig_fromScan(string   fitFilename,
   dphist->SetLineColor(kRed);
   dphist->SetMarkerColor(kRed);
 
-  dahist->SetLineColor(kBlue);
-  dahist->SetMarkerColor(kBlue);
+  dahist->SetLineColor(TColor::GetColor("#0066ff"));
+  dahist->SetMarkerColor(TColor::GetColor("#0066ff"));
 
   dphist->SetMarkerSize(1);
   dphist->SetMarkerStyle(24);
@@ -616,12 +617,22 @@ void prepostSig_fromScan(string   fitFilename,
  
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  if(!blind and not addPullPlot)
-    dphist->Draw("P0E1 SAME");
+  if(!blind){
+    if(addPreFitOnPull and addPullPlot)
+      dphist->Draw("P0E1 SAME");
+    else if(not addPullPlot)
+      dphist->Draw("P0E1 SAME");
+  }
+
   dahist->Draw("P0E1 SAME");  
   pad2->RedrawAxis("G sameaxis");
 
-  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
+  TLegend* leg2 = NULL;
+  if(addPreFitOnPull  and addPullPlot)
+    leg2 = new TLegend(0.14,0.32,0.40,0.36,NULL,"brNDC");
+  else
+    leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
+
   leg2->SetFillColor(0);
   leg2->SetFillStyle(1);
   leg2->SetBorderSize(0);
@@ -629,7 +640,9 @@ void prepostSig_fromScan(string   fitFilename,
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"Post-fit","PLE");
   leg2->AddEntry(dphist,"Pre-fit","PLE");
-  if(not addPullPlot)
+  if(addPullPlot and addPreFitOnPull)
+    leg2->Draw("same");
+  else if(not addPullPlot)
     leg2->Draw("same");
 
   canvas->cd();
@@ -662,6 +675,7 @@ void prepostSig_fromScan(string   fitFilename,
     frame3->GetXaxis()->SetLabelSize(0.04);
     frame3->GetXaxis()->SetTitleSize(0.05);
     frame3->GetYaxis()->SetNdivisions(504);
+    frame3->GetXaxis()->SetTickLength(0.025);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
 
@@ -674,9 +688,9 @@ void prepostSig_fromScan(string   fitFilename,
       data_pull_post->SetBinError(iPoint,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
     }
     data_pull_post->Add(mchist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1)); // divide by sigma data                                                                
@@ -709,13 +723,21 @@ void prepostSig_fromScan(string   fitFilename,
     canvas->SaveAs(("postfit_sig"+postfix+".pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+".png").c_str());
   }
-  else if(addPullPlot and blind){
+  else if(addPullPlot and blind and not addPreFitOnPull){
     canvas->SaveAs(("postfit_sig_blind"+postfix+"_pull.pdf").c_str());
     canvas->SaveAs(("postfit_sig_blind"+postfix+"_pull.png").c_str());
   }
-  else if(addPullPlot and not blind){
+  else if(addPullPlot and not blind and not addPreFitOnPull){
     canvas->SaveAs(("postfit_sig"+postfix+"_pull.pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+"_pull.png").c_str());
+  }
+  else if(addPullPlot and blind and addPreFitOnPull){
+    canvas->SaveAs(("postfit_sig_blind"+postfix+"_wprefit_pull.pdf").c_str());
+    canvas->SaveAs(("postfit_sig_blind"+postfix+"_wprefit_pull.png").c_str());
+  }
+  else if(addPullPlot and not blind and addPreFitOnPull){
+    canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.pdf").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.png").c_str());
   }
   
   
@@ -754,8 +776,8 @@ void prepostSig_fromScan(string   fitFilename,
       SoverB_s->SetMarkerColor(kRed);
       SoverB_s->SetMarkerSize(1);
       SoverB_s->SetMarkerStyle(20);
-      SoverB_av->SetLineColor(kBlue);
-      SoverB_av->SetMarkerColor(kBlue);
+      SoverB_av->SetLineColor(TColor::GetColor("#0066ff"));
+      SoverB_av->SetMarkerColor(TColor::GetColor("#0066ff"));
       SoverB_av->SetMarkerSize(1);
       SoverB_av->SetMarkerStyle(20);
       SoverB_s->Add(htemp);

@@ -582,6 +582,7 @@ void prepostSig(string   fitFilename,
     frame2->GetYaxis()->CenterTitle();
   }
 
+  frame2->GetXaxis()->SetTickLenght(0.025);
   frame2->Draw();
 
 
@@ -709,6 +710,7 @@ void prepostSig(string   fitFilename,
     frame3->GetXaxis()->SetLabelSize(0.04);
     frame3->GetXaxis()->SetTitleSize(0.05);
     frame3->GetYaxis()->SetNdivisions(504);
+    frame3->GetXaxis()->SetTickLenght(0.025);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
 

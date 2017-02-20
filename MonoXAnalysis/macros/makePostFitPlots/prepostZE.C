@@ -27,7 +27,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    pad2->SetGridy(1);
+    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -52,7 +52,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    pad2->SetGridy();
+    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -60,7 +60,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    pad3->SetGridy();
+    //    pad3->SetGridy();
   }
   
 
@@ -203,10 +203,10 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   prhist->SetLineColor(kRed);
   prhist->SetLineStyle(7);
   prhist->SetLineWidth(2);
-  pohist->SetLineColor(kBlue);
+  pohist->SetLineColor(TColor::GetColor("#0066ff"));
   pohist->SetLineWidth(2);
   prhist->SetMarkerColor(kRed);
-  pohist->SetMarkerColor(kBlue);
+  pohist->SetMarkerColor(TColor::GetColor("#0066ff"));
   
   wlhist->SetFillColor(kOrange+1);
   wlhist->SetLineColor(kBlack);
@@ -325,7 +325,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
-
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
 
   TGraphAsymmErrors* d1hist = (TGraphAsymmErrors*)dthist->Clone("d1hist");
@@ -335,13 +335,13 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   TH1* erhist = (TH1*)pohist->Clone("erhist");
   
   d1hist->SetLineColor(kRed);
-  d2hist->SetLineColor(kBlue);
+  d2hist->SetLineColor(TColor::GetColor("#0066ff"));
   d1hist->SetLineColor(kRed);
-  d2hist->SetLineColor(kBlue);
+  d2hist->SetLineColor(TColor::GetColor("#0066ff"));
   d1hist->SetMarkerColor(kRed);
   d1hist->SetMarkerSize(1);
   d1hist->SetMarkerStyle(24);
-  d2hist->SetMarkerColor(kBlue);
+  d2hist->SetMarkerColor(TColor::GetColor("#0066ff"));
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
   
@@ -452,9 +452,9 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
       data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
     data_pull_post->Add(pohist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
