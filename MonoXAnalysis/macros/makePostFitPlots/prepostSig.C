@@ -37,7 +37,7 @@ void prepostSig(string   fitFilename,
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    pad2->SetGridy(1);
+    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -62,7 +62,7 @@ void prepostSig(string   fitFilename,
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    pad2->SetGridy();
+    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -70,7 +70,7 @@ void prepostSig(string   fitFilename,
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    pad3->SetGridy();
+    //    pad3->SetGridy();
   }
 
   TColor *color; // for color definition with alpha                                                                                                                             
@@ -592,8 +592,8 @@ void prepostSig(string   fitFilename,
   dphist->SetLineColor(kRed);
   dphist->SetMarkerColor(kRed);
 
-  dahist->SetLineColor(kBlue);
-  dahist->SetMarkerColor(kBlue);
+  dahist->SetLineColor(TColor::GetColor("#0066ff"));
+  dahist->SetMarkerColor(TColor::GetColor("#0066ff"));
 
   dphist->SetMarkerSize(1);
   dphist->SetMarkerStyle(24);
@@ -721,9 +721,9 @@ void prepostSig(string   fitFilename,
       data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
     data_pull_post->Add(mchist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1)); // divide by sigma data                                                                
