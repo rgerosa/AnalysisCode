@@ -23,12 +23,13 @@ muonPtBinningReco   = [10.,20.,30.,40.,150.];
 muonEtaBinningReco  = [0.,0.4,0.9,1.2,1.8,2.4];
 muonNvtxBinningReco = [0.,17.,50.];
 
-electronPtBinning       = [10.,20.,30.,40.,50.,60.,80.,100.,125.,500.];
-electronEtaBinning      = [0.,0.8,1.5,2.,2.5];
-electronNvtxBinning     = [0.,17.,50.];
-electronPtBinningReco   = [10.,20.,30.,50.,150.];
-electronEtaBinningReco  = [0.,0.3,0.8,1.5,2.0,2.5];
-electronNvtxBinningReco = [0.,17.,50.];
+electronPtBinning       = [10.,20.,30.,40.,50.,60.,80.,100.,140.,500.];
+electronEtaBinning      = [-2.50,-2.00,-1.55,-1.44,-0.75,0.00,0.75,1.44,1.55,2.00,2.50];
+electronNvtxBinning     = [0.,100.];
+
+electronPtBinningReco   = [10.,20.,30.,40.,50.,75.,100.,130.,500.];
+electronEtaBinningReco  = [-2.50,-2.00,-1.55,-1.44,-0.75,0.00,0.75,1.44,1.55,2.00,2.50];
+electronNvtxBinningReco = [0.,100.];
 
 photonPtBinning   = [10.,20.,30.,40.,50.,60.,80.,100.,125.,150.,500.];
 photonEtaBinning  = [0.,0.5,1.0,1.5];
@@ -118,7 +119,11 @@ if __name__ == '__main__':
         leptonPID = 22;
     else:
         sys.exit('Problem with lepton type --> muon or electron or photon are the recognized options --> exit');
-        
+
+    ### foramt the eta binning with two floating point
+    print "lepton pt bin",leptonPtBinning
+    print "lepton eta bin",leptonEtaBinning
+    print "lepton Nvtx bin",leptonNvtxBinning
                 
     ###### start loop for jobs 
     for pt in range(len(leptonPtBinning)-1):
@@ -132,7 +137,7 @@ if __name__ == '__main__':
                     else:
                         templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplateNominalReco/')
 
-                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(leptonPtBinning[pt])+"_"+str(leptonPtBinning[pt+1])+"_eta_"+str(leptonEtaBinning[eta])+"_"+str(leptonEtaBinning[eta+1])+"_pu_"+str(leptonNvtxBinning[nvtx])+"_"+str(leptonNvtxBinning[nvtx+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
+                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str("%0.1f"%(float(leptonPtBinning[pt])))+"_"+str("%0.1f"%(float(leptonPtBinning[pt+1])))+"_eta_"+str("%0.2f"%(float(leptonEtaBinning[eta])))+"_"+str("%0.2f"%(float(leptonEtaBinning[eta+1])))+"_pu_"+str("%0.1f"%(float(leptonNvtxBinning[nvtx])))+"_"+str("%0.1f"%(float(leptonNvtxBinning[nvtx+1])))+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
                     for line in file:
@@ -171,8 +176,7 @@ if __name__ == '__main__':
                     else:
                         templatePath = os.path.expandvars('$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/macros/makeTagAndProbe/TemplatesNominalReco/')
 
-                        
-                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str(leptonPtBinning[pt])+"_"+str(leptonPtBinning[pt+1])+"_eta_"+str(leptonEtaBinning[eta])+"_"+str(leptonEtaBinning[eta+1])+"_pu_"+str(leptonNvtxBinning[nvtx])+"_"+str(leptonNvtxBinning[nvtx+1])+" > file_temp_"+options.leptonType+"_"+options.typeID);
+                    os.system("ls "+templatePath+" | grep root | grep "+options.leptonType+" | grep "+options.typeID+" | grep pt_"+str("%0.1f"%(float(leptonPtBinning[pt])))+"_"+str("%0.1f"%(float(leptonPtBinning[pt+1])))+"_eta_"+str("%0.2f"%(float(leptonEtaBinning[eta])))+"_"+str("%.2f"%(float(leptonEtaBinning[eta+1])))+"_pu_"+str("%0.1f"%(float(leptonNvtxBinning[nvtx])))+"_"+str("%0.1f"%(float(leptonNvtxBinning[nvtx+1])))+" > file_temp_"+options.leptonType+"_"+options.typeID);
                     file = open("file_temp_"+options.leptonType+"_"+options.typeID,"r");
                     listOffile = [];
                     for line in file:
@@ -186,7 +190,7 @@ if __name__ == '__main__':
 
                     ### submit jobs
                     os.system("mkdir -p "+options.jobDIR);                    
-                    jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.1f_%.1f_pu_%.1f_%.1f'%(options.leptonType,options.typeID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1])
+                    jobName = 'job_%s_%s_pt_%.1f_%.1f_eta_%.2f_%.2f_pu_%.1f_%.1f'%(options.leptonType,options.typeID,leptonPtBinning[pt],leptonPtBinning[pt+1],leptonEtaBinning[eta],leptonEtaBinning[eta+1],leptonNvtxBinning[nvtx],leptonNvtxBinning[nvtx+1])
 
                     jobscript = open('%s/%s_RooCMSShape.sh'%(options.jobDIR,jobName),'w');
                     jobscript.write('cd %s \n'%currentDIR)
