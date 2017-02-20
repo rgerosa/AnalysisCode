@@ -11,6 +11,7 @@ void prepostSig_fromScan(string   fitFilename,
 			 bool     isCombinedFit = false,
 			 bool     plotSBFit   = false,
 			 bool     addPullPlot = false,  
+			 bool     addPreFitOnPull = false,
 			 int      scaleSig = 1, 
 			 bool     blind    = false){
   
@@ -486,7 +487,7 @@ void prepostSig_fromScan(string   fitFilename,
   if(not plotSBFit)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
   if(not plotSBFit)
-    leg->AddEntry(mjhist_av, "Axial-vector, M_{med} = 1.6 TeV","L");
+    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 1.6 TeV","L");
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -518,23 +519,24 @@ void prepostSig_fromScan(string   fitFilename,
     frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
     if(category == Category::VBF and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
     frame2->GetYaxis()->SetTitleOffset(1.5);
     frame2->GetYaxis()->SetLabelSize(0.04);
     frame2->GetYaxis()->SetTitleSize(0.04);
     frame2->GetXaxis()->SetLabelSize(0.04);
-    frame2->GetXaxis()->SetTitleSize(0.05);
+    frame2->GetXaxis()->SetTitleSize(0.05); 
+    frame2->GetXaxis()->SetTitleOffset(1.1);
   }
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
     frame2->GetYaxis()->SetLabelSize(0.03);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
-
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
 
 
@@ -615,20 +617,32 @@ void prepostSig_fromScan(string   fitFilename,
  
   tohist->Draw("E2 SAME");
   unhist->Draw("SAME");
-  if(!blind and not addPullPlot)
-    dphist->Draw("P0E1 SAME");
+  if(!blind){
+    if(addPreFitOnPull and addPullPlot)
+      dphist->Draw("P0E1 SAME");
+    else if(not addPullPlot)
+      dphist->Draw("P0E1 SAME");
+  }
+
   dahist->Draw("P0E1 SAME");  
   pad2->RedrawAxis("G sameaxis");
 
-  TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
+  TLegend* leg2 = NULL;
+  if(addPreFitOnPull  and addPullPlot)
+    leg2 = new TLegend(0.14,0.32,0.40,0.36,NULL,"brNDC");
+  else
+    leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
+
   leg2->SetFillColor(0);
   leg2->SetFillStyle(1);
   leg2->SetBorderSize(0);
   leg2->SetLineColor(0);
   leg2->SetNColumns(2);
-  leg2->AddEntry(dahist,"post-fit","PLE");
-  leg2->AddEntry(dphist,"pre-fit","PLE");
-  if(not addPullPlot)
+  leg2->AddEntry(dahist,"Post-fit","PLE");
+  leg2->AddEntry(dphist,"Pre-fit","PLE");
+  if(addPullPlot and addPreFitOnPull)
+    leg2->Draw("same");
+  else if(not addPullPlot)
     leg2->Draw("same");
 
   canvas->cd();
@@ -655,21 +669,23 @@ void prepostSig_fromScan(string   fitFilename,
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
+    frame3->GetXaxis()->SetTitleOffset(0.9);
     frame3->GetYaxis()->SetLabelSize(0.03);
     frame3->GetYaxis()->SetTitleSize(0.03);
     frame3->GetXaxis()->SetLabelSize(0.04);
     frame3->GetXaxis()->SetTitleSize(0.05);
     frame3->GetYaxis()->SetNdivisions(504);
+    frame3->GetXaxis()->SetTickLength(0.025);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
 
     TH1F* data_pull_post = (TH1F*) tohist->Clone("data_pull_post");
     data_pull_post->Reset();
-    for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
+    for(int iPoint = 1; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
-      data_pull_post->SetBinContent(iPoint+1,y);
-      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
+      dthist->GetPoint(iPoint,x,y);
+      data_pull_post->SetBinContent(iPoint,y);
+      data_pull_post->SetBinError(iPoint,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
     }
     data_pull_post->Add(mchist,-1);
     data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
@@ -707,13 +723,21 @@ void prepostSig_fromScan(string   fitFilename,
     canvas->SaveAs(("postfit_sig"+postfix+".pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+".png").c_str());
   }
-  else if(addPullPlot and blind){
+  else if(addPullPlot and blind and not addPreFitOnPull){
     canvas->SaveAs(("postfit_sig_blind"+postfix+"_pull.pdf").c_str());
     canvas->SaveAs(("postfit_sig_blind"+postfix+"_pull.png").c_str());
   }
-  else if(addPullPlot and not blind){
+  else if(addPullPlot and not blind and not addPreFitOnPull){
     canvas->SaveAs(("postfit_sig"+postfix+"_pull.pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+"_pull.png").c_str());
+  }
+  else if(addPullPlot and blind and addPreFitOnPull){
+    canvas->SaveAs(("postfit_sig_blind"+postfix+"_wprefit_pull.pdf").c_str());
+    canvas->SaveAs(("postfit_sig_blind"+postfix+"_wprefit_pull.png").c_str());
+  }
+  else if(addPullPlot and not blind and addPreFitOnPull){
+    canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.pdf").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.png").c_str());
   }
   
   
@@ -752,8 +776,8 @@ void prepostSig_fromScan(string   fitFilename,
       SoverB_s->SetMarkerColor(kRed);
       SoverB_s->SetMarkerSize(1);
       SoverB_s->SetMarkerStyle(20);
-      SoverB_av->SetLineColor(kBlue);
-      SoverB_av->SetMarkerColor(kBlue);
+      SoverB_av->SetLineColor(TColor::GetColor("#0066ff"));
+      SoverB_av->SetMarkerColor(TColor::GetColor("#0066ff"));
       SoverB_av->SetMarkerSize(1);
       SoverB_av->SetMarkerStyle(20);
       SoverB_s->Add(htemp);

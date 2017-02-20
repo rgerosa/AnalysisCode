@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static bool saveTextFile = false;
+static bool saveTextFile = true;
 static bool dumpInfo     = false;
 
 void prepostGJ(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false) {
@@ -87,7 +87,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     postfix = "_MV";
   else if(category == Category::VBF)
     postfix = "_VBF";
-  
+
   dthist = (TGraphAsymmErrors*)pfile->Get((fit_dir+"/"+dir+"/data").c_str());
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD_GJ").c_str());
   vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma_GJ").c_str());
@@ -126,8 +126,8 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     }  
     
     for(int iBin = 0; iBin < dthist->GetN(); iBin++){
-      double x,y;
-      dthist->GetPoint(iBin+1,x,y);
+      double x,y;      
+      dthist->GetPoint(iBin,x,y);
       DataRate << "   ";
       DataRate << y;
     }
@@ -208,15 +208,15 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   dthist->SetMarkerStyle(20);
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
-  
-  TLegend* leg = new TLegend(0.60, 0.65, 0.92, 0.90);
+
+  TLegend* leg = new TLegend(0.54, 0.62, 0.90, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit #gamma+jets","L");
   leg->AddEntry(prhist, "Pre-fit #gamma+jets","L");
-  leg->AddEntry(qchist, "QCD multijets", "F");
+  leg->AddEntry(qchist, "QCD multijet", "F");
   leg->Draw("SAME");
 
   canvas->RedrawAxis("sameaxis");
@@ -245,23 +245,26 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
     frame2->GetYaxis()->SetTitleOffset(1.5);
     frame2->GetYaxis()->SetLabelSize(0.04);
     frame2->GetYaxis()->SetTitleSize(0.04);
     frame2->GetXaxis()->SetLabelSize(0.04);
     frame2->GetXaxis()->SetTitleSize(0.05);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
   }
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
     frame2->GetYaxis()->SetLabelSize(0.03);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
+    frame2->GetXaxis()->SetTitleOffset(1.1);
   }
 
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
   
 
@@ -281,8 +284,8 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
   
-  for (int i = 1; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
-  for (int i = 1; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
+  for (int i = 0; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
+  for (int i = 0; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
 
   for(int iPoint = 1; iPoint < d1hist->GetN(); iPoint++){
     double x,y;
@@ -310,7 +313,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   d1hist->GetXaxis()->SetTitleOffset(999999);
   d1hist->GetXaxis()->SetTitleSize(0);
 
-  for(int iBin = 1; iBin <= erhist->GetNbinsX(); iBin++){
+  for(int iBin = 0; iBin <= erhist->GetNbinsX(); iBin++){
     if(erhist->GetBinError(iBin) > erhist->GetBinError(iBin+1) && iBin != erhist->GetNbinsX())
       erhist->SetBinError(iBin,erhist->GetBinError(iBin+1)*0.9);
   }
@@ -330,8 +333,8 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
 
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinError(i, 0);
+  for (int i = 0; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
+  for (int i = 0; i <= unhist->GetNbinsX(); i++) unhist->SetBinError(i, 0);
   unhist->SetMarkerSize(0);
   unhist->SetLineColor(kBlack);
   unhist->SetLineStyle(2);
@@ -341,15 +344,14 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
 
   pad2->RedrawAxis("G sameaxis");
 
-
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
   //leg2->SetFillColor(0);
   //leg2->SetFillStyle(0);
   //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
   leg2->SetNColumns(2);
-  leg2->AddEntry(d2hist,"post-fit","PLE");
-  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  leg2->AddEntry(d2hist,"Post-fit","PLE");
+  leg2->AddEntry(d1hist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");                                                                                                                                                      
 
@@ -384,14 +386,14 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
+      dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
       data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
     data_pull_post->Add(pohist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
