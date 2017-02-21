@@ -4,11 +4,11 @@
 
 using namespace std;
 
-float musf = 0.01;
-float elsf = 0.01;
-float phsf = 0.02;
-float mutrack = 0.005;
-float eltrack = 0.005;
+float musf = 0.015;
+float elsf = 0.015;
+float phsf = 0.020;
+float mutrack = 0.01;
+float eltrack = 0.01;
 float mettrig = 0.01;
 float eltrig = 0.01;
 float phtrig = 0.02;
@@ -20,7 +20,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
     TCanvas* canvas = new TCanvas("czmm", "czmm", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
@@ -89,7 +89,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
     
-    ehist->SetFillColor(kOrange+1);
+    ehist->SetFillColor(33);
     ehist->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
@@ -101,7 +101,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -134,7 +134,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 void rzee(string fileName, Category category, string observable, bool isEWK) {
 
     TCanvas* canvas = new TCanvas("czee", "czee", 600, 600);
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetTickx();
     canvas->SetTicky();
     canvas->SetLeftMargin(0.11);
@@ -149,7 +149,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
       hist = (TH1F*)file->FindObjectAny(("zewkeecorhist_"+observable).c_str());
     TH1F* ehist = (TH1F*)hist->Clone("ehist_");
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 17., "");
+    TH1* frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
@@ -206,7 +206,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
 
-    ehist->SetFillColor(kOrange+1);
+    ehist->SetFillColor(33);
     ehist->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
@@ -219,7 +219,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -253,7 +253,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     TCanvas* canvas = new TCanvas("cwmn", "cwmn", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
@@ -308,7 +308,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
 
-    ehist->SetFillColor(kOrange+1);
+    ehist->SetFillColor(33);
     ehist->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
@@ -321,7 +321,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -354,7 +354,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     TCanvas* canvas = new TCanvas("cwen", "cwen", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
@@ -411,7 +411,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
 
-    ehist->SetFillColor(kOrange+1);
+    ehist->SetFillColor(33);
     ehist->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
@@ -427,7 +427,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -455,29 +455,63 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
 }
 
 /////////////////////////////
-void rgam(string fileName, Category category, string observable, bool isEWK) {
+void rgam(string fileName, Category category, string observable, bool isEWK, bool useNewTheoryUncertainty = true) {
 
     TCanvas* canvas = new TCanvas("cgam", "cgam", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
     TFile* file = new TFile(fileName.c_str());
-
     TH1F*  hist    = (TH1F*)file->FindObjectAny(("gamcorewkhist_"+observable).c_str());
     if(isEWK)
       hist    = (TH1F*)file->FindObjectAny(("gamewkcorewkhist_"+observable).c_str());    
-    TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZG_EWK_"+observable).c_str());
-    TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
-    TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
-    TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
-    TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
-    TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZG_PDF_"+observable).c_str());
-    TH1F*  fophist = (TH1F*)file->FindObjectAny(("ZG_Footprint_"+observable).c_str());
+
+    TH1F*  ewkhist = NULL;
+    TH1F*  re1hist = NULL;
+    TH1F*  re2hist = NULL;
+    TH1F*  fa1hist = NULL;
+    TH1F*  fa2hist = NULL;
+    TH1F*  pdfhist = NULL;
+    TH1F*  fophist = NULL;
+
+    TH1F*  qcdscalehist = NULL;
+    TH1F*  qcdshapehist = NULL;
+    TH1F*  qcdprocesshist = NULL;
+    TH1F*  nnloewkhist = NULL;
+    TH1F*  nnlomiss1hist = NULL;
+    TH1F*  nnlomiss2hist = NULL;
+    TH1F*  sudakov1hist = NULL;
+    TH1F*  sudakov2hist = NULL;
+    TH1F*  ewkqcdhist = NULL;
+
+    if(not useNewTheoryUncertainty){
+      ewkhist = (TH1F*)file->FindObjectAny(("ZG_EWK_"+observable).c_str());
+      re1hist = (TH1F*)file->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
+      re2hist = (TH1F*)file->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
+      fa1hist = (TH1F*)file->FindObjectAny(("ZG_FactScale1_"+observable).c_str());
+      fa2hist = (TH1F*)file->FindObjectAny(("ZG_FactScale2_"+observable).c_str());
+      pdfhist = (TH1F*)file->FindObjectAny(("ZG_PDF_"+observable).c_str());
+      fophist = (TH1F*)file->FindObjectAny(("ZG_Footprint_"+observable).c_str());
+    }
+    else{
+      qcdscalehist  = (TH1F*)file->FindObjectAny(("ZG_QCDScale_"+observable).c_str());
+      qcdshapehist  = (TH1F*)file->FindObjectAny(("ZG_QCDShape_"+observable).c_str());
+      qcdprocesshist = (TH1F*)file->FindObjectAny(("ZG_QCDProcess_"+observable).c_str());
+      nnloewkhist    = (TH1F*)file->FindObjectAny(("ZG_NNLOEWK_"+observable).c_str());
+      ewkqcdhist     = (TH1F*)file->FindObjectAny(("ZG_MIX_"+observable).c_str());
+      pdfhist        = (TH1F*)file->FindObjectAny(("ZG_PDF_"+observable).c_str());
+      sudakov1hist   = (TH1F*)file->FindObjectAny(("ZG_Sudakov1_"+observable).c_str());
+      sudakov2hist   = (TH1F*)file->FindObjectAny(("ZG_Sudakov2_"+observable).c_str());
+      nnlomiss1hist  = (TH1F*)file->FindObjectAny(("ZG_NNLOMiss1_"+observable).c_str());
+      nnlomiss2hist  = (TH1F*)file->FindObjectAny(("ZG_NNLOMiss2_"+observable).c_str());
+
+    }
 
     TH1F* ehistEWK    = (TH1F*)hist->Clone("ehistEWK");
+    TH1F* ehistQCD    = (TH1F*)hist->Clone("ehistQCD");
     TH1F* ehist       = (TH1F*)hist->Clone("ehist");
 
     vector<double> bins = selectBinning(observable,category);
@@ -524,27 +558,46 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerColor(kBlack);
 
     if(not isEWK){
-      ehistEWK->SetFillColor(kOrange+1);
+      ehistEWK->SetFillColor(33);
       ehistEWK->SetLineColor(kBlack);
-      ehist->SetFillColor(kGreen+1);
+      ehistQCD->SetFillColor(kAzure+1);
+      ehistQCD->SetLineColor(kBlack);
+      
+      ehist->SetFillColor(kBlue+1);
       ehist->SetLineColor(kBlack);
     }
     else{
-      ehist->SetFillColor(kOrange+1);
+      ehist->SetFillColor(33);
       ehist->SetLineColor(kBlack);
     }
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
 	if(not isEWK){
-	  err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  ehistEWK->SetBinError(i, sqrt(err));
-	  err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);       
+	  if(not useNewTheoryUncertainty){
+	    err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistEWK->SetBinError(i, sqrt(err));
+	    err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);       
+	  }
+	  else{
+	    err += pow(nnloewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(nnlomiss1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(nnlomiss2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(sudakov1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(sudakov2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistEWK->SetBinError(i, sqrt(err));
+	    err += pow(qcdscalehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(qcdshapehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(qcdprocesshist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(ewkqcdhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistQCD->SetBinError(i, sqrt(err));
+	  }
 	}
         err += pow(hist->GetBinContent(i)*phtrig, 2);
         err += pow(hist->GetBinContent(i)*phsf, 2);
@@ -552,11 +605,13 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
-    if(not isEWK)
+    ehistQCD->Draw("E2 SAME");
+    if(not isEWK){
       ehistEWK->Draw("E2 SAME");
+    }
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
@@ -565,9 +620,10 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK){
-      leg->AddEntry(hist  , "R_{#gamma} Stat. Unc.","pl");
+      leg->AddEntry(hist  , "R_{#gamma} with Stat. Unc.","pl");
       leg->AddEntry(ehistEWK, "Stat. + Syst. (EWK)", "F");
-      leg->AddEntry(ehist, "Stat. + Syst. (QCD+EWK+PDF)", "F");
+      leg->AddEntry(ehistQCD, "Stat. + Syst. (EWK+QCD)", "F");
+      leg->AddEntry(ehist,    "Stat. + Syst. (EWK+QCD+Exp.)", "F");
     }
     else{
       leg->AddEntry(hist  , "R_{#gamma}-EWK Stat. Unc.","pl");
@@ -587,12 +643,12 @@ void rgam(string fileName, Category category, string observable, bool isEWK) {
 }
 
 /////////////////////////////
-void rzwj(string fileName, Category category, string observable, bool isEWK) {
+void rzwj(string fileName, Category category, string observable, bool isEWK, bool useNewTheoryUncertainty = true) {
 
     TCanvas* canvas = new TCanvas("czwj", "czwj", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
@@ -602,15 +658,50 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     if(isEWK)
       hist = (TH1F*)file->FindObjectAny(("zwjewkcorhist_"+observable).c_str());
 
-    TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("ZW_EWK_"+observable).c_str());
-    TH1F*  re1hist = (TH1F*)file->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
-    TH1F*  re2hist = (TH1F*)file->FindObjectAny(("ZW_RenScale2_"+observable).c_str());
-    TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
-    TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
-    TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("ZW_PDF_"+observable).c_str());
+    TH1F*  ewkhist = NULL;
+    TH1F*  re1hist = NULL;
+    TH1F*  re2hist = NULL;
+    TH1F*  fa1hist = NULL;
+    TH1F*  fa2hist = NULL;
+    TH1F*  pdfhist = NULL;
+    TH1F*  fophist = NULL;
+
+    TH1F*  qcdscalehist = NULL;
+    TH1F*  qcdshapehist = NULL;
+    TH1F*  qcdprocesshist = NULL;
+    TH1F*  nnloewkhist = NULL;
+    TH1F*  nnlomiss1hist = NULL;
+    TH1F*  nnlomiss2hist = NULL;
+    TH1F*  sudakov1hist = NULL;
+    TH1F*  sudakov2hist = NULL;
+    TH1F*  ewkqcdhist = NULL;
+
+    if(not useNewTheoryUncertainty){
+      ewkhist = (TH1F*)file->FindObjectAny(("ZW_EWK_"+observable).c_str());
+      re1hist = (TH1F*)file->FindObjectAny(("ZW_RenScale1_"+observable).c_str());
+      re2hist = (TH1F*)file->FindObjectAny(("ZW_RenScale2_"+observable).c_str());
+      fa1hist = (TH1F*)file->FindObjectAny(("ZW_FactScale1_"+observable).c_str());
+      fa2hist = (TH1F*)file->FindObjectAny(("ZW_FactScale2_"+observable).c_str());
+      pdfhist = (TH1F*)file->FindObjectAny(("ZW_PDF_"+observable).c_str());
+      fophist = (TH1F*)file->FindObjectAny(("ZW_Footprint_"+observable).c_str());
+    }
+    else{
+      qcdscalehist  = (TH1F*)file->FindObjectAny(("ZW_QCDScale_"+observable).c_str());
+      qcdshapehist  = (TH1F*)file->FindObjectAny(("ZW_QCDShape_"+observable).c_str());
+      qcdprocesshist = (TH1F*)file->FindObjectAny(("ZW_QCDProcess_"+observable).c_str());
+      nnloewkhist    = (TH1F*)file->FindObjectAny(("ZW_NNLOEWK_"+observable).c_str());
+      ewkqcdhist     = (TH1F*)file->FindObjectAny(("ZW_MIX_"+observable).c_str());
+      pdfhist        = (TH1F*)file->FindObjectAny(("ZW_PDF_"+observable).c_str());
+      sudakov1hist   = (TH1F*)file->FindObjectAny(("ZW_Sudakov1_"+observable).c_str());
+      sudakov2hist   = (TH1F*)file->FindObjectAny(("ZW_Sudakov2_"+observable).c_str());
+      nnlomiss1hist  = (TH1F*)file->FindObjectAny(("ZW_NNLOMiss1_"+observable).c_str());
+      nnlomiss2hist  = (TH1F*)file->FindObjectAny(("ZW_NNLOMiss2_"+observable).c_str());
+
+    }
 
     TH1F* ehist    = (TH1F*)hist->Clone("ehist");
     TH1F* ehistEWK = (TH1F*)hist->Clone("ehistEWK");
+    TH1F* ehistQCD = (TH1F*)hist->Clone("ehistQCD");
 
     vector<double> bins = selectBinning(observable,category);
 
@@ -673,30 +764,50 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerSize(1.2);
     hist->SetMarkerStyle(20);
     hist->SetMarkerColor(kBlack);
-    ehist->SetFillColor(kGreen+1);
+    ehist->SetFillColor(kBlue+1);
     ehist->SetLineColor(kBlack);
-    ehistEWK->SetFillColor(kOrange+1);
+    ehistEWK->SetFillColor(33);
     ehistEWK->SetLineColor(kBlack);
+    ehistQCD->SetFillColor(kAzure+1);
+    ehistQCD->SetLineColor(kBlack);
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
-	err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	ehistEWK->SetBinError(i, sqrt(err));
-	err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	if(not useNewTheoryUncertainty){
+	  err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  ehistEWK->SetBinError(i, sqrt(err));
+	  err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	}
+	else{
+	  err += pow(nnloewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(nnlomiss1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(nnlomiss2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(sudakov1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(sudakov2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  ehistEWK->SetBinError(i, sqrt(err));
+	  err += pow(qcdscalehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(qcdshapehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(qcdprocesshist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(ewkqcdhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  ehistQCD->SetBinError(i, sqrt(err));
+	}
         err += pow(hist->GetBinContent(i)*lepveto, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
-    ehistEWK->Draw("E2 SAME");
+    ehistQCD->Draw("E2 SAME");
+    if(not isEWK)
+      ehistEWK->Draw("E2 SAME");
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
@@ -706,7 +817,8 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
     if(not isEWK){
       leg->AddEntry(hist  , "R(Z/W) Stat. Unc.","pl");
       leg->AddEntry(ehistEWK, "Stat. + Syst. (EWK)", "F");
-      leg->AddEntry(ehist, "Stat. + Syst. (QCD+EWK+PDF)", "F");
+      leg->AddEntry(ehistQCD, "Stat. + Syst. (EWK+QCD)", "F");
+      leg->AddEntry(ehist,    "Stat. + Syst. (EWK+QCD+Exp.)", "F");
     }
     else{
       leg->AddEntry(hist  , "R(Z/W)-EWK Stat. Unc.","pl");
@@ -727,12 +839,12 @@ void rzwj(string fileName, Category category, string observable, bool isEWK) {
 
 
 /////////////////////////////
-void rwgam(string fileName, Category category, string observable, bool isEWK) {
+void rwgam(string fileName, Category category, string observable, bool isEWK, bool useNewTheoryUncertainty = true) {
 
     TCanvas* canvas = new TCanvas("cwgam", "cwgam", 600, 600);
     canvas->SetTickx();
     canvas->SetTicky();
-    canvas->SetRightMargin(0.075);
+    canvas->SetRightMargin(0.06);
     canvas->SetLeftMargin(0.11);
     canvas->SetTopMargin(0.06);
 
@@ -742,16 +854,50 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     if(isEWK)
       hist    = (TH1F*)file->FindObjectAny(("wgamewkcorhist_"+observable).c_str());
 
-    TH1F*  ewkhist = (TH1F*)file->FindObjectAny(("WG_EWK_"+observable).c_str());
-    TH1F*  re1hist = (TH1F*)file->FindObjectAny(("WG_RenScale1_"+observable).c_str());
-    TH1F*  re2hist = (TH1F*)file->FindObjectAny(("WG_RenScale2_"+observable).c_str());
-    TH1F*  fa1hist = (TH1F*)file->FindObjectAny(("WG_FactScale1_"+observable).c_str());
-    TH1F*  fa2hist = (TH1F*)file->FindObjectAny(("WG_FactScale2_"+observable).c_str());
-    TH1F*  pdfhist = (TH1F*)file->FindObjectAny(("WG_PDF_"+observable).c_str());
-    TH1F*  fophist = (TH1F*)file->FindObjectAny(("WG_Footprint_"+observable).c_str());
+    TH1F*  ewkhist = NULL;
+    TH1F*  re1hist = NULL;
+    TH1F*  re2hist = NULL;
+    TH1F*  fa1hist = NULL;
+    TH1F*  fa2hist = NULL;
+    TH1F*  pdfhist = NULL;
+    TH1F*  fophist = NULL;
 
-    TH1F* ehistEWK    = (TH1F*)hist->Clone("ehistEWK");
-    TH1F* ehist       = (TH1F*)hist->Clone("ehist");
+    TH1F*  qcdscalehist = NULL;
+    TH1F*  qcdshapehist = NULL;
+    TH1F*  qcdprocesshist = NULL;
+    TH1F*  nnloewkhist = NULL;
+    TH1F*  nnlomiss1hist = NULL;
+    TH1F*  nnlomiss2hist = NULL;
+    TH1F*  sudakov1hist = NULL;
+    TH1F*  sudakov2hist = NULL;
+    TH1F*  ewkqcdhist = NULL;
+
+    if(not useNewTheoryUncertainty){
+      ewkhist = (TH1F*)file->FindObjectAny(("WG_EWK_"+observable).c_str());
+      re1hist = (TH1F*)file->FindObjectAny(("WG_RenScale1_"+observable).c_str());
+      re2hist = (TH1F*)file->FindObjectAny(("WG_RenScale2_"+observable).c_str());
+      fa1hist = (TH1F*)file->FindObjectAny(("WG_FactScale1_"+observable).c_str());
+      fa2hist = (TH1F*)file->FindObjectAny(("WG_FactScale2_"+observable).c_str());
+      pdfhist = (TH1F*)file->FindObjectAny(("WG_PDF_"+observable).c_str());
+      fophist = (TH1F*)file->FindObjectAny(("WG_Footprint_"+observable).c_str());
+    }
+    else{
+      qcdscalehist  = (TH1F*)file->FindObjectAny(("WG_QCDScale_"+observable).c_str());
+      qcdshapehist  = (TH1F*)file->FindObjectAny(("WG_QCDShape_"+observable).c_str());
+      qcdprocesshist = (TH1F*)file->FindObjectAny(("WG_QCDProcess_"+observable).c_str());
+      nnloewkhist    = (TH1F*)file->FindObjectAny(("WG_NNLOEWK_"+observable).c_str());
+      ewkqcdhist     = (TH1F*)file->FindObjectAny(("WG_MIX_"+observable).c_str());
+      pdfhist        = (TH1F*)file->FindObjectAny(("WG_PDF_"+observable).c_str());
+      sudakov1hist   = (TH1F*)file->FindObjectAny(("WG_Sudakov1_"+observable).c_str());
+      sudakov2hist   = (TH1F*)file->FindObjectAny(("WG_Sudakov2_"+observable).c_str());
+      nnlomiss1hist  = (TH1F*)file->FindObjectAny(("WG_NNLOMiss1_"+observable).c_str());
+      nnlomiss2hist  = (TH1F*)file->FindObjectAny(("WG_NNLOMiss2_"+observable).c_str());
+
+    }
+
+    TH1F* ehist    = (TH1F*)hist->Clone("ehist");
+    TH1F* ehistEWK = (TH1F*)hist->Clone("ehistEWK");
+    TH1F* ehistQCD = (TH1F*)hist->Clone("ehistQCD");
 
     vector<double> bins = selectBinning(observable,category);
 
@@ -797,9 +943,11 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     hist->SetMarkerColor(kBlack);
     
     if(not isEWK){
-      ehistEWK->SetFillColor(kOrange+1);
+      ehistEWK->SetFillColor(33);
       ehistEWK->SetLineColor(kBlack);
-      ehist->SetFillColor(kGreen+1);
+      ehistQCD->SetFillColor(kAzure+1);
+      ehistQCD->SetLineColor(kBlack);
+      ehist->SetFillColor(kBlue+1);
       ehist->SetLineColor(kBlack);
     }
     else{
@@ -811,14 +959,29 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
         double err = 0.0;
         err +=    hist->GetBinError  (i)*   hist->GetBinError  (i);
 	if(not isEWK){
-	  err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  ehistEWK->SetBinError(i, sqrt(err));
-	  err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
-	  err += pow(fophist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  if(not useNewTheoryUncertainty){
+	    err += pow(ewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistEWK->SetBinError(i, sqrt(err));
+	    err += pow(re1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(re2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(fa1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(fa2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	  }
+	  else{
+	    err += pow(nnloewkhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(nnlomiss1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(nnlomiss2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(sudakov1hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(sudakov2hist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistEWK->SetBinError(i, sqrt(err));
+	    err += pow(qcdscalehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(qcdshapehist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(qcdprocesshist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(ewkqcdhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
+	    ehistQCD->SetBinError(i, sqrt(err));
+	  }
 	}
 	err += pow(hist->GetBinContent(i)*phsf, 2);
 	err += pow(hist->GetBinContent(i)*phtrig, 2);
@@ -828,15 +991,16 @@ void rwgam(string fileName, Category category, string observable, bool isEWK) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9");
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
+    ehistQCD->Draw("E2 SAME");
     if(not isEWK)
       ehistEWK->Draw("E2 SAME");
     hist ->Draw("PE SAME");
 
     canvas->RedrawAxis();
-
+    
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
@@ -911,7 +1075,7 @@ void rtopmu(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -978,7 +1142,7 @@ void rtopel(string fileName, Category category, string observable) {
     }
 
     frame->Draw();
-    CMS_lumi(canvas,"36.4",true);
+    CMS_lumi(canvas,"35.9",true);
     hist ->Draw("PE SAME");
     ehist->Draw("E2 SAME");
     hist ->Draw("PE SAME");
@@ -996,7 +1160,7 @@ void rtopel(string fileName, Category category, string observable) {
 }
 
 /////////////////////////////
-void makeTransferFactorPlot(string fileName, Category category, string observable, bool isEWK = false, bool addwgamma = false, bool addtop = false) {
+void makeTransferFactorPlot(string fileName, Category category, string observable, bool isEWK = false, bool useNewTheoryUncertainty = true, bool addwgamma = false, bool addtop = false) {
 
   gROOT->SetBatch(kTRUE);
 
@@ -1006,10 +1170,10 @@ void makeTransferFactorPlot(string fileName, Category category, string observabl
   rzee(fileName,category,observable,isEWK);
   rwmn(fileName,category,observable,isEWK);
   rwen(fileName,category,observable,isEWK);
-  rzwj(fileName,category,observable,isEWK);
+  rzwj(fileName,category,observable,isEWK,useNewTheoryUncertainty);
 
   if(category != Category::VBF)
-    rgam(fileName,category,observable,false);
+    rgam(fileName,category,observable,false,useNewTheoryUncertainty);
   
   if(addtop){
     rtopmu(fileName,category,observable);
@@ -1017,7 +1181,7 @@ void makeTransferFactorPlot(string fileName, Category category, string observabl
   }
   
   if(addwgamma and category != Category::VBF)
-    rwgam(fileName,category,observable,false);
+    rwgam(fileName,category,observable,false,useNewTheoryUncertainty);
 }
 
 

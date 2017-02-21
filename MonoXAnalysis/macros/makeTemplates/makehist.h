@@ -55,8 +55,8 @@ const int   nBjets          = 1; // for top-tagged region
 // Re-weight and smoothing
 const bool  reweightNVTX     = true;
 /// photon scale
-const bool  applyPhotonScale = false;
-const float photonScaleUnc   = 0.020;
+const bool  applyPhotonScale = true;
+const float photonScaleUnc   = -0.02;
 const bool  doSmoothing      = false;
 // trigger
 const float recoilThresholdTrigger = 350; // for photon trigger application
@@ -427,8 +427,8 @@ void makehist4(TTree* tree, /*input tree*/
     if(category != Category::VBF and category != Category::VBFrelaxed){
       triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_jetHT.root");
       triggerfile_SinglePhoton       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/photonTriggerEfficiency_photon.root");
-      triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_recoil");
-      triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_recoil");
+      triggerphoton = (TEfficiency*) triggerfile_SinglePhoton->Get("eff_photonpt");
+      triggerphoton_jetHT = (TEfficiency*) triggerfile_SinglePhoton_jetHT->Get("eff_recover_photonpt");
     }
     else{
       triggerfile_SinglePhoton_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/photonTriggerEfficiency_jetHT.root");
@@ -773,7 +773,7 @@ void makehist4(TTree* tree, /*input tree*/
     }
 
     // noise cleaner
-    if(fabs(*met-*metcalo)/pfmet > 0.5) continue;
+    if((sample != Sample::gam and sample != Sample::zee and sample != Sample::wen) and fabs(*met-*metcalo)/pfmet > 0.5) continue;
 
     // set lepton info
     Int_t    id1   = 0;
@@ -954,9 +954,10 @@ void makehist4(TTree* tree, /*input tree*/
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos != 0) continue; // asking leading jet to be central for non VBF categories
 
-       
-    // apply tracking efficiency for electrons from POGs
+    
+    /// re-miniADO specific to adjust lumi
     Double_t sfwgt = 1.0;
+    // apply tracking efficiency for electrons from POGs
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
       if(not isSummer16){
 	if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){	
@@ -1044,7 +1045,6 @@ void makehist4(TTree* tree, /*input tree*/
     }
     
     if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {      
-      if(isSummer16 and sample == Sample::zee) sfwgt *= 0.97; // temp fix for data-to-mc agreement --> 1.5% per electron leg
       if(isSummer16){ // use e-gamma pog scale factors
 	if (pt1 > 0.) {
 	  if (id1 == 1) sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,min(pt1,esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1))); 
@@ -1161,9 +1161,11 @@ void makehist4(TTree* tree, /*input tree*/
     // photon trigger scale factor
     if(isMC && triggerphoton_graph && triggerphoton_graph_jetHT && (sample == Sample::qcdgam || sample == Sample::gam)){ // linear interpolation between graph points            
       if(*pmet < recoilThresholdTrigger)	
-	sfwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+	//	sfwgt *= triggerphoton_graph->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt *= triggerphoton_graph->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
       else
-	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+	//	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*pmet),triggerphoton_graph->GetXaxis()->GetXmax()));
+	sfwgt *= triggerphoton_graph_jetHT->Eval(min(double(*phpt),triggerphoton_graph->GetXaxis()->GetXmax()));
     }
     
     // B-tag weight to be adjusted
@@ -1857,8 +1859,10 @@ void makehist4(TTree* tree, /*input tree*/
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
-	if (*nvtx <= 60) 
+	if (*nvtx <= 60 and not isSummer16) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
+	else
+	  puwgt = 1;
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
 	else
