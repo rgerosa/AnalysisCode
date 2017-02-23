@@ -826,6 +826,21 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm"+theory_new,useNewTheoryUncertainty);  
     makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee"+theory_new,useNewTheoryUncertainty);
     makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll"+theory_new,useNewTheoryUncertainty);
+
+    TH1* zgamma_ll =  (TH1*) ZGData_ll->Clone("zgamma_ll");
+    zgamma_ll->Divide(ZGMC_ll);
+
+    TF1* funz_1 = new TF1("funz_1","pol0",200,1300);
+    TF1* funz_2 = new TF1("funz_2","pol1",200,1300);
+
+    TFitResultPtr r_1 = zgamma_ll->Fit(funz_1,"S");
+    TFitResultPtr r_2 = zgamma_ll->Fit(funz_2,"S");
+    
+    Double_t chi2_1   = r_1->Chi2()/(zgamma_ll->GetNbinsX()-1);
+    Double_t chi2_2   = r_2->Chi2()/(zgamma_ll->GetNbinsX()-2);
+
+    cout<<chi2_1<<" "<<chi2_2<<endl;
+
     
     if(addWgamma){
       makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m"+theory_new,useNewTheoryUncertainty);

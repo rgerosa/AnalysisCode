@@ -38,14 +38,14 @@ const float pfMetMonoVUpper = 8000.;
 // some basic cut values --> VBF category
 const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 40.;
-const float detajj          = 3.5;
+const float detajj          = 1.0;
 const float detajjrelaxed   = 1.0;
-const float mjj             = 1000;
+const float mjj             = 0;
 const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 1.5;
+const float dphijj          = 1.3;
 const float dphijjrelaxed   = 2.0;
 const bool  removeVBF       = false;
 // Additional selections

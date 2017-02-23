@@ -516,7 +516,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK, boo
 
     vector<double> bins = selectBinning(observable,category);
 
-    TH1* frame = canvas->DrawFrame(bins.front(), 0.2, bins.back(), 1.0, "");
+    TH1* frame = canvas->DrawFrame(bins.front(), 0.2, bins.back(), 1.2, "");
     frame->GetXaxis()->SetTitle("Recoil [GeV]");
 
     if(category == Category::VBF){
