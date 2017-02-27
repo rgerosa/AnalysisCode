@@ -153,7 +153,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   gPad->Update();
 
   if(category == Category::monojet){
-    corr->SetMarkerColor(kRed);
+    corr->SetMarkerColor(12);
     canvas->SaveAs((outputDIR+"/correlation_monojet.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet.png").c_str());
     canvas->SetLogz();

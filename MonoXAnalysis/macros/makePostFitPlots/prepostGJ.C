@@ -27,7 +27,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    //    pad2->SetGridy(1);
+    //pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -54,7 +54,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    //    pad3->SetGridy();
+    //pad3->SetGridy();
   }
 
   TFile* pfile = new TFile(fitFilename.c_str());

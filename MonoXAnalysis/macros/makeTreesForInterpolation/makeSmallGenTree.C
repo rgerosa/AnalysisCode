@@ -25,7 +25,7 @@ static bool  useMoriondSetup = true;
 
 void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory, bool isDMSimp = true, bool isSMM = false){
 
-  if(interaction != "Axial" and interaction != "Vector" and interaction != "Scalar" and interaction != "PseudoScalar"){
+  if(interaction != "Axial" and interaction != "Vector" and interaction != "Scalar" and interaction != "PseudoScalar" and interaction != "SMM"){
     cerr<<"Interaction not known ---> return "<<endl;
     return;
   }
@@ -325,7 +325,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     wgt_coupling = new TTreeReaderValue<vector<float> >(myReader,"couplingwgt");
   }
   else if(isSMM){
-    gDMV = new TTreeReaderValue<vector<float> >(myReader,"yDM");
+    gDMV = new TTreeReaderValue<vector<float> >(myReader,"gDMV");
     gTheta = new TTreeReaderValue<vector<float> >(myReader,"gTheta");
     wgt_coupling = new TTreeReaderValue<vector<float> >(myReader,"couplingwgt");
   }

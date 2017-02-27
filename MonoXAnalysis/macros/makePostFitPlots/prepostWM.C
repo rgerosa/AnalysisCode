@@ -27,7 +27,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    //    pad2->SetGridy(1);
+    //pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -52,7 +52,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    //    pad2->SetGridy();
+    //pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);

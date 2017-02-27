@@ -379,11 +379,12 @@ void makezeecorhist( const string &   signalRegionFile,
     for(int iBin = 1; iBin <= reweight_zll->GetNbinsX(); iBin++)
       reweight_zll->SetBinContent(iBin,kfact_nloqcd_zll->GetBinContent(iBin)*(1+kfact_nloewk_zll->GetBinContent(iBin)));
   }
-  
+
   vector<TH1*> ehists;
   vector<TH1*> zhists;
   vector<TH1*> dyhists;
-  
+
+  // Zvv --> numerator                                                                                                                                                                             
   if(nloSamples.useZJetsNLO){
     zhists.push_back(zewkhist);
   }
@@ -396,6 +397,7 @@ void makezeecorhist( const string &   signalRegionFile,
       zhists.push_back(reweight_zvv);
   }
 
+  // DYmm --> denominator                                                                                                                                                                           
   if(nloSamples.useDYJetsNLO){
     dyhists.push_back(zewkhist);
   }
@@ -405,8 +407,9 @@ void makezeecorhist( const string &   signalRegionFile,
       dyhists.push_back(znlohist);
     }
     else
-      dyhists.push_back(reweight_zll);    
+      dyhists.push_back(reweight_zll);
   }
+  
   
   TFile* kfactzjet_vbf = NULL;
   if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                               
@@ -422,7 +425,7 @@ void makezeecorhist( const string &   signalRegionFile,
       dyhists.push_back(zjet_nlo_vbf);
   }
 
-
+  
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
