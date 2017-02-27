@@ -19,6 +19,7 @@ static int  typeOfDMSignal        = 0;     // 0 means both mono-j and mono-V, 1 
 static bool runHiggsInvisible     = false; // run Higgs invisible analysis
 static bool addTop                = false;
 static bool addQCD                = false;
+static bool addTauCR              = false;
 static bool addWgamma             = true; 
 static bool addZgamma             = true;
 static bool addZWratio            = true;
@@ -814,17 +815,21 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       qcddatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,false,runHiggsInvisible,applyPostFitWeights);
     }
 
+    if(addTauCR){
+      cout<<"start Tau region data"<<endl;
+      taudatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,false,runHiggsInvisible,applyPostFitWeights);
+    }
+
     //add qcd data templates
     TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016_12p9.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
+
       cout<<"Take templates QCD from data"<<endl;
+
       vector<double> met_bins = selectBinning("met",category);
       TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
-      qcd_nominal->Scale(lumi/12.9);
-      qcd_nominal_up->Scale(lumi/12.9);
-      qcd_nominal_dw->Scale(lumi/12.9);
 
       TH1F* temp = NULL;
       if(category ==  Category::monojet)
@@ -850,6 +855,12 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+      
+
+      /// Scaling for lumi
+      qcd_nominal->Scale(lumi/12.9);
+      qcd_nominal_up->Scale(lumi/12.9);
+      qcd_nominal_dw->Scale(lumi/12.9);
       
       outfile.cd();
       outfile.cd("SR");

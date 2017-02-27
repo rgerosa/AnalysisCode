@@ -1,20 +1,22 @@
 
-bool hasSameSign (TH1* histo1, TH1* histo2){
+bool hasSameSign (TH1* histo1){
   bool sign = true;
   bool firstsign = false;
   for(int iBin = 0; iBin < histo1->GetNbinsX()+1; iBin++){
-    if(iBin == 0 and (histo1->GetBinContent(iBin+1)-histo2->GetBinContent(iBin+1)) > 0){
+    if(iBin == 0 and histo1->GetBinContent(iBin+1) > 0){
       firstsign = true;
       continue;
     }
-    else if(iBin == 0 and (histo1->GetBinContent(iBin+1)-histo2->GetBinContent(iBin+1))< 0){
+    else if(iBin == 0 and histo1->GetBinContent(iBin+1) < 0){
       firstsign = false;
       continue;
     }    
-    else if(iBin != 0 and firstsign and (histo1->GetBinContent(iBin+1)-histo2->GetBinContent(iBin+1)) < 0)
+    else if(iBin != 0 and firstsign and histo1->GetBinContent(iBin+1) < 0){
       sign = false;
-    else if(iBin != 0 and not firstsign and (histo1->GetBinContent(iBin+1)-histo2->GetBinContent(iBin+1)) > 0)
+    }
+    else if(iBin != 0 and not firstsign and histo1->GetBinContent(iBin+1) > 0){
       sign = false;
+    }
   }
   return sign;    
 }
@@ -582,110 +584,97 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	// QCD scale --> to be symmetrized
 	gamuncqcdscalehist = (TH1*) gamcorqcdscaleuphist.back()->Clone(("gamuncqcdscale"+ext+"hist_"+obs).c_str());	
 	gamuncqcdscalehist->Reset("ICES");
-	bool sign = hasSameSign(gamcorqcdscaleuphist.back(),gamcorqcdscaledwhist.back());
-	for (int i = 0; i <= gamuncqcdscalehist->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncqcdscalehist->SetBinContent(i,fabs(gamcorqcdscaleuphist.back()->GetBinContent(i)-gamcorqcdscaledwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));	
-	  else
-	    gamuncqcdscalehist->SetBinContent(i,(gamcorqcdscaleuphist.back()->GetBinContent(i)-gamcorqcdscaledwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));	
+	// fill first
+	for (int i = 0; i <= gamuncqcdscalehist->GetNbinsX()+1; i++)
+	  gamuncqcdscalehist->SetBinContent(i,(gamcorqcdscaleuphist.back()->GetBinContent(i)-gamcorqcdscaledwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	// smooth
+	gamuncqcdscalehist->Smooth(1,"R");
+	// evaluate sign
+	bool sign = hasSameSign(gamuncqcdscalehist);
+	if(sign){
+	  for (int i = 0; i <= gamuncqcdscalehist->GetNbinsX()+1; i++)
+	    gamuncqcdscalehist->SetBinContent(i,fabs(gamuncqcdscalehist->GetBinContent(i)));
 	}
-
 	gamuncqcdscalehist->SetName(("ZG_QCDScale_"+obs).c_str());
 	
 	// QCD Shape --> to be symmetrized
 	gamuncqcdshapehist = (TH1*) gamcorqcdshapeuphist.back()->Clone(("gamuncqcdshape"+ext+"hist_"+obs).c_str());
 	gamuncqcdshapehist->Reset("ICES");
-	sign = hasSameSign(gamcorqcdshapeuphist.back(),gamcorqcdshapedwhist.back());
-	for (int i = 0; i <= gamuncqcdshapehist->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncqcdshapehist->SetBinContent(i,fabs(gamcorqcdshapeuphist.back()->GetBinContent(i)-gamcorqcdshapedwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
+	for (int i = 0; i <= gamuncqcdshapehist->GetNbinsX()+1; i++)
 	    gamuncqcdshapehist->SetBinContent(i,(gamcorqcdshapeuphist.back()->GetBinContent(i)-gamcorqcdshapedwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	}
+	gamuncqcdshapehist->Smooth(1,"R");
+	sign = hasSameSign(gamuncqcdshapehist);
+	if(sign){
+	  for (int i = 0; i <= gamuncqcdshapehist->GetNbinsX()+1; i++)
+	    gamuncqcdshapehist->SetBinContent(i,fabs(gamuncqcdshapehist->GetBinContent(i)));
+	}	
 	gamuncqcdshapehist->SetName(("ZG_QCDShape_"+obs).c_str());
 
 	// QCD Process --> to be symmetrized
 	gamuncqcdprochist = (TH1*) gamcorqcdprocuphist.back()->Clone(("gamuncqcdproc"+ext+"hist_"+obs).c_str());
 	gamuncqcdprochist->Reset("ICES");
-	sign = hasSameSign(gamcorqcdprocuphist.back(),gamcorqcdprocdwhist.back());
-	for (int i = 0; i <= gamuncqcdprochist->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncqcdprochist->SetBinContent(i,fabs(gamcorqcdprocuphist.back()->GetBinContent(i)-gamcorqcdprocdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncqcdprochist->SetBinContent(i,(gamcorqcdprocuphist.back()->GetBinContent(i)-gamcorqcdprocdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	for (int i = 0; i <= gamuncqcdprochist->GetNbinsX()+1; i++)
+	  gamuncqcdprochist->SetBinContent(i,(gamcorqcdprocuphist.back()->GetBinContent(i)-gamcorqcdprocdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	gamuncqcdprochist->Smooth(1,"R");	
+	sign = hasSameSign(gamuncqcdprochist);
+	if(sign){
+	  for (int i = 0; i <= gamuncqcdprochist->GetNbinsX()+1; i++)
+	    gamuncqcdshapehist->SetBinContent(i,fabs(gamuncqcdprochist->GetBinContent(i)));
 	}
 	gamuncqcdprochist->SetName(("ZG_QCDProcess_"+obs).c_str());
 
 	// NNLO EWK --> to be symmetrized
 	gamuncnnloewkhist = (TH1*) gamcornnloewkuphist.back()->Clone(("gamuncnnloewk"+ext+"hist_"+obs).c_str());
 	gamuncnnloewkhist->Reset("ICES");
-	sign = hasSameSign(gamcornnloewkuphist.back(),gamcornnloewkdwhist.back());
 	for (int i = 0; i <= gamuncnnloewkhist->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncnnloewkhist->SetBinContent(i,fabs(gamcornnloewkuphist.back()->GetBinContent(i)-gamcornnloewkdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncnnloewkhist->SetBinContent(i,(gamcornnloewkuphist.back()->GetBinContent(i)-gamcornnloewkdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	}
+	  gamuncnnloewkhist->SetBinContent(i,fabs(gamcornnloewkuphist.back()->GetBinContent(i)-gamcornnloewkdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	}	
+	gamuncnnloewkhist->Smooth(1,"R");
 	gamuncnnloewkhist->SetName(("ZG_NNLOEWK_"+obs).c_str());
 	
 	// NLO EWK Sud --> to be symmetrized
 	gamuncsudakovhist_1 = (TH1*) gamcorsudakovuphist_1.back()->Clone(("gamuncsudakov1"+ext+"hist_"+obs).c_str());
 	gamuncsudakovhist_1->Reset("ICES");
-	sign = hasSameSign(gamcorsudakovuphist_1.back(),gamcorsudakovdwhist_1.back());
 	for (int i = 0; i <= gamuncsudakovhist_1->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncsudakovhist_1->SetBinContent(i,fabs(gamcorsudakovuphist_1.back()->GetBinContent(i)-gamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncsudakovhist_1->SetBinContent(i,(gamcorsudakovuphist_1.back()->GetBinContent(i)-gamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	  gamuncsudakovhist_1->SetBinContent(i,fabs(gamcorsudakovuphist_1.back()->GetBinContent(i)-gamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
 	}
+	gamuncsudakovhist_1->Smooth(1,"R");
 	gamuncsudakovhist_1->SetName(("ZG_Sudakov1_"+obs).c_str());
 
 	// NLO EWK Sud --> to be symmetrized
 	gamuncsudakovhist_2 = (TH1*) gamcorsudakovuphist_2.back()->Clone(("gamuncsudakov2"+ext+"hist_"+obs).c_str());
 	gamuncsudakovhist_2->Reset("ICES");
-	sign = hasSameSign(gamcorsudakovuphist_2.back(),gamcorsudakovdwhist_2.back());
 	for (int i = 0; i <= gamuncsudakovhist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncsudakovhist_2->SetBinContent(i,fabs(gamcorsudakovuphist_2.back()->GetBinContent(i)-gamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncsudakovhist_2->SetBinContent(i,(gamcorsudakovuphist_2.back()->GetBinContent(i)-gamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	  gamuncsudakovhist_2->SetBinContent(i,fabs(gamcorsudakovuphist_2.back()->GetBinContent(i)-gamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
 	}
+	gamuncsudakovhist_2->Smooth(1,"R");
 	gamuncsudakovhist_2->SetName(("ZG_Sudakov2_"+obs).c_str());
 
 	// NNLO Miss --> to be symmetrized
 	gamuncnnlomisshist_1 = (TH1*) gamcornnlomissuphist_1.back()->Clone(("gamuncnnlomiss1"+ext+"hist_"+obs).c_str());
 	gamuncnnlomisshist_1->Reset("ICES");
-	sign = hasSameSign(gamcornnlomissuphist_1.back(),gamcornnlomissdwhist_1.back());
 	for (int i = 0; i <= gamuncnnlomisshist_1->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncnnlomisshist_1->SetBinContent(i,fabs(gamcornnlomissuphist_1.back()->GetBinContent(i)-gamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncnnlomisshist_1->SetBinContent(i,(gamcornnlomissuphist_1.back()->GetBinContent(i)-gamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	  gamuncnnlomisshist_1->SetBinContent(i,fabs(gamcornnlomissuphist_1.back()->GetBinContent(i)-gamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
 	}
+	gamuncnnlomisshist_1->Smooth(1,"R");
 	gamuncnnlomisshist_1->SetName(("ZG_NNLOMiss1_"+obs).c_str());
 	
 	// NNLO Miss --> to be symmetrized
 	gamuncnnlomisshist_2 = (TH1*) gamcornnlomissuphist_2.back()->Clone(("gamuncnnlomiss2"+ext+"hist_"+obs).c_str());
 	gamuncnnlomisshist_2->Reset("ICES");
-	sign = hasSameSign(gamcornnlomissuphist_2.back(),gamcornnlomissdwhist_2.back());
 	for (int i = 0; i <= gamuncnnlomisshist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncnnlomisshist_2->SetBinContent(i,fabs(gamcornnlomissuphist_2.back()->GetBinContent(i)-gamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncnnlomisshist_2->SetBinContent(i,(gamcornnlomissuphist_2.back()->GetBinContent(i)-gamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	  gamuncnnlomisshist_2->SetBinContent(i,fabs(gamcornnlomissuphist_2.back()->GetBinContent(i)-gamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
 	}
+	gamuncnnlomisshist_2->Smooth(1,"R");
 	gamuncnnlomisshist_2->SetName(("ZG_NNLOMiss2_"+obs).c_str());
 
 	// NLO QCD+EWK --> to be symmetrized
 	gamuncmixhist = (TH1*) gamcormixuphist.back()->Clone(("gamuncmix"+ext+"hist_"+obs).c_str());
 	gamuncmixhist->Reset("ICES");
-	sign = hasSameSign(gamcormixuphist.back(),gamcormixdwhist.back());
 	for (int i = 0; i <= gamuncmixhist->GetNbinsX()+1; i++){
-	  if(sign)
-	    gamuncmixhist->SetBinContent(i,fabs(gamcormixuphist.back()->GetBinContent(i)-gamcormixdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    gamuncmixhist->SetBinContent(i,(gamcormixuphist.back()->GetBinContent(i)-gamcormixdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
+	  gamuncmixhist->SetBinContent(i,fabs(gamcormixuphist.back()->GetBinContent(i)-gamcormixdwhist.back()->GetBinContent(i))/(2*gamcorewkhist.back()->GetBinContent(i)));
 	}
+	gamuncmixhist->Smooth(1,"R");
 	gamuncmixhist->SetName(("ZG_MIX_"+obs).c_str());
 
 	// NLO PDF
@@ -867,110 +856,95 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	// QCD scale --> to be symmetrized
 	zwjuncqcdscalehist = (TH1*) zwjcorqcdscaleuphist.back()->Clone(("zwjuncqcdscale"+ext+"hist_"+obs).c_str());
 	zwjuncqcdscalehist->Reset("ICES");
-	bool sign = hasSameSign(zwjcorqcdscaleuphist.back(),zwjcorqcdscaledwhist.back());
-	for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncqcdscalehist->SetBinContent(i,fabs(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncqcdscalehist->SetBinContent(i,(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++)
+	  zwjuncqcdscalehist->SetBinContent(i,(zwjcorqcdscaleuphist.back()->GetBinContent(i)-zwjcorqcdscaledwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	zwjuncqcdscalehist->Smooth(1,"R");
+	bool sign = hasSameSign(zwjuncqcdscalehist);
+	if(sign){
+	  for (int i = 0; i <= zwjuncqcdscalehist->GetNbinsX()+1; i++){
+	    zwjuncqcdscalehist->SetBinContent(i,fabs(zwjuncqcdscalehist->GetBinContent(i)));
+	  }
 	}
 	zwjuncqcdscalehist->SetName(("ZW_QCDScale_"+obs).c_str());
 	
 	// QCD Shape --> to be symmetrized
 	zwjuncqcdshapehist = (TH1*) zwjcorqcdshapeuphist.back()->Clone(("zwjuncqcdshape"+ext+"hist_"+obs).c_str());
 	zwjuncqcdshapehist->Reset("ICES");
-	sign = hasSameSign(zwjcorqcdshapeuphist.back(),zwjcorqcdshapedwhist.back());
-	for (int i = 0; i <= zwjuncqcdshapehist->GetNbinsX()+1; i++){
-	  if(sign)	  
-	    zwjuncqcdshapehist->SetBinContent(i,fabs(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncqcdshapehist->SetBinContent(i,(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	for (int i = 0; i <= zwjuncqcdshapehist->GetNbinsX()+1; i++)
+	  zwjuncqcdshapehist->SetBinContent(i,(zwjcorqcdshapeuphist.back()->GetBinContent(i)-zwjcorqcdshapedwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	zwjuncqcdshapehist->Smooth(1,"R");	
+	sign = hasSameSign(zwjuncqcdshapehist);
+	if(sign){
+	  for (int i = 0; i <= zwjuncqcdshapehist->GetNbinsX()+1; i++)
+	    zwjuncqcdshapehist->SetBinContent(i,fabs(zwjuncqcdshapehist->GetBinContent(i)));
 	}
-	zwjuncqcdshapehist->SetBinContent(1,zwjuncqcdshapehist->GetBinContent(1)+0.0025);
 	zwjuncqcdshapehist->SetName(("ZW_QCDShape_"+obs).c_str());
 	
-      // QCD Process --> to be symmetrized
+	// QCD Process --> to be symmetrized
 	zwjuncqcdprochist = (TH1*) zwjcorqcdprocuphist.back()->Clone(("zwjuncqcdproc"+ext+"hist_"+obs).c_str());
 	zwjuncqcdprochist->Reset("ICES");
-	sign = hasSameSign(zwjcorqcdprocuphist.back(),zwjcorqcdprocdwhist.back());
-	for (int i = 0; i <= zwjuncqcdprochist->GetNbinsX()+1; i++){
-	  if(sign)	  
-	    zwjuncqcdprochist->SetBinContent(i,fabs(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncqcdprochist->SetBinContent(i,(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	for (int i = 0; i <= zwjuncqcdprochist->GetNbinsX()+1; i++)
+	  zwjuncqcdprochist->SetBinContent(i,(zwjcorqcdprocuphist.back()->GetBinContent(i)-zwjcorqcdprocdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	zwjuncqcdprochist->Smooth(1,"R");	
+	sign = hasSameSign(zwjuncqcdprochist);
+	if(sign){
+	  for (int i = 0; i <= zwjuncqcdprochist->GetNbinsX()+1; i++)
+	    zwjuncqcdprochist->SetBinContent(i,fabs(zwjuncqcdprochist->GetBinContent(i)));
 	}
 	zwjuncqcdprochist->SetName(("ZW_QCDProcess_"+obs).c_str());
 	
 	// NNLO EWK --> to be symmetrized
 	zwjuncnnloewkhist = (TH1*) zwjcornnloewkuphist.back()->Clone(("zwjuncnnloewk"+ext+"hist_"+obs).c_str());
 	zwjuncnnloewkhist->Reset("ICES");
-	sign = hasSameSign(zwjcornnloewkuphist.back(),zwjcornnloewkdwhist.back());
 	for (int i = 0; i <= zwjuncnnloewkhist->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncnnloewkhist->SetBinContent(i,fabs(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	  zwjuncnnloewkhist->SetBinContent(i,(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  zwjuncnnloewkhist->SetBinContent(i,fabs(zwjcornnloewkuphist.back()->GetBinContent(i)-zwjcornnloewkdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncnnloewkhist->Smooth(1,"R");
 	zwjuncnnloewkhist->SetName(("ZW_NNLOEWK_"+obs).c_str());
 	
 	// NLO EWK Sud --> to be symmetrized
 	zwjuncsudakovhist_1 = (TH1*) zwjcorsudakovuphist_1.back()->Clone(("zwjuncsudakov1"+ext+"hist_"+obs).c_str());
 	zwjuncsudakovhist_1->Reset("ICES");
-	sign = hasSameSign(zwjcorsudakovuphist_1.back(),zwjcorsudakovdwhist_1.back());
 	for (int i = 0; i <= zwjuncsudakovhist_1->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncsudakovhist_1->SetBinContent(i,fabs(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	  zwjuncsudakovhist_1->SetBinContent(i,(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  zwjuncsudakovhist_1->SetBinContent(i,fabs(zwjcorsudakovuphist_1.back()->GetBinContent(i)-zwjcorsudakovdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncsudakovhist_1->Smooth(1,"R");
 	zwjuncsudakovhist_1->SetName(("ZW_Sudakov1_"+obs).c_str());
 	
 	// NLO EWK Sud --> to be symmetrized
 	zwjuncsudakovhist_2 = (TH1*) zwjcorsudakovuphist_2.back()->Clone(("zwjuncsudakov2"+ext+"hist_"+obs).c_str());
 	zwjuncsudakovhist_2->Reset("ICES");
-	sign = hasSameSign(zwjcorsudakovuphist_2.back(),zwjcorsudakovdwhist_2.back());
 	for (int i = 0; i <= zwjuncsudakovhist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncsudakovhist_2->SetBinContent(i,fabs(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncsudakovhist_2->SetBinContent(i,(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  zwjuncsudakovhist_2->SetBinContent(i,fabs(zwjcorsudakovuphist_2.back()->GetBinContent(i)-zwjcorsudakovdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncsudakovhist_2->Smooth(1,"R");
 	zwjuncsudakovhist_2->SetName(("ZW_Sudakov2_"+obs).c_str());
 	
 	// NNLO Miss --> to be symmetrized
 	zwjuncnnlomisshist_1 = (TH1*) zwjcornnlomissuphist_1.back()->Clone(("zwjuncnnlomiss1"+ext+"hist_"+obs).c_str());
 	zwjuncnnlomisshist_1->Reset("ICES");
-	sign = hasSameSign(zwjcornnlomissuphist_1.back(),zwjcornnlomissdwhist_1.back());
 	for (int i = 0; i <= zwjuncnnlomisshist_1->GetNbinsX()+1; i++){
-	  if(sign)
 	  zwjuncnnlomisshist_1->SetBinContent(i,fabs(zwjcornnlomissuphist_1.back()->GetBinContent(i)-zwjcornnlomissdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncnnlomisshist_1->SetBinContent(i,(zwjcornnlomissuphist_1.back()->GetBinContent(i)-zwjcornnlomissdwhist_1.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncnnlomisshist_1->Smooth(1,"R");
 	zwjuncnnlomisshist_1->SetName(("ZW_NNLOMiss1_"+obs).c_str());
 	
 	// NNLO Miss --> to be symmetrized
 	zwjuncnnlomisshist_2 = (TH1*) zwjcornnlomissuphist_2.back()->Clone(("zwjuncnnlomiss2"+ext+"hist_"+obs).c_str());
 	zwjuncnnlomisshist_2->Reset("ICES");
-	sign = hasSameSign(zwjcornnlomissuphist_2.back(),zwjcornnlomissdwhist_2.back());
 	for (int i = 0; i <= zwjuncnnlomisshist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncnnlomisshist_2->SetBinContent(i,fabs(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	    zwjuncnnlomisshist_2->SetBinContent(i,(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  zwjuncnnlomisshist_2->SetBinContent(i,fabs(zwjcornnlomissuphist_2.back()->GetBinContent(i)-zwjcornnlomissdwhist_2.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncnnlomisshist_2->Smooth(1,"R");
 	zwjuncnnlomisshist_2->SetName(("ZW_NNLOMiss2_"+obs).c_str());
 	
 	// NLO QCD+EWK --> to be symmetrized
 	zwjuncmixhist = (TH1*) zwjcormixuphist.back()->Clone(("zwjuncmix"+ext+"hist_"+obs).c_str());
 	zwjuncmixhist->Reset("ICES");
-	sign = hasSameSign(zwjcormixuphist.back(),zwjcormixdwhist.back());
 	for (int i = 0; i <= zwjuncmixhist->GetNbinsX()+1; i++){
-	  if(sign)
-	    zwjuncmixhist->SetBinContent(i,fabs(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
-	  else
-	  zwjuncmixhist->SetBinContent(i,(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
+	  zwjuncmixhist->SetBinContent(i,fabs(zwjcormixuphist.back()->GetBinContent(i)-zwjcormixdwhist.back()->GetBinContent(i))/(2*zwjcorewkhist.back()->GetBinContent(i)));
 	}
+	zwjuncmixhist->Smooth(1,"R");
 	zwjuncmixhist->SetName(("ZW_MIX_"+obs).c_str());
       
 	// NLO PDF
@@ -1178,112 +1152,90 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	// QCD scale --> to be symmetrized
 	wgamuncqcdscalehist = (TH1*) wgamcorqcdscaleuphist.back()->Clone(("wgamuncqcdscale"+ext+"hist_"+obs).c_str());	
 	wgamuncqcdscalehist->Reset("ICES");
-	bool sign = hasSameSign(wgamcorqcdscaleuphist.back(),wgamcorqcdscaledwhist.back());
-	for (int i = 0; i <= wgamuncqcdscalehist->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncqcdscalehist->SetBinContent(i,fabs(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));	
-	  else
-	    wgamuncqcdscalehist->SetBinContent(i,(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));	
+	for (int i = 0; i <= wgamuncqcdscalehist->GetNbinsX()+1; i++)
+	  wgamuncqcdscalehist->SetBinContent(i,(wgamcorqcdscaleuphist.back()->GetBinContent(i)-wgamcorqcdscaledwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));	
+	wgamuncqcdscalehist->Smooth(1,"R");
+	bool sign = hasSameSign(wgamuncqcdscalehist);
+	if(sign){
+	  for (int i = 0; i <= wgamuncqcdscalehist->GetNbinsX()+1; i++)
+	    wgamuncqcdscalehist->SetBinContent(i,fabs(wgamuncqcdscalehist->GetBinContent(i)));
 	}
-
 	wgamuncqcdscalehist->SetName(("WG_QCDScale_"+obs).c_str());
 	
 	// QCD Shape --> to be symmetrized
 	wgamuncqcdshapehist = (TH1*) wgamcorqcdshapeuphist.back()->Clone(("wgamuncqcdshape"+ext+"hist_"+obs).c_str());
 	wgamuncqcdshapehist->Reset("ICES");
-	sign = hasSameSign(wgamcorqcdshapeuphist.back(),wgamcorqcdshapedwhist.back());
-	for (int i = 0; i <= wgamuncqcdshapehist->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncqcdshapehist->SetBinContent(i,fabs(wgamcorqcdshapeuphist.back()->GetBinContent(i)-wgamcorqcdshapedwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
+	for (int i = 0; i <= wgamuncqcdshapehist->GetNbinsX()+1; i++)
 	    wgamuncqcdshapehist->SetBinContent(i,(wgamcorqcdshapeuphist.back()->GetBinContent(i)-wgamcorqcdshapedwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncqcdshapehist->Smooth(1,"R");	
+	sign = hasSameSign(wgamuncqcdshapehist);
+	if(sign){
+	  for (int i = 0; i <= wgamuncqcdshapehist->GetNbinsX()+1; i++)
+	    wgamuncqcdshapehist->SetBinContent(i,fabs(wgamuncqcdshapehist->GetBinContent(i)));
 	}
 	wgamuncqcdshapehist->SetName(("WG_QCDShape_"+obs).c_str());
 
 	// QCD Process --> to be symmetrized
 	wgamuncqcdprochist = (TH1*) wgamcorqcdprocuphist.back()->Clone(("wgamuncqcdproc"+ext+"hist_"+obs).c_str());
 	wgamuncqcdprochist->Reset("ICES");
-	sign = hasSameSign(wgamcorqcdprocuphist.back(),wgamcorqcdprocdwhist.back());
-	for (int i = 0; i <= wgamuncqcdprochist->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncqcdprochist->SetBinContent(i,fabs(wgamcorqcdprocuphist.back()->GetBinContent(i)-wgamcorqcdprocdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncqcdprochist->SetBinContent(i,(wgamcorqcdprocuphist.back()->GetBinContent(i)-wgamcorqcdprocdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	for (int i = 0; i <= wgamuncqcdprochist->GetNbinsX()+1; i++)
+	  wgamuncqcdprochist->SetBinContent(i,(wgamcorqcdprocuphist.back()->GetBinContent(i)-wgamcorqcdprocdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncqcdprochist->Smooth(1,"R");
+	sign = hasSameSign(wgamuncqcdprochist);
+	if(sign){
+	  for (int i = 0; i <= wgamuncqcdprochist->GetNbinsX()+1; i++)
+	    wgamuncqcdprochist->SetBinContent(i,fabs(wgamuncqcdprochist->GetBinContent(i)));
 	}
 	wgamuncqcdprochist->SetName(("WG_QCDProcess_"+obs).c_str());
-
+	
 	// NNLO EWK --> to be symmetrized
 	wgamuncnnloewkhist = (TH1*) wgamcornnloewkuphist.back()->Clone(("wgamuncnnloewk"+ext+"hist_"+obs).c_str());
 	wgamuncnnloewkhist->Reset("ICES");
-	sign = hasSameSign(wgamcornnloewkuphist.back(),wgamcornnloewkdwhist.back());
-	for (int i = 0; i <= wgamuncnnloewkhist->GetNbinsX()+1; i++){
-	  if(sign)
+	for (int i = 0; i <= wgamuncnnloewkhist->GetNbinsX()+1; i++)
 	    wgamuncnnloewkhist->SetBinContent(i,fabs(wgamcornnloewkuphist.back()->GetBinContent(i)-wgamcornnloewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncnnloewkhist->SetBinContent(i,(wgamcornnloewkuphist.back()->GetBinContent(i)-wgamcornnloewkdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
+	wgamuncnnloewkhist->Smooth(1,"R");
 	wgamuncnnloewkhist->SetName(("WG_NNLOEWK_"+obs).c_str());
 	
 	// NLO EWK Sud --> to be symmetrized
 	wgamuncsudakovhist_1 = (TH1*) wgamcorsudakovuphist_1.back()->Clone(("wgamuncsudakov1"+ext+"hist_"+obs).c_str());
 	wgamuncsudakovhist_1->Reset("ICES");
-	sign = hasSameSign(wgamcorsudakovuphist_1.back(),wgamcorsudakovdwhist_1.back());
-	for (int i = 0; i <= wgamuncsudakovhist_1->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncsudakovhist_1->SetBinContent(i,fabs(wgamcorsudakovuphist_1.back()->GetBinContent(i)-wgamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncsudakovhist_1->SetBinContent(i,(wgamcorsudakovuphist_1.back()->GetBinContent(i)-wgamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
+	for (int i = 0; i <= wgamuncsudakovhist_1->GetNbinsX()+1; i++)
+	  wgamuncsudakovhist_1->SetBinContent(i,fabs(wgamcorsudakovuphist_1.back()->GetBinContent(i)-wgamcorsudakovdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncsudakovhist_1->Smooth(1,"R");
 	wgamuncsudakovhist_1->SetName(("WG_Sudakov1_"+obs).c_str());
 
 	// NLO EWK Sud --> to be symmetrized
 	wgamuncsudakovhist_2 = (TH1*) wgamcorsudakovuphist_2.back()->Clone(("wgamuncsudakov2"+ext+"hist_"+obs).c_str());
 	wgamuncsudakovhist_2->Reset("ICES");
-	sign = hasSameSign(wgamcorsudakovuphist_2.back(),wgamcorsudakovdwhist_2.back());
-	for (int i = 0; i <= wgamuncsudakovhist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncsudakovhist_2->SetBinContent(i,fabs(wgamcorsudakovuphist_2.back()->GetBinContent(i)-wgamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncsudakovhist_2->SetBinContent(i,(wgamcorsudakovuphist_2.back()->GetBinContent(i)-wgamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
-	wgamuncsudakovhist_2->SetName(("WG_Sudakov2_"+obs).c_str());
+	for (int i = 0; i <= wgamuncsudakovhist_2->GetNbinsX()+1; i++)
+	  wgamuncsudakovhist_2->SetBinContent(i,fabs(wgamcorsudakovuphist_2.back()->GetBinContent(i)-wgamcorsudakovdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncsudakovhist_2->Smooth(1,"R");
+      	wgamuncsudakovhist_2->SetName(("WG_Sudakov2_"+obs).c_str());
 
 	// NNLO Miss --> to be symmetrized
 	wgamuncnnlomisshist_1 = (TH1*) wgamcornnlomissuphist_1.back()->Clone(("wgamuncnnlomiss1"+ext+"hist_"+obs).c_str());
 	wgamuncnnlomisshist_1->Reset("ICES");
-	sign = hasSameSign(wgamcornnlomissuphist_1.back(),wgamcornnlomissdwhist_1.back());
-	for (int i = 0; i <= wgamuncnnlomisshist_1->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncnnlomisshist_1->SetBinContent(i,fabs(wgamcornnlomissuphist_1.back()->GetBinContent(i)-wgamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncnnlomisshist_1->SetBinContent(i,(wgamcornnlomissuphist_1.back()->GetBinContent(i)-wgamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
+	for (int i = 0; i <= wgamuncnnlomisshist_1->GetNbinsX()+1; i++)
+	  wgamuncnnlomisshist_1->SetBinContent(i,fabs(wgamcornnlomissuphist_1.back()->GetBinContent(i)-wgamcornnlomissdwhist_1.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncnnlomisshist_1->Smooth(1,"R");
 	wgamuncnnlomisshist_1->SetName(("WG_NNLOMiss1_"+obs).c_str());
 	
 	// NNLO Miss --> to be symmetrized
 	wgamuncnnlomisshist_2 = (TH1*) wgamcornnlomissuphist_2.back()->Clone(("wgamuncnnlomiss2"+ext+"hist_"+obs).c_str());
 	wgamuncnnlomisshist_2->Reset("ICES");
-	sign = hasSameSign(wgamcornnlomissuphist_2.back(),wgamcornnlomissdwhist_2.back());
-	for (int i = 0; i <= wgamuncnnlomisshist_2->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncnnlomisshist_2->SetBinContent(i,fabs(wgamcornnlomissuphist_2.back()->GetBinContent(i)-wgamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncnnlomisshist_2->SetBinContent(i,(wgamcornnlomissuphist_2.back()->GetBinContent(i)-wgamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
+	for (int i = 0; i <= wgamuncnnlomisshist_2->GetNbinsX()+1; i++)
+	  wgamuncnnlomisshist_2->SetBinContent(i,fabs(wgamcornnlomissuphist_2.back()->GetBinContent(i)-wgamcornnlomissdwhist_2.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncnnlomisshist_2->Smooth(1,"R");
 	wgamuncnnlomisshist_2->SetName(("WG_NNLOMiss2_"+obs).c_str());
 
 	// NLO QCD+EWK --> to be symmetrized
 	wgamuncmixhist = (TH1*) wgamcormixuphist.back()->Clone(("wgamuncmix"+ext+"hist_"+obs).c_str());
 	wgamuncmixhist->Reset("ICES");
-	sign = hasSameSign(wgamcormixuphist.back(),wgamcormixdwhist.back());
-	for (int i = 0; i <= wgamuncmixhist->GetNbinsX()+1; i++){
-	  if(sign)
-	    wgamuncmixhist->SetBinContent(i,fabs(wgamcormixuphist.back()->GetBinContent(i)-wgamcormixdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	  else
-	    wgamuncmixhist->SetBinContent(i,(wgamcormixuphist.back()->GetBinContent(i)-wgamcormixdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
-	}
+	for (int i = 0; i <= wgamuncmixhist->GetNbinsX()+1; i++)
+	  wgamuncmixhist->SetBinContent(i,fabs(wgamcormixuphist.back()->GetBinContent(i)-wgamcormixdwhist.back()->GetBinContent(i))/(2*wgamcorewkhist.back()->GetBinContent(i)));
+	wgamuncmixhist->Smooth(1,"R");
 	wgamuncmixhist->SetName(("WG_MIX_"+obs).c_str());
-
+	
 	// NLO PDF
 	wgamuncpdfhist = (TH1*)wgamcorpdfhist.back()->Clone(("wgamuncpdf"+ext+"hist_"+obs).c_str());
 	wgamuncpdfhist->Divide(wgamcorqcdhist.back());

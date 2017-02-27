@@ -3,6 +3,7 @@
 
 static float minTau2Tau1 = 0.1;
 static bool saveTextYields = false;
+static bool addEWKBkg = false;
 
 void makeControlPlots(string templateFileName, 
 		      Category category, 
@@ -108,6 +109,17 @@ void makeControlPlots(string templateFileName,
     ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str());
     ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str());
   }
+  else if(controlRegion == "taun"){
+    datahist = (TH1*)inputFile->FindObjectAny(("datahisttaun_"+observable).c_str());
+    qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghisttaun_"+observable).c_str());
+    tophist  = (TH1*)inputFile->FindObjectAny(("tbkghisttaun_"+observable).c_str());
+    vlhist   = (TH1*)inputFile->FindObjectAny(("vlbkghisttaun_"+observable).c_str());
+    vllhist  = (TH1*)inputFile->FindObjectAny(("vllbkghisttaun_"+observable).c_str());
+    dbhist   = (TH1*)inputFile->FindObjectAny(("dbkghisttaun_"+observable).c_str());  
+    gamhist  = (TH1*)inputFile->FindObjectAny(("gbkghisttaun_"+observable).c_str());
+    ewkwhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgwhisttaun_"+observable).c_str());
+    ewkzhist  = (TH1*)inputFile->FindObjectAny(("ewkbkgzhisttaun_"+observable).c_str());
+  }
   else if(controlRegion == "wen"){
     datahist = (TH1*)inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
     qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistwen_"+observable).c_str());
@@ -203,12 +215,6 @@ void makeControlPlots(string templateFileName,
       zHhist   = (TH1*)inputFile->FindObjectAny(("zHhist_"+mediatorMass+"_"+observable).c_str());    
     }
   }
-
-
-  //  if((controlRegion == "topmu" or controlRegion == "topel") and (category == Category::monoV or category == Category::boosted)){
-  //    tophist->Scale(0.92);
-  //    vlhist->Scale(0.95);
-  //  }
 
   if(saveTextYields){
 
@@ -323,9 +329,6 @@ void makeControlPlots(string templateFileName,
   //SCALE BIN WIDTH
   if(TString(observableLatex).Contains("GeV")){
 
-    if(controlRegion == "SR" and not TString(qcdhist->GetName()).Contains("qbkghistDD"))
-      qcdhist->Scale(2.);
-    
     if(datahist)
       datahist->Scale(1.0,"width");
     if(qcdhist)
@@ -413,7 +416,7 @@ void makeControlPlots(string templateFileName,
       yield += gamhist->GetBinContent(i);
       yield += tophist->GetBinContent(i);
       yield += dbhist->GetBinContent(i);
-      if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+      if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
 	yield += ewkzhist->GetBinContent(i);
 	yield += ewkwhist->GetBinContent(i);
       }
@@ -556,19 +559,19 @@ void makeControlPlots(string templateFileName,
     stack->Add(vlhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
     stack->Add(vllhist);
   }
-  else if(controlRegion == "wmn" or controlRegion == "wen"){
+  else if(controlRegion == "wmn" or controlRegion == "wen" or controlRegion == "taun"){
     stack->Add(qcdhist);
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
@@ -578,7 +581,7 @@ void makeControlPlots(string templateFileName,
     stack->Add(qcdhist);
     stack->Add(gamhist);
     stack->Add(vllhist);
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
@@ -591,7 +594,7 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(dbhist);
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
@@ -608,7 +611,7 @@ void makeControlPlots(string templateFileName,
       stack->Add(dbhist);
     if(not isnan(float(tophist->Integral())))    
       stack->Add(tophist);
-    if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet){
+    if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
@@ -625,7 +628,7 @@ void makeControlPlots(string templateFileName,
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
-    if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::VBFrelaxed){
+    if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
@@ -741,7 +744,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
     leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist,  "Di-Boson","F");
@@ -753,7 +756,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
     leg->AddEntry(vlhist,  "W #rightarrow e #nu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(dbhist,  "Di-Boson","F");
@@ -765,7 +768,19 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
+      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
+    leg->AddEntry(tophist,  "Top","F");
+    leg->AddEntry(dbhist,   "Di-Boson","F");
+    leg->AddEntry(gamhist,  "#gamma+jets","F");
+    leg->AddEntry(qcdhist,  "QCD","F");
+  }
+
+  else if(controlRegion == "taun"){
+    leg->AddEntry(datahist, "Data","PLE");
+    leg->AddEntry(vlhist,   "W #rightarrow #tau#nu","F");
+    leg->AddEntry(vllhist,  "Z #rightarrow ll","F");
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,  "Top","F");
     leg->AddEntry(dbhist,   "Di-Boson","F");
@@ -777,7 +792,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow ee","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
@@ -791,7 +806,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
@@ -803,7 +818,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist,"Top","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
@@ -815,7 +830,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(vlhist,  "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist,  "Di-Boson","F");
     leg->AddEntry(gamhist, "#gamma+jets","F");
@@ -828,7 +843,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
     leg->AddEntry(vllhist,"Z #rightarrow e#mu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist, "Di-Boson","F");
     leg->AddEntry(gamhist,"#gamma+jets","F");
@@ -841,7 +856,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(qcdhist,"QCD","F");
     leg->AddEntry(vnnhist,"Z #rightarrow #nu#nu","F");
     leg->AddEntry(vlhist,"W #rightarrow l#nu","F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
     leg->AddEntry(tophist, "Top quark", "F");
@@ -852,7 +867,7 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z #rightarrow #nu#nu","F");
     leg->AddEntry(vlhist,  "W #rightarrow l#nu", "F");
-    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)	  
+    if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
       leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
     leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
     leg->AddEntry(tophist, "Top quark", "F");
@@ -954,8 +969,18 @@ void makeControlPlots(string templateFileName,
   
   pad2->RedrawAxis("sameaxis");
 
-  canvas->SaveAs((observable+"_"+controlRegion+".png").c_str());
-  canvas->SaveAs((observable+"_"+controlRegion+".pdf").c_str());
+  string postfix;
+  if(category == Category::monojet)
+    postfix = "_MJ";
+  else if(category == Category::monoV)
+    postfix = "_MV";
+  else if(category == Category::boosted)
+    postfix = "_boosted";
+  if(category == Category::VBF or category == Category::VBFrelaxed)
+    postfix = "_VBF";
+  
+  canvas->SaveAs((observable+"_"+controlRegion+postfix+".png").c_str());
+  canvas->SaveAs((observable+"_"+controlRegion+postfix+".pdf").c_str());
 
   if(addSBPlots){
 
@@ -995,8 +1020,8 @@ void makeControlPlots(string templateFileName,
     unhist->Draw("SAME");
     SoverB_prefit->Draw("hist same");
     pad2->RedrawAxis("sameaxis");
-    canvas->SaveAs((observable+"_"+controlRegion+"_SoB.png").c_str());
-    canvas->SaveAs((observable+"_"+controlRegion+"_SoB.pdf").c_str());   
+    canvas->SaveAs((observable+"_"+controlRegion+postfix+"_SoB.png").c_str());
+    canvas->SaveAs((observable+"_"+controlRegion+postfix+"_SoB.pdf").c_str());   
 
   }
 
@@ -1107,8 +1132,8 @@ void makeControlPlots(string templateFileName,
     SoverB_prefit->Draw("hist same");
     pad3->RedrawAxis("sameaxis");
     
-    canvas->SaveAs((observable+"_"+controlRegion+"_Shape.png").c_str());
-    canvas->SaveAs((observable+"_"+controlRegion+"_Shape.pdf").c_str());
+    canvas->SaveAs((observable+"_"+controlRegion+postfix+"_Shape.png").c_str());
+    canvas->SaveAs((observable+"_"+controlRegion+postfix+"_Shape.pdf").c_str());
 
   }
 }
