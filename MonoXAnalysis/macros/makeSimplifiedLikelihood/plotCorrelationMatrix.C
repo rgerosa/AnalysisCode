@@ -11,6 +11,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   initializeBinning();
   gROOT->SetBatch(kTRUE);
   setTDRStyle();  
+  gStyle->SetPalette(kBird);
   gStyle->SetNumberContours(999);
 
   TFile *file = new TFile(inputFile.c_str(),"READ");
@@ -152,6 +153,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   gPad->Update();
 
   if(category == Category::monojet){
+    corr->SetMarkerColor(kRed);
     canvas->SaveAs((outputDIR+"/correlation_monojet.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet.png").c_str());
     canvas->SetLogz();
@@ -166,6 +168,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.png").c_str());
   }
   else if(category == Category::monoV){
+    corr->SetMarkerColor(kRed);
     canvas->SaveAs((outputDIR+"/correlation_monov.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monov.png").c_str());
     canvas->SetLogz();
@@ -180,6 +183,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     canvas->SaveAs((outputDIR+"/correlation_monov_text.png").c_str());
   }
   else if(category == Category::total){
+    corr->SetMarkerColor(kRed);
     canvas->SaveAs((outputDIR+"/correlation_total.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total.png").c_str());
     canvas->SetLogz();

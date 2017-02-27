@@ -154,9 +154,12 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   
   qchist->Add(vghist);
   qchist->Add(vlhist);
-  qchist->SetFillColor(kOrange+1);
-  vghist->SetFillColor(kOrange+1);
-  vlhist->SetFillColor(kOrange+1);
+  //  qchist->SetFillColor(kOrange+1);
+  //  vghist->SetFillColor(kOrange+1);
+  //  vlhist->SetFillColor(kOrange+1);
+  qchist->SetFillColor(33);
+  vghist->SetFillColor(33);
+  vlhist->SetFillColor(33);
   qchist->SetLineColor(kBlack);
   
   TH1* frame = (TH1*) pohist->Clone("frame");  
@@ -185,7 +188,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
 
   frame ->Draw();
 
-  CMS_lumi(canvas,"36.4");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -232,9 +235,9 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -287,16 +290,16 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   for (int i = 0; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
   for (int i = 0; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < d1hist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < d1hist->GetN(); iPoint++){
     double x,y;
     d1hist->GetPoint(iPoint,x,y);
-    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint));
+    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint+1));
     d1hist->SetPointError(iPoint,d1hist->GetErrorXlow(iPoint),d1hist->GetErrorXhigh(iPoint),
-			  d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint));
+			  d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint+1),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint+1));
     d2hist->GetPoint(iPoint,x,y);
-    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint));
+    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint+1));
     d2hist->SetPointError(iPoint,d2hist->GetErrorXlow(iPoint),d2hist->GetErrorXhigh(iPoint),
-			  d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint));    
+			  d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint+1),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint+1));    
   }
   
   erhist->Divide(m2hist);
@@ -323,12 +326,12 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
 
-  if(not addPullPlot)
-    d1hist->Draw("PE1 SAME");    
+  //if(not addPullPlot)
+  d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  if(not addPullPlot)
-    d1hist->Draw("P0E1 SAME");
+  //if(not addPullPlot)
+  d1hist->Draw("P0E1 SAME");
   d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
@@ -352,8 +355,8 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"Post-fit","PLE");
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
-  if(not addPullPlot)
-    leg2->Draw("same");                                                                                                                                                      
+  //if(not addPullPlot)
+  leg2->Draw("same");                                                                                                                                                      
 
   if(addPullPlot){
     pad3->Draw();
@@ -363,7 +366,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
     frame3->Reset();
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
-    frame3->GetYaxis()->SetRangeUser(-3,3);
+    frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
     if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
     else

@@ -1,7 +1,7 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static bool saveTextFile = false;
+static bool saveTextFile = true;
 static bool dumpInfo     = false;
 static bool plotSignificance = false;
 
@@ -180,7 +180,10 @@ void prepostSig_fromScan(string   fitFilename,
     ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
     ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());    
   }
-
+  else{
+    ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
+    ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK").c_str());    
+  }
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD").c_str());    
   gmhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/GJets").c_str());    
   tohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());    
@@ -293,9 +296,9 @@ void prepostSig_fromScan(string   fitFilename,
     
     for(int iBin = 0; iBin < dthist->GetN(); iBin++){
       double x,y;
-      dthist->GetPoint(iBin+1,x,y);
+      dthist->GetPoint(iBin,x,y);
       DataRate << "   ";
-      DataRate << y;
+      DataRate << y*tohist->GetBinWidth(iBin+1);
     }
     
 
@@ -384,6 +387,17 @@ void prepostSig_fromScan(string   fitFilename,
     ewkwhist->SetFillColor(kAzure+1);
     ewkwhist->SetLineColor(kBlack);
   }
+  else{
+    if(ewkwhist){
+      ewkwhist->SetFillColor(kViolet+1);
+      ewkwhist->SetLineColor(kBlack);
+    }
+    if(ewkzhist){
+      ewkzhist->SetFillColor(kCyan+1);
+      ewkzhist->SetLineColor(kBlack);
+    }
+  }
+
   
   if(sighist){
     sighist->SetFillColor(kBlack);
@@ -401,9 +415,9 @@ void prepostSig_fromScan(string   fitFilename,
   stack->Add(zlhist); 
   stack->Add(tthist);
   stack->Add(dihist);  
-  if(category == Category::VBF)
+  if(ewkwhist)
     stack->Add(ewkwhist);
-  if(category == Category::VBF)
+  if(ewkzhist)
     stack->Add(ewkzhist);
   stack->Add(wlhist);
   stack->Add(znhist);
@@ -433,7 +447,7 @@ void prepostSig_fromScan(string   fitFilename,
 
   frame->Draw();
 
-  CMS_lumi(canvas,"36.4");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -475,10 +489,8 @@ void prepostSig_fromScan(string   fitFilename,
     leg->AddEntry(sighist, "Fitted signal", "L");
   leg->AddEntry(znhist,  "Z(#nu#nu)+jets", "F");
   leg->AddEntry(wlhist,  "W(l#nu)+jets", "F");
-  if(category == Category::VBF){
-    leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
-    leg->AddEntry(ewkzhist,"W(l#nu)+jets EWK", "F");
-  }
+  if(ewkzhist)  leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
+  if(ewkwhist)  leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
   leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
   leg->AddEntry(tthist,  "Top quark", "F");
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
@@ -566,24 +578,23 @@ void prepostSig_fromScan(string   fitFilename,
   mchist->Add(tthist);
   mchist->Add(dihist);
   mchist->Add(znhist);
-  if(category == Category::VBF){
-    mchist->Add(ewkwhist);
-    mchist->Add(ewkzhist);
-  }
+  if(ewkwhist) mchist->Add(ewkwhist);
+  if(ewkzhist) mchist->Add(ewkzhist);
+  if(plotSBFit and sighist) mchist->Add(sighist);
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < dphist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < dphist->GetN(); iPoint++){
     double x,y;
     dphist->GetPoint(iPoint,x,y);
-    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint));
+    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint+1));
     dphist->SetPointError(iPoint,dphist->GetErrorXlow(iPoint),dphist->GetErrorXhigh(iPoint),
-                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint));
+                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint+1),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint+1));
     dahist->GetPoint(iPoint,x,y);
-    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint));
+    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint+1));
     dahist->SetPointError(iPoint,dahist->GetErrorXlow(iPoint),dahist->GetErrorXhigh(iPoint),
-                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint));
+                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint+1),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint+1));
   }
 
   
@@ -658,7 +669,7 @@ void prepostSig_fromScan(string   fitFilename,
     frame3->Reset();
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
-    frame3->GetYaxis()->SetRangeUser(-3,3);
+    frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
     if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
     else
@@ -681,11 +692,11 @@ void prepostSig_fromScan(string   fitFilename,
 
     TH1F* data_pull_post = (TH1F*) tohist->Clone("data_pull_post");
     data_pull_post->Reset();
-    for(int iPoint = 1; iPoint < dthist->GetN(); iPoint++){
+    for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
       dthist->GetPoint(iPoint,x,y);
-      data_pull_post->SetBinContent(iPoint,y);
-      data_pull_post->SetBinError(iPoint,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
+      data_pull_post->SetBinContent(iPoint+1,y);
+      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
     }
     data_pull_post->Add(mchist,-1);
     data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));

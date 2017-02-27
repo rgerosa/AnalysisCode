@@ -108,10 +108,8 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
   qcdhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD_WM").c_str());
-  if(category == Category::VBF){
-    ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());
-    ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK_WM").c_str());
-  }
+  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());
+  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK_WM").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
   
@@ -175,7 +173,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
 
     for(int iBin = 0; iBin < dthist->GetN(); iBin++){
       double x,y;
-      dthist->GetPoint(iBin+1,x,y);
+      dthist->GetPoint(iBin,x,y);
       DataRate << "   ";
       DataRate << y;
     }
@@ -210,7 +208,8 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   prhist->SetMarkerColor(kRed);
   pohist->SetMarkerColor(TColor::GetColor("#0066ff"));
   
-  wlhist->SetFillColor(kOrange+1);
+  //  wlhist->SetFillColor(kOrange+1);
+  wlhist->SetFillColor(33);
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
@@ -219,6 +218,11 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     ewkwhist->SetFillColor(kCyan+1);
     ewkwhist->SetLineColor(kBlack);
   }
+  else{
+    if(ewkwhist) wlhist->Add(ewkwhist);
+    if(ewkzhist) wlhist->Add(ewkzhist);
+  }
+
   wlhist->Add(qcdhist);
 
   TH1* frame = (TH1*) pohist->Clone("frame");
@@ -246,7 +250,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
 
   frame->Draw();
   
-  CMS_lumi(canvas,"36.4");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -350,16 +354,16 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   for (int i = 1; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
   for (int i = 1; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < d1hist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < d1hist->GetN(); iPoint++){
     double x,y;
     d1hist->GetPoint(iPoint,x,y);
-    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint));
+    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint+1));
     d1hist->SetPointError(iPoint,d1hist->GetErrorXlow(iPoint),d1hist->GetErrorXhigh(iPoint),
-                          d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint));
+                          d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint+1),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint+1));
     d2hist->GetPoint(iPoint,x,y);
-    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint));
+    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint+1));
     d2hist->SetPointError(iPoint,d2hist->GetErrorXlow(iPoint),d2hist->GetErrorXhigh(iPoint),
-                          d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint));
+                          d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint+1),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint+1));
   }
   
   erhist->Divide(m2hist);
@@ -386,12 +390,12 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
-  if(not addPullPlot)
-    d1hist->Draw("PE1 SAME");    
+  //if(not addPullPlot)
+  d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  if(not addPullPlot)
-    d1hist->Draw("P0E1 SAME");
+  //if(not addPullPlot)
+  d1hist->Draw("P0E1 SAME");
   d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
@@ -414,8 +418,8 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"Post-fit","PLE");
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
-  if(not addPullPlot)
-    leg2->Draw("same");
+  //if(not addPullPlot)
+  leg2->Draw("same");
 
 
   if(addPullPlot){
@@ -427,7 +431,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     frame3->Reset();
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
-    frame3->GetYaxis()->SetRangeUser(-3,3);
+    frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
     if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
     else
@@ -449,7 +453,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
+      dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
       data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
