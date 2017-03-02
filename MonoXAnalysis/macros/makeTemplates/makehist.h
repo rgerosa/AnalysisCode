@@ -53,7 +53,7 @@ const float photonPt        = 175;
 const int   vBosonCharge    = 0;
 const int   nBjets          = 1; // for top-tagged region
 const int   njetsMin        = 1;
-const int   njetsMax        = 1;
+const int   njetsMax        = 100;
 // Re-weight and smoothing
 const bool  reweightNVTX     = true;
 /// photon scale
@@ -364,6 +364,7 @@ void makehist4(TTree* tree, /*input tree*/
   
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
+  TFile* triggerfile_MET_zmm = NULL;
   vector<TFile*> triggerfile_MET_binned;
 
   if(useMoriondSetup){
@@ -372,6 +373,7 @@ void makehist4(TTree* tree, /*input tree*/
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
       else
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
+      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_zmm_recoil_monojet.root");
     }
     else{
       if(useSingleMuon){
@@ -405,7 +407,10 @@ void makehist4(TTree* tree, /*input tree*/
   
   // single turn on
   TEfficiency*       triggermet       = NULL;
+  TEfficiency*       triggermet_zmm   = NULL;
   TGraphAsymmErrors* triggermet_graph = NULL;    
+  TGraphAsymmErrors* triggermet_graph_zmm = NULL;    
+
   if(triggerfile_MET != NULL){
     triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
     if(triggermet == 0 or triggermet == NULL)
@@ -413,6 +418,15 @@ void makehist4(TTree* tree, /*input tree*/
     if(triggermet == 0 or triggermet == NULL)
       triggermet = (TEfficiency*) triggerfile_MET->Get("efficiency");
     triggermet_graph = triggermet->CreateGraph();
+  }
+
+  if(triggerfile_MET_zmm != NULL){
+    triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("trig_eff");
+    if(triggermet_zmm == 0 or triggermet_zmm == NULL)
+      triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency_vbf_loose");
+    if(triggermet_zmm == 0 or triggermet_zmm == NULL)
+      triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency");
+    triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
 
   vector<TF1*> triggermet_func_binned;
@@ -915,7 +929,7 @@ void makehist4(TTree* tree, /*input tree*/
     else if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed) and *nincjets < 2) continue;
 
     // control regions wit one lepton --> tight requirement 
-    // if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
+    //if ((sample == Sample::wen || sample == Sample::wmn) && (id1 != 1 or id1t != 1)) continue;
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 !=1) continue;
     if (sample == Sample::wen and *wemt > 160) continue;
     if (sample == Sample::wmn and *wmt  > 160) continue;
@@ -1193,8 +1207,12 @@ void makehist4(TTree* tree, /*input tree*/
 
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
-      if(triggermet_graph)
+      if(triggermet_graph and (sample == Sample::sig || sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun))
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+      else if(triggermet_graph_zmm and sample == Sample::zmm)
+	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()))*1.007;
+      else if(triggermet_graph and sample == Sample::zmm)
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));      
       else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
@@ -1227,7 +1245,7 @@ void makehist4(TTree* tree, /*input tree*/
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
       btagw = 0.92;
-    else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam){
+    else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam and sample != Sample::zmm){
       if(sample != Sample::sig and sample != Sample::zee)
 	btagw = 0.99;
       else if(sample == Sample::zee)

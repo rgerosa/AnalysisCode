@@ -142,7 +142,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
   gStyle->SetPaintTextFormat("1.2f");
   corr->Draw("COLZTEXT");
-  CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.06);
+  CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.06);
   gPad->Update();
   TPaletteAxis *palette = (TPaletteAxis*)corr->GetListOfFunctions()->FindObject("palette");
   
@@ -153,47 +153,47 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   gPad->Update();
 
   if(category == Category::monojet){
-    corr->SetMarkerColor(12);
+    corr->SetMarkerColor(kBlack);
     canvas->SaveAs((outputDIR+"/correlation_monojet.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet.png").c_str());
-    canvas->SetLogz();
-    canvas->SaveAs((outputDIR+"/correlation_monojet_log.pdf").c_str());
-    canvas->SaveAs((outputDIR+"/correlation_monojet_log.png").c_str());
+    //    canvas->SetLogz();
+    //    canvas->SaveAs((outputDIR+"/correlation_monojet_log.pdf").c_str());
+    //    canvas->SaveAs((outputDIR+"/correlation_monojet_log.png").c_str());
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
     corr->SetMarkerColor(kBlack);
-    CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.png").c_str());
   }
   else if(category == Category::monoV){
-    corr->SetMarkerColor(kRed);
+    corr->SetMarkerColor(kBlack);
     canvas->SaveAs((outputDIR+"/correlation_monov.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monov.png").c_str());
-    canvas->SetLogz();
-    canvas->SaveAs((outputDIR+"/correlation_monov_log.pdf").c_str());
-    canvas->SaveAs((outputDIR+"/correlation_monov_log.png").c_str());
+    //    canvas->SetLogz();
+    //    canvas->SaveAs((outputDIR+"/correlation_monov_log.pdf").c_str());
+    //    canvas->SaveAs((outputDIR+"/correlation_monov_log.png").c_str());
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
     corr->SetMarkerColor(kBlack);
-    CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monov_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monov_text.png").c_str());
   }
   else if(category == Category::total){
-    corr->SetMarkerColor(kRed);
+    corr->SetMarkerColor(kBlack);
     canvas->SaveAs((outputDIR+"/correlation_total.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total.png").c_str());
-    canvas->SetLogz();
-    canvas->SaveAs((outputDIR+"/correlation_total_log.pdf").c_str());
-    canvas->SaveAs((outputDIR+"/correlation_total_log.png").c_str());
+    //    canvas->SetLogz();
+    //    canvas->SaveAs((outputDIR+"/correlation_total_log.pdf").c_str());
+    //    canvas->SaveAs((outputDIR+"/correlation_total_log.png").c_str());
     corr->Draw("TEXT");
     canvas->SetLogz(0);
     canvas->SetRightMargin(0.07);
     corr->SetMarkerColor(kBlack);
-    CMS_lumi(canvas,"12.9",true,true,true,0.05,-0.01);
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_total_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.png").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.root").c_str());

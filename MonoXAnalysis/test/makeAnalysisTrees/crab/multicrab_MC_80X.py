@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=175',
+               'metCut=190',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
@@ -46,13 +46,12 @@ config.JobType.numCores         = 4
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 10000
+config.Data.unitsPerJob   = 25000
 config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_28_01_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
-config.Site.blacklist   = ['T2_BR_SPRACE']
 
 ## multicrab section
 if __name__ == '__main__':
