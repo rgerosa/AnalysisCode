@@ -72,10 +72,10 @@ const bool  runOnlyData     = false;
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
-string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v2/vvj.root";
-string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v2/evj.root";
-string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v2/eej.root";
-string kFactorTheoristFile_gam = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v2/aj.root";
+string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/vvj.root";
+string kFactorTheoristFile_wln = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/evj.root";
+string kFactorTheoristFile_zll = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/eej.root";
+string kFactorTheoristFile_gam = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/aj.root";
 
 /// basic trees
 //string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_02_12_2016/";
@@ -135,11 +135,11 @@ void makehist4(TTree* tree, /*input tree*/
 	       vector<TH1*> hist1D, /* set of 1D histogram */ 
 	       vector<TH2*> hist2D, /* set of 2D histogram */ 
 	       const bool &   isMC,  // data or MC
-	       const Sample & sample,  // sample to select
+	       const Sample   & sample,  // sample to select
 	       const Category & category, // category for event
 	       const bool &   isWJet, // is a W-jet sample like ttbar/di-boson
-	       const double & scale,  // overall scale
-	       const double & lumi,   // luminosity        
+	       const double   & scale,  // overall scale
+	       const double   & lumi,   // luminosity        
 	       vector<TH1*> khists,   // NLO k-factors
 	       const string & sysName, // Sys variation	
 	       const bool   & reWeightTopPt      = false,
@@ -364,16 +364,18 @@ void makehist4(TTree* tree, /*input tree*/
   
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
-  TFile* triggerfile_MET_zmm = NULL;
-  vector<TFile*> triggerfile_MET_binned;
+  TFile* triggerfile_MET_zmm  = NULL;
+  TFile* triggerfile_MET_MC   = NULL;
 
+  vector<TFile*> triggerfile_MET_binned;
   if(useMoriondSetup){
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
       if(useSingleMuon)
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
       else
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
-      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_zmm_recoil_monojet.root");
+      triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet_zmm.root");
+      triggerfile_MET_MC  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiencyMC_monojet_recoil.root");
     }
     else{
       if(useSingleMuon){
@@ -406,10 +408,15 @@ void makehist4(TTree* tree, /*input tree*/
   }
   
   // single turn on
-  TEfficiency*       triggermet       = NULL;
-  TEfficiency*       triggermet_zmm   = NULL;
+  TEfficiency*       triggermet         = NULL;
+  TEfficiency*       triggermet_zmm     = NULL;
+  TEfficiency*       triggermet_zvv_mc  = NULL;
+  TEfficiency*       triggermet_wjet_mc = NULL;
+  ////
   TGraphAsymmErrors* triggermet_graph = NULL;    
   TGraphAsymmErrors* triggermet_graph_zmm = NULL;    
+  TGraphAsymmErrors* triggermet_graph_zvv_mc  = NULL;    
+  TGraphAsymmErrors* triggermet_graph_wjet_mc = NULL;    
 
   if(triggerfile_MET != NULL){
     triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
@@ -427,6 +434,13 @@ void makehist4(TTree* tree, /*input tree*/
     if(triggermet_zmm == 0 or triggermet_zmm == NULL)
       triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency");
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
+  }
+
+  if(triggerfile_MET_MC != NULL){
+    triggermet_zvv_mc = (TEfficiency*) triggerfile_MET_MC->Get("efficiency_zvv");
+    triggermet_wjet_mc = (TEfficiency*) triggerfile_MET_MC->Get("efficiency_wjet");
+    triggermet_graph_zvv_mc = triggermet_zvv_mc->CreateGraph();
+    triggermet_graph_wjet_mc = triggermet_wjet_mc->CreateGraph();
   }
 
   vector<TF1*> triggermet_func_binned;
@@ -1207,12 +1221,18 @@ void makehist4(TTree* tree, /*input tree*/
 
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
-      if(triggermet_graph and (sample == Sample::sig || sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun))
+      if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun))
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
       else if(triggermet_graph_zmm and sample == Sample::zmm)
-	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()))*1.007;
+	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
       else if(triggermet_graph and sample == Sample::zmm)
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));      
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
+      else if(triggermet_graph_zvv_mc and triggermet_graph_wjet_mc and sample == Sample::sig){
+	float mean = (triggermet_graph_zvv_mc->Eval(min(pfmet,triggermet_graph_zvv_mc->GetXaxis()->GetXmax()))+triggermet_graph_wjet_mc->Eval(min(pfmet,triggermet_graph_wjet_mc->GetXaxis()->GetXmax())))/2.;
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()))/mean;
+      }
+      else if(triggermet_graph and sample == Sample::sig)
+	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      	
       else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
@@ -1246,12 +1266,12 @@ void makehist4(TTree* tree, /*input tree*/
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
       btagw = 0.92;
     else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam and sample != Sample::zmm){
-      if(sample != Sample::sig and sample != Sample::zee)
+      if(sample != Sample::sig and sample != Sample::zee and sample != Sample::wmn)
 	btagw = 0.99;
       else if(sample == Sample::zee)
 	btagw = 0.98;
       else if(sample == Sample::sig)
-	btagw = 1.015;
+	btagw = 1.011;
     }
     
     //V-tagging scale factor --> only for mono-V
@@ -2165,6 +2185,10 @@ void makehist4(TTree* tree, /*input tree*/
     triggerfile_SinglEle_jetHT->Close();
   if(triggerfile_MET != NULL)
     triggerfile_MET->Close();
+  if(triggerfile_MET_zmm != NULL)
+    triggerfile_MET_zmm->Close();
+  if(triggerfile_MET_MC != NULL)
+    triggerfile_MET_MC->Close();
   if(triggerfile_SinglePhoton != NULL)
     triggerfile_SinglePhoton->Close();
   if(triggerfile_SinglePhoton_jetHT != NULL)

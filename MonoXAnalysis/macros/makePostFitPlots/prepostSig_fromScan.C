@@ -3,7 +3,7 @@
 
 static bool saveTextFile = true;
 static bool dumpInfo     = false;
-static bool plotSignificance = false;
+static bool plotSignificance = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -128,15 +128,16 @@ void prepostSig_fromScan(string   fitFilename,
   TH1* ggZHhist = NULL;  
 
   // signals for axial vector model 
-  mjhist_av = (TH1*) monoj_av->FindObjectAny("signal_signal_80116000001");
-  mwhist_av = (TH1*) monow_av->FindObjectAny("signal_signal_80116000001");
-  mzhist_av = (TH1*) monoz_av->FindObjectAny("signal_signal_80116000001");
+  mjhist_av = (TH1*) monoj_av->FindObjectAny("signal_signal_80120000001");
+  mwhist_av = (TH1*) monow_av->FindObjectAny("signal_signal_80120000001");
+  mzhist_av = (TH1*) monoz_av->FindObjectAny("signal_signal_80120000001");
   mjhist_av->Scale(1.,"width");
   mwhist_av->Scale(1.,"width");
   mzhist_av->Scale(1.,"width");
   // summing all signals together
   mjhist_av->Add(mwhist_av);
   mjhist_av->Add(mzhist_av);
+  mjhist_av->Scale(2.78);
 
   // signals for higgs invisible
   ggHhist  = (TH1*) higgs->FindObjectAny("ggHhist_125_met");
@@ -155,6 +156,7 @@ void prepostSig_fromScan(string   fitFilename,
   ggHhist->Add(wHhist);
   ggHhist->Add(zHhist);
   ggHhist->Add(ggZHhist);
+  ggHhist->Scale(15);
 
   // background
   TH1* znhist = NULL;
@@ -499,7 +501,7 @@ void prepostSig_fromScan(string   fitFilename,
   if(not plotSBFit)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
   if(not plotSBFit)
-    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 1.6 TeV","L");
+    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 2.0 TeV","L");
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -761,15 +763,11 @@ void prepostSig_fromScan(string   fitFilename,
     
     if(not plotSBFit){
       totalSignal_s = (TH1*) ggHhist->Clone("totalSignal_s");
-      totalSignal_s->Add(vbfhist);
-      totalSignal_s->Add(wHhist);
       totalSignal_av = (TH1*) mjhist_av->Clone("totalSignal_av");
-      totalSignal_av->Add(mwhist_av);
-      totalSignal_av->Add(mzhist_av);
     }
     else if(plotSBFit)
       totalSignal = (TH1*) sighist->Clone("totalSignal");
-    
+
     canvas->cd();
     pad2->Draw();
     pad2->cd();
@@ -778,9 +776,9 @@ void prepostSig_fromScan(string   fitFilename,
     else
       frame2->GetYaxis()->SetTitle("(S_{fit}+B)/B");
     
-    TH1* SoverB_s = (TH1*) totalSignal_s->Clone("SoverB_s");
+    TH1* SoverB_s  = (TH1*) totalSignal_s->Clone("SoverB_s");
     TH1* SoverB_av = (TH1*) totalSignal_av->Clone("SoverB_av");
-    TH1* SoverB   = (TH1*) totalSignal->Clone("SoverB");
+    TH1* SoverB    = (TH1*) totalSignal->Clone("SoverB");
 
     if(not plotSBFit and SoverB_s and SoverB_av){
       SoverB_s->SetLineColor(kRed);

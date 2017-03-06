@@ -24,9 +24,8 @@ pyCfgParams = ['isMC=True',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
                'outputFileName=tree.root',
-               'usePrivateSQliteJEC=True',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v8',
                'nThreads=4',
                'isCrab=True']
 

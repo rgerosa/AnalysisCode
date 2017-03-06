@@ -18,6 +18,7 @@ vector <float> bins_vbf_detajj  = {0.,1.5,3.0,5.0,9};
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 
+//########## VBF selections
 static float leadingVBF  = 80;
 static float trailingVBF = 40;
 static float detajj      = 3.5; 
@@ -27,18 +28,15 @@ static float dphijj      = 1.5;
 static float recoil      = 200;
 static bool  drawUncertaintyBand = false;
 
+/// plotting result
 void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
 		const bool & singleMuon, const TString & banner = "");
 
+/// confidence interval for the band
 void GetConfidenceIntervals(TF1* funz, TH1F* obj, Double_t cl, const TFitResultPtr & fitResult);
 
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool singleMuon = true, bool doubleMuon = false) {
-
-  if(singleMuon and doubleMuon){
-    cerr<<"Problem with the options --> decide to compute turn on in Wmn or Zmm events "<<endl;
-    return;
-  }
-    
+/// main function
+void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool isMuon = true, bool doubleLepton = false) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -52,7 +50,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   // input tree
   TChain* tree = new TChain("tree/tree");
   // use only a subset of directories
-  if(singleMuon or doubleMuon)
+  if(isMuon)
     system(("ls "+inputDIR+"  | grep SingleMu > list_dir.txt").c_str());
   else
     system(("ls "+inputDIR+"  | grep SingleEle > list_dir.txt").c_str());
@@ -168,6 +166,12 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<float>   el1eta    (reader,"el1eta");
   TTreeReaderValue<float>   el1phi    (reader,"el1phi");
   TTreeReaderValue<int>     el1id     (reader,"el1id");
+  TTreeReaderValue<int>     el1pid    (reader,"el1pid");
+  TTreeReaderValue<float>   el2pt     (reader,"el2pt");
+  TTreeReaderValue<float>   el2eta    (reader,"el2eta");
+  TTreeReaderValue<float>   el2phi    (reader,"el2phi");
+  TTreeReaderValue<int>     el2id     (reader,"el2id");
+  TTreeReaderValue<int>     el2pid    (reader,"el2pid");
   TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsc   (reader,"flagglobaltighthalo");
@@ -269,7 +273,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyMonoVSelections->SetBinContent(5,efficiencyMonoVSelections->GetBinContent(5)+1);
     efficiencyVBFSelections->SetBinContent(5,efficiencyVBFSelections->GetBinContent(5)+1);
     
-    if(singleMuon or doubleMuon){
+    if(isMuon){
       if(not *hltsinglemu) continue;    
       efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
       efficiencyMonoVSelections->SetBinContent(6,efficiencyMonoVSelections->GetBinContent(6)+1);
@@ -279,15 +283,16 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonojetSelections->SetBinContent(7,efficiencyMonojetSelections->GetBinContent(7)+1);
       efficiencyMonoVSelections->SetBinContent(7,efficiencyMonoVSelections->GetBinContent(7)+1);
       efficiencyVBFSelections->SetBinContent(7,efficiencyVBFSelections->GetBinContent(7)+1);
-      if(not doubleMuon  and *mu1id != 1) continue;      
-      if(not doubleMuon  and *nmuons != 1) continue;      
-      else if(doubleMuon and *nmuons != 2) continue;      
-      if(doubleMuon){
+      if(not doubleLepton  and *mu1id != 1) continue;      
+      if(not doubleLepton  and *nmuons != 1) continue;      
+      else if(doubleLepton and *nmuons != 2) continue;      
+      if(doubleLepton){
 	if(*mu1pid == *mu2pid) continue; //opposite charge
 	TLorentzVector mu1, mu2;
 	mu1.SetPtEtaPhiM(*mu1pt,*mu1eta,*mu1phi,0.);
 	mu2.SetPtEtaPhiM(*mu2pt,*mu2eta,*mu2phi,0.);
-	if((mu1+mu2).M() < 60 or (mu1+mu2).M() > 120) continue;
+	if((*mu1pt > 20 and *mu1id != 1) or (*mu2pt > 20 and *mu2id != 1)) continue;
+ 	if((mu1+mu2).M() < 60 or (mu1+mu2).M() > 120) continue;
       }
       efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
       efficiencyMonoVSelections->SetBinContent(8,efficiencyMonoVSelections->GetBinContent(8)+1);
@@ -296,7 +301,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonojetSelections->SetBinContent(9,efficiencyMonojetSelections->GetBinContent(9)+1);
       efficiencyMonoVSelections->SetBinContent(9,efficiencyMonoVSelections->GetBinContent(9)+1);
       efficiencyVBFSelections->SetBinContent(9,efficiencyVBFSelections->GetBinContent(9)+1);
-      if(fabs(*metpf-*metcalo)/(*metpf) > 0.5) continue;
+      if(isMuon and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
+      else if(not isMuon and fabs(*metpf-*metcalo)/(*emet) > 0.5) continue;
       efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
       efficiencyMonoVSelections->SetBinContent(10,efficiencyMonoVSelections->GetBinContent(10)+1);
       efficiencyVBFSelections->SetBinContent(10,efficiencyVBFSelections->GetBinContent(10)+1);
@@ -305,7 +311,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonoVSelections->SetBinContent(11,efficiencyMonoVSelections->GetBinContent(11)+1);
       efficiencyVBFSelections->SetBinContent(11,efficiencyVBFSelections->GetBinContent(11)+1);
       // transverse mass cut
-      if(not doubleMuon){
+      if(not doubleLepton){
 	float dphi = fabs(*mu1phi-*metphi);
 	if(dphi > TMath::Pi())
 	  dphi = 2*TMath::Pi()-dphi;
@@ -400,12 +406,23 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonoVSelections->SetBinContent(7,efficiencyMonoVSelections->GetBinContent(7)+1);
       efficiencyVBFSelections->SetBinContent(7,efficiencyVBFSelections->GetBinContent(7)+1);
   
-      if(*el1id != 1) continue;
-      if(*nelectrons > 1) continue;
+      if(not doubleLepton  and *nelectrons != 1) continue;
+      else if(doubleLepton and *nelectrons != 2) continue;
+      if(not doubleLepton  and *el1id != 1) continue;
+      if(doubleLepton){
+	if((*el1pt > 40 and *el1id != 1) or (*el2pt > 20 and *el2id != 1)) continue;
+        if(*el1pid == *el2pid) continue; //opposite charge                                                                                                                                            
+        TLorentzVector el1, el2;
+        el1.SetPtEtaPhiM(*el1pt,*el1eta,*el1phi,0.);
+        el2.SetPtEtaPhiM(*el2pt,*el2eta,*el2phi,0.);
+        if((el1+el2).M() < 60 or (el1+el2).M() > 120) continue;
+      }
+
       efficiencyMonojetSelections->SetBinContent(8,efficiencyMonojetSelections->GetBinContent(8)+1);
       efficiencyMonoVSelections->SetBinContent(8,efficiencyMonoVSelections->GetBinContent(8)+1);
       efficiencyVBFSelections->SetBinContent(8,efficiencyVBFSelections->GetBinContent(8)+1);
   
+
       if(*nmuons > 0 ) continue;
       efficiencyMonojetSelections->SetBinContent(9,efficiencyMonojetSelections->GetBinContent(9)+1);
       efficiencyMonoVSelections->SetBinContent(9,efficiencyMonoVSelections->GetBinContent(9)+1);
@@ -422,13 +439,15 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyVBFSelections->SetBinContent(11,efficiencyVBFSelections->GetBinContent(11)+1);
 
       // transverse mass cut
-      float dphi = fabs(*el1phi-*metphi);
-      if(dphi > TMath::Pi())
-	dphi = 2*TMath::Pi()-dphi;
-      float mtw = sqrt(2*(*el1pt)*(*met)*(1-cos(dphi)));
-      if(mtw > 160) continue;
-      if(*met < 50) continue;
-      
+      if(not doubleLepton){
+	float dphi = fabs(*el1phi-*metphi);
+	if(dphi > TMath::Pi())
+	  dphi = 2*TMath::Pi()-dphi;
+	float mtw = sqrt(2*(*el1pt)*(*met)*(1-cos(dphi)));
+	if(mtw > 160) continue;
+	if(*met < 50) continue;
+      }
+
       // denominator monojet
       if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
 	hden_monojet_recoil->Fill(*met);
@@ -555,22 +574,18 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     fitfunc_vbf_detajj.at(ibin)->SetLineWidth(2);
   }
 
-  bool forplot = false;
-  if(singleMuon) forplot = true;
-  if(doubleMuon) forplot = true;
-
-  plotTurnOn(canvas,eff_monojet_recoil,fitfunc_monojet_recoil,"Recoil [GeV]","recoil_monojet",ouputDIR,luminosity,forplot);
-  plotTurnOn(canvas,eff_vbf_recoil,fitfunc_vbf_recoil,"Recoil [GeV]","recoil_vbf",ouputDIR,luminosity,forplot);
+  plotTurnOn(canvas,eff_monojet_recoil,fitfunc_monojet_recoil,"Recoil [GeV]","recoil_monojet",ouputDIR,luminosity,isMuon);
+  plotTurnOn(canvas,eff_vbf_recoil,fitfunc_vbf_recoil,"Recoil [GeV]","recoil_vbf",ouputDIR,luminosity,isMuon);
 
   for(size_t ibin = 0; ibin < eff_vbf_mjj.size(); ibin++){
     plotTurnOn(canvas,eff_vbf_mjj.at(ibin),fitfunc_vbf_mjj.at(ibin),"Recoil [GeV]",
 	       Form("mjj_vbf_%.1f_%.1f",bins_vbf_mjj.at(ibin),bins_vbf_mjj.at(ibin+1)),
-	       ouputDIR,luminosity,forplot,Form("%.1f < m_{jj} < %.1f",bins_vbf_mjj.at(ibin),bins_vbf_mjj.at(ibin+1)));
+	       ouputDIR,luminosity,isMuon,Form("%.1f < m_{jj} < %.1f",bins_vbf_mjj.at(ibin),bins_vbf_mjj.at(ibin+1)));
   }
   for(size_t ibin = 0; ibin < eff_vbf_detajj.size(); ibin++){
     plotTurnOn(canvas,eff_vbf_detajj.at(ibin),fitfunc_vbf_detajj.at(ibin),"Recoil [GeV]",
 	       Form("detajj_vbf_%.1f_%.1f",bins_vbf_detajj.at(ibin),bins_vbf_detajj.at(ibin+1)),
-	       ouputDIR,luminosity,forplot,Form("%.1f < #Delta#eta_{jj} < %.1f",bins_vbf_detajj.at(ibin),bins_vbf_detajj.at(ibin+1)));
+	       ouputDIR,luminosity,isMuon,Form("%.1f < #Delta#eta_{jj} < %.1f",bins_vbf_detajj.at(ibin),bins_vbf_detajj.at(ibin+1)));
   }
   
 }

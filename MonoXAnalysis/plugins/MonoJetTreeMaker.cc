@@ -3850,14 +3850,13 @@ void MonoJetTreeMaker::beginJob() {
 
   // Event weights
   // Pileup info
+  tree->Branch("xsec"                 , &xsec                 , "xsec/F");
+  tree->Branch("wgt"                  , &wgt                  , "wgt/F");
   if(not isTriggerTree){
     tree->Branch("puwgt"                , &puwgt                , "puwgt/F");
     tree->Branch("puobs"                , &puobs                , "puobs/I");
-    tree->Branch("xsec"                 , &xsec                 , "xsec/F");
-    tree->Branch("wgt"                  , &wgt                  , "wgt/F");
     tree->Branch("putrue"               , &putrue               , "putrue/I");
   }
-
   tree->Branch("nvtx"                 , &nvtx                 , "nvtx/i");
   
   // Triggers
@@ -4432,24 +4431,25 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("tau2idold"             , &tau2idold             , "tau2idold/F");
   }
 
-    // Dilepton info
+  // Dilepton info
+  tree->Branch("zmass"                , &zmass                , "zmass/F");
+  tree->Branch("zeemass"              , &zeemass              , "zeemass/F");
+  tree->Branch("wmt"                  , &wmt                  , "wmt/F");
+  tree->Branch("wemt"                 , &wemt                 , "wemt/F");
+  
   if(not isTriggerTree and not isQCDTree and not isPhotonPurity){
-    tree->Branch("zmass"                , &zmass                , "zmass/F");
     tree->Branch("zpt"                  , &zpt                  , "zpt/F");
     tree->Branch("zeta"                 , &zeta                 , "zeta/F");
     tree->Branch("zphi"                 , &zphi                 , "zphi/F");
-    tree->Branch("wmt"                  , &wmt                  , "wmt/F");
     if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
       tree->Branch("emumass"              , &emumass              , "emumass/F");
       tree->Branch("emupt"                , &emupt                , "emupt/F");
       tree->Branch("emueta"               , &emueta               , "emueta/F");
       tree->Branch("emuphi"               , &emuphi               , "emuphi/F");
     }
-    tree->Branch("zeemass"              , &zeemass              , "zeemass/F");
     tree->Branch("zeept"                , &zeept                , "zeept/F");
     tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/F");
     tree->Branch("zeephi"               , &zeephi               , "zeephi/F");
-    tree->Branch("wemt"                 , &wemt                 , "wemt/F");
     if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
       tree->Branch("zttmass"              , &zttmass              , "zttmass/F");
       tree->Branch("zttpt"                , &zttpt                , "zttept/F");
