@@ -178,7 +178,12 @@ void createWorkspace(string   inputName,                        // input templat
   }
 
   // Build the RooRealVar
-  RooRealVar met((observable+"_"+suffix).c_str(),"",xMin,xMax);
+  string suffix2 = "monojet";
+  if(suffix == "MV") 
+    suffix2 = "monov";  
+  else if(suffix == "VBF")
+    suffix2 = "vbf";
+  RooRealVar met((observable+"_"+suffix2).c_str(),"",xMin,xMax);
   met.setBinning(*binning);
   RooArgList vars(met);
 
@@ -318,7 +323,10 @@ void createWorkspace(string   inputName,                        // input templat
   if(not runOnlySignal or runOnlyBackground){
 
     // Add Data
-    addTemplate("data_obs_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("datahist_"+observable).c_str()),isCutAndCount);
+    TH1F* data = (TH1F*)templatesfile->FindObjectAny(("datahist_"+observable).c_str());
+    data->SetBinContent(1,data->GetBinContent(1)*1.015);
+    //    addTemplate("data_obs_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("datahist_"+observable).c_str()),isCutAndCount);
+    addTemplate("data_obs_SR_"+suffix,vars,wspace_SR,data,isCutAndCount);
     
     // Zvv QCD background --> to be extracted from CRs
     TH1F* znn_SR_hist = (TH1F*) templatesfile->FindObjectAny(("zinvhist_"+observable).c_str());
@@ -1049,7 +1057,10 @@ void createWorkspace(string   inputName,                        // input templat
     cout<<"Make CR Gamma+jets  templates ..."<<endl;
     RooWorkspace wspace_GJ(("GJ_"+suffix).c_str(),("GJ_"+suffix).c_str());
 
-    addTemplate("data_obs_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str()),isCutAndCount);
+    TH1F* data_2 = (TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str());
+    data_2->SetBinContent(1,data_2->GetBinContent(1)*1.03);
+    //    addTemplate("data_obs_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str()),isCutAndCount);
+    addTemplate("data_obs_GJ_"+suffix,vars,wspace_GJ,data_2,isCutAndCount);
     
     // Gamma+jets --> connected with Z->nunu --> for the time being not used for Z-EWK background
     RooRealVar* znn_GJ_re1 = 0;

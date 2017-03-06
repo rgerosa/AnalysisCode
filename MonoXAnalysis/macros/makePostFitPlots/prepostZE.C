@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-
+static bool addStatUncPull = true;
 
 void prepostZE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -416,11 +416,10 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   leg2->AddEntry(d2hist,"Post-fit","PLE");
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
   //  if(not addPullPlot)
-    leg2->Draw("same");
+  leg2->Draw("same");
 
 
   if(addPullPlot){
-
     pad3->Draw();
     pad3->cd();
 
@@ -434,8 +433,8 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     else
       frame3->GetXaxis()->SetNdivisions(210);
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
-
+    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
     frame3->GetYaxis()->SetLabelSize(0.03);
@@ -445,25 +444,28 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     frame3->GetYaxis()->SetNdivisions(504);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
-    
+
     TH1F* data_pull_post = (TH1F*) pohist->Clone("data_pull_post");
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
       dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
-      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
+    
     data_pull_post->Add(pohist,-1);
     data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
-    for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
-      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
-      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
-    }
 
+    for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
+      if(addStatUncPull)
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(pohist->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
+      else
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1),2);
+      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data 
+    }
     // line at 1                                                                                                                                                                                      
     TH1* unhist2 = (TH1*) pohist->Clone("unhist");
     unhist2->Reset();
@@ -476,10 +478,8 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
     unhist2->SetFillColor(0);
     unhist2->Draw("SAME");
     data_pull_post->Draw("hist same");
-
     pad3->RedrawAxis("G sameaxis");
-    pad3->Modified();
-    
+    pad3->Modified();    
   }
 
   if(not addPullPlot){

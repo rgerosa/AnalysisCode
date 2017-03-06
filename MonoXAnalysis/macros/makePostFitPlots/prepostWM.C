@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-
+static bool addStatUncPull = true;
 
 void prepostWM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -437,7 +437,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     else
       frame3->GetXaxis()->SetNdivisions(210);
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
+    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
@@ -463,7 +463,10 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
-      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
+      if(addStatUncPull)
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(pohist->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
+      else
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1),2);
       data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
     }
 

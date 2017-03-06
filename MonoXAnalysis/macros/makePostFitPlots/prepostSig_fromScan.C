@@ -4,6 +4,9 @@
 static bool saveTextFile = true;
 static bool dumpInfo     = false;
 static bool plotSignificance = true;
+static float lumiScale_Higgs = 15;
+static float lumiScale_DM = 2.78;
+static bool addStatUncPull = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -137,7 +140,7 @@ void prepostSig_fromScan(string   fitFilename,
   // summing all signals together
   mjhist_av->Add(mwhist_av);
   mjhist_av->Add(mzhist_av);
-  mjhist_av->Scale(2.78);
+  mjhist_av->Scale(lumiScale_DM);
 
   // signals for higgs invisible
   ggHhist  = (TH1*) higgs->FindObjectAny("ggHhist_125_met");
@@ -156,7 +159,7 @@ void prepostSig_fromScan(string   fitFilename,
   ggHhist->Add(wHhist);
   ggHhist->Add(zHhist);
   ggHhist->Add(ggZHhist);
-  ggHhist->Scale(15);
+  ggHhist->Scale(lumiScale_Higgs);
 
   // background
   TH1* znhist = NULL;
@@ -188,7 +191,8 @@ void prepostSig_fromScan(string   fitFilename,
   }
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD").c_str());    
   gmhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/GJets").c_str());    
-  tohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());    
+  //  tohist = (TH1*) ((TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str()))->Clone("tohist");    
+  tohist = (TH1*) ((TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str()))->Clone("tohist");    
   tphist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());    
 
   if(plotSBFit)
@@ -582,7 +586,10 @@ void prepostSig_fromScan(string   fitFilename,
   mchist->Add(znhist);
   if(ewkwhist) mchist->Add(ewkwhist);
   if(ewkzhist) mchist->Add(ewkzhist);
-  if(plotSBFit and sighist) mchist->Add(sighist);
+  if(plotSBFit and sighist){
+    mchist->Add(sighist);
+    tohist->Add(sighist);
+  }
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
@@ -678,7 +685,7 @@ void prepostSig_fromScan(string   fitFilename,
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
+    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
@@ -706,7 +713,10 @@ void prepostSig_fromScan(string   fitFilename,
     data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
-      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1)); // divide by sigma data                                                                
+      if(addStatUncPull)
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(band->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
+      else
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1));
       data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
     }
 
@@ -751,38 +761,46 @@ void prepostSig_fromScan(string   fitFilename,
   else if(addPullPlot and not blind and addPreFitOnPull){
     canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.png").c_str());
+    canvas->SaveAs(("postfit_sig"+postfix+"_wprefit_pull.C").c_str());
   }
   
   
   if(plotSignificance and not addPullPlot) {
+
     // ratio post fit at 1 with uncertaitny
-    TH1* htemp = (TH1*) tohist->Clone("postfit_over_prefit");
+    TH1* htemp = (TH1*) ((TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str()))->Clone("postfit_over_prefit");
     TH1* totalSignal   = NULL;
     TH1* totalSignal_s = NULL;
     TH1* totalSignal_av = NULL;
-    
+
     if(not plotSBFit){
-      totalSignal_s = (TH1*) ggHhist->Clone("totalSignal_s");
+      totalSignal_s  = (TH1*) ggHhist->Clone("totalSignal_s");
       totalSignal_av = (TH1*) mjhist_av->Clone("totalSignal_av");
     }
     else if(plotSBFit)
       totalSignal = (TH1*) sighist->Clone("totalSignal");
 
     canvas->cd();
-    pad2->Draw();
     pad2->cd();
+
     if(not plotSBFit)
       frame2->GetYaxis()->SetTitle("(S+B)/B");
     else
       frame2->GetYaxis()->SetTitle("(S_{fit}+B)/B");
-    
-    TH1* SoverB_s  = (TH1*) totalSignal_s->Clone("SoverB_s");
-    TH1* SoverB_av = (TH1*) totalSignal_av->Clone("SoverB_av");
-    TH1* SoverB    = (TH1*) totalSignal->Clone("SoverB");
+    TH1* SoverB_s  = NULL; 
+    TH1* SoverB_av = NULL;
+    TH1* SoverB    = NULL;
+
+    if(not plotSBFit){
+      SoverB_s  = (TH1*) totalSignal_s->Clone("SoverB_s");
+      SoverB_av = (TH1*) totalSignal_av->Clone("SoverB_av");
+    }
+    else
+      SoverB = (TH1*) totalSignal->Clone("SoverB");
 
     if(not plotSBFit and SoverB_s and SoverB_av){
-      SoverB_s->SetLineColor(kRed);
-      SoverB_s->SetMarkerColor(kRed);
+      SoverB_s->SetLineColor(kBlack);
+      SoverB_s->SetMarkerColor(kBlack);
       SoverB_s->SetMarkerSize(1);
       SoverB_s->SetMarkerStyle(20);
       SoverB_av->SetLineColor(TColor::GetColor("#0066ff"));
@@ -804,17 +822,11 @@ void prepostSig_fromScan(string   fitFilename,
     }
 
     if(not plotSBFit)
-      frame2->GetYaxis()->SetRangeUser(0.5,SoverB_av->GetMaximum()*1.2);
+      //      frame2->GetYaxis()->SetRangeUser(SoverB_av->GetMinimum()*0.9,SoverB_av->GetMaximum()*1.1);
+      frame2->GetYaxis()->SetRangeUser(1,2);
     else
       frame2->GetYaxis()->SetRangeUser(0.5,SoverB->GetMaximum()*1.2);
     frame2->Draw();
-
-    if(not plotSBFit){
-      SoverB_s->Draw("hist same");
-      SoverB_av->Draw("hist same");
-    }
-    else
-      SoverB->Draw("hist same");
 
     TH1* SoverB_postfit_d = NULL;
     if(not plotSBFit)
@@ -833,14 +845,14 @@ void prepostSig_fromScan(string   fitFilename,
     SoverB_postfit_d->Draw("E2 SAME");
     unhist->Draw("SAME");
     if(not plotSBFit){
-      SoverB_s->Draw("hist same");
+      //SoverB_s->Draw("hist same");
       SoverB_av->Draw("hist same");
     }
     else
       SoverB->Draw("hist same");
 
     pad2->RedrawAxis("sameaxis");
-    
+
     canvas->SaveAs(("postfit_sig"+postfix+"_SoB.pdf").c_str());
     canvas->SaveAs(("postfit_sig"+postfix+"_SoB.png").c_str());
     
