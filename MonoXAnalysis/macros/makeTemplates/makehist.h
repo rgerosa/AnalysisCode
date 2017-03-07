@@ -365,7 +365,7 @@ void makehist4(TTree* tree, /*input tree*/
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
   TFile* triggerfile_MET_zmm  = NULL;
-  TFile* triggerfile_MET_MC   = NULL;
+  TFile* triggerfile_MET_SF   = NULL;
 
   vector<TFile*> triggerfile_MET_binned;
   if(useMoriondSetup){
@@ -375,7 +375,7 @@ void makehist4(TTree* tree, /*input tree*/
       else
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
       triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet_zmm.root");
-      triggerfile_MET_MC  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiencyMC_monojet_recoil.root");
+      triggerfile_MET_SF  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerScaleFactor.root");
     }
     else{
       if(useSingleMuon){
@@ -410,13 +410,12 @@ void makehist4(TTree* tree, /*input tree*/
   // single turn on
   TEfficiency*       triggermet         = NULL;
   TEfficiency*       triggermet_zmm     = NULL;
-  TEfficiency*       triggermet_zvv_mc  = NULL;
-  TEfficiency*       triggermet_wjet_mc = NULL;
   ////
   TGraphAsymmErrors* triggermet_graph = NULL;    
   TGraphAsymmErrors* triggermet_graph_zmm = NULL;    
   TGraphAsymmErrors* triggermet_graph_zvv_mc  = NULL;    
   TGraphAsymmErrors* triggermet_graph_wjet_mc = NULL;    
+  TGraphAsymmErrors* triggermet_graph_wjet_sf = NULL;    
 
   if(triggerfile_MET != NULL){
     triggermet = (TEfficiency*) triggerfile_MET->Get("trig_eff");
@@ -436,11 +435,10 @@ void makehist4(TTree* tree, /*input tree*/
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
 
-  if(triggerfile_MET_MC != NULL){
-    triggermet_zvv_mc = (TEfficiency*) triggerfile_MET_MC->Get("efficiency_zvv");
-    triggermet_wjet_mc = (TEfficiency*) triggerfile_MET_MC->Get("efficiency_wjet");
-    triggermet_graph_zvv_mc = triggermet_zvv_mc->CreateGraph();
-    triggermet_graph_wjet_mc = triggermet_wjet_mc->CreateGraph();
+  if(triggerfile_MET_SF != NULL){
+    triggermet_graph_zvv_mc = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("efficiency_zvv");
+    triggermet_graph_wjet_mc = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("efficiency_wjet");
+    triggermet_graph_wjet_sf = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("scalefactor_wmn");
   }
 
   vector<TF1*> triggermet_func_binned;
@@ -1228,8 +1226,8 @@ void makehist4(TTree* tree, /*input tree*/
       else if(triggermet_graph and sample == Sample::zmm)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
       else if(triggermet_graph_zvv_mc and triggermet_graph_wjet_mc and sample == Sample::sig){
-	float mean = (triggermet_graph_zvv_mc->Eval(min(pfmet,triggermet_graph_zvv_mc->GetXaxis()->GetXmax()))+triggermet_graph_wjet_mc->Eval(min(pfmet,triggermet_graph_wjet_mc->GetXaxis()->GetXmax())))/2.;
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()))/mean;
+	// since no bits are in MC used for analysis --> take average among Zvv and Wjet
+	sfwgt *= triggermet_graph_wjet_sf->Eval(min(pfmet,triggermet_graph_wjet_sf->GetXaxis()->GetXmax()))*triggermet_graph_zvv_mc->Eval(min(pfmet,triggermet_graph_zvv_mc->GetXaxis()->GetXmax()));
       }
       else if(triggermet_graph and sample == Sample::sig)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      	
@@ -1270,6 +1268,8 @@ void makehist4(TTree* tree, /*input tree*/
 	btagw = 0.99;
       else if(sample == Sample::zee)
 	btagw = 0.98;
+      else if(sample == Sample::zmm)
+	btagw = 1.005;
       else if(sample == Sample::sig)
 	btagw = 1.011;
     }
@@ -2187,8 +2187,8 @@ void makehist4(TTree* tree, /*input tree*/
     triggerfile_MET->Close();
   if(triggerfile_MET_zmm != NULL)
     triggerfile_MET_zmm->Close();
-  if(triggerfile_MET_MC != NULL)
-    triggerfile_MET_MC->Close();
+  if(triggerfile_MET_SF != NULL)
+    triggerfile_MET_SF->Close();
   if(triggerfile_SinglePhoton != NULL)
     triggerfile_SinglePhoton->Close();
   if(triggerfile_SinglePhoton_jetHT != NULL)
