@@ -50,7 +50,7 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   CMS_lumi(canvas,"35.9");
   TLegend leg (0.5,0.35,0.8,0.55);
   leg.AddEntry(graph_file1,"W #rightarrow #mu#nu Data","EPL");
-  leg.AddEntry(graph_file2,"W #rightarrow #mu#mu Data","EPL");
+  leg.AddEntry(graph_file2,"Z #rightarrow #mu#mu Data","EPL");
   if(graph_file3) 
     leg.AddEntry(graph_file3,"W #rightarrow #mu#nu MC","EPL");
   if(graph_file4) 
@@ -68,9 +68,9 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
 
   TGraphAsymmErrors* ratio_band_up_data = new TGraphAsymmErrors();
   TGraphAsymmErrors* ratio_band_dw_data = new TGraphAsymmErrors();
-  for(int iPoint = 0; iPoint < graph_file2->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < graph_file3->GetN(); iPoint++){
     double x,y;
-    graph_file2->GetPoint(iPoint,x,y);
+    graph_file3->GetPoint(iPoint,x,y);
     ratio_band_up_data->SetPoint(iPoint,x,graph_file1->Eval(x)/graph_file3->Eval(x));
     ratio_band_dw_data->SetPoint(iPoint,x,graph_file1->Eval(x)/graph_file3->Eval(x));
   }
@@ -90,9 +90,9 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   TGraphAsymmErrors* ratio_band_up_mc = new TGraphAsymmErrors();
   TGraphAsymmErrors* ratio_band_dw_mc = new TGraphAsymmErrors();
   if(graph_file3 and graph_file4){
-    for(int iPoint = 0; iPoint < graph_file3->GetN(); iPoint++){
+    for(int iPoint = 0; iPoint < graph_file4->GetN(); iPoint++){
       double x,y;
-      graph_file3->GetPoint(iPoint,x,y);
+      graph_file4->GetPoint(iPoint,x,y);
       ratio_band_up_mc->SetPoint(iPoint,x,graph_file2->Eval(x)/graph_file4->Eval(x));
       ratio_band_dw_mc->SetPoint(iPoint,x,graph_file2->Eval(x)/graph_file4->Eval(x));
     }

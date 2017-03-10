@@ -27,6 +27,7 @@ static float jetmetdphi  = 0.5;
 static float dphijj      = 1.5;
 static float recoil      = 200;
 static bool  drawUncertaintyBand = false;
+static bool  useDoubleMuonTriggers = true;
 
 /// plotting result
 void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
@@ -151,6 +152,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> hltmwm90   (reader,"hltmetwithmu90");
   TTreeReaderValue<UChar_t> hltjm      (reader,"hltjetmet");
   TTreeReaderValue<UChar_t> hltsinglemu (reader,"hltsinglemu");
+  TTreeReaderValue<UChar_t> hltdoublemu (reader,"hltdoublemu");
   TTreeReaderValue<UChar_t> hlte      (reader,"hltsingleel");
   TTreeReaderValue<float>   mu1pt     (reader,"mu1pt");
   TTreeReaderValue<float>   mu1eta    (reader,"mu1eta");
@@ -274,7 +276,20 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyVBFSelections->SetBinContent(5,efficiencyVBFSelections->GetBinContent(5)+1);
     
     if(isMuon){
-      if(not *hltsinglemu) continue;    
+
+      // trigger selection for the denominator
+      if(not doubleLepton){
+	if(not *hltsinglemu) continue;    
+      }
+      else if(doubleLepton and not useDoubleMuonTriggers){
+	if(not *hltsinglemu) continue;
+      }
+      else if(doubleLepton and useDoubleMuonTriggers){
+	if(not *hltdoublemu) continue;
+	cout<<"rejected by muon triggers "<<endl;
+      }
+    
+
       efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
       efficiencyMonoVSelections->SetBinContent(6,efficiencyMonoVSelections->GetBinContent(6)+1);
       efficiencyVBFSelections->SetBinContent(6,efficiencyVBFSelections->GetBinContent(6)+1);

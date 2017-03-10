@@ -9,18 +9,16 @@ vector <float> bins_monojet_recoil = {50.,60.,70.,80.,85.,95.,100., 110., 120., 
 
 enum class Sample {sig,wmn,zmm,zee};
 
-static bool makeSelection = true;
+static bool makeSelectionGen = false;
 
-void calculateSumWeight(vector<TChain*> gentree, vector<double> & wgtsum){
+void calculateSumWeight(vector<TTree*> gentree, vector<double> & wgtsum){
 
   for(auto tree: gentree){
     wgtsum.push_back(0);
   }
 
-  cout<<"Loop on trees for sumwgt "<<endl;
   int itree = 0;
   for(auto tree: gentree){
-
     TTreeReader reader(tree);
     TTreeReaderValue<float> wgt (reader,"wgt");
     //////////////////                                                                                                                                                                           
@@ -29,28 +27,30 @@ void calculateSumWeight(vector<TChain*> gentree, vector<double> & wgtsum){
     long int nPart = 100000;
     cout<<"Looping on itree "<<itree<<" of "<<gentree.size()<<" Total number of events: "<<nTotal<<endl;
     while(reader.Next()){
-      if(nEvents > 1000000) break;
       cout.flush();
       if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
       nEvents++;
       wgtsum.at(itree) += *wgt;
     }
     cout<<endl;
+    cout<<"Sum of weigths for this tree "<<wgtsum.at(itree)<<endl;
     itree++;
   }
 }
 
-void makeTriggerAnalysis(vector<TChain*> trees, TH1F* hnum, TH1F* hden, const Sample & sample, vector<double> wgtsum, float luminosity){
+void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sample & sample, vector<double> wgtsum, float luminosity){
   
   cout<<"Loop on trees "<<endl;
+
+  TFile* pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");
+  TH1* puhist = (TH1*)pufile->Get("puhist");
+
   int itree = 0;
   for(auto tree : trees){    
+
     TTreeReader reader(tree);
-    //TTreeReaderValue<float> xsec          (reader,"xsec");
-    //TTreeReaderValue<float> wgt           (reader,"wgt");
-    TTreeReaderValue<unsigned int> run    (reader,"run");
-    TTreeReaderValue<unsigned int> lumi   (reader,"lumi");
-    TTreeReaderValue<unsigned int> event  (reader,"event");
+    TTreeReaderValue<float> xsec         (reader,"xsec");
+    TTreeReaderValue<float> wgt          (reader,"wgt");
     TTreeReaderValue<UChar_t> hltm90     (reader,"hltmet90");
     TTreeReaderValue<UChar_t> hltm100    (reader,"hltmet100");
     TTreeReaderValue<UChar_t> hltm110    (reader,"hltmet110");
@@ -62,15 +62,16 @@ void makeTriggerAnalysis(vector<TChain*> trees, TH1F* hnum, TH1F* hden, const Sa
     TTreeReaderValue<UChar_t> hltmwm300  (reader,"hltmetwithmu300");
     TTreeReaderValue<UChar_t> hltmwm90   (reader,"hltmetwithmu90");
     TTreeReaderValue<UChar_t> hltjm      (reader,"hltjetmet");
-    TTreeReaderValue<float>   mu1pt     (reader,"mu1pt");
-    TTreeReaderValue<float>   mu1eta    (reader,"mu1eta");
-    TTreeReaderValue<float>   mu1phi    (reader,"mu1phi");
-    TTreeReaderValue<int>     mu1id     (reader,"mu1id");
+    TTreeReaderValue<float>   mu1pt      (reader,"mu1pt");
+    TTreeReaderValue<float>   mu1eta     (reader,"mu1eta");
+    TTreeReaderValue<float>   mu1phi     (reader,"mu1phi");
+    TTreeReaderValue<int>     mu1id      (reader,"mu1id");
     TTreeReaderValue<int>     mu1pid     (reader,"mu1pid");
-    TTreeReaderValue<float>   mu2pt     (reader,"mu2pt");
-    TTreeReaderValue<float>   mu2eta    (reader,"mu2eta");
-    TTreeReaderValue<float>   mu2phi    (reader,"mu2phi");
-    TTreeReaderValue<int>     mu2id     (reader,"mu2id");
+    TTreeReaderValue<float>   mu2pt      (reader,"mu2pt");
+    TTreeReaderValue<float>   mu2eta     (reader,"mu2eta");
+    TTreeReaderValue<float>   mu2phi     (reader,"mu2phi");
+    TTreeReaderValue<float>   zmass      (reader,"zmass");
+    TTreeReaderValue<int>     mu2id      (reader,"mu2id");
     TTreeReaderValue<int>     mu2pid     (reader,"mu2pid");
     TTreeReaderValue<UChar_t> fhbhe  (reader,"flaghbhenoise");
     TTreeReaderValue<UChar_t> fhbiso (reader,"flaghbheiso");
@@ -81,7 +82,8 @@ void makeTriggerAnalysis(vector<TChain*> trees, TH1F* hnum, TH1F* hden, const Sa
     TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
     TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
     TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
-    TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausold");
+    TTreeReaderValue<unsigned int> nvtx        (reader,"nvtx");
+    TTreeReaderValue<unsigned int> ntaus       (reader,"ntaus");
     TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
     TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
     TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
@@ -100,22 +102,22 @@ void makeTriggerAnalysis(vector<TChain*> trees, TH1F* hnum, TH1F* hden, const Sa
     TTreeReaderValue<float> metpf       (reader,"pfmet");
     TTreeReaderValue<float> metcalo     (reader,"calomet");
     TTreeReaderValue<float> jmmdphi (reader,"incjetmumetdphimin4");
-    TTreeReaderValue<float> jemdphi (reader,"incjetelmetdphimin4");
+    TTreeReaderValue<int>   l1id (reader,"l1id");
+    TTreeReaderValue<int>   l2id (reader,"l2id");
 
     //////////////////                                                                                                                                                                              
     long int nTotal = tree->GetEntries();
     cout<<"Looping on itree "<<itree<<" of "<<trees.size()<<" Total number of events: "<<nTotal<<endl;
-    long int nEvents = 0;
-    
+    long int nEvents = 0;    
     long int nPart = 100000;
+
     while(reader.Next()){
       cout.flush();
       if(nEvents % nPart == 0) cout<<"\r"<<"Analyzing events "<<double(nEvents)/nTotal*100<<" % ";
       nEvents++;
-      if(nEvents > 1000000) break;
 
       if(*nbjets   != 0)    continue;
-      if(*ntausraw != 0)    continue;
+      if(*ntaus    != 0)    continue;
       if(*nphotons  != 0)   continue;
       if(*nelectrons != 0 ) continue;
 
@@ -128,56 +130,84 @@ void makeTriggerAnalysis(vector<TChain*> trees, TH1F* hnum, TH1F* hden, const Sa
       if(not *fbadch) continue;
       if(not *fhbhe)  continue;
       if(not *fhbiso) continue;
+
+      // apply calo met cleaning
+      if(not makeSelectionGen and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
       
-      if(fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
-      if(*jmmdphi < 0.5) continue;
-      
+      // apply jet pt selections
+      if(*nincjets < 1) continue;
+      if(jetpt->size() == 0) continue;
       if(jetpt->at(0) < 100) continue;
       if(fabs(jeteta->at(0)) > 2.5) continue;
       if(jetchfrac->at(0) < 0.1) continue;
       if(jetnhfrac->at(0) > 0.8) continue;
+
+      // apply jet-met dphi--> not for gen level analysis
+      if(not makeSelectionGen and *jmmdphi < 0.5) continue;
       
-      if(sample == Sample::wmn){
-	if(makeSelection and *mu1pt < 20) continue;
-	if(makeSelection and fabs(*mu1eta) > 2.4) continue;
-	if(makeSelection and *mu1id != 1) continue;
-	if(*nmuons !=1) continue;
-	float dphi = fabs(*mu1phi-*metphi);
-	if(dphi > TMath::Pi())
-	  dphi = 2*TMath::Pi()-dphi;
-	float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
-	if(makeSelection and mtw > 160) continue;
+      // apply standard reco-level cuts
+      if(not makeSelectionGen){	
+	if(sample == Sample::wmn){
+	  if(*mu1pt < 20) continue;
+	  if(fabs(*mu1eta) > 2.4) continue;
+	  if(*mu1id  !=1) continue;
+	  if(*nmuons !=1) continue;
+	  float dphi = fabs(*mu1phi-*metphi);
+	  if(dphi > TMath::Pi())
+	    dphi = 2*TMath::Pi()-dphi;
+	  float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
+	  if(mtw > 160) continue;
+	}
+	else if(sample == Sample::zmm){
+	  if(*nmuons !=2) continue;
+	  if(*mu1pt < 20) continue;
+	  if(fabs(*mu1eta) > 2.4) continue;
+	  if(fabs(*mu2eta) > 2.4) continue;
+	  if(*mu1pid == *mu2pid) continue;
+	  if((*mu1pt > 20 and *mu1id != 1) or (*mu2pt > 20 and *mu2id != 1)) continue;
+	  if(*zmass < 60 or *zmass > 120) continue;
+	}
+	else if(sample == Sample::sig){
+	  if(*nmuons != 0) continue;
+	}
       }
-      else if(sample == Sample::zmm){
-	if(*nmuons !=2) continue;
-	if(makeSelection and *mu1pt < 20) continue;
-	if(makeSelection and fabs(*mu1eta) > 2.4) continue;
-	if(makeSelection and fabs(*mu2eta) > 2.4) continue;
-	if(*mu1pid == *mu2pid) continue;
-	if(makeSelection and ((*mu1pt > 20 and *mu1id != 1) or (*mu2pt > 20 and *mu2id != 1))) continue;
-	TLorentzVector mu1, mu2;
-	mu1.SetPtEtaPhiM(*mu1pt,*mu1eta,*mu1phi,0.);
-	mu2.SetPtEtaPhiM(*mu2pt,*mu2eta,*mu2phi,0.);
-	if(makeSelection and ((mu1+mu2).M() < 60 or (mu1+mu2).M() > 120)) continue;
+      else{// gen level analysis
+	if(sample == Sample::wmn){
+	  bool goodEvent = false;
+	  if((fabs(*l1id) == 13 and fabs(*l2id) == 14) or (fabs(*l1id) == 14 and fabs(*l2id) == 13)) goodEvent = true;
+	  if(not goodEvent) continue;
+	}
+	else if(sample == Sample::zmm){
+	  if(fabs(*l1id) != 13) continue;
+	  if(fabs(*l2id) != 13) continue;
+	  if(*l1id == *l2id) continue;
+	}
+	else if(sample == Sample::sig){
+	  if(fabs(*l1id) != 12 and fabs(*l1id) != 14 and fabs(*l1id) != 16) continue;
+	  if(fabs(*l2id) != 12 and fabs(*l2id) != 14 and fabs(*l2id) != 16) continue;
+	}
       }
-      else if(sample == Sample::sig){
-	if(*nmuons != 0) continue;
-      }
+
+      // pileup re-weight
+      double puwgt = 1;
+      if(*nvtx < 60)
+	puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
       
-      //hden->Fill(*met,luminosity*(*xsec)*(*wgt)/wgtsum.at(itree));
-      //hnum->Fill(*met,luminosity*(*xsec)*(*wgt)/wgtsum.at(itree));
-      hden->Fill(*mmet);
+      hden->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
       if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300)
-	hnum->Fill(*mmet);     
+	hnum->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));     
     }
     cout<<endl;
     itree++;
   }
+  
+  if(pufile) pufile->Close();
+
 }
 
-void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminosity = 35.9, bool applyKinematicSelection = true){
+void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminosity = 35.9, bool applyGenSelection = false){
 
-  makeSelection = applyKinematicSelection;
+  makeSelectionGen = applyGenSelection;
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -189,12 +219,15 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   canvas->cd();
  
   // input tree                                                                                                                                                                                      
-  vector<TChain*> tree_zvv;
-  vector<TChain*> tree_wjet;
-  vector<TChain*> tree_zll;
-  vector<TChain*> gentree_zvv;
-  vector<TChain*> gentree_wjet;
-  vector<TChain*> gentree_zll;
+  vector<TFile*> filelist_zvv;
+  vector<TFile*> filelist_wjet;
+  vector<TFile*> filelist_zll;
+  vector<TTree*> tree_zvv;
+  vector<TTree*> tree_wjet;
+  vector<TTree*> tree_zll;
+  vector<TTree*> gentree_zvv;
+  vector<TTree*> gentree_wjet;
+  vector<TTree*> gentree_zll;
 
   cout<<"Read list of files for Zvv process "<<endl;
   system(("ls "+inputDIR+" | grep ZJets > list_dir.txt").c_str());
@@ -204,18 +237,18 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
     while(!file_dir_zvv.eof()){
       getline(file_dir_zvv,line);
       if(line == "") continue;
-      tree_zvv.push_back(new TChain("tree/tree"));
-      gentree_zvv.push_back(new TChain("gentree/gentree"));
       system(("find "+inputDIR+"/"+line+" -name  \"*.root\" > list.txt").c_str());
       ifstream file_zvv("list.txt");
       if(file_zvv.is_open()){
 	string line2;
 	while(!file_zvv.eof()){
 	  getline(file_zvv,line2);
-	  if(TString(line2).Contains("failed")) continue;
+	  if(TString(line2).Contains("failed")) continue;	  
 	  if(line == "" or not TString(line2).Contains("root")) continue;
-	  tree_zvv.back()->Add(line2.c_str());
-	  gentree_zvv.back()->Add(line2.c_str());
+	  cout<<"Open Zvv file with name: "<<line2<<endl;
+	  filelist_zvv.push_back(TFile::Open(line2.c_str()));
+	  tree_zvv.push_back((TTree*) filelist_zvv.back()->Get("tree/tree"));
+	  gentree_zvv.push_back((TTree*) filelist_zvv.back()->Get("gentree/gentree"));
 	}
       }
       system("rm list.txt");
@@ -231,25 +264,24 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
     while(!file_dir_wjet.eof()){
       getline(file_dir_wjet,line);
       if(line == "") continue;
-      tree_wjet.push_back(new TChain("tree/tree"));
-      gentree_wjet.push_back(new TChain("gentree/gentree"));
       system(("find "+inputDIR+"/"+line+" -name  \"*.root\" > list.txt").c_str());
       ifstream file_wjet("list.txt");
       if(file_wjet.is_open()){
 	string line2;
 	while(!file_wjet.eof()){
 	  getline(file_wjet,line2);
-	  if(TString(line2).Contains("failed")) continue;
+	  if(TString(line2).Contains("failed")) continue;	  
 	  if(line == "" or not TString(line2).Contains("root")) continue;
-	  tree_wjet.back()->Add(line2.c_str());
-	  gentree_wjet.back()->Add(line2.c_str());
+	  cout<<"Open Wjet file with name: "<<line2<<endl;
+	  filelist_wjet.push_back(TFile::Open(line2.c_str()));
+	  tree_wjet.push_back((TTree*) filelist_wjet.back()->Get("tree/tree"));
+	  gentree_wjet.push_back((TTree*) filelist_wjet.back()->Get("gentree/gentree"));
 	}
       }
       system("rm list.txt");
     }
   }
   system("rm list_dir.txt");
-
 
   cout<<"Read list of files for Zll process "<<endl;
   system(("ls "+inputDIR+" | grep DYJets > list_dir.txt").c_str());
@@ -259,33 +291,37 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
     while(!file_dir_zll.eof()){
       getline(file_dir_zll,line);
       if(line == "") continue;
-      tree_zll.push_back(new TChain("tree/tree"));
-      gentree_zll.push_back(new TChain("gentree/gentree"));
       system(("find "+inputDIR+"/"+line+" -name  \"*.root\" > list.txt").c_str());
       ifstream file_zll("list.txt");
       if(file_zll.is_open()){
 	string line2;
 	while(!file_zll.eof()){
 	  getline(file_zll,line2);
-	  if(TString(line2).Contains("failed")) continue;
+	  if(TString(line2).Contains("failed")) continue;	  
 	  if(line == "" or not TString(line2).Contains("root")) continue;
-	  tree_zll.back()->Add(line2.c_str());
-	  gentree_zll.back()->Add(line2.c_str());
+	  cout<<"Open Zll file with name: "<<line2<<endl;
+	  filelist_zll.push_back(TFile::Open(line2.c_str()));
+	  tree_zll.push_back((TTree*) filelist_zll.back()->Get("tree/tree"));
+	  gentree_zll.push_back((TTree*) filelist_zll.back()->Get("gentree/gentree"));
 	}
       }
       system("rm list.txt");
     }
   }
   system("rm list_dir.txt");
+
   
   // sum of weights
   vector<double> wgtsum_zvv;
   vector<double> wgtsum_wjet;
   vector<double> wgtsum_zll;
-  //calculateSumWeight(gentree_zvv,wgtsum_zvv);
-  //calculateSumWeight(gentree_wjet,wgtsum_wjet);
-  //calculateSumWeight(gentree_zll,wgtsum_zll);
-  
+  cout<<"######### Calculate Weights for : Zvv "<<endl;
+  calculateSumWeight(gentree_zvv,wgtsum_zvv);
+  cout<<"######### Calculate Weights for : W+jets "<<endl;
+  calculateSumWeight(gentree_wjet,wgtsum_wjet);
+  cout<<"######### Calculate Weights for : Zll "<<endl;
+  calculateSumWeight(gentree_zll,wgtsum_zll);
+
   /////// start analysis
   TF1 *fitfunc_monojet_recoil_zvv = new TF1("fitfunc_monojet_recoil_zvv",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
   fitfunc_monojet_recoil_zvv->SetParameters(120., 25., 30., 4., 1.);  
@@ -317,11 +353,17 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   TH1F* hden_monojet_recoil_zmm = new TH1F("hden_monojet_recoil_zmm", "", bins_monojet_recoil.size()-1, &bins_monojet_recoil[0]);
   hnum_monojet_recoil_zmm->Sumw2();
   hden_monojet_recoil_zmm->Sumw2();
- 
+
   ////
+  cout<<"######### Loop on Zvv trees for SR selection "<<endl;
   makeTriggerAnalysis(tree_zvv,hnum_monojet_recoil_zvv,hden_monojet_recoil_zvv,Sample::sig,wgtsum_zvv,luminosity);
-  makeTriggerAnalysis(tree_wjet,hnum_monojet_recoil_wjet,hden_monojet_recoil_wjet,Sample::sig,wgtsum_wjet,luminosity);
+  if(not applyGenSelection){
+    cout<<"######### Loop on W+jets trees for SR selection "<<endl;
+    makeTriggerAnalysis(tree_wjet,hnum_monojet_recoil_wjet,hden_monojet_recoil_wjet,Sample::sig,wgtsum_wjet,luminosity);
+  }
+  cout<<"######### Loop on W+jets trees for Wmn selection "<<endl;
   makeTriggerAnalysis(tree_wjet,hnum_monojet_recoil_wmn,hden_monojet_recoil_wmn,Sample::wmn,wgtsum_wjet,luminosity);
+  cout<<"######### Loop on Zll+jets trees for Zmm selection "<<endl;
   makeTriggerAnalysis(tree_zll,hnum_monojet_recoil_zmm,hden_monojet_recoil_zmm,Sample::zmm,wgtsum_zll,luminosity);
 
   // Make efficiencies
@@ -383,12 +425,14 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
   
   fitfunc_monojet_recoil_zvv->Draw("Lsame");
-  fitfunc_monojet_recoil_wjet->Draw("Lsame");
+  if(not applyGenSelection)
+    fitfunc_monojet_recoil_wjet->Draw("Lsame");
   fitfunc_monojet_recoil_wmn->Draw("Lsame");
   fitfunc_monojet_recoil_zmm->Draw("Lsame");
 
   eff_monojet_recoil_zvv->Draw("EPsame");
-  eff_monojet_recoil_wjet->Draw("EPsame");
+  if(not applyGenSelection)
+    eff_monojet_recoil_wjet->Draw("EPsame");
   eff_monojet_recoil_wmn->Draw("EPsame");
   eff_monojet_recoil_zmm->Draw("EPsame");
 
@@ -397,7 +441,8 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   leg.SetFillStyle(0);
   leg.SetBorderSize(0);
   leg.AddEntry(eff_monojet_recoil_zvv,"Z #rightarrow #nu#nu","EPL");
-  leg.AddEntry(eff_monojet_recoil_wjet,"W-jet SR","EPL");
+  if(not applyGenSelection)
+    leg.AddEntry(eff_monojet_recoil_wjet,"W-jet SR","EPL");
   leg.AddEntry(eff_monojet_recoil_wmn,"W #rightarrow #mu#nu","EPL");
   leg.AddEntry(eff_monojet_recoil_zmm,"Z #rightarrow #mu#mu","EPL");
   leg.Draw("same");
@@ -420,12 +465,14 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
   
   fitfunc_monojet_recoil_zvv->Draw("Lsame");
-  fitfunc_monojet_recoil_wjet->Draw("Lsame");
+  if(not applyGenSelection)
+    fitfunc_monojet_recoil_wjet->Draw("Lsame");
   fitfunc_monojet_recoil_wmn->Draw("Lsame");
   fitfunc_monojet_recoil_zmm->Draw("Lsame");
   
   eff_monojet_recoil_zvv->Draw("EPsame");
-  eff_monojet_recoil_wjet->Draw("EPsame");
+  if(not applyGenSelection)
+    eff_monojet_recoil_wjet->Draw("EPsame");
   eff_monojet_recoil_wmn->Draw("EPsame");
   eff_monojet_recoil_zmm->Draw("EPsame");
   leg.Draw("same");
@@ -437,14 +484,17 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   outputFile->cd();
 
   fitfunc_monojet_recoil_zvv->Write("func_zvv");
-  fitfunc_monojet_recoil_wjet->Write("func_wjet");
+  if(not applyGenSelection)
+    fitfunc_monojet_recoil_wjet->Write("func_wjet");
   fitfunc_monojet_recoil_wmn->Write("func_wmn");
   fitfunc_monojet_recoil_zmm->Write("func_zmm");
  
   eff_monojet_recoil_zvv->Write("efficiency_zvv");
-  eff_monojet_recoil_wjet->Write("efficiency_wjet");
+  if(not applyGenSelection)
+    eff_monojet_recoil_wjet->Write("efficiency_wjet");
   eff_monojet_recoil_wmn->Write("efficiency_wmn");
   eff_monojet_recoil_zmm->Write("efficiency_zmm");
   
   outputFile->Close();
+  
 }

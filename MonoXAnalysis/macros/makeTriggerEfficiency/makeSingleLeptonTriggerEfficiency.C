@@ -3,6 +3,8 @@
 #include "../CMS_lumi.h"
 #include "triggerUtils.h"
 
+bool useAbsEta = false;
+
 /// loop on the events to build the efficiency for each pt-eta bin
 void makeTrigger(TTree* tree, // tree 
 		 TH2F*  histoNum,
@@ -49,13 +51,7 @@ void makeTrigger(TTree* tree, // tree
   TTreeReaderValue<float> wgt  (reader, "wgt");
   TTreeReaderValue<int>   id   (reader, "tightid");  // single electorn and muon trigger efficiency are useful in the single and double lepton CR were we ask at least one tight lepton
   TTreeReaderValue<int>   hlt  (reader,triggerFlag.c_str());
-  string hltsafe = "wgt";
-  if(not isSingleMuon)
-    hltsafe = "hltsafeid";
-  TTreeReaderValue<int>   hltsafeid (reader,hltsafe.c_str());
-
-  if(triggerFlag_2 == "")
-    triggerFlag_2 = triggerFlag;
+  if(triggerFlag_2 == "") triggerFlag_2 = triggerFlag;
   TTreeReaderValue<int>   hlt2 (reader,triggerFlag_2.c_str());
   
         
@@ -88,11 +84,11 @@ void makeTrigger(TTree* tree, // tree
     if (*nvtx <= 40) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));    
     // check the probe lepton information --> if it falls inside the bins                                                                                                       
     if(*pt < ptMin or *pt > ptMax) continue;
-    if(fabs(*eta) < etaMin or fabs(*eta) > etaMax) continue;    
+    if(useAbsEta and (fabs(*eta) < etaMin or fabs(*eta) > etaMax)) continue;    
+    else if(not useAbsEta and (*eta < etaMin or *eta > etaMax)) continue;
     // if not matched to a genLepton skip --> we want to extract the true templateds                                                                                            
     if(isMC and not *mcTrue) continue;
     if(*id <= 0) continue;
-    if(not isSingleMuon and *hltsafeid <= 0) continue;
     if((*hlt == 0 and *hlt2 == 0) and isMC)      
       hfail.Fill(*mass, puwgt*(*wgt)/wgtsum);
     else if((*hlt == 0 and *hlt2 == 0) and not isMC)
@@ -246,12 +242,12 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   vector<float> binningHighPt;
   vector<float> binningEta;
   if(isSingleMuon){
-    binningPt      = {20.,25,30,40,45,50,60,70,85,100,125,150,175,200,250,300};
+    binningPt      = {20.,24.,28.,30,40,50,60,70,85,100,125,150,175,200,250,300};
     binningHighPt  = {90,100,105,110,115,120,125,135,150,175,200};
-    binningEta     = {-2.4,-1.2,1.2,2.4};
+    binningEta     = {-2.4,-1.8,-1.2,-0.6,0.6,1.2,1.8,2.4};
   }
   else{
-    binningPt      = {20.,25,30,40,45,50,60,70,85,115,130,150,175,200,250,300};
+    binningPt      = {15.,20.,25,30,40,45,50,60,70,85,115,130,150,175,200,250,300};
     binningHighPt  = {90,100,105,110,115,120,125,150,175,200,250};
     binningEta     = {0,0.5,1,1.444,1.56,2.1,2.5};
   }
@@ -292,10 +288,10 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   for(size_t ipt = 0; ipt < binningPt.size()-1; ipt++){
     for(size_t ieta = 0; ieta < binningEta.size()-1; ieta++){
       if(isSingleMuon){
-	makeTrigger(tree,Passing_mu20,Total_mu20,isMC,isSingleMuon,outputDIR,"hltmu20",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); // mu20
-	makeTrigger(tree,Passing_muIsoTk20,Total_muIsoTk20,isMC,isSingleMuon,outputDIR,"hlttkmu20",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
-	makeTrigger(tree,Passing_mu22,Total_mu22,isMC,isSingleMuon,outputDIR,"hltmu22",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
-	makeTrigger(tree,Passing_muIsoTk22,Total_muIsoTk22,isMC,isSingleMuon,outputDIR,"hlttkmu22",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
+	//	makeTrigger(tree,Passing_mu20,Total_mu20,isMC,isSingleMuon,outputDIR,"hltmu20",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); // mu20
+	//	makeTrigger(tree,Passing_muIsoTk20,Total_muIsoTk20,isMC,isSingleMuon,outputDIR,"hlttkmu20",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
+	//	makeTrigger(tree,Passing_mu22,Total_mu22,isMC,isSingleMuon,outputDIR,"hltmu22",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
+	//	makeTrigger(tree,Passing_muIsoTk22,Total_muIsoTk22,isMC,isSingleMuon,outputDIR,"hlttkmu22",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
 	makeTrigger(tree,Passing_mu,Total_mu,isMC,isSingleMuon,outputDIR,"hltmu",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
 	makeTrigger(tree,Passing_muIsoTk,Total_muIsoTk,isMC,isSingleMuon,outputDIR,"hlttkmu",binningPt.at(ipt),binningPt.at(ipt+1),binningEta.at(ieta),binningEta.at(ieta+1)); 
       }
@@ -373,10 +369,10 @@ void makeSingleLeptonTriggerEfficiency(string inputDIR, // where trees are locat
   canvas->cd();
 
   if(isSingleMuon){
-    plotTriggerEfficiency(canvas,trgeff_mu20,isSingleMuon,outputDIR,false,lumi,doFit);
-    plotTriggerEfficiency(canvas,trgeff_muIsoTk20,isSingleMuon,outputDIR,false,lumi,doFit);
-    plotTriggerEfficiency(canvas,trgeff_mu22,isSingleMuon,outputDIR,false,lumi,doFit);
-    plotTriggerEfficiency(canvas,trgeff_muIsoTk22,isSingleMuon,outputDIR,false,lumi,doFit);
+    //    plotTriggerEfficiency(canvas,trgeff_mu20,isSingleMuon,outputDIR,false,lumi,doFit);
+    //    plotTriggerEfficiency(canvas,trgeff_muIsoTk20,isSingleMuon,outputDIR,false,lumi,doFit);
+    //    plotTriggerEfficiency(canvas,trgeff_mu22,isSingleMuon,outputDIR,false,lumi,doFit);
+    //    plotTriggerEfficiency(canvas,trgeff_muIsoTk22,isSingleMuon,outputDIR,false,lumi,doFit);
     plotTriggerEfficiency(canvas,trgeff_mu,isSingleMuon,outputDIR,false,lumi,doFit);
     plotTriggerEfficiency(canvas,trgeff_muIsoTk,isSingleMuon,outputDIR,false,lumi,doFit);
   }
