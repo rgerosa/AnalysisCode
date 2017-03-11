@@ -194,7 +194,7 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
 	puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
       
       hden->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
-      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300)
+      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
 	hnum->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));     
     }
     cout<<endl;

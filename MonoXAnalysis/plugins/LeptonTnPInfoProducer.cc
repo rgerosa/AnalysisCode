@@ -38,9 +38,9 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // Gen info
-  const edm::EDGetTokenT<GenEventInfoProduct>         geninfoToken;
+  const edm::EDGetTokenT<GenEventInfoProduct>        geninfoToken;
   // Vertices
-  const edm::EDGetTokenT<std::vector<reco::Vertex> >  verticesToken;
+  const edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken;
   //Leptons
   const edm::EDGetTokenT<pat::MuonCollection>     muonsToken;
   const edm::EDGetTokenT<pat::ElectronCollection> electronsToken;
@@ -106,10 +106,10 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
     tagelectrontriggermatch  (iConfig.getParameter<edm::ParameterSet>("tagelectrontriggermatch"))
     
 {
-  // produce a map with nvtx for a given muon
-  produces<edm::ValueMap<float> >("munvtxmap");
   // produce a map with the generator weight
   produces<edm::ValueMap<float> >("muwgtmap");
+  // produce a map with nvtx for a given muon
+  produces<edm::ValueMap<float> >("munvtxmap");
   produces<edm::ValueMap<float> >("mudxymap");
   produces<edm::ValueMap<float> >("mudzmap");
   produces<edm::ValueMap<float> >("muchi2map");
@@ -125,8 +125,19 @@ LeptonTnPInfoProducer::LeptonTnPInfoProducer(const edm::ParameterSet& iConfig):
   produces<pat::MuonRefVector>("hlttkmu22muonrefs");
   produces<pat::MuonRefVector>("hltmu24muonrefs");
   produces<pat::MuonRefVector>("hlttkmu24muonrefs");
+  produces<pat::MuonRefVector>("hltmu50muonrefs");
+  produces<pat::MuonRefVector>("hlttkmu50muonrefs");
   produces<pat::MuonRefVector>("hltmumuonrefs");
   produces<pat::MuonRefVector>("hlttkmumuonrefs");
+
+  produces<pat::MuonRefVector>("hltmu17mu8Leg17");
+  produces<pat::MuonRefVector>("hltmu17mu8Leg8");
+  produces<pat::MuonRefVector>("hltmu17tkmu8Leg17");
+  produces<pat::MuonRefVector>("hltmu17tkmu8Leg8");
+  produces<pat::MuonRefVector>("hltmu17mu8dzLeg17");
+  produces<pat::MuonRefVector>("hltmu17mu8dzLeg8");
+  produces<pat::MuonRefVector>("hltmu17tkmu8dzLeg17");
+  produces<pat::MuonRefVector>("hltmu17tkmu8dzLeg8");
 
   // produces collection for loose and tight muons
   produces<pat::MuonRefVector>("loosemuonrefs");
@@ -247,8 +258,20 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::auto_ptr<pat::MuonRefVector> outputhlttkmu22muonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputhltmu24muonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputhlttkmu24muonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu50muonrefs(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhlttkmu50muonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputhltmumuonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputhlttkmumuonrefs(new pat::MuonRefVector);
+
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17mu8muonrefs_leg17(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17mu8muonrefs_leg8(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17tkmu8muonrefs_leg17(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17tkmu8muonrefs_leg8(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17mu8dzmuonrefs_leg17(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17mu8dzmuonrefs_leg8(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17tkmu8dzmuonrefs_leg17(new pat::MuonRefVector);
+  std::auto_ptr<pat::MuonRefVector> outputhltmu17tkmu8dzmuonrefs_leg8(new pat::MuonRefVector);
+
   // muon ID
   std::auto_ptr<pat::MuonRefVector> outputloosemuonrefs(new pat::MuonRefVector);
   std::auto_ptr<pat::MuonRefVector> outputtightmuonrefs(new pat::MuonRefVector);
@@ -320,8 +343,19 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     bool hltisotkmu22matched = false;
     bool hltisomu24matched = false;
     bool hltisotkmu24matched = false;
-    bool hltisomumatched = false;
-    bool hltisotkmumatched = false;
+    bool hltmu50matched = false;
+    bool hlttkmu50matched = false;
+    bool hltmumatched = false;
+    bool hlttkmumatched = false;
+
+    bool hltmu17mu8matched_leg17 = false;
+    bool hltmu17mu8matched_leg8 = false;
+    bool hltmu17tkmu8matched_leg17 = false;
+    bool hltmu17tkmu8matched_leg8   = false;
+    bool hltmu17mu8dzmatched_leg17 = false;
+    bool hltmu17mu8dzmatched_leg8  = false;
+    bool hltmu17tkmu8dzmatched_leg17 = false;
+    bool hltmu17tkmu8dzmatched_leg8  = false;
 
     // loop on the whole trigger object collection
     for (pat::TriggerObjectStandAlone trgobj : *triggerObjectsH) {
@@ -336,18 +370,55 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       // loop on the list of tag muon triggers and check whether the trigger object belongs to the path and matched the offilen muon
       if (trgobj.hasPathName("HLT_IsoMu20_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu20_v*", true, true)) hltisomu20matched = true; 
       if (trgobj.hasPathName("HLT_IsoMu22_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu22_v*", true, true)) hltisomu22matched = true; 
-      if (trgobj.hasPathName("HLT_IsoMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu22_v*", true, true)) hltisomu24matched = true; 
+      if (trgobj.hasPathName("HLT_IsoMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoMu24_v*", true, true)) hltisomu24matched = true; 
+      if (trgobj.hasPathName("HLT_Mu50_v*" , true, false) or trgobj.hasPathName("HLT_Mu50_v*", true, true)) hltmu50matched = true; 
       
       if (trgobj.hasPathName("HLT_IsoTkMu20_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu20_v*", true, true)) hltisotkmu20matched = true; 
       if (trgobj.hasPathName("HLT_IsoTkMu22_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true)) hltisotkmu22matched = true; 
-      if (trgobj.hasPathName("HLT_IsoTkMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu22_v*", true, true)) hltisotkmu24matched = true; 
-    }
+      if (trgobj.hasPathName("HLT_IsoTkMu24_v*" , true, false) or trgobj.hasPathName("HLT_IsoTkMu24_v*", true, true)) hltisotkmu24matched = true; 
+      if (trgobj.hasPathName("HLT_TkMu50_v*" , true, false) or trgobj.hasPathName("HLT_TkMu50_v*", true, true)) hlttkmu50matched = true; 
 
-    if(hltisomu20matched and hltisomu22matched and hltisomu24matched) hltisomumatched = true;
-    if(hltisotkmu20matched and hltisotkmu22matched and hltisotkmu24matched) hltisotkmumatched = true;            
+      // Double Muon leg 17
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17"))
+	  hltmu17mu8dzmatched_leg17 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17"))
+	  hltmu17mu8matched_leg17 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10L3Filtered17") or trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17"))
+	  hltmu17tkmu8dzmatched_leg17 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10L3Filtered17") or trgobj.hasFilterLabel("hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17"))
+	  hltmu17tkmu8matched_leg17 = true;	   
+      }
+      // Double Muon leg 8
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3pfL1sDoubleMu114L1f0L2pf0L3PreFiltered8") or trgobj.hasFilterLabel("hltL3pfL1sDoubleMu114ORDoubleMu125L1f0L2pf0L3PreFiltered8"))
+	  hltmu17mu8dzmatched_leg8 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltL3pfL1sDoubleMu114L1f0L2pf0L3PreFiltered8") or trgobj.hasFilterLabel("hltL3pfL1sDoubleMu114ORDoubleMu125L1f0L2pf0L3PreFiltered8"))
+	  hltmu17mu8matched_leg8 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltDiMuonGlbFiltered17TrkFiltered8"))
+	  hltmu17tkmu8dzmatched_leg8 = true;	   
+      }
+      if (trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*" , true, false) or trgobj.hasPathName("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*", true, true)){
+	if(trgobj.hasFilterLabel("hltDiMuonGlbFiltered17TrkFiltered8"))
+	  hltmu17tkmu8matched_leg8 = true;	   
+      }
+    }
+      
+    if(hltisomu24matched or hltmu50matched) hltmumatched = true;
+    if(hltisotkmu24matched or hlttkmu50matched) hlttkmumatched = true;            
     if(not tagmuontriggermatch.getParameter<bool>("requiremuonhlt")) triggermatched = true;    
 
-    if(not triggermatched and (hltisomu20matched || hltisomu22matched || hltisomu24matched || hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched))
+    if(not triggermatched and (hltisomu20matched || hltisomu22matched || hltisomu24matched || hltisotkmu20matched || hltisotkmu22matched || hltisotkmu24matched || hltmu50matched || hlttkmu50matched))
       std::cout<<"Problem with the trigger matching for muons --> triggermathc should be always >= than the big or "<<std::endl;
     
     // matched to mu20
@@ -368,13 +439,37 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     // matched to IsoMu24
     if (verticesH->size() != 0 and hltisotkmu24matched) 
       outputhlttkmu24muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // matched to mu50
+    if (verticesH->size() != 0 and hltmu50matched) 
+      outputhltmu50muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    // matched to Mu50
+    if (verticesH->size() != 0 and hlttkmu50matched) 
+      outputhlttkmu50muonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to mu20 || mu22 || mu24
-    if (verticesH->size() != 0 and hltisomumatched) 
+    if (verticesH->size() != 0 and hltmumatched) 
       outputhltmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
     // matched to IsoMu20 || IsoMu22 || IsoMu24
-    if (verticesH->size() != 0 and hltisotkmumatched) 
+    if (verticesH->size() != 0 and hlttkmumatched) 
       outputhlttkmumuonrefs->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
-				
+
+    if (verticesH->size() != 0 and hltmu17mu8matched_leg17)
+      outputhltmu17mu8muonrefs_leg17->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17mu8matched_leg8)
+      outputhltmu17mu8muonrefs_leg8->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17tkmu8matched_leg17)
+      outputhltmu17tkmu8muonrefs_leg17->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17tkmu8matched_leg8)
+      outputhltmu17tkmu8muonrefs_leg8->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+
+    if (verticesH->size() != 0 and hltmu17mu8dzmatched_leg17)
+      outputhltmu17mu8dzmuonrefs_leg17->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17mu8dzmatched_leg8)
+      outputhltmu17mu8dzmuonrefs_leg8->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17tkmu8dzmatched_leg17)
+      outputhltmu17tkmu8dzmuonrefs_leg17->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    if (verticesH->size() != 0 and hltmu17tkmu8dzmatched_leg8)
+      outputhltmu17tkmu8dzmuonrefs_leg8->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
+    
     // Loose muons
     if (verticesH->size() != 0 and 
 	muon::isLooseMuon(*muons_iter) and 
@@ -395,6 +490,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	  fabs(muons_iter->eta()) < tagtightmuons.getParameter<double>("etacut")) 
 	outputtightmuons->push_back(*muons_iter);            
     }
+    ///
     munvtxvector.push_back(float(verticesH->size()));
     muwgtvector.push_back(wgt);
         
@@ -482,9 +578,8 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	hltele115matched = true;
     }
 
-    if(triggermatched)
-       
-    if(hltele24eta2p1wploosematched or
+    if(triggermatched or
+       hltele24eta2p1wploosematched or
        hltele25eta2p1wptightmatched or
        hltele27eta2p1wploosematched or
        hltele27eta2p1wptightmatched or
@@ -492,10 +587,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
        hltele105matched or
        hltele115matched) hltelematched = true;
     
-    if (not tagelectrontriggermatch.getParameter<bool>("requireelectronhlt")) {
-      std::cout<<"not consider matching since running on MC "<<std::endl;
-      triggermatched = true;    
-    }
+    if (not tagelectrontriggermatch.getParameter<bool>("requireelectronhlt")) triggermatched = true;    
     
     
     if(not triggermatched and 
@@ -503,7 +595,7 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	hltele27eta2p1wploosematched or hltele27eta2p1wptightmatched or
 	hltele27wptightmatched or hltele105matched or hltele115matched))
       std::cout<<"Problem with the trigger matching for electrons --> triggermathcing should be always >= than the big or "<<std::endl;
-
+    
     if(fabs(electrons_iter->eta()) < 1 and hltele27wptightmatched and not hltele27eta2p1wploosematched)
       std::cout<<"Problem with electorns "<<endl;
     
@@ -699,8 +791,19 @@ void LeptonTnPInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.put(outputhlttkmu22muonrefs,"hlttkmu22muonrefs");
   iEvent.put(outputhltmu24muonrefs,  "hltmu24muonrefs");
   iEvent.put(outputhlttkmu24muonrefs,"hlttkmu24muonrefs");
+  iEvent.put(outputhltmu50muonrefs,  "hltmu50muonrefs");
+  iEvent.put(outputhlttkmu50muonrefs,"hlttkmu50muonrefs");
   iEvent.put(outputhltmumuonrefs,    "hltmumuonrefs");
   iEvent.put(outputhlttkmumuonrefs,  "hlttkmumuonrefs");
+
+  iEvent.put(outputhltmu17mu8muonrefs_leg17,    "hltmu17mu8Leg17");
+  iEvent.put(outputhltmu17mu8muonrefs_leg8,    "hltmu17mu8Leg8");
+  iEvent.put(outputhltmu17mu8dzmuonrefs_leg17,    "hltmu17mu8dzLeg17");
+  iEvent.put(outputhltmu17mu8dzmuonrefs_leg8,    "hltmu17mu8dzLeg8");
+  iEvent.put(outputhltmu17tkmu8muonrefs_leg17,    "hltmu17tkmu8Leg17");
+  iEvent.put(outputhltmu17tkmu8muonrefs_leg8,    "hltmu17tkmu8Leg8");
+  iEvent.put(outputhltmu17tkmu8dzmuonrefs_leg17,    "hltmu17tkmu8dzLeg17");
+  iEvent.put(outputhltmu17tkmu8dzmuonrefs_leg8,    "hltmu17tkmu8dzLeg8");
   
   iEvent.put(outputloosemuonrefs, "loosemuonrefs");
   iEvent.put(outputtightmuonrefs, "tightmuonrefs");
