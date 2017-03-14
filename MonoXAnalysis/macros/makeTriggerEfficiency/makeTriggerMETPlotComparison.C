@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZmm, string inputFileMC,string outputDIR){
+void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZmm, string inputFileMC,string outputDIR, bool isWen){
 
   gROOT->SetBatch(kTRUE);
   system(("mkdir -p "+outputDIR).c_str());
@@ -19,9 +19,10 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   TGraphAsymmErrors* graph_file4 = NULL;
   if(inputFile3)
     graph_file3 = (TGraphAsymmErrors*) ((TEfficiency*) inputFile3->Get("efficiency_wmn"))->CreateGraph();
-  if(inputFile3)
+  if(inputFile3 and not isWen)
     graph_file4 = (TGraphAsymmErrors*) ((TEfficiency*) inputFile3->Get("efficiency_zmm"))->CreateGraph();
-  
+  else if(inputFile3 and isWen)
+    graph_file4 = (TGraphAsymmErrors*) ((TEfficiency*) inputFile3->Get("efficiency_wen"))->CreateGraph();
 
   TCanvas* canvas = new TCanvas("canvas","",600,625);
   canvas->cd();
@@ -50,11 +51,19 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   CMS_lumi(canvas,"35.9");
   TLegend leg (0.5,0.35,0.8,0.55);
   leg.AddEntry(graph_file1,"W #rightarrow #mu#nu Data","EPL");
-  leg.AddEntry(graph_file2,"Z #rightarrow #mu#mu Data","EPL");
+  if(isWen)
+    leg.AddEntry(graph_file2,"W #rightarrow e#nu Data","EPL");
+  else
+    leg.AddEntry(graph_file2,"Z #rightarrow #mu#mu Data","EPL");
+
   if(graph_file3) 
     leg.AddEntry(graph_file3,"W #rightarrow #mu#nu MC","EPL");
-  if(graph_file4) 
+  if(graph_file4 and not isWen) 
     leg.AddEntry(graph_file4,"Z #rightarrow #mu#mu MC","EPL");
+  else if(graph_file4 and isWen) 
+    leg.AddEntry(graph_file4,"W #rightarrow e#nu MC","EPL");
+
+
   leg.Draw("same");
 
   canvas->SaveAs((outputDIR+"/comparisonTurnOn.png").c_str(),"png");
@@ -104,7 +113,11 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
 
   TLegend leg2 (0.2,0.25,0.55,0.5);
   leg2.AddEntry(ratio_band_up_data,"W #rightarrow #mu#nu (Data) / W #rightarrow #mu#nu (MC) ","L");
-  leg2.AddEntry(ratio_band_up_mc,"Z #rightarrow #mu#mu (Data) / Z #rightarrow #mu#mu (MC) ","L");
+  if(isWen)
+    leg2.AddEntry(ratio_band_up_mc,"W #rightarrow e#nu (Data) / W #rightarrow e#nu (MC) ","L");
+  else
+    leg2.AddEntry(ratio_band_up_mc,"Z #rightarrow #mu#mu (Data) / Z #rightarrow #mu#mu (MC) ","L");
+
   leg2.Draw("same");
 
   ratio_band_up_mc->GetYaxis()->SetRangeUser(0.9,1.05);
@@ -126,7 +139,11 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   ratio_band_up_data->Write("scalefactor_wmn");
   ratio_band_up_mc->GetXaxis()->SetRangeUser(0.,1500);
   ratio_band_up_mc->GetYaxis()->SetRangeUser(0.,1.05);
-  ratio_band_up_mc->Write("scalefactor_zmm");
+  if(not isWen)
+    ratio_band_up_mc->Write("scalefactor_zmm");
+  else
+    ratio_band_up_mc->Write("scalefactor_wen");
+
   TGraphAsymmErrors* eff_zvv = (TGraphAsymmErrors*) ((TEfficiency*) inputFile3->Get("efficiency_zvv"))->CreateGraph();
   TGraphAsymmErrors* eff_wjet = (TGraphAsymmErrors*) ((TEfficiency*) inputFile3->Get("efficiency_wjet"))->CreateGraph();
   eff_zvv->GetYaxis()->SetRangeUser(0.,1.05);
@@ -138,6 +155,9 @@ void makeTriggerMETPlotComparison(string inputFileDataWmn, string inputFileDataZ
   graph_file1->Write("efficiency_wmn_data");
   graph_file2->GetXaxis()->SetRangeUser(0.,1500);
   graph_file2->GetYaxis()->SetRangeUser(0.,1.05);
-  graph_file2->Write("efficiency_zmm_data");
+  if(not isWen)
+    graph_file2->Write("efficiency_zmm_data");
+  else
+    graph_file2->Write("efficiency_wen_data");
   outputFile->Close();
 }

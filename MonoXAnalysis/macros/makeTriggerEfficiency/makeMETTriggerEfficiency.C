@@ -28,6 +28,7 @@ static float dphijj      = 1.5;
 static float recoil      = 200;
 static bool  drawUncertaintyBand = false;
 static bool  useDoubleMuonTriggers = true;
+static bool  applyJetSelections = true;
 
 /// plotting result
 void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
@@ -286,10 +287,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       }
       else if(doubleLepton and useDoubleMuonTriggers){
 	if(not *hltdoublemu) continue;
-	cout<<"rejected by muon triggers "<<endl;
+	if(not *hltsinglemu) continue;
       }
-    
-
+      
       efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
       efficiencyMonoVSelections->SetBinContent(6,efficiencyMonoVSelections->GetBinContent(6)+1);
       efficiencyVBFSelections->SetBinContent(6,efficiencyVBFSelections->GetBinContent(6)+1);
@@ -321,7 +321,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
       efficiencyMonoVSelections->SetBinContent(10,efficiencyMonoVSelections->GetBinContent(10)+1);
       efficiencyVBFSelections->SetBinContent(10,efficiencyVBFSelections->GetBinContent(10)+1);
-      if(*jmmdphi < 0.5) continue;      
+      if(applyJetSelections and *jmmdphi < 0.5) continue;      
       efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
       efficiencyMonoVSelections->SetBinContent(11,efficiencyMonoVSelections->GetBinContent(11)+1);
       efficiencyVBFSelections->SetBinContent(11,efficiencyVBFSelections->GetBinContent(11)+1);
@@ -335,18 +335,31 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       }
       
       // MONOJET
-      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
+      if(applyJetSelections and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
 	
 	// monojet vs recoil and met
 	hden_monojet_recoil->Fill(*mmet);
 
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 	  hnum_monojet_recoil->Fill(*mmet);	
 	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
 	}
 	
+	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
+	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
+	}
+      }
+      else if(not applyJetSelections){
+	// monojet vs recoil and met
+	hden_monojet_recoil->Fill(*mmet);
+	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
+	// numerator monojet
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	  hnum_monojet_recoil->Fill(*mmet);	
+	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);	 
+	}	
 	if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
 	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
 	}
@@ -375,7 +388,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	  if((jet1+jet2).M() > mjj){
 	    efficiencyVBFSelections->SetBinContent(14,efficiencyVBFSelections->GetBinContent(14)+1);
 	    hden_vbf_recoil->Fill(*mmet);
-	    if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+	    if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 	      hnum_vbf_recoil->Fill(*mmet);
 	      efficiencyVBFSelections->SetBinContent(15,efficiencyVBFSelections->GetBinContent(15)+1);
 	    }
@@ -386,7 +399,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	  for(size_t ibin = 0; ibin < bins_vbf_mjj.size()-1; ibin++){
 	    if((jet1+jet2).M() > bins_vbf_mjj.at(ibin) and (jet1+jet2).M() <= bins_vbf_mjj.at(ibin+1)){
 	      hden_vbf_mjj.at(ibin)->Fill(*mmet);
-	      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+	      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 		hnum_vbf_mjj.at(ibin)->Fill(*mmet);
 	      }
 	    }
@@ -396,14 +409,14 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    for(size_t ibin = 0; ibin < bins_vbf_detajj.size()-1; ibin++){
 	      if(fabs(jeteta->at(0)-jeteta->at(1)) > bins_vbf_detajj.at(ibin) and fabs(jeteta->at(0)-jeteta->at(1)) <= bins_vbf_mjj.at(ibin+1)){
 		hden_vbf_detajj.at(ibin)->Fill(*mmet);
-		if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+		if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 		  hnum_vbf_detajj.at(ibin)->Fill(*mmet);
 		}
 	      }
 	    }
 	  }
 	  
-	  if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
+	  if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
 	    cout<<"VBF analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<endl;
 	    
 	  }
@@ -464,21 +477,34 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       }
 
       // denominator monojet
-      if(jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
+      if(applyJetSelections and jetpt->at(0) > 100 and fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.1 and jetnhfrac->at(0) < 0.8 and jetchfrac->at(0) < 0.997){
 	hden_monojet_recoil->Fill(*met);
 	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
 	// numerator monojet
-	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110){
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm){
 	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
 	  hnum_monojet_recoil->Fill(*met);	
 	}
 	
-	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
+	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
+	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
+	}
+      }
+      else if(not applyJetSelections){
+	hden_monojet_recoil->Fill(*met);
+	efficiencyMonojetSelections->SetBinContent(12,efficiencyMonojetSelections->GetBinContent(12)+1);
+	// numerator monojet
+	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm){
+	  efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
+	  hnum_monojet_recoil->Fill(*met);	
+	}
+	
+	if(*met > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
 	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*emet<<" ele pt "<<*el1pt<<" ele eta "<<*el1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" met "<<*met<<" calomet "<<*metcalo<<endl;
 	}
       }
 
-      // denominator VBF                                                                                                                                                                               
+      // denominator VBF                                                                                                                                                                         
       if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and *jmmdphi > jetmetdphi){
 
         // charge fraction cut on the central jet                                                                                                                                                     
@@ -500,11 +526,11 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
           if((jet1+jet2).M() > mjj){
             efficiencyVBFSelections->SetBinContent(14,efficiencyVBFSelections->GetBinContent(14)+1);
             hden_vbf_recoil->Fill(*met);
-            if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+            if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
               hnum_vbf_recoil->Fill(*met);
 	      efficiencyVBFSelections->SetBinContent(15,efficiencyVBFSelections->GetBinContent(15)+1);
             }
-            if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110)){
+            if(*mmet > 800 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm170 or *hltmwm300 or *hltmwm100 or *hltmwm110 or *hltjm)){
               cout<<"VBF analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1pfmet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<endl;
 	      
             }
@@ -515,7 +541,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	  for(size_t ibin = 0; ibin < bins_vbf_mjj.size()-1; ibin++){
 	    if((jet1+jet2).M() > bins_vbf_mjj.at(ibin) and (jet1+jet2).M() <= bins_vbf_mjj.at(ibin+1)){
 	      hden_vbf_mjj.at(ibin)->Fill(*met);
-	      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+	      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 		hnum_vbf_mjj.at(ibin)->Fill(*met);
 	      }
 	    }
@@ -525,7 +551,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    for(size_t ibin = 0; ibin < bins_vbf_detajj.size()-1; ibin++){
 	      if(fabs(jeteta->at(0)-jeteta->at(1)) > bins_vbf_detajj.at(ibin) and fabs(jeteta->at(0)-jeteta->at(1)) <= bins_vbf_mjj.at(ibin+1)){
 		hden_vbf_detajj.at(ibin)->Fill(*met);
-		if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300){
+		if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
 		  hnum_vbf_detajj.at(ibin)->Fill(*met);
 		}
 	      }

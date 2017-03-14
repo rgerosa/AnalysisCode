@@ -7,9 +7,12 @@
 // recoil binning for monojet                                                                                                                                                                    
 vector <float> bins_monojet_recoil = {50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 230., 240., 250., 265., 280., 300, 320., 340., 360., 380., 400., 430., 460., 490., 520, 550., 580., 610., 650., 700., 740., 800., 900., 1000.,1250};
 
-enum class Sample {sig,wmn,zmm,zee};
+enum class Sample {sig,wmn,wen,zmm,zee};
 
 static bool makeSelectionGen = false;
+static bool applyJetSelections = true;
+static bool askForTriggerDenominator = true;
+static bool computeAsFunctionOfMET = false;
 
 void calculateSumWeight(vector<TTree*> gentree, vector<double> & wgtsum){
 
@@ -38,6 +41,22 @@ void calculateSumWeight(vector<TTree*> gentree, vector<double> & wgtsum){
   }
 }
 
+////////////////
+TH1F* metCalo_SR_pas = new TH1F("metCalo_SR_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metCalo_WM_pas = new TH1F("metCalo_WM_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metCalo_ZM_pas = new TH1F("metCalo_ZM_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_SR_pas = new TH1F("metPF_SR_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_WM_pas = new TH1F("metPF_WM_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_ZM_pas = new TH1F("metPF_ZM_pas","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+
+TH1F* metCalo_SR_fail = new TH1F("metCalo_SR_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metCalo_WM_fail = new TH1F("metCalo_WM_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metCalo_ZM_fail = new TH1F("metCalo_ZM_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_SR_fail = new TH1F("metPF_SR_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_WM_fail = new TH1F("metPF_WM_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+TH1F* metPF_ZM_fail = new TH1F("metPF_ZM_fail","",bins_monojet_recoil.size()-1,&bins_monojet_recoil[0]);
+
+//////////
 void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sample & sample, vector<double> wgtsum, float luminosity){
   
   cout<<"Loop on trees "<<endl;
@@ -62,11 +81,18 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
     TTreeReaderValue<UChar_t> hltmwm300  (reader,"hltmetwithmu300");
     TTreeReaderValue<UChar_t> hltmwm90   (reader,"hltmetwithmu90");
     TTreeReaderValue<UChar_t> hltjm      (reader,"hltjetmet");
+    TTreeReaderValue<UChar_t> hltsingleel (reader,"hltsingleel");
+    TTreeReaderValue<UChar_t> hltsinglemu (reader,"hltsinglemu");
+    TTreeReaderValue<UChar_t> hltdoublemu (reader,"hltdoublemu");
     TTreeReaderValue<float>   mu1pt      (reader,"mu1pt");
     TTreeReaderValue<float>   mu1eta     (reader,"mu1eta");
     TTreeReaderValue<float>   mu1phi     (reader,"mu1phi");
     TTreeReaderValue<int>     mu1id      (reader,"mu1id");
     TTreeReaderValue<int>     mu1pid     (reader,"mu1pid");
+    TTreeReaderValue<float>   el1pt      (reader,"el1pt");
+    TTreeReaderValue<float>   el1eta     (reader,"el1eta");
+    TTreeReaderValue<float>   el1phi     (reader,"el1phi");
+    TTreeReaderValue<int>     el1id      (reader,"el1id");
     TTreeReaderValue<float>   mu2pt      (reader,"mu2pt");
     TTreeReaderValue<float>   mu2eta     (reader,"mu2eta");
     TTreeReaderValue<float>   mu2phi     (reader,"mu2phi");
@@ -119,7 +145,11 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
       if(*nbjets   != 0)    continue;
       if(*ntaus    != 0)    continue;
       if(*nphotons  != 0)   continue;
-      if(*nelectrons != 0 ) continue;
+      if(sample != Sample::wen){
+	if(*nelectrons != 0 ) continue;
+      }
+      else
+	if(*nmuons != 0 ) continue;
 
       if(not *fcsc)  continue;
       if(not *fcsct) continue;
@@ -133,18 +163,23 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
 
       // apply calo met cleaning
       if(not makeSelectionGen and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
-      
-      // apply jet pt selections
-      if(*nincjets < 1) continue;
-      if(jetpt->size() == 0) continue;
-      if(jetpt->at(0) < 100) continue;
-      if(fabs(jeteta->at(0)) > 2.5) continue;
-      if(jetchfrac->at(0) < 0.1) continue;
-      if(jetnhfrac->at(0) > 0.8) continue;
 
-      // apply jet-met dphi--> not for gen level analysis
-      if(not makeSelectionGen and *jmmdphi < 0.5) continue;
-      
+      if(askForTriggerDenominator and sample == Sample::wmn and not *hltsinglemu) continue;
+      else if(askForTriggerDenominator and sample == Sample::zmm and (not *hltdoublemu or not *hltsinglemu)) continue;
+      else if(askForTriggerDenominator and sample == Sample::wen and not *hltsingleel) continue;
+      // apply jet pt selections
+      if(applyJetSelections){
+	if(*nincjets < 1) continue;
+	if(jetpt->size() == 0) continue;
+	if(jetpt->at(0) < 100) continue;
+	if(fabs(jeteta->at(0)) > 2.5) continue;
+	if(jetchfrac->at(0) < 0.1) continue;
+	if(jetnhfrac->at(0) > 0.8) continue;
+
+	// apply jet-met dphi--> not for gen level analysis
+	if(not makeSelectionGen and *jmmdphi < 0.5) continue;
+      }
+
       // apply standard reco-level cuts
       if(not makeSelectionGen){	
 	if(sample == Sample::wmn){
@@ -156,6 +191,17 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
 	  if(dphi > TMath::Pi())
 	    dphi = 2*TMath::Pi()-dphi;
 	  float mtw = sqrt(2*(*mu1pt)*(*met)*(1-cos(dphi)));
+	  if(mtw > 160) continue;
+	}
+	if(sample == Sample::wen){
+	  if(*el1pt < 40) continue;
+	  if(fabs(*el1eta) > 2.5) continue;
+	  if(*el1id  !=1) continue;
+	  if(*nelectrons !=1) continue;
+	  float dphi = fabs(*el1phi-*metphi);
+	  if(dphi > TMath::Pi())
+	    dphi = 2*TMath::Pi()-dphi;
+	  float mtw = sqrt(2*(*el1pt)*(*met)*(1-cos(dphi)));
 	  if(mtw > 160) continue;
 	}
 	else if(sample == Sample::zmm){
@@ -192,10 +238,44 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
       double puwgt = 1;
       if(*nvtx < 60)
 	puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-      
-      hden->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
-      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
-	hnum->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));     
+      if(sample != Sample::wen)
+	hden->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+      else
+	hden->Fill(*met,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+
+      if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	if(sample != Sample::wen)
+	  hnum->Fill(*mmet,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));     
+	  else
+	  hnum->Fill(*met,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));     
+
+	if(sample == Sample::sig){
+	  metCalo_SR_pas->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_SR_pas->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}
+	else if(sample == Sample::wmn){
+	  metCalo_WM_pas->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_WM_pas->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}
+	else if(sample == Sample::zmm){
+	  metCalo_ZM_pas->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_ZM_pas->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}	
+      }
+      else{
+	if(sample == Sample::sig){
+	  metCalo_SR_fail->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_SR_fail->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}
+	else if(sample == Sample::wmn){
+	  metCalo_WM_fail->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_WM_fail->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}
+	else if(sample == Sample::zmm){
+	  metCalo_ZM_fail->Fill(*metcalo,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	  metPF_ZM_fail->Fill(*metpf,luminosity*(*xsec)*(*wgt)*puwgt/wgtsum.at(itree));
+	}
+      }
     }
     cout<<endl;
     itree++;
@@ -320,7 +400,8 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   cout<<"######### Calculate Weights for : W+jets "<<endl;
   calculateSumWeight(gentree_wjet,wgtsum_wjet);
   cout<<"######### Calculate Weights for : Zll "<<endl;
-  calculateSumWeight(gentree_zll,wgtsum_zll);
+  if(not computeAsFunctionOfMET)
+    calculateSumWeight(gentree_zll,wgtsum_zll);
 
   /////// start analysis
   TF1 *fitfunc_monojet_recoil_zvv = new TF1("fitfunc_monojet_recoil_zvv",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
@@ -346,6 +427,13 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   hnum_monojet_recoil_wmn->Sumw2();
   hden_monojet_recoil_wmn->Sumw2();
 
+  TF1 *fitfunc_monojet_recoil_wen = new TF1("fitfunc_monojet_recoil_wen",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
+  fitfunc_monojet_recoil_wen->SetParameters(120., 25., 30., 4., 1.);  
+  TH1F* hnum_monojet_recoil_wen = new TH1F("hnum_monojet_recoil_wen", "", bins_monojet_recoil.size()-1, &bins_monojet_recoil[0]);
+  TH1F* hden_monojet_recoil_wen = new TH1F("hden_monojet_recoil_wen", "", bins_monojet_recoil.size()-1, &bins_monojet_recoil[0]);
+  hnum_monojet_recoil_wen->Sumw2();
+  hden_monojet_recoil_wen->Sumw2();
+
   /////// start analysis
   TF1 *fitfunc_monojet_recoil_zmm = new TF1("fitfunc_monojet_recoil_zmm",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
   fitfunc_monojet_recoil_zmm->SetParameters(120., 25., 30., 4., 1.);  
@@ -363,8 +451,14 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   }
   cout<<"######### Loop on W+jets trees for Wmn selection "<<endl;
   makeTriggerAnalysis(tree_wjet,hnum_monojet_recoil_wmn,hden_monojet_recoil_wmn,Sample::wmn,wgtsum_wjet,luminosity);
-  cout<<"######### Loop on Zll+jets trees for Zmm selection "<<endl;
-  makeTriggerAnalysis(tree_zll,hnum_monojet_recoil_zmm,hden_monojet_recoil_zmm,Sample::zmm,wgtsum_zll,luminosity);
+  if(computeAsFunctionOfMET){
+    cout<<"######### Loop on W+jets trees for Wen selection "<<endl;
+    makeTriggerAnalysis(tree_wjet,hnum_monojet_recoil_wen,hden_monojet_recoil_wen,Sample::wen,wgtsum_wjet,luminosity);
+  }
+  else{
+    cout<<"######### Loop on Zll+jets trees for Zmm selection "<<endl;
+    makeTriggerAnalysis(tree_zll,hnum_monojet_recoil_zmm,hden_monojet_recoil_zmm,Sample::zmm,wgtsum_zll,luminosity);
+  }
 
   // Make efficiencies
   TEfficiency* eff_monojet_recoil_zvv = new TEfficiency(*hnum_monojet_recoil_zvv,*hden_monojet_recoil_zvv);
@@ -397,6 +491,16 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   fitfunc_monojet_recoil_wmn->SetLineStyle(7);
   eff_monojet_recoil_wmn->Fit(fitfunc_monojet_recoil_wmn,"RE");
 
+  TEfficiency* eff_monojet_recoil_wen = new TEfficiency(*hnum_monojet_recoil_wen,*hden_monojet_recoil_wen);
+  eff_monojet_recoil_wen->SetMarkerColor(kCyan);
+  eff_monojet_recoil_wen->SetLineColor(kCyan);
+  eff_monojet_recoil_wen->SetMarkerStyle(20);
+  eff_monojet_recoil_wen->SetMarkerSize(1);
+  fitfunc_monojet_recoil_wen->SetLineColor(kCyan);
+  fitfunc_monojet_recoil_wen->SetLineWidth(2);
+  fitfunc_monojet_recoil_wen->SetLineStyle(7);
+  eff_monojet_recoil_wen->Fit(fitfunc_monojet_recoil_wen,"RE");
+
   TEfficiency* eff_monojet_recoil_zmm = new TEfficiency(*hnum_monojet_recoil_zmm,*hden_monojet_recoil_zmm);
   eff_monojet_recoil_zmm->SetMarkerColor(kCyan);
   eff_monojet_recoil_zmm->SetLineColor(kCyan);
@@ -428,14 +532,20 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   if(not applyGenSelection)
     fitfunc_monojet_recoil_wjet->Draw("Lsame");
   fitfunc_monojet_recoil_wmn->Draw("Lsame");
-  fitfunc_monojet_recoil_zmm->Draw("Lsame");
+  if(not computeAsFunctionOfMET)
+    fitfunc_monojet_recoil_zmm->Draw("Lsame");
+  else
+    fitfunc_monojet_recoil_wen->Draw("Lsame");
 
   eff_monojet_recoil_zvv->Draw("EPsame");
   if(not applyGenSelection)
-    eff_monojet_recoil_wjet->Draw("EPsame");
+    eff_monojet_recoil_wjet->Draw("EPsame"); 
   eff_monojet_recoil_wmn->Draw("EPsame");
-  eff_monojet_recoil_zmm->Draw("EPsame");
-
+  if(not computeAsFunctionOfMET)
+    eff_monojet_recoil_zmm->Draw("EPsame");
+  else
+    eff_monojet_recoil_wen->Draw("EPsame");
+  
   TLegend leg (0.6,0.3,0.9,0.5);
   leg.SetFillColor(0);
   leg.SetFillStyle(0);
@@ -444,7 +554,10 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   if(not applyGenSelection)
     leg.AddEntry(eff_monojet_recoil_wjet,"W-jet SR","EPL");
   leg.AddEntry(eff_monojet_recoil_wmn,"W #rightarrow #mu#nu","EPL");
-  leg.AddEntry(eff_monojet_recoil_zmm,"Z #rightarrow #mu#mu","EPL");
+  if(not computeAsFunctionOfMET)
+    leg.AddEntry(eff_monojet_recoil_zmm,"Z #rightarrow #mu#mu","EPL");
+  else
+    leg.AddEntry(eff_monojet_recoil_wen,"W #rightarrow e#nu","EPL");
   leg.Draw("same");
 
   canvas->SaveAs((outputDIR+"/metTriggerEfficiencyMC_monojet_recoil.png").c_str(),"png");
@@ -468,13 +581,20 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   if(not applyGenSelection)
     fitfunc_monojet_recoil_wjet->Draw("Lsame");
   fitfunc_monojet_recoil_wmn->Draw("Lsame");
-  fitfunc_monojet_recoil_zmm->Draw("Lsame");
-  
+  if(not computeAsFunctionOfMET)
+    fitfunc_monojet_recoil_zmm->Draw("Lsame");
+  else
+    fitfunc_monojet_recoil_wen->Draw("Lsame");
+
   eff_monojet_recoil_zvv->Draw("EPsame");
   if(not applyGenSelection)
     eff_monojet_recoil_wjet->Draw("EPsame");
   eff_monojet_recoil_wmn->Draw("EPsame");
-  eff_monojet_recoil_zmm->Draw("EPsame");
+  if(not computeAsFunctionOfMET)
+    eff_monojet_recoil_zmm->Draw("EPsame");
+  else
+    eff_monojet_recoil_wen->Draw("EPsame");
+  
   leg.Draw("same");
 
   canvas->SaveAs((outputDIR+"/metTriggerEfficiencyMC_monojet_recoil_zoom.png").c_str(),"png");
@@ -487,13 +607,43 @@ void makeMETTriggerEfficiencyMC(string inputDIR, string outputDIR, float luminos
   if(not applyGenSelection)
     fitfunc_monojet_recoil_wjet->Write("func_wjet");
   fitfunc_monojet_recoil_wmn->Write("func_wmn");
-  fitfunc_monojet_recoil_zmm->Write("func_zmm");
- 
+  if(not computeAsFunctionOfMET)
+    fitfunc_monojet_recoil_zmm->Write("func_zmm");
+  else
+    fitfunc_monojet_recoil_wen->Write("func_zee");
+
   eff_monojet_recoil_zvv->Write("efficiency_zvv");
   if(not applyGenSelection)
     eff_monojet_recoil_wjet->Write("efficiency_wjet");
   eff_monojet_recoil_wmn->Write("efficiency_wmn");
-  eff_monojet_recoil_zmm->Write("efficiency_zmm");
+  if(not computeAsFunctionOfMET)
+    eff_monojet_recoil_zmm->Write("efficiency_zmm");
+  else
+    eff_monojet_recoil_wen->Write("efficiency_wen");
+
+  outputFile->mkdir("Distributions");
+  outputFile->cd("Distributions");
+
+  metCalo_SR_pas->Write("metCalo_SR_pas");
+  metCalo_WM_pas->Write("metCalo_WM_pas");
+  metCalo_ZM_pas->Write("metCalo_ZM_pas");
+  metCalo_SR_fail->Write("metCalo_SR_fail");
+  metCalo_WM_fail->Write("metCalo_WM_fail");
+  metCalo_ZM_fail->Write("metCalo_ZM_fail");
+  metPF_SR_pas->Write("metPF_SR_pas");
+  metPF_WM_pas->Write("metPF_WM_pas");
+  metPF_ZM_pas->Write("metPF_ZM_pas");
+  metPF_SR_fail->Write("metPF_SR_fail");
+  metPF_WM_fail->Write("metPF_WM_fail");
+  metPF_ZM_fail->Write("metPF_ZM_fail");
+  hnum_monojet_recoil_zvv->Write("recoil_Zvv_pass");
+  hnum_monojet_recoil_wjet->Write("recoil_WJet_pass");
+  hnum_monojet_recoil_wmn->Write("recoil_WM_pass");
+  hnum_monojet_recoil_zmm->Write("recoil_ZM_pass");
+  hden_monojet_recoil_zvv->Write("recoil_Zvv_fail");
+  hden_monojet_recoil_wjet->Write("recoil_WJet_fail");
+  hden_monojet_recoil_wmn->Write("recoil_WM_fail");
+  hden_monojet_recoil_zmm->Write("recoil_ZM_fail");
   
   outputFile->Close();
   
