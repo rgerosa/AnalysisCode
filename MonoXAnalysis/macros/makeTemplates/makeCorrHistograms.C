@@ -1416,12 +1416,12 @@ void  makezwjcorhist(const string & znunuFile,
 	TH1* kfact_mix_zvv_up = (TH1*) kfact_nloewk_zvv->Clone("kfact_mix_zvv_up");
 	kfact_mix_zvv_up->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_mix_zvv_up->GetNbinsX(); iBin++)
-	  kfact_mix_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))+0.1*kfact_dmix_zvv->GetBinContent(iBin));
+	  kfact_mix_zvv_up->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))+kfact_dmix_zvv->GetBinContent(iBin));
 	
 	TH1* kfact_mix_wln_up = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_up");
 	kfact_mix_wln_up->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_mix_wln_up->GetNbinsX(); iBin++)
-	  kfact_mix_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))+0.1*kfact_dmix_wln->GetBinContent(iBin));
+	  kfact_mix_wln_up->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))+kfact_dmix_wln->GetBinContent(iBin));
 	
 	zhists.push_back(kfact_mix_zvv_up);
 	whists.push_back(kfact_mix_wln_up);            
@@ -1431,12 +1431,12 @@ void  makezwjcorhist(const string & znunuFile,
 	TH1* kfact_mix_zvv_dw = (TH1*) kfact_nloewk_zvv->Clone("kfact_mix_zvv_dw");
 	kfact_mix_zvv_dw->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_mix_zvv_dw->GetNbinsX(); iBin++)
-	  kfact_mix_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))-0.1*kfact_dmix_zvv->GetBinContent(iBin));
+	  kfact_mix_zvv_dw->SetBinContent(iBin,kfact_nloqcd_zvv->GetBinContent(iBin)*(1+kfact_nloewk_zvv->GetBinContent(iBin))-kfact_dmix_zvv->GetBinContent(iBin));
 	
 	TH1* kfact_mix_wln_dw = (TH1*) kfact_nloewk_wln->Clone("kfact_mix_wln_dw");
 	kfact_mix_wln_dw->Reset("ICES");
 	for(int iBin = 1; iBin <= kfact_mix_wln_dw->GetNbinsX(); iBin++)
-	  kfact_mix_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))-0.1*kfact_dmix_wln->GetBinContent(iBin));
+	  kfact_mix_wln_dw->SetBinContent(iBin,kfact_nloqcd_wln->GetBinContent(iBin)*(1+kfact_nloewk_wln->GetBinContent(iBin))-kfact_dmix_wln->GetBinContent(iBin));
 	
 	zhists.push_back(kfact_mix_zvv_dw);
 	whists.push_back(kfact_mix_wln_dw);            
@@ -2100,10 +2100,11 @@ void makegamcorhist( const string & znunuFile,
 	TH1* apdfhist = (TH1*) kffileUnc->Get("anlo1/anlo1_pdfUp");
 	TH1* anloOrig = (TH1*) kffileUnc->Get("anlo1/anlo1_nominal");
 	apdfhist->Divide(anloOrig);
-	zhists.push_back(znlohist); 	
-	zhists.push_back(zpdfhist);
+        zhists.push_back(znlohist);
+        zhists.push_back(zpdfhist);
 	ahists.push_back(anlohist);
-	ahists.push_back(apdfhist);
+        ahists.push_back(aunlopshist);
+        ahists.push_back(apdfhist);
       }      
     }
     else{

@@ -25,7 +25,7 @@ options.register(
         'in case one want to run on signal files at gen level');
 
 options.register(
-        'minBosonPt',100,VarParsing.multiplicity.singleton, VarParsing.varType.float,
+        'minBosonPt',70,VarParsing.multiplicity.singleton, VarParsing.varType.float,
         'apply a minimum boson pt requirement, which is DM mediator in case of DM signals');
    
 options.parseArguments()

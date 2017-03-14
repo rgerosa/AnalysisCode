@@ -6,28 +6,50 @@ from WMCore.Configuration import Configuration
 
 config = Configuration()
 
-pyCfgParams = ["outputName=gentree.root",               
-               ]
+pyCfgParams = ['isMC=True',
+               'filterOnHLT=False',
+               'filterHighMETEvents=True',
+               'metCut=50',
+               'applyL2L3Residuals=False',
+               'addQGLikelihood=False',
+               'addPileupJetID=False',
+               'addPuppiJets=False',
+               'addPuppiMET=False',
+               'addEGMSmear=False',
+               'addMVAMet=False',
+               'addMETSystematics=False',
+               'useOfficialMETSystematics=False',
+               'addMETBreakDown=False',
+               'addSubstructureCHS=False',
+               'addSubstructurePuppi=False',
+               'miniAODProcess=PAT'
+               'outputFileName=tree.root',
+               'isTriggerTree=True',
+               'addTriggerObjects=False',
+               'nThreads=4',
+               'isCrab=True']
 
 config.section_('General')
 config.General.transferLogs = False
-config.General.workArea     = 'crab_projects_MC_80X_gen'  # Make sure you set this parameter
+config.General.workArea     = 'crab_projects_MC_80X_trigger'  # Make sure you set this parameter
 
 config.section_('JobType')
-config.JobType.psetName         = '../gentree.py'
+config.JobType.psetName         = '../tree.py'
 config.JobType.pluginName       = 'Analysis'
-config.JobType.outputFiles      = ['gentree.root']
+config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
-config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 1
+config.JobType.numCores         = 4
+config.JobType.maxMemoryMB      = 2500
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 100000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionGen_05_03_2016/'
+config.Data.unitsPerJob   = 50000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_13_03_2017_trigger/'
 config.Data.allowNonValidInputDataset = True
+config.Data.publication   = False
+
 
 config.section_('Site')
 config.Site.storageSite = 'T2_CH_CERN'
@@ -35,11 +57,11 @@ config.Site.storageSite = 'T2_CH_CERN'
 ## multicrab section
 if __name__ == '__main__':
 
+    from CRABAPI.RawCommand import crabCommand
+
     print "################################"
     print "#### Begin multicrab script ####"
     print "################################"
-
-    from CRABAPI.RawCommand import crabCommand
     
     ## to submit jobs
     def submit(config):
@@ -70,22 +92,18 @@ if __name__ == '__main__':
         handle = open(SamplesFile,'r')
         exec(handle)
         handle.close()
-
+     
         # samples to be analysed                   
         for key, value in samples.iteritems():
            print key, ' -> ', value
-
-           ## set name
+        
            config.General.requestName = key
-           ## set dataset
-           config.Data.inputDataset   = value[0]
-           ## set list of python cfg pset parameters extending it
+           config.Data.inputDataset = value[0]
            config.JobType.pyCfgParams = list(pyCfgParams)
            config.JobType.pyCfgParams.extend(value[1])
-           ## declare submitter
-           p = Process(target=submit, args=(config,))           
-           ## start application
+        
            # see https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3FAQ#Multiple_submission_fails_with_a
+           p = Process(target=submit, args=(config,))
            p.start()
            p.join()
 
@@ -102,3 +120,4 @@ if __name__ == '__main__':
                 os.system("ls " + SamplesFile + " | awk '{print \" crab kill " + SamplesFile + "/\"$1" + "\" " + additionalConfiguration + "\"}' | /bin/sh") 
             else :
                 os.system("ls " + SamplesFile + " | awk '{print \" crab status " + SamplesFile + "/\"$1}' | /bin/sh")
+

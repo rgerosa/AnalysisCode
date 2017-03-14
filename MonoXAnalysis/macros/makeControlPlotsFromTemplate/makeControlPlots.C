@@ -932,7 +932,7 @@ void makeControlPlots(string templateFileName,
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
   if((category == Category::monojet or category == Category::inclusive) and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.8,1.2);
   else if(category == Category::monoV and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::twojet and controlRegion != "qcd")

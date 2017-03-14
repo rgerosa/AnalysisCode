@@ -3,7 +3,7 @@
 
 static bool saveTextFile = true;
 static bool dumpInfo     = false;
-static bool plotSignificance = false;
+static bool plotSignificance = true;
 static float lumiScale_Higgs = 15;
 static float lumiScale_DM = 2.78;
 static bool addStatUncPull = false;
@@ -125,9 +125,9 @@ void prepostSig_fromScan(string   fitFilename,
   TH1* ggZHhist = NULL;  
 
   // signals for axial vector model 
-  mjhist_av = (TH1*) monoj_av->FindObjectAny("signal_signal_80116000001");
-  mwhist_av = (TH1*) monow_av->FindObjectAny("signal_signal_80116000001");
-  mzhist_av = (TH1*) monoz_av->FindObjectAny("signal_signal_80116000001");
+  mjhist_av = (TH1*) monoj_av->FindObjectAny("signal_signal_80120000001");
+  mwhist_av = (TH1*) monow_av->FindObjectAny("signal_signal_80120000001");
+  mzhist_av = (TH1*) monoz_av->FindObjectAny("signal_signal_80120000001");
   mjhist_av->Scale(1.,"width");
   mwhist_av->Scale(1.,"width");
   mzhist_av->Scale(1.,"width");
@@ -498,7 +498,7 @@ void prepostSig_fromScan(string   fitFilename,
   if(not plotSBFit)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
   if(not plotSBFit)
-    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 1.6 TeV","L");
+    leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 2.0 TeV","L");
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -776,7 +776,7 @@ void prepostSig_fromScan(string   fitFilename,
     }
     else if(plotSBFit)
       totalSignal = (TH1*) sighist->Clone("totalSignal");
-    
+
     canvas->cd();
     pad2->cd();
 
@@ -784,7 +784,6 @@ void prepostSig_fromScan(string   fitFilename,
       frame2->GetYaxis()->SetTitle("(S+B)/B");
     else
       frame2->GetYaxis()->SetTitle("(S_{fit}+B)/B");
-
     TH1* SoverB_s  = NULL; 
     TH1* SoverB_av = NULL;
     TH1* SoverB    = NULL;
@@ -795,7 +794,6 @@ void prepostSig_fromScan(string   fitFilename,
     }
     else
       SoverB = (TH1*) totalSignal->Clone("SoverB");
-
 
     if(not plotSBFit and SoverB_s and SoverB_av){
       SoverB_s->SetLineColor(kBlack);

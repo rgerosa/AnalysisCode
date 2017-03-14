@@ -226,7 +226,6 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_dw",8);
 	}
-	
 	if(useNewTheoryUncertainty){
 
 	  cout<<"systematics on Z/gamma ratio --> NNLO EWK up"<<endl;
@@ -300,7 +299,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_dw",20);	
-	  
+
 	  cout<<"systematics on Z/gamma ratio --> PDF"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -314,7 +313,6 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     /////////////////
     /// Z/W ratio ///
     /////////////////
-
     if(addZWratio){
     
       cout<<"make Z/W ratio"<<endl;
@@ -789,19 +787,19 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   }
   if(not skipDataAnalysis and not runOnlySignal){
     cout<<"start signal region data"<<endl;
-    //sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    //    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
+    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
     lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wmunu region data"<<endl;
-    //lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
+    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start zee region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
+    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wenu region data"<<endl;
-    //    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
+    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;
@@ -873,3 +871,4 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   outfile.Close();
 }
 
+>
