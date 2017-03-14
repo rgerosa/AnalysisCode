@@ -6,7 +6,7 @@ static bool dumpInfo     = false;
 static bool plotSignificance = false;
 static float lumiScale_Higgs = 15;
 static float lumiScale_DM = 2.78;
-static bool addStatUncPull = true;
+static bool addStatUncPull = false;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -45,12 +45,6 @@ void prepostSig_fromScan(string   fitFilename,
   }
   else{
 
-    canvas = new TCanvas("canvas", "canvas", 600, 800);
-    canvas->SetTickx(1);
-    canvas->SetTicky(1);
-    canvas->cd();
-    canvas->SetBottomMargin(0.38);
-    canvas->SetRightMargin(0.06);
     canvas = new TCanvas("canvas", "canvas", 600, 800);
     canvas->SetTickx(1);
     canvas->SetTicky(1);
@@ -191,8 +185,7 @@ void prepostSig_fromScan(string   fitFilename,
   }
   qchist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/QCD").c_str());    
   gmhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/GJets").c_str());    
-  //  tohist = (TH1*) ((TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str()))->Clone("tohist");    
-  tohist = (TH1*) ((TH1*)pfile->Get(("shapes_fit_b/"+dir+"/total_background").c_str()))->Clone("tohist");    
+  tohist = (TH1*) ((TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str()))->Clone("tohist");    
   tphist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());    
 
   if(plotSBFit)
@@ -523,9 +516,9 @@ void prepostSig_fromScan(string   fitFilename,
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -586,10 +579,11 @@ void prepostSig_fromScan(string   fitFilename,
   mchist->Add(znhist);
   if(ewkwhist) mchist->Add(ewkwhist);
   if(ewkzhist) mchist->Add(ewkzhist);
-  if(plotSBFit and sighist){
-    mchist->Add(sighist);
-    tohist->Add(sighist);
-  }
+
+  //  if(plotSBFit and sighist){
+  //    mchist->Add(sighist);
+  //    tohist->Add(sighist);
+  //  }
 
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
@@ -685,7 +679,10 @@ void prepostSig_fromScan(string   fitFilename,
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    if(addStatUncPull)
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    else
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);

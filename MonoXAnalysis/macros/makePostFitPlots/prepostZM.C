@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool addStatUncPull = true;
+static bool addStatUncPull = false;
 
 void prepostZM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -295,9 +295,9 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -414,8 +414,8 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"Post-fit","PLE");
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
-  //  if(not addPullPlot)
-  leg2->Draw("same");
+  if(not addPullPlot)
+    leg2->Draw("same");
 
 
   if(addPullPlot){
@@ -434,7 +434,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    if(addStatUncPull)
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    else
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
@@ -463,7 +466,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
       if(addStatUncPull)
         data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(pohist->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
       else
-        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1),2);
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1));
  
       data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
     }
