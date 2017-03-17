@@ -26,7 +26,7 @@ pyCfgParams = ['isMC=True',
                'miniAODProcess=PAT',
                'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
                'outputFileName=tree.root',
-               'nThreads=3',
+               'nThreads=4',
                'usePrivateSQliteJEC=True',
                'isCrab=True']
 
@@ -40,14 +40,14 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2450
-config.JobType.numCores         = 3
+config.JobType.numCores         = 4
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_Signal_28_01_2017/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_Signal_28_01_2017/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

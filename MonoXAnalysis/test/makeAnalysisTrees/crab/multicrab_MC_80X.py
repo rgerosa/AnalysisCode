@@ -10,7 +10,7 @@ pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'setHLTFilterFlag=True',
                'filterHighMETEvents=True',
-               'metCut=175',
+               'metCut=190',
                'applyL2L3Residuals=False',
                'addQGLikelihood=True',
                'addPileupJetID=False',
@@ -24,10 +24,9 @@ pyCfgParams = ['isMC=True',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
                'outputFileName=tree.root',
-               'usePrivateSQliteJEC=True',
-               'nThreads=3',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v8',
+               'nThreads=4',
                'isCrab=True']
 
 config.section_('General')
@@ -40,14 +39,14 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2480
-config.JobType.numCores         = 3
+config.JobType.numCores         = 4
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 35000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_28_01_2016/'
+config.Data.unitsPerJob   = 25000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_28_01_2016/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

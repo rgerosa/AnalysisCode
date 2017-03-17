@@ -1,4 +1,4 @@
-void makeYieldTableFromMLFit(string workspaceFileName, string inputFileName, string category, bool isZeynep){
+void makeYieldTableFromMLFit(string inputFileName, string category, bool isZeynep){
 
   if(category != "monojet" and category != "monoV"){
     cerr<<"Problem in category definition check --> exit "<<endl;
@@ -6,38 +6,19 @@ void makeYieldTableFromMLFit(string workspaceFileName, string inputFileName, str
   }
 
   TFile* inputFile = TFile::Open(inputFileName.c_str());
-  TFile* workspaceFile = TFile::Open(workspaceFileName.c_str());
-  RooWorkspace* ws = NULL;
 
-  if(not isZeynep and category == "monojet")
-    ws = (RooWorkspace*) workspaceFile->Get("SR_MJ");
-  else if(not isZeynep and category == "monoV")
-    ws = (RooWorkspace*) workspaceFile->Get("SR_MV");
-  else if(isZeynep and category == "monojet")
-    ws = (RooWorkspace*) workspaceFile->Get("combinedws");
-  else if(isZeynep and category == "monoV")
-    ws = (RooWorkspace*) workspaceFile->Get("combinedws");
-
-  TH1* datahist = NULL;
-  if(not isZeynep and category == "monojet"){
-    RooDataHist* datatemp = (RooDataHist*) ws->data("data_obs_SR_MJ");
-    RooRealVar* met_obs  = (RooRealVar*) ws->var("met_MJ");
-    datahist = datatemp->createHistogram("data_obs",*met_obs);
+  TGraphAsymmErrors* datahist = NULL;
+  if(isZeynep and category == "monojet"){
+    datahist = (TGraphAsymmErrors*) inputFile->Get("shapes_fit_b/monojet_signal/data");
+  }
+  else if(not isZeynep and category == "monojet"){
+    datahist = (TGraphAsymmErrors*) inputFile->Get("shapes_fit_b/ch1_ch1/data");
+  }
+  else if(isZeynep and category == "monoV"){
+    datahist = (TGraphAsymmErrors*) inputFile->Get("shapes_fit_b/monov_signal/data");
   }
   else if(not isZeynep and category == "monoV"){
-    RooDataHist* datatemp = (RooDataHist*) ws->data("data_obs_SR_MV");
-    RooRealVar* met_obs  = (RooRealVar*) ws->var("met_MV");
-    datahist = datatemp->createHistogram("data_obs",*met_obs);
-  }
-  else if(isZeynep and category == "monojet"){
-    RooDataHist* datatemp = (RooDataHist*) ws->data("monojet_signal_data");
-    RooRealVar* met_obs  = (RooRealVar*) ws->var("met_monojet");
-    datahist = datatemp->createHistogram("data_obs",*met_obs);
-  }
-  else if(not isZeynep and category == "monoV"){
-    RooDataHist* datatemp = (RooDataHist*) ws->data("monov_signal_data");
-    RooRealVar* met_obs  = (RooRealVar*) ws->var("met_monov");
-    datahist = datatemp->createHistogram("data_obs",*met_obs);
+    datahist = (TGraphAsymmErrors*) inputFile->Get("shapes_fit_b/ch2_ch1/data");
   }
 
   TH1* zvvhist = NULL;
@@ -99,14 +80,17 @@ void makeYieldTableFromMLFit(string workspaceFileName, string inputFileName, str
   outputfile.open(Form("yield_%s.txt",category.c_str()));
   outputfile<<"$E_{T}^{miss}$ (GeV) & Observed & $Z \\rightarrow \\nu\\nu$+jets & $W \\rightarrow \\ell\\nu$+jets & Top & Dibosons & Other & Total Bkg. \\\\"<<endl; 
   for(int ibin = 0; ibin < totalhist->GetNbinsX(); ibin++){
+    double x,y;
+    datahist->GetPoint(ibin,x,y);
+    
     outputfile<<Form("%d-%d",int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)),int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2)))<<" & ";
-    outputfile<<Form("%d",int(datahist->GetBinContent(ibin+1)))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
-    outputfile<<Form("%f $\\pm$ %f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
+    outputfile<<Form("%d",int(y*(int(totalhist->GetXaxis()->GetBinLowEdge(ibin+2))-int(totalhist->GetXaxis()->GetBinLowEdge(ibin+1)))))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",zvvhist->GetBinContent(ibin+1)*zvvhist->GetBinWidth(ibin+1),zvvhist->GetBinError(ibin+1)*zvvhist->GetBinWidth(ibin+1))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",wjethist->GetBinContent(ibin+1)*wjethist->GetBinWidth(ibin+1),wjethist->GetBinError(ibin+1)*wjethist->GetBinWidth(ibin+1))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",tophist->GetBinContent(ibin+1)*tophist->GetBinWidth(ibin+1),tophist->GetBinError(ibin+1)*tophist->GetBinWidth(ibin+1))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",dibosonhist->GetBinContent(ibin+1)*dibosonhist->GetBinWidth(ibin+1),dibosonhist->GetBinError(ibin+1)*dibosonhist->GetBinWidth(ibin+1))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",other->GetBinContent(ibin+1)*other->GetBinWidth(ibin+1),other->GetBinError(ibin+1)*other->GetBinWidth(ibin+1))<<" & ";
+    outputfile<<Form("%.3f $\\pm$ %.3f",totalhist->GetBinContent(ibin+1)*totalhist->GetBinWidth(ibin+1),totalhist->GetBinError(ibin+1)*totalhist->GetBinWidth(ibin+1))<<" \\\\ ";
     outputfile<<"\n";
   }
   outputfile.close();

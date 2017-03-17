@@ -147,7 +147,19 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		setattr(process,"patPFMetT1"+postfix,cms.EDProducer("CorrectedPATMETProducer",
 	       							    src = cms.InputTag("patPFMet"+postfix),
        								    srcCorrections = cms.VInputTag(cms.InputTag("patPFMetT1Corr"+postfix,"type1"))))
+
+
+		#### calo met
+		if not hasattr(process,"metrawCalo"+postfix):
+			setattr(process,"metrawCalo"+postfix, cms.EDProducer("RecoMETExtractor",
+									     correctionLevel = cms.string('rawCalo'),
+									     metSource = cms.InputTag(metCollection,"","@skipCurrentProcess")
+									     ))
 			
+	                ## re-cast PFMets into PAT objects                                                                                                                                   
+			addMETCollection(process, labelName='patCaloMet'+postfix, metSource='metrawCalo'+postfix)
+			getattr(process,"patCaloMet"+postfix).addGenMET = cms.bool(False)
+
 
 		setattr(process,"metSysProducer"+postfix,
 			cms.EDProducer("METSystematicsProducer",
@@ -259,14 +271,28 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 						       
 					 
 			## final slimmed MET			
-		setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
-							      caloMET = cms.InputTag("patPFMet"+postfix),
-							      rawVariation = cms.InputTag("patPFMet"+postfix),
-							      runningOnMiniAOD = cms.bool(True),
-							      src = cms.InputTag("patPFMetT1"+postfix),
-							      t01Variation = cms.InputTag(metCollection,"","@skipCurrentProcess"),
-							      t1Uncertainties = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"%s"),
-							      tXYUncForRaw = cms.InputTag(metCollection,"","@skipCurrentProcess"),
-							      tXYUncForT1 = cms.InputTag('patPFMetT1Txy'+postfix),
-							      t1SmearedVarsAndUncs = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"Smear%s")
-							      ))
+		       	setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
+								      caloMET = cms.InputTag("patCaloMet"+postfix),
+								      rawVariation = cms.InputTag("patPFMet"+postfix),
+								      runningOnMiniAOD = cms.bool(True),
+								      src = cms.InputTag("patPFMetT1"+postfix),
+								      t01Variation = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      t1Uncertainties = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"%s"),
+								      tXYUncForRaw = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      tXYUncForT1 = cms.InputTag('patPFMetT1Txy'+postfix),
+								      t1SmearedVarsAndUncs = cms.InputTag("metSysProducer"+postfix,"patPFMetT1"+postfix+"Smear%s")
+								      ))
+
+		else:
+			setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
+								      caloMET = cms.InputTag("patCaloMet"+postfix),
+								      rawVariation = cms.InputTag("patPFMet"+postfix),
+								      runningOnMiniAOD = cms.bool(True),
+								      src = cms.InputTag("patPFMetT1"+postfix),
+								      t01Variation = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      tXYUncForRaw = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      tXYUncForT1 = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      t1Uncertainties = cms.InputTag(metCollection,"","@skipCurrentProcess"),
+								      t1SmearedVarsAndUncs = cms.InputTag(metCollection,"","@skipCurrentProcess")
+								      ))
+				 

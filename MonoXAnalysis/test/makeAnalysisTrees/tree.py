@@ -317,17 +317,18 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/48E5D6C8-F93C-E611-8A3E-02163E014439.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/528A6ECD-F93C-E611-B0A1-02163E01383E.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
-		process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/03Feb2017_ver2-v2/100000/000C0045-12EB-E611-9BEC-008CFA197C34.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
+		#process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/23Sep2016-v1/50000/004F3A63-2E84-E611-AEFB-00266CFFC43C.root')
 		#process.source.fileNames.append('/store/data/Run2016G/MET/MINIAOD/23Sep2016-v1/90000/124A2693-B38A-E611-BC48-002590FC5ACC.root')
 
 	else:
 #		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
 #		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/ZJetsToNuNu_HT-1200To2500_13TeV-madgraph/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/16486DBC-1D22-E611-BB00-002590D601B8.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
-#		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/620000/0429E5A7-80C3-E611-B89C-0242AC130003.root')
+		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
+
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/SMM_MonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/8C1FE6FF-69D0-E611-91A5-FA163EF2F0A3.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Pseudo_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v2/60000/D462BEC9-41DA-E611-83AD-02163E015C72.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Vector_MonoW_NLO_Mphi-1000_Mchi-300_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/747DC36C-A2D0-E611-B518-0CC47A4D75F0.root')

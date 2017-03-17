@@ -37,7 +37,7 @@ void prepostSig(string   fitFilename,
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    pad2->SetGridy(1);
+    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -62,7 +62,7 @@ void prepostSig(string   fitFilename,
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    pad2->SetGridy();
+    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -70,7 +70,7 @@ void prepostSig(string   fitFilename,
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    pad3->SetGridy();
+    //    pad3->SetGridy();
   }
 
   TColor *color; // for color definition with alpha                                                                                                                             
@@ -582,6 +582,7 @@ void prepostSig(string   fitFilename,
     frame2->GetYaxis()->CenterTitle();
   }
 
+  frame2->GetXaxis()->SetTickLenght(0.025);
   frame2->Draw();
 
 
@@ -592,8 +593,8 @@ void prepostSig(string   fitFilename,
   dphist->SetLineColor(kRed);
   dphist->SetMarkerColor(kRed);
 
-  dahist->SetLineColor(kBlue);
-  dahist->SetMarkerColor(kBlue);
+  dahist->SetLineColor(TColor::GetColor("#0066ff"));
+  dahist->SetMarkerColor(TColor::GetColor("#0066ff"));
 
   dphist->SetMarkerSize(1);
   dphist->SetMarkerStyle(24);
@@ -620,16 +621,16 @@ void prepostSig(string   fitFilename,
   for (int i = 1; i <= mchist->GetNbinsX(); i++) mchist->SetBinError(i, 0);
   for (int i = 1; i <= mphist->GetNbinsX(); i++) mphist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < dphist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < dphist->GetN(); iPoint++){
     double x,y;
     dphist->GetPoint(iPoint,x,y);
-    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint));
+    dphist->SetPoint(iPoint,x,y/mphist->GetBinContent(iPoint+1));
     dphist->SetPointError(iPoint,dphist->GetErrorXlow(iPoint),dphist->GetErrorXhigh(iPoint),
-                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint));
+                          dphist->GetErrorYlow(iPoint)/mphist->GetBinContent(iPoint+1),dphist->GetErrorYhigh(iPoint)/mphist->GetBinContent(iPoint+1));
     dahist->GetPoint(iPoint,x,y);
-    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint));
+    dahist->SetPoint(iPoint,x,y/mchist->GetBinContent(iPoint+1));
     dahist->SetPointError(iPoint,dahist->GetErrorXlow(iPoint),dahist->GetErrorXhigh(iPoint),
-                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint));
+                          dahist->GetErrorYlow(iPoint)/mchist->GetBinContent(iPoint+1),dahist->GetErrorYhigh(iPoint)/mchist->GetBinContent(iPoint+1));
   }
 
   
@@ -670,10 +671,10 @@ void prepostSig(string   fitFilename,
   pad2->RedrawAxis("G sameaxis");
 
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
-  leg2->SetFillColor(0);
-  leg2->SetFillStyle(1);
+  //leg2->SetFillColor(0);
+  //leg2->SetFillStyle(1);
+  //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
-  leg2->SetLineColor(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"post-fit","PLE");
   leg2->AddEntry(dphist,"pre-fit","PLE");
@@ -709,6 +710,7 @@ void prepostSig(string   fitFilename,
     frame3->GetXaxis()->SetLabelSize(0.04);
     frame3->GetXaxis()->SetTitleSize(0.05);
     frame3->GetYaxis()->SetNdivisions(504);
+    frame3->GetXaxis()->SetTickLenght(0.025);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
 
@@ -716,14 +718,14 @@ void prepostSig(string   fitFilename,
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
+      dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
-      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
+      data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint)+dthist->GetErrorYhigh(iPoint))/2);
     }
     data_pull_post->Add(mchist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
       data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1)); // divide by sigma data                                                                

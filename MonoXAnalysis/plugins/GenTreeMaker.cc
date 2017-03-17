@@ -333,7 +333,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   else  if (gensH.isValid() && (sample == 23 || sample == 24)) { // Z+jets or W+jets
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-      
+
       if (abs(gens_iter->pdgId()) == sample && gens_iter->status() == 22) { // take some specific status particles
 	mvid   = gens_iter->pdgId();
 	mvmass = gens_iter->mass();

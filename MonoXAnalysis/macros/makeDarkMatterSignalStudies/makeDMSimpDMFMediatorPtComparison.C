@@ -223,4 +223,61 @@ void makeDMSimpDMFMediatorPtComparison(string inputDIR_DMSimp,
   canvas->SetLogy();
   canvas->SaveAs((outputDIR+"/spectrumComparison_"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/spectrumComparison_"+postfix+".pdf").c_str(),"pdf");
+
+  // plot with ratio
+  TCanvas* canvas2 = new TCanvas("canvas2","",600,700);
+  canvas2->SetBottomMargin(0.3);
+  TPad* pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+  pad2->SetTopMargin(0.7);
+  pad2->SetRightMargin(0.06);
+  pad2->SetFillColor(0);
+  pad2->SetFillStyle(0);
+
+  canvas2->cd();
+  TH1* frame2 =  (TH1*) frame->Clone("frame2");
+  frame->GetXaxis()->SetTitleSize(0);
+  frame->GetXaxis()->SetLabelSize(0);
+  frame->Draw();
+  CMS_lumi(canvas2,Form("%1.f",lumi));
+  for(auto histo : mediatorPt_dmsimp){
+    histo->Draw("hist same");
+  }
+  for(auto histo : mediatorPt_dmf){
+    histo->Draw("EP same");
+  }
+  leg.Draw("same");
+
+  pad2->Draw();
+  pad2->cd();  
+
+  frame2->GetYaxis()->SetTitle("DMSimp / DMF");
+  frame2->GetXaxis()->SetTitleOffset(1.1);
+  frame2->GetYaxis()->SetTitleOffset(1.2);
+  frame2->GetYaxis()->SetLabelSize(0.04);
+  frame2->GetYaxis()->SetTitleSize(0.04);
+  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->Draw();
+
+  vector<TH1*> ratios;
+  float min_ratio = 1000000;
+  float max_ratio = 0;
+
+  for(size_t ihist = 0; ihist < mediatorPt_dmsimp.size(); ihist++){
+    ratios.push_back((TH1*) mediatorPt_dmsimp.at(ihist)->Clone(Form("ratio_%d",int(ihist))));
+    ratios.back()->Divide(mediatorPt_dmf.at(ihist));
+    for(int iBin = 0; iBin < mediatorPt_dmsimp.at(ihist)->GetNbinsX()-4; iBin++){
+      if(ratios.back()->GetBinContent(iBin+1) < min_ratio) min_ratio = ratios.back()->GetBinContent(iBin+1);
+      if(ratios.back()->GetBinContent(iBin+1) > max_ratio) max_ratio = ratios.back()->GetBinContent(iBin+1);
+    }
+    ratios.back()->Draw("hist same");
+  }
+  frame2->GetYaxis()->SetRangeUser(min_ratio*0.8,max_ratio*1.2);
+  
+  canvas2->SetLogy();
+  canvas2->SaveAs((outputDIR+"/spectrumComparison_"+postfix+"_withRatio.png").c_str(),"png");
+  canvas2->SaveAs((outputDIR+"/spectrumComparison_"+postfix+"_withRatio.pdf").c_str(),"pdf");
+
+  
+  
 }
+ 

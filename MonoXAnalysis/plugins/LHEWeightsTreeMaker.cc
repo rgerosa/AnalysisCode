@@ -168,10 +168,12 @@ void LHEWeightsTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetu
       if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")) continue;
       else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")) continue;
       else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")) continue;
+      else if(weight_name.Contains("rwgt")) continue;
       else if(qcdscale.size() != 0){
 	if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end()) 
 	  wgtqcd.push_back(weights[i].wgt);      
       }
+
       else if(qcdscale.size() == 0 and ((std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009) or (std::stoi(weights[i].id) >= 1 and std::stoi(weights[i].id) <= 9)))
 	wgtqcd.push_back(weights[i].wgt);
       else

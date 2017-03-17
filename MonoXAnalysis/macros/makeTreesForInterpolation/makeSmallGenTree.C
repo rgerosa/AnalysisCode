@@ -18,15 +18,24 @@ static float prunedMassMax  = 105.;
 static float tau2tau1       = 0.6;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float detajjVBF      = 3.5;
-static float mjjVBF         = 1000;
-static float dphijjVBF      = 1.5;
+static float detajjVBF      = 10;
+static float mjjVBF         = 10000;
+static float dphijjVBF      = 0;
 static bool  useMoriondSetup = true;
 
-void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory){
+void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory, bool isDMSimp = true, bool isSMM = false){
+
+  if(interaction != "Axial" and interaction != "Vector" and interaction != "Scalar" and interaction != "PseudoScalar" and interaction != "SMM"){
+    cerr<<"Interaction not known ---> return "<<endl;
+    return;
+  }
+
+  if(signalType != "MonoJ" and signalType != "MonoW" and signalType != "MonoZ"){
+    cerr<<"Signal process not known ---> return "<<endl;
+    return;
+  }    
 
   system(("mkdir -p "+outputDirectory).c_str());
-
   TChain* chain = new TChain("tree/tree");
 
   cout<<"Read all the files from inputDirectory "<<inputDirectory<<endl;
@@ -90,14 +99,17 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     for(auto ifile : triggerfile_MET_binned)
       triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));
   }
-
-
     
   /////////////////////
   //// output file ////
   /////////////////////
+  string postfix = "";
+  if(not isSMM and not isDMSimp)
+    postfix = "_DMF";
+  else if(not isDMSimp and isSMM)
+    postfix = "_SMM";
 
-  TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+".root").c_str(),"RECREATE");
+  TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+postfix+".root").c_str(),"RECREATE");
   outputFile->cd();
   TTree* outputTree = new TTree("tree","tree");
 
@@ -117,8 +129,14 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   float  recoLeadAK4JetPt,recoLeadAK4JetEta,recoLeadAK4JetPhi,recoLeadAK4JetMass; // reco leading jet
   float  recoTrailingAK4JetPt,recoTrailingAK4JetEta,recoTrailingAK4JetPhi,recoTrailingAK4JetMass; // reco leading jet
   float  recoMjj, recoDetajj, recoDphijj;
+  float  xsec;
+  double sumwgt;
+  vector<float> gSM, gDM, couplingwgt, yDM, theta;
 
   outputTree->Branch("id",&id,"id/I");  // id = 0 means event not selections, id = 1 means mono-jet, id = 2 means mono-V, id = 3 means VBF 
+  outputTree->Branch("xsec",   &xsec,   "xsec/F");
+  outputTree->Branch("sumwgt",   &sumwgt,   "sumwgt/D");
+
   outputTree->Branch("genVBosonPt",   &genVBosonPt,   "genVBosonPt/F");  
   outputTree->Branch("genVBosonEta",  &genVBosonEta,  "genVBosonEta/F");  
   outputTree->Branch("genVBosonPhi",  &genVBosonPhi,  "genVBosonPhi/F");  
@@ -192,13 +210,25 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   outputTree->Branch("weightPU", &weightPU, "weightPU/F");  
   outputTree->Branch("weightTurnOn", &weightTurnOn, "weightTurnOn/F");  
   outputTree->Branch("genWeight", &genWeight, "genWeight/F");  
-  
+
+  if(isDMSimp){
+    outputTree->Branch("gSM","vector<float>",&gSM);
+    outputTree->Branch("gDM","vector<float>",&gDM);
+    outputTree->Branch("couplingwgt","vector<float>",&couplingwgt);
+  }
+  else if(isSMM){
+    outputTree->Branch("yDM","vector<float>",&yDM);
+    outputTree->Branch("theta","vector<float>",&theta);
+    outputTree->Branch("couplingwgt","vector<float>",&couplingwgt);
+  }
+
   // setup read input file                                                                                                                                                  
   TTreeReader myReader(chain);
 
   TTreeReaderValue<unsigned int> nvtx (myReader,"nvtx");
   TTreeReaderValue<unsigned int> event (myReader,"event");
   TTreeReaderValue<float>  wgt        (myReader,"wgt");
+  TTreeReaderValue<float>  xs         (myReader,"xsec");
 
   TTreeReaderValue<UChar_t> hltm90    (myReader,"hltmet90");
   TTreeReaderValue<UChar_t> hltm100   (myReader,"hltmet100");
@@ -276,17 +306,57 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   TTreeReaderValue<float> genmet     (myReader,"genmet");
   TTreeReaderValue<float> genmetphi  (myReader,"genmetphi");
   TTreeReaderValue<float> jmmdphi    (myReader,"incjetmumetdphimin4");
- 
+  TTreeReaderValue<float> samplemedM (myReader,"samplemedM");
+  TTreeReaderValue<float> sampledmM (myReader,"sampledmM");
+
+  TTreeReaderValue<vector<float> >* gV = NULL;
+  TTreeReaderValue<vector<float> >* gA = NULL;
+  TTreeReaderValue<vector<float> >* gDMV = NULL;
+  TTreeReaderValue<vector<float> >* gDMA = NULL;
+  TTreeReaderValue<vector<float> >* gTheta = NULL;
+  TTreeReaderValue<vector<float> >* wgt_coupling = NULL;
+
+  if(isDMSimp){
+    gV = new TTreeReaderValue<vector<float> >(myReader,"gV");
+    gA = new TTreeReaderValue<vector<float> >(myReader,"gA");
+    gDMV = new TTreeReaderValue<vector<float> >(myReader,"gDMV");
+    gDMA = new TTreeReaderValue<vector<float> >(myReader,"gDMA");
+    wgt_coupling = new TTreeReaderValue<vector<float> >(myReader,"couplingwgt");
+  }
+  else if(isSMM){
+    gDMV = new TTreeReaderValue<vector<float> >(myReader,"gDMV");
+    gTheta = new TTreeReaderValue<vector<float> >(myReader,"gTheta");
+    wgt_coupling = new TTreeReaderValue<vector<float> >(myReader,"couplingwgt");
+  }
 
   // loop on the event and apply selections
   cout<<"Events in the chain "<<chain->GetEntries()<<endl;
 
-  TString fileName;
-  string dmMass;
-  string medMass;
-  vector<string> seglist;
   long int nEvents = 0;
   long int nTotal  = chain->GetEntries();
+  string currentFile = "";
+  int ifile = 0;
+
+  vector<double> sumwgt_vec;
+  cout<<"Calculate sumwgt vector "<<endl;
+  while(myReader.Next()){
+    if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      ifile ++;
+      sumwgt_vec.push_back(0.);
+    }
+    else if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      sumwgt_vec.push_back(0.);
+    }
+    sumwgt_vec.back() += *wgt;    
+  }
+  
+  myReader.SetEntry(0);
+  ifile = 0;
+  currentFile = "";
+
+  cout<<"Loop for event selection "<<endl;
   while(myReader.Next()){
  
     if(int(nEvents) %10000 == 0){
@@ -294,54 +364,24 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
       std::cout<<"\r"<<"Events "<<float(nEvents)/float(nTotal)*100<<"%";
     }
     nEvents++;
-    // extract real mass value of the sample for the interpolation --> read the string of the tree-name
-    TString name_tmp(myReader.GetTree()->GetCurrentFile()->GetName());
-    name_tmp.ReplaceAll(inputDirectory.c_str(),"");
-    if(fileName != name_tmp){
-      seglist.clear();
-      fileName = name_tmp;
-      stringstream name(fileName.Data());
-      string segment;
-    
-      while(getline(name, segment, '/')){
-	seglist.push_back(segment);
-      }
-      
-      TString name_tmp_2 (seglist.at(0).c_str());
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_v2_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_v2_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-madgraph","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-JHUGen","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-1p0_gDM-1p0_13TeV-powheg","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-madgraph","");
-      name_tmp_2.ReplaceAll("_gSM-0p25_gDM-1p0_13TeV-JHUGen","");
-      name_tmp_2.ReplaceAll("_13TeV_powheg_pythia8","");
-      vector<string> seglist_2;
-      string segment_2;
-      stringstream name_2(name_tmp_2.Data());
-      if(interaction != "HiggsInv"){
-	while(getline(name_2, segment_2, '-')){
-	  seglist_2.push_back(segment_2);
-	}
-	dmMass = seglist_2.back();
-	TString tmp (seglist_2.at(seglist_2.size()-2).c_str());
-	tmp.ReplaceAll("_Mchi","");
-	medMass = tmp;
-      }
-      else{
-	while(getline(name_2, segment_2, '_')){
-          seglist_2.push_back(string(TString(segment_2).ReplaceAll("M","").Data()));
-        }
-        medMass = seglist_2.back();
-        dmMass  = "1";
-      }
+
+    if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile != ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      ifile ++;
+      cout<<endl;
+      cout<<"Reading current File "<<currentFile<<endl;
     }
-    
+    else if(dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName() != currentFile and currentFile == ""){
+      currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
+      cout<<endl;
+      cout<<"Reading current file "<<currentFile<<endl;
+    }
+
 
     // Set Branches
-    id = -1;
-    
+    id = -1;    
+    sumwgt = 0;
+    xsec   = 0;
     genVBosonPt   = 0.; genVBosonEta  = 0.; genVBosonPhi  = 0.; genVBosonMass = 0.;
     genAK8JetPt   = 0.; genAK8JetEta  = 0.; genAK8JetPhi  = 0.; genAK8JetMass = 0.; 
     genAK8JetTau2Tau1 = 0.; genAK8JetPrunedMass = 0.;
@@ -363,6 +403,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     weightPU = 1.;
     weightTurnOn = 1.;
     genWeight = 1.;
+    gSM.clear(); gDM.clear(); couplingwgt.clear(); yDM.clear(); theta.clear();
     
     bool isVBF = false;
     bool isMonoV = false;
@@ -437,6 +478,8 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     
     
     // fill branches
+    xsec = *xs;
+    sumwgt = sumwgt_vec.at(ifile);
     genVBosonPt   = *bosonPt;  
     genVBosonPhi  = *bosonPhi;  
     genVBosonEta  = *bosonEta;  
@@ -478,18 +521,18 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     genX1Eta  = *x1Eta;
     genX1Phi  = *x1Phi;
     genX1RealMass = *x1Mass;
-    genX1Mass = stod(dmMass);
+    genX1Mass = *sampledmM;
     genX2Pt   = *x2Pt;
     genX2Eta  = *x2Eta;
     genX2Phi  = *x2Phi;
     genX2RealMass = *x2Mass;
-    genX2Mass = stod(dmMass);
+    genX2Mass = *sampledmM;
 
     genMediatorPt   = *mediatorPt;
     genMediatorEta  = *mediatorEta;
     genMediatorPhi  = *mediatorPhi;
     genMediatorRealMass = *mediatorMass;
-    genMediatorMass = stod(medMass);
+    genMediatorMass = *samplemedM;
 
     pfMetPt   = *mmet;
     pfMetPhi  = *mmetphi;
@@ -549,6 +592,35 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     weightPU     = puhist->GetBinContent(puhist->FindBin(*nvtx));    
     genWeight = *wgt;
 
+    // store coupling 
+    if(isDMSimp and (interaction == "Vector" or interaction == "Scalar")){
+      for(size_t i=0; i < (*gV)->size(); i++){
+	gSM.push_back((*gV)->at(i));
+	gDM.push_back((*gDMV)->at(i));
+	couplingwgt.push_back((*wgt_coupling)->at(i));
+      }
+    }
+    else if(isDMSimp and (interaction == "Axial" or interaction == "PseudoScalar") and (signalType == "MonoJ" or signalType == "MonoZ")){
+      for(size_t i=0; i < (*gA)->size(); i++){
+	gSM.push_back((*gA)->at(i));
+	gDM.push_back((*gDMA)->at(i));
+	couplingwgt.push_back((*wgt_coupling)->at(i));
+      }
+    }
+    else if(isDMSimp and (interaction == "Axial" or interaction == "PseudoScalar") and signalType == "MonoW"){
+      for(size_t i=0; i < (*gA)->size(); i++){
+	gSM.push_back((*gV)->at(i));
+	gDM.push_back((*gDMV)->at(i));
+	couplingwgt.push_back((*wgt_coupling)->at(i));
+      }
+    }
+    else if(isSMM){
+      for(size_t i=0; i < (*gTheta)->size(); i++){
+	yDM.push_back((*gDMV)->at(i));
+	theta.push_back((*gTheta)->at(i));
+	couplingwgt.push_back((*wgt_coupling)->at(i));
+      }
+    }
     outputTree->Fill();       
   }
 

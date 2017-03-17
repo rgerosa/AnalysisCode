@@ -19,13 +19,15 @@ static int  typeOfDMSignal        = 0;     // 0 means both mono-j and mono-V, 1 
 static bool runHiggsInvisible     = false; // run Higgs invisible analysis
 static bool addTop                = false;
 static bool addQCD                = false;
+static bool addTauCR              = false;
 static bool addWgamma             = true; 
 static bool addZgamma             = true;
+static bool addZWratio            = true;
 static bool skipTFsystematics     = false;
 static bool skipDataAnalysis      = false;
 static SamplesNLO nloSamples (false,false,false,false);
 static bool useTheoriestKFactors  = false;
-static bool useNewTheoryUncertainty = false;
+static bool useNewTheoryUncertainty = true;
 
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
@@ -73,6 +75,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     nloSamples.PhotonJetsDIR = "PhotonJetsNLO";
   ////////////////////////////
 
+  ////////// Transfer factors
   if(doCorrectionHistograms){    
 
     if (not skipTFsystematics and (category != Category::monojet and category != Category::monoV) and useNewTheoryUncertainty){
@@ -80,47 +83,60 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       return;
     }
 
+    // NLO QCD + NLO EWK
     cout<<"make correction histogram for Zmm to Znn"<<endl;      
     makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors); 
 
+    // NLO QCD + NLO EWK
     cout<<"make correction histogram for Zee to Znn"<<endl;
     makezeecorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zeefilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors); 
 
+    // NLO QCD + NLO EWK
     cout<<"make correction histogram for Wmn to WJets"<<endl;
     makewmncorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wmnfilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors); 
     
+    // NLO QCD + NLO EWK
     cout<<"make correction histogram for Wen to WJets"<<endl;
     makewencorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wenfilter/",
 		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors); 
 
-    if(category != Category::VBF or (category == Category::VBF and addZgamma)){
-      
+    //////////////////////
+    /// Add Zgamma TFs ///
+    //////////////////////
+
+    if(addZgamma){      
+
+      ///////// no re-weight at all
       cout<<"make correction histogram for Gam+jets to Znn"<<endl;
       makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/", 		   
 		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty);
           
+      ///////// NLO QCD
       cout<<"systematics on Z/gamma ratio --> NLO QCD "<<endl;
       makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 		     "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd",1);
       
+      ////////// NLO QCD + EWK
       cout<<"systematics on Z/gamma ratio --> NLO EWK "<<endl;
       makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		     baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 		   "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
 		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewk",2);
-      
+
+      ////////// SYS uncertainties
       if(not skipTFsystematics){	
+
 	if(not useNewTheoryUncertainty){
 	  cout<<"systematics on Z/gamma ratio --> RE 1 "<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
@@ -133,7 +149,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaleup",3);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdscale_up",3);
 	}
 	
 	if(not useNewTheoryUncertainty){
@@ -148,7 +164,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaledw",4);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdscale_dw",4);
 	}
 	
 	if(not useNewTheoryUncertainty){
@@ -156,14 +172,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,"re2",5);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re2",5);
 	}
 	else{
-	  cout<<"systematics on Z/gamma ratio --> NLO EWK up "<<endl;
+	  cout<<"systematics on Z/gamma ratio --> QCD-Shape up "<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_up",5);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",5);
 	}
 	
 	if(not useNewTheoryUncertainty){
@@ -174,11 +190,11 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa2",6);
 	}
 	else{
-	  cout<<"systematics on Z/gamma ratio --> NLO EWK dw"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> QCD shape dw "<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_dw",6);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",6);
 	}
 
 	if(not useNewTheoryUncertainty){
@@ -189,11 +205,11 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",7);
 	}
 	else{
-	  cout<<"systematics on Z/gamma ratio --> SUD-EWK up"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> QCD-Process up"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_up",7);	
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_up",7);	
 	}
 	
 	if(not useNewTheoryUncertainty){
@@ -204,176 +220,261 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fpc",8);
 	}
 	else{
-	  cout<<"systematics on Z/gamma ratio --> SUD-EWK dw"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> QCD-Process dw"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_dw",8);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_dw",8);
 	}
-	
 	if(useNewTheoryUncertainty){
-	  
-	  cout<<"systematics on Z/gamma ratio --> MIX QCD-EWK up"<<endl;
+
+	  cout<<"systematics on Z/gamma ratio --> NNLO EWK up"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_up",9);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_up",9);
 	  
-	  
-	  cout<<"systematics on Z/gamma ratio --> MIX QCD-EWK dw"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> NNLO EWK dw"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_dw",10);	
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_dw",10);	
 	  
-	  cout<<"systematics on Z/gamma ratio --> QCD-Shape up"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> NNLO Miss EWK up 1"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",11);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_1",11);	
 	  
-	  cout<<"systematics on Z/gamma ratio --> QCD-Shape dw"<<endl;
+	  cout<<"systematics on Z/gamma ratio --> NNLO Miss EWK dw 1"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",12);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_1",12);	
 	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Miss EWK up 2"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_2",13);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Miss EWK dw 2"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_2",14);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Sud EWK up 1"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_1",15);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Sud EWK dw 1"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_1",16);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Sud EWK up 2"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_2",17);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO Sud EWK dw 2"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_2",18);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO MIX QCD-EWK up"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_up",19);	
+	  
+	  cout<<"systematics on Z/gamma ratio --> NNLO MIX QCD-EWK dw"<<endl;
+	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_dw",20);	
+
 	  cout<<"systematics on Z/gamma ratio --> PDF"<<endl;
 	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
 			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",13);
-	  
-	  
-	  cout<<"systematics on Z/gamma ratio --> FP "<<endl;
-	  makegamcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-			 baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
-			 "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fpc",14);
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",21);		  
 	  
 	}
       }
     }
 
-    cout<<"make Z/W ratio"<<endl;
-    makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty); 
+    /////////////////
+    /// Z/W ratio ///
+    /////////////////
+    if(addZWratio){
     
-    cout<<"systematics on Z/W ratio --> NLO QCD"<<endl;
-    makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd",1);
+      cout<<"make Z/W ratio"<<endl;
+      makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty); 
       
-    cout<<"systematics on Z/W ratio --> NLO EWK"<<endl;
-    makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		   baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		   category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewk",2);
-
-    if(not skipTFsystematics){      
-
-      if(not useNewTheoryUncertainty){
-	cout<<"systematics on Z/W ratio --> RE 1"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",		   
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re1",3);
-      }
-      else{// only for mono-jet
-	cout<<"systematics on Z/W ratio --> QCD scale up"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",		   
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaleup",3);
-      }
-
-      if(not useNewTheoryUncertainty){
-	cout<<"systematics on Z/W ratio --> FA 1"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa1",4);
-      }
-      else{
-	cout<<"systematics on Z/W ratio --> QCD scale dw"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaledw",4);
-      }
-
-      if(not useNewTheoryUncertainty){
-	cout<<"systematics on Z/W ratio --> RE 2"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re2",5);
-      }
-      else{ //only for mono-jet
-	cout<<"systematics on Z/W ratio --> NLO-EWK up"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_up",5);
-      }
+      cout<<"systematics on Z/W ratio --> NLO QCD"<<endl;
+      makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd",1);
       
-      if(not useNewTheoryUncertainty){
-	cout<<"systematics on Z/W ratio --> FA 2"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa2",6);
-      }
-      else{
-	cout<<"systematics on Z/W ratio --> NLO-EWK dw"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_dw",6);
-      }
-
-      if(not useNewTheoryUncertainty){
-	cout<<"systematics on Z/W ratio --> PDF"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",7);
-      }
-      else{
-	cout<<"systematics on Z/W ratio --> SUD-EWK up"<<endl;
-	makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-		       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_up",7);	
-      }
+      cout<<"systematics on Z/W ratio --> NLO EWK"<<endl;
+      makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+		     baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+		     category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewk",2);
       
-      if(useNewTheoryUncertainty){
-
-	cout<<"systematics on Z/W ratio --> SUD-EWK dw"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_dw",8);
-
-	cout<<"systematics on Z/W ratio --> MIX QCD-EWK up"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_up",9);
-   
-
-	cout<<"systematics on Z/W ratio --> MIX QCD-EWK dw"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_dw",10);	
-
-	cout<<"systematics on Z/W ratio --> QCD-Shape up"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",11);
-
-	cout<<"systematics on Z/W ratio --> QCD-Shape dw"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",12);
-
-	cout<<"systematics on Z/W ratio --> PDF"<<endl;
-        makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
-                       baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                       category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",13);
+      if(not skipTFsystematics){      
+	
+	if(not useNewTheoryUncertainty){
+	  cout<<"systematics on Z/W ratio --> RE 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",		   
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re1",3);
+	}
+	else{// only for mono-jet
+	  cout<<"systematics on Z/W ratio --> QCD scale up"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",		   
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaleup",3);
+	}
+	
+	if(not useNewTheoryUncertainty){
+	  cout<<"systematics on Z/W ratio --> FA 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa1",4);
+	}
+	else{
+	  cout<<"systematics on Z/W ratio --> QCD scale dw"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaledw",4);
+	}
+	
+	if(not useNewTheoryUncertainty){
+	  cout<<"systematics on Z/W ratio --> RE 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re2",5);
+	}
+	else{ //only for mono-jet
+	  cout<<"systematics on Z/W ratio --> QCD-Shape up"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",5);
+	}
+	
+	if(not useNewTheoryUncertainty){
+	  cout<<"systematics on Z/W ratio --> FA 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa2",6);
+	}
+	else{
+	  cout<<"systematics on Z/W ratio --> QCD-Shape dw"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",6);
+	}
+	
+	if(not useNewTheoryUncertainty){
+	  cout<<"systematics on Z/W ratio --> PDF"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",7);
+	}
+	else{
+	  cout<<"systematics on Z/W ratio --> QCD-Proc up"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_up",7);	
+	}
+	
+	if(useNewTheoryUncertainty){
+	  
+	  cout<<"systematics on Z/W ratio --> QCD-Proc dw"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_dw",8);
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO EWK up"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_up",9);
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO EWK dw"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_dw",10);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Miss EWK up 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_1",11);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Miss EWK dw 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_1",12);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Miss EWK up 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_2",13);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Miss EWK dw 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_2",14);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Sud EWK up 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_1",15);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Sud EWK dw 1"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_1",16);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Sud EWK up 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_2",17);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO Sud EWK dw 2"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_2",18);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO MIX QCD-EWK up"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_up",19);	
+	  
+	  cout<<"systematics on Z/W ratio --> NNLO MIX QCD-EWK dw"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_dw",20);	
+	  
+	  cout<<"systematics on Z/W ratio --> PDF"<<endl;
+	  makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR+"/sigfilter/",
+			 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			 category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",21);	
+	  
+	}
       }
     }
 
     // last blocl
-    if(addWgamma and category != Category::VBF){
+    if(addWgamma){
       cout<<"make W/gamma ratio "<<endl;
       makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 		      baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -394,7 +495,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       if(not skipTFsystematics){
 	
-	if(useNewTheoryUncertainty){
+	if(not useNewTheoryUncertainty){
 	  cout<<"systematics W/gamma ratio --> RE 1 "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -406,10 +507,10 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaleup",3);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdscale_up",3);
 	}
 
-	if(useNewTheoryUncertainty){
+	if(not useNewTheoryUncertainty){
 	  cout<<"systematics W/gamma ratio --> FA 1 "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -421,10 +522,10 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcd_scaledw",4);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdscale_dw",4);
 	}
 
-	if(useNewTheoryUncertainty){
+	if(not useNewTheoryUncertainty){
 	  cout<<"systematics W/gamma ratio --> RE 2 "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -432,15 +533,15 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"re2",5);
 	}
 	else{
-	  cout<<"systematics W/gamma ratio --> QCD NLO-EWK up "<<endl;
+	  cout<<"systematics W/gamma ratio --> QCD Shape up "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_up",5);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",5);
 	}
 
 
-	if(useNewTheoryUncertainty){	  
+	if(not useNewTheoryUncertainty){	  
 	  cout<<"systematics W/gamma ratio --> FA 2 "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -448,14 +549,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fa2",6);
 	}
 	else{
-	  cout<<"systematics W/gamma ratio --> QCD NLO-EWK dw "<<endl;
+	  cout<<"systematics W/gamma ratio --> QCD Shape dw "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nloewk_dw",6);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",6);
 	}
 
-	if(useNewTheoryUncertainty){
+	if(not useNewTheoryUncertainty){
 	  cout<<"systematics W/gamma ratio --> PDF "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -463,14 +564,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",7);
 	}
 	else{
-	  cout<<"systematics W/gamma ratio --> Sudakov EWK up "<<endl;
+	  cout<<"systematics W/gamma ratio --> QCD proc up "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_up",7);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_up",7);
 	}
 
-	if(useNewTheoryUncertainty){
+	if(not useNewTheoryUncertainty){
 	  cout<<"systematics on W/gamma ratio --> FP "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",		   
@@ -478,47 +579,92 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"fpc",8);
 	}
 	else{
-	  cout<<"systematics W/gamma ratio --> Sudakov EWK up "<<endl;
+	  cout<<"systematics W/gamma ratio --> QCD proc dw "<<endl;
 	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudewk_dw",8);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdproc_dw",8);
 	}
 
 	if(useNewTheoryUncertainty){
 
-	  cout<<"systematics on W/gamma ratio --> MIX QCD-EWK up"<<endl;
-          makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                         baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
-                         "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-                         category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_up",9);
-	  
-
-          cout<<"systematics on W/gamma ratio --> MIX QCD-EWK dw"<<endl;
-          makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+	  cout<<"systematics on W/gamma ratio --> NNLO EWK up"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
 			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"ewkqcd_dw",10);
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_up",9);
 	  
-          cout<<"systematics on W/gamma ratio --> QCD-Shape up"<<endl;
-          makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                         baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
-                         "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-                         category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_up",11);
+	  cout<<"systematics on W/gamma ratio --> NNLO EWK dw"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnloewk_dw",10);	
 	  
-          cout<<"systematics on W/gamma ratio --> QCD-Shape dw"<<endl;
-          makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                         baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
-                         "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-                         category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"qcdshape_dw",12);
-
-          cout<<"systematics on W/gamma ratio --> PDF"<<endl;
-          makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-                         baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
-                         "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
-                         category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",13);
-
-	  	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Miss EWK up 1"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_1",11);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Miss EWK dw 1"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_1",12);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Miss EWK up 2"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_up_2",13);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Miss EWK dw 2"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"nnlomiss_dw_2",14);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Sud EWK up 1"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_1",15);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Sud EWK dw 1"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_1",16);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Sud EWK up 2"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_up_2",17);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO Sud EWK dw 2"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"sudakov_dw_2",18);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO MIX QCD-EWK up"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_up",19);	
+	  
+	  cout<<"systematics on W/gamma ratio --> NNLO MIX QCD-EWK dw"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"mix_dw",20);	
+	  
+	  cout<<"systematics on W/gamma ratio --> PDF"<<endl;
+	  makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
+			  baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
+			  "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF/FP_v2.root",
+			  category,nloSamples,observables,observables_2D,lumi,outDir,"",runHiggsInvisible,false,useTheoriestKFactors,useNewTheoryUncertainty,"pdf",21);		  	  
 	 
 	}
       }
@@ -610,13 +756,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
 
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZgamma,addZWratio,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
     if(not observables_2D.empty())
-      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZgamma,addZWratio,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
     if(category == Category::VBF){
-      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,false,false,"",addHistoForCutAndCount);
+      fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
       if(not observables_2D.empty())
-	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,false,false,"",addHistoForCutAndCount);
+	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
     }
   }
 
@@ -641,19 +787,19 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   }
   if(not skipDataAnalysis and not runOnlySignal){
     cout<<"start signal region data"<<endl;
-    //sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
+    sigdatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,false,false,runHiggsInvisible,applyPostFitWeights,useTheoriestKFactors);
     // gamma + jets
     cout<<"start gamma+jets region data"<<endl;
-    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,true,applyPostFitWeights,useTheoriestKFactors);
+    gamdatamchist(&outfile,category,observables,observables_2D,nloSamples,lumi,runHiggsInvisible,false,applyPostFitWeights,useTheoriestKFactors);
     // lepton control regions
     cout<<"start zmumu region data"<<endl;
-    //lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
+    lepdatamchist(&outfile,Sample::zmm,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wmunu region data"<<endl;
-    //lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
+    lepdatamchist(&outfile,Sample::wmn,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,false,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start zee region data"<<endl;
-    //lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
+    lepdatamchist(&outfile,Sample::zee,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors); 
     cout<<"start wenu region data"<<endl;
-    //lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
+    lepdatamchist(&outfile,Sample::wen,category,observables,observables_2D,lumi,nloSamples,doShapeSystematics,runHiggsInvisible,false,true,applyPostFitWeights,useTheoriestKFactors);     
     // top control regions
     if(addTop){
       cout<<"start top+mu region data"<<endl;
@@ -667,15 +813,22 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       qcddatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,false,runHiggsInvisible,applyPostFitWeights);
     }
 
+    if(addTauCR){
+      cout<<"start Tau region data"<<endl;
+      taudatamchist(&outfile,category,observables,observables_2D,lumi,nloSamples,false,runHiggsInvisible,applyPostFitWeights);
+    }
+
     //add qcd data templates
     TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016_12p9.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
+
       cout<<"Take templates QCD from data"<<endl;
+
       vector<double> met_bins = selectBinning("met",category);
       TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_dw = new TH1F("qbkghistDD_shapeDw_met","",int(met_bins.size()-1),&met_bins[0]);
-      
+
       TH1F* temp = NULL;
       if(category ==  Category::monojet)
 	temp = (TH1F*) qcdfile_data->FindObjectAny("hQCD_MonoJ_nominal");
@@ -700,6 +853,12 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       
       for(int iBinX = 0; iBinX < qcd_nominal->GetNbinsX(); iBinX++)   
 	qcd_nominal_dw->SetBinContent(iBinX+1,temp->GetBinContent(temp->FindBin(qcd_nominal->GetBinCenter(iBinX+1))));
+      
+
+      /// Scaling for lumi
+      qcd_nominal->Scale(lumi/12.9);
+      qcd_nominal_up->Scale(lumi/12.9);
+      qcd_nominal_dw->Scale(lumi/12.9);
       
       outfile.cd();
       outfile.cd("SR");

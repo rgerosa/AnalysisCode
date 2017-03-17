@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-
+static bool addStatUncPull = false;
 
 void prepostZM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -27,7 +27,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     pad2->SetTopMargin(0.7);
     pad2->SetRightMargin(0.06);
     pad2->SetFillColor(0);
-    pad2->SetGridy(1);
+    //    pad2->SetGridy(1);
     pad2->SetFillStyle(0);
   }
   else{
@@ -52,7 +52,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     pad2->SetFillColor(0);
     pad2->SetFillStyle(0);
     pad2->SetLineColor(0);
-    pad2->SetGridy();
+    //    pad2->SetGridy();
 
     pad3 = new TPad("pad3","pad3",0,0.,1,1.);
     pad3->SetTopMargin(0.76);
@@ -60,7 +60,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     pad3->SetFillColor(0);
     pad3->SetFillStyle(0);
     pad3->SetLineColor(0);
-    pad3->SetGridy();
+    //    pad3->SetGridy();
   }
   
 
@@ -106,10 +106,8 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_ZM").c_str());
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
-  if(category == Category::VBF){
-    ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZM").c_str());
-    ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK").c_str());
-  }
+  ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZM").c_str());
+  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
   
@@ -173,7 +171,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
     for(int iBin = 0; iBin < dthist->GetN(); iBin++){
       double x,y;
-      dthist->GetPoint(iBin+1,x,y);
+      dthist->GetPoint(iBin,x,y);
       DataRate << "   ";
       DataRate << y;
     }
@@ -203,12 +201,13 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   prhist->SetLineColor(kRed);
   prhist->SetLineStyle(7);
   prhist->SetLineWidth(2);
-  pohist->SetLineColor(kBlue);
+  pohist->SetLineColor(TColor::GetColor("#0066ff"));
   pohist->SetLineWidth(2);
   prhist->SetMarkerColor(kRed);
-  pohist->SetMarkerColor(kBlue);
+  pohist->SetMarkerColor(TColor::GetColor("#0066ff"));
   
-  wlhist->SetFillColor(kOrange+1);
+  //  wlhist->SetFillColor(kOrange+1);
+  wlhist->SetFillColor(33);
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
@@ -216,6 +215,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     wlhist->Add(ewkwhist);
     ewkzhist->SetFillColor(kCyan+1);
     ewkzhist->SetLineColor(kBlack);
+  }
+  else{
+    if(ewkwhist) wlhist->Add(ewkwhist);
+    if(ewkzhist) wlhist->Add(ewkzhist);
   }
   
   TH1* frame = (TH1*) pohist->Clone("frame");
@@ -243,7 +246,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
   frame->Draw();
   
-  CMS_lumi(canvas,"36.4");
+  CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -267,7 +270,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   dthist->SetLineColor(kBlack);
   dthist->Draw("EP SAME");
   
- 
+
   TLegend* leg = new TLegend(0.50, 0.62, 0.95, 0.90);
   leg->SetBorderSize(0);
   leg->SetFillColor(0);
@@ -292,23 +295,24 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
-  frame2->GetYaxis()->SetNdivisions(5);
+  frame2->GetYaxis()->SetNdivisions(3);
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
     if(category == Category::VBF and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
     frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetYaxis()->SetLabelSize(0.04);
     frame2->GetYaxis()->SetTitleSize(0.04);
     frame2->GetXaxis()->SetLabelSize(0.04);
@@ -317,12 +321,13 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   else{
     frame2->GetYaxis()->SetTitleOffset(1.9);
     frame2->GetYaxis()->SetLabelSize(0.03);
+    frame2->GetXaxis()->SetTitleOffset(1.1);
     frame2->GetXaxis()->SetLabelSize(0);
     frame2->GetYaxis()->SetTitleSize(0.03);
-    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
   }
-
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
 
   TGraphAsymmErrors* d1hist = (TGraphAsymmErrors*)dthist->Clone("d1hist");
@@ -332,29 +337,29 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   TH1* erhist = (TH1*)pohist->Clone("erhist");
   
   d1hist->SetLineColor(kRed);
-  d2hist->SetLineColor(kBlue);
+  d2hist->SetLineColor(TColor::GetColor("#0066ff"));
   d1hist->SetLineColor(kRed);
-  d2hist->SetLineColor(kBlue);
+  d2hist->SetLineColor(TColor::GetColor("#0066ff"));
   d1hist->SetMarkerColor(kRed);
   d1hist->SetMarkerSize(1);
   d1hist->SetMarkerStyle(24);
-  d2hist->SetMarkerColor(kBlue);
+  d2hist->SetMarkerColor(TColor::GetColor("#0066ff"));
   d2hist->SetMarkerSize(1);
   d2hist->SetMarkerStyle(20);
   
   for (int i = 1; i <= m1hist->GetNbinsX(); i++) m1hist->SetBinError(i, 0);
   for (int i = 1; i <= m2hist->GetNbinsX(); i++) m2hist->SetBinError(i, 0);
 
-  for(int iPoint = 1; iPoint < d1hist->GetN(); iPoint++){
+  for(int iPoint = 0; iPoint < d1hist->GetN(); iPoint++){
     double x,y;
     d1hist->GetPoint(iPoint,x,y);
-    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint));
+    d1hist->SetPoint(iPoint,x,y/m1hist->GetBinContent(iPoint+1));
     d1hist->SetPointError(iPoint,d1hist->GetErrorXlow(iPoint),d1hist->GetErrorXhigh(iPoint),
-                          d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint));
+                          d1hist->GetErrorYlow(iPoint)/m1hist->GetBinContent(iPoint+1),d1hist->GetErrorYhigh(iPoint)/m1hist->GetBinContent(iPoint+1));
     d2hist->GetPoint(iPoint,x,y);
-    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint));
+    d2hist->SetPoint(iPoint,x,y/m2hist->GetBinContent(iPoint+1));
     d2hist->SetPointError(iPoint,d2hist->GetErrorXlow(iPoint),d2hist->GetErrorXhigh(iPoint),
-                          d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint));
+                          d2hist->GetErrorYlow(iPoint)/m2hist->GetBinContent(iPoint+1),d2hist->GetErrorYhigh(iPoint)/m2hist->GetBinContent(iPoint+1));
   }
   
   erhist->Divide(m2hist);
@@ -381,12 +386,12 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   d1hist->GetYaxis()->SetTitleSize(0.15);
   d1hist->GetYaxis()->SetTitle("Data/Pred.");
   
-  if(not addPullPlot)
-    d1hist->Draw("PE1 SAME");    
+  //if(not addPullPlot)
+  d1hist->Draw("PE1 SAME");    
   d2hist->Draw("PE1 SAME");
   erhist->Draw("E2 SAME");
-  if(not addPullPlot)
-    d1hist->Draw("P0E1 SAME");
+  //if(not addPullPlot)
+  d1hist->Draw("P0E1 SAME");
   d2hist->Draw("P0E1 SAME");
 
   TH1* unhist = (TH1*)pohist->Clone("unhist");
@@ -402,13 +407,13 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   pad2->RedrawAxis("G sameaxis");
 
   TLegend* leg2 = new TLegend(0.14,0.24,0.40,0.28,NULL,"brNDC");
-  leg2->SetFillColor(0);
-  leg2->SetFillStyle(1);
+  //leg2->SetFillColor(0);
+  //leg2->SetFillStyle(1);
+  //leg2->SetLineColor(0);
   leg2->SetBorderSize(0);
-  leg2->SetLineColor(0);
   leg2->SetNColumns(2);
-  leg2->AddEntry(d2hist,"post-fit","PLE");
-  leg2->AddEntry(d1hist,"pre-fit","PLE");
+  leg2->AddEntry(d2hist,"Post-fit","PLE");
+  leg2->AddEntry(d1hist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");
 
@@ -422,14 +427,17 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     frame3->Reset();
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
-    frame3->GetYaxis()->SetRangeUser(-3,3);
+    frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
     if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
+    if(addStatUncPull)
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    else
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
@@ -445,17 +453,21 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     data_pull_post->Reset();
     for(int iPoint = 0; iPoint < dthist->GetN(); iPoint++){
       double x,y;
-      dthist->GetPoint(iPoint+1,x,y);
+      dthist->GetPoint(iPoint,x,y);
       data_pull_post->SetBinContent(iPoint+1,y);
       data_pull_post->SetBinError(iPoint+1,(dthist->GetErrorYlow(iPoint+1)+dthist->GetErrorYhigh(iPoint+1))/2);
     }
     data_pull_post->Add(pohist,-1);
-    data_pull_post->SetMarkerColor(kBlue);
-    data_pull_post->SetLineColor(kBlue);
-    data_pull_post->SetFillColor(kBlue);
+    data_pull_post->SetMarkerColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetLineColor(TColor::GetColor("#0066ff"));
+    data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
-      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1)); // divide by sigma data                                                               
+      if(addStatUncPull)
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(pohist->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
+      else
+        data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/pohist->GetBinError(iBin+1));
+ 
       data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
     }
 

@@ -31,7 +31,7 @@ static bool  addFlatZgammaUncertainty = false; // use a flat nuisance for the Z/
 static float flatWZUncertainty     = 0.3;
 static float flatZgammaUncertainty = 0.3;
 const  bool  addBinByBinMCUncertainty = true;
-static bool  useNewTheoryUncertainty  = false;
+static bool  useNewTheoryUncertainty  = true;
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string   inputName,                        // input template file
@@ -60,6 +60,11 @@ void createWorkspace(string   inputName,                        // input templat
   RooMsgService::instance().setSilentMode(kTRUE); 
   RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
+  if(useNewTheoryUncertainty and category != Category::monojet and category != Category::monoV){ // cannot be applied on VBF
+    cerr<<"New theory uncertainties cannot be applied in categories != from mono-jet and mono-V "<<endl;
+    return;
+  }
+
   // to load all the variables information
   initializeBinning();
 
@@ -69,7 +74,7 @@ void createWorkspace(string   inputName,                        // input templat
   else if(category == Category::monoV) suffix = "MV";
   else if(category == Category::VBF)   suffix = "VBF";
     
-  // create the output workspace
+  // create the output workspac
   cout<<"Create output file ..."<<endl;
   TFile *outfile = new TFile(outputName.c_str(),"RECREATE");
   outfile->cd();
@@ -172,10 +177,21 @@ void createWorkspace(string   inputName,                        // input templat
     }
   }
 
-  // Build the RooRealVar
-  RooRealVar met((observable+"_"+suffix).c_str(),"",xMin,xMax);
-  met.setBinning(*binning);
-  RooArgList vars(met);
+  // Build the RooRealVar --> keep different observable for DM and Hinv
+  string suffix2 = "monojet";
+  if(suffix == "MV") 
+    suffix2 = "monov";  
+  else if(suffix == "VBF")
+    suffix2 = "vbf";
+
+  RooRealVar* met = NULL;
+  if(isHiggsInvisible)
+    met = new RooRealVar((observable+"_"+suffix).c_str(),"",xMin,xMax);
+  else
+    met = new RooRealVar((observable+"_"+suffix2).c_str(),"",xMin,xMax);
+    
+  met->setBinning(*binning);
+  RooArgList vars(*met);
 
   // Templates
   cout<<"Open inputFile ..."<<endl;
@@ -193,17 +209,17 @@ void createWorkspace(string   inputName,                        // input templat
 
     if(!isHiggsInvisible){
       // take DM-templates
-      TH1F* monoJ = (TH1F*)templatesfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
+      TH1F* monoJ = (TH1F*)templatesfile->FindObjectAny(("monoJhist_"+interaction+"_"+mediatorMass+"_"+DMMass+".root_"+observable).c_str());
       TH1F* monoW = (TH1F*)templatesfile->FindObjectAny(("monoWhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
       TH1F* monoZ = (TH1F*)templatesfile->FindObjectAny(("monoZhist_"+interaction+"_"+mediatorMass+"_"+DMMass+"_"+observable).c_str());
       
       if(isCutAndCount and normalizeSignal > 0){
-	if(monoJ and monoJ->Integral(monoJ->FindBin(met.getMin()),monoJ->FindBin(met.getMax())) != 0)
-	  monoJ->Scale(normalizeSignal/monoJ->Integral(monoJ->FindBin(met.getMin()),monoJ->FindBin(met.getMax())));
-	if(monoW and monoW->Integral(monoW->FindBin(met.getMin()),monoW->FindBin(met.getMax())) != 0)
-	  monoW->Scale(normalizeSignal/monoW->Integral(monoW->FindBin(met.getMin()),monoW->FindBin(met.getMax())));
-	if(monoZ and monoZ->Integral(monoZ->FindBin(met.getMin()),monoZ->FindBin(met.getMax())) != 0)
-	  monoZ->Scale(normalizeSignal/monoZ->Integral(monoZ->FindBin(met.getMin()),monoZ->FindBin(met.getMax())));      
+	if(monoJ and monoJ->Integral(monoJ->FindBin(met->getMin()),monoJ->FindBin(met->getMax())) != 0)
+	  monoJ->Scale(normalizeSignal/monoJ->Integral(monoJ->FindBin(met->getMin()),monoJ->FindBin(met->getMax())));
+	if(monoW and monoW->Integral(monoW->FindBin(met->getMin()),monoW->FindBin(met->getMax())) != 0)
+	  monoW->Scale(normalizeSignal/monoW->Integral(monoW->FindBin(met->getMin()),monoW->FindBin(met->getMax())));
+	if(monoZ and monoZ->Integral(monoZ->FindBin(met->getMin()),monoZ->FindBin(met->getMax())) != 0)
+	  monoZ->Scale(normalizeSignal/monoZ->Integral(monoZ->FindBin(met->getMin()),monoZ->FindBin(met->getMax())));      
       }
       
       // automatic protections if templates are empty
@@ -237,16 +253,16 @@ void createWorkspace(string   inputName,                        // input templat
 
       // in case of cut and count
       if(isCutAndCount and normalizeSignal > 0){
-	if(ggH and ggH->Integral(ggH->FindBin(met.getMin()),ggH->FindBin(met.getMax())) != 0)
-	  ggH->Scale(normalizeSignal/ggH->Integral(ggH->FindBin(met.getMin()),ggH->FindBin(met.getMax())));      	
-	if(qqH and qqH->Integral(qqH->FindBin(met.getMin()),qqH->FindBin(met.getMax())) != 0)
-	  qqH->Scale(normalizeSignal/qqH->Integral(qqH->FindBin(met.getMin()),qqH->FindBin(met.getMax())));	
-	if(wH and wH->Integral(wH->FindBin(met.getMin()),wH->FindBin(met.getMax())) != 0)
-	  wH->Scale(normalizeSignal/wH->Integral(wH->FindBin(met.getMin()),wH->FindBin(met.getMax())));	
-	if(zH and zH->Integral(zH->FindBin(met.getMin()),zH->FindBin(met.getMax())) != 0)
-	  zH->Scale(normalizeSignal/zH->Integral(zH->FindBin(met.getMin()),zH->FindBin(met.getMax())));	
-	if(ggZH and ggZH->Integral(ggZH->FindBin(met.getMin()),ggZH->FindBin(met.getMax())) != 0)
-	  ggZH->Scale(normalizeSignal/ggZH->Integral(ggZH->FindBin(met.getMin()),ggZH->FindBin(met.getMax())));
+	if(ggH and ggH->Integral(ggH->FindBin(met->getMin()),ggH->FindBin(met->getMax())) != 0)
+	  ggH->Scale(normalizeSignal/ggH->Integral(ggH->FindBin(met->getMin()),ggH->FindBin(met->getMax())));      	
+	if(qqH and qqH->Integral(qqH->FindBin(met->getMin()),qqH->FindBin(met->getMax())) != 0)
+	  qqH->Scale(normalizeSignal/qqH->Integral(qqH->FindBin(met->getMin()),qqH->FindBin(met->getMax())));	
+	if(wH and wH->Integral(wH->FindBin(met->getMin()),wH->FindBin(met->getMax())) != 0)
+	  wH->Scale(normalizeSignal/wH->Integral(wH->FindBin(met->getMin()),wH->FindBin(met->getMax())));	
+	if(zH and zH->Integral(zH->FindBin(met->getMin()),zH->FindBin(met->getMax())) != 0)
+	  zH->Scale(normalizeSignal/zH->Integral(zH->FindBin(met->getMin()),zH->FindBin(met->getMax())));	
+	if(ggZH and ggZH->Integral(ggZH->FindBin(met->getMin()),ggZH->FindBin(met->getMax())) != 0)
+	  ggZH->Scale(normalizeSignal/ggZH->Integral(ggZH->FindBin(met->getMin()),ggZH->FindBin(met->getMax())));
       }
       
       addTemplate("ggH_SR_"+suffix,vars,wspace_SR,ggH,isCutAndCount);
@@ -272,13 +288,13 @@ void createWorkspace(string   inputName,                        // input templat
 	
 	if(isCutAndCount and normalizeSignal > 0){
 	  if(histoRenUp)
-	    histoRenUp->Scale(normalizeSignal/histoRenUp->Integral(histoRenUp->FindBin(met.getMin()),histoRenUp->FindBin(met.getMax())));
+	    histoRenUp->Scale(normalizeSignal/histoRenUp->Integral(histoRenUp->FindBin(met->getMin()),histoRenUp->FindBin(met->getMax())));
 	  if(histoRenDw)
-	    histoRenDw->Scale(normalizeSignal/histoRenDw->Integral(histoRenDw->FindBin(met.getMin()),histoRenDw->FindBin(met.getMax())));
+	    histoRenDw->Scale(normalizeSignal/histoRenDw->Integral(histoRenDw->FindBin(met->getMin()),histoRenDw->FindBin(met->getMax())));
 	  if(histoFacUp)
-	    histoFacUp->Scale(normalizeSignal/histoFacUp->Integral(histoFacUp->FindBin(met.getMin()),histoFacUp->FindBin(met.getMax())));
+	    histoFacUp->Scale(normalizeSignal/histoFacUp->Integral(histoFacUp->FindBin(met->getMin()),histoFacUp->FindBin(met->getMax())));
 	  if(histoFacDw)
-	    histoFacDw->Scale(normalizeSignal/histoFacDw->Integral(histoFacDw->FindBin(met.getMin()),histoFacDw->FindBin(met.getMax())));
+	    histoFacDw->Scale(normalizeSignal/histoFacDw->Integral(histoFacDw->FindBin(met->getMin()),histoFacDw->FindBin(met->getMax())));
 	}
 	
 	if(ggH){
@@ -310,7 +326,6 @@ void createWorkspace(string   inputName,                        // input templat
   }
 
   //// Background part in the signal region
-
   if(not runOnlySignal or runOnlyBackground){
 
     // Add Data
@@ -320,22 +335,23 @@ void createWorkspace(string   inputName,                        // input templat
     TH1F* znn_SR_hist = (TH1F*) templatesfile->FindObjectAny(("zinvhist_"+observable).c_str());
     RooArgList znn_SR_bins; 
     // create a RooParametric hist with one RooRealVar per bin 
-    makeBinList("Znunu_SR_"+suffix,met,wspace_SR,znn_SR_hist,znn_SR_bins,false,isCutAndCount);    
+    makeBinList("Znunu_SR_"+suffix,*met,wspace_SR,znn_SR_hist,znn_SR_bins,false,isCutAndCount);    
 
     // Zvv EWK background for VBF
     TH1F* znn_ewk_SR_hist = NULL;
     RooArgList znn_ewk_SR_bins;
+    // Link Z-to-Z or not
     if(category == Category::VBF){
       znn_ewk_SR_hist = (TH1F*) templatesfile->FindObjectAny(("ewkbkgzhist_"+observable).c_str());
       if(not connectEWKQCD)
-	makeBinList("Znunu_EWK_SR_"+suffix,met,wspace_SR,znn_ewk_SR_hist,znn_ewk_SR_bins,false,isCutAndCount);
+	makeBinList("Znunu_EWK_SR_"+suffix,*met,wspace_SR,znn_ewk_SR_hist,znn_ewk_SR_bins,false,isCutAndCount);
       else{	
 	// make the Z-QCD / Z-EWK ratio and propagate stat uncertainty --> theory ones goes only on Z/W-QCD and Z/W-EWK ratios
 	TH1F* znn_qcd_SR = (TH1F*) znn_SR_hist->Clone("z_qcd_over_z_ewk");
 	znn_qcd_SR->Divide(znn_ewk_SR_hist);
 	// create Z-QCD/Z-EWK link                                                                                                                                                               
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_SR_syst;
-	makeConnectedBinList("Znunu_EWK_SR_"+suffix,met,wspace_SR,
+	makeConnectedBinList("Znunu_EWK_SR_"+suffix,*met,wspace_SR,
 			     znn_qcd_SR,
 			     znn_ewk_SR_syst, //list of systematic variations for the TFs                                                                                                             
 			     znn_SR_bins,     //bins for Znunu                                                                                                                                        
@@ -352,7 +368,7 @@ void createWorkspace(string   inputName,                        // input templat
     // for data driven top estimation
     if(connectTop){
       top_SR_hist = (TH1F*) templatesfile->FindObjectAny(("tbkghist_"+observable).c_str());
-      makeBinList("Top_SR_"+suffix,met,wspace_SR,top_SR_hist,top_SR_bins,false,isCutAndCount);
+      makeBinList("Top_SR_"+suffix,*met,wspace_SR,top_SR_hist,top_SR_bins,false,isCutAndCount);
     }
     else{ // rely on MC + systematics
       addTemplate("Top_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("tbkghist_"+observable).c_str()),isCutAndCount);
@@ -369,14 +385,14 @@ void createWorkspace(string   inputName,                        // input templat
     RooArgList wln_ewk_SR_bins;
     if(category == Category::VBF) // add EWKW since is already in TFs
       wln_ewk_SR_hist = (TH1F*) templatesfile->FindObjectAny(("ewkbkgwhist_"+observable).c_str());
-    if (!connectWZ){ 
-      makeBinList("WJets_SR_"+suffix,met,wspace_SR,wln_SR_hist,wln_SR_bins,true,isCutAndCount);
-      makeBinList("WJets_EWK_SR_"+suffix,met,wspace_SR,wln_ewk_SR_hist,wln_ewk_SR_bins,true,isCutAndCount);
+    if (!connectWZ){ // independent links also here
+      makeBinList("WJets_SR_"+suffix,*met,wspace_SR,wln_SR_hist,wln_SR_bins,true,isCutAndCount);
+      makeBinList("WJets_EWK_SR_"+suffix,*met,wspace_SR,wln_ewk_SR_hist,wln_ewk_SR_bins,true,isCutAndCount);
     }
     else{
 
-      if(not useNewTheoryUncertainty){
-      
+      if(not useNewTheoryUncertainty){      
+
 	// uncertainty on Z/W-QCD
 	RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_RenScale1",""  ,0.,-5.,5.);
 	RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_FactScale1","" ,0.,-5.,5.);
@@ -384,6 +400,7 @@ void createWorkspace(string   inputName,                        // input templat
 	RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2","" ,0.,-5.,5.);
 	RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF",""        ,0.,-5.,5.);
 	RooRealVar* wln_SR_ewk = new RooRealVar(("WJets_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+
 	// in case of a flat nuisance
 	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
@@ -394,11 +411,11 @@ void createWorkspace(string   inputName,                        // input templat
 	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("WJets_EWK_SR_FactScale2","" ,0.,-5.,5.);
 	RooRealVar* wln_ewk_SR_pdf = new RooRealVar("WJets_EWK_SR_PDF",""        ,0.,-5.,5.);
 	RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("WJets_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+
 	// in case of a flat nuisance
 	RooRealVar* wln_ewk_SR     = new RooRealVar(("WJets_EWK_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
 	if(not isCutAndCount){
-	  
 	  // set of correlated systematic uncertainties for the Z/W ratio
 	  vector<pair<RooRealVar*,TH1*> > wln_SR_syst;
 	  vector<pair<RooRealVar*,TH1*> > wln_ewk_SR_syst;
@@ -407,37 +424,36 @@ void createWorkspace(string   inputName,                        // input templat
 	  if(category == Category::VBF){
 	    
 	    // Z/W-EWK
-	    if(not addFlatWZUncertainty){
+	    if(not addFlatWZUncertainty){	    
+	      wln_ewk_SR_syst.push_back(
+		 pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,
+					cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale1_"+observable)));
 	      
 	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale1_"+observable)));
+		 pair<RooRealVar*,TH1*>(wln_ewk_SR_fa1,
+					cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale1_"+observable)));
 	      
 	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_fa1,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale1_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale1_"+observable)));
+		 pair<RooRealVar*,TH1*>(wln_ewk_SR_re2,
+					cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale2_"+observable)));
 	      
 	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_re2,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_RenScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_RenScale2_"+observable)));
+		 pair<RooRealVar*,TH1*>(wln_ewk_SR_fa2,
+					cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale2_"+observable)));
 	      
 	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_fa2,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_FactScale2_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_FactScale2_"+observable)));
-	      
-	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_pdf,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_PDF_"+observable)));
+		 pair<RooRealVar*,TH1*>(wln_ewk_SR_pdf,
+					cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_PDF_"+observable)));
 	      
 	      if(not correlateEWK){
 		wln_ewk_SR_syst.push_back(
-					  pair<RooRealVar*,TH1*>(NULL,
-								 cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
+		    pair<RooRealVar*,TH1*>(NULL,
+					   cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
 	      }
 	      else{
 		wln_ewk_SR_syst.push_back(
-					  pair<RooRealVar*,TH1*>(wln_ewk_SR_ewk,
-								 cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
+		    pair<RooRealVar*,TH1*>(wln_ewk_SR_ewk,
+					   cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
 	      }
 	    }
 	    // flat uncertainty
@@ -453,7 +469,7 @@ void createWorkspace(string   inputName,                        // input templat
 	  // Z/W-QCD 
 	  if(not addFlatWZUncertainty){
 	    if(not correlateEWK)
-	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(NULL,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
+	      wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(NULL,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
 	    else
 	      wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_ewk,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWK_"+observable).c_str()),scaleWZUncertainty,"")));
 	    
@@ -471,19 +487,20 @@ void createWorkspace(string   inputName,                        // input templat
 	      uncertainty_temp->SetBinContent(iBin+1,flatWZUncertainty);	  
 	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR,uncertainty_temp));
 	  }
-
+	  
 
 	  // create Z/W link QCD
-	  makeConnectedBinList("WJets_SR_"+suffix,met,wspace_SR,
+	  makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
 			       (TH1F*)templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
 			       &wln_SR_bins, // W+jets -> empty list
 			       observable);
+
 	  // create Z/W link EWK
 	  if(category == Category::VBF){
 	    
-	    makeConnectedBinList("WJets_EWK_SR_"+suffix,met,wspace_SR,
+	    makeConnectedBinList("WJets_EWK_SR_"+suffix,*met,wspace_SR,
 				 (TH1F*)templatesfile->FindObjectAny(("zwjewkcorhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 				 wln_ewk_SR_syst, //list of systematic variations for the TFs
 				 znn_ewk_SR_bins, //bins for Znunu
@@ -541,14 +558,14 @@ void createWorkspace(string   inputName,                        // input templat
 	  wln_SR_pdf_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_zwj_qcd_"+observable).c_str());
 	  wln_SR_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(wln_SR_pdf,wln_SR_pdf_sys));
 	  
-	  makeConnectedBinListCutAndCount("WJets_SR_"+suffix,met,wspace_SR,
+	  makeConnectedBinListCutAndCount("WJets_SR_"+suffix,*met,wspace_SR,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_zwj_ewk_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_zwj_ewk_"+observable).c_str()),
 					  wln_SR_syst,znn_SR_bins,&wln_SR_bins,observable);
 	  
 	// TEMP solution before having the right theory uncertinty
 	  if(category == Category::VBF)
-	    makeConnectedBinListCutAndCount("WJets_EWK_SR_"+suffix,met,wspace_SR,
+	    makeConnectedBinListCutAndCount("WJets_EWK_SR_"+suffix,*met,wspace_SR,
 					    (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_zwj_ewk_"+observable).c_str()),
 					    (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_zwj_ewk_"+observable).c_str()),
 					    wln_SR_syst,znn_ewk_SR_bins,&wln_ewk_SR_bins,observable);
@@ -560,65 +577,36 @@ void createWorkspace(string   inputName,                        // input templat
       else{
 	
 	// uncertainty on Z/W-QCD
-	RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_QCDScale",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_NLOEwk","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_EWKSudakov",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_QCDEWK","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdscale = new RooRealVar("ZW_SR_QCDScale",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdshape = new RooRealVar("ZW_SR_QCDShape",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdproc  = new RooRealVar("ZW_SR_QCDProcess","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_pdf      = new RooRealVar("ZW_SR_PDF",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnloewk  = new RooRealVar("ZW_SR_NNLOEWK",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_sudakov_2  = new RooRealVar("WJets_SR_Sudakov",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_1  = new RooRealVar("Znunu_SR_NNLOMiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_nnlomiss_2  = new RooRealVar("WJets_SR_NNLOMiss",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_qcdewkmix   = new RooRealVar("ZW_SR_QCDEWKMIX",""  ,0.,-5.,5.);
+
 	// in case of a flat nuisance
 	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
-	// uncertainty on Z/W-EWK
-	RooRealVar* wln_ewk_SR_re1 = new RooRealVar("WJets_SR_QCDScale",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("WJets_SR_NLOEwk","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_re2 = new RooRealVar("WJets_SR_EWKSudakov",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("WJets_SR_QCDEWK","" ,0.,-5.,5.);
-	// in case of a flat nuisance
-	RooRealVar* wln_ewk_SR     = new RooRealVar(("WJets_EWK_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
-	
 	// set of correlated systematic uncertainties for the Z/W ratio
 	vector<pair<RooRealVar*,TH1*> > wln_SR_syst;
-	vector<pair<RooRealVar*,TH1*> > wln_ewk_SR_syst;
 		
-	if(not isCutAndCount){
-	  
-	  // TEMP fix to be sobustutite with the right ones
-	  if(category == Category::VBF){
-	    
-	    // Z/W-EWK
-	    if(not addFlatWZUncertainty){
-	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_re1,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_QCDSCale_"+observable)));
-	      
-	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_fa1,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_NLOEWK_"+observable)));
-	      
-	      wln_ewk_SR_syst.push_back(
-					pair<RooRealVar*,TH1*>(wln_ewk_SR_re2,
-							       cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_EWKSudakov_"+observable)));
-	      
-		wln_ewk_SR_syst.push_back(
-					  pair<RooRealVar*,TH1*>(wln_ewk_SR_fa2,
-								 cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str()),scaleWZEWKUncertainty,"ZW_ewk_QCDEWK_"+observable)));
-		
-	    }
-	    // flat uncertainty
-	    else{
-	      TH1* uncertainty_temp = (TH1*) templatesfile->FindObjectAny(("zwjewkcorhist_"+observable).c_str())->Clone("uncertainty_wz_ewk");
-	      uncertainty_temp->Reset();
-	      for(int iBin = 0; iBin < uncertainty_temp->GetNbinsX()+1; iBin++)
-		uncertainty_temp->SetBinContent(iBin+1,flatWZUncertainty);
-	      wln_ewk_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_ewk_SR,uncertainty_temp));
-	    }
-	  }
-
+	if(not isCutAndCount){	  
 	  // Z/W-QCD 
 	  if(not addFlatWZUncertainty){
-	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()),scaleWZUncertainty,"")));
-	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_NLOEWK_"+observable).c_str()),scaleWZUncertainty,"")));
-	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_re2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_EWKSudakov_"+observable).c_str()),scaleWZUncertainty,"")));
-	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_fa2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDEWK_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_qcdscale,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDScale_"+observable).c_str()),scaleWZUncertainty,"")));	 
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_qcdshape,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDShape_"+observable).c_str()),scaleWZUncertainty,"")));	 
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_qcdproc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_QCDProcess_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_PDF_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_nnloewk,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_NNLOEWK_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_sudakov_1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_Sudakov1_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_sudakov_2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_Sudakov2_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_nnlomiss_1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_NNLOMiss1_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_nnlomiss_2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_NNLOMiss2_"+observable).c_str()),scaleWZUncertainty,"")));
+	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR_qcdewkmix,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZW_MIX_"+observable).c_str()),scaleWZUncertainty,"")));
 	  }
 	  else{
 	    TH1* uncertainty_temp = (TH1*) templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str())->Clone("uncertainty_wz_qcd");
@@ -627,45 +615,45 @@ void createWorkspace(string   inputName,                        // input templat
 	      uncertainty_temp->SetBinContent(iBin+1,flatWZUncertainty);	  
 	    wln_SR_syst.push_back(pair<RooRealVar*,TH1*>(wln_SR,uncertainty_temp));
 	  }
-	
-	
+		
 	  // create Z/W link QCD
-	  makeConnectedBinList("WJets_SR_"+suffix,met,wspace_SR,
+	  makeConnectedBinList("WJets_SR_"+suffix,*met,wspace_SR,
 			       (TH1F*)templatesfile->FindObjectAny(("zwjcorewkhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
 			       wln_SR_syst, //list of systematic variations for the TFs
 			       znn_SR_bins, //bins for Znunu
 			       &wln_SR_bins, // W+jets -> empty list
 			       observable);
-	  // create Z/W link EWK
-	  if(category == Category::VBF){
-	    
-	    makeConnectedBinList("WJets_EWK_SR_"+suffix,met,wspace_SR,
-				 (TH1F*)templatesfile->FindObjectAny(("zwjewkcorhist_"+observable).c_str()), //Z/W ratio --> central value + stat unc.
-				 wln_ewk_SR_syst, //list of systematic variations for the TFs
-				 znn_ewk_SR_bins, //bins for Znunu
-				 &wln_ewk_SR_bins, // W+jets -> empty list
-				 observable);
-	  } 
-	}     
+	}
       }
-    }
-
+    }  
+    
     // Other MC backgrounds
     addTemplate("ZJets_SR_"+suffix     ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zjethist_"+observable).c_str()),isCutAndCount);
     addTemplate("Dibosons_SR_"+suffix  ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("dbkghist_"+observable).c_str()),isCutAndCount);
     addTemplate("GJets_SR_"+suffix     ,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("gbkghist_"+observable).c_str()),isCutAndCount);
-
+    if(category != Category::VBF){ // Add EWK-W and EWK-Z as minor bkgs
+      addTemplate("WJets_EWK_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgwhist_"+observable).c_str()),isCutAndCount);
+      addTemplate("ZJets_EWK_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgzhist_"+observable).c_str()),isCutAndCount);
+    }
 
     if(addShapeSystematics){
       addShapeVariations("zjethist","ZJets_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("dbkghist","Dibosons_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
       addShapeVariations("gbkghist","GJets_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
+      if(category != Category::VBF){
+	addShapeVariations("ewkbkgwhist","WJets_EWK_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
+	addShapeVariations("ewkbkgzhist","ZJets_EWK_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
+      }
     }
 
     if(addBinByBinMCUncertainty){
       generateStatTemplate("ZJets_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("zjethist_"+observable).c_str()),1,isCutAndCount);
       generateStatTemplate("Dibosons_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("dbkghist_"+observable).c_str()),1,isCutAndCount);
       generateStatTemplate("GJets_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("gbkghist_"+observable).c_str()),1,isCutAndCount);
+      if(category != Category::VBF){
+	generateStatTemplate("WJets_EWK_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgwhist_"+observable).c_str()),1,isCutAndCount);
+	generateStatTemplate("ZJets_EWK_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("ewkbkgzhist_"+observable).c_str()),1,isCutAndCount);
+      }
     }
         
     // look for DD qcd background,otherwise MC scaled by a factor 2
@@ -685,9 +673,7 @@ void createWorkspace(string   inputName,                        // input templat
 	addShapeVariations("qbkghist","QCD_SR",suffix,observable,vars,wspace_SR,templatesfile,"",isCombination,isCutAndCount);
     }
 
-
     /// start with control regions
-
     RooWorkspace* wspace_ZM = NULL;
     RooWorkspace* wspace_ZE = NULL;
     RooWorkspace* wspace_WM = NULL;
@@ -711,13 +697,18 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("Top_ZM_"+suffix ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("tbkghistzmm_"+observable).c_str()),isCutAndCount);
       addTemplate("QCD_ZM_"+suffix ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("qbkghistzmm_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("dbkghistzmm_"+observable).c_str()),isCutAndCount);
-      addTemplate("WJets_EWK_ZM_"+suffix  ,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str()),isCutAndCount);
-      
+      addTemplate("WJets_EWK_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str()),isCutAndCount);
+      if(category != Category::VBF)
+	addTemplate("ZJets_EWK_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str()),isCutAndCount);
+
+
       if(addShapeSystematics){      
 	addShapeVariations("vlbkghistzmm","WJets_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistzmm","Top_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistzmm","Dibosons_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("ewkwbkghistzmm","WJets_EWK_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkzbkghistzmm","ZJets_EWK_ZM",suffix,observable,vars,*wspace_ZM,templatesfile,"",isCombination,isCutAndCount);
       }
 
       if(addBinByBinMCUncertainty){
@@ -726,27 +717,29 @@ void createWorkspace(string   inputName,                        // input templat
 	generateStatTemplate("QCD_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("qbkghistzmm_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("Dibosons_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("dbkghistzmm_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("WJets_EWK_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzmm_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("ZJets_EWK_ZM_"+suffix,vars,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzmm_"+observable).c_str()),1,isCutAndCount);
       }
-
+      
       if(not isCutAndCount){
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZM_syst;
-	makeConnectedBinList("Znunu_ZM_"+suffix,met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
+	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("Znunu_EWK_ZM_"+suffix,met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
       }
       else{
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZM_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZM_"+suffix,met,*wspace_ZM,
+	makeConnectedBinListCutAndCount("Znunu_ZM_"+suffix,*met,*wspace_ZM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zmm_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zmm_"+observable).c_str()),
 					znn_ZM_syst,znn_SR_bins,NULL,observable);
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ewk_ZM_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("Znunu_EWK_ZM_"+suffix,met,*wspace_ZM,
+	  makeConnectedBinListCutAndCount("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_zmm_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_zmm_"+observable).c_str()),
 					  znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
@@ -768,12 +761,16 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("QCD_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("qbkghistzee_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("dbkghistzee_"+observable).c_str()),isCutAndCount);
       addTemplate("WJets_EWK_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str()),isCutAndCount);
+      if(category != Category::VBF)
+	addTemplate("ZJets_EWK_ZE_"+suffix  ,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str()),isCutAndCount);
       
-      if( addShapeSystematics){      
+      if(addShapeSystematics){      
 	addShapeVariations("vlbkghistzee","WJets_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistzee","Top_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistzee","Dibosons_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("ewkwbkghistzee","WJets_EWK_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkzbkghistzee","ZJets_EWK_ZE",suffix,observable,vars,*wspace_ZE,templatesfile,"",isCombination,isCutAndCount);
       }
 
       if(addBinByBinMCUncertainty){
@@ -782,6 +779,8 @@ void createWorkspace(string   inputName,                        // input templat
 	generateStatTemplate("QCD_ZE_"+suffix,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("qbkghistzee_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("Dibosons_ZE_"+suffix,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("dbkghistzee_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("WJets_EWK_ZE_"+suffix,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzee_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("ZJets_EWK_ZE_"+suffix,vars,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzee_"+observable).c_str()),1,isCutAndCount);
       }
 
       
@@ -789,20 +788,20 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->ee connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZE_syst;
-	makeConnectedBinList("Znunu_ZE_"+suffix,met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
+	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("Znunu_EWK_ZE_"+suffix,met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZE_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZE_"+suffix,met,*wspace_ZE,
+	makeConnectedBinListCutAndCount("Znunu_ZE_"+suffix,*met,*wspace_ZE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zee_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zee_"+observable).c_str()),
 					znn_ZE_syst,znn_SR_bins,NULL,observable);
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ewk_ZE_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("Znunu_EWK_ZE_"+suffix,met,*wspace_ZE,
+	  makeConnectedBinListCutAndCount("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_zee_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_zee_"+observable).c_str()),
 					  znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
@@ -822,12 +821,17 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("QCD_ZL_"+suffix ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("qbkghistzll_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("dbkghistzll_"+observable).c_str()),isCutAndCount);
       addTemplate("WJets_EWK_ZL_"+suffix  ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzll_"+observable).c_str()),isCutAndCount);
+      if(category != Category::VBF)
+	addTemplate("ZJets_EWK_ZL_"+suffix  ,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzll_"+observable).c_str()),isCutAndCount);
       
+
       if(addShapeSystematics){
 	addShapeVariations("vlbkghistzll","WJets_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistzll","Top_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistzll","Dibosons_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("ewkwbkghistzll","WJets_EWK_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkzbkghistzll","ZJets_EWK_ZL",suffix,observable,vars,*wspace_ZL,templatesfile,"",isCombination,isCutAndCount);
       }            
 
       if(addBinByBinMCUncertainty){
@@ -836,6 +840,8 @@ void createWorkspace(string   inputName,                        // input templat
 	generateStatTemplate("QCD_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("qbkghistzll_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("Dibosons_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("dbkghistzll_"+observable).c_str()),1,isCutAndCount);
 	generateStatTemplate("WJets_EWK_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistzll_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("ZJets_EWK_ZL_"+suffix,vars,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistzll_"+observable).c_str()),1,isCutAndCount);
       }
 
       
@@ -843,21 +849,21 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> >   znn_ZL_syst;
 	vector<pair<RooRealVar*,TH1*> >   znn_ewk_ZL_syst;
-	makeConnectedBinList("Znunu_ZL_"+suffix,met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),znn_ZL_syst,znn_SR_bins,NULL,observable);
+	makeConnectedBinList("Znunu_ZL_"+suffix,*met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zllcorhist_"+observable).c_str()),znn_ZL_syst,znn_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("Znunu_EWK_ZL_"+suffix,met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zewkllcorhist_"+observable).c_str()),znn_ewk_ZL_syst,znn_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("Znunu_EWK_ZL_"+suffix,*met,*wspace_ZL,(TH1F*)templatesfile->FindObjectAny(("zewkllcorhist_"+observable).c_str()),znn_ewk_ZL_syst,znn_ewk_SR_bins,NULL,observable);
 	
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZL_syst;
-	makeConnectedBinListCutAndCount("Znunu_ZL_"+suffix,met,*wspace_ZL,
+	makeConnectedBinListCutAndCount("Znunu_ZL_"+suffix,*met,*wspace_ZL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_zll_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_zll_"+observable).c_str()),
 					znn_ZL_syst,znn_SR_bins,NULL,observable);
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ewk_ZL_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("Znunu_EWK_ZL_"+suffix,met,*wspace_ZL,
+	  makeConnectedBinListCutAndCount("Znunu_EWK_ZL_"+suffix,*met,*wspace_ZL,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_zll_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_zll_"+observable).c_str()),
 					  znn_ewk_ZL_syst,znn_ewk_SR_bins,NULL,observable);
@@ -881,12 +887,16 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("QCD_WM_"+suffix  ,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("qbkghistwmn_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_"+observable).c_str()),isCutAndCount);
       addTemplate("ZJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str()),isCutAndCount);
+      if(category != Category::VBF)
+	addTemplate("WJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),isCutAndCount);
       
       if(addShapeSystematics){      
 	addShapeVariations("vllbkghistwmn","ZJets_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistwmn","Top_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistwmn","Dibosons_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("ewkzbkghistwmn","ZJets_EWK_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkwbkghistwmn","WJets_EWK_WM",suffix,observable,vars,*wspace_WM,templatesfile,"",isCombination,isCutAndCount);
       }
 
       if(addBinByBinMCUncertainty){
@@ -895,6 +905,8 @@ void createWorkspace(string   inputName,                        // input templat
         generateStatTemplate("QCD_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("qbkghistwmn_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Dibosons_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("ZJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwmn_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("WJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),1,isCutAndCount);
       }
 
 
@@ -902,19 +914,19 @@ void createWorkspace(string   inputName,                        // input templat
 	// connected W->munu with W+jets SR
 	vector<pair<RooRealVar*,TH1*> > wln_WM_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WM_syst;
-	makeConnectedBinList("WJets_WM_"+suffix,met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),wln_WM_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),wln_WM_syst,wln_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("WJets_EWK_WM_"+suffix,met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("WJets_EWK_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WM_syst;
-	makeConnectedBinListCutAndCount("WJets_WM_"+suffix,met,*wspace_WM,
+	makeConnectedBinListCutAndCount("WJets_WM_"+suffix,*met,*wspace_WM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wmn_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wmn_"+observable).c_str()),
 					wln_WM_syst,wln_SR_bins,NULL,observable);
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_ewk_WM_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("WJets_EWK_WM_"+suffix,met,*wspace_WM,
+	  makeConnectedBinListCutAndCount("WJets_EWK_WM_"+suffix,*met,*wspace_WM,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_wmn_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_wmn_"+observable).c_str()),
 					  wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable);
@@ -936,12 +948,17 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("QCD_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("qbkghistwen_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("dbkghistwen_"+observable).c_str()),isCutAndCount);
       addTemplate("ZJets_EWK_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwen_"+observable).c_str()),isCutAndCount);
+      if(category != Category::VBF)
+	addTemplate("WJets_EWK_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwen_"+observable).c_str()),isCutAndCount);
+
 
       if(addShapeSystematics){
 	addShapeVariations("vllbkghistwen","ZJets_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistwen","Top_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistwen","Dibosons_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);      
 	addShapeVariations("ewkzbkghistwen","ZJets_EWK_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkwbkghistwen","WJets_EWK_WE",suffix,observable,vars,*wspace_WE,templatesfile,"",isCombination,isCutAndCount);
       }
       
       if(addBinByBinMCUncertainty){
@@ -950,26 +967,28 @@ void createWorkspace(string   inputName,                        // input templat
         generateStatTemplate("QCD_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("qbkghistwen_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Dibosons_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("dbkghistwen_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("ZJets_EWK_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwen_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("WJets_EWK_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwen_"+observable).c_str()),1,isCutAndCount);
       }
       
       if(not isCutAndCount){
 	// connected W->enu with W+jets SR 
 	vector<pair<RooRealVar*,TH1*> > wln_WE_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WE_syst;
-	makeConnectedBinList("WJets_WE_"+suffix,met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("WJets_EWK_WE_"+suffix,met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("WJets_EWK_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
       }
       else{	
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WE_syst;
-	makeConnectedBinListCutAndCount("WJets_WE_"+suffix,met,*wspace_WE,
+	makeConnectedBinListCutAndCount("WJets_WE_"+suffix,*met,*wspace_WE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wen_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wen_"+observable).c_str()),
 					wln_WE_syst,wln_SR_bins,NULL,observable);
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_ewk_WE_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("WJets_EWK_WE_"+suffix,met,*wspace_WE,
+	  makeConnectedBinListCutAndCount("WJets_EWK_WE_"+suffix,*met,*wspace_WE,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_wen_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_wen_"+observable).c_str()),
 					  wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
@@ -988,12 +1007,16 @@ void createWorkspace(string   inputName,                        // input templat
       addTemplate("QCD_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("qbkghistwln_"+observable).c_str()),isCutAndCount);
       addTemplate("Dibosons_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("dbkghistwln_"+observable).c_str()),isCutAndCount);
       addTemplate("ZJets_EWK_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwln_"+observable).c_str()),isCutAndCount);
-      
+      if(category != Category::VBF)
+	addTemplate("WJets_EWK_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwln_"+observable).c_str()),isCutAndCount);
+
       if(addShapeSystematics){
 	addShapeVariations("vllbkghistwln","ZJets_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("tbkghistwln","Top_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
 	addShapeVariations("dbkghistwln","Dibosons_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);      
 	addShapeVariations("ewkzbkghistwln","ZJets_EWK_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
+	if(category != Category::VBF)
+	  addShapeVariations("ewkwbkghistwln","WJets_EWK_WL",suffix,observable,vars,*wspace_WL,templatesfile,"",isCombination,isCutAndCount);
       }
 
       if(addBinByBinMCUncertainty){
@@ -1002,26 +1025,28 @@ void createWorkspace(string   inputName,                        // input templat
         generateStatTemplate("QCD_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("qbkghistwln_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Dibosons_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("dbkghistwln_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("ZJets_EWK_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkzbkghistwln_"+observable).c_str()),1,isCutAndCount);
+	if(category != Category::VBF)
+	  generateStatTemplate("WJets_EWK_WL_"+suffix,vars,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwln_"+observable).c_str()),1,isCutAndCount);
       }
       
       if(not isCutAndCount){
 	// connected W->enu with W+jets SR 
 	vector<pair<RooRealVar*,TH1*> > wln_WL_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WL_syst;
-	makeConnectedBinList("WJets_WL_"+suffix,met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,wln_SR_bins,NULL,observable);
+	makeConnectedBinList("WJets_WL_"+suffix,*met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wlncorhist_"+observable).c_str()),wln_WL_syst,wln_SR_bins,NULL,observable);
 	if(category == Category::VBF)
-	  makeConnectedBinList("WJets_EWK_WL_"+suffix,met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wewklncorhist_"+observable).c_str()),wln_ewk_WL_syst,wln_ewk_SR_bins,NULL,observable);
+	  makeConnectedBinList("WJets_EWK_WL_"+suffix,*met,*wspace_WL,(TH1F*)templatesfile->FindObjectAny(("wewklncorhist_"+observable).c_str()),wln_ewk_WL_syst,wln_ewk_SR_bins,NULL,observable);
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_WL_syst;
-	makeConnectedBinListCutAndCount("WJets_WL_"+suffix,met,*wspace_WL,
+	makeConnectedBinListCutAndCount("WJets_WL_"+suffix,*met,*wspace_WL,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_wln_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_wln_"+observable).c_str()),
 					wln_WL_syst,wln_SR_bins,NULL,observable);
 	
 	vector<pair<RooRealVar*,systematicCutAndCount> > wln_ewk_WL_syst;
 	if(category == Category::VBF)
-	  makeConnectedBinListCutAndCount("WJets_EWK_WL_"+suffix,met,*wspace_WL,
+	  makeConnectedBinListCutAndCount("WJets_EWK_WL_"+suffix,*met,*wspace_WL,
 					  (TH1F*)templatesfile->FindObjectAny(("nhist_ewk_wln_"+observable).c_str()),
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_wln_"+observable).c_str()),
 					  wln_ewk_WL_syst,wln_ewk_SR_bins,NULL,observable);
@@ -1034,9 +1059,8 @@ void createWorkspace(string   inputName,                        // input templat
     //////////////////////////////////////
     cout<<"Make CR Gamma+jets  templates ..."<<endl;
     RooWorkspace wspace_GJ(("GJ_"+suffix).c_str(),("GJ_"+suffix).c_str());
-    
-    addTemplate("data_obs_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str()),isCutAndCount);
-    
+    addTemplate("data_obs_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("datahistgam_"+observable).c_str()),isCutAndCount);    
+
     // Gamma+jets --> connected with Z->nunu --> for the time being not used for Z-EWK background
     RooRealVar* znn_GJ_re1 = 0;
     RooRealVar* znn_GJ_fa1 = 0;
@@ -1046,6 +1070,20 @@ void createWorkspace(string   inputName,                        // input templat
     RooRealVar* znn_GJ_fpc = 0;
     RooRealVar* znn_GJ_rec = 0;
     RooRealVar* znn_GJ_ewk = 0;
+
+    // in case of flat unc.
+    RooRealVar* znn_GJ     = 0;
+
+    /////
+    RooRealVar* znn_GJ_qcdscale = 0;
+    RooRealVar* znn_GJ_qcdshape = 0;
+    RooRealVar* znn_GJ_qcdproc  = 0;
+    RooRealVar* znn_GJ_nnloewk  = 0;
+    RooRealVar* znn_GJ_sudakov_1  = 0;
+    RooRealVar* znn_GJ_sudakov_2  = 0;
+    RooRealVar* znn_GJ_nnlomiss_1 = 0;
+    RooRealVar* znn_GJ_nnlomiss_2 = 0;
+    RooRealVar* znn_GJ_qcdewkmix  = 0;
 
     if(not isCombination){
       znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  ,"",0.,-5.,5.);
@@ -1066,87 +1104,134 @@ void createWorkspace(string   inputName,                        // input templat
       znn_GJ_fpc = new RooRealVar("rec"  ,"",0.,-5.,5.);
       znn_GJ_ewk = new RooRealVar("ewk" ,"",0.,-5.,5.);
     }
-    
-    if(not isCutAndCount){
-      
-      vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;
-      
-      if(not correlateEWK)
-	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(NULL,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      else
-	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_ewk,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_RenScale1_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale1_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_RenScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str()),scaleZgammaUncertainty,"")));
-      
-      makeConnectedBinList("Znunu_GJ_"+suffix,met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
-      
-    }
-    else{
-      
-      vector<pair<RooRealVar*,systematicCutAndCount> > znn_GJ_syst;
-      
-      RooRealVar* znn_GJ_ewk = new RooRealVar(("Znunu_GJ_"+suffix+"_ZG_EWK").c_str(),""  ,0.,-5.,5.);
-      systematicCutAndCount znn_GJ_ewk_sys; // single bin everything here
-      znn_GJ_ewk_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str());
-      znn_GJ_ewk_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str());
-      znn_GJ_ewk_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_ewk_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_ewk,znn_GJ_ewk_sys));
-      
-      systematicCutAndCount znn_GJ_re1_sys;
-      znn_GJ_re1_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_re1_"+observable).c_str());
-      znn_GJ_re1_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_re1_"+observable).c_str());
-      znn_GJ_re1_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_re1_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_re1,znn_GJ_re1_sys));
-      
-      systematicCutAndCount znn_GJ_re2_sys;
-      znn_GJ_re2_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_re2_"+observable).c_str());
-      znn_GJ_re2_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_re2_"+observable).c_str());
-      znn_GJ_re2_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_re2_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_re2,znn_GJ_re2_sys));
-      
-      systematicCutAndCount znn_GJ_fa1_sys;
-      znn_GJ_fa1_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fa1_"+observable).c_str());
-      znn_GJ_fa1_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fa1_"+observable).c_str());
-      znn_GJ_fa1_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_fa1_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fa1,znn_GJ_fa1_sys));
-      
-      systematicCutAndCount znn_GJ_fa2_sys;
-      znn_GJ_fa2_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fa2_"+observable).c_str());
-      znn_GJ_fa2_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fa2_"+observable).c_str());
-      znn_GJ_fa2_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_fa2_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fa2,znn_GJ_fa2_sys));
-      
-      systematicCutAndCount znn_GJ_pdf_sys;
-      znn_GJ_pdf_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_pdf_"+observable).c_str());
-      znn_GJ_pdf_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_pdf_"+observable).c_str());
-      znn_GJ_pdf_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_pdf_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_pdf,znn_GJ_pdf_sys));
 
-      systematicCutAndCount znn_GJ_fpc_sys;
-      znn_GJ_fpc_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fpc_"+observable).c_str());
-      znn_GJ_fpc_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fpc_"+observable).c_str());
-      znn_GJ_fpc_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
-      znn_GJ_fpc_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
-      znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fpc,znn_GJ_fpc_sys));
+    // use old theory uncertainty
+    if(not useNewTheoryUncertainty){
       
-      makeConnectedBinListCutAndCount("Znunu_GJ_"+suffix,met,wspace_GJ,
-				      (TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str()),
-				      (TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str()),
-				      znn_GJ_syst,znn_SR_bins,NULL,observable);
-      
-    }
+      if(not isCutAndCount){	
+	vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;          
+	if(not addFlatZgammaUncertainty){
+	  if(not correlateEWK)
+	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(NULL,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  else
+	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_ewk,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_EWK_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_RenScale1_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale1_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_re2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_RenScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	}
+	else{
+	  znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
+          TH1* uncertainty_temp = (TH1*) templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str())->Clone("uncertainty_zg_qcd");
+	  uncertainty_temp->Reset();
+	  for(int iBin = 0; iBin < uncertainty_temp->GetNbinsX()+1; iBin++)
+	    uncertainty_temp->SetBinContent(iBin+1,flatZgammaUncertainty);
+	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  
+	}
+	makeConnectedBinList("Znunu_GJ_"+suffix,*met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
+
+      }
+      else{
+	
+	RooRealVar* znn_GJ_ewk = new RooRealVar(("Znunu_GJ_"+suffix+"_ZG_EWK").c_str(),""  ,0.,-5.,5.);
+	systematicCutAndCount znn_GJ_ewk_sys; // single bin everything here
+	vector<pair<RooRealVar*,systematicCutAndCount> > znn_GJ_syst;      
     
+	znn_GJ_ewk_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str());
+	znn_GJ_ewk_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str());
+	znn_GJ_ewk_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_ewk_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_ewk,znn_GJ_ewk_sys));
+	
+	systematicCutAndCount znn_GJ_re1_sys;
+	znn_GJ_re1_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_re1_"+observable).c_str());
+	znn_GJ_re1_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_re1_"+observable).c_str());
+	znn_GJ_re1_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_re1_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_re1,znn_GJ_re1_sys));
+	
+	systematicCutAndCount znn_GJ_re2_sys;
+	znn_GJ_re2_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_re2_"+observable).c_str());
+	znn_GJ_re2_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_re2_"+observable).c_str());
+	znn_GJ_re2_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_re2_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_re2,znn_GJ_re2_sys));
+      
+	systematicCutAndCount znn_GJ_fa1_sys;
+	znn_GJ_fa1_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fa1_"+observable).c_str());
+	znn_GJ_fa1_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fa1_"+observable).c_str());
+	znn_GJ_fa1_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_fa1_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fa1,znn_GJ_fa1_sys));
+	
+	systematicCutAndCount znn_GJ_fa2_sys;
+	znn_GJ_fa2_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fa2_"+observable).c_str());
+	znn_GJ_fa2_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fa2_"+observable).c_str());
+	znn_GJ_fa2_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_fa2_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fa2,znn_GJ_fa2_sys));
+	
+	systematicCutAndCount znn_GJ_pdf_sys;
+	znn_GJ_pdf_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_pdf_"+observable).c_str());
+	znn_GJ_pdf_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_pdf_"+observable).c_str());
+	znn_GJ_pdf_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_pdf_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_pdf,znn_GJ_pdf_sys));
+	
+	systematicCutAndCount znn_GJ_fpc_sys;
+	znn_GJ_fpc_sys.num_1 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_fpc_"+observable).c_str());
+	znn_GJ_fpc_sys.den_1 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_fpc_"+observable).c_str());
+	znn_GJ_fpc_sys.num_2 = (TH1F*)templatesfile->FindObjectAny(("nhist_gam_qcd_"+observable).c_str());
+	znn_GJ_fpc_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_gam_qcd_"+observable).c_str());
+	znn_GJ_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(znn_GJ_fpc,znn_GJ_fpc_sys));
+      
+	makeConnectedBinListCutAndCount("Znunu_GJ_"+suffix,*met,wspace_GJ,
+					(TH1F*)templatesfile->FindObjectAny(("nhist_gam_ewk_"+observable).c_str()),
+					(TH1F*)templatesfile->FindObjectAny(("dhist_gam_ewk_"+observable).c_str()),
+					znn_GJ_syst,znn_SR_bins,NULL,observable);
+	
+      }
+    }
+
+    else{
+      vector<pair<RooRealVar*,TH1*> > znn_GJ_syst;      	
+      znn_GJ_qcdscale = new RooRealVar("ZG_GJ_QCDScale","",0.,-5.,5.);
+      znn_GJ_qcdshape = new RooRealVar("ZG_GJ_QCDShape","",0.,-5.,5.);
+      znn_GJ_qcdproc  = new RooRealVar("ZG_GJ_QCDProcess","",0.,-5.,5.);
+      znn_GJ_nnloewk  = new RooRealVar("ZG_GJ_NNLOEWK","",0.,-5.,5.);
+      znn_GJ_pdf      = new RooRealVar("ZG_GJ_PDF","",0.,-5.,5.);
+      znn_GJ_sudakov_1  = new RooRealVar("Znunu_SR_Sudakov","",0.,-5.,5.);
+      znn_GJ_sudakov_2  = new RooRealVar("Gamma_GJ_Sudakov","",0.,-5.,5.);
+      znn_GJ_nnlomiss_1 = new RooRealVar("Znunu_SR_NNLOMiss","",0.,-5.,5.);
+      znn_GJ_nnlomiss_2 = new RooRealVar("Gamma_GJ_NNLOMiss","",0.,-5.,5.);
+      znn_GJ_qcdewkmix  = new RooRealVar("ZG_GJ_QCDEWKMIX","",0.,-5.,5.);
+      znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
+
+      if(not addFlatZgammaUncertainty){
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdscale,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDScale_"+observable).c_str()),scaleZgammaUncertainty,"")));	 
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdshape,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDShape_"+observable).c_str()),scaleZgammaUncertainty,"")));	 
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdproc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDProcess_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_nnloewk,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_NNLOEWK_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_sudakov_1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Sudakov1_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_sudakov_2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Sudakov2_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_nnlomiss_1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_NNLOMiss1_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_nnlomiss_2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_NNLOMiss2_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdewkmix,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_MIX_"+observable).c_str()),scaleZgammaUncertainty,"")));
+      }
+      else{
+	TH1* uncertainty_temp = (TH1*) templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str())->Clone("uncertainty_zg_qcd");
+	uncertainty_temp->Reset();
+	for(int iBin = 0; iBin < uncertainty_temp->GetNbinsX()+1; iBin++)
+	  uncertainty_temp->SetBinContent(iBin+1,flatZgammaUncertainty);
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  	
+      }
+      
+      makeConnectedBinList("Znunu_GJ_"+suffix,*met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
+    }
     
     // Other MC backgrounds photon+jets control region
     addTemplate("QCD_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("qbkghistgam_"+observable).c_str()),isCutAndCount);
@@ -1163,8 +1248,7 @@ void createWorkspace(string   inputName,                        // input templat
       generateStatTemplate("WJets_GJ_"+suffix,vars,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("vlbkghistgam_"+observable).c_str()),1,isCutAndCount);
     }
 
-    //// ttbar
-   
+    //// ttbar   
     RooWorkspace* wspace_TM = NULL;
     RooWorkspace* wspace_TE = NULL;
     
@@ -1202,7 +1286,7 @@ void createWorkspace(string   inputName,                        // input templat
 	vector<pair<RooRealVar*,TH1*> > top_TM_syst;
 	RooRealVar* top_btag   = new RooRealVar("Top_btag","",0.,-5.,5.);
 	top_TM_syst.push_back(pair<RooRealVar*,TH1*>(top_btag,(TH1F*)templatesfile->FindObjectAny(("TOP_MU_B_"+observable).c_str())));    
-	makeConnectedBinList("Top_TM_"+suffix,met,*wspace_TM,(TH1F*)templatesfile->FindObjectAny(("topmucorhist_"+observable).c_str()),top_TM_syst,top_SR_bins,NULL,observable);
+	makeConnectedBinList("Top_TM_"+suffix,*met,*wspace_TM,(TH1F*)templatesfile->FindObjectAny(("topmucorhist_"+observable).c_str()),top_TM_syst,top_SR_bins,NULL,observable);
 	
       }
       else{
@@ -1215,7 +1299,7 @@ void createWorkspace(string   inputName,                        // input templat
 	top_TM_btag_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_topmu_"+observable).c_str());
 	top_TM_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(top_btag,top_TM_btag_sys));
 	
-	makeConnectedBinListCutAndCount("TOP_TM_"+suffix,met,*wspace_TM,
+	makeConnectedBinListCutAndCount("TOP_TM_"+suffix,*met,*wspace_TM,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_topmu_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_topmu_"+observable).c_str()),
 					top_TM_syst,top_SR_bins,NULL,observable);
@@ -1237,7 +1321,7 @@ void createWorkspace(string   inputName,                        // input templat
 	vector<pair<RooRealVar*,TH1*> > top_TE_syst;
 	RooRealVar* top_btag   = new RooRealVar("Top_btag","",0.,-5.,5.);
 	top_TE_syst.push_back(pair<RooRealVar*,TH1*>(top_btag,(TH1F*)templatesfile->FindObjectAny(("TOP_MU_B_"+observable).c_str())));    
-	makeConnectedBinList("Top_TE_"+suffix,met,*wspace_TE,(TH1F*)templatesfile->FindObjectAny(("topelcorhist_"+observable).c_str()),top_TE_syst,top_SR_bins,NULL,observable);
+	makeConnectedBinList("Top_TE_"+suffix,*met,*wspace_TE,(TH1F*)templatesfile->FindObjectAny(("topelcorhist_"+observable).c_str()),top_TE_syst,top_SR_bins,NULL,observable);
 	
       }
       else{
@@ -1250,7 +1334,7 @@ void createWorkspace(string   inputName,                        // input templat
 	top_TE_btag_sys.den_2 = (TH1F*)templatesfile->FindObjectAny(("dhist_topel_"+observable).c_str());
 	top_TE_syst.push_back(pair<RooRealVar*,systematicCutAndCount>(top_btag,top_TE_btag_sys));
 	
-	makeConnectedBinListCutAndCount("TOP_TE_"+suffix,met,*wspace_TE,
+	makeConnectedBinListCutAndCount("TOP_TE_"+suffix,*met,*wspace_TE,
 					(TH1F*)templatesfile->FindObjectAny(("nhist_topel_"+observable).c_str()),
 					(TH1F*)templatesfile->FindObjectAny(("dhist_topel_"+observable).c_str()),
 					top_TE_syst,top_SR_bins,NULL,observable);
