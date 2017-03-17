@@ -871,4 +871,3 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
   outfile.Close();
 }
 
->

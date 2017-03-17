@@ -165,7 +165,7 @@ void makeTriggerAnalysis(vector<TTree*> trees, TH1F* hnum, TH1F* hden, const Sam
       if(not makeSelectionGen and fabs(*metpf-*metcalo)/(*mmet) > 0.5) continue;
 
       if(askForTriggerDenominator and sample == Sample::wmn and not *hltsinglemu) continue;
-      else if(askForTriggerDenominator and sample == Sample::zmm and (not *hltdoublemu or not *hltsinglemu)) continue;
+      else if(askForTriggerDenominator and sample == Sample::zmm and not (*hltdoublemu and *hltsinglemu)) continue;
       else if(askForTriggerDenominator and sample == Sample::wen and not *hltsingleel) continue;
       // apply jet pt selections
       if(applyJetSelections){

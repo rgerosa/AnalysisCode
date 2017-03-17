@@ -9,7 +9,7 @@ config = Configuration()
 pyCfgParams = ['isMC=True',
                'filterOnHLT=False',
                'filterHighMETEvents=True',
-               'metCut=50',
+               'metCut=80',
                'applyL2L3Residuals=False',
                'addQGLikelihood=False',
                'addPileupJetID=False',
@@ -25,7 +25,7 @@ pyCfgParams = ['isMC=True',
                'miniAODProcess=PAT'
                'outputFileName=tree.root',
                'isTriggerTree=True',
-               'addTriggerObjects=False',
+               'addTriggerObjects=True',
                'nThreads=4',
                'isCrab=True']
 

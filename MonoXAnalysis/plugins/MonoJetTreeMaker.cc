@@ -148,6 +148,7 @@ private:
   const bool isMC;
   const bool isTriggerTree;
   const bool addTriggerObjects;
+  const bool addNonETMTriggerObjects;
   const bool uselheweights;
   const edm::InputTag lheEventTag;
   const edm::InputTag lheRunTag;
@@ -675,6 +676,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   isMC          (iConfig.existsAs<bool>("isMC") ? iConfig.getParameter<bool>("isMC") : false),
   isTriggerTree (iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false),
   addTriggerObjects (iConfig.existsAs<bool>("addTriggerObjects") ? iConfig.getParameter<bool>("addTriggerObjects") : false),
+  addNonETMTriggerObjects (iConfig.existsAs<bool>("addNonETMTriggerObjects") ? iConfig.getParameter<bool>("addNonETMTriggerObjects") : false),
   // use lhe weights or not
   uselheweights (iConfig.existsAs<bool>("uselheweights") ? iConfig.getParameter<bool>("uselheweights") : false),
   lheEventTag   (iConfig.getParameter<edm::InputTag>("lheinfo")),
@@ -3899,16 +3901,19 @@ void MonoJetTreeMaker::beginJob() {
       tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");
       tree->Branch("hltPFHT350"           , &hltPFHT350           , "hltPFHT350/b");
     }
-    tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
-    tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
-    tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
-    tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
-    tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
-    tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
-    tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
-    tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
-    
-    if((isTriggerTree and not isMC) or isQCDTree){
+
+    if(not isTriggerTree or (isTriggerTree and addNonETMTriggerObjects)){
+      tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
+      tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
+      tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
+      tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
+      tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
+      tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
+      tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
+      tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
+    }
+
+    if((isTriggerTree and not isMC and addNonETMTriggerObjects) or isQCDTree){
       tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/F");
       tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/F");
       tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/F");
@@ -3942,17 +3947,21 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("trig_obj_phi"         , "std::vector<float>" , &trig_obj_phi);  //ND
     tree->Branch("trig_obj_col"         , "std::vector<std::string>" , &trig_obj_col); //, buffersize); //ND 
 
-    tree->Branch("trig_L1A_check"       , &trig_L1A_check            , "trig_L1A_check/I"); //ND
-    tree->Branch("trig_L1A_n"           , &trig_L1A_n                , "trig_L1A_n/I"); //ND 
+    if(addNonETMTriggerObjects){
+      tree->Branch("trig_L1A_check"       , &trig_L1A_check            , "trig_L1A_check/I"); //ND
+      tree->Branch("trig_L1A_n"           , &trig_L1A_n                , "trig_L1A_n/I"); //ND 
+    }
     tree->Branch("trig_L1A_list"        , "std::vector<std::string>" , &trig_L1A_list); //ND
  
-    tree->Branch("trig_L1EG_pt"         , "std::vector<float>" , &trig_L1EG_pt); //ND
-    tree->Branch("trig_L1EG_eta"        , "std::vector<float>" , &trig_L1EG_eta); //ND
-    tree->Branch("trig_L1EG_phi"        , "std::vector<float>" , &trig_L1EG_phi); //ND 
+    if(addNonETMTriggerObjects){
+      tree->Branch("trig_L1EG_pt"         , "std::vector<float>" , &trig_L1EG_pt); //ND
+      tree->Branch("trig_L1EG_eta"        , "std::vector<float>" , &trig_L1EG_eta); //ND
+      tree->Branch("trig_L1EG_phi"        , "std::vector<float>" , &trig_L1EG_phi); //ND 
     //
-    tree->Branch("trig_L1Jet_pt"        , "std::vector<float>" , &trig_L1Jet_pt); //ND
-    tree->Branch("trig_L1Jet_eta"       , "std::vector<float>" , &trig_L1Jet_eta); //ND
-    tree->Branch("trig_L1Jet_phi"       , "std::vector<float>" , &trig_L1Jet_phi); //ND
+      tree->Branch("trig_L1Jet_pt"        , "std::vector<float>" , &trig_L1Jet_pt); //ND
+      tree->Branch("trig_L1Jet_eta"       , "std::vector<float>" , &trig_L1Jet_eta); //ND
+      tree->Branch("trig_L1Jet_phi"       , "std::vector<float>" , &trig_L1Jet_phi); //ND
+    }
     //
     tree->Branch("trig_L1Mu_pt"         , "std::vector<float>" , &trig_L1Mu_pt); //ND
     tree->Branch("trig_L1Mu_eta"        , "std::vector<float>" , &trig_L1Mu_eta); //ND
@@ -3961,15 +3970,18 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("trig_L1ETM_pt"        , &trig_L1ETM_pt        , "trig_L1ETM_pt/F"); //ND
     tree->Branch("trig_L1ETM_phi"       , &trig_L1ETM_phi       , "trig_L1ETM_phi/F"); //ND
     //
-    tree->Branch("trig_L1ETT_pt"        , &trig_L1ETT_pt        , "trig_L1ETT_pt/F"); //ND
-    tree->Branch("trig_L1ETT_phi"       , &trig_L1ETT_phi       , "trig_L1ETT_phi/F"); //ND
+    if(addNonETMTriggerObjects){
+      tree->Branch("trig_L1ETT_pt"        , &trig_L1ETT_pt        , "trig_L1ETT_pt/F"); //ND
+      tree->Branch("trig_L1ETT_phi"       , &trig_L1ETT_phi       , "trig_L1ETT_phi/F"); //ND
+    }
     //
     tree->Branch("trig_L1HTM_pt"        , &trig_L1HTM_pt        , "trig_L1HTM_pt/F"); //ND
     tree->Branch("trig_L1HTM_phi"       , &trig_L1HTM_phi       , "trig_L1HTM_phi/F"); //ND
-    //
-    tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/F"); //ND
-    tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/F"); //ND
 
+    if(addNonETMTriggerObjects){      
+      tree->Branch("trig_L1HTT_pt"        , &trig_L1HTT_pt        , "trig_L1HTT_pt/F"); //ND
+      tree->Branch("trig_L1HTT_phi"       , &trig_L1HTT_phi       , "trig_L1HTT_phi/F"); //ND
+    }
   }
 
   // Object counts
@@ -5826,17 +5838,20 @@ void MonoJetTreeMaker::fillTriggerObjects(const edm::Handle<pat::TriggerObjectSt
       iObj++ ;
       obj.unpackPathNames(trignames);
       
-      // trigger objec
-      trig_obj_pt.push_back( obj.pt());
-      trig_obj_eta.push_back(obj.eta());
-      trig_obj_phi.push_back(obj.phi());
-
+      
       // collection name
       trgColl = obj.collection();
-      trig_obj_col.push_back(trgColl);
-
-      // Increment trigger object index
-      trig_obj_n++ ;
+      // dump only e-gamma candidates / met and PFmuons
+      if(TString(trgColl).Contains("hltMet") or TString(trgColl).Contains("hltMET") or TString(trgColl).Contains("hltMht") or TString(trgColl).Contains("hltMHT") or 
+	 TString(trgColl).Contains("hltPFMet") or TString(trgColl).Contains("hltPFMHT") or TString(trgColl).Contains("hltPFMET") or TString(trgColl).Contains("hltL2MuonCandidates") or TString(trgColl).Contains("hltL3MuonCandidates")){
+	trig_obj_col.push_back(trgColl);	
+	// trigger objec
+	trig_obj_pt.push_back( obj.pt());
+	trig_obj_eta.push_back(obj.eta());
+	trig_obj_phi.push_back(obj.phi());		
+	// Increment trigger object index
+	trig_obj_n++ ;
+      }
     }
   }  
 }
@@ -5872,7 +5887,7 @@ void MonoJetTreeMaker::fillAlgosL1(const edm::Event & iEvent,
   for (auto const & keyval: menu->getAlgorithmMap()) { 
     std::string const & trigName  = keyval.second.getName(); 
     unsigned int index = keyval.second.getIndex(); 
-    if(index<nBits) algoBitToName[index] = trigName;
+    if(index < nBits) algoBitToName[index] = trigName;
   } // end algo Map
 
   // Get the L1 decision per algo //
@@ -5882,8 +5897,10 @@ void MonoJetTreeMaker::fillAlgosL1(const edm::Event & iEvent,
     // Check decision for this bit
     bool myflag = result.getAlgoDecisionFinal(itrig) ; 
     if(myflag ) { 
-      trig_L1A_list.push_back(algoBitToName[itrig]);
-      trig_L1A_n++ ;
+      if(TString(algoBitToName[itrig]).Contains("ETM")){
+	trig_L1A_list.push_back(algoBitToName[itrig]);
+	trig_L1A_n++ ;
+      }
     }
   } // end loop: L1 trigger results  
 }
@@ -5905,9 +5922,11 @@ void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> 
   float minL1Jet = 50;
   float minL1Mu  = 15;
 
+  int bunchCrossing = 0;
+  
   // L1 EG    
   if(H_L1EG.isValid()) {
-    for (l1t::EGammaBxCollection::const_iterator it=H_L1EG->begin(); it!=H_L1EG->end(); it++){
+    for (l1t::EGammaBxCollection::const_iterator it=H_L1EG->begin(bunchCrossing); it!=H_L1EG->end(bunchCrossing); it++){
       if(it->pt() < minL1EG) continue;
       trig_L1EG_pt .push_back( it->pt()  );
       trig_L1EG_eta.push_back( it->eta() );
@@ -5917,7 +5936,7 @@ void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> 
   
   // L1 Jet
   if(H_L1Jet.isValid()) {
-    for (l1t::JetBxCollection::const_iterator it=H_L1Jet->begin(); it!=H_L1Jet->end(); it++){
+    for (l1t::JetBxCollection::const_iterator it=H_L1Jet->begin(bunchCrossing); it!=H_L1Jet->end(bunchCrossing); it++){
       if(it->pt() < minL1Jet) continue;
       trig_L1Jet_pt .push_back( it->pt()  );
       trig_L1Jet_eta.push_back( it->eta() );
@@ -5927,7 +5946,7 @@ void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> 
 
   // L1 Mu
   if(H_L1Mu.isValid()) {
-    for (l1t::MuonBxCollection::const_iterator it=H_L1Mu->begin(); it!=H_L1Mu->end(); it++){
+    for (l1t::MuonBxCollection::const_iterator it=H_L1Mu->begin(bunchCrossing); it!=H_L1Mu->end(bunchCrossing); it++){
       if(it->pt() < minL1Mu) continue;
       trig_L1Mu_pt .push_back( it->pt()  );
       trig_L1Mu_eta.push_back( it->eta() );
@@ -5937,24 +5956,24 @@ void MonoJetTreeMaker::fillTriggerL1(const edm::Handle<l1t::EGammaBxCollection> 
   
   // L1 Sums
   if(H_L1Sums.isValid()) {
-    for (l1t::EtSumBxCollection::const_iterator it=H_L1Sums->begin(); it!=H_L1Sums->end(); it++){
+    for (l1t::EtSumBxCollection::const_iterator it=H_L1Sums->begin(bunchCrossing); it!=H_L1Sums->end(bunchCrossing); it++){
       
       sumType = static_cast<int>( it->getType() );
       if(sumType == l1t::EtSum::kTotalEt){
-	  trig_L1ETT_pt  = it->et();
-	  trig_L1ETT_phi = it->phi();
+	trig_L1ETT_pt  = it->et();
+	trig_L1ETT_phi = it->phi();
       }
       else if(sumType == l1t::EtSum::kTotalHt){
-	  trig_L1HTT_pt  = it->et();
-	  trig_L1HTT_phi = it->phi();
+	trig_L1HTT_pt  = it->et();
+	trig_L1HTT_phi = it->phi();
       }
       else if(sumType == l1t::EtSum::kMissingEt){
-	  trig_L1ETM_pt  = it->et();
-	  trig_L1ETM_phi = it->phi();
+	trig_L1ETM_pt  = it->et();
+	trig_L1ETM_phi = it->phi();
       }
       else if(sumType == l1t::EtSum::kMissingHt){
-	  trig_L1HTM_pt  = it->et();
-	  trig_L1HTM_phi = it->phi();
+	trig_L1HTM_pt  = it->et();
+	trig_L1HTM_phi = it->phi();
       }      
     }    
   }

@@ -304,8 +304,8 @@ if options.inputFiles == []:
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/327DB0D1-F93C-E611-8A11-02163E01450B.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/48E5D6C8-F93C-E611-8A3E-02163E014439.root')
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/528A6ECD-F93C-E611-B0A1-02163E01383E.root')
-		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
-		process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/23Sep2016-v1/50000/004F3A63-2E84-E611-AEFB-00266CFFC43C.root')
+		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
+		#process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/23Sep2016-v1/50000/004F3A63-2E84-E611-AEFB-00266CFFC43C.root')
 		#process.source.fileNames.append('/store/data/Run2016G/MET/MINIAOD/23Sep2016-v1/90000/124A2693-B38A-E611-BC48-002590FC5ACC.root')
 
 	else:
