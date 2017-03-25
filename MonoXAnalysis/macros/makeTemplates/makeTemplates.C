@@ -32,7 +32,7 @@ static bool useNewTheoryUncertainty = true;
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
 		   Category category             = Category::monojet,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
-		   double lumi                   = 36.46, // 
+		   double lumi                   = 36.9, // 
 		   string outDir                 = "", // output dir for template file
 		   string templateSuffix         = "",  // suffix for the output file
 		   vector<string> observables    = {"met"}, // 1D histo

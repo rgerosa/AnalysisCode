@@ -243,6 +243,7 @@ void makezmmcorhist( const string &   signalRegionFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }  
  
+  // close output file
   outfile.cd();
   outfile.Close();
 
@@ -1589,7 +1590,9 @@ void  makezwjcorhist(const string & znunuFile,
   }
 
 
+  outfile.cd();
   outfile.Close();
+
   if(kffile)
     kffile->Close();
   if(kffile_alt)
@@ -2254,7 +2257,9 @@ void makegamcorhist( const string & znunuFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
+  outfile.cd();
   outfile.Close();
+
   if(kffile)
     kffile->Close();
   if(kffile_alt)
@@ -2935,7 +2940,9 @@ void makewgamcorhist( const string & wlnuFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
+  outfile.cd();
   outfile.Close();
+
   nhist.clear();
   dhist.clear();
   tfhist.clear();

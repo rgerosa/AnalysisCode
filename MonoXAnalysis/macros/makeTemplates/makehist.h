@@ -365,17 +365,18 @@ void makehist4(TTree* tree, /*input tree*/
   // Met trigger efficiency
   TFile* triggerfile_MET = NULL;
   TFile* triggerfile_MET_zmm  = NULL;
-  TFile* triggerfile_MET_SF   = NULL;
 
   vector<TFile*> triggerfile_MET_binned;
   if(useMoriondSetup){
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
+      // Use Wmn or Wen for W+jets and SR
       if(useSingleMuon)
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
       else
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
+      // Zmm measurement for Zmm CR
       triggerfile_MET_zmm = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet_zmm.root");
-      triggerfile_MET_SF  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerScaleFactor.root");
+
     }
     else{
       if(useSingleMuon){
@@ -434,13 +435,7 @@ void makehist4(TTree* tree, /*input tree*/
       triggermet_zmm = (TEfficiency*) triggerfile_MET_zmm->Get("efficiency");
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
-
-  if(triggerfile_MET_SF != NULL){
-    triggermet_graph_zvv_mc = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("efficiency_zvv");
-    triggermet_graph_wjet_mc = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("efficiency_wjet");
-    triggermet_graph_wjet_sf = (TGraphAsymmErrors*) triggerfile_MET_SF->Get("scalefactor_wmn");
-  }
-
+  
   vector<TF1*> triggermet_func_binned;
   if(triggerfile_MET_binned.size() != 0){
     for(auto ifile : triggerfile_MET_binned)
@@ -1219,18 +1214,15 @@ void makehist4(TTree* tree, /*input tree*/
 
     // met trigger scale factor
     if (isMC && (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun)) {
-      if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun))
+      // single trigger turn on to be applied
+      if(triggermet_graph and (sample == Sample::wmn ||  sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun || sample == Sample::sig))
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));
+      // for Zmm
       else if(triggermet_graph_zmm and sample == Sample::zmm)
 	sfwgt *= triggermet_graph_zmm->Eval(min(pfmet,triggermet_graph_zmm->GetXaxis()->GetXmax()));
       else if(triggermet_graph and sample == Sample::zmm)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
-      else if(triggermet_graph_zvv_mc and triggermet_graph_wjet_mc and sample == Sample::sig){
-	// since no bits are in MC used for analysis --> take average among Zvv and Wjet
-	sfwgt *= triggermet_graph_wjet_sf->Eval(min(pfmet,triggermet_graph_wjet_sf->GetXaxis()->GetXmax()))*triggermet_graph_zvv_mc->Eval(min(pfmet,triggermet_graph_zvv_mc->GetXaxis()->GetXmax()));
-      }
-      else if(triggermet_graph and sample == Sample::sig)
-	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      	
+      // for VBF
       else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
@@ -1263,16 +1255,12 @@ void makehist4(TTree* tree, /*input tree*/
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
       btagw = 0.92;
-    else if(isMC and sample != Sample::topmu and sample != Sample::topel and sample != Sample::gam and sample != Sample::zmm){
-      if(sample != Sample::sig and sample != Sample::zee and sample != Sample::wmn)
-	btagw = 0.99;
-      else if(sample == Sample::zee)
-	btagw = 0.98;
-      else if(sample == Sample::zmm)
-	btagw = 1.005;
-      else if(sample == Sample::sig)
-	btagw = 1.011;
-    }
+    else if(isMC and sample == Sample::zee)
+      btagw = 0.98;
+    else if(isMC and sample == Sample::sig)
+      btagw = 1.017;
+    else if(isMC and sample == Sample::wmn)
+      btagw = 1.01;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -2187,8 +2175,6 @@ void makehist4(TTree* tree, /*input tree*/
     triggerfile_MET->Close();
   if(triggerfile_MET_zmm != NULL)
     triggerfile_MET_zmm->Close();
-  if(triggerfile_MET_SF != NULL)
-    triggerfile_MET_SF->Close();
   if(triggerfile_SinglePhoton != NULL)
     triggerfile_SinglePhoton->Close();
   if(triggerfile_SinglePhoton_jetHT != NULL)
