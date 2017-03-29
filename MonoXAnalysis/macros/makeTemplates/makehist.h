@@ -45,7 +45,7 @@ const float mjjrelaxed      = 250;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
-const float dphijj          = 2.0;
+const float dphijj          = 1.5;
 const float dphijjrelaxed   = 2.0;
 const bool  removeVBF       = false;
 // Additional selections

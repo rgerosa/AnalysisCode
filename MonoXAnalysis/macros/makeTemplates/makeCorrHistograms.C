@@ -164,7 +164,6 @@ void makezmmcorhist( const string &   signalRegionFile,
       dyhists.push_back(zjet_nlo_vbf);    
   }
 
-
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
@@ -257,13 +256,33 @@ void makezmmcorhist( const string &   signalRegionFile,
   ehists.clear();
   zhists.clear();
   dyhists.clear();
-
+  
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist: tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+  
+  for(auto hist: nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist: dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist: tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist: unrolled)
+    if(hist)  delete hist;
   unrolled.clear();
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
@@ -519,12 +538,32 @@ void makezeecorhist( const string &   signalRegionFile,
   zhists.clear();
   dyhists.clear();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
@@ -742,10 +781,33 @@ void makewmncorhist( const string &  signalRegionFile,
 
   whists.clear();
   ehists.clear();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
@@ -959,12 +1021,32 @@ void makewencorhist( const string &  signalRegionFile,
   if(kfactwjet_vbf)
     kfactwjet_vbf->Close();
 
-  whists.clear();
-  ehists.clear();
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
@@ -1611,12 +1693,34 @@ void  makezwjcorhist(const string & znunuFile,
   zhists.clear();
   whists.clear();
   ehists.clear();
+
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
   
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
@@ -2279,12 +2383,32 @@ void makegamcorhist( const string & znunuFile,
   if(kffile_unlops)
     kffile_unlops->Close();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
@@ -2943,13 +3067,6 @@ void makewgamcorhist( const string & wlnuFile,
   outfile.cd();
   outfile.Close();
 
-  nhist.clear();
-  dhist.clear();
-  tfhist.clear();
-  nhist_2D.clear();
-  dhist_2D.clear();
-  tfhist_2D.clear();
-  unrolled.clear();
 
   if(kffile)
     kffile->Close();
@@ -2970,6 +3087,33 @@ void makewgamcorhist( const string & wlnuFile,
   if(kffile_unlops)
     kffile_unlops->Close();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
+  nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
+  dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
+  nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
+  dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
+  unrolled.clear();
 
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }
@@ -3171,19 +3315,35 @@ void maketopmucorhist( const string & signalRegionFile,
   }
 
   outfile.Close();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
-  nhist_alt.clear();
-  dhist_alt.clear();
-  tfhist_alt.clear();
-  nhist_2D_alt.clear();
-  dhist_2D_alt.clear();
-  tfhist_2D_alt.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -3386,21 +3546,34 @@ void maketopelcorhist( const string & signalRegionFile,
   }
 
   outfile.Close();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
-  nhist_alt.clear();
-  dhist_alt.clear();
-  tfhist_alt.clear();
-  nhist_2D_alt.clear();
-  dhist_2D_alt.clear();
-  tfhist_2D_alt.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
-
-//  LocalWords:  signalRegionFile
