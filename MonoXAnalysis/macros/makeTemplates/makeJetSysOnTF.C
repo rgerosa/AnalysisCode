@@ -35,50 +35,50 @@ void makeJetSysOnTF(Category category, // define selections
   if(nloSamples.usePhotonJetsNLO)
     nloSamples.PhotonJetsDIR = "PhotonJetsNLO";
 
-  
   cout<<"make correction histogram for Zmm to Znn"<<endl;
   makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false);
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false,false);
 
   cout<<"make correction histogram for Zmm to Znn --> jesUp"<<endl;
   makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,"jesUp");
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,false,"jesUp");
+
 
   cout<<"make correction histogram for Zmm to Znn --> jesDw"<<endl;
   makezmmcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.DYJetsDIR+"/zmmfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,"jesDw");
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,false,"jesDw");
 
   cout<<"make correction histogram for Wmn to Wln"<<endl;
   makewmncorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wmnfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false);
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false,false);
 
   cout<<"make correction histogram for Wmn to Wln --> jesUp"<<endl;
   makewmncorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wmnfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,"jesUp");
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,false,"jesUp");
 
   cout<<"make correction histogram for Wmn to Wln --> jesDw"<<endl;
   makewmncorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/wmnfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,"jesDw");
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,false,"jesDw");
 
   cout<<"make correction histogram for Znn to Wln"<<endl;
   makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false,"",3);
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"",true,false,false,true,"",2);
 
   cout<<"make correction histogram for Znn to Wln --> jesUp"<<endl;
   makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,"jesUp",3);
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesUp",true,false,false,true,"jesUp",2);
   
   cout<<"make correction histogram for Znn to Wln --> jesDw"<<endl;
   makezwjcorhist(baseInputTreePath+"/"+nloSamples.ZJetsDIR +"/sigfilter/",
 		 baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
-		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,"jesDw",3);
+		 category,nloSamples,observables,observables_2D,lumi,outDir,"jesDw",true,false,false,true,"jesDw",2);
   
 }
