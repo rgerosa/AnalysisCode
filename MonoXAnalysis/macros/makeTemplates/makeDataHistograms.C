@@ -1153,6 +1153,21 @@ void sigdatamchist(TFile* outfile,
   if(kffile_unlops)
     kffile_unlops->Close();
 
+  if(zntree) delete zntree;
+  if(wltree) delete wltree;
+  if(zltree) delete zltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(ditree) delete ditree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(vgamtree) delete vgamtree;
+  if(zgtree) delete zgtree;
+  if(wgtree) delete wgtree;
+  if(dttree) delete dttree;
+
   cout << "Templates for the signal region computed ..." << endl;
 }
 
@@ -1175,7 +1190,6 @@ void gamdatamchist(TFile* outfile,
   TChain* wgtree = new TChain("tree/tree");
   TChain* zgtree = new TChain("tree/tree");
   TChain* vltree = new TChain("tree/tree");
-
 
   //dttree->Add((baseInputTreePath+"/SinglePhoton_jecReReco/gamfilter/*root").c_str());
   dttree->Add((baseInputTreePath+"/SinglePhoton_reMiniAOD/gamfilter/*root").c_str());
@@ -1425,6 +1439,13 @@ void gamdatamchist(TFile* outfile,
     kffile->Close();
   if(kffile_unlops)
     kffile_unlops->Close();
+  
+  if(dttree) delete dttree;
+  if(gmtree) delete gmtree;
+  if(wgtree) delete wgtree;
+  if(zgtree) delete zgtree;
+  if(vltree) delete vltree;
+
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
 
@@ -2588,6 +2609,28 @@ void lepdatamchist(TFile* outfile,
     kffile_alt->Close();
   if(kffile_unlops)
     kffile_unlops->Close();
+
+  if(tttree) delete tttree;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qctree) delete qctree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(zgtree) delete zgtree;
+  if(wgtree) delete wgtree;
+  if(vltree_nlo1) delete vltree_nlo1;
+  if(vltree_nlo2) delete vltree_nlo2;
+  if(vltree_nlo3) delete vltree_nlo3;
+  if(vltree_nlo4) delete vltree_nlo4;
+  if(vlltree_nlo1) delete vlltree_nlo1;
+  if(vlltree_nlo2) delete vlltree_nlo2;
+  if(vlltree_nlo3) delete vlltree_nlo3;
+  if(vlltree_nlo4) delete vlltree_nlo4;
+  if(dttree) delete dttree;
+  if(dttree_2) delete dttree_2;
+
   cout << "Templates for the lepton control region computed ..." << endl;
 }
 
@@ -3373,6 +3416,15 @@ void topdatamchist(TFile* outfile,
   vllhist_metResDw_2D.clear();
   vllhist_metUncUp_2D.clear();
   vllhist_metUncDw_2D.clear();
+
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qctree) delete qctree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the top control region computed ..." << endl;
 }
@@ -3728,6 +3780,18 @@ void qcddatamchist(TFile* outfile,
   ewkwhist_2D.clear();
   ewkzhist_2D.clear();
   dthist_2D.clear();
+
+  if(vnntree) delete vnntree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the QCD region computed ..." << endl;
 }
@@ -4084,6 +4148,18 @@ void taudatamchist(TFile* outfile,
   ewkwhist_2D.clear();
   ewkzhist_2D.clear();
   dthist_2D.clear();
+
+  if(vnntree) delete vnntree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the Tau region computed ..." << endl;
 }
