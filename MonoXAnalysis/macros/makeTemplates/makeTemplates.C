@@ -75,13 +75,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     nloSamples.PhotonJetsDIR = "PhotonJetsNLO";
   ////////////////////////////
 
+  if (not skipTFsystematics and (category != Category::monojet and category != Category::monoV) and useNewTheoryUncertainty){
+    cerr<<"Protection --> new theory uncertainty can be used only for monojet category --> switched to false"<<endl;
+    useNewTheoryUncertainty = false;
+  }
+
+
   ////////// Transfer factors
   if(doCorrectionHistograms){    
-
-    if (not skipTFsystematics and (category != Category::monojet and category != Category::monoV) and useNewTheoryUncertainty){
-      cerr<<"Protection --> new theory uncertainty can be used only for monojet category"<<endl;
-      return;
-    }
 
     // NLO QCD + NLO EWK
     cout<<"make correction histogram for Zmm to Znn"<<endl;      

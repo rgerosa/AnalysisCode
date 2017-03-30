@@ -46,7 +46,7 @@ const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
-const float dphijjrelaxed   = 2.0;
+const float dphijjrelaxed   = 1.5;
 const bool  removeVBF       = false;
 // Additional selections
 const float photonPt        = 175;
@@ -1968,7 +1968,7 @@ void makehist4(TTree* tree, /*input tree*/
 	evtwgt = hltw;      
  
       //    if(pfmet > 1160) cout<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<endl;
-
+      
       hist->Fill(fillvar, evtwgt);
     }
 

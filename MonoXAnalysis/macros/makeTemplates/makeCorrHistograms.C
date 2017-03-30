@@ -285,6 +285,10 @@ void makezmmcorhist( const string &   signalRegionFile,
     if(hist)  delete hist;
   unrolled.clear();
 
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
+
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
 
@@ -566,6 +570,9 @@ void makezeecorhist( const string &   signalRegionFile,
     if(hist) delete hist;
   unrolled.clear();
 
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
 
@@ -810,6 +817,9 @@ void makewmncorhist( const string &  signalRegionFile,
     if(hist) delete hist;
   unrolled.clear();
 
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
 
@@ -1048,6 +1058,9 @@ void makewencorhist( const string &  signalRegionFile,
   for(auto hist : unrolled)
     if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -1722,6 +1735,9 @@ void  makezwjcorhist(const string & znunuFile,
   for(auto hist : unrolled)
     if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
   
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -2410,6 +2426,9 @@ void makegamcorhist( const string & znunuFile,
   for(auto hist : unrolled)
     if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -3115,6 +3134,9 @@ void makewgamcorhist( const string & wlnuFile,
     if(hist) delete hist;
   unrolled.clear();
 
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }
 
@@ -3343,6 +3365,9 @@ void maketopmucorhist( const string & signalRegionFile,
   for(auto hist : unrolled)
     if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
@@ -3574,6 +3599,9 @@ void maketopelcorhist( const string & signalRegionFile,
   for(auto hist : unrolled)
     if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
