@@ -957,6 +957,52 @@ void sigdatamchist(TFile* outfile,
   dyhists.clear();
   ahists.clear();
 
+  for(auto hist: znhist) delete hist;
+  for(auto hist: wlhist) delete hist;
+  for(auto hist: wlhist_mu) delete hist;
+  for(auto hist: wlhist_el) delete hist;
+  for(auto hist: wlhist_ta) delete hist;
+  for(auto hist: zlhist) delete hist;
+  for(auto hist: zlhist_metJetUp) delete hist;
+  for(auto hist: zlhist_metJetDw) delete hist;
+  for(auto hist: zlhist_metResUp) delete hist;
+  for(auto hist: zlhist_metResDw) delete hist;
+  for(auto hist: zlhist_metUncUp) delete hist;
+  for(auto hist: zlhist_metUncDw) delete hist;
+  for(auto hist: tthist) delete hist;
+  for(auto hist: tthist_metJetUp) delete hist;
+  for(auto hist: tthist_metJetDw) delete hist;
+  for(auto hist: tthist_metResUp) delete hist;
+  for(auto hist: tthist_metResDw) delete hist;
+  for(auto hist: tthist_metUncUp) delete hist;
+  for(auto hist: tthist_metUncDw) delete hist;
+  for(auto hist: tthist_alt) delete hist;
+  for(auto hist: tthist_alt_metJetUp) delete hist;
+  for(auto hist: tthist_alt_metJetDw) delete hist;
+  for(auto hist: tthist_alt_metResUp) delete hist;
+  for(auto hist: tthist_alt_metResDw) delete hist;
+  for(auto hist: tthist_alt_metUncUp) delete hist;
+  for(auto hist: tthist_alt_metUncDw) delete hist;
+  for(auto hist: dihist) delete hist;
+  for(auto hist: dihist_metJetUp) delete hist;
+  for(auto hist: dihist_metJetDw) delete hist;
+  for(auto hist: dihist_metResUp) delete hist;
+  for(auto hist: dihist_metResDw) delete hist;
+  for(auto hist: dihist_metUncUp) delete hist;
+  for(auto hist: dihist_metUncDw) delete hist;
+  for(auto hist: gmhist) delete hist;
+  for(auto hist: gmhist_metJetUp) delete hist;
+  for(auto hist: gmhist_metJetDw) delete hist;
+  for(auto hist: gmhist_metResUp) delete hist;
+  for(auto hist: gmhist_metResDw) delete hist;
+  for(auto hist: gmhist_metUncUp) delete hist;
+  for(auto hist: gmhist_metUncDw) delete hist;
+  for(auto hist: qcdhist) delete hist;
+  for(auto hist: ewkwhist) delete hist;
+  for(auto hist: ewkzhist) delete hist;
+  for(auto hist: vghist) delete hist;
+  for(auto hist: dthist) delete hist;
+
   znhist.clear();
   wlhist.clear();
   wlhist_mu.clear();
@@ -1002,6 +1048,49 @@ void sigdatamchist(TFile* outfile,
   ewkzhist.clear();
   vghist.clear();
   dthist.clear();
+
+  for(auto hist_2D: znhist_2D) delete hist_2D;
+  for(auto hist_2D: wlhist_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: qcdhist_2D) delete hist_2D;
+  for(auto hist_2D: ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D: ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D: vghist_2D) delete hist_2D;
+  for(auto hist_2D: dthist_2D) delete hist_2D;
 
   znhist_2D.clear();
   wlhist_2D.clear();
@@ -1302,6 +1391,19 @@ void gamdatamchist(TFile* outfile,
 
   whists.clear();
   ahists.clear();
+
+  for(auto hist : dthist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : vghist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+
+  for(auto hist : dthist_2D) delete hist;
+  for(auto hist : qcdhist_2D) delete hist;
+  for(auto hist : vghist_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+
   dthist.clear();
   qcdhist.clear();
   vghist.clear();
@@ -2309,7 +2411,47 @@ void lepdatamchist(TFile* outfile,
   vllhists.clear();
   ahists.clear();
  
-
+  for(auto hist : dthist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : tthist_metJetUp) delete hist;
+  for(auto hist : tthist_metJetDw) delete hist;
+  for(auto hist : tthist_metResUp) delete hist;
+  for(auto hist : tthist_metResDw) delete hist;
+  for(auto hist : tthist_metUncUp) delete hist;
+  for(auto hist : tthist_metUncDw) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : dbhist_metJetUp) delete hist;
+  for(auto hist : dbhist_metJetDw) delete hist;
+  for(auto hist : dbhist_metResUp) delete hist;
+  for(auto hist : dbhist_metResDw) delete hist;
+  for(auto hist : dbhist_metUncUp) delete hist;
+  for(auto hist : dbhist_metUncDw) delete hist;
+  for(auto hist : qchist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : gmhist_metJetUp) delete hist;
+  for(auto hist : gmhist_metJetDw) delete hist;
+  for(auto hist : gmhist_metResUp) delete hist;
+  for(auto hist : gmhist_metResDw) delete hist;
+  for(auto hist : gmhist_metUncUp) delete hist;
+  for(auto hist : gmhist_metUncDw) delete hist;  
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vlhist_metJetUp) delete hist;
+  for(auto hist : vlhist_metJetDw) delete hist;
+  for(auto hist : vlhist_metResUp) delete hist;
+  for(auto hist : vlhist_metResDw) delete hist;
+  for(auto hist : vlhist_metUncUp) delete hist;
+  for(auto hist : vlhist_metUncDw) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : vllhist_metJetUp) delete hist;
+  for(auto hist : vllhist_metJetDw) delete hist;
+  for(auto hist : vllhist_metResUp) delete hist;
+  for(auto hist : vllhist_metResDw) delete hist;
+  for(auto hist : vllhist_metUncUp) delete hist;
+  for(auto hist : vllhist_metUncDw) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : vghist) delete hist;
+  
   dthist.clear();
   tthist.clear();
   tthist_metJetUp.clear();
@@ -2350,6 +2492,47 @@ void lepdatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   vghist.clear();
+
+  for(auto hist_2D : dthist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : qchist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metUncDw_2D) delete hist_2D;  
+  for(auto hist_2D : vlhist_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D : vghist_2D) delete hist_2D;
 
   dthist_2D.clear();
   tthist_2D.clear();
@@ -2502,7 +2685,7 @@ void topdatamchist(TFile* outfile,
 
     TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-    TH1F* gmhist_temp = new TH1F((string("gbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* gmhist_temp = new TH1F((string("gmkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -3046,6 +3229,39 @@ void topdatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : dthist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : tthist_alt) delete hist;
+  for(auto hist : qchist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : dbhist_metJetUp) delete hist;
+  for(auto hist : dbhist_metJetDw) delete hist;
+  for(auto hist : dbhist_metResUp) delete hist;
+  for(auto hist : dbhist_metResDw) delete hist;
+  for(auto hist : dbhist_metUncUp) delete hist;
+  for(auto hist : dbhist_metUncDw) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : gmhist_metJetUp) delete hist;
+  for(auto hist : gmhist_metJetDw) delete hist;
+  for(auto hist : gmhist_metResUp) delete hist;
+  for(auto hist : gmhist_metResDw) delete hist;
+  for(auto hist : gmhist_metUncUp) delete hist;
+  for(auto hist : gmhist_metUncDw) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vlhist_metJetUp) delete hist;
+  for(auto hist : vlhist_metJetDw) delete hist;
+  for(auto hist : vlhist_metResUp) delete hist;
+  for(auto hist : vlhist_metResDw) delete hist;
+  for(auto hist : vlhist_metUncUp) delete hist;
+  for(auto hist : vlhist_metUncDw) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : vllhist_metJetUp) delete hist;
+  for(auto hist : vllhist_metJetDw) delete hist;
+  for(auto hist : vllhist_metResUp) delete hist;
+  for(auto hist : vllhist_metResDw) delete hist;
+  for(auto hist : vllhist_metUncUp) delete hist;
+  for(auto hist : vllhist_metUncDw) delete hist;
+
   dthist.clear();
   tthist.clear();
   tthist_alt.clear();
@@ -3057,7 +3273,6 @@ void topdatamchist(TFile* outfile,
   dbhist_metResDw.clear();
   dbhist_metUncUp.clear();
   dbhist_metUncDw.clear();
-
   gmhist.clear();
   gmhist_metJetUp.clear();
   gmhist_metJetDw.clear();
@@ -3065,7 +3280,6 @@ void topdatamchist(TFile* outfile,
   gmhist_metResDw.clear();
   gmhist_metUncUp.clear();
   gmhist_metUncDw.clear();
-
   vlhist.clear();
   vlhist_metJetUp.clear();
   vlhist_metJetDw.clear();
@@ -3081,10 +3295,49 @@ void topdatamchist(TFile* outfile,
   vllhist_metUncUp.clear();
   vllhist_metUncDw.clear();
 
+  for(auto hist : tthist_matched) delete hist;
+  for(auto hist : tthist_matched_alt) delete hist;
+  for(auto hist : tthist_unmatched) delete hist;
+  for(auto hist : tthist_unmatched_alt) delete hist;
+
   tthist_matched.clear();
   tthist_matched_alt.clear();
   tthist_unmatched.clear();
   tthist_unmatched_alt.clear();
+
+  for(auto hist : dthist_2D) delete hist;
+  for(auto hist : tthist_2D) delete hist;
+  for(auto hist : tthist_alt_2D) delete hist;
+  for(auto hist : qchist_2D) delete hist;
+  for(auto hist : dbhist_2D) delete hist;
+  for(auto hist : dbhist_metJetUp_2D) delete hist;
+  for(auto hist : dbhist_metJetDw_2D) delete hist;
+  for(auto hist : dbhist_metResUp_2D) delete hist;
+  for(auto hist : dbhist_metResDw_2D) delete hist;
+  for(auto hist : dbhist_metUncUp_2D) delete hist;
+  for(auto hist : dbhist_metUncDw_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+  for(auto hist : gmhist_metJetUp_2D) delete hist;
+  for(auto hist : gmhist_metJetDw_2D) delete hist;
+  for(auto hist : gmhist_metResUp_2D) delete hist;
+  for(auto hist : gmhist_metResDw_2D) delete hist;
+  for(auto hist : gmhist_metUncUp_2D) delete hist;
+  for(auto hist : gmhist_metUncDw_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : vlhist_metJetUp_2D) delete hist;
+  for(auto hist : vlhist_metJetDw_2D) delete hist;
+  for(auto hist : vlhist_metResUp_2D) delete hist;
+  for(auto hist : vlhist_metResDw_2D) delete hist;
+  for(auto hist : vlhist_metUncUp_2D) delete hist;
+  for(auto hist : vlhist_metUncDw_2D) delete hist;
+  for(auto hist : vllhist_2D) delete hist;
+  for(auto hist : vllhist_metJetUp_2D) delete hist;
+  for(auto hist : vllhist_metJetDw_2D) delete hist;
+  for(auto hist : vllhist_metResUp_2D) delete hist;
+  for(auto hist : vllhist_metResDw_2D) delete hist;
+  for(auto hist : vllhist_metUncUp_2D) delete hist;
+  for(auto hist : vllhist_metUncDw_2D) delete hist;
+
 
   dthist_2D.clear();
   tthist_2D.clear();
@@ -3431,6 +3684,17 @@ void qcddatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : vnnhist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : dthist) delete hist;
+
   vnnhist.clear();
   vlhist.clear();
   vllhist.clear();
@@ -3441,6 +3705,17 @@ void qcddatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   dthist.clear();
+
+  for(auto hist_2D : vnnhist_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_2D) delete hist_2D;
+  for(auto hist_2D : qcdhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D : dthist_2D) delete hist_2D;
 
   vnnhist_2D.clear();
   vlhist_2D.clear();
@@ -3765,6 +4040,17 @@ void taudatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : vnnhist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : dthist) delete hist;
+
   vnnhist.clear();
   vlhist.clear();
   vllhist.clear();
@@ -3775,6 +4061,17 @@ void taudatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   dthist.clear();
+
+  for(auto hist : vnnhist_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : vllhist_2D) delete hist;
+  for(auto hist : tthist_2D) delete hist;
+  for(auto hist : dbhist_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+  for(auto hist : qcdhist_2D) delete hist;
+  for(auto hist : ewkwhist_2D) delete hist;
+  for(auto hist : ewkzhist_2D) delete hist;
+  for(auto hist : dthist_2D) delete hist;
 
   vnnhist_2D.clear();
   vlhist_2D.clear();

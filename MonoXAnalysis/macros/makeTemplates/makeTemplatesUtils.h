@@ -1293,7 +1293,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     }
 
     outputFile.cd();
-    
     cout<<"Save transfer factor"<<endl;
     if(not outputFile.GetDirectory("TF_ZM"))
       outputFile.mkdir("TF_ZM");
@@ -1728,76 +1727,6 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
     }
   }
 
-  // clear vectors
-  zmmcorhist.clear(); zeecorhist.clear(); wmncorhist.clear(); wencorhist.clear(); zwjcorhist.clear(); wgamcorhist.clear(); wgamcorhist.clear(); topmucorhist.clear(); topelcorhist.clear();
-  topmucorbuphist.clear(); topmucorbdownhist.clear(); topelcorbuphist.clear(); topelcorbdownhist.clear();
-
-  gamcorewkhist.clear(); gamcorqcdhist.clear(); gamcorre1hist.clear(); gamcorfa1hist.clear(); gamcorre2hist.clear(); gamcorfa2hist.clear(); gamcorpdfhist.clear(); gamcorfpchist.clear();
-  gamcorqcdscaleuphist.clear(); gamcorqcdscaledwhist.clear(); gamcorqcdshapeuphist.clear(); gamcorqcdshapedwhist.clear(); gamcorqcdprocuphist.clear(); gamcorqcdprocdwhist.clear();
-  gamcornnloewkuphist.clear(); gamcornnloewkdwhist.clear();   gamcorsudakovuphist_1.clear(); gamcorsudakovuphist_2.clear(); gamcorsudakovdwhist_1.clear(); gamcorsudakovdwhist_2.clear(); 
-  gamcormixuphist.clear(); gamcormixdwhist.clear(); 
-
-  zwjcorewkhist.clear(); zwjcorqcdhist.clear(); zwjcorre1hist.clear(); zwjcorre2hist.clear(); zwjcorfa1hist.clear(); zwjcorfa2hist.clear(); zwjcorpdfhist.clear();
-  zwjcorqcdscaleuphist.clear(); zwjcorqcdscaledwhist.clear(); zwjcorqcdshapeuphist.clear(); zwjcorqcdshapedwhist.clear(); zwjcorqcdprocuphist.clear(); zwjcorqcdprocdwhist.clear();
-  zwjcornnloewkuphist.clear(); zwjcornnloewkdwhist.clear();   zwjcorsudakovuphist_1.clear(); zwjcorsudakovuphist_2.clear(); zwjcorsudakovdwhist_1.clear(); zwjcorsudakovdwhist_2.clear(); 
-  zwjcormixuphist.clear(); zwjcormixdwhist.clear(); 
-
-  wgamcorewkhist.clear(); wgamcorqcdhist.clear(); wgamcorre1hist.clear(); wgamcorfa1hist.clear(); wgamcorre2hist.clear(); wgamcorfa2hist.clear(); wgamcorpdfhist.clear(); wgamcorfpchist.clear();
-  wgamcorqcdscaleuphist.clear(); wgamcorqcdscaledwhist.clear(); wgamcorqcdshapeuphist.clear(); wgamcorqcdshapedwhist.clear(); wgamcorqcdprocuphist.clear(); wgamcorqcdprocdwhist.clear();
-  wgamcornnloewkuphist.clear(); wgamcornnloewkdwhist.clear();   wgamcorsudakovuphist_1.clear(); wgamcorsudakovuphist_2.clear(); wgamcorsudakovdwhist_1.clear(); wgamcorsudakovdwhist_2.clear(); 
-  wgamcormixuphist.clear(); wgamcormixdwhist.clear(); 
-
-  zmmcorhist_num.clear(); zeecorhist_num.clear(); wmncorhist_num.clear(); wencorhist_num.clear(); gamcorhist_num.clear(); wgamcorhist_num.clear(); zwjcorhist_num.clear();
-  zmmcorhist_den.clear(); zeecorhist_den.clear(); wmncorhist_den.clear(); wencorhist_den.clear(); gamcorhist_den.clear(); wgamcorhist_den.clear(); zwjcorhist_den.clear();
-  topmucorhist_num.clear(); topelcorhist_num.clear();
-  topmucorhist_den.clear(); topelcorhist_den.clear();
-  
-  gamcorewkhist_num.clear(); gamcorqcdhist_num.clear(); gamcorre1hist_num.clear(); gamcorfa1hist_num.clear(); gamcorre2hist_num.clear(); gamcorpdfhist_num.clear(); 
-  gamcorfa2hist_num.clear(); gamcorfpchist_num.clear();
-  gamcorewkhist_den.clear(); gamcorqcdhist_den.clear(); gamcorre1hist_den.clear(); gamcorfa1hist_den.clear(); gamcorre2hist_den.clear(); gamcorpdfhist_den.clear(); 
-  gamcorfa2hist_den.clear(); gamcorfpchist_den.clear();
-  gamcorqcdscaleuphist_num.clear(); gamcorqcdscaledwhist_num.clear(); gamcorqcdshapeuphist_num.clear(); gamcorqcdshapedwhist_num.clear(); gamcorqcdprocuphist_num.clear(); 
-  gamcorqcdprocdwhist_num.clear();
-  gamcornnloewkuphist_num.clear(); gamcornnloewkdwhist_num.clear();   gamcorsudakovuphist_1_num.clear(); gamcorsudakovuphist_2_num.clear(); gamcorsudakovdwhist_1_num.clear(); 
-  gamcorsudakovdwhist_2_num.clear(); 
-  gamcormixuphist_num.clear(); gamcormixdwhist_num.clear(); 
-  gamcorqcdscaleuphist_den.clear(); gamcorqcdscaledwhist_den.clear(); gamcorqcdshapeuphist_den.clear(); gamcorqcdshapedwhist_den.clear(); gamcorqcdprocuphist_den.clear(); 
-  gamcorqcdprocdwhist_den.clear();
-  gamcornnloewkuphist_den.clear(); gamcornnloewkdwhist_den.clear();   gamcorsudakovuphist_1_den.clear(); gamcorsudakovuphist_2_den.clear(); gamcorsudakovdwhist_1_den.clear(); 
-  gamcorsudakovdwhist_2_den.clear(); 
-  gamcormixuphist_den.clear(); gamcormixdwhist_den.clear(); 
-
-  zwjcorewkhist_num.clear(); zwjcorqcdhist_num.clear(); zwjcorre1hist_num.clear(); zwjcorfa1hist_num.clear(); zwjcorre2hist_num.clear(); zwjcorpdfhist_num.clear(); zwjcorfa2hist_num.clear(); 
-  zwjcorewkhist_den.clear(); zwjcorqcdhist_den.clear(); zwjcorre1hist_den.clear(); zwjcorfa1hist_den.clear(); zwjcorre2hist_den.clear(); zwjcorpdfhist_den.clear(); zwjcorfa2hist_den.clear();
-  zwjcorqcdscaleuphist_num.clear(); zwjcorqcdscaledwhist_num.clear(); zwjcorqcdshapeuphist_num.clear(); zwjcorqcdshapedwhist_num.clear(); zwjcorqcdprocuphist_num.clear(); 
-  zwjcorqcdprocdwhist_num.clear();
-  zwjcornnloewkuphist_num.clear(); zwjcornnloewkdwhist_num.clear();   zwjcorsudakovuphist_1_num.clear(); zwjcorsudakovuphist_2_num.clear(); zwjcorsudakovdwhist_1_num.clear(); 
-  zwjcorsudakovdwhist_2_num.clear(); 
-  zwjcormixuphist_num.clear(); zwjcormixdwhist_num.clear(); 
-  zwjcorqcdscaleuphist_den.clear(); zwjcorqcdscaledwhist_den.clear(); zwjcorqcdshapeuphist_den.clear(); zwjcorqcdshapedwhist_den.clear(); zwjcorqcdprocuphist_den.clear(); 
-  zwjcorqcdprocdwhist_den.clear();
-  zwjcornnloewkuphist_den.clear(); zwjcornnloewkdwhist_den.clear();   zwjcorsudakovuphist_1_den.clear(); zwjcorsudakovuphist_2_den.clear(); zwjcorsudakovdwhist_1_den.clear(); 
-  zwjcorsudakovdwhist_2_den.clear(); 
-  zwjcormixuphist_den.clear(); zwjcormixdwhist_den.clear(); 
-
-  wgamcorewkhist_num.clear(); wgamcorqcdhist_num.clear(); wgamcorre1hist_num.clear(); wgamcorfa1hist_num.clear(); wgamcorre2hist_num.clear(); wgamcorpdfhist_num.clear(); 
-  wgamcorfa2hist_num.clear(); wgamcorfpchist_num.clear();
-  wgamcorewkhist_den.clear(); wgamcorqcdhist_den.clear(); wgamcorre1hist_den.clear(); wgamcorfa1hist_den.clear(); wgamcorre2hist_den.clear(); wgamcorpdfhist_den.clear(); 
-  wgamcorfa2hist_den.clear(); wgamcorfpchist_den.clear();
-  wgamcorqcdscaleuphist_num.clear(); wgamcorqcdscaledwhist_num.clear(); wgamcorqcdshapeuphist_num.clear(); wgamcorqcdshapedwhist_num.clear(); wgamcorqcdprocuphist_num.clear(); 
-  wgamcorqcdprocdwhist_num.clear();
-  wgamcornnloewkuphist_num.clear(); wgamcornnloewkdwhist_num.clear();   wgamcorsudakovuphist_1_num.clear(); wgamcorsudakovuphist_2_num.clear(); wgamcorsudakovdwhist_1_num.clear(); 
-  wgamcorsudakovdwhist_2_num.clear(); 
-  wgamcormixuphist_num.clear(); wgamcormixdwhist_num.clear(); 
-  wgamcorqcdscaleuphist_den.clear(); wgamcorqcdscaledwhist_den.clear(); wgamcorqcdshapeuphist_den.clear(); wgamcorqcdshapedwhist_den.clear(); wgamcorqcdprocuphist_den.clear(); 
-  wgamcorqcdprocdwhist_den.clear();
-  wgamcornnloewkuphist_den.clear(); wgamcornnloewkdwhist_den.clear();   wgamcorsudakovuphist_1_den.clear(); wgamcorsudakovuphist_2_den.clear(); wgamcorsudakovdwhist_1_den.clear(); 
-  wgamcorsudakovdwhist_2_den.clear(); 
-  wgamcormixuphist_den.clear(); wgamcormixdwhist_den.clear(); 
-
-  topmucorbuphist_num.clear(); topmucorbdownhist_num.clear(); topelcorbuphist_num.clear(); topelcorbdownhist_num.clear();
-  topmucorbuphist_den.clear(); topmucorbdownhist_den.clear(); topelcorbuphist_den.clear(); topelcorbdownhist_den.clear();
-  
   /// closing files
   if(zmmcorfile) zmmcorfile->Close();
   if(zeecorfile) zeecorfile->Close();
@@ -1884,6 +1813,264 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
   if(topmucorbdownfile) topmucorbdownfile->Close();
   if(topelcorbupfile) topelcorbupfile->Close();
   if(topelcorbdownfile) topelcorbdownfile->Close();
+
+  // clear vectors
+  zmmcorhist.clear(); 
+  zeecorhist.clear();
+  wmncorhist.clear(); 
+  wencorhist.clear(); 
+  zwjcorhist.clear(); 
+  wgamcorhist.clear(); 
+  wgamcorhist.clear(); 
+  topmucorhist.clear(); 
+  topelcorhist.clear();
+  topmucorbuphist.clear(); 
+  topmucorbdownhist.clear(); 
+  topelcorbuphist.clear(); 
+  topelcorbdownhist.clear();
+
+  gamcorewkhist.clear(); 
+  gamcorqcdhist.clear(); 
+  gamcorre1hist.clear(); 
+  gamcorfa1hist.clear(); 
+  gamcorre2hist.clear(); 
+  gamcorfa2hist.clear(); 
+  gamcorpdfhist.clear(); 
+  gamcorfpchist.clear();
+
+  gamcorqcdscaleuphist.clear(); 
+  gamcorqcdscaledwhist.clear(); 
+  gamcorqcdshapeuphist.clear(); 
+  gamcorqcdshapedwhist.clear(); 
+  gamcorqcdprocuphist.clear(); 
+  gamcorqcdprocdwhist.clear();
+  gamcornnloewkuphist.clear(); 
+  gamcornnloewkdwhist.clear();   
+  gamcorsudakovuphist_1.clear(); 
+  gamcorsudakovuphist_2.clear(); 
+  gamcorsudakovdwhist_1.clear(); 
+  gamcorsudakovdwhist_2.clear(); 
+  gamcormixuphist.clear(); 
+  gamcormixdwhist.clear(); 
+
+  zwjcorewkhist.clear(); 
+  zwjcorqcdhist.clear(); 
+  zwjcorre1hist.clear(); 
+  zwjcorfa1hist.clear(); 
+  zwjcorre2hist.clear(); 
+  zwjcorfa2hist.clear(); 
+  zwjcorpdfhist.clear(); 
+
+  zwjcorqcdscaleuphist.clear(); 
+  zwjcorqcdscaledwhist.clear(); 
+  zwjcorqcdshapeuphist.clear(); 
+  zwjcorqcdshapedwhist.clear(); 
+  zwjcorqcdprocuphist.clear(); 
+  zwjcorqcdprocdwhist.clear();
+  zwjcornnloewkuphist.clear(); 
+  zwjcornnloewkdwhist.clear();   
+  zwjcorsudakovuphist_1.clear(); 
+  zwjcorsudakovuphist_2.clear(); 
+  zwjcorsudakovdwhist_1.clear(); 
+  zwjcorsudakovdwhist_2.clear(); 
+  zwjcormixuphist.clear(); 
+  zwjcormixdwhist.clear(); 
+
+
+  wgamcorewkhist.clear(); 
+  wgamcorqcdhist.clear(); 
+  wgamcorre1hist.clear(); 
+  wgamcorfa1hist.clear(); 
+  wgamcorre2hist.clear(); 
+  wgamcorfa2hist.clear(); 
+  wgamcorpdfhist.clear(); 
+  wgamcorfpchist.clear();
+
+  wgamcorqcdscaleuphist.clear(); 
+  wgamcorqcdscaledwhist.clear(); 
+  wgamcorqcdshapeuphist.clear(); 
+  wgamcorqcdshapedwhist.clear(); 
+  wgamcorqcdprocuphist.clear(); 
+  wgamcorqcdprocdwhist.clear();
+  wgamcornnloewkuphist.clear(); 
+  wgamcornnloewkdwhist.clear();   
+  wgamcorsudakovuphist_1.clear(); 
+  wgamcorsudakovuphist_2.clear(); 
+  wgamcorsudakovdwhist_1.clear(); 
+  wgamcorsudakovdwhist_2.clear(); 
+  wgamcormixuphist.clear(); 
+  wgamcormixdwhist.clear(); 
+
+  //////////
+    
+  zmmcorhist_num.clear(); 
+  zeecorhist_num.clear();
+  wmncorhist_num.clear(); 
+  wencorhist_num.clear(); 
+  zwjcorhist_num.clear(); 
+  wgamcorhist_num.clear(); 
+  wgamcorhist_num.clear(); 
+  topmucorhist_num.clear(); 
+  topelcorhist_num.clear();
+  topmucorbuphist_num.clear(); 
+  topmucorbdownhist_num.clear(); 
+  topelcorbuphist_num.clear(); 
+  topelcorbdownhist_num.clear();
+  zmmcorhist_den.clear(); 
+  zeecorhist_den.clear();
+  wmncorhist_den.clear(); 
+  wencorhist_den.clear(); 
+  zwjcorhist_den.clear(); 
+  wgamcorhist_den.clear(); 
+  wgamcorhist_den.clear(); 
+  topmucorhist_den.clear(); 
+  topelcorhist_den.clear();
+  topmucorbuphist_den.clear(); 
+  topmucorbdownhist_den.clear(); 
+  topelcorbuphist_den.clear(); 
+  topelcorbdownhist_den.clear();
+
+  gamcorewkhist_num.clear(); 
+  gamcorqcdhist_num.clear(); 
+  gamcorre1hist_num.clear(); 
+  gamcorfa1hist_num.clear(); 
+  gamcorre2hist_num.clear(); 
+  gamcorfa2hist_num.clear(); 
+  gamcorpdfhist_num.clear(); 
+  gamcorfpchist_num.clear();
+  gamcorewkhist_den.clear(); 
+  gamcorqcdhist_den.clear(); 
+  gamcorre1hist_den.clear(); 
+  gamcorfa1hist_den.clear(); 
+  gamcorre2hist_den.clear(); 
+  gamcorfa2hist_den.clear(); 
+  gamcorpdfhist_den.clear(); 
+  gamcorfpchist_den.clear();
+
+  gamcorqcdscaleuphist_num.clear(); 
+  gamcorqcdscaledwhist_num.clear(); 
+  gamcorqcdshapeuphist_num.clear(); 
+  gamcorqcdshapedwhist_num.clear(); 
+  gamcorqcdprocuphist_num.clear(); 
+  gamcorqcdprocdwhist_num.clear();
+  gamcornnloewkuphist_num.clear(); 
+  gamcornnloewkdwhist_num.clear();   
+  gamcorsudakovuphist_1_num.clear(); 
+  gamcorsudakovuphist_2_num.clear(); 
+  gamcorsudakovdwhist_1_num.clear(); 
+  gamcorsudakovdwhist_2_num.clear(); 
+  gamcormixuphist_num.clear(); 
+  gamcormixdwhist_num.clear(); 
+
+  gamcorqcdscaleuphist_den.clear(); 
+  gamcorqcdscaledwhist_den.clear(); 
+  gamcorqcdshapeuphist_den.clear(); 
+  gamcorqcdshapedwhist_den.clear(); 
+  gamcorqcdprocuphist_den.clear(); 
+  gamcorqcdprocdwhist_den.clear();
+  gamcornnloewkuphist_den.clear(); 
+  gamcornnloewkdwhist_den.clear();   
+  gamcorsudakovuphist_1_den.clear(); 
+  gamcorsudakovuphist_2_den.clear(); 
+  gamcorsudakovdwhist_1_den.clear(); 
+  gamcorsudakovdwhist_2_den.clear(); 
+  gamcormixuphist_den.clear(); 
+  gamcormixdwhist_den.clear(); 
+
+  zwjcorewkhist_num.clear(); 
+  zwjcorqcdhist_num.clear(); 
+  zwjcorre1hist_num.clear(); 
+  zwjcorfa1hist_num.clear(); 
+  zwjcorre2hist_num.clear(); 
+  zwjcorfa2hist_num.clear(); 
+  zwjcorpdfhist_num.clear(); 
+
+  zwjcorewkhist_den.clear(); 
+  zwjcorqcdhist_den.clear(); 
+  zwjcorre1hist_den.clear(); 
+  zwjcorfa1hist_den.clear(); 
+  zwjcorre2hist_den.clear(); 
+  zwjcorfa2hist_den.clear(); 
+  zwjcorpdfhist_den.clear(); 
+
+  zwjcorqcdscaleuphist_num.clear(); 
+  zwjcorqcdscaledwhist_num.clear(); 
+  zwjcorqcdshapeuphist_num.clear(); 
+  zwjcorqcdshapedwhist_num.clear(); 
+  zwjcorqcdprocuphist_num.clear(); 
+  zwjcorqcdprocdwhist_num.clear();
+  zwjcornnloewkuphist_num.clear(); 
+  zwjcornnloewkdwhist_num.clear();   
+  zwjcorsudakovuphist_1_num.clear(); 
+  zwjcorsudakovuphist_2_num.clear(); 
+  zwjcorsudakovdwhist_1_num.clear(); 
+  zwjcorsudakovdwhist_2_num.clear(); 
+  zwjcormixuphist_num.clear(); 
+  zwjcormixdwhist_num.clear(); 
+
+  zwjcorqcdscaleuphist_den.clear(); 
+  zwjcorqcdscaledwhist_den.clear(); 
+  zwjcorqcdshapeuphist_den.clear(); 
+  zwjcorqcdshapedwhist_den.clear(); 
+  zwjcorqcdprocuphist_den.clear(); 
+  zwjcorqcdprocdwhist_den.clear();
+  zwjcornnloewkuphist_den.clear(); 
+  zwjcornnloewkdwhist_den.clear();   
+  zwjcorsudakovuphist_1_den.clear(); 
+  zwjcorsudakovuphist_2_den.clear(); 
+  zwjcorsudakovdwhist_1_den.clear(); 
+  zwjcorsudakovdwhist_2_den.clear(); 
+  zwjcormixuphist_den.clear(); 
+  zwjcormixdwhist_den.clear(); 
+
+  wgamcorewkhist_num.clear(); 
+  wgamcorqcdhist_num.clear(); 
+  wgamcorre1hist_num.clear(); 
+  wgamcorfa1hist_num.clear(); 
+  wgamcorre2hist_num.clear(); 
+  wgamcorfa2hist_num.clear(); 
+  wgamcorpdfhist_num.clear(); 
+  wgamcorfpchist_num.clear();
+
+  wgamcorewkhist_den.clear(); 
+  wgamcorqcdhist_den.clear(); 
+  wgamcorre1hist_den.clear(); 
+  wgamcorfa1hist_den.clear(); 
+  wgamcorre2hist_den.clear(); 
+  wgamcorfa2hist_den.clear(); 
+  wgamcorpdfhist_den.clear(); 
+  wgamcorfpchist_den.clear();
+
+  wgamcorqcdscaleuphist_num.clear(); 
+  wgamcorqcdscaledwhist_num.clear(); 
+  wgamcorqcdshapeuphist_num.clear(); 
+  wgamcorqcdshapedwhist_num.clear(); 
+  wgamcorqcdprocuphist_num.clear(); 
+  wgamcorqcdprocdwhist_num.clear();
+  wgamcornnloewkuphist_num.clear(); 
+  wgamcornnloewkdwhist_num.clear();   
+  wgamcorsudakovuphist_1_num.clear(); 
+  wgamcorsudakovuphist_2_num.clear(); 
+  wgamcorsudakovdwhist_1_num.clear(); 
+  wgamcorsudakovdwhist_2_num.clear(); 
+  wgamcormixuphist_num.clear(); 
+  wgamcormixdwhist_num.clear(); 
+
+  wgamcorqcdscaleuphist_den.clear(); 
+  wgamcorqcdscaledwhist_den.clear(); 
+  wgamcorqcdshapeuphist_den.clear(); 
+  wgamcorqcdshapedwhist_den.clear(); 
+  wgamcorqcdprocuphist_den.clear(); 
+  wgamcorqcdprocdwhist_den.clear();
+  wgamcornnloewkuphist_den.clear(); 
+  wgamcornnloewkdwhist_den.clear();   
+  wgamcorsudakovuphist_1_den.clear(); 
+  wgamcorsudakovuphist_2_den.clear(); 
+  wgamcorsudakovdwhist_1_den.clear(); 
+  wgamcorsudakovdwhist_2_den.clear(); 
+  wgamcormixuphist_den.clear(); 
+  wgamcormixdwhist_den.clear(); 
+
 }
 
 

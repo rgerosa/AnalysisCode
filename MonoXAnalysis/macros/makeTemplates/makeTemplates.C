@@ -753,7 +753,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
   }
 
-  TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
+  TFile outfile ((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
 
   if(not skipCorrectionHistograms){
     fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZgamma,addZWratio,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
