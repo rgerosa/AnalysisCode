@@ -1,0 +1,56 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+----------------------------------------------------------------------------------
+shapes data_obs      ZM_VBF   workspace_VBF.root ZM_VBF:data_obs_ZM_VBF
+shapes Znunu         ZM_VBF   workspace_VBF.root ZM_VBF:Znunu_ZM_VBF
+shapes Znunu_EWK     ZM_VBF   workspace_VBF.root ZM_VBF:Znunu_EWK_ZM_VBF
+shapes WJets_ZM      ZM_VBF   workspace_VBF.root ZM_VBF:WJets_ZM_VBF     ZM_VBF:WJets_ZM_VBF_$SYSTEMATIC
+shapes WJets_EWK_ZM  ZM_VBF   workspace_VBF.root ZM_VBF:WJets_EWK_ZM_VBF ZM_VBF:WJets_EWK_ZM_VBF_$SYSTEMATIC
+shapes Dibosons      ZM_VBF   workspace_VBF.root ZM_VBF:Dibosons_ZM_VBF  ZM_VBF:Dibosons_ZM_VBF_$SYSTEMATIC
+shapes Top           ZM_VBF   workspace_VBF.root ZM_VBF:Top_ZM_VBF       ZM_VBF:Top_ZM_VBF_$SYSTEMATIC
+----------------------------------------------------------------------------------
+bin         ZM_VBF
+observation -1
+---------------------------------------------------------------------------------------------------------------
+bin                                 ZM_VBF      ZM_VBF      ZM_VBF      ZM_VBF        ZM_VBF     ZM_VBF
+process                             Znunu       Znunu_EWK   WJets_ZM    Dibosons      Top        WJets_EWK_ZM
+process                             1           2           10          6             7          11  
+rate                                1           1          -1          -1            -1          -1
+---------------------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       -           -           1.062       1.062         1.062      1.062
+CMS_eff_m                 lnN       1.020       1.020       1.020       1.020         1.020      1.020
+CMS_reco_m                lnN       1.010       1.010       1.010       1.010         1.010      1.010
+WJets_ZM_Norm13TeV        lnN       -           -           1.200       -               -          -
+WJets_EWK_ZM_Norm13TeV    lnN       -           -           -           -               -        1.200
+Dibosons_Norm13TeV        lnN       -           -           -           1.200           -          -
+Top_Norm13TeV             lnN       -           -           -           -               1.100      -
+Top_Reweight13TeV         lnN       -           -           -           -               1.100      -
+CMS_met_13TeV             lnN       -           -           1.040       1.040           1.040      1.040
+CMS_btag_13TeV            lnN       -           -           1.020       1.020           1.060      1.020
+Dibosons_ZM_VBF_CMS_bin1_stat shape -           -           -           1               -          -
+Dibosons_ZM_VBF_CMS_bin2_stat shape -           -           -           1               -          -
+Dibosons_ZM_VBF_CMS_bin3_stat shape -           -           -           1               -          -
+Dibosons_ZM_VBF_CMS_bin4_stat shape -           -           -           1               -          -
+Dibosons_ZM_VBF_CMS_bin5_stat shape -           -           -           1               -          -
+Dibosons_ZM_VBF_CMS_bin6_stat shape -           -           -           1               -          -
+Top_ZM_VBF_CMS_bin1_stat shape      -           -           -           -               1          -
+Top_ZM_VBF_CMS_bin2_stat shape      -           -           -           -               1          -
+Top_ZM_VBF_CMS_bin3_stat shape      -           -           -           -               1          -
+Top_ZM_VBF_CMS_bin4_stat shape      -           -           -           -               1          -
+Top_ZM_VBF_CMS_bin5_stat shape      -           -           -           -               1          -
+Top_ZM_VBF_CMS_bin6_stat shape      -           -           -           -               1          -
+Znunu_ZM_VBF_bin1_Runc     param     0     1
+Znunu_ZM_VBF_bin2_Runc     param     0     1
+Znunu_ZM_VBF_bin3_Runc     param     0     1
+Znunu_ZM_VBF_bin4_Runc     param     0     1
+Znunu_ZM_VBF_bin5_Runc     param     0     1
+Znunu_ZM_VBF_bin6_Runc     param     0     1
+Znunu_EWK_ZM_VBF_bin1_Runc param     0     1
+Znunu_EWK_ZM_VBF_bin2_Runc param     0     1
+Znunu_EWK_ZM_VBF_bin3_Runc param     0     1
+Znunu_EWK_ZM_VBF_bin4_Runc param     0     1
+Znunu_EWK_ZM_VBF_bin5_Runc param     0     1
+Znunu_EWK_ZM_VBF_bin6_Runc param     0     1
+----------------------------------------------------------------------------------

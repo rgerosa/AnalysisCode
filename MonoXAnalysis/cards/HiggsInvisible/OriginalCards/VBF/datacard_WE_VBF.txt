@@ -1,0 +1,68 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+------------------------------------------------------------------------------------------------
+shapes data_obs      WE_VBF   workspace_VBF.root WE_VBF:data_obs_WE_VBF
+shapes WJets         WE_VBF   workspace_VBF.root WE_VBF:WJets_WE_VBF
+shapes WJets_EWK     WE_VBF   workspace_VBF.root WE_VBF:WJets_EWK_WE_VBF
+shapes ZJets_WE      WE_VBF   workspace_VBF.root WE_VBF:ZJets_WE_VBF     WE_VBF:ZJets_WE_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WE  WE_VBF   workspace_VBF.root WE_VBF:ZJets_EWK_WE_VBF WE_VBF:ZJets_EWK_WE_VBF_$SYSTEMATIC
+shapes Dibosons      WE_VBF   workspace_VBF.root WE_VBF:Dibosons_WE_VBF  WE_VBF:Dibosons_WE_VBF_$SYSTEMATIC
+shapes Top           WE_VBF   workspace_VBF.root WE_VBF:Top_WE_VBF       WE_VBF:Top_WE_VBF_$SYSTEMATIC
+shapes QCD_WE        WE_VBF   workspace_VBF.root WE_VBF:QCD_WE_VBF       WE_VBF:QCD_WE_VBF_$SYSTEMATIC
+------------------------------------------------------------------------------------------------
+bin         WE_VBF
+observation -1
+------------------------------------------------------------------------------------------------
+bin                                 WE_VBF       WE_VBF       WE_VBF       WE_VBF        WE_VBF          WE_VBF        WE_VBF
+process                             WJets        WJets_EWK    ZJets_WE     ZJets_EWK_WE  Dibosons        Top           QCD_WE
+process                             3            4            20           21            6               7             22
+rate                                1            1            -1           -1           -1              -1             -1
+------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN       -            -            1.062        1.062         1.062           1.062         1.062
+CMS_eff_e                 lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010
+CMS_reco_e                lnN       1.005       1.005         1.005        1.005         1.005           1.005         1.005
+CMS_met_trig              lnN       1.010       1.010         -             -             -              -             -
+CMS_eff_trig_e            lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010
+CMS_eff_lepVeto_13TeV     lnN       1.030       1.030         -             -             -              -             -
+ZJets_WE_Norm13TeV        lnN       -           -             1.200         -             -              -             - 
+ZJets_EWK_WE_Norm13TeV    lnN       -           -             -            1.200          -              -             - 
+Dibosons_Norm13TeV        lnN       -           -             -             -           1.200            -             -
+Top_Norm13TeV             lnN       -           -             -             -             -              1.100         -
+Top_Reweight13TeV         lnN       -           -             -             -             -              1.100         -
+QCD_WE_Norm13TeV          lnN       -           -             -             -             -              -             1.500
+CMS_met_13TeV             lnN       -           -            1.040       1.040           1.040         1.040           1.040
+CMS_btag_13TeV            lnN       -           -            1.020       1.020           1.060         1.020           1.020
+Dibosons_WE_VBF_CMS_bin1_stat shape -           -           -               -             1              -             -
+Dibosons_WE_VBF_CMS_bin2_stat shape -           -           -               -             1              -             -
+Dibosons_WE_VBF_CMS_bin3_stat shape -           -           -               -             1              -             -
+Dibosons_WE_VBF_CMS_bin4_stat shape -           -           -               -             1              -             -
+Dibosons_WE_VBF_CMS_bin5_stat shape -           -           -               -             1              -             -
+Dibosons_WE_VBF_CMS_bin6_stat shape -           -           -               -             1              -             -
+Top_WE_VBF_CMS_bin1_stat      shape -           -           -               -             -              1             -
+Top_WE_VBF_CMS_bin2_stat      shape -           -           -               -             -              1             -
+Top_WE_VBF_CMS_bin3_stat      shape -           -           -               -             -              1             -
+Top_WE_VBF_CMS_bin4_stat      shape -           -           -               -             -              1             -
+Top_WE_VBF_CMS_bin5_stat      shape -           -           -               -             -              1             -
+Top_WE_VBF_CMS_bin6_stat      shape -           -           -               -             -              1             -
+QCD_WE_VBF_CMS_bin1_stat      shape -           -           -               -             -              -             1
+QCD_WE_VBF_CMS_bin2_stat      shape -           -           -               -             -              -             1
+QCD_WE_VBF_CMS_bin3_stat      shape -           -           -               -             -              -             1
+QCD_WE_VBF_CMS_bin4_stat      shape -           -           -               -             -              -             1
+QCD_WE_VBF_CMS_bin5_stat      shape -           -           -               -             -              -             1
+QCD_WE_VBF_CMS_bin6_stat      shape -           -           -               -             -              -             1
+WJets_WE_VBF_bin1_Runc         param     0     1
+WJets_WE_VBF_bin2_Runc         param     0     1
+WJets_WE_VBF_bin3_Runc         param     0     1
+WJets_WE_VBF_bin4_Runc         param     0     1
+WJets_WE_VBF_bin5_Runc         param     0     1
+WJets_WE_VBF_bin6_Runc         param     0     1
+WJets_EWK_WE_VBF_bin1_Runc     param     0     1
+WJets_EWK_WE_VBF_bin2_Runc     param     0     1
+WJets_EWK_WE_VBF_bin3_Runc     param     0     1
+WJets_EWK_WE_VBF_bin4_Runc     param     0     1
+WJets_EWK_WE_VBF_bin5_Runc     param     0     1
+WJets_EWK_WE_VBF_bin6_Runc     param     0     1
+------------------------------------------------------------------------------------------------
+

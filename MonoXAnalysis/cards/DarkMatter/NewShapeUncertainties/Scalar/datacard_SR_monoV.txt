@@ -10,9 +10,9 @@ shapes Dibosons    SR_MV   workspace_MV.root SR_MV:Dibosons_SR_MV     SR_MV:Dibo
 shapes Top         SR_MV   workspace_MV.root SR_MV:Top_SR_MV          SR_MV:Top_SR_MV_$SYSTEMATIC
 shapes QCD         SR_MV   workspace_MV.root SR_MV:QCD_SR_MV          SR_MV:QCD_SR_MV_$SYSTEMATIC
 shapes GJets       SR_MV   workspace_MV.root SR_MV:GJets_SR_MV        SR_MV:GJets_SR_MV_$SYSTEMATIC
-shapes MonoJ       SR_MV   MonoJ_805_1.0_catmonov_13TeV_v1.root combinedws:monov_signal_signal_$MASS
-shapes MonoW       SR_MV   MonoW_805_1.0_catmonov_13TeV_v1.root combinedws:monov_signal_signal_$MASS
-shapes MonoZ       SR_MV   MonoZ_805_1.0_catmonov_13TeV_v1.root combinedws:monov_signal_signal_$MASS
+shapes MonoJ       SR_MV   MonoJ_805_1.0_catmonov_13TeV_v1_updated.root combinedws:monov_signal_signal_$MASS combinedws:monov_signal_signal_$MASS_$SYSTEMATIC
+shapes MonoW       SR_MV   MonoW_805_1.0_catmonov_13TeV_v1_updated.root combinedws:monov_signal_signal_$MASS combinedws:monov_signal_signal_$MASS_$SYSTEMATIC
+shapes MonoZ       SR_MV   MonoZ_805_1.0_catmonov_13TeV_v1_updated.root combinedws:monov_signal_signal_$MASS combinedws:monov_signal_signal_$MASS_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------
 bin         SR_MV
 observation -1
@@ -34,7 +34,28 @@ Dibosons_Norm13TeV        lnN        -      -       -        -            -     
 Top_Norm13TeV             lnN        -      -       -        -            -            -            -             1.100         -        -
 Top_Reweight13TeV         lnN        -      -       -        -            -            -            -             1.100         -        -
 GJets_Norm13TeV           lnN        -      -       -        -            -            -            -              -            -        1.200
-CMS_QCD_SR                shape      -      -       -        -            -            -            -              -            2        -
+CMS_QCD_SR                shape      -      -       -        -            -            -            -              -            1        -
+MonoJ_SR_MV_CMS_bin1_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin2_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin3_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin4_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin5_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin6_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MV_CMS_bin7_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin1_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin2_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin3_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin4_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin5_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin6_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MV_CMS_bin7_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin1_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin2_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin3_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin4_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin5_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin6_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MV_CMS_bin7_stat   shape    -      -       1        -            -            -            -              -            -        -
 ZJets_SR_MV_CMS_bin1_stat   shape    -      -       -        -            -            1              -            -        -       -
 ZJets_SR_MV_CMS_bin2_stat   shape    -      -       -        -            -            1              -            -        -       -
 ZJets_SR_MV_CMS_bin3_stat   shape    -      -       -        -            -            1              -            -        -       -

@@ -10,9 +10,9 @@ shapes Dibosons    SR_MJ   workspace_MJ.root SR_MJ:Dibosons_SR_MJ     SR_MJ:Dibo
 shapes Top         SR_MJ   workspace_MJ.root SR_MJ:Top_SR_MJ          SR_MJ:Top_SR_MJ_$SYSTEMATIC
 shapes QCD         SR_MJ   workspace_MJ.root SR_MJ:QCD_SR_MJ          SR_MJ:QCD_SR_MJ_$SYSTEMATIC
 shapes GJets       SR_MJ   workspace_MJ.root SR_MJ:GJets_SR_MJ        SR_MJ:GJets_SR_MJ_$SYSTEMATIC
-shapes MonoJ       SR_MJ   MonoJ_805_1.0_catmonojet_13TeV_v1.root combinedws:monojet_signal_signal_$MASS
-shapes MonoW       SR_MJ   MonoW_805_1.0_catmonojet_13TeV_v1.root combinedws:monojet_signal_signal_$MASS
-shapes MonoZ       SR_MJ   MonoZ_805_1.0_catmonojet_13TeV_v1.root combinedws:monojet_signal_signal_$MASS
+shapes MonoJ       SR_MJ   MonoJ_805_1.0_catmonojet_13TeV_v1_updated.root combinedws:monojet_signal_signal_$MASS combinedws:monojet_signal_signal_$MASS_$SYSTEMATIC
+shapes MonoW       SR_MJ   MonoW_805_1.0_catmonojet_13TeV_v1_updated.root combinedws:monojet_signal_signal_$MASS combinedws:monojet_signal_signal_$MASS_$SYSTEMATIC
+shapes MonoZ       SR_MJ   MonoZ_805_1.0_catmonojet_13TeV_v1_updated.root combinedws:monojet_signal_signal_$MASS combinedws:monojet_signal_signal_$MASS_$SYSTEMATIC
 --------------------------------------------------------------------------------------------------------------------------
 bin         SR_MJ
 observation -1
@@ -34,7 +34,67 @@ Dibosons_Norm13TeV        lnN        -      -       -        -            -     
 Top_Norm13TeV             lnN        -      -       -        -            -            -            -             1.100         -        -
 Top_Reweight13TeV         lnN        -      -       -        -            -            -            -             1.100         -        -
 GJets_Norm13TeV           lnN        -      -       -        -            -            -            -              -            -        1.200
-CMS_QCD_SR                shape      -      -       -        -            -            -            -              -            2        -
+CMS_QCD_SR                shape      -      -       -        -            -            -            -              -            1        -
+MonoJ_SR_MJ_CMS_bin1_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin2_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin3_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin4_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin5_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin6_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin7_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin8_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin9_stat   shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin10_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin11_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin12_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin13_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin15_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin16_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin17_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin18_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin19_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin20_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoJ_SR_MJ_CMS_bin21_stat  shape    1      -       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin1_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin2_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin3_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin4_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin5_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin6_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin7_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin8_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin9_stat   shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin10_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin11_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin12_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin13_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin15_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin16_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin17_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin18_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin19_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin20_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoW_SR_MJ_CMS_bin21_stat  shape    -      1       -        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin1_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin2_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin3_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin4_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin5_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin6_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin7_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin8_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin9_stat   shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin10_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin11_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin12_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin13_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin15_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin16_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin17_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin18_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin19_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin20_stat  shape    -      -       1        -            -            -            -              -            -        -
+MonoZ_SR_MJ_CMS_bin21_stat  shape    -      -       1        -            -            -            -              -            -        -
 ZJets_SR_MJ_CMS_bin1_stat   shape    -      -       -        -            -            1              -            -        -       -
 ZJets_SR_MJ_CMS_bin2_stat   shape    -      -       -        -            -            1              -            -        -       -
 ZJets_SR_MJ_CMS_bin3_stat   shape    -      -       -        -            -            1              -            -        -       -

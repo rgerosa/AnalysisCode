@@ -1,0 +1,127 @@
+imax * number of bins
+cmax * number of processes minus 1
+kmax * number of nuisance parameters
+--------------------------------------------------------------------------------------------------------------------------
+shapes data_obs    SR_VBF   workspace_VBF.root SR_VBF:data_obs_SR_VBF
+shapes Znunu       SR_VBF   workspace_VBF.root SR_VBF:Znunu_SR_VBF 
+shapes Znunu_EWK   SR_VBF   workspace_VBF.root SR_VBF:Znunu_EWK_SR_VBF 
+shapes WJets       SR_VBF   workspace_VBF.root SR_VBF:WJets_SR_VBF 
+shapes WJets_EWK   SR_VBF   workspace_VBF.root SR_VBF:WJets_EWK_SR_VBF 
+shapes ZJets       SR_VBF   workspace_VBF.root SR_VBF:ZJets_SR_VBF    SR_VBF:ZJets_SR_VBF_$SYSTEMATIC
+shapes Dibosons    SR_VBF   workspace_VBF.root SR_VBF:Dibosons_SR_VBF SR_VBF:Dibosons_SR_VBF_$SYSTEMATIC
+shapes Top         SR_VBF   workspace_VBF.root SR_VBF:Top_SR_VBF      SR_VBF:Top_SR_VBF_$SYSTEMATIC
+shapes QCD         SR_VBF   workspace_VBF.root SR_VBF:QCD_SR_VBF      SR_VBF:QCD_SR_VBF_$SYSTEMATIC
+shapes GJets       SR_VBF   workspace_VBF.root SR_VBF:GJets_SR_VBF    SR_VBF:GJets_SR_VBF_$SYSTEMATIC       
+shapes ggH         SR_VBF   workspace_VBF_signal.root SR_VBF:ggH_SR_VBF      SR_VBF:ggH_SR_VBF_$SYSTEMATIC
+shapes qqH         SR_VBF   workspace_VBF_signal.root SR_VBF:qqH_SR_VBF      SR_VBF:qqH_SR_VBF_$SYSTEMATIC
+shapes WH          SR_VBF   workspace_VBF_signal.root SR_VBF:WH_SR_VBF       SR_VBF:WH_SR_VBF_$SYSTEMATIC
+shapes ZH          SR_VBF   workspace_VBF_signal.root SR_VBF:ZH_SR_VBF       SR_VBF:ZH_SR_VBF_$SYSTEMATIC
+shapes ggZH        SR_VBF   workspace_VBF_signal.root SR_VBF:ggZH_SR_VBF     SR_VBF:ggZH_SR_VBF_$SYSTEMATIC
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+bin         SR_VBF
+observation -1
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+bin                             SR_VBF      SR_VBF     SR_VBF      SR_VBF     SR_VBF     SR_VBF      SR_VBF     SR_VBF      SR_VBF      SR_VBF      SR_VBF 
+process                         ggH         qqH        Znunu       Znunu_EWK  WJets      WJets_EWK   ZJets      Dibosons    Top         QCD         GJets
+process                         0           -1         1           2          3          4           5          6           7           8           9          
+rate                            -1          -1         1           1          1          1           -1        -1          -1           0          -1  
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+lumi_13TeV                lnN   1.062        1.062     -           -          -          -           1.062      1.062       1.062       1.062       1.062
+CMS_met_trig              lnN   1.010        1.010     -           -          -          -           1.010      1.010       1.010         -         1.010
+ZJets_Norm13TeV           lnN     -            -       -           -          -          -           1.200        -           -           -           -  
+Dibosons_Norm13TeV        lnN     -            -       -           -          -          -             -        1.200         -           -           -  
+Top_Norm13TeV             lnN     -            -       -           -          -          -             -          -         1.100         -           -  
+Top_Reweight13TeV         lnN     -            -       -           -          -          -             -          -         1.100         -           -  
+GJets_Norm13TeV           lnN     -            -       -           -          -          -             -          -           -           -         1.200  
+CMS_met_13TeV             lnN   1.040        1.040     -           -          -          -           1.040      1.040       1.040       1.040       1.040
+CMS_btag_13TeV            lnN   1.020        1.020     -           -          -          -           1.020      1.020       1.060       1.020       1.020
+CMS_QCD_SR                lnN     -            -       -           -          -          -             -          -           -           2           -  
+CMS_eff_lepVeto_13TeV     lnN     -            -       -           -          -          -           1.030       1.030       1.030        -           -
+hpt                       shape   1            -       -           -          -          -             -           -           -          -           - 
+QCDScale_qqbar_accept     lnN     -          1.02      -           -          -          -             -           -           -          -           -
+QCDScale_ggH              lnN    0.919/1.076   -       -      	   -  	      - 	 -             -  	   -           -          -           -    
+QCDScale_qqH              lnN     -        0.997/1.004 -           -          -          -             -           -           -          -           -
+pdf_qqbar                 lnN     -           1.02     -           -          -          -             -           -           -          -           -
+pdf_gg                    lnN   1.031          -       -           -          -          -             -           -           -          -           -
+pdf_qqbar_accept          lnN     -          1.01      -           -          -          -             -           -           -          -           -
+pdf_gg_accept             lnN   1.010          -       -           -          -          -             -           -           -          -           -
+QCDscale_ggH2in           lnN   1.300          -       -           -          -          -             -           -           -          -           -
+ggH_SR_VBF_CMS_bin1_stat   shape    1        -       -           -          -          -             -           -           -          -           - 
+ggH_SR_VBF_CMS_bin2_stat   shape    1        -       -           -          -          -             -           -           -          -           - 
+ggH_SR_VBF_CMS_bin3_stat   shape    1        -       -           -          -          -             -           -           -          -           - 
+ggH_SR_VBF_CMS_bin5_stat   shape    1        -       -           -          -          -             -           -           -          -           - 
+ggH_SR_VBF_CMS_bin6_stat   shape    1        -       -           -          -          -             -           -           -          -           - 
+qqH_SR_VBF_CMS_bin1_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+qqH_SR_VBF_CMS_bin2_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+qqH_SR_VBF_CMS_bin3_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+qqH_SR_VBF_CMS_bin4_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+qqH_SR_VBF_CMS_bin5_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+qqH_SR_VBF_CMS_bin6_stat   shape    -        1       -           -          -          -             -           -           -          -           -
+ZJets_SR_VBF_CMS_bin1_stat shape    -        -       -           -          -          -             1           -           -          -           -
+ZJets_SR_VBF_CMS_bin2_stat shape    -        -       -           -          -          -             1           -           -          -           -
+ZJets_SR_VBF_CMS_bin3_stat shape    -        -       -           -          -          -             1           -           -          -           -
+ZJets_SR_VBF_CMS_bin4_stat shape    -        -       -           -          -          -             1           -           -          -           -
+ZJets_SR_VBF_CMS_bin5_stat shape    -        -       -           -          -          -             1           -           -          -           -
+ZJets_SR_VBF_CMS_bin6_stat shape    -        -       -           -          -          -             1           -           -          -           -
+Top_SR_VBF_CMS_bin1_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Top_SR_VBF_CMS_bin2_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Top_SR_VBF_CMS_bin3_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Top_SR_VBF_CMS_bin4_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Top_SR_VBF_CMS_bin5_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Top_SR_VBF_CMS_bin6_stat shape    -        -       -           -          -          -             -           -           1          -           -
+Dibosons_SR_VBF_CMS_bin1_stat shape    -        -       -           -          -          -             -           1           -          -           -
+Dibosons_SR_VBF_CMS_bin2_stat shape    -        -       -           -          -          -             -           1           -          -           -
+Dibosons_SR_VBF_CMS_bin3_stat shape    -        -       -           -          -          -             -           1           -          -           -
+Dibosons_SR_VBF_CMS_bin4_stat shape    -        -       -           -          -          -             -           1           -          -           -
+Dibosons_SR_VBF_CMS_bin5_stat shape    -        -       -           -          -          -             -           1           -          -           -
+Dibosons_SR_VBF_CMS_bin6_stat shape    -        -       -           -          -          -             -           1           -          -           -
+GJets_SR_VBF_CMS_bin1_stat shape    -        -       -           -          -          -             -           -           -          -           1
+GJets_SR_VBF_CMS_bin2_stat shape    -        -       -           -          -          -             -           -           -          -           1
+GJets_SR_VBF_CMS_bin3_stat shape    -        -       -           -          -          -             -           -           -          -           1
+GJets_SR_VBF_CMS_bin4_stat shape    -        -       -           -          -          -             -           -           -          -           1
+GJets_SR_VBF_CMS_bin5_stat shape    -        -       -           -          -          -             -           -           -          -           1
+GJets_SR_VBF_CMS_bin6_stat shape    -        -       -           -          -          -             -           -           -          -           1
+##### Z/W QCD
+WJets_SR_RenScale1        param         0     1
+WJets_SR_FactScale1       param         0     1
+WJets_SR_RenScale2        param         0     1
+WJets_SR_FactScale2       param         0     1
+WJets_SR_PDF              param         0     1
+WJets_SR_VBF_bin1_Runc        param     0     1
+WJets_SR_VBF_bin2_Runc        param     0     1
+WJets_SR_VBF_bin3_Runc        param     0     1
+WJets_SR_VBF_bin4_Runc        param     0     1
+WJets_SR_VBF_bin5_Runc        param     0     1
+WJets_SR_VBF_bin6_Runc        param     0     1
+WJets_SR_VBF_bin1_ZW_EWK      param     0     1
+WJets_SR_VBF_bin2_ZW_EWK      param     0     1
+WJets_SR_VBF_bin3_ZW_EWK      param     0     1
+WJets_SR_VBF_bin4_ZW_EWK      param     0     1
+WJets_SR_VBF_bin5_ZW_EWK      param     0     1
+WJets_SR_VBF_bin6_ZW_EWK      param     0     1
+##### Z/W EWK
+WJets_EWK_SR_RenScale1        param     0     1
+WJets_EWK_SR_FactScale1       param     0     1
+WJets_EWK_SR_RenScale2        param     0     1
+WJets_EWK_SR_FactScale2       param     0     1
+WJets_EWK_SR_PDF              param     0     1
+WJets_EWK_SR_VBF_bin1_Runc    param     0     1
+WJets_EWK_SR_VBF_bin2_Runc    param     0     1
+WJets_EWK_SR_VBF_bin3_Runc    param     0     1
+WJets_EWK_SR_VBF_bin4_Runc    param     0     1
+WJets_EWK_SR_VBF_bin5_Runc    param     0     1
+WJets_EWK_SR_VBF_bin6_Runc    param     0     1
+WJets_EWK_SR_VBF_bin1_ZW_EWK  param     0     1
+WJets_EWK_SR_VBF_bin2_ZW_EWK  param     0     1
+WJets_EWK_SR_VBF_bin3_ZW_EWK  param     0     1
+WJets_EWK_SR_VBF_bin4_ZW_EWK  param     0     1
+WJets_EWK_SR_VBF_bin5_ZW_EWK  param     0     1
+WJets_EWK_SR_VBF_bin6_ZW_EWK  param     0     1
+##### ZQCD/ZEWK
+Znunu_EWK_SR_VBF_bin1_Runc    param     0     1
+Znunu_EWK_SR_VBF_bin2_Runc    param     0     1
+Znunu_EWK_SR_VBF_bin3_Runc    param     0     1
+Znunu_EWK_SR_VBF_bin4_Runc    param     0     1
+Znunu_EWK_SR_VBF_bin5_Runc    param     0     1
+Znunu_EWK_SR_VBF_bin6_Runc    param     0     1
+----------------------------------------------------------------------------------------------------------------------------
