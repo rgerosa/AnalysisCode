@@ -21,7 +21,7 @@ using namespace std;
 // some basic cut values --> Monojet category
 const float leadingJetPtCut = 100.;
 const float pfMetMonoJUpper = 8000.;
-const float pfMetMonoJLower = 200.;
+const float pfMetMonoJLower = 250.;
 const float btagCSVLoose     = 0.460;
 const float btagCSVMedium    = 0.800;
 const float numberOfVtxCorrection = 17;
@@ -1951,7 +1951,7 @@ void makehist4(TTree* tree, /*input tree*/
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60 and not isSummer16) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	else if(isSummer16 and sample != Sample::sig and sample != Sample::gam){
+	else if(isSummer16 and sample != Sample::sig and sample  != Sample::gam){
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	}
 	else if(isSummer16 and (sample == Sample::sig or sample == Sample::gam))
@@ -1966,8 +1966,8 @@ void makehist4(TTree* tree, /*input tree*/
 	evtwgt = sfwgt*pfwgt*hltw;
       else if (!isMC)
 	evtwgt = hltw;      
- 
-      //    if(pfmet > 1160) cout<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<endl;
+      
+      //if(pfmet > 1160) cout<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<endl;
       
       hist->Fill(fillvar, evtwgt);
     }
@@ -2143,6 +2143,10 @@ void makehist4(TTree* tree, /*input tree*/
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
+	
+	/// temp
+	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*kwgt/(**wgtsum);
+	
       }
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
