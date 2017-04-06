@@ -100,6 +100,9 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
     if (dmmass != dmMass) continue; // skip points not belonging to the selected DM mass
 
 
+    if(medmass > 2500) continue;
+    if(medmass < 1000) continue;
+
     // fill expected limit graph
     if (quantile == 0.5) {
 
@@ -143,8 +146,6 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
     }    
   }
 
-  cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
-
   tree->ResetBranchAddresses();
 
   // Make 1 and 2 sigma brazilian bands
@@ -172,6 +173,9 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
 	rangeUp = (medMassList.at(iPoint+1)-medMassList.at(iPoint))/2;
 	rangeDw = (medMassList.at(iPoint)-medMassList.at(iPoint-1))/2;
       }
+
+      double x_obs, y_obs;
+      grobs->GetPoint(iPoint,x_obs,y_obs);
       graph_1sigma_band->SetPointError(iPoint,rangeDw,rangeUp,fabs(y_dw-y_central),fabs(y_up-y_central));      
     }
   }

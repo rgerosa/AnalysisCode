@@ -87,6 +87,7 @@ void plotPseudoScalar(string inputDIR, string outputDIR, string coupling = "025"
     int medmass = mmed(mh, c);
     int dmmass = mdm(mh, c);
     
+    if(medmass > 1000) continue;
     
     if (medmass < 2* dmmass) continue;
 

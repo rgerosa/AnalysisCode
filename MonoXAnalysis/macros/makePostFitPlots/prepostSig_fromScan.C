@@ -464,7 +464,7 @@ void prepostSig_fromScan(string   fitFilename,
   stack ->Draw("HIST SAME");
   if(plotSBFit)
     sighist->Draw("HIST same");
-  if(not plotSBFit){
+  if(not plotSBFit and category != Category::VBF){
     mjhist_av->Draw("hist same");
     ggHhist->Draw("hist same"); 
   }
@@ -495,9 +495,9 @@ void prepostSig_fromScan(string   fitFilename,
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)
     leg->AddEntry(qchist,  "QCD", "F");
-  if(not plotSBFit)
+  if(not plotSBFit and category != Category::VBF)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
-  if(not plotSBFit)
+  if(not plotSBFit and category != Category::VBF)
     leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 2.0 TeV","L");
 
   leg->Draw("SAME");    
@@ -516,7 +516,7 @@ void prepostSig_fromScan(string   fitFilename,
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
   else
     frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 

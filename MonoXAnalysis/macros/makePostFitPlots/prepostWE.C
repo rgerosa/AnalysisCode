@@ -266,6 +266,8 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
+  if(category == Category::VBF)
+    ewkwhist->Draw("hist same");
   wlhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1.2);
@@ -299,7 +301,7 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
   else
     frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 

@@ -107,7 +107,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
   ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZE").c_str());
-  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/ZJets_EWK").c_str());
+  ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
   
@@ -263,6 +263,8 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
+  if(category == Category::VBF)
+    ewkzhist->Draw("HIST same");
   wlhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1.2);
@@ -278,7 +280,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(pohist, "Post-fit Z(ee)+jets","L");
   leg->AddEntry(prhist, "Pre-fit Z(ee)+jets","L");
   if(category == Category::VBF)
-    leg->AddEntry(ewkwhist, "Z-EWK","F");
+    leg->AddEntry(ewkzhist, "Z-EWK","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
   
@@ -295,7 +297,7 @@ void prepostZE(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
   else
     frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 

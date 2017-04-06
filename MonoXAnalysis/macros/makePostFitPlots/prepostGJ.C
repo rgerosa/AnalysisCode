@@ -236,8 +236,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
-  //frame2->GetYaxis()->SetRangeUser(0.95,1.05);
+    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
   else
     frame2->GetYaxis()->SetRangeUser(0.75,1.25);
 

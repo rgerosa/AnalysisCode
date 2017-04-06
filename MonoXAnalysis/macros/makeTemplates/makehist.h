@@ -1960,6 +1960,8 @@ void makehist4(TTree* tree, /*input tree*/
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
+
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
       }
       
       if (!isMC && sample == Sample::qcdgam) 
