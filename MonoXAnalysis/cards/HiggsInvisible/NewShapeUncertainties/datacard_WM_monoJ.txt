@@ -19,8 +19,8 @@ process                             2           9           4               5   
 rate                                1          -1           -1              -1            -1
 ------------------------------------------------------------------------------------------------
 lumi_13TeV                lnN       -           1.026       1.026           1.026         1.026
-CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         1.010
-CMS_reco_m                lnN       1.010       1.010       1.010           1.010         1.010			  
+CMS_eff_m                 lnN       1.010       1.010       1.010           1.010         -
+CMS_reco_m                lnN       1.010       1.010       1.010           1.010         -			  
 CMS_met_trig_bkg          lnN       -           -           1.010           1.010         1.010
 ZJets_WM_Norm13TeV        lnN       -           1.200       -               -             -
 Dibosons_Norm13TeV        lnN       -           -           1.200           -             -
@@ -52,6 +52,7 @@ Dibosons_WM_MJ_CMS_bin18_stat shape -           -           1           -      	
 Dibosons_WM_MJ_CMS_bin19_stat shape -           -           1           -      	   -
 Dibosons_WM_MJ_CMS_bin20_stat shape -           -           1           -      	   -
 Dibosons_WM_MJ_CMS_bin21_stat shape -           -           1           -      	   -
+Dibosons_WM_MJ_CMS_bin22_stat shape -           -           1           -      	   -
 Top_WM_MJ_CMS_bin1_stat shape -           -           -           1                -
 Top_WM_MJ_CMS_bin2_stat shape -           -           -           1      	   -
 Top_WM_MJ_CMS_bin3_stat shape -           -           -           1      	   -
@@ -73,6 +74,7 @@ Top_WM_MJ_CMS_bin18_stat shape -           -           -           1      	   -
 Top_WM_MJ_CMS_bin19_stat shape -           -           -           1      	   -
 Top_WM_MJ_CMS_bin20_stat shape -           -           -           1      	   -
 Top_WM_MJ_CMS_bin21_stat shape -           -           -           1      	   -
+Top_WM_MJ_CMS_bin22_stat shape -           -           -           1      	   -
 QCD_WM_MJ_CMS_bin1_stat shape -           -           -           -                1
 QCD_WM_MJ_CMS_bin2_stat shape -           -           -           -      	   1
 QCD_WM_MJ_CMS_bin3_stat shape -           -           -           -      	   1
@@ -94,6 +96,7 @@ QCD_WM_MJ_CMS_bin18_stat shape -           -           -           -      	   1
 QCD_WM_MJ_CMS_bin19_stat shape -           -           -           -      	   1
 QCD_WM_MJ_CMS_bin20_stat shape -           -           -           -      	   1
 QCD_WM_MJ_CMS_bin21_stat shape -           -           -           -      	   1
+QCD_WM_MJ_CMS_bin22_stat shape -           -           -           -      	   1
 WJets_WM_MJ_bin1_Runc     param     0     1
 WJets_WM_MJ_bin2_Runc     param     0     1
 WJets_WM_MJ_bin3_Runc     param     0     1
@@ -115,6 +118,7 @@ WJets_WM_MJ_bin18_Runc     param     0     1
 WJets_WM_MJ_bin19_Runc     param     0     1
 WJets_WM_MJ_bin20_Runc     param     0     1
 WJets_WM_MJ_bin21_Runc     param     0     1
+WJets_WM_MJ_bin22_Runc     param     0     1
 CMS_met_trig               param     0     1
 WtoWPDF                    param     0     1
 CMS_muon_veto              param     0     1

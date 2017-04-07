@@ -5,8 +5,8 @@ static bool saveTextFile = true;
 static bool dumpInfo     = false;
 static bool plotSignificance = true;
 static float lumiScale_Higgs = 15;
-static float lumiScale_DM = 2.78;
-static bool addStatUncPull = false;
+static float lumiScale_DM    = 2.78;
+static bool addStatUncPull   = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -516,9 +516,9 @@ void prepostSig_fromScan(string   fitFilename,
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
+    frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

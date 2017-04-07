@@ -45,7 +45,6 @@ Top_WM_MV_CMS_bin4_stat shape -           -           -              1          
 Top_WM_MV_CMS_bin5_stat shape -           -           -              1             -
 Top_WM_MV_CMS_bin6_stat shape -           -           -              1             -
 Top_WM_MV_CMS_bin7_stat shape -           -           -              1             -
-QCD_WM_MV_CMS_bin1_stat shape -           -           -              -             1
 QCD_WM_MV_CMS_bin2_stat shape -           -           -              -             1
 QCD_WM_MV_CMS_bin3_stat shape -           -           -              -             1
 QCD_WM_MV_CMS_bin4_stat shape -           -           -              -             1

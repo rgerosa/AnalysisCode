@@ -140,6 +140,7 @@ void addBinByBinTemplates(string inputFileName, Category category, string signal
   for (std::list<RooAbsData *>::iterator data=dataset.begin(); data != dataset.end(); ++data){
     cout<<"Generate bin-by-bin variations for "<<(*data)->GetName()<<endl;
     TH1D* histo = (TH1D*) (*data)->createHistogram(Form("%s_temp",(*data)->GetName()),*var);
+    smoothEmptyBins(histo,2); // do some smoothing
     outw->import(**data);
     // produce the bin-by-bin stat variations
     generateStatTemplate(string((*data)->GetName()),postfix,varList,*outw,histo,1,false);

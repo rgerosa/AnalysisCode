@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool addStatUncPull = false;
+static bool addStatUncPull = true;
 
 void prepostWE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -301,9 +301,9 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.90,1.10);
+    frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
