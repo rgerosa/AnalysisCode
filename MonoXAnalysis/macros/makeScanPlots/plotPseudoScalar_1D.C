@@ -36,7 +36,7 @@ int code(double mh){
     return (int)(mh/100000000);
 }
 
-void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, string coupling = "025") {
+void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, string coupling = "025", string postfix = "COMB") {
   
   system(("mkdir -p "+outputDIR).c_str());
   gROOT->SetBatch(kTRUE);
@@ -99,6 +99,7 @@ void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1,
     if (medmass < 2* dmmass) continue; // skip off-shell points
     if (dmmass != dmMass) continue; // skip points not belonging to the selected DM mass
 
+    if(medmass > 600) continue;
 
     // fill expected limit graph
     if (quantile == 0.5) {
@@ -269,12 +270,13 @@ void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1,
   gPad->Modified(); 
   gPad->Update();
   
-  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+".pdf").c_str(),"pdf");
-  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+".png").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".pdf").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".png").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".C").c_str(),"C");
 
   canvas->SetLogy();
   frame->GetYaxis()->SetRangeUser(TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.01,
 				  TMath::MaxElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*100);
-  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_log.pdf").c_str(),"pdf");
-  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_log.png").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+"_log.pdf").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/scan_pseudoScalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+"_log.png").c_str(),"pdf");
 }

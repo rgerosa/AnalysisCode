@@ -53,6 +53,7 @@ Znunu_GJ_MJ_bin18_Runc    param     0     1
 Znunu_GJ_MJ_bin19_Runc    param     0     1
 Znunu_GJ_MJ_bin20_Runc    param     0     1
 Znunu_GJ_MJ_bin21_Runc    param     0     1
+Znunu_GJ_MJ_bin22_Runc    param     0     1
 CMS_met_trig              param     0     1
 ---------------------------------------------------------
 

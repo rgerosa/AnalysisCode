@@ -1,9 +1,9 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static bool saveTextFile = true;
+static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool addStatUncPull = false;
+static bool addStatUncPull = true;
 
 void prepostGJ(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false) {
 
@@ -236,10 +236,9 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category ==  Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
-  //frame2->GetYaxis()->SetRangeUser(0.95,1.05);
+    frame2->GetYaxis()->SetRangeUser(0.8,1.2);
   else
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.7,1.3);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
