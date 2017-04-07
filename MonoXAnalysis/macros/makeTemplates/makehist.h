@@ -59,7 +59,7 @@ const bool  reweightNVTX     = true;
 /// photon scale
 const bool  applyPhotonScale = true;
 const float photonScaleUnc   = -0.0125;
-const bool  doSmoothing      = false;
+static bool  doSmoothing      = false;
 // trigger
 const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useMoriondSetup = true;
