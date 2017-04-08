@@ -140,6 +140,11 @@ void addBinByBinTemplates(string inputFileName, Category category, string signal
   for (std::list<RooAbsData *>::iterator data=dataset.begin(); data != dataset.end(); ++data){
     cout<<"Generate bin-by-bin variations for "<<(*data)->GetName()<<endl;
     TH1D* histo = (TH1D*) (*data)->createHistogram(Form("%s_temp",(*data)->GetName()),*var);
+    if(histo->Integral() < 1) continue;
+    // fix on the fly problems in the templates
+    checkNegativeBin(histo);
+    if(histo->Integral() == 0)
+      addDummyBinContent(histo);
     smoothEmptyBins(histo,2); // do some smoothing
     outw->import(**data);
     // produce the bin-by-bin stat variations

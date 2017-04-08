@@ -101,7 +101,7 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
 
 
     if(medmass > 2500) continue;
-    if(medmass < 1000) continue;
+    if(medmass < 600) continue;
 
     // fill expected limit graph
     if (quantile == 0.5) {
@@ -221,7 +221,7 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
   frame->GetXaxis()->SetTitle("m_{med} [GeV]");
   frame->GetYaxis()->SetTitle("95%  CL upper limit on #sigma/#sigma_{theory}");
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->SetTitleOffset(1.15);  
+  frame->GetYaxis()->SetTitleOffset(1.10);  
   frame->Draw();
   CMS_lumi(canvas,"35.9");
 
@@ -277,8 +277,8 @@ void plotAxial_1D(string inputFileName, string outputDIR, int dmMass = 1, string
   canvas->SaveAs((outputDIR+"/scan_axial_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+".png").c_str(),"pdf");
 
   canvas->SetLogy();
-  frame->GetYaxis()->SetRangeUser(TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.01,
-				  TMath::MaxElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*100);
+  frame->GetYaxis()->SetRangeUser(TMath::MinElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*0.1,
+				  TMath::MaxElement(graph_2sigma_band->GetN(),graph_2sigma_band->GetY())*200);
   canvas->SaveAs((outputDIR+"/scan_axial_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_log.pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/scan_axial_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_log.png").c_str(),"pdf");
 }

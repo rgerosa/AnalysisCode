@@ -14,6 +14,7 @@
 #include "TGraph.h"
 #include "TPaletteAxis.h"
 #include <iostream>
+#include "../CMS_lumi.h"
 
 int mmed(double mh, int code){
     if (code == 800) return ((int)(mh-80000000000))/10000; 
@@ -35,14 +36,18 @@ int code(double mh){
     return (int)(mh/100000000);
 }
 
-void plotAxial(string inputDIR, string outputDIR, string coupling = "025", string energy = "13") {
+static bool saveOutputFile = false;
+
+void plotAxial(string inputFileName, string outputDIR, string coupling = "025", string energy = "13") {
 
   system(("mkdir -p "+outputDIR).c_str());
   gROOT->SetBatch(kTRUE);
+  setTDRStyle();
 
   // Set the color palette
-  bool useNicksPalette = true;
+  bool useNicksPalette = false;
   int ncontours = 999;
+
   if (useNicksPalette) {
     
       TColor::InitializeColors();
@@ -57,11 +62,12 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   gStyle->SetNumberContours(ncontours);
   
   // This is where all the plots are made
-  TFile *file = new TFile((inputDIR+"/limits_801_"+string(coupling)+"_v1_"+string(energy)+"TeV.root").c_str());
-  TTree *tree = (TTree*)file->Get("limit");
-  TFile* file2 = new TFile((inputDIR+"/axial_out.root").c_str());
-  TGraph* wm = (TGraph*)file2->Get("wmap_0");
-  TGraph* dd = (TGraph*)file2->Get("DD_mass");
+  TFile *file  = TFile::Open(inputFileName.c_str(),"READ");
+  TTree *tree  = (TTree*)file->Get("limit");
+
+  //TFile* file2 = TFile::Open((inputDIR+"/axial_out.root").c_str());
+  //TGraph* wm   = (TGraph*)file2->Get("wmap_0");
+  //TGraph* dd   = (TGraph*)file2->Get("DD_mass");
   
   TGraph2D* grexp = new TGraph2D();
   TGraph2D* grexp_up = new TGraph2D();
@@ -83,11 +89,12 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   int exp_down_counter = 0;
   int obscounter = 0;
   for (int i = 0; i < tree->GetEntries(); i++){
+
     tree->GetEntry(i);
     
-    int c = code(mh);
+    int c       = code(mh);
     int medmass = mmed(mh, c);
-    int dmmass = mdm(mh, c);
+    int dmmass  = mdm(mh, c);
         
     if (quantile == 0.5) {
       expcounter++;
@@ -105,8 +112,7 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
       grexp_down->SetPoint(exp_down_counter, double(medmass), double(dmmass), limit);      
     }
 
-    if (quantile == -1) {
-      
+    if (quantile == -1) {      
       obscounter++;
       grobs->SetPoint(obscounter, double(medmass), double(dmmass), limit);
       grobu->SetPoint(obscounter, double(medmass), double(dmmass), limit*0.8);
@@ -251,14 +257,14 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   hobs2->SetLineColor(kRed);
   hobs2->Draw("CONT3 SAME");
 
-  wm->SetFillStyle(3005);
-  wm->Draw("SAME");
+  //wm->SetFillStyle(3005);
+  //wm->Draw("SAME");
 
   TLegend *leg = new TLegend(0.36,0.62,0.80,0.88,NULL,"brNDC");
 
   leg->AddEntry(hexp2,"Median Expected ("+TString(energy)+" TeV) 95% CL","L");
   leg->AddEntry(hexp2_up,"Expected ("+TString(energy)+" TeV) #pm 1#sigma_{experiment} ","L");
-  leg->AddEntry(wm   ,"Planck+WMAP Relic","F");
+  //leg->AddEntry(wm   ,"Planck+WMAP Relic","F");
   leg->SetFillColor(0);
   leg->Draw("SAME");
   
@@ -284,7 +290,7 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   tex2->SetLineWidth(2);
   tex2->SetTextSize(0.042);
   tex2->SetTextAngle(270);
-  tex2->DrawLatex(0.965,0.93,"Observed    #sigma_{95% CL}/#sigma_{th}");
+  tex2->DrawLatex(0.965,0.93,"Observed #sigma_{95% CL}/#sigma_{th}");
   
   TLatex* texCMS = new TLatex(0.22,0.96,"#bf{CMS} #it{Preliminary}");
   texCMS->SetNDC();
@@ -307,17 +313,20 @@ void plotAxial(string inputDIR, string outputDIR, string coupling = "025", strin
   canvas->SaveAs((outputDIR+"/scan_axial_g"+string(coupling)+"_"+string(energy)+"TeV_v2.pdf").c_str());
   canvas->SaveAs((outputDIR+"/scan_axial_g"+string(coupling)+"_"+string(energy)+"TeV_v2.png").c_str());
 
-  TFile* outputFile = new TFile((outputDIR+"/fullLikelihood_scan_axial.root").c_str(),"RECREATE");
-  outputFile->cd();
-  hexp->Write("scan_expected");
-  hobs->Write("scan_observed");
-  hexp2->Write("contour_expected");
-  hobs2->Write("contour_observed");
-  grexp->Write("graph_expected");
-  grexp_up->Write("graph_expected_p1s");
-  grexp_down->Write("graph_expected_m1s");
-  grobs->Write("graph_observed");
+  if(saveOutputFile){
+    TFile* outputFile = new TFile((outputDIR+"/fullLikelihood_scan_axial.root").c_str(),"RECREATE");
+    outputFile->cd();
+    hexp->Write("scan_expected");
+    hobs->Write("scan_observed");
+    hexp2->Write("contour_expected");
+    hobs2->Write("contour_observed");
+    grexp->Write("graph_expected");
+    grexp_up->Write("graph_expected_p1s");
+    grexp_down->Write("graph_expected_m1s");
+    grobs->Write("graph_observed");
 
-  outputFile->Write();
+    outputFile->Write();
+
+  }
 
 }
