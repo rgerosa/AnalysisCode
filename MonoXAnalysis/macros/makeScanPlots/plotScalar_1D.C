@@ -99,7 +99,9 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     if (medmass < 2* dmmass) continue; // skip off-shell points
     if (dmmass != dmMass) continue; // skip points not belonging to the selected DM mass
 
+    // for plotting reasons
     if (medmass > 600) continue;
+    if (medmass == 90) continue;
     
     // fill expected limit graph
     if (quantile == 0.5) {
@@ -144,7 +146,7 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     }    
   }
 
-  cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
+  //cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
 
   tree->ResetBranchAddresses();
 
@@ -218,7 +220,7 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   frame->GetXaxis()->SetTitle("m_{med} [GeV]");
   frame->GetYaxis()->SetTitle("95%  CL upper limit on #sigma/#sigma_{theory}");
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->SetTitleOffset(1.15);  
+  frame->GetYaxis()->SetTitleOffset(1.10);  
   frame->Draw();
   CMS_lumi(canvas,"35.9");
 
@@ -233,11 +235,11 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   grexp->SetLineColor(kBlack);
   grexp->SetLineStyle(7);
   grexp->SetLineWidth(2);
-  grexp->Draw("Lsame");
+  grexp->Draw("Csame");
 
   grobs->SetLineColor(kBlack);
   grobs->SetLineWidth(2);
-  grobs->Draw("Lsame");
+  grobs->Draw("Csame");
 
   TF1* line = new TF1 ("line","1",medMin,medMax);
   line->SetLineColor(kRed);
@@ -270,6 +272,7 @@ void plotScalar_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   gPad->Modified(); 
   gPad->Update();
   
+  frame->GetYaxis()->SetRangeUser(0,6);
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".pdf").c_str(),"pdf");
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/scan_scalar_1D_dmMass_"+to_string(dmMass)+"_g"+string(coupling)+"_"+postfix+".C").c_str(),"C");

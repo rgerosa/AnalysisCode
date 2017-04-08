@@ -99,6 +99,8 @@ void plotVector_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
     if (medmass < 2* dmmass) continue; // skip off-shell points
     if (dmmass != dmMass) continue; // skip points not belonging to the selected DM mass
 
+    if (medmass > 2500) continue;
+    if (medmass < 600) continue;
 
     // fill expected limit graph
     if (quantile == 0.5) {
@@ -217,7 +219,7 @@ void plotVector_1D(string inputFileName, string outputDIR, int dmMass = 1, strin
   frame->GetXaxis()->SetTitle("m_{med} [GeV]");
   frame->GetYaxis()->SetTitle("95%  CL upper limit on #sigma/#sigma_{theory}");
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->SetTitleOffset(1.15);  
+  frame->GetYaxis()->SetTitleOffset(1.10);  
   frame->Draw();
   CMS_lumi(canvas,"35.9");
 

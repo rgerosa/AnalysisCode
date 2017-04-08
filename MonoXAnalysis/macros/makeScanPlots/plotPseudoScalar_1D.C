@@ -144,7 +144,7 @@ void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1,
     }    
   }
 
-  cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
+  //  cout<<"Found: NexpLim "<<expcounter<<" NObsLim "<<obscounter<<" 1sigmaUp "<<exp_up_counter_1s<<" 1sigmaDw "<<exp_down_counter_1s<<" 2sigmaUp "<<exp_up_counter_2s<<" 2sigmDw "<<exp_up_counter_2s<<" for mDM "<<dmMass<<" medMin "<<medMin<<" medMax "<<medMax<<endl;
 
   tree->ResetBranchAddresses();
 
@@ -218,7 +218,7 @@ void plotPseudoScalar_1D(string inputFileName, string outputDIR, int dmMass = 1,
   frame->GetXaxis()->SetTitle("m_{med} [GeV]");
   frame->GetYaxis()->SetTitle("95%  CL upper limit on #sigma/#sigma_{theory}");
   frame->GetXaxis()->SetTitleOffset(1.15);
-  frame->GetYaxis()->SetTitleOffset(1.15);  
+  frame->GetYaxis()->SetTitleOffset(1.10);  
   frame->Draw();
   CMS_lumi(canvas,"35.9");
 
