@@ -122,7 +122,7 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, bool skipPreliminary = tr
 
     latex2->SetTextFont(62);
     latex2->SetTextAlign(11);    
-    latex2->DrawLatex(0.175+offset, 0.85, "CMS");
+    latex2->DrawLatex(0.175+offset, 0.86, "CMS");
   }
 
   if(not skipPreliminary){

@@ -17,36 +17,36 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false){
   canvas->SetRightMargin(0.05);
 
   TGraphErrors* limitValueExpected = new TGraphErrors();
-  limitValueExpected->SetPoint(0,0.5,0.5019);
-  limitValueExpected->SetPoint(1,1.5,0.4433593);  
-  limitValueExpected->SetPoint(2,2.5,0.3662109);
+  limitValueExpected->SetPoint(0,0.5,0.576);
+  limitValueExpected->SetPoint(1,1.5,0.451);  
+  limitValueExpected->SetPoint(2,2.5,0.404);
   limitValueExpected->SetPointError(0,0.5,0.);  
   limitValueExpected->SetPointError(1,0.5,0.);
   limitValueExpected->SetPointError(2,0.5,0.);
 
   TGraphErrors* limitValueObserved = new TGraphErrors();
-  limitValueObserved->SetPoint(0,0.5,0.2600018);
-  limitValueObserved->SetPoint(1,1.5,0.5247180);
-  limitValueObserved->SetPoint(2,2.5,0.2220994);
+  limitValueObserved->SetPoint(0,0.5,0.741);
+  limitValueObserved->SetPoint(1,1.5,0.495);
+  limitValueObserved->SetPoint(2,2.5,0.526);
   limitValueObserved->SetPointError(0,0.5,0.);  
   limitValueObserved->SetPointError(1,0.5,0.);
   limitValueObserved->SetPointError(2,0.5,0.);
 
   TGraphAsymmErrors* limitErr_1s = new TGraphAsymmErrors();
-  limitErr_1s->SetPoint(0,0.5,0.5019);
-  limitErr_1s->SetPoint(1,1.5,0.4433593);
-  limitErr_1s->SetPoint(2,2.5,0.3662109);
-  limitErr_1s->SetPointError(0,0.5,0.5,fabs(0.5019-0.3459621),fabs(0.5019-0.7520539));
-  limitErr_1s->SetPointError(1,0.5,0.5,fabs(0.4433593-0.3164354),fabs(0.4433593-0.6253860));
-  limitErr_1s->SetPointError(2,0.5,0.5,fabs(0.3662109-0.2596182),fabs(0.3662109-0.5224022));
+  limitErr_1s->SetPoint(0,0.5,0.576);
+  limitErr_1s->SetPoint(1,1.5,0.4511);
+  limitErr_1s->SetPoint(2,2.5,0.4042968);
+  limitErr_1s->SetPointError(0,0.5,0.5,fabs(0.576-0.399),fabs(0.576-0.858));
+  limitErr_1s->SetPointError(1,0.5,0.5,fabs(0.451-0.322),fabs(0.451-0.640));
+  limitErr_1s->SetPointError(2,0.5,0.5,fabs(0.404-0.288),fabs(0.404-0.576));
 
   TGraphAsymmErrors* limitErr_2s = new TGraphAsymmErrors();
-  limitErr_2s->SetPoint(0,0.5,0.5019);
-  limitErr_2s->SetPoint(1,1.5,0.4433593);
-  limitErr_2s->SetPoint(2,2.5,0.3662109);
-  limitErr_2s->SetPointError(0,0.5,0.5,fabs(0.5019-0.240176),fabs(0.5019-1.0998895));
-  limitErr_2s->SetPointError(1,0.5,0.5,fabs(0.4433593-0.2364006),fabs(0.4433593-0.8484391));
-  limitErr_2s->SetPointError(2,0.5,0.5,fabs(0.3662109-0.1924037),fabs(0.3662109-0.7233150));
+  limitErr_2s->SetPoint(0,0.5,0.576);
+  limitErr_2s->SetPoint(1,1.5,0.4511);
+  limitErr_2s->SetPoint(2,2.5,0.4042968);
+  limitErr_2s->SetPointError(0,0.5,0.5,fabs(0.576-0.294),fabs(0.576-1.246));
+  limitErr_2s->SetPointError(1,0.5,0.5,fabs(0.451-0.241),fabs(0.451-0.877));
+  limitErr_2s->SetPointError(2,0.5,0.5,fabs(0.404-0.214),fabs(0.404-0.788));
 
   TH1* frame = (TH1*) canvas->DrawFrame(0.,0.,3,1.5);
   frame->SetBins(3,0,3);
@@ -54,7 +54,7 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false){
   frame->GetXaxis()->SetBinLabel(1,"Monojet");
   frame->GetXaxis()->SetBinLabel(2,"Mono-V");
   frame->GetXaxis()->SetBinLabel(3,"Combined");
-  frame->GetYaxis()->SetRangeUser(0.,1.5);
+  frame->GetYaxis()->SetRangeUser(0.,1.8);
   frame->GetYaxis()->SetLabelSize(0.035);
   frame->GetXaxis()->SetLabelSize(0.05);
   frame->GetYaxis()->SetTitle("95% CL upper limit on #sigma x B(H #rightarrow inv)/#sigma_{SM}");

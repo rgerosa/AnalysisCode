@@ -403,6 +403,9 @@ void signalHiggshist(TFile* outfile,
   
 
   //smooth
+  if(category == Category::monojet)
+    doSmoothing = true;
+
   if(doSmoothing){
     for(auto hist: ggHhist){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
     for(auto hist: ggHhist_2D){ if(TString(hist->GetName()).Contains("_met")) smoothEmptyBins(hist,2);}
