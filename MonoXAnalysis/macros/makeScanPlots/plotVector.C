@@ -219,21 +219,21 @@ void plotVector(string inputFileName, string outputDIR, string coupling = "025",
   frame->GetYaxis()->SetTitleOffset(1.20);
   frame->Draw();
 
-  hexp2->SetLineColor(kRed);
-  hexp2_up->SetLineColor(kRed);
-  hexp2_down->SetLineColor(kRed);    
+  hexp2->SetLineColor(kBlack);
+  hexp2_up->SetLineColor(kBlack);
+  hexp2_down->SetLineColor(kBlack);    
   hexp2->SetLineWidth(3);
   hexp2_up->SetLineStyle(1);
   hexp2_up->SetLineWidth(1);
   hexp2_down->SetLineStyle(1);
   hexp2_down->SetLineWidth(1);
 
-  hobs2->SetLineColor(kBlack);
+  hobs2->SetLineColor(kRed);
   hobs2->SetLineWidth(3);
   hobu2->SetLineWidth(1);
   hobd2->SetLineWidth(1);
-  hobu2->SetLineColor(kBlack);
-  hobd2->SetLineColor(kBlack);
+  hobu2->SetLineColor(kRed);
+  hobd2->SetLineColor(kRed);
   
   hobs->SetMinimum(minZ);
   hobs->SetMaximum(maxZ);
@@ -258,10 +258,10 @@ void plotVector(string inputFileName, string outputDIR, string coupling = "025",
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->SetTextFont(42);
-  leg->AddEntry(hexp2,"Median Expected 95% CL","L");
-  leg->AddEntry(hexp2_up,"Expected #pm 1#sigma_{experiment}","L");
+  leg->AddEntry(hexp2,"Median expected 95% CL","L");
+  leg->AddEntry(hexp2_up,"Expected #pm 1 s.d._{experiment}","L");
   leg->AddEntry(hobs2,"Observed 95% CL","L");
-  leg->AddEntry(hobu2,"Observed #pm 1#sigma_{theory}","L");
+  leg->AddEntry(hobu2,"Observed #pm 1 s.d._{theory}","L");
   if(addRelicDensity)
     leg->AddEntry(wm   ,"#Omega_{c}#timesh^{2} #geq 0.12","F");
   leg->Draw("SAME");
