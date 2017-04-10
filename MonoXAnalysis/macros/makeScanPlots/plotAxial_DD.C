@@ -217,12 +217,6 @@ void plotAxial_DD(string inputFileName, string outputDirectory, string coupling 
   lTotal->SetLineColor(kBlack);
   lTotal->SetLineWidth(3);
 
-  TFile* out = new TFile("out.root","RECREATE");
-  out->cd();
-  lTotal->Write();
-  lTotalE->Write();
-  
-  
   // make the DD limits
   TGraph  *lM0 = Pico2L();
   TGraph  *lM1 = Pico60(); //lM1->SetLineStyle(kDashed);
@@ -231,9 +225,10 @@ void plotAxial_DD(string inputFileName, string outputDirectory, string coupling 
 
   lM0->SetLineColor(kBlue);
   lM1->SetLineColor(kBlue+2);
-  lM1->SetLineStyle(7);
   lM2->SetLineColor(kAzure+1);
+  lM2->SetLineStyle(7);
   lM3->SetLineColor(kAzure+8);
+  lM3->SetLineStyle(7);
 
   TGraph *DDE_graph = makeOBA(lTotalE);
   TGraph *DD_graph  = makeOBA(lTotal);

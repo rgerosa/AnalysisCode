@@ -357,7 +357,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   ifile = 0;
   currentFile = "";
 
-  cout<<"Loop for event selection "<<endl;
+  cout<<"Loop for event selexsectionction "<<endl;
   while(myReader.Next()){
  
     if(int(nEvents) %10000 == 0){
