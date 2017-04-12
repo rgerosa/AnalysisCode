@@ -1276,7 +1276,7 @@ void makehist4(TTree* tree, /*input tree*/
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
       }
     }
-    
+
     // Higgs pT uncertainty
     Double_t hwgt = 1.0;
     if(isHiggsInvisible and hhist and isMC){
@@ -1949,6 +1949,8 @@ void makehist4(TTree* tree, /*input tree*/
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
+
+	// pu-weight
 	if (*nvtx <= 60 and not isSummer16) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else if(isSummer16 and sample != Sample::sig and sample  != Sample::gam){
@@ -1956,20 +1958,18 @@ void makehist4(TTree* tree, /*input tree*/
 	}
 	else if(isSummer16 and (sample == Sample::sig or sample == Sample::gam))
 	  puwgt = 1;
+
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
-
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
       }
       
+      // for data-based events 
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*pfwgt*hltw;
       else if (!isMC)
 	evtwgt = hltw;      
-      
-      //if(pfmet > 1160) cout<<"run "<<*run<<" lumi "<<*lumisection<<" event "<<*event<<endl;
       
       hist->Fill(fillvar, evtwgt);
     }
@@ -2144,11 +2144,7 @@ void makehist4(TTree* tree, /*input tree*/
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
-	
-	/// temp
-	evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*kwgt/(**wgtsum);
-	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);	
       }
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
