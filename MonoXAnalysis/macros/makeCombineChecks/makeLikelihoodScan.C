@@ -53,7 +53,7 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
   TGraph* likelihoodScanAbove = new TGraph();
   TGraph* likelihoodScanBelow = new TGraph();
 
-  TF1* line = new TF1("line","2",-10,10);
+  TF1* line = new TF1("line","1",-10,10);
   line->SetLineColor(kRed);
   line->SetLineWidth(2);
 
@@ -73,7 +73,7 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
     vector<likelihoodPoint> point;
     for(int ientry = 0; ientry < limit->GetEntries(); ientry++){
       limit->GetEntry(ientry);
-      point.push_back(likelihoodPoint(r,deltaNLL));      
+      point.push_back(likelihoodPoint(r,2*deltaNLL));      
     }
     sort(point.begin(),point.end());
 
@@ -93,9 +93,9 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
     for(int ientry = 0; ientry < limit->GetEntries(); ientry++){
       limit->GetEntry(ientry);
       if(r < muref)
-	pointBelow.push_back(likelihoodPoint(deltaNLL,r));
+	pointBelow.push_back(likelihoodPoint(2*deltaNLL,r));
       else
-	pointAbove.push_back(likelihoodPoint(deltaNLL,r));
+	pointAbove.push_back(likelihoodPoint(2*deltaNLL,r));
     }
     sort(pointBelow.begin(),pointBelow.end());
     sort(pointAbove.begin(),pointAbove.end());
@@ -121,7 +121,7 @@ void makeLikelihoodScan(string inputDirectory, string nameToGrep, string outputP
     likelihoodScan->SetMarkerStyle(20);
     likelihoodScan->SetMarkerSize(1);
     likelihoodScan->GetXaxis()->SetTitle("signal strenght");
-    likelihoodScan->GetYaxis()->SetTitle("-#Delta Log(L)");
+    likelihoodScan->GetYaxis()->SetTitle("-2*#Delta Log(L)");
     line->SetRange(point.front().r_,point.back().r_);
     
     likelihoodScan->Draw("APL");

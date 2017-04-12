@@ -146,7 +146,7 @@ void plotAxial_DD(string inputFileName, string outputDirectory, string coupling 
       if(hexp -> GetBinContent(i,j) <= 0) hexp->SetBinContent(i,j,maxZ);
       if(hobs -> GetBinContent(i,j) <= 0) hobs->SetBinContent(i,j,maxZ);
     }
-  }
+e  }
   
   hexp->Smooth();
   hobs->Smooth();
