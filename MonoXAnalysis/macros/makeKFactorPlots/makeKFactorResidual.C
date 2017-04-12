@@ -15,14 +15,7 @@ void makeKFactorResidual(string inputFile,  string outputDIR){
   TH1* kfactorG = (TH1*) ((TH1*) input->Get("GJets_1j_NLO/nominal_G"))->Clone("kfactorG");
   kfactorG->Divide((TH1*) input->Get("GJets_LO/inv_pt_G"));
 
-  TH1* kfactor_mean = (TH1*) kfactorZ->Clone("kfactor");
-  kfactor_mean->Reset();
-  for(int iBin = 0; iBin < kfactorZ->GetNbinsX(); iBin++){
-    kfactor_mean->SetBinContent(iBin+1,(kfactorZ->GetBinContent(iBin+1)+kfactorW->GetBinContent(iBin+1)+kfactorG->GetBinContent(iBin+1))/3.);
-    kfactor_mean->SetBinError(iBin+1,0);
-    cout<<"iBin "<<iBin+1<<" z-kfact "<<kfactorZ->GetBinContent(iBin+1)<<" w-kfact "<<kfactorW->GetBinContent(iBin+1)<<" g-kfact "<<kfactorG->GetBinContent(iBin+1)<<" mean "<<kfactor_mean->GetBinContent(iBin+1)<<endl;
-  }
-
+  TH1* kfactor_mean = (TH1*) kfactorZ->Clone("kfactor");  
   kfactorZ->Rebin(2);
   kfactorW->Rebin(2);
   kfactorG->Rebin(2);
@@ -47,6 +40,7 @@ void makeKFactorResidual(string inputFile,  string outputDIR){
   kfactorG->SetLineColor(kRed);
   kfactorG->SetLineWidth(2);
 
+  kfactorZ->GetXaxis()->SetRangeUser(250,1250);
   kfactorZ->GetYaxis()->SetRangeUser(min(kfactorZ->GetMinimum(),min(kfactorW->GetMinimum(),kfactorG->GetMinimum()))*1.5,
 				     max(kfactorZ->GetMaximum(),max(kfactorW->GetMaximum(),kfactorG->GetMaximum()))*2);
   

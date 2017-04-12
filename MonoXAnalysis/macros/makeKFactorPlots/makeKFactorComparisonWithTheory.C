@@ -46,9 +46,9 @@ void makeKFactorComparisonWithTheory(string outputDIR){
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
 
-  TFile* zvv_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/vvj.root");
-  TFile* wln_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/evj.root");
-  TFile* zll_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist/eej.root");
+  TFile* zvv_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/vvj.root");
+  TFile* wln_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/evj.root");
+  TFile* zll_theory = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v3/eej.root");
   
   TFile* kfactor_cms = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root");
 
