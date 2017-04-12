@@ -5,7 +5,7 @@ static bool saveTextFile = true;
 static bool dumpInfo     = false;
 static bool plotSignificance = true;
 static float lumiScale_Higgs = 15;
-static float lumiScale_DM    = 2.78;
+static float lumiScale_DM    = 1;
 static bool addStatUncPull   = true;
 
 void prepostSig_fromScan(string   fitFilename, 
@@ -100,16 +100,16 @@ void prepostSig_fromScan(string   fitFilename,
   TFile*monoj_av = NULL, *monow_av = NULL, *monoz_av = NULL, *higgs = NULL;
   
   if(category == Category::monoV){
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
     higgs    = new TFile("~/work/MONOJET_ANALYSIS/CMSSW_7_4_16/src/AnalysisCode/MonoXAnalysis/macros/monoV_hinv_forCombination/templates_met_v2.root","READ");
   }
   else{
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
-    higgs    = new TFile("~/work/MONOJET_ANALYSIS/CMSSW_7_4_16/src/AnalysisCode/MonoXAnalysis/macros/monoj_hinv_forCombination/templates_met_v2.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    higgs    = new TFile("~/work/MONOJET_ANALYSIS/HiggsCombine/CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/macros/makeWorkspace/templates_Moriond_reMiniAOD_v6/templates_monojet_hinv.root","READ");
   }
 
   // in case of b-only fit just dispaly three possible signal on the stack
@@ -140,8 +140,10 @@ void prepostSig_fromScan(string   fitFilename,
   ggHhist  = (TH1*) higgs->FindObjectAny("ggHhist_125_met");
   vbfhist  = (TH1*) higgs->FindObjectAny("vbfHhist_125_met");
   wHhist   = (TH1*) higgs->FindObjectAny("wHhist_125_met");
-  zHhist   = (TH1*) higgs->FindObjectAny("zHhist_125_met");
-  ggZHhist = (TH1*) higgs->FindObjectAny("ggzHhist_125_met");
+  zHhist   = (TH1*) higgs->FindObjectAny("zHhist_125_met");  
+  ggZHhist = (TH1*) higgs->FindObjectAny("ggZHhist_125_met");
+  if(ggZHhist == 0)
+    ggZHhist = (TH1*) higgs->FindObjectAny("ggzHhist_125_met");
   ///
   ggHhist->Scale(1.,"width");
   vbfhist->Scale(1.,"width");
@@ -149,11 +151,13 @@ void prepostSig_fromScan(string   fitFilename,
   zHhist->Scale(1.,"width");
   ggZHhist->Scale(1.,"width");
   ///
-  ggHhist->Add(vbfhist);
-  ggHhist->Add(wHhist);
-  ggHhist->Add(zHhist);
-  ggHhist->Add(ggZHhist);
-  ggHhist->Scale(lumiScale_Higgs);
+  if(category != Category::monojet and category != Category::VBF){
+    ggHhist->Add(vbfhist);
+    ggHhist->Add(wHhist);
+    ggHhist->Add(zHhist);
+    ggHhist->Add(ggZHhist);
+    ggHhist->Scale(lumiScale_Higgs);
+  }
 
   // background
   TH1* znhist = NULL;
