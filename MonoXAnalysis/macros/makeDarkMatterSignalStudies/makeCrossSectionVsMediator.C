@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-static float minBosonPt = 200;
+static float minBosonPt  = 250;
 static float brWtoQuarks = 0.66;
 static float brZtoQuarks = 0.69;
 
@@ -371,7 +371,7 @@ void makeCrossSectionVsMediator(string inputDIR_monojet,
     leg->AddEntry(monoW_xsec,"mono-W","LP");
   if(xsec_monoZ.size() != 0)
     leg->AddEntry(monoZ_xsec,"mono-Z","LP");
-  leg->AddEntry((TObject*)(0),"p_{T}^{med} > 200 GeV","");
+  leg->AddEntry((TObject*)(0),"p_{T}^{med} > 250 GeV","");
   leg->Draw("same");
   canvas->RedrawAxis("sameaxis");
 
