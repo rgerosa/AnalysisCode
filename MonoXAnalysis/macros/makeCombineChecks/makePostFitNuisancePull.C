@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-enum class Nuisance {theory, ratios, experimental, stat};
+enum class Nuisance {theory, ratios, experimental, stat, otherbkg};
 
 void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, map<TString,RooRealVar*> & listParamPostFit,string outputDIR, string postfix){
   
@@ -53,9 +53,9 @@ void plotNuisance(TCanvas* canvas, map<TString,RooRealVar*> & listParamPreFit, m
 
   canvas->RedrawAxis("sameaxis");
   
-  canvas->SaveAs((outputDIR+"/pull_nuisance"+postfix+".png").c_str(),"png");
-  canvas->SaveAs((outputDIR+"/pull_nuisance"+postfix+".pdf").c_str(),"pdf");
-  canvas->SaveAs((outputDIR+"/pull_nuisance"+postfix+".root").c_str(),"root");
+  canvas->SaveAs((outputDIR+"/pull_nuisance_"+postfix+".png").c_str(),"png");
+  canvas->SaveAs((outputDIR+"/pull_nuisance_"+postfix+".pdf").c_str(),"pdf");
+  canvas->SaveAs((outputDIR+"/pull_nuisance_"+postfix+".root").c_str(),"root");
 
 
 }
@@ -115,11 +115,15 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
       if((name.Contains("WM") and name.Contains("Runc")) or (name.Contains("WE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig") or name.Contains("CMS_eff_trig_e") or name.Contains("WtoWPDF") or name.Contains("muon_veto") or name.Contains("ele_veto") or name.Contains("tau_veto"))
 	listParamPreFit_WW[name] = (RooRealVar*) parlist_init.at(isize);
       
-      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ")) or name.Contains("WJets_SR"))
+      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("WJets_SR"))
 	listParamPreFit_ZW[name] = (RooRealVar*) parlist_init.at(isize);
 
-      if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ")) or name.Contains("Gamma_GJ"))
+      if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("Gamma_GJ"))
 	listParamPreFit_ZG[name] = (RooRealVar*) parlist_init.at(isize);
+    }
+    else if(nuisancetype == Nuisance::otherbkg){
+      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat"))
+	listParamPreFit[name] = (RooRealVar*) parlist_init.at(isize);
     }
   }
 
@@ -148,11 +152,15 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
 	listParamPostFit_WW[name] = (RooRealVar*) parlist_final.at(isize);
 
 
-      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ")) or name.Contains("WJets_SR"))
+      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("WJets_SR"))
 	listParamPostFit_ZW[name] = (RooRealVar*) parlist_final.at(isize);
 
-      if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ")) or name.Contains("Gamma_GJ"))
+      if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("Gamma_GJ"))
 	listParamPostFit_ZG[name] = (RooRealVar*) parlist_final.at(isize);
+    }
+    else if(nuisancetype == Nuisance::otherbkg){
+      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat"))
+	listParamPostFit[name] = (RooRealVar*) parlist_final.at(isize);
     }
   }
 
@@ -174,6 +182,7 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
     if(nuisancetype == Nuisance::theory) postfix = "theory";
     else if(nuisancetype == Nuisance::experimental) postfix = "experimental";
     else if(nuisancetype == Nuisance::stat) postfix = "stat";    
+    else if(nuisancetype == Nuisance::otherbkg) postfix = "otherbkgs";    
     plotNuisance(canvas,listParamPreFit,listParamPostFit,outputDIR,postfix);
     
   }

@@ -66,12 +66,6 @@ void createWorkspace(string   inputName,                        // input templat
     return;
   }
 
-  if(addNewShapeSysUncertainties and (category == Category::VBF or category == Category::VBFrelaxed)){
-    cerr<<"Category VBF and addNewShapeSysUncertainties = True are not possible --> set addNewShapeSysUncertainties = false"<<endl;
-    addNewShapeSysUncertainties = false;
-  }
-    
-
   // to load all the variables information
   initializeBinning();
 
@@ -692,16 +686,27 @@ void createWorkspace(string   inputName,                        // input templat
     TH1F* triggersys = NULL;
     RooRealVar* CMS_met_trig =  new RooRealVar("CMS_met_trig","",0.,-5.,5.);
 
-    if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
-      triggersys = new TH1F(("CMS_met_trig_"+observable).c_str(),"",bins.size()-1,&bins[0]);
-      TFile* triggermetfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/mettrigger.root");
-      TH1F* triggermethisto_zmm = (TH1F*) triggermetfile->Get("zmm_sys");
-      TH1F* triggermethisto_zvv = (TH1F*) triggermetfile->Get("zvv_sys");
-      for(int iBin = 0; iBin < triggersys->GetNbinsX()+1; iBin++){
-	if(triggersys->GetBinCenter(iBin+1) < 500)
-	  triggersys->SetBinContent(iBin+1,1-triggermethisto_zmm->GetBinContent(triggermethisto_zmm->FindBin(triggersys->GetBinCenter(iBin+1)))/triggermethisto_zvv->GetBinContent(triggermethisto_zvv->FindBin(triggersys->GetBinCenter(iBin+1))));
-	else
-	  triggersys->SetBinContent(iBin+1,0.);
+    if(addNewShapeSysUncertainties and category != Category::VBF){
+      if(TString(observable).Contains("met")){
+	triggersys = new TH1F(("CMS_met_trig_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	TFile* triggermetfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/mettrigger.root");
+	TH1F* triggermethisto_zmm = (TH1F*) triggermetfile->Get("zmm_sys");
+	TH1F* triggermethisto_zvv = (TH1F*) triggermetfile->Get("zvv_sys");
+	for(int iBin = 0; iBin < triggersys->GetNbinsX()+1; iBin++){
+	  if(triggersys->GetBinCenter(iBin+1) < 500)
+	    triggersys->SetBinContent(iBin+1,1-triggermethisto_zmm->GetBinContent(triggermethisto_zmm->FindBin(triggersys->GetBinCenter(iBin+1)))/triggermethisto_zvv->GetBinContent(triggermethisto_zvv->FindBin(triggersys->GetBinCenter(iBin+1))));
+	  else
+	    triggersys->SetBinContent(iBin+1,0.);
+	}
+      }
+      else{// propagate the first bin everywhere --> assumption is that the first bin dominates
+	triggersys = new TH1F(("CMS_met_trig_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	TFile* triggermetfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/mettrigger.root");
+	TH1F* triggermethisto_zmm = (TH1F*) triggermetfile->Get("zmm_sys");
+	TH1F* triggermethisto_zvv = (TH1F*) triggermetfile->Get("zvv_sys");
+	for(int iBin = 0; iBin < triggersys->GetNbinsX()+1; iBin++){
+	  triggersys->SetBinContent(iBin+1,1-triggermethisto_zmm->GetBinContent(1)/triggermethisto_zvv->GetBinContent(1));	  
+	}
       }
     }
     
@@ -750,7 +755,7 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZM_syst;
-	if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
+	if(addNewShapeSysUncertainties and category != Category::VBF){
 	  znn_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	  znn_ewk_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	}
@@ -818,7 +823,7 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->ee connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZE_syst;
-	if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
+	if(addNewShapeSysUncertainties and category != Category::VBF){
 	  znn_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	  znn_ewk_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	}
@@ -954,7 +959,7 @@ void createWorkspace(string   inputName,                        // input templat
       TH1F* elevetosys  = NULL;
       TH1F* tauvetosys  = NULL;
 
-      if(addNewShapeSysUncertainties and TString(observable).Contains("met")){ // add new shape uncertainties introduced in 2016  
+      if(addNewShapeSysUncertainties and category != Category::VBF){ // add new shape uncertainties introduced in 2016  
 	/// PDF uncertainty on the WtoW ratio
 	wpdfsys             = new TH1F(("WtoWPDF_"+observable).c_str(),"",bins.size()-1,&bins[0]);
 	TFile* wpdfsysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/wratio_pdf.root");
@@ -962,21 +967,41 @@ void createWorkspace(string   inputName,                        // input templat
 	for(int iBin = 0; iBin < wpdfsys->GetNbinsX()+1; iBin++)
 	  wpdfsys->SetBinContent(iBin+1,1-wpdfsyshisto->GetBinContent(wpdfsyshisto->FindBin(wpdfsys->GetBinCenter(iBin+1))));
 	wpdfsysfile->Close();
-
-	muonvetosys    = new TH1F(("CMS_muon_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
-	elevetosys     = new TH1F(("CMS_ele_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
-	tauvetosys     = new TH1F(("CMS_tau_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
-	TFile* lvetosysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/leptonveto.root");
-	TH1F*  lvetosyshisto_m = (TH1F*) lvetosysfile->Get("muveto");	
-	TH1F*  lvetosyshisto_e = (TH1F*) lvetosysfile->Get("eleveto");	
-	TH1F*  lvetosyshisto_t = (TH1F*) lvetosysfile->Get("tauveto");	
-
-	for(int iBin = 0; iBin < muonvetosys->GetNbinsX()+1; iBin++){
-	  muonvetosys->SetBinContent(iBin+1,1-lvetosyshisto_m->GetBinContent(lvetosyshisto_m->FindBin(muonvetosys->GetBinCenter(iBin+1))));
-	  elevetosys->SetBinContent(iBin+1,1-lvetosyshisto_e->GetBinContent(lvetosyshisto_e->FindBin(elevetosys->GetBinCenter(iBin+1))));
-	  tauvetosys->SetBinContent(iBin+1,1-lvetosyshisto_t->GetBinContent(lvetosyshisto_t->FindBin(tauvetosys->GetBinCenter(iBin+1))));
-	}	
-	lvetosysfile->Close();
+      }
+      
+      if(addNewShapeSysUncertainties){ 
+	if(TString(observable).Contains("met")){
+	  muonvetosys    = new TH1F(("CMS_muon_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  elevetosys     = new TH1F(("CMS_ele_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  tauvetosys     = new TH1F(("CMS_tau_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  TFile* lvetosysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/leptonveto.root");
+	  TH1F*  lvetosyshisto_m = (TH1F*) lvetosysfile->Get("muveto");	
+	  TH1F*  lvetosyshisto_e = (TH1F*) lvetosysfile->Get("eleveto");	
+	  TH1F*  lvetosyshisto_t = (TH1F*) lvetosysfile->Get("tauveto");	
+	
+	  for(int iBin = 0; iBin < muonvetosys->GetNbinsX()+1; iBin++){
+	    muonvetosys->SetBinContent(iBin+1,1-lvetosyshisto_m->GetBinContent(lvetosyshisto_m->FindBin(muonvetosys->GetBinCenter(iBin+1))));
+	    elevetosys->SetBinContent(iBin+1,1-lvetosyshisto_e->GetBinContent(lvetosyshisto_e->FindBin(elevetosys->GetBinCenter(iBin+1))));
+	    tauvetosys->SetBinContent(iBin+1,1-lvetosyshisto_t->GetBinContent(lvetosyshisto_t->FindBin(tauvetosys->GetBinCenter(iBin+1))));
+	  }	
+	  lvetosysfile->Close();
+	}
+	else{// fix equal to the lowest bin in the recoil distribution
+	  muonvetosys    = new TH1F(("CMS_muon_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          elevetosys     = new TH1F(("CMS_ele_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          tauvetosys     = new TH1F(("CMS_tau_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          TFile* lvetosysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/leptonveto.root");
+          TH1F*  lvetosyshisto_m = (TH1F*) lvetosysfile->Get("muveto");
+          TH1F*  lvetosyshisto_e = (TH1F*) lvetosysfile->Get("eleveto");
+          TH1F*  lvetosyshisto_t = (TH1F*) lvetosysfile->Get("tauveto");
+	  
+          for(int iBin = 0; iBin < muonvetosys->GetNbinsX()+1; iBin++){
+            muonvetosys->SetBinContent(iBin+1,1-lvetosyshisto_m->GetBinContent(1));
+            elevetosys->SetBinContent(iBin+1,1-lvetosyshisto_e->GetBinContent(1));
+            tauvetosys->SetBinContent(iBin+1,1-lvetosyshisto_t->GetBinContent(1));
+	  }
+          lvetosysfile->Close();
+	}
       }
       
       if(not isCutAndCount){
@@ -984,13 +1009,16 @@ void createWorkspace(string   inputName,                        // input templat
 	vector<pair<RooRealVar*,TH1*> > wln_WM_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WM_syst;
 	
-	if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
-	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	if(addNewShapeSysUncertainties){
+	  if(category != Category::VBF){
+	    wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	    wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
-	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
-	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  if(category != Category::VBF)
+	    wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
 	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
@@ -1058,16 +1086,20 @@ void createWorkspace(string   inputName,                        // input templat
 	vector<pair<RooRealVar*,TH1*> > wln_WE_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WE_syst;
 
-	if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
-	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	if(addNewShapeSysUncertainties){
+	  if(category != Category::VBF){
+	    wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	    wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
-	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  if(category != Category::VBF){
+	    wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
 	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
 	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
 	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
-	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	}
 
 	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
@@ -1217,7 +1249,7 @@ void createWorkspace(string   inputName,                        // input templat
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str()),scaleZgammaUncertainty,"")));
-	  if(addNewShapeSysUncertainties and TString(observable).Contains("met")){
+	  if(addNewShapeSysUncertainties and category != Category::VBF){
 	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	  }
 	}
