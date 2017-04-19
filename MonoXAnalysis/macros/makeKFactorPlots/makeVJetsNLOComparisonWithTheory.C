@@ -3,7 +3,7 @@
 enum class Sample {zvv,wjet,zll,gam};
 
 ///////////////////
-void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheoryFile, string outputDirectory, Sample sample, bool isPhillTree = false){
+void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheoryFile, string outputDirectory, Sample sample, bool useLHELevelInfo = false, bool isPhillTree = false){
 
   system(("mkdir -p "+outputDirectory).c_str());
   setTDRStyle();
@@ -86,7 +86,9 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
       TTreeReader reader (tree);
       TTreeReaderValue<float> xsec  (reader,"xsec");
       TTreeReaderValue<float> wgt   (reader,"wgt");
-      TTreeReaderValue<int>   wzid  (reader,"wzid");
+      string wzid_b = "wzid";
+      if(useLHELevelInfo) wzid_b = "mvid";
+      TTreeReaderValue<int>   wzid  (reader,wzid_b.c_str());
       cout<<"Calculate sumwgt for QCD file "<<file_vjet_cms.at(ifile)->GetName()<<endl;
       double sumwgt = 0;
       while(reader.Next()){
@@ -125,13 +127,23 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
 
       TTreeReaderValue<float> xsec  (reader,"xsec");
       TTreeReaderValue<float> wgt   (reader,"wgt");
-      TTreeReaderValue<int>   wzid  (reader,"wzid");
+      string wzid_b = "wzid";
+      if(useLHELevelInfo) wzid_b = "mvid";
+      TTreeReaderValue<int>   wzid  (reader,wzid_b.c_str());
       TTreeReaderValue<int>   l1id  (reader,"l1id");
       TTreeReaderValue<int>   l2id  (reader,"l2id");
-      TTreeReaderValue<float> wzmass  (reader,"wzmass");
-      TTreeReaderValue<float> wzpt    (reader,"wzpt");
-      TTreeReaderValue<float> wzeta   (reader,"wzeta");
-      TTreeReaderValue<float> wzphi   (reader,"wzphi");
+      string wzmass_b = "wzmass";
+      if(useLHELevelInfo) wzmass_b = "mvmass";
+      TTreeReaderValue<float> wzmass  (reader,wzmass_b.c_str());
+      string wzpt_b = "wzpt";
+      if(useLHELevelInfo) wzpt_b = "mvpt";
+      TTreeReaderValue<float> wzpt    (reader,wzpt_b.c_str());
+      string wzeta_b = "wzeta";
+      if(useLHELevelInfo) wzeta_b = "mveta";
+      TTreeReaderValue<float> wzeta   (reader,wzeta_b.c_str());
+      string wzphi_b = "wzphi";
+      if(useLHELevelInfo) wzphi_b = "mvphi";
+      TTreeReaderValue<float> wzphi   (reader,wzphi_b.c_str());
       
       cout<<"Loop on V+jets file "<<file_vjet_cms.at(ifile)->GetName()<<endl;      
       while(reader.Next()){     

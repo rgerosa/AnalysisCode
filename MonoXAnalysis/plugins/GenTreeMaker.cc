@@ -80,11 +80,12 @@ private:
   std::vector<int>    qcdscale;
 
   // boson pdgid, and leptons ids
-  int32_t  wzid, mvid, l1id, l2id;
+  int32_t  wzid, mvid, l1id, l2id, l1id_lhe, l2id_lhe;
   // information about V-bosons
   float   wzmass, wzpt, wzeta, wzphi;
   float   mvmass, mvpt, mveta, mvphi;
   float   l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
+  float   l1pt_lhe, l1eta_lhe, l1phi_lhe, l2pt_lhe, l2eta_lhe, l2phi_lhe;
   // store gen met info
   float   met, metphi;
   // number of jets
@@ -140,6 +141,7 @@ GenTreeMaker::~GenTreeMaker() {}
 
 void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  std::cout<<"Event "<<std::endl;
   using namespace edm;
   using namespace reco;
   using namespace std;
@@ -246,6 +248,8 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   mvid = 0; mvmass = -99; mvpt  = -99; mveta = -99; mvphi = -99;
   l1id = 0; l1pt   = -99; l1eta = -99; l1phi = -99;
   l2id = 0; l2pt   = -99; l2eta = -99; l2phi = -99;
+  l1id_lhe = 0; l1pt_lhe   = -99; l1eta_lhe = -99; l1phi_lhe = -99;
+  l2id_lhe = 0; l2pt_lhe   = -99; l2eta_lhe = -99; l2phi_lhe = -99;
 
   dmmass   = 0.; dmphi   = 0.; dmeta   = 0.; dmpt   = 0.; dmid   = 0;
   dmX1mass = 0.; dmX1phi = 0.; dmX1eta = 0.; dmX1pt = 0.; dmX1id = 0;
@@ -334,6 +338,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   else  if (gensH.isValid() && (sample == 23 || sample == 24)) { // Z+jets or W+jets
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
 
+      /// LHE level boson kinematic
       if (abs(gens_iter->pdgId()) == sample && gens_iter->status() == 22) { // take some specific status particles
 	mvid   = gens_iter->pdgId();
 	mvmass = gens_iter->mass();
@@ -341,7 +346,22 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	mveta  = gens_iter->eta();
 	mvphi  = gens_iter->phi();
       }
-	  
+
+      // LHE level leptons
+      if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton                                                                                          
+	l1id_lhe   = gens_iter->pdgId();
+	l1pt_lhe   = gens_iter->pt();
+	l1eta_lhe  = gens_iter->eta();
+	l1phi_lhe  = gens_iter->phi();
+      }
+      if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton                                                                                   
+	l2id_lhe   = gens_iter->pdgId();
+	l2pt_lhe   = gens_iter->pt();
+	l2eta_lhe  = gens_iter->eta();
+	l2phi_lhe  = gens_iter->phi();
+      }
+      
+      // Boson kinematic after shower
       if (abs(gens_iter->pdgId()) == sample && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) { // take the gen particle with that specific pdgId, decayed in more than 1 daugheter, one of the two to be a lepton/parton 
 	wzid   = gens_iter->pdgId();
 	wzmass = gens_iter->mass();
@@ -399,12 +419,51 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	else if (sample == 24 and (l1id == -11 || l1id == -13 || l1id == -15)) wzid = -24;
       }
     }
+
+    // if no boson LHE level is there
+    if(mvid == 0){
+      float l1mass = 0.;
+      float l2mass = 0.;
+      for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+	if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton                                                                                       
+	  l1id_lhe   = gens_iter->pdgId();
+	  l1pt_lhe   = gens_iter->pt();
+	  l1eta_lhe  = gens_iter->eta();
+	  l1phi_lhe  = gens_iter->phi();
+	  l1mass     = gens_iter->mass();
+	}
+	if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton                                                                              
+	  l2id_lhe   = gens_iter->pdgId();
+	  l2pt_lhe   = gens_iter->pt();
+	  l2eta_lhe  = gens_iter->eta();
+	  l2phi_lhe  = gens_iter->phi();
+	  l2mass     = gens_iter->mass();
+	}
+      }
+      if (l1id > 0 && ( (l2id == -l1id) || abs(abs(l1id) - abs(l2id)) == 1)) {
+        TLorentzVector l1vec;
+        TLorentzVector l2vec;
+        l1vec.SetPtEtaPhiM(l1pt_lhe, l1eta_lhe, l1phi_lhe, l1mass);
+        l2vec.SetPtEtaPhiM(l2pt_lhe, l2eta_lhe, l2phi_lhe, l2mass);
+        TLorentzVector wzvec(l1vec);
+        wzvec += l2vec;
+        mvmass = wzvec.M();
+        mvpt   = wzvec.Pt();
+        mveta  = wzvec.Eta();
+        mvphi  = wzvec.Phi();
+        if (sample == 23 and l2id == -l1id) mvid = 23;
+        else if (sample == 24 and (l1id == 11 || l1id == 13 || l1id == 15)) mvid = 24;
+        else if (sample == 24 and (l1id == -11 || l1id == -13 || l1id == -15)) mvid = -24;
+      }
+    }
   }
+  
     
   // photon +jets
   if (gensH.isValid() && sample == 22) {
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-      if (gens_iter->pdgId() == sample && gens_iter->status() == 22) {
+
+      if (gens_iter->pdgId() == sample && gens_iter->status() == 23) {
 	mvid   = gens_iter->pdgId();
 	mvmass = gens_iter->mass();
 	mvpt   = gens_iter->pt();
