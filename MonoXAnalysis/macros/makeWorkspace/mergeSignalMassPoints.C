@@ -7,8 +7,8 @@ void mergeSignalMassPoints(string inputFileName1, string inputFileName2, string 
   gROOT->SetBatch(kTRUE);
   setTDRStyle();
 
-  //  RooMsgService::instance().setSilentMode(kTRUE);
-  //  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
+  RooMsgService::instance().setSilentMode(kTRUE);
+  RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING) ;
 
   TFile* inputFile1 = TFile::Open(inputFileName1.c_str(),"READ");
   TFile* inputFile2 = TFile::Open(inputFileName2.c_str(),"READ");
@@ -24,9 +24,6 @@ void mergeSignalMassPoints(string inputFileName1, string inputFileName2, string 
   if(var1 == 0 or var1 == NULL)
     var1 = (RooRealVar*) ws1->var("met_monov");
 
-  RooRealVar* var2 = (RooRealVar*) ws2->var("met_monojet");
-  if(var2 == 0 or var2 == NULL)
-    var2 = (RooRealVar*) ws2->var("met_monov");
 
   // take list of histograms
   outputFile->cd();
@@ -54,11 +51,10 @@ void mergeSignalMassPoints(string inputFileName1, string inputFileName2, string 
       for(auto dataset2 : list2){
 	if(string(dataset2->GetName()) == string(dataset1->GetName())){
 	  // make histogram
-	  TH1D* histo = (TH1D*) (*dataset2).createHistogram(Form("%s_temp",(*dataset2).GetName()),*var2);
+	  TH1D* histo = (TH1D*) (*dataset2).createHistogram(Form("%s_temp",(*dataset2).GetName()),*var1);
 	  histo->Scale(scaleHistograms);
 	  RooDataHist hist(Form("%s",(*dataset2).GetName()),"",RooArgList(*var1), histo);
 	  massPointsFixedNormalization++;
-	  cout<<"dataset2 "<<dataset2->sumEntries()<<" histo "<<histo->Integral()<<" hist "<<hist.sumEntries()<<endl;
 	  ws_out->import(hist);
 	}
       }
