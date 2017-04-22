@@ -36,8 +36,8 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
   else if(sample == Sample::gam){
     vjet_lo = (TH1F*) file_theory->Get("aj_pTV_LO");
     vjet_lo_kfact = (TH1F*) file_theory->Get("aj_pTV_K_LO");
-    vjet_nlo_kfact = (TH1F*) file_theory->Get("aj_pTV_K_NLO");
-    //vjet_nlo_kfact = (TH1F*) file_theory->Get("aj_pTV_K_NLO_fix");
+    //vjet_nlo_kfact = (TH1F*) file_theory->Get("aj_pTV_K_NLO");
+    vjet_nlo_kfact = (TH1F*) file_theory->Get("aj_pTV_K_NLO_fix");
   }
 
   vjet_nlo = (TH1F*) vjet_lo->Clone("vjet_nlo");
@@ -293,7 +293,7 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
   ratio->SetLineColor(kBlack);
   ratio->SetLineWidth(2);
   ratio->GetYaxis()->SetRangeUser(0.8,1.2);
-  ratio->GetXaxis()->SetRangeUser(250,1400);
+  ratio->GetXaxis()->SetRangeUser(150,1400);
   ratio->Draw("hist");
   
   canvas->cd();

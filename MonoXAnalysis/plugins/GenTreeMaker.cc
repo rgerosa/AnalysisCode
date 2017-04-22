@@ -141,7 +141,6 @@ GenTreeMaker::~GenTreeMaker() {}
 
 void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  std::cout<<"Event "<<std::endl;
   using namespace edm;
   using namespace reco;
   using namespace std;
@@ -569,6 +568,14 @@ void GenTreeMaker::beginJob() {
     tree->Branch("l2pt"                 , &l2pt                 , "l2pt/F");
     tree->Branch("l2eta"                , &l2eta                , "l2eta/F");
     tree->Branch("l2phi"                , &l2phi                , "l2phi/F");
+    tree->Branch("l1id_lhe"                 , &l1id_lhe                 , "l1id_lhe/I");
+    tree->Branch("l1pt_lhe"                 , &l1pt_lhe                 , "l1pt_lhe/F");
+    tree->Branch("l1eta_lhe"                , &l1eta_lhe                , "l1eta_lhe/F");
+    tree->Branch("l1phi_lhe"                , &l1phi_lhe                , "l1phi_lhe/F");
+    tree->Branch("l2id_lhe"                 , &l2id_lhe                 , "l2id_lhe/I");
+    tree->Branch("l2pt_lhe"                 , &l2pt_lhe                 , "l2pt_lhe/F");
+    tree->Branch("l2eta_lhe"                , &l2eta_lhe                , "l2eta_lhe/F");
+    tree->Branch("l2phi_lhe"                , &l2phi_lhe                , "l2phi_lhe/F");
   }
 
   tree->Branch("jetpt"                , "std::vector<float>" , &jetpt);
