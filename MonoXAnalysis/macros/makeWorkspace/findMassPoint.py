@@ -38,41 +38,47 @@ if __name__ == '__main__':
     file1 = ROOT.TFile(options.inputFile1,"READ")
     file2 = ROOT.TFile(options.inputFile2,"READ")
 
-    filelist1 = file1.GetListOfKeys() 
-    filelist2 = file2.GetListOfKeys() 
+    workspace1 = file1.Get("combinedws");
+    workspace2 = file2.Get("combinedws");
+
+    filelist1 = workspace1.allData ()  
+    filelist2 = workspace2.allData () 
 
     massPoint_1 = []
     massPoint_2 = []
-
+    noffshellpoints = 0;
     for key1 in filelist1:
         name1 = str(key1.GetName())
         list1 = name1.split("_")
-        if "MonoZ" in name1 or "MonoW" in name1 or "MonoJ" in name1:
-            if (model_code == 800 or model_code == 801) and list1[4] != "0.25" : continue;         
-            if (model_code == 805 or model_code == 806) and list1[4] != "1.0" : continue; 
-            massPoint_1.append('%d%04d%04d'%(model_code,int(list1[2]),int(list1[3])))
-        else:
-            if (model_code == 800 or model_code == 801) and list1[3] != "0.25" : continue;         
-            if (model_code == 805 or model_code == 806) and list1[3] != "1.0" : continue; 
-            massPoint_1.append('%d%04d%04d'%(model_code,int(list1[1]),int(list1[2])))
+        massPoint_1.append('%d'%(int(list1[3])))
 
     for key2 in filelist2:
         name2 = str(key2.GetName())
         list2 = name2.split("_")
-        if "MonoZ" in name2 or "MonoW" in name2 or "MonoJ" in name2:
-            if (model_code == 800 or model_code == 801) and list2[4] != "0.25" : continue;         
-            if (model_code == 805 or model_code == 806) and list2[4] != "1.0" : continue; 
-            massPoint_2.append('%d%04d%04d'%(model_code,int(list2[2]),int(list2[3])))
-        else:
-            if (model_code == 800 or model_code == 801) and list2[3] != "0.25" : continue;         
-            if (model_code == 805 or model_code == 806) and list2[3] != "1.0" : continue; 
-            massPoint_2.append('%d%04d%04d'%(model_code,int(list2[1]),int(list2[2])))
-
+        massPoint_2.append('%d'%(int(list2[3])))
+        
     common_point = [];
     non_common_point = [];
 
     for point in massPoint_1:
         if point in massPoint_2:
+
+            mh = int(point);
+            mmed = -1;
+            mdm  = -1;
+            if model_code == 800: mmed = ((int)(mh-80000000000))/10000;
+            if model_code == 801: mmed = ((int)(mh-80100000000))/10000;
+            if model_code == 805: mmed = ((int)(mh-80500000000))/10000;
+            if model_code == 806: mmed = ((int)(mh-80600000000))/10000;
+
+            if model_code == 800: mdm =  (mh-80000000000)  - ( ((int)(mh-80000000000))/10000 )*10000
+            if model_code == 801: mdm =  (mh-80100000000)  - ( ((int)(mh-80100000000))/10000 )*10000
+            if model_code == 805: mdm =  (mh-80500000000)  - ( ((int)(mh-80500000000))/10000 )*10000
+            if model_code == 806: mdm =  (mh-80600000000)  - ( ((int)(mh-80600000000))/10000 )*10000
+
+            if mdm*2 > mmed :
+                noffshellpoints = noffshellpoints +1;
+
             common_point.append(point)
         else:
             non_common_point.append(point);
@@ -86,3 +92,4 @@ if __name__ == '__main__':
 
     print "number of common point ",len(common_point)
     print "number of non common point ",len(non_common_point)
+    print "number of off-shell points ",noffshellpoints
