@@ -84,6 +84,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
 
   TH2F* corr = (TH2F*) covar->Clone("test");
+  corr->Reset();
   int nbins  = bkg->GetNbinsX();
   // loop on the bin --> square matrix --> multiply by the bin width to get real yields
   for (int b=1 ; b<=nbins; b++){
@@ -99,7 +100,9 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
       // calculate the standard deviation (diagonal term)
       double sigb = TMath::Sqrt(covar->GetBinContent(b,b));
       double sigj = TMath::Sqrt(covar->GetBinContent(j,j));
-      corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
+      if(b != j)
+	corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
+
       if(addLabel){
 	if(category != Category::total){
 	  if(b == 1)
@@ -129,6 +132,15 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     }
   }
 
+  if(corr->GetMinimum() >= 0)
+    corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*0.9),min(corr->GetMaximum()*1.1,1.));
+  else
+    corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*1.1),min(corr->GetMaximum()*1.1,1.));
+  
+
+  for(int i = 0; i < corr->GetNbinsX()+1; i++)
+    corr->SetBinContent(i,i,-100);
+
   corr->GetXaxis()->SetTitle("");
   corr->GetYaxis()->SetTitle("");
   corr->GetZaxis()->SetTitle("Correlation");
@@ -137,8 +149,9 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   corr->GetYaxis()->LabelsOption("v");
   corr->GetXaxis()->SetLabelSize(0.027);
   corr->GetYaxis()->SetLabelSize(0.027);  
-  corr->GetZaxis()->SetLabelSize(0.030);
+  corr->GetZaxis()->SetLabelSize(0.029);
   corr->GetZaxis()->SetTitleSize(0.035);
+  corr->GetZaxis()->SetTitleOffset(1.1);
 
   gStyle->SetPaintTextFormat("1.2f");
   corr->Draw("COLZTEXT");
