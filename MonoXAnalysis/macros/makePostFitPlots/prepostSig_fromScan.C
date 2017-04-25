@@ -1,12 +1,12 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static bool saveTextFile = true;
-static bool dumpInfo     = false;
-static bool plotSignificance = true;
+static bool  saveTextFile = true;
+static bool  dumpInfo     = false;
+static bool  plotSignificance = true;
 static float lumiScale_Higgs = 15;
 static float lumiScale_DM    = 1;
-static bool addStatUncPull   = true;
+static bool  addStatUncPull  = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -431,9 +431,9 @@ void prepostSig_fromScan(string   fitFilename,
   frame->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.003,wlhist->GetMaximum()*750);
   else if(category == Category::monoV)
-    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*750);
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.005,tphist->GetMaximum()*500);
 
@@ -482,7 +482,7 @@ void prepostSig_fromScan(string   fitFilename,
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
 
-  TLegend* leg = new TLegend(0.50, 0.55, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.50, 0.60, 0.92, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
@@ -658,9 +658,7 @@ void prepostSig_fromScan(string   fitFilename,
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"Post-fit","PLE");
   leg2->AddEntry(dphist,"Pre-fit","PLE");
-  if(addPullPlot and addPreFitOnPull)
-    leg2->Draw("same");
-  else if(not addPullPlot)
+  if(not addPullPlot)
     leg2->Draw("same");
 
   canvas->cd();

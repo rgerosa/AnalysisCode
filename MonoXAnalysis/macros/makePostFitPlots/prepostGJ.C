@@ -171,7 +171,7 @@ void prepostGJ(string fitFilename, string observable, Category category, bool is
   if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*500);
   else if(category == Category::monoV)
-    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.005,prhist->GetMaximum()*500);
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
 
