@@ -5,7 +5,7 @@ static bool skipCorrelations = false;
 #include "../CMS_lumi.h"
 
 
-void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false){
+void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false, bool suppressDiagonal = false){
 
   system(("mkdir -p "+outputDIR).c_str());
   initializeBinning();
@@ -100,9 +100,8 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
       // calculate the standard deviation (diagonal term)
       double sigb = TMath::Sqrt(covar->GetBinContent(b,b));
       double sigj = TMath::Sqrt(covar->GetBinContent(j,j));
-      if(b != j)
-	corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
-
+      corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
+      
       if(addLabel){
 	if(category != Category::total){
 	  if(b == 1)
@@ -136,10 +135,15 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*0.9),min(corr->GetMaximum()*1.1,1.));
   else
     corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*1.1),min(corr->GetMaximum()*1.1,1.));
-  
 
-  for(int i = 0; i < corr->GetNbinsX()+1; i++)
-    corr->SetBinContent(i,i,-100);
+  if(suppressDiagonal){
+    for(int i = 0; i <= corr->GetNbinsX(); i++){
+      for(int j = 0; j <= corr->GetNbinsY(); j++){
+	if(j < i)
+	  corr->SetBinContent(i,j,-100);
+      }
+    }
+  }
 
   corr->GetXaxis()->SetTitle("");
   corr->GetYaxis()->SetTitle("");
