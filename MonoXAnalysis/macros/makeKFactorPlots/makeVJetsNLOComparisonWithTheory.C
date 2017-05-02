@@ -2,7 +2,7 @@
 
 enum class Sample {zvv,wjet,zll,gam};
 
-static float minX = 200;
+static float minX = 250;
 static float maxX = 1400;
 
 void makePlot(TH1* histo_cms, TH1* histo_theo, const string & outputDirectory, const Sample & sample, const string & postfix){
@@ -475,7 +475,7 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
   vjet_nlo_cms_lhe->Scale(1,"width");
   vjet_nlo_cms_ps->Scale(1,"width");
 
-  if(correction){
+  if(correction and sample == Sample::gam){
     for(int iBin = 0; iBin <= vjet_nlo_cms_lhe->GetNbinsX(); iBin++){
       if(correction->FindBin(vjet_nlo_cms_lhe->GetBinCenter(iBin+1)) != 0 and correction->FindBin(vjet_nlo_cms_lhe->GetBinCenter(iBin+1)) != vjet_nlo_cms_lhe->GetNbinsX()){
 	if(vjet_nlo_cms_lhe->GetBinCenter(iBin+1) < 400){
