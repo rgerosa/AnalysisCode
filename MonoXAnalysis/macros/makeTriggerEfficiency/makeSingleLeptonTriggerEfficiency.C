@@ -60,7 +60,7 @@ void makeTrigger(TTree* tree, // tree
   TH1* puhist   = (TH1*) pufile->Get("puhist");
   
   TTreeReader reader(tree);
-  TTreeReaderValue<float> mass (reader, "mass");
+  TTreeReaderValue<float> mass (reader, "pair_zmass");
   TTreeReaderValue<float> eta  (reader, "eta");
   TTreeReaderValue<float> phi  (reader, "phi");
   TTreeReaderValue<float> pt   (reader, "pt");
@@ -114,21 +114,24 @@ void makeTrigger(TTree* tree, // tree
     else if(not isSingleMuon and *tag_pt < electronTagPtCut) continue;
     if(isSingleMuon and fabs(*tag_eta) > muonTagEtaCut) continue;
     else if(not isSingleMuon and fabs(*tag_eta) > electronTagEtaCut) continue;
-    
+
     // ask for a tight id on the probe leg
     if(*id <= 0) continue;
-    // ask for dR(tag,probe)
+
     float dphi = fabs(*phi-*tag_phi);
     if(dphi > TMath::Pi())
       dphi = 2*TMath::Pi()-dphi;
     float dR = sqrt(dphi*dphi+fabs(*eta-*tag_eta)*fabs(*eta-*tag_eta));
-    if(dR < 0.3) continue;
-    
+
+    // ask for dR(tag,probe)
+    if(isSingleMuon && dR < 0.3) continue;    
+    else if(not isSingleMuon && dR < 0.05) continue;
+
     if(isSingleMuon and (TString(currentTree).Contains("Run2016B") or TString(currentTree).Contains("Run2016C") or TString(currentTree).Contains("Run2016D") or
 			 TString(currentTree).Contains("Run2016E") or TString(currentTree).Contains("Run2016F"))){
       if(((*eta > 1.2 and *tag_eta > 1.2) or (*eta < -1.2 and *tag_eta < -1.2)) and dphi < 1.2) continue;
     }
-    
+
     // find the right bin                                                                                                                                                                          
     size_t ptbin = 0;
     size_t etabin = 0;
@@ -167,7 +170,7 @@ void makeTrigger(TTree* tree, // tree
     // pu weight
     Float_t puwgt = 1.;
     if (*nvtx <= 60 and isMC) puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));    
-    
+
     // failing trigger
     if((*hlt == 0 and *hltAlt == 0) and isMC)      
       hfail.at(binHisto).Fill(*mass, puwgt*(*wgt)/wgtsum);

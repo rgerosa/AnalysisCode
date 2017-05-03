@@ -2,11 +2,11 @@
 
 enum class Sample {zw,zgamma};
 
-static float minX = 200;
+static float minX = 250;
 static float maxX = 1400;
 
 ///////////////////
-void makeVJetsNLOComparisonWithTheory(string inputFileNameNum, string inputFileNameDen, string outputDirectory, Sample sample){
+void makeVJetsRatioComparisonWithTheory(string inputFileNameNum, string inputFileNameDen, string outputDirectory, Sample sample){
 
   system(("mkdir -p "+outputDirectory).c_str());
   setTDRStyle();
@@ -72,15 +72,18 @@ void makeVJetsNLOComparisonWithTheory(string inputFileNameNum, string inputFileN
 
   ratio_cms_lhe->GetXaxis()->SetRangeUser(minX,maxX);
   ratio_cms_lhe->Draw("hist");
-  ratio_cms_ps->Draw("hist same");
+  //ratio_cms_ps->Draw("hist same");
   ratio_theo->Draw("hist same");
+
 
   if(sample == Sample::zw){
     canvas->SaveAs((outputDirectory+"/zw_ratio.png").c_str(),"png");
     canvas->SaveAs((outputDirectory+"/zw_ratio.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDirectory+"/zw_ratio.root").c_str(),"root");
   }
   else if(sample == Sample::zgamma){
     canvas->SaveAs((outputDirectory+"/zgamma_ratio.png").c_str(),"png");
     canvas->SaveAs((outputDirectory+"/zgamma_ratio.pdf").c_str(),"pdf");
+    canvas->SaveAs((outputDirectory+"/zgamma_ratio.root").c_str(),"root");
   }
 }

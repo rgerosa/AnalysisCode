@@ -173,7 +173,6 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
     vjet_lo = (TH1F*) file_theory->Get("vvj_pTV_LO");
     vjet_lo_kfact = (TH1F*) file_theory->Get("vvj_pTV_K_LO");
     vjet_nlo_kfact = (TH1F*) file_theory->Get("vvj_pTV_K_NLO");
-
     vjet_d1K_NLO = (TH1F*) file_theory->Get("vvj_pTV_d1K_NLO");
     vjet_d2K_NLO = (TH1F*) file_theory->Get("vvj_pTV_d2K_NLO");
     vjet_d3K_NLO = (TH1F*) file_theory->Get("vvj_pTV_d3K_NLO");
@@ -372,7 +371,11 @@ void makeVJetsNLOComparisonWithTheory(string inputCMSDirectory, string inputTheo
 	// lower bound on the invariant mass
 	if((sample == Sample::zvv or sample == Sample::zll) and *wzmass_lhe < 30) continue;
 	if((sample == Sample::zvv or sample == Sample::zll) and *wzmass_ps  < 30) continue;
-	
+
+	if(sample == Sample::wjet and *wzpt_lhe >= 400 and fabs(*wgt) > 100) continue;
+	if(sample == Sample::wjet and *wzpt_lhe >= 600 and fabs(*wgt) > 10)  continue; 
+	if(sample == Sample::zvv  and *wzpt_lhe >= 650 and fabs(*wgt) > 1)   continue;
+
 	//////////////////                                                                                                                                                                     
 	vjet_nlo_cms_lhe->Fill(*wzpt_lhe,(*wgt)*(*xsec)*0.001*scale/sumwgt_vjet_cms.at(ifile)); // cross section in pb
 	vjet_nlo_cms_ps->Fill (*wzpt_ps,(*wgt)*(*xsec)*0.001*scale/sumwgt_vjet_cms.at(ifile)); // cross section in pb
