@@ -140,9 +140,9 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, bool skipPreliminary = tr
       latex2->SetTextFont(52);
       latex2->SetTextAlign(11);    
       if(reduceSize)
-	latex2->DrawLatex(0.235+offset, 0.85, "Preliminary");
+	latex2->DrawLatex(0.235+offset, 0.86, "Preliminary");
       else
-	latex2->DrawLatex(0.28+offset, 0.85, "Preliminary");
+	latex2->DrawLatex(0.28+offset, 0.86, "Preliminary");
     }
   }
 }
