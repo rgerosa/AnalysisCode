@@ -4,6 +4,7 @@
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
 static bool addStatUncPull = true;
+static bool addPreliminary = true;
 
 void prepostWE(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -249,7 +250,10 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
 
   frame->Draw();
   
-  CMS_lumi(canvas,"35.9");
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false);
+  else
+    CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -257,11 +261,11 @@ void prepostWE(string fitFilename, string observable, Category category, bool is
   categoryLabel->SetTextFont(42);
   categoryLabel->SetTextAlign(11);
   if(category == Category::monojet)
-    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+    categoryLabel ->DrawLatex(0.175,0.82,"monojet");
   else if(category == Category::monoV)
-    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+    categoryLabel ->DrawLatex(0.175,0.82,"mono-V");
   else if(category == Category::VBF)
-    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+    categoryLabel ->DrawLatex(0.175,0.82,"VBF");
   categoryLabel->Draw("same");
 
   prhist->Draw("HIST SAME");

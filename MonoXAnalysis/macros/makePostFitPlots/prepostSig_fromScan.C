@@ -7,6 +7,7 @@ static bool  plotSignificance = true;
 static float lumiScale_Higgs = 15;
 static float lumiScale_DM    = 1;
 static bool  addStatUncPull  = true;
+static bool  addPreliminary  = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -450,7 +451,10 @@ void prepostSig_fromScan(string   fitFilename,
 
   frame->Draw();
 
-  CMS_lumi(canvas,"35.9");
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false);
+  else
+    CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -458,11 +462,11 @@ void prepostSig_fromScan(string   fitFilename,
   categoryLabel->SetTextFont(42);
   categoryLabel->SetTextAlign(11);
   if(category == Category::monojet)
-    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+    categoryLabel ->DrawLatex(0.175,0.82,"monojet");
   else if(category == Category::monoV)
-    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+    categoryLabel ->DrawLatex(0.175,0.82,"mono-V");
   else if(category == Category::VBF)
-    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+    categoryLabel ->DrawLatex(0.175,0.82,"VBF");
   categoryLabel->Draw("same");
 
   stack ->Draw("HIST SAME");
