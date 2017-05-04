@@ -1,9 +1,11 @@
 static bool debug = false;
 static bool skipCorrelations = false;
+
 #include "../makeTemplates/histoUtils.h"
 #include "simplifiedLikelihoodUtils.h"
 #include "../CMS_lumi.h"
 
+static bool addPreliminary = true;
 
 void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false, bool suppressDiagonal = false){
 
@@ -159,7 +161,11 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
   gStyle->SetPaintTextFormat("1.2f");
   corr->Draw("COLZTEXT");
-  CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.06);
+  if(not addPreliminary)
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.06);
+  else
+    CMS_lumi(canvas,"35.9",true,false,true,0.05,-0.06);
+
   gPad->Update();
   TPaletteAxis *palette = (TPaletteAxis*)corr->GetListOfFunctions()->FindObject("palette");
   

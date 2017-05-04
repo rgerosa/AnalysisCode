@@ -128,10 +128,10 @@ void CMS_lumi(TPad* pad, string lumi, bool up = false, bool skipPreliminary = tr
   if(not skipPreliminary){
     
     if(up){
-      latex2->SetTextSize(0.65*pad->GetTopMargin());
+      latex2->SetTextSize(0.55*pad->GetTopMargin());
       latex2->SetTextFont(52);
       latex2->SetTextAlign(11);
-      latex2->DrawLatex(0.25+offset, 0.95, "Preliminary");
+      latex2->DrawLatex(0.235+offset, 0.95, "Preliminary");
     }
     else{
       latex2->SetTextSize(0.6*pad->GetTopMargin());
