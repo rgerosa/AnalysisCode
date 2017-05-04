@@ -148,8 +148,9 @@ void makehist4(TTree* tree, /*input tree*/
 	       const bool   & isHiggsInvisible   = false, // reject VBF events
 	       const bool   & applyPostFitWeight = false,
 	       const float  & XSEC = -1.,// fix the cross section from extern	       
-	       TH1*  hhist    = NULL,
-	       TH2*  ggZHhist = NULL,
+	       TH1*  hhist     = NULL,
+	       TH1*  higgsNNLO = NULL,
+	       TH2*  ggZHhist  = NULL,
 	       const string & leptonPID = ""
 	       ) {
 
@@ -1287,6 +1288,16 @@ void makehist4(TTree* tree, /*input tree*/
       hwgt *= hhist->GetBinContent(hhist->FindBin(*dmpt));
     }
 
+    // NNLO corrections to Higgs pT
+    Double_t higgsPTNNLO = 1.0;
+    if(isHiggsInvisible and higgsNNLO and isMC){
+      if(*dmpt < higgsNNLO->GetBinLowEdge(1))
+	*dmpt = higgsNNLO->GetBinLowEdge(1)+1;
+      else if(*dmpt > higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1))
+	*dmpt = higgsNNLO->GetBinLowEdge(higgsNNLO->GetNbinsX()+1)-1;
+      higgsPTNNLO *= higgsNNLO->GetBinContent(higgsNNLO->FindBin(*dmpt));      
+    }
+
     // post fit re-weight
     Double_t pfwgt = 1.0;
     if(postFitWeight){
@@ -1944,9 +1955,9 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*higgsPTNNLO*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*higgsPTNNLO*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 
@@ -1960,9 +1971,9 @@ void makehist4(TTree* tree, /*input tree*/
 	  puwgt = 1;
 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*higgsPTNNLO*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*higgsPTNNLO*pfwgt/(**wgtsum);
       }
       
       // for data-based events 
@@ -2134,17 +2145,17 @@ void makehist4(TTree* tree, /*input tree*/
 	if (*putrue <= 100)
           puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
         if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*higgsPTNNLO*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*hwgt*ggZHwgt*higgsPTNNLO*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
 	if (*nvtx <= 60) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*higgsPTNNLO/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt/(**wgtsum);	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*hwgt*higgsPTNNLO/(**wgtsum);	
       }
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
