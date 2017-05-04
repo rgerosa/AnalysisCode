@@ -11,7 +11,8 @@ void signalHiggshist(TFile* outfile,
 		     const bool   & doShapeSystematics  = false,
 		     const string & mH                  = "125",
 		     vector<double> xs                  = {},
-		     const int & typeOfHiggsSignal      = 0){
+		     const int  & typeOfHiggsSignal     = 0,
+		     const bool & applyNNLOKfactors     = false){
 
   if(xs.size() != 5 and xs.size() != 6)
     cerr<<"signalHiggshist: xs size wrong, should be 4 numbers for each mass points"<<endl;
@@ -314,6 +315,12 @@ void signalHiggshist(TFile* outfile,
   //Take histograms for Higgs
   TFile* higgsPT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/HiggsPT/hpt_ggH_125_13TeV_POWHEG_weights.root");
 
+  // NNLO k-factors
+  TFile* inputGGHPt = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/HiggsPT/ggH_NNLO_phill.root","READ");
+  TH1F* MG_NNLO_FT  = (TH1F*) inputGGHPt->Get("MG_NNLO_FT");
+  TH1F* Powheg      = (TH1F*) inputGGHPt->Get("Powheg");
+  MG_NNLO_FT->Divide(Powheg);
+
   TH1* renUp = (TH1*) higgsPT->FindObjectAny("weight_pT_rup");
   TH1* renDw = (TH1*) higgsPT->FindObjectAny("weight_pT_rdn");
   TH1* facUp = (TH1*) higgsPT->FindObjectAny("weight_pT_fup");
@@ -329,7 +336,11 @@ void signalHiggshist(TFile* outfile,
   
   // higgs re-weight
   if(typeOfHiggsSignal <= 1){
-    makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0));
+    if(not applyNNLOKfactors)
+      makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0));
+    else
+      makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+
     makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(1));
   }
 
@@ -338,29 +349,43 @@ void signalHiggshist(TFile* outfile,
     makehist4(wHminusTree,wHhist,wHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(3));
     makehist4(zHTree,zHhist,zHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(4));
     if(xs.size() > 5) // apply ZH re-weight to estimated ggZH                                                                                                               
-      makehist4(zHTree,ggZHhist,ggZHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,true,0,true,false,xs.at(5),NULL,ggZH_weight);
+      makehist4(zHTree,ggZHhist,ggZHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,true,0,true,false,xs.at(5),NULL,NULL,ggZH_weight);
     
   }
 
   if(doShapeSystematics){
  
     if(typeOfHiggsSignal <= 1){
-      makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renUp);
-      makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renDw);
-      makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp);
-      makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw);
-    
-      makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0));
+      if(not applyNNLOKfactors){
+	makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renUp);
+	makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renDw);
+	makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp);
+	makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw);   
+	makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0));
+	makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0));
+	makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(0));
+	makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(0));
+	makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(0));
+	makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(0));
+      }
+      else{
+	makehist4(ggHTree,ggHhist_renUp,ggHhist_renUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renUp,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_renDw,ggHhist_renDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),renDw,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_facUp,ggHhist_facUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facUp,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_facDw,ggHhist_facDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,xs.at(0),facDw,MG_NNLO_FT);   
+	makehist4(ggHTree,ggHhist_metJetUp,ggHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+	makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(0),NULL,MG_NNLO_FT);
+      }
+
       makehist4(vbfHTree,vbfHhist_metJetUp,vbfHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metJetDw,ggHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metJetDw,vbfHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metResUp,ggHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metResUp,vbfHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metResDw,ggHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metResDw,vbfHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metUncUp,ggHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metUncUp,vbfHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,true,false,xs.at(1));
-      makehist4(ggHTree,ggHhist_metUncDw,ggHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(0));
       makehist4(vbfHTree,vbfHhist_metUncDw,vbfHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(1));
     }
     if(typeOfHiggsSignal == 0 or typeOfHiggsSignal >= 2){
@@ -390,12 +415,12 @@ void signalHiggshist(TFile* outfile,
       makehist4(zHTree,zHhist_metUncDw,zHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,true,false,xs.at(4));
 
       if(xs.size() > 5){ // re-weight qqZH to get ggZH contribution                                                                                                           
-        makehist4(zHTree,ggZHhist_metJetUp,ggZHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metJetDw,ggZHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metResUp,ggZHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metResDw,ggZHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metUncUp,ggZHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
-        makehist4(zHTree,ggZHhist_metUncDw,ggZHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,true,0,true,false,xs.at(4),NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metJetUp,ggZHhist_metJetUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesUp",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metJetDw,ggZHhist_metJetDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jesDw",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metResUp,ggZHhist_metResUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerUp",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metResDw,ggZHhist_metResDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"jerDw",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metUncUp,ggZHhist_metUncUp_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncUp",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
+        makehist4(zHTree,ggZHhist_metUncDw,ggZHhist_metUncDw_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"uncDw",false,true,0,true,false,xs.at(4),NULL,NULL,ggZH_weight);
 
       }
     }
@@ -764,6 +789,7 @@ void signalHiggshist(TFile* outfile,
 
   if(higgsPT) higgsPT->Close();
   if(ggZHPT) ggZHPT->Close();
+  if(inputGGHPt) inputGGHPt->Close();
 
   cout << "Templates for the Higgs invisible ..." << endl;
 }

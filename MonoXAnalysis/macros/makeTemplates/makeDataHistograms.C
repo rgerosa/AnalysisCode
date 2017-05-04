@@ -597,11 +597,11 @@ void sigdatamchist(TFile* outfile,
   makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   if(splitWPerFlavor){
     cout<<"signal region: W+jets sample: wmn-gen "<<endl;
-    makehist4(wltree,wlhist_mu,wlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"muon");
+    makehist4(wltree,wlhist_mu,wlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,NULL,"muon");
     cout<<"signal region: W+jets sample  wen-gen "<<endl;
-    makehist4(wltree,wlhist_el,wlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"electron");
+    makehist4(wltree,wlhist_el,wlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,NULL,"electron");
     cout<<"signal region: W+jets sample  wta-gen "<<endl;
-    makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"tau");
+    makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,NULL,"tau");
   }
   cout<<"signal region: Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
