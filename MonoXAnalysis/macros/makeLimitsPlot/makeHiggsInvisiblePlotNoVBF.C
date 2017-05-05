@@ -1,6 +1,6 @@
 #include "../CMS_lumi.h"
 
-void makeHiggsInvisiblePlotNoVBF(bool blind = false){
+void makeHiggsInvisiblePlotNoVBF(bool blind = false, bool addPreliminary = false){
 
 
   setTDRStyle();
@@ -90,12 +90,16 @@ void makeHiggsInvisiblePlotNoVBF(bool blind = false){
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   if(not blind)
-    leg->AddEntry(limitValueObserved,"Observed CL_{s}","PL");
-  leg->AddEntry(limitValueExpected,"Median expected CL_{s}","PL");
+    leg->AddEntry(limitValueObserved,"Observed 95% CL","PL");
+  leg->AddEntry(limitValueExpected,"Median expected 95% CL","PL");
   leg->AddEntry(limitErr_1s,"68% expected","F");
   leg->AddEntry(limitErr_2s,"95% expected","F");
   leg->Draw("same");
-  CMS_lumi(canvas,"35.9",false);
+
+  if(not addPreliminary)
+    CMS_lumi(canvas,"35.9",false,true,false);
+  else
+    CMS_lumi(canvas,"35.9",false,false,false);
 
   canvas->RedrawAxis("sameaxis");
 
