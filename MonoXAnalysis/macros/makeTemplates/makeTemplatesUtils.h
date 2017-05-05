@@ -619,7 +619,7 @@ void fillAndSaveCorrQCDHistograms(const vector<string> & observables, // observa
 	sign = hasSameSign(gamuncqcdprochist);
 	if(sign){
 	  for (int i = 0; i <= gamuncqcdprochist->GetNbinsX()+1; i++)
-	    gamuncqcdshapehist->SetBinContent(i,fabs(gamuncqcdprochist->GetBinContent(i)));
+	    gamuncqcdprochist->SetBinContent(i,fabs(gamuncqcdprochist->GetBinContent(i)));
 	}
 	gamuncqcdprochist->SetName(("ZG_QCDProcess_"+obs).c_str());
 
