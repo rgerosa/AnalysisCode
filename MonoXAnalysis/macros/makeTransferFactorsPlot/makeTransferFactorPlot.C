@@ -5,7 +5,7 @@
 using namespace std;
 
 float musf = 0.010;
-float elsf = 0.020;
+float elsf = 0.015;
 float phsf = 0.020;
 float mutrack = 0.01;
 float eltrack = 0.01;

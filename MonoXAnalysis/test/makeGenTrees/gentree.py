@@ -37,7 +37,7 @@ process = cms.Process("KFAC")
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Define the input source
 if options.inputFiles == []:
