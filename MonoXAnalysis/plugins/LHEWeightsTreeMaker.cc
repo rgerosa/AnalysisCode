@@ -249,7 +249,7 @@ void LHEWeightsTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& 
     
     if(isSignalSample){
       for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
-	std::vector<std::string> lines = iter->lines();    
+	std::vector<std::string> lines = iter->lines();    	
 	for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
 	  std::vector<std::string> tokens;
 	  if(lines.at(iLine).find("DMmass") !=std::string::npos){ // powheg mono-jet --> extract the sample mass value

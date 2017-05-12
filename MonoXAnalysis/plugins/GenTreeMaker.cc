@@ -8,7 +8,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-
+#include <boost/lexical_cast.hpp>
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
@@ -65,38 +65,40 @@ private:
   
   TTree* tree;
   
-  // event information
+  edm::InputTag lheRunTag;
   bool     readDMFromGenParticle;
   bool     addEvtInfo;
   bool     isSignalSample;
-  edm::InputTag lheRunTag;
   double   minBosonPt;
 
+  // event information
   uint32_t event, run, lumi;  
   float    xsec, wgt, wgtoriginal;
 
-  std::vector<float>  wgtpdf; 
-  std::vector<float>  qcdscalewgt;
-  std::vector<int>    qcdscale;
+  // PDF
+  std::vector<int>    pdfvariation; // stored the id as listed in the LHE reader
+  std::vector<int>    pdflhaid;  // lhapdf if
+  std::vector<float>  wgtpdf;       // pdf weight
+  // QCD scale
+  std::vector<int>    qcdscale;   // store the id as stored in the LHE header
+  std::vector<float>  qcdscale_muR; // store renormalization scale
+  std::vector<float>  qcdscale_muF; // store factorization scale
+  std::vector<float>  qcdscalewgt;  // store wight
+  // For SMM, DMSimp samples
+  std::vector<float> couplingwgt, gDMV, gDMA, gV, gA, gTheta;
 
   // boson pdgid, and leptons ids
   int32_t  wzid, mvid, l1id, l2id, l1id_lhe, l2id_lhe;
-  // information about V-bosons
-  float   wzmass, wzpt, wzeta, wzphi;
-  float   mvmass, mvpt, mveta, mvphi;
-  float   l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
-  float   l1pt_lhe, l1eta_lhe, l1phi_lhe, l2pt_lhe, l2eta_lhe, l2phi_lhe;
-  // store gen met info
-  float   met, metphi;
-  // number of jets
+  float    wzmass, wzpt, wzeta, wzphi;
+  float    mvmass, mvpt, mveta, mvphi;
+  float    l1pt, l1eta, l1phi, l2pt, l2eta, l2phi;
+  float    l1pt_lhe, l1eta_lhe, l1phi_lhe, l2pt_lhe, l2eta_lhe, l2phi_lhe;
+  float    met, metphi;
   uint32_t njets, njetsinc;
-  // store gen jet informations
   std::vector<float> jetpt, jeteta, jetphi, jetmass;
-  // DM mediator info
   float sampledmM, samplemedM;
   float dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
   int   dmid,dmX1id,dmX2id;
-  std::vector<float> couplingwgt, gDMV, gDMA, gV, gA, gTheta;
 
 
   template<typename T> 
@@ -231,16 +233,25 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
       couplingwgt.push_back(weights[i].wgt);
     }
-    else if(qcdscale.size() != 0){ // qcd scale variations                                                                                                                                         
-      if(weight_name.Contains("rwgt")) continue;
-      if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
-	qcdscalewgt.push_back(weights[i].wgt);
+    else{
+      if(qcdscale.size() != 0){ // qcd scale variations                                                                                                                                         
+	if(weight_name.Contains("rwgt")) continue;
+	if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
+	  qcdscalewgt.push_back(weights[i].wgt);
+      }
+      else if(qcdscale.size() == 0){
+	if(weight_name.Contains("rwgt")) continue;
+	else if((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009))
+	  qcdscalewgt.push_back(weights[i].wgt);
+      }
+      
+      if(pdfvariation.size() != 0){
+	if(weight_name.Contains("rwgt")) continue;
+	if(find(pdfvariation.begin(),pdfvariation.end(),std::stoi(weights[i].id)) != pdfvariation.end())
+	  wgtpdf.push_back(weights[i].wgt);
+      }
     }
-    else if(qcdscale.size() == 0){
-      if(weight_name.Contains("rwgt")) continue;
-      else if((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009))
-	qcdscalewgt.push_back(weights[i].wgt);
-    }
+
   }
   
   wzid = 0; wzmass = -99; wzpt  = -99; wzeta = -99; wzphi = -99;
@@ -538,12 +549,20 @@ void GenTreeMaker::beginJob() {
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
   }
 
+  // Basic XSEC and weight
   tree->Branch("xsec"                 , &xsec                 , "xsec/F");
   tree->Branch("wgt"                  , &wgt                  , "wgt/F");
   tree->Branch("wgtoriginal"          , &wgtoriginal          , "wgtoriginal/F");
-  tree->Branch("wgtpdf"               , "std::vector<float>",  &wgtpdf);
+
+  // QCD scale info
+  tree->Branch("qcdscale_muR"         , "std::vector<float>",  &qcdscale_muR);
+  tree->Branch("qcdscale_muF"         , "std::vector<float>",  &qcdscale_muF);
   tree->Branch("wgtqcd"               , "std::vector<float>",  &qcdscalewgt);
+  // PDF info
+  tree->Branch("pdflhaid"          , "std::vector<int>",    &pdflhaid);
+  tree->Branch("wgtpdf"               , "std::vector<float>",  &wgtpdf);
   
+  // Kinematic
   tree->Branch("njets"                , &njets                , "njets/i");
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
   tree->Branch("met"                  , &met                  , "met/F");
@@ -583,6 +602,7 @@ void GenTreeMaker::beginJob() {
   tree->Branch("jetphi"               , "std::vector<float>" , &jetphi);
   tree->Branch("jetmass"              , "std::vector<float>" , &jetmass);
 
+  // For DM samples
   if(isSignalSample){
     tree->Branch("sampledmM",&sampledmM,"sampledmM/F");
     tree->Branch("samplemedM",&samplemedM,"samplemedM/F");
@@ -620,6 +640,12 @@ void GenTreeMaker::endJob() {
 
 void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
+  pdfvariation.clear();
+  pdflhaid.clear();
+  qcdscale.clear();
+  qcdscale_muR.clear();
+  qcdscale_muF.clear();
+ 
   using namespace boost::algorithm;
   using namespace edm;
 
@@ -627,11 +653,12 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   iRun.getByLabel(lheRunTag,run);
   LHERunInfoProduct myLHERunInfoProduct = *(run.product());
   
-  if(isSignalSample){
-    for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
-      std::vector<std::string> lines = iter->lines();
-      for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
-	std::vector<std::string> tokens;
+  for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
+    std::vector<std::string> lines = iter->lines();
+    for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
+      std::vector<std::string> tokens;
+      std::vector<std::string> tokens_alt;
+      if(isSignalSample){
 	if(lines.at(iLine).find("DMmass") !=std::string::npos){// powheg mono-j                                                                                                                      
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
@@ -668,19 +695,71 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	  sampledmM  = -1.;
 	  readDMFromGenParticle = true;
 	}
-  
-        // read-weights for scale variation                                                                                                                                                         
-	if(lines.at(iLine).find("Central scale variation") != std::string::npos or lines.at(iLine).find("scale_variation") != std::string::npos){
-	  for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
-	    TString line_string (lines.at(iLine2));
-	    if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
-	      split(tokens, lines.at(iLine2), is_any_of("\""));
-	      tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-	      qcdscale.push_back(std::stoi(tokens.at(1)));
+      }
+      // read-weights for scale variation                                                                                                                                                         
+      if(lines.at(iLine).find("Central scale variation") != std::string::npos or lines.at(iLine).find("scale_variation") != std::string::npos){
+	for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
+	  TString line_string (lines.at(iLine2));
+	  if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
+	    split(tokens, lines.at(iLine2), is_any_of("\""));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    qcdscale.push_back(std::stoi(tokens.at(1)));
+	    for(auto tok: tokens){
+	      TString token_line (tok);		
+	      if((token_line.Contains("muR") and token_line.Contains("muF")) or (token_line.Contains("mur") and token_line.Contains("muf"))){
+		token_line.ReplaceAll("dyn=  -1","");
+		token_line.ReplaceAll("muR=","");
+		token_line.ReplaceAll("muF=","");
+		token_line.ReplaceAll("mur=","");
+		token_line.ReplaceAll("muf=","");
+		token_line.ReplaceAll(">","");
+		token_line.ReplaceAll("<","");
+		std::string token_line_string = std::string(token_line);
+		split(tokens_alt,token_line_string,is_any_of(" "));		  		 
+		for(auto tok_alt : tokens_alt){
+		  if(tok_alt == "" or tok_alt == " " or tok_alt == "\n") continue;
+		  try 
+		    {
+		      float x = boost::lexical_cast<double>(tok_alt); // double could be anything with >> operator.
+		      if(qcdscale_muR.size() == qcdscale_muF.size()){
+			qcdscale_muR.push_back(x);
+		      }
+		      else{
+			qcdscale_muF.push_back(x);
+			break;
+			}
+		    }
+		  catch(int i){
+		    std::cout<<"exception occured while dumping QCD scale Nr "<<i<<std::endl;
+		  }
+		}
+	      }
 	    }
-	    else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
-	      break;
 	  }
+	  else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
+	    break;
+	}
+      }      
+      if(lines.at(iLine).find("PDF_variation") != std::string::npos){
+	for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
+	  TString line_string (lines.at(iLine2));
+	  if(lines.at(iLine2) != "" and line_string.Contains("id=") and not line_string.Contains("</weightgroup>")){
+	    split(tokens, lines.at(iLine2), is_any_of("\""));
+	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
+	    pdfvariation.push_back(std::stoi(tokens.at(1)));
+	    for(auto tok : tokens){
+	      TString token_line (tok);		
+	      if(token_line.Contains("PDF set =") or token_line.Contains("pdfset")){
+		token_line.ReplaceAll("PDF set = ","");
+		token_line.ReplaceAll("pdfset=","");
+		std::string token_line_string = std::string(token_line);
+		split(tokens_alt,token_line_string,is_any_of(" "));
+		pdflhaid.push_back(std::stoi(tokens_alt.at(1)));
+		}
+	    }
+	  }
+	  else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
+	    break;
 	}
       }
     }
