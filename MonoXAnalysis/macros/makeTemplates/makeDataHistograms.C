@@ -662,7 +662,7 @@ void sigdatamchist(TFile* outfile,
   makehist4(wgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: Zgamma+jets"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
- 
+
   cout<<"signal region: QCD sample "<<endl;
   makehist4(qcdtree,qcdhist,qcdhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 

@@ -45,7 +45,7 @@ const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
-const float dphijjrelaxed   = 1.3;
+const float dphijjrelaxed   = 1.5;
 const bool  removeVBF       = false;
 // Additional selections
 const float photonPt        = 175;
@@ -566,10 +566,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
-
-  string cscfilter = "flagglobaltighthalo";
-  if(isMC) cscfilter = "flagcsctight";    
-  TTreeReaderValue<UChar_t> fcsc   (myReader,cscfilter.c_str());
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
   TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
@@ -775,6 +772,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
     // Trigger Selection
     if (hlt  == 0) continue; // trigger    
+
     // MET Filters --> apply on both data and monte-carlo
     if(*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fbadmu == 0 || *fbadch == 0) continue;
     
@@ -1464,7 +1462,6 @@ void makehist4(TTree* tree,            /*input tree*/
 
     ///////////////
     else if(category == Category::VBF){
-      if(centralJets.size()+forwardJets.size() < 2) continue;
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF)  continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
@@ -1489,7 +1486,6 @@ void makehist4(TTree* tree,            /*input tree*/
     ///////////////
     else if(category == Category::VBFrelaxed){
 
-      if(centralJets.size()+forwardJets.size() < 2) continue;
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF) continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
@@ -1499,6 +1495,7 @@ void makehist4(TTree* tree,            /*input tree*/
       
       if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
       if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
       //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
       TLorentzVector jet1 ;

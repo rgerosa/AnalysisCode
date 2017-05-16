@@ -560,7 +560,7 @@ void GenTreeMaker::beginJob() {
   tree->Branch("wgtqcd"               , "std::vector<float>",  &qcdscalewgt);
   // PDF info
   tree->Branch("pdflhaid"          , "std::vector<int>",    &pdflhaid);
-  tree->Branch("wgtpdf"               , "std::vector<float>",  &wgtpdf);
+  tree->Branch("wgtpdf"            , "std::vector<float>",  &wgtpdf);
   
   // Kinematic
   tree->Branch("njets"                , &njets                , "njets/i");
