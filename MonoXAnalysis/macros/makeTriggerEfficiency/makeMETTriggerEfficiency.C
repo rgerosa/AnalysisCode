@@ -5,15 +5,15 @@
 #include "../CMS_lumi.h"
 
 // recoil binning
-vector <float> bins_monojet_recoil = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
-vector <float> bins_vbf_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
-vector <float> bins_monoV_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
+vector <float> bins_monojet_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
+vector <float> bins_vbf_recoil       = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
+vector <float> bins_monoV_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
 // mjj
-vector <float> bins_vbf_recoilvsmjj = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
-vector <float> bins_vbf_mjj         = {0.,800.,1200.,1700.,3000.};
+vector <float> bins_vbf_recoilvsmjj  = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
+vector <float> bins_vbf_mjj          = {0.,800.,1200.,1700.,3000.};
 // detajj
 vector <float> bins_vbf_recoilvsdetajj = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
-vector <float> bins_vbf_detajj  = {0.,1.5,3.0,5.0,9};
+vector <float> bins_vbf_detajj         = {0.,1.5,2.5,4.5,9};
 
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
@@ -21,14 +21,14 @@ vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F",
 //########## VBF selections
 static float leadingVBF  = 80;
 static float trailingVBF = 40;
-static float detajj      = 3.5; 
-static float mjj         = 1000; 
+static float detajj      = 2.5; 
+static float mjj         = 500; 
 static float jetmetdphi  = 0.5; 
 static float dphijj      = 1.5;
 static float recoil      = 200;
-static bool  drawUncertaintyBand = false;
+static bool  drawUncertaintyBand   = false;
 static bool  useDoubleMuonTriggers = true;
-static bool  applyJetSelections = true;
+static bool  applyJetSelections    = true;
 
 /// plotting result
 void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
@@ -184,7 +184,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");                                                                                                                                       
   TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");                                                                                                                                       
-  TTreeReaderValue<unsigned int> ntausraw    (reader,"ntausold");
+  TTreeReaderValue<unsigned int> ntaus       (reader,"ntausold");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
@@ -247,12 +247,12 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyMonojetSelections->SetBinContent(1,efficiencyMonojetSelections->GetBinContent(1)+1);
     efficiencyMonoVSelections->SetBinContent(1,efficiencyMonoVSelections->GetBinContent(1)+1);
     efficiencyVBFSelections->SetBinContent(1,efficiencyVBFSelections->GetBinContent(1)+1);
-    if(*nbjets   != 0) continue;
+    if(*nbjets != 0) continue;
     efficiencyMonojetSelections->SetBinContent(2,efficiencyMonojetSelections->GetBinContent(2)+1);
     efficiencyMonoVSelections->SetBinContent(2,efficiencyMonoVSelections->GetBinContent(2)+1);
     efficiencyVBFSelections->SetBinContent(2,efficiencyVBFSelections->GetBinContent(2)+1);
     ///
-    if(*ntausraw != 0) continue;
+    if(*ntaus != 0) continue;
     ///
     efficiencyMonojetSelections->SetBinContent(3,efficiencyMonojetSelections->GetBinContent(3)+1);
     efficiencyMonoVSelections->SetBinContent(3,efficiencyMonoVSelections->GetBinContent(3)+1);
@@ -263,7 +263,6 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     efficiencyVBFSelections->SetBinContent(4,efficiencyVBFSelections->GetBinContent(4)+1);
     //
     if(not *fcsc)  continue;
-    if(not *fcsct) continue;
     if(not *feeb)  continue;
     if(not *fetp)  continue;
     if(not *fvtx)  continue;

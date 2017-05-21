@@ -572,11 +572,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
   TTreeReaderValue<float> ht                (myReader,"ht");
-
-  string tauveto = "ntausold";
-  if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet)
-    tauveto = "ntaus";
-  TTreeReaderValue<unsigned int> ntaus      (myReader,tauveto.c_str());
+  TTreeReaderValue<unsigned int> ntaus      (myReader,"ntausold");
 
   // AK8 jet
   TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");

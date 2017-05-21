@@ -103,6 +103,9 @@ void sigdatamchist(TFile* outfile,
 
   vector<TH1*> qcdhist;
   vector<TH1*> ewkwhist;
+  vector<TH1*> ewkwlhist_mu;
+  vector<TH1*> ewkwlhist_el;
+  vector<TH1*> ewkwlhist_ta;
   vector<TH1*> ewkzhist;
   vector<TH1*> vghist;
 
@@ -137,6 +140,13 @@ void sigdatamchist(TFile* outfile,
       wlhist_mu.push_back(dynamic_cast<TH1*>(wlhist_mu_temp));
       wlhist_el.push_back(dynamic_cast<TH1*>(wlhist_el_temp));
       wlhist_ta.push_back(dynamic_cast<TH1*>(wlhist_ta_temp));
+
+      TH1F* ewkwlhist_mu_temp = new TH1F(("ewkwjethist_mu_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      TH1F* ewkwlhist_el_temp = new TH1F(("ewkwjethist_el_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      TH1F* ewkwlhist_ta_temp = new TH1F(("ewkwjethist_ta_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      ewkwlhist_mu.push_back(dynamic_cast<TH1*>(ewkwlhist_mu_temp));
+      ewkwlhist_el.push_back(dynamic_cast<TH1*>(ewkwlhist_el_temp));
+      ewkwlhist_ta.push_back(dynamic_cast<TH1*>(ewkwlhist_ta_temp));
     }
     zlhist.push_back(dynamic_cast<TH1*>(zlhist_temp));
     tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -277,6 +287,9 @@ void sigdatamchist(TFile* outfile,
   vector<TH2*> gmhist_metUncUp_2D;
   vector<TH2*> gmhist_metUncDw_2D;
   vector<TH2*> ewkwhist_2D;
+  vector<TH2*> ewkwlhist_mu_2D;
+  vector<TH2*> ewkwlhist_el_2D;
+  vector<TH2*> ewkwlhist_ta_2D;
   vector<TH2*> ewkzhist_2D;
 
   vector<TH2*> dthist_2D;
@@ -309,6 +322,13 @@ void sigdatamchist(TFile* outfile,
       wlhist_mu_2D.push_back(dynamic_cast<TH2*>(wlhist_mu_temp));
       wlhist_el_2D.push_back(dynamic_cast<TH2*>(wlhist_el_temp));
       wlhist_ta_2D.push_back(dynamic_cast<TH2*>(wlhist_ta_temp));
+
+      TH2F* ewkwlhist_mu_temp = new TH2F(("ewkwjethist_mu_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      TH2F* ewkwlhist_el_temp = new TH2F(("ewkwjethist_el_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      TH2F* ewkwlhist_ta_temp = new TH2F(("ewkwjethist_ta_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      ewkwlhist_mu_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_mu_temp));
+      ewkwlhist_el_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_el_temp));
+      ewkwlhist_ta_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_ta_temp));
     }
     zlhist_2D.push_back(dynamic_cast<TH2*>(zlhist_temp));
     tthist_2D.push_back(dynamic_cast<TH2*>(tthist_temp));
@@ -646,6 +666,14 @@ void sigdatamchist(TFile* outfile,
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::sig,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: ewkw+jets sample "<<endl;
   makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists);
+  if(splitWPerFlavor){
+    cout<<"signal region: ewkw+jets sample: wmn-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_mu,ewkwlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"muon");
+    cout<<"signal region: ewkw+jets sample  wen-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_el,ewkwlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"electron");
+    cout<<"signal region: ewkw+jets sample  wta-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_ta,ewkwlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"tau");
+  }
   cout<<"signal region: ewkz+jets sample "<<endl;
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,zewkhists); // temp fix for a wrong xsec
   cout<<"signal region: TTbar sample "<<endl;
@@ -890,6 +918,11 @@ void sigdatamchist(TFile* outfile,
   for(auto hist : gmhist) hist->Write();
   for(auto hist : qcdhist) hist->Write();
   for(auto hist : ewkwhist) hist->Write();
+  if(splitWPerFlavor){
+    for(auto hist : ewkwlhist_mu) hist->Write();
+    for(auto hist : ewkwlhist_el) hist->Write();
+    for(auto hist : ewkwlhist_ta) hist->Write();
+  }
   for(auto hist : ewkzhist) hist->Write();
   for(auto hist : vghist) hist->Write();
   for(auto hist : dthist) hist->Write();
@@ -947,6 +980,11 @@ void sigdatamchist(TFile* outfile,
   for(auto hist_2D : dihist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : qcdhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : ewkwhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  if(splitWPerFlavor){
+    for(auto hist_2D : ewkwlhist_mu_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+    for(auto hist_2D : ewkwlhist_el_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+    for(auto hist_2D : ewkwlhist_ta_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  }
   for(auto hist_2D : ewkzhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : vghist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : dthist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -1038,6 +1076,9 @@ void sigdatamchist(TFile* outfile,
   for(auto hist: gmhist_metUncDw) delete hist;
   for(auto hist: qcdhist) delete hist;
   for(auto hist: ewkwhist) delete hist;
+  for(auto hist: ewkwlhist_mu) delete hist;
+  for(auto hist: ewkwlhist_el) delete hist;
+  for(auto hist: ewkwlhist_ta) delete hist;
   for(auto hist: ewkzhist) delete hist;
   for(auto hist: vghist) delete hist;
   for(auto hist: dthist) delete hist;
@@ -1084,6 +1125,9 @@ void sigdatamchist(TFile* outfile,
   gmhist_metUncDw.clear();
   qcdhist.clear();
   ewkwhist.clear();
+  ewkwlhist_mu.clear();
+  ewkwlhist_el.clear();
+  ewkwlhist_ta.clear();
   ewkzhist.clear();
   vghist.clear();
   dthist.clear();
@@ -1173,6 +1217,9 @@ void sigdatamchist(TFile* outfile,
   gmhist_metUncDw_2D.clear();
   qcdhist_2D.clear();
   ewkwhist_2D.clear();
+  ewkwlhist_mu_2D.clear();
+  ewkwlhist_el_2D.clear();
+  ewkwlhist_ta_2D.clear();
   ewkzhist_2D.clear();
   vghist_2D.clear();
   dthist_2D.clear();

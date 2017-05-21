@@ -9,18 +9,18 @@ void makeTriggerPlotVBF (string observable){
   TFile* file_mjj_bin2 = NULL;
   TFile* file_mjj_bin3 = NULL;
   TFile* file_mjj_bin4 = NULL;
-    
+
   if(observable == "mjj"){
-    file_mjj_bin1 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_0.0_800.0.root").c_str());
-    file_mjj_bin2 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_800.0_1200.0.root").c_str());
-    file_mjj_bin3 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_1200.0_1700.0.root").c_str());
-    file_mjj_bin4 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_1700.0_3000.0.root").c_str());
+    file_mjj_bin1 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_0.0_800.0.root").c_str());
+    file_mjj_bin2 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_800.0_1200.0.root").c_str());
+    file_mjj_bin3 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_1200.0_1700.0.root").c_str());
+    file_mjj_bin4 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_1700.0_3000.0.root").c_str());
   }
   else if(observable == "detajj"){
-    file_mjj_bin1 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_0.0_1.5.root").c_str());
-    file_mjj_bin2 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_1.5_3.0.root").c_str());
-    file_mjj_bin3 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_3.0_5.0.root").c_str());
-    file_mjj_bin4 = TFile::Open(("triggerEfficiencyMET_muon/metTriggerEfficiency_"+observable+"_vbf_5.0_9.0.root").c_str());
+    file_mjj_bin1 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_0.0_1.5.root").c_str());
+    file_mjj_bin2 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_1.5_2.5.root").c_str());
+    file_mjj_bin3 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_2.5_4.5.root").c_str());
+    file_mjj_bin4 = TFile::Open(("triggerEfficiencyMET_VBF_Zmm/metTriggerEfficiency_"+observable+"_vbf_4.5_9.0.root").c_str());
   }
 
   TEfficiency* mjj_bin1 = (TEfficiency*) file_mjj_bin1->Get("efficiency");
@@ -84,8 +84,8 @@ void makeTriggerPlotVBF (string observable){
   }
   if(observable == "detajj"){
     leg->AddEntry(mjj_bin1,"0.0 < #Delta#eta_{jj} < 1.5","EP");
-    leg->AddEntry(mjj_bin2,"1.5 < #Delta#eta_{jj} < 3.0","EP");
-    leg->AddEntry(mjj_bin3,"3.0 < #Delta#eta_{jj} < 5.0","EP");
+    leg->AddEntry(mjj_bin2,"1.5 < #Delta#eta_{jj} < 2.5","EP");
+    leg->AddEntry(mjj_bin3,"3.0 < #Delta#eta_{jj} < 4.5","EP");
     leg->AddEntry(mjj_bin4,"5.0 < #Delta#eta_{jj} < 9.0","EP");
   }
   leg->Draw("same");
