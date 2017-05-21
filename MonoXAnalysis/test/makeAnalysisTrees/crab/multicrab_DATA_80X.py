@@ -24,8 +24,7 @@ pyCfgParams = ['isMC=False',
                'miniAODProcess=RECO',
                'outputFileName=tree.root',
                'nThreads=3',
-               'usePrivateSQliteJEC=True',
-               'JECEra=Summer16_23Sep2016V3',
+               'usePrivateSQliteJEC=False',
                'isCrab=True']
 
 config.section_('General')
