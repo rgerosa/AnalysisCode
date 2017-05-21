@@ -12,22 +12,21 @@ pyCfgParams = ['isMC=True',
                'filterHighMETEvents=False',
                'metCut=0',
                'applyL2L3Residuals=False',
-               'addQGLikelihood=False',
+               'addQGLikelihood=True',
                'addPileupJetID=False',
                'addPuppiJets=True',
                'addPuppiMET=True',
                'addEGMSmear=True',
-               'addMETSystematics=False',
+               'addMETSystematics=True',
                'useOfficialMETSystematics=True',
                'addPuppiMETSystematics=False',
                'addMETBreakDown=False',
                'addSubstructureCHS=True',
                'addSubstructurePuppi=True',
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v6',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v8',
                'outputFileName=tree.root',
                'nThreads=4',
-               'usePrivateSQliteJEC=True',
                'isCrab=True']
 
 config.section_('General')
@@ -46,8 +45,8 @@ config.JobType.numCores         = 4
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 20000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_Signal_28_01_2017/'
+config.Data.unitsPerJob   = 10000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_VBFSync_11_05_2017'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

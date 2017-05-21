@@ -410,7 +410,7 @@ void makeTheoryUncertaintyBand(string inputFileName, string outputDIR , bool use
     zg_qcdscale_unc->GetYaxis()->SetTitleSize(0.045);
     zg_qcdscale_unc->GetYaxis()->SetTitleOffset(1.15);
     
-    zg_qcdscale_unc->GetYaxis()->SetRangeUser(-0.04,0.07);
+    zg_qcdscale_unc->GetYaxis()->SetRangeUser(-0.04,0.10);
     zg_qcdscale_unc->SetLineColor(kBlack);
     zg_qcdscale_unc->SetLineWidth(2);
     zg_qcdscale_unc_flip->SetLineColor(kBlack);

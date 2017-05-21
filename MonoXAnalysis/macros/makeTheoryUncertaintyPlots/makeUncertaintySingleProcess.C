@@ -27,22 +27,22 @@ void drawPlot(TCanvas* canvas, pair<TH1*,TH1*> zjet, pair<TH1*,TH1*> wjet, pair<
   zjet.second->SetLineColor(kRed);
   zjet.first->SetLineWidth(2);
   zjet.second->SetLineWidth(2);
-  if(TString(postfix).Contains("qcdproc"))
-    zjet.second->SetLineStyle(2);
+  //  if(TString(postfix).Contains("qcdproc"))
+  //    zjet.second->SetLineStyle(2);
 
   wjet.first->SetLineColor(kBlue);
   wjet.second->SetLineColor(kBlue);
   wjet.first->SetLineWidth(2);
   wjet.second->SetLineWidth(2);
-  if(TString(postfix).Contains("qcdproc"))
-    wjet.second->SetLineStyle(2);
+  //  if(TString(postfix).Contains("qcdproc"))
+  //    wjet.second->SetLineStyle(2);
 
   gamma.first->SetLineColor(kBlack);
   gamma.second->SetLineColor(kBlack);
   gamma.first->SetLineWidth(2);
   gamma.second->SetLineWidth(2);
-  if(TString(postfix).Contains("qcdproc"))
-    gamma.second->SetLineStyle(2);
+  //  if(TString(postfix).Contains("qcdproc"))
+  //    gamma.second->SetLineStyle(2);
 
   if(TString(postfix).Contains("qcdproc"))
     zjet.first->GetYaxis()->SetRangeUser(-0.1,0.1);
@@ -71,6 +71,8 @@ void drawPlot(TCanvas* canvas, pair<TH1*,TH1*> zjet, pair<TH1*,TH1*> wjet, pair<
   leg->AddEntry(wjet.first,"W+jets","L");
   leg->AddEntry(gamma.first,"#gamma+jets","L");
   leg->Draw("same");
+
+  CMS_lumi(canvas,"");
 
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");

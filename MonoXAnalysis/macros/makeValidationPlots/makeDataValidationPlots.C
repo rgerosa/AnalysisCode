@@ -71,14 +71,39 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
     if(histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1) <= maxmc)
       minmc = histoMC->GetBinContent(iBin+1)-histoMC->GetBinError(iBin+1);
   }
-      
-  if(TString(postfix).Contains("ZW"))
-    frame->GetYaxis()->SetRangeUser(0.0,0.25);
-  if(TString(postfix).Contains("ZG"))
-    frame->GetYaxis()->SetRangeUser(0.0,0.20);
-  else
-  if(TString(postfix).Contains("WG"))
-    frame->GetYaxis()->SetRangeUser(0.0,2.2);
+
+  if(category == Category::monojet){
+    if(TString(postfix).Contains("ZG") and not TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.12);
+    if(TString(postfix).Contains("ZG") and TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.02,0.18);
+    if(TString(postfix).Contains("ZW") and not TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.22);
+    if(TString(postfix).Contains("ZW") and TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.20);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_m"))
+      frame->GetYaxis()->SetRangeUser(0.3,1.4);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_e"))
+      frame->GetYaxis()->SetRangeUser(0.2,0.7);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_l"))
+      frame->GetYaxis()->SetRangeUser(0.4,1.7);
+  }
+  else if(category == Category::monoV){
+    if(TString(postfix).Contains("ZG") and not TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.14);
+    if(TString(postfix).Contains("ZG") and TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.02,0.22);
+    if(TString(postfix).Contains("ZW") and not TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.22);
+    if(TString(postfix).Contains("ZW") and TString(postfix).Contains("ll"))
+      frame->GetYaxis()->SetRangeUser(0.0,0.20);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_m"))
+      frame->GetYaxis()->SetRangeUser(0.2,1.4);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_e"))
+      frame->GetYaxis()->SetRangeUser(0.1,1.1);
+    if(TString(postfix).Contains("WG") and TString(postfix).Contains("_l"))
+      frame->GetYaxis()->SetRangeUser(0.6,2.2);
+  }
 
   // histo style
   histoData->SetLineColor(kBlack);
@@ -157,11 +182,11 @@ void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Cate
   }
   else{
     if(category == Category::monojet)
-      frame2 = pad2->DrawFrame(bins.front(), 0.25, bins.back(), 1.75, "");
+      frame2 = pad2->DrawFrame(bins.front(), 0.65, bins.back(), 1.35, "");
     else if(category == Category::monoV)
-      frame2 = pad2->DrawFrame(bins.front(), 0.25, bins.back(), 1.75, "");
+      frame2 = pad2->DrawFrame(bins.front(), 0.65, bins.back(), 1.35, "");
     else if(category == Category::VBF)
-      frame2 = pad2->DrawFrame(bins.front(), 0.25, bins.back(), 1.75, "");
+      frame2 = pad2->DrawFrame(bins.front(), 0.65, bins.back(), 1.35, "");
   }
 
   frame2->GetYaxis()->SetNdivisions(5);
@@ -826,22 +851,6 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm"+theory_new,useNewTheoryUncertainty);  
     makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee"+theory_new,useNewTheoryUncertainty);
     makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll"+theory_new,useNewTheoryUncertainty);
-
-    TH1* zgamma_ll =  (TH1*) ZGData_ll->Clone("zgamma_ll");
-    zgamma_ll->Divide(ZGMC_ll);
-
-    TF1* funz_1 = new TF1("funz_1","pol0",200,1300);
-    TF1* funz_2 = new TF1("funz_2","pol1",200,1300);
-
-    TFitResultPtr r_1 = zgamma_ll->Fit(funz_1,"S");
-    TFitResultPtr r_2 = zgamma_ll->Fit(funz_2,"S");
-    
-    Double_t chi2_1   = r_1->Chi2()/(zgamma_ll->GetNbinsX()-1);
-    Double_t chi2_2   = r_2->Chi2()/(zgamma_ll->GetNbinsX()-2);
-
-    cout<<chi2_1<<" "<<chi2_2<<endl;
-
-    
     if(addWgamma){
       makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m"+theory_new,useNewTheoryUncertainty);
       makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e"+theory_new,useNewTheoryUncertainty);

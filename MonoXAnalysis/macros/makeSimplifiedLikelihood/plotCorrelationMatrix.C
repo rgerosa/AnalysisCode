@@ -1,11 +1,13 @@
 static bool debug = false;
 static bool skipCorrelations = false;
+
 #include "../makeTemplates/histoUtils.h"
 #include "simplifiedLikelihoodUtils.h"
 #include "../CMS_lumi.h"
 
+static bool addPreliminary = true;
 
-void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false){
+void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false, bool suppressDiagonal = false){
 
   system(("mkdir -p "+outputDIR).c_str());
   initializeBinning();
@@ -84,6 +86,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 
 
   TH2F* corr = (TH2F*) covar->Clone("test");
+  corr->Reset();
   int nbins  = bkg->GetNbinsX();
   // loop on the bin --> square matrix --> multiply by the bin width to get real yields
   for (int b=1 ; b<=nbins; b++){
@@ -100,6 +103,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
       double sigb = TMath::Sqrt(covar->GetBinContent(b,b));
       double sigj = TMath::Sqrt(covar->GetBinContent(j,j));
       corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
+      
       if(addLabel){
 	if(category != Category::total){
 	  if(b == 1)
@@ -129,6 +133,20 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     }
   }
 
+  if(corr->GetMinimum() >= 0)
+    corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*0.9),min(corr->GetMaximum()*1.1,1.));
+  else
+    corr->GetZaxis()->SetRangeUser(max(-1.,corr->GetMinimum()*1.1),min(corr->GetMaximum()*1.1,1.));
+
+  if(suppressDiagonal){
+    for(int i = 0; i <= corr->GetNbinsX(); i++){
+      for(int j = 0; j <= corr->GetNbinsY(); j++){
+	if(j < i)
+	  corr->SetBinContent(i,j,-100);
+      }
+    }
+  }
+
   corr->GetXaxis()->SetTitle("");
   corr->GetYaxis()->SetTitle("");
   corr->GetZaxis()->SetTitle("Correlation");
@@ -137,12 +155,17 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
   corr->GetYaxis()->LabelsOption("v");
   corr->GetXaxis()->SetLabelSize(0.027);
   corr->GetYaxis()->SetLabelSize(0.027);  
-  corr->GetZaxis()->SetLabelSize(0.030);
+  corr->GetZaxis()->SetLabelSize(0.029);
   corr->GetZaxis()->SetTitleSize(0.035);
+  corr->GetZaxis()->SetTitleOffset(1.1);
 
   gStyle->SetPaintTextFormat("1.2f");
   corr->Draw("COLZTEXT");
-  CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.06);
+  if(not addPreliminary)
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.06);
+  else
+    CMS_lumi(canvas,"35.9",true,false,true,0.05,-0.06);
+
   gPad->Update();
   TPaletteAxis *palette = (TPaletteAxis*)corr->GetListOfFunctions()->FindObject("palette");
   

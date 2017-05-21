@@ -25,12 +25,12 @@ static bool  useMoriondSetup = true;
 
 void makeSmallGenTree(string inputDirectory, string interaction, string signalType, string outputDirectory, bool isDMSimp = true, bool isSMM = false){
 
-  if(interaction != "Axial" and interaction != "Vector" and interaction != "Scalar" and interaction != "PseudoScalar" and interaction != "SMM"){
+  if(interaction != "Axial" and interaction != "Vector" and interaction != "Scalar" and interaction != "PseudoScalar" and interaction != "SMM" and interaction != "Hinv"){
     cerr<<"Interaction not known ---> return "<<endl;
     return;
   }
 
-  if(signalType != "MonoJ" and signalType != "MonoW" and signalType != "MonoZ"){
+  if(signalType != "MonoJ" and signalType != "MonoW" and signalType != "MonoZ" and signalType != "VBF"){
     cerr<<"Signal process not known ---> return "<<endl;
     return;
   }    
@@ -356,7 +356,7 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
   ifile = 0;
   currentFile = "";
 
-  cout<<"Loop for event selection "<<endl;
+  cout<<"Loop for event selexsectionction "<<endl;
   while(myReader.Next()){
  
     if(int(nEvents) %10000 == 0){

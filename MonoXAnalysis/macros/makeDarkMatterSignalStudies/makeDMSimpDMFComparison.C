@@ -15,7 +15,7 @@ void makeDMSimpDMFComparison(string file_DMF,
   TGraph* monojet_dmf = (TGraph*) file_dmf->Get("monojet_xsec");
   TGraph* monoW_dmf = (TGraph*) file_dmf->Get("monoW_xsec");
   TGraph* monoZ_dmf = (TGraph*) file_dmf->Get("monoZ_xsec");
-  
+
   TGraph* monojet_dmsimp = (TGraph*) file_dmsimp->Get("monojet_xsec");
   TGraph* monoW_dmsimp = (TGraph*) file_dmsimp->Get("monoW_xsec");
   TGraph* monoZ_dmsimp = (TGraph*) file_dmsimp->Get("monoZ_xsec");

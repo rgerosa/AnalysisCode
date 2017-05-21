@@ -78,7 +78,7 @@ void makezmmcorhist( const string &   signalRegionFile,
 
 
   // k-factors file from generator lebel: Z-boson pt at LO, NLO QCD and NLO QCD+EWK                                                                                         
-  TFile* kffile  = NULL; 
+  TFile* kffile      = NULL; 
   TFile* kffile_alt  = NULL; 
   // additive approach from mono-jet
   TH1*   znlohist = NULL;
@@ -150,12 +150,16 @@ void makezmmcorhist( const string &   signalRegionFile,
 
   // special VBF case
   TFile* kfactzjet_vbf = NULL;
-  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
-
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                  
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));    
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
     if(not nloSamples.useZJetsNLO)
@@ -164,18 +168,25 @@ void makezmmcorhist( const string &   signalRegionFile,
       dyhists.push_back(zjet_nlo_vbf);    
   }
 
-
+  // EWK kfactor
+  TFile* kffile_zewk = NULL;
+  vector<TH2*> zewkhists;
+  if(isEWK and applyEWKVKfactor){
+    kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+  }
+  
   if(not isEWK){
     // NLO Znunu or LO
     if(nloSamples.useZJetsNLO)
       makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 3.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible); 
     else
       makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, zhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);     
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi,   dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);  
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::zmm, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
   }
 
   string name = string("zmmcor")+ext;
@@ -243,6 +254,7 @@ void makezmmcorhist( const string &   signalRegionFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }  
  
+  // close output file
   outfile.cd();
   outfile.Close();
 
@@ -252,18 +264,45 @@ void makezmmcorhist( const string &   signalRegionFile,
     kffile_alt->Close();
   if(kfactzjet_vbf)
     kfactzjet_vbf->Close();
+  if(kffile_zewk)
+    kffile_zewk->Close();
 
   ehists.clear();
   zhists.clear();
   dyhists.clear();
+  zewkhists.clear();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist: tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+  
+  for(auto hist: nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist: dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist: tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist: unrolled)
+    if(hist)  delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
 
   cout << "Z(mumu)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -411,12 +450,20 @@ void makezeecorhist( const string &   signalRegionFile,
   }
   
   
+  // Vjets QCD k-factors after VBF cuts
   TFile* kfactzjet_vbf = NULL;
-  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                               
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                
+                                  
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
     if(not nloSamples.useZJetsNLO)
@@ -425,6 +472,13 @@ void makezeecorhist( const string &   signalRegionFile,
       dyhists.push_back(zjet_nlo_vbf);
   }
 
+  // EWK kfactor                                                                                                                                                                                      
+  TFile* kffile_zewk = NULL;
+  vector<TH2*> zewkhists;
+  if(isEWK and applyEWKVKfactor){
+    kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+  }
   
   if(not isEWK){
     // NLO Znunu or LO
@@ -435,8 +489,8 @@ void makezeecorhist( const string &   signalRegionFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, dyhists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);  
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);  
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::zee, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
   }
 
   string name = string("zeecor")+ext;
@@ -513,18 +567,44 @@ void makezeecorhist( const string &   signalRegionFile,
     kffile_alt->Close();
   if(kfactzjet_vbf)
     kfactzjet_vbf->Close();
+  if(kffile_zewk)
+    kffile_zewk->Close();
 
   ehists.clear();
   zhists.clear();
   dyhists.clear();
+  zewkhists.clear();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Z(ee)->Z(inv) transfer factor computed ..." << endl;
 }
@@ -647,26 +727,41 @@ void makewmncorhist( const string &  signalRegionFile,
     else
       whists.push_back(reweight_wln);
   }
-
+  
+  /////
   TFile* kfactwjet_vbf = NULL;
-  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                            
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                            
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+       wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
     wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
   }
 
+  ////
+  TFile* kffile_wewk = NULL;
+  vector<TH2*> wewkhists;
+  if(isEWK and applyEWKVKfactor){
+    kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
+  
+  /////
   if(not isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
     makehist4(dtree, dhist, dhist_2D,  true, Sample::wmn, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D, true, Sample::wmn, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(dtree, dhist, dhist_2D, true, Sample::wmn, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
 
   string name = string("wmncor")+ext;
@@ -738,14 +833,43 @@ void makewmncorhist( const string &  signalRegionFile,
     kffile->Close();
   if(kfactwjet_vbf)
     kfactwjet_vbf->Close();
+  if(kffile_wewk)
+    kffile_wewk->Close();
 
   whists.clear();
   ehists.clear();
+  wewkhists.clear();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
 }
@@ -867,25 +991,41 @@ void makewencorhist( const string &  signalRegionFile,
       whists.push_back(reweight_wln);
   }
 
+  //////////////
   TFile* kfactwjet_vbf = NULL;
-  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                              
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
     wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
   }
+
+  ////
+  TFile* kffile_wewk = NULL;
+  vector<TH2*> wewkhists;
+  if(isEWK and applyEWKVKfactor){
+    kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
   
+  //////////
   if(not isEWK){
     makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
     makehist4(dtree, dhist, dhist_2D,  true, Sample::wen, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D, true, Sample::wen, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D, true, Sample::sig, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
+    makehist4(dtree, dhist, dhist_2D, true, Sample::wen, category, false, 1.00, lumi, ehists, sysName,false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
 
   string name = string("wencor")+ext;
@@ -957,16 +1097,43 @@ void makewencorhist( const string &  signalRegionFile,
     kffile->Close();
   if(kfactwjet_vbf)
     kfactwjet_vbf->Close();
+  if(kffile_wewk)
+    kffile_wewk->Close();
 
-  whists.clear();
-  ehists.clear();
+  wewkhists.clear();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
 
-  cout << "W(mnu)->W+Jets transfer factor computed ..." << endl;
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
+  cout << "W(enu)->W+Jets transfer factor computed ..." << endl;
 }
 
 
@@ -1107,26 +1274,53 @@ void  makezwjcorhist(const string & znunuFile,
   vector<TH1*> ehists;
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactwjet_vbf = NULL;
-  if(category == Category::VBF and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                                                
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoristKfactors){ // apply further k-factors going to the VBF selections                                                                                                                
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+    
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
     if(not nloSamples.useZJetsNLO)
       zhists.push_back(zjet_nlo_vbf);      
     
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
   }
+
+  ////                                                                                                                                                                                                
+  TFile* kffile_zewk = NULL;
+  TFile* kffile_wewk = NULL;
+  vector<TH2*>  zewkhists;
+  vector<TH2*>  wewkhists;
+  if(isEWK and applyEWKVKfactor){
+    kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+    kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
+
 
   // in order to make uncertainties use the old file
   TFile* kffileUnc = NULL;
@@ -1521,8 +1715,8 @@ void  makezwjcorhist(const string & znunuFile,
     makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, whists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
   }
   else{
-    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
-    makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible);
+    makehist4(ntree, nhist, nhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, zewkhists);
+    makehist4(dtree, dhist, dhist_2D,  true, Sample::sig, category, false, 1.00, lumi, ehists, sysName, false, reweightNVTX, 0, isHiggsInvisible, false, wewkhists);
   }
   
   string name = string("zwjcor")+ext;
@@ -1589,7 +1783,9 @@ void  makezwjcorhist(const string & znunuFile,
   }
 
 
+  outfile.cd();
   outfile.Close();
+
   if(kffile)
     kffile->Close();
   if(kffile_alt)
@@ -1604,17 +1800,47 @@ void  makezwjcorhist(const string & znunuFile,
     kffile_zvv->Close();
   if(kffile_wln)
     kffile_wln->Close();
-
+  if(kffile_zewk)
+    kffile_zewk->Close();
+  if(kffile_wewk)
+    kffile_wewk->Close();
+  
   zhists.clear();
   whists.clear();
   ehists.clear();
+  zewkhists.clear();
+  wewkhists.clear();
+ 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
   
   cout << "W+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -1756,22 +1982,34 @@ void makegamcorhist( const string & znunuFile,
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                           
+  if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections                                                                                                           
   
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
     if(not nloSamples.useZJetsNLO)
       zhists.push_back(zjet_nlo_vbf);
     
     TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      
     gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
     if(not nloSamples.usePhotonJetsNLO)
@@ -2254,7 +2492,9 @@ void makegamcorhist( const string & znunuFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
+  outfile.cd();
   outfile.Close();
+
   if(kffile)
     kffile->Close();
   if(kffile_alt)
@@ -2274,13 +2514,36 @@ void makegamcorhist( const string & znunuFile,
   if(kffile_unlops)
     kffile_unlops->Close();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Gamma+Jets->Z+inv transfer factor computed ..." << endl;
 }
@@ -2421,22 +2684,34 @@ void makewgamcorhist( const string & wlnuFile,
   
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
-  if(category == Category::VBF){ // apply further k-factors going to the VBF selections                                                                                                                
+  if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections                                                                                                                
 
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
-
+   
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
 
     TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+
     gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
     if(not nloSamples.usePhotonJetsNLO)
@@ -2935,14 +3210,9 @@ void makewgamcorhist( const string & wlnuFile,
     unrolled.back()->Write("",TObject::kOverwrite);
   }
 
+  outfile.cd();
   outfile.Close();
-  nhist.clear();
-  dhist.clear();
-  tfhist.clear();
-  nhist_2D.clear();
-  dhist_2D.clear();
-  tfhist_2D.clear();
-  unrolled.clear();
+
 
   if(kffile)
     kffile->Close();
@@ -2963,6 +3233,36 @@ void makewgamcorhist( const string & wlnuFile,
   if(kffile_unlops)
     kffile_unlops->Close();
 
+  for(auto hist : nhist)
+    if(hist) delete hist;
+  nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
+  dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
+  tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
+  nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
+  dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
+  tfhist_2D.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
+  unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Gamma+Jets->W+lnu transfer factor computed ..." << endl;
 }
@@ -3164,19 +3464,38 @@ void maketopmucorhist( const string & signalRegionFile,
   }
 
   outfile.Close();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
-  nhist_alt.clear();
-  dhist_alt.clear();
-  tfhist_alt.clear();
-  nhist_2D_alt.clear();
-  dhist_2D_alt.clear();
-  tfhist_2D_alt.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
+
 
   cout << "Top(b-tag,mu)->Top(b-veto) transfer factor computed ..." << endl;
 }
@@ -3379,21 +3698,37 @@ void maketopelcorhist( const string & signalRegionFile,
   }
 
   outfile.Close();
+
+  for(auto hist : nhist)
+    if(hist) delete hist;
   nhist.clear();
+
+  for(auto hist : dhist)
+    if(hist) delete hist;
   dhist.clear();
+
+  for(auto hist : tfhist)
+    if(hist) delete hist;
   tfhist.clear();
+
+  for(auto hist : nhist_2D)
+    if(hist) delete hist;
   nhist_2D.clear();
+
+  for(auto hist : dhist_2D)
+    if(hist) delete hist;
   dhist_2D.clear();
+
+  for(auto hist : tfhist_2D)
+    if(hist) delete hist;
   tfhist_2D.clear();
-  nhist_alt.clear();
-  dhist_alt.clear();
-  tfhist_alt.clear();
-  nhist_2D_alt.clear();
-  dhist_2D_alt.clear();
-  tfhist_2D_alt.clear();
+
+  for(auto hist : unrolled)
+    if(hist) delete hist;
   unrolled.clear();
+
+  if(ntree) delete ntree;
+  if(dtree) delete dtree;
 
   cout << "Top(b-tag,el)->Top(b-veto) transfer factor computed ..." << endl;
 }
-
-//  LocalWords:  signalRegionFile

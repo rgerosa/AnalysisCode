@@ -18,20 +18,21 @@ static bool  connectTop    = false;  // make top estimation from Top-CRs
 static bool  connectWZ     = true;   // apply a Z/W ratio
 static bool  correlateEWK  = true;   // to correlate EWK uncertainties across bins on the Z/gamma Z/W ratio
 static bool  connectEWKQCD = true;   // Connect EWK-Z and Z-QCD TFs in case of VBF analysis
-static float scaleWZUncertainty    = 1.0; // scale up/down the size of theory uncertanty on the Z/W-QCD ratio;
-static float scaleWZEWKUncertainty = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;
-static float scaleZgammaUncertainty    = 1.0; // scale up/down the size of theory uncertanty on the Z/gamma-QCD ratio;   
+static float scaleWZUncertainty     = 1.0; // scale up/down the size of theory uncertanty on the Z/W-QCD ratio;
+static float scaleWZEWKUncertainty  = 1.0; // scale up/down the size of theory uncertanty on the Z/W-EWK ratio;
+static float scaleZgammaUncertainty = 1.0; // scale up/down the size of theory uncertanty on the Z/gamma-QCD ratio;   
 static bool  mergeLeptons  = false;   // merge mm and ee final sates
 static bool  isCombination = false;   // naming convention for HIG-16-016 invisible combination paper
 static float normalizeSignal = -99;   // to scale signal templates to a fixed rate
 static bool  runOnlySignal     = false;    // run only on signal templates --> workspace with only signals
 static bool  runOnlyBackground = true;    // run only on signal templates --> workspace with only background
-static bool  addFlatWZUncertainty = false; // use a flat nuisance for the Z/W ratio uncertainty : aka HIG-16-016
+static bool  addFlatWZUncertainty     = false; // use a flat nuisance for the Z/W ratio uncertainty : aka HIG-16-016
 static bool  addFlatZgammaUncertainty = false; // use a flat nuisance for the Z/gamma ratio uncertainty : aka HIG-16-016
-static float flatWZUncertainty     = 0.3;
-static float flatZgammaUncertainty = 0.3;
-const  bool  addBinByBinMCUncertainty = true;
+static float flatWZUncertainty     = 0.15;
+static float flatZgammaUncertainty = 0.15;
+static bool  addBinByBinMCUncertainty = true;
 static bool  useNewTheoryUncertainty  = true;
+static bool  addNewShapeSysUncertainties = true;
 
 // function to create workspace, to be run from a release which has the combine package
 void createWorkspace(string   inputName,                        // input template file
@@ -394,26 +395,26 @@ void createWorkspace(string   inputName,                        // input templat
       if(not useNewTheoryUncertainty){      
 
 	// uncertainty on Z/W-QCD
-	RooRealVar* wln_SR_re1 = new RooRealVar("WJets_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa1 = new RooRealVar("WJets_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_re2 = new RooRealVar("WJets_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_SR_fa2 = new RooRealVar("WJets_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_SR_pdf = new RooRealVar("WJets_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_SR_ewk = new RooRealVar(("WJets_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+	RooRealVar* wln_SR_re1 = new RooRealVar("ZW_QCD_SR_RenScale1",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_fa1 = new RooRealVar("ZW_QCD_SR_FactScale1","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_re2 = new RooRealVar("ZW_QCD_SR_RenScale2",""  ,0.,-5.,5.);
+	RooRealVar* wln_SR_fa2 = new RooRealVar("ZW_QCD_SR_FactScale2","" ,0.,-5.,5.);
+	RooRealVar* wln_SR_pdf = new RooRealVar("ZW_QCD_SR_PDF",""        ,0.,-5.,5.);
+	RooRealVar* wln_SR_ewk = new RooRealVar(("ZW_QCD_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
 
 	// in case of a flat nuisance
-	RooRealVar* wln_SR     = new RooRealVar(("WJets_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
+	RooRealVar* wln_SR     = new RooRealVar(("ZW_QCD_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
 	// uncertainty on Z/W-EWK
-	RooRealVar* wln_ewk_SR_re1 = new RooRealVar("WJets_EWK_SR_RenScale1",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("WJets_EWK_SR_FactScale1","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_re2 = new RooRealVar("WJets_EWK_SR_RenScale2",""  ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("WJets_EWK_SR_FactScale2","" ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_pdf = new RooRealVar("WJets_EWK_SR_PDF",""        ,0.,-5.,5.);
-	RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("WJets_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_re1 = new RooRealVar("ZW_EWK_SR_RenScale1",""  ,0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_fa1 = new RooRealVar("ZW_EWK_SR_FactScale1","" ,0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_re2 = new RooRealVar("ZW_EWK_SR_RenScale2",""  ,0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_fa2 = new RooRealVar("ZW_EWK_SR_FactScale2","" ,0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_pdf = new RooRealVar("ZW_EWK_SR_PDF",""        ,0.,-5.,5.);
+	RooRealVar* wln_ewk_SR_ewk = new RooRealVar(("ZW_EWK_SR_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
 
 	// in case of a flat nuisance
-	RooRealVar* wln_ewk_SR     = new RooRealVar(("WJets_EWK_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
+	RooRealVar* wln_ewk_SR     = new RooRealVar(("ZW_EWK_SR_"+suffix+"_WZ").c_str(),"",0.,-5.,5.);
 	
 	if(not isCutAndCount){
 	  // set of correlated systematic uncertainties for the Z/W ratio
@@ -680,6 +681,35 @@ void createWorkspace(string   inputName,                        // input templat
     RooWorkspace* wspace_WE = NULL;
     RooWorkspace* wspace_ZL = NULL;
     RooWorkspace* wspace_WL = NULL;
+
+    // trigger systematics
+    TH1F* triggersys = NULL;
+    RooRealVar* CMS_met_trig =  new RooRealVar("CMS_met_trig","",0.,-5.,5.);
+
+    if(addNewShapeSysUncertainties and category != Category::VBF){
+      if(TString(observable).Contains("met")){
+	triggersys = new TH1F(("CMS_met_trig_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	TFile* triggermetfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/mettrigger.root");
+	TH1F* triggermethisto_zmm = (TH1F*) triggermetfile->Get("zmm_sys");
+	TH1F* triggermethisto_zvv = (TH1F*) triggermetfile->Get("zvv_sys");
+	for(int iBin = 0; iBin < triggersys->GetNbinsX()+1; iBin++){
+	  if(triggersys->GetBinCenter(iBin+1) < 500)
+	    triggersys->SetBinContent(iBin+1,1-triggermethisto_zmm->GetBinContent(triggermethisto_zmm->FindBin(triggersys->GetBinCenter(iBin+1)))/triggermethisto_zvv->GetBinContent(triggermethisto_zvv->FindBin(triggersys->GetBinCenter(iBin+1))));
+	  else
+	    triggersys->SetBinContent(iBin+1,0.);
+	}
+      }
+      else{// propagate the first bin everywhere --> assumption is that the first bin dominates
+	triggersys = new TH1F(("CMS_met_trig_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	TFile* triggermetfile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/mettrigger.root");
+	TH1F* triggermethisto_zmm = (TH1F*) triggermetfile->Get("zmm_sys");
+	TH1F* triggermethisto_zvv = (TH1F*) triggermetfile->Get("zvv_sys");
+	for(int iBin = 0; iBin < triggersys->GetNbinsX()+1; iBin++){
+	  triggersys->SetBinContent(iBin+1,1-triggermethisto_zmm->GetBinContent(1)/triggermethisto_zvv->GetBinContent(1));	  
+	}
+      }
+    }
+    
     
     if(not mergeLeptons){
       
@@ -725,6 +755,11 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->mumu connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZM_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZM_syst;
+	if(addNewShapeSysUncertainties and category != Category::VBF){
+	  znn_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  znn_ewk_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	}
+
 	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
 	if(category == Category::VBF)
 	  makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
@@ -788,6 +823,11 @@ void createWorkspace(string   inputName,                        // input templat
 	// Z->ee connected with Z->nunu SR
 	vector<pair<RooRealVar*,TH1*> > znn_ZE_syst;
 	vector<pair<RooRealVar*,TH1*> > znn_ewk_ZE_syst;
+	if(addNewShapeSysUncertainties and category != Category::VBF){
+	  znn_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  znn_ewk_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	}
+
 	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
 	if(category == Category::VBF)
 	  makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
@@ -900,7 +940,7 @@ void createWorkspace(string   inputName,                        // input templat
       }
 
       if(addBinByBinMCUncertainty){
-        generateStatTemplate("ZJets_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("vlbkghistwmn_"+observable).c_str()),1,isCutAndCount);
+        generateStatTemplate("ZJets_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("vllbkghistwmn_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Top_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("tbkghistwmn_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("QCD_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("qbkghistwmn_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Dibosons_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("dbkghistwmn_"+observable).c_str()),1,isCutAndCount);
@@ -909,11 +949,81 @@ void createWorkspace(string   inputName,                        // input templat
 	  generateStatTemplate("WJets_EWK_WM_"+suffix,vars,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("ewkwbkghistwmn_"+observable).c_str()),1,isCutAndCount);
       }
 
+      RooRealVar* WtoWPDF = new RooRealVar("WtoWPDF",""  ,0.,-5.,5.);
+      RooRealVar* CMS_muon_veto = new RooRealVar("CMS_muon_veto",""  ,0.,-5.,5.);
+      RooRealVar* CMS_ele_veto  = new RooRealVar("CMS_ele_veto",""  ,0.,-5.,5.);
+      RooRealVar* CMS_tau_veto  = new RooRealVar("CMS_tau_veto",""  ,0.,-5.,5.);
 
+      TH1F* wpdfsys = NULL;
+      TH1F* muonvetosys = NULL;
+      TH1F* elevetosys  = NULL;
+      TH1F* tauvetosys  = NULL;
+
+      if(addNewShapeSysUncertainties and category != Category::VBF){ // add new shape uncertainties introduced in 2016  
+	/// PDF uncertainty on the WtoW ratio
+	wpdfsys             = new TH1F(("WtoWPDF_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	TFile* wpdfsysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/wratio_pdf.root");
+	TH1F*  wpdfsyshisto = (TH1F*) wpdfsysfile->Get("ratio");	
+	for(int iBin = 0; iBin < wpdfsys->GetNbinsX()+1; iBin++)
+	  wpdfsys->SetBinContent(iBin+1,1-wpdfsyshisto->GetBinContent(wpdfsyshisto->FindBin(wpdfsys->GetBinCenter(iBin+1))));
+	wpdfsysfile->Close();
+      }
+      
+      if(addNewShapeSysUncertainties){ 
+	if(TString(observable).Contains("met")){
+	  muonvetosys    = new TH1F(("CMS_muon_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  elevetosys     = new TH1F(("CMS_ele_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  tauvetosys     = new TH1F(("CMS_tau_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+	  TFile* lvetosysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/leptonveto.root");
+	  TH1F*  lvetosyshisto_m = (TH1F*) lvetosysfile->Get("muveto");	
+	  TH1F*  lvetosyshisto_e = (TH1F*) lvetosysfile->Get("eleveto");	
+	  TH1F*  lvetosyshisto_t = (TH1F*) lvetosysfile->Get("tauveto");	
+	
+	  for(int iBin = 0; iBin < muonvetosys->GetNbinsX()+1; iBin++){
+	    muonvetosys->SetBinContent(iBin+1,1-lvetosyshisto_m->GetBinContent(lvetosyshisto_m->FindBin(muonvetosys->GetBinCenter(iBin+1))));
+	    elevetosys->SetBinContent(iBin+1,1-lvetosyshisto_e->GetBinContent(lvetosyshisto_e->FindBin(elevetosys->GetBinCenter(iBin+1))));
+	    tauvetosys->SetBinContent(iBin+1,1-lvetosyshisto_t->GetBinContent(lvetosyshisto_t->FindBin(tauvetosys->GetBinCenter(iBin+1))));
+	  }	
+	  lvetosysfile->Close();
+	}
+	else{// fix equal to the lowest bin in the recoil distribution
+	  muonvetosys    = new TH1F(("CMS_muon_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          elevetosys     = new TH1F(("CMS_ele_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          tauvetosys     = new TH1F(("CMS_tau_veto_"+observable).c_str(),"",bins.size()-1,&bins[0]);
+          TFile* lvetosysfile  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/systematics_2016/leptonveto.root");
+          TH1F*  lvetosyshisto_m = (TH1F*) lvetosysfile->Get("muveto");
+          TH1F*  lvetosyshisto_e = (TH1F*) lvetosysfile->Get("eleveto");
+          TH1F*  lvetosyshisto_t = (TH1F*) lvetosysfile->Get("tauveto");
+	  
+          for(int iBin = 0; iBin < muonvetosys->GetNbinsX()+1; iBin++){
+            muonvetosys->SetBinContent(iBin+1,1-lvetosyshisto_m->GetBinContent(1));
+            elevetosys->SetBinContent(iBin+1,1-lvetosyshisto_e->GetBinContent(1));
+            tauvetosys->SetBinContent(iBin+1,1-lvetosyshisto_t->GetBinContent(1));
+	  }
+          lvetosysfile->Close();
+	}
+      }
+      
       if(not isCutAndCount){
 	// connected W->munu with W+jets SR
 	vector<pair<RooRealVar*,TH1*> > wln_WM_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WM_syst;
+	
+	if(addNewShapeSysUncertainties){
+	  if(category != Category::VBF){
+	    wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	    wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
+	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
+	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
+	  wln_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
+	  if(category != Category::VBF)
+	    wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
+	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
+	  wln_ewk_WM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
+	}
+
 	makeConnectedBinList("WJets_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wmncorhist_"+observable).c_str()),wln_WM_syst,wln_SR_bins,NULL,observable);
 	if(category == Category::VBF)
 	  makeConnectedBinList("WJets_EWK_WM_"+suffix,*met,*wspace_WM,(TH1F*)templatesfile->FindObjectAny(("wewkmncorhist_"+observable).c_str()),wln_ewk_WM_syst,wln_ewk_SR_bins,NULL,observable);
@@ -962,7 +1072,7 @@ void createWorkspace(string   inputName,                        // input templat
       }
       
       if(addBinByBinMCUncertainty){
-        generateStatTemplate("ZJets_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("vlbkghistwen_"+observable).c_str()),1,isCutAndCount);
+        generateStatTemplate("ZJets_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("vllbkghistwen_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Top_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("tbkghistwen_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("QCD_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("qbkghistwen_"+observable).c_str()),1,isCutAndCount);
         generateStatTemplate("Dibosons_WE_"+suffix,vars,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("dbkghistwen_"+observable).c_str()),1,isCutAndCount);
@@ -975,6 +1085,23 @@ void createWorkspace(string   inputName,                        // input templat
 	// connected W->enu with W+jets SR 
 	vector<pair<RooRealVar*,TH1*> > wln_WE_syst;
 	vector<pair<RooRealVar*,TH1*> > wln_ewk_WE_syst;
+
+	if(addNewShapeSysUncertainties){
+	  if(category != Category::VBF){
+	    wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(WtoWPDF,wpdfsys));
+	    wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
+	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
+	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
+	  wln_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
+	  if(category != Category::VBF){
+	    wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
+	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_muon_veto,muonvetosys));
+	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_ele_veto,elevetosys));
+	  wln_ewk_WE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_tau_veto,tauvetosys));
+	}
+
 	makeConnectedBinList("WJets_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wencorhist_"+observable).c_str()),wln_WE_syst,wln_SR_bins,NULL,observable);
 	if(category == Category::VBF)
 	  makeConnectedBinList("WJets_EWK_WE_"+suffix,*met,*wspace_WE,(TH1F*)templatesfile->FindObjectAny(("wewkencorhist_"+observable).c_str()),wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
@@ -993,7 +1120,7 @@ void createWorkspace(string   inputName,                        // input templat
 					  (TH1F*)templatesfile->FindObjectAny(("dhist_ewk_wen_"+observable).c_str()),
 					  wln_ewk_WE_syst,wln_ewk_SR_bins,NULL,observable);
       
-      }      
+      } 
     }
     else{
 
@@ -1086,13 +1213,13 @@ void createWorkspace(string   inputName,                        // input templat
     RooRealVar* znn_GJ_qcdewkmix  = 0;
 
     if(not isCombination){
-      znn_GJ_re1 = new RooRealVar("Znunu_GJ_RenScale1"  ,"",0.,-5.,5.);
-      znn_GJ_fa1 = new RooRealVar("Znunu_GJ_FactScale1" ,"",0.,-5.,5.);
-      znn_GJ_re2 = new RooRealVar("Znunu_GJ_RenScale2"  ,"",0.,-5.,5.);
-      znn_GJ_fa2 = new RooRealVar("Znunu_GJ_FactScale2" ,"",0.,-5.,5.);
-      znn_GJ_pdf = new RooRealVar("Znunu_GJ_PDF"        ,"",0.,-5.,5.);
-      znn_GJ_fpc = new RooRealVar("Znunu_GJ_Footprint"  ,"",0.,-5.,5.);
-      znn_GJ_ewk = new RooRealVar(("Znunu_GJ_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
+      znn_GJ_re1 = new RooRealVar("ZG_GJ_RenScale1"  ,"",0.,-5.,5.);
+      znn_GJ_fa1 = new RooRealVar("ZG_GJ_FactScale1" ,"",0.,-5.,5.);
+      znn_GJ_re2 = new RooRealVar("ZG_GJ_RenScale2"  ,"",0.,-5.,5.);
+      znn_GJ_fa2 = new RooRealVar("ZG_GJ_FactScale2" ,"",0.,-5.,5.);
+      znn_GJ_pdf = new RooRealVar("ZG_GJ_PDF"        ,"",0.,-5.,5.);
+      znn_GJ_fpc = new RooRealVar("ZG_GJ_Footprint"  ,"",0.,-5.,5.);
+      znn_GJ_ewk = new RooRealVar(("ZG_GJ_"+suffix+"_EWK").c_str(),"",0.,-5.,5.);
     }
     else{
       znn_GJ_re1 = new RooRealVar("mr"  ,"",0.,-5.,5.);
@@ -1122,6 +1249,9 @@ void createWorkspace(string   inputName,                        // input templat
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fa2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_FactScale2_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_pdf,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_PDF_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_fpc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_Footprint_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	  if(addNewShapeSysUncertainties and category != Category::VBF){
+	    znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	  }
 	}
 	else{
 	  znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
@@ -1131,6 +1261,7 @@ void createWorkspace(string   inputName,                        // input templat
 	    uncertainty_temp->SetBinContent(iBin+1,flatZgammaUncertainty);
 	  znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ,uncertainty_temp));	  
 	}
+
 	makeConnectedBinList("Znunu_GJ_"+suffix,*met,wspace_GJ,(TH1F*)templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str()),znn_GJ_syst,znn_SR_bins,NULL,observable);  
 
       }
@@ -1211,6 +1342,7 @@ void createWorkspace(string   inputName,                        // input templat
       znn_GJ = new RooRealVar(("Znunu_GJ_"+suffix+"_GJ").c_str(),"",0.,-5.,5.);
 
       if(not addFlatZgammaUncertainty){
+
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdscale,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDScale_"+observable).c_str()),scaleZgammaUncertainty,"")));	 
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdshape,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDShape_"+observable).c_str()),scaleZgammaUncertainty,"")));	 
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdproc,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_QCDProcess_"+observable).c_str()),scaleZgammaUncertainty,"")));
@@ -1221,6 +1353,8 @@ void createWorkspace(string   inputName,                        // input templat
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_nnlomiss_1,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_NNLOMiss1_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_nnlomiss_2,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_NNLOMiss2_"+observable).c_str()),scaleZgammaUncertainty,"")));
 	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(znn_GJ_qcdewkmix,cloneAndRescale((TH1F*)templatesfile->FindObjectAny(("ZG_MIX_"+observable).c_str()),scaleZgammaUncertainty,"")));
+	znn_GJ_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
+	
       }
       else{
 	TH1* uncertainty_temp = (TH1*) templatesfile->FindObjectAny(("gamcorewkhist_"+observable).c_str())->Clone("uncertainty_zg_qcd");

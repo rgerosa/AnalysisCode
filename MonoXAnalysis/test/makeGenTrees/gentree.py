@@ -37,13 +37,15 @@ process = cms.Process("KFAC")
 # Message Logger settings
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.destinations = ['cout', 'cerr']
-process.MessageLogger.cerr.FwkReport.reportEvery = 5000
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 # Define the input source
 if options.inputFiles == []:
     process.source = cms.Source("PoolSource", 
                                 fileNames = cms.untracked.vstring(
-            '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/620000/0429E5A7-80C3-E611-B89C-0242AC130003.root'))
+#            '/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-400to600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v1/620000/0429E5A7-80C3-E611-B89C-0242AC130003.root'
+            '/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root'
+            ))
 else:
     process.source = cms.Source("PoolSource", 
                                 fileNames = cms.untracked.vstring(options.inputFiles))

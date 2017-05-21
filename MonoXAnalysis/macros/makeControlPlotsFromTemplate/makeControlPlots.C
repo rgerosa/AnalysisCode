@@ -581,7 +581,8 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "wmn" or controlRegion == "wen" or controlRegion == "taun"){
     stack->Add(qcdhist);
-    stack->Add(gamhist);
+    if(controlRegion == "wmn")
+      stack->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
     stack->Add(dbhist);
@@ -932,17 +933,17 @@ void makeControlPlots(string templateFileName,
   TH1* frame2 = (TH1*) datahist->Clone("frame");
   frame2->Reset();
   if((category == Category::monojet or category == Category::inclusive) and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.8,1.2);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
   else if(category == Category::monoV and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
   else if(category == Category::twojet and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
   else if(category == Category::VBFrelaxed and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
   else if(category == Category::VBF and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.25,1.75);
+    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
   else if(controlRegion == "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,2.5);
   

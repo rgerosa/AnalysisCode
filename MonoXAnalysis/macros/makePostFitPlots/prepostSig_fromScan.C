@@ -1,12 +1,13 @@
 #include "../CMS_lumi.h"
 #include "../makeTemplates/histoUtils.h"
 
-static bool saveTextFile = true;
-static bool dumpInfo     = false;
-static bool plotSignificance = true;
+static bool  saveTextFile = true;
+static bool  dumpInfo     = false;
+static bool  plotSignificance = true;
 static float lumiScale_Higgs = 15;
-static float lumiScale_DM = 2.78;
-static bool addStatUncPull = false;
+static float lumiScale_DM    = 1;
+static bool  addStatUncPull  = true;
+static bool  addPreliminary  = true;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -100,16 +101,16 @@ void prepostSig_fromScan(string   fitFilename,
   TFile*monoj_av = NULL, *monow_av = NULL, *monoz_av = NULL, *higgs = NULL;
   
   if(category == Category::monoV){
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
     higgs    = new TFile("~/work/MONOJET_ANALYSIS/CMSSW_7_4_16/src/AnalysisCode/MonoXAnalysis/macros/monoV_hinv_forCombination/templates_met_v2.root","READ");
   }
   else{
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_v3/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
-    higgs    = new TFile("~/work/MONOJET_ANALYSIS/CMSSW_7_4_16/src/AnalysisCode/MonoXAnalysis/macros/monoj_hinv_forCombination/templates_met_v2.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    higgs    = new TFile("~/work/MONOJET_ANALYSIS/HiggsCombine/CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/macros/makeWorkspace/templates_Moriond_reMiniAOD_v6/templates_monojet_hinv.root","READ");
   }
 
   // in case of b-only fit just dispaly three possible signal on the stack
@@ -140,8 +141,10 @@ void prepostSig_fromScan(string   fitFilename,
   ggHhist  = (TH1*) higgs->FindObjectAny("ggHhist_125_met");
   vbfhist  = (TH1*) higgs->FindObjectAny("vbfHhist_125_met");
   wHhist   = (TH1*) higgs->FindObjectAny("wHhist_125_met");
-  zHhist   = (TH1*) higgs->FindObjectAny("zHhist_125_met");
-  ggZHhist = (TH1*) higgs->FindObjectAny("ggzHhist_125_met");
+  zHhist   = (TH1*) higgs->FindObjectAny("zHhist_125_met");  
+  ggZHhist = (TH1*) higgs->FindObjectAny("ggZHhist_125_met");
+  if(ggZHhist == 0)
+    ggZHhist = (TH1*) higgs->FindObjectAny("ggzHhist_125_met");
   ///
   ggHhist->Scale(1.,"width");
   vbfhist->Scale(1.,"width");
@@ -149,11 +152,13 @@ void prepostSig_fromScan(string   fitFilename,
   zHhist->Scale(1.,"width");
   ggZHhist->Scale(1.,"width");
   ///
-  ggHhist->Add(vbfhist);
-  ggHhist->Add(wHhist);
-  ggHhist->Add(zHhist);
-  ggHhist->Add(ggZHhist);
-  ggHhist->Scale(lumiScale_Higgs);
+  if(category != Category::monojet and category != Category::VBF){
+    ggHhist->Add(vbfhist);
+    ggHhist->Add(wHhist);
+    ggHhist->Add(zHhist);
+    ggHhist->Add(ggZHhist);
+    ggHhist->Scale(lumiScale_Higgs);
+  }
 
   // background
   TH1* znhist = NULL;
@@ -427,9 +432,9 @@ void prepostSig_fromScan(string   fitFilename,
   frame->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame->GetYaxis()->SetRangeUser(0.002,wlhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.003,wlhist->GetMaximum()*750);
   else if(category == Category::monoV)
-    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*750);
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.005,tphist->GetMaximum()*500);
 
@@ -446,7 +451,10 @@ void prepostSig_fromScan(string   fitFilename,
 
   frame->Draw();
 
-  CMS_lumi(canvas,"35.9");
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false);
+  else
+    CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -454,17 +462,17 @@ void prepostSig_fromScan(string   fitFilename,
   categoryLabel->SetTextFont(42);
   categoryLabel->SetTextAlign(11);
   if(category == Category::monojet)
-    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+    categoryLabel ->DrawLatex(0.175,0.82,"monojet");
   else if(category == Category::monoV)
-    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+    categoryLabel ->DrawLatex(0.175,0.82,"mono-V");
   else if(category == Category::VBF)
-    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+    categoryLabel ->DrawLatex(0.175,0.82,"VBF");
   categoryLabel->Draw("same");
 
   stack ->Draw("HIST SAME");
   if(plotSBFit)
     sighist->Draw("HIST same");
-  if(not plotSBFit){
+  if(not plotSBFit and category != Category::VBF){
     mjhist_av->Draw("hist same");
     ggHhist->Draw("hist same"); 
   }
@@ -478,7 +486,7 @@ void prepostSig_fromScan(string   fitFilename,
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
 
-  TLegend* leg = new TLegend(0.50, 0.55, 0.92, 0.92);
+  TLegend* leg = new TLegend(0.50, 0.60, 0.92, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
@@ -495,9 +503,9 @@ void prepostSig_fromScan(string   fitFilename,
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)
     leg->AddEntry(qchist,  "QCD", "F");
-  if(not plotSBFit)
+  if(not plotSBFit and category != Category::VBF)
     leg->AddEntry(ggHhist,   "Higgs invisible, m_{H} = 125 GeV","L");
-  if(not plotSBFit)
+  if(not plotSBFit and category != Category::VBF)
     leg->AddEntry(mjhist_av, "Axial-vector, m_{med} = 2.0 TeV","L");
 
   leg->Draw("SAME");    
@@ -516,9 +524,9 @@ void prepostSig_fromScan(string   fitFilename,
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
@@ -654,9 +662,7 @@ void prepostSig_fromScan(string   fitFilename,
   leg2->SetNColumns(2);
   leg2->AddEntry(dahist,"Post-fit","PLE");
   leg2->AddEntry(dphist,"Pre-fit","PLE");
-  if(addPullPlot and addPreFitOnPull)
-    leg2->Draw("same");
-  else if(not addPullPlot)
+  if(not addPullPlot)
     leg2->Draw("same");
 
   canvas->cd();

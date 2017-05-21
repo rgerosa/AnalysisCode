@@ -3,7 +3,8 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool addStatUncPull = false;
+static bool addStatUncPull = true;
+static bool addPreliminary = true;
 
 void prepostWM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -233,7 +234,7 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   if(category == Category::monojet)
     frame->GetYaxis()->SetRangeUser(0.002,prhist->GetMaximum()*500);
   else if(category == Category::monoV)
-    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.005,prhist->GetMaximum()*500);
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
 
@@ -250,7 +251,10 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
 
   frame->Draw();
   
-  CMS_lumi(canvas,"35.9");
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false);
+  else
+    CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -258,15 +262,17 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   categoryLabel->SetTextFont(42);
   categoryLabel->SetTextAlign(11);
   if(category == Category::monojet)
-    categoryLabel ->DrawLatex(0.175,0.80,"monojet");
+    categoryLabel ->DrawLatex(0.175,0.82,"monojet");
   else if(category == Category::monoV)
-    categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
+    categoryLabel ->DrawLatex(0.175,0.82,"mono-V");
   else if(category == Category::VBF)
-    categoryLabel ->DrawLatex(0.175,0.80,"VBF");
+    categoryLabel ->DrawLatex(0.175,0.82,"VBF");
   categoryLabel->Draw("same");
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
+  if(category == Category::VBF)
+    ewkwhist->Draw("HIST same");
   wlhist->Draw("HIST SAME");
   
   dthist->SetMarkerSize(1.2);
@@ -299,9 +305,9 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   frame2->SetLineWidth(1);
 
   if(category == Category::monojet)
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

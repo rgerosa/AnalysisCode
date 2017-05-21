@@ -103,6 +103,9 @@ void sigdatamchist(TFile* outfile,
 
   vector<TH1*> qcdhist;
   vector<TH1*> ewkwhist;
+  vector<TH1*> ewkwlhist_mu;
+  vector<TH1*> ewkwlhist_el;
+  vector<TH1*> ewkwlhist_ta;
   vector<TH1*> ewkzhist;
   vector<TH1*> vghist;
 
@@ -137,6 +140,13 @@ void sigdatamchist(TFile* outfile,
       wlhist_mu.push_back(dynamic_cast<TH1*>(wlhist_mu_temp));
       wlhist_el.push_back(dynamic_cast<TH1*>(wlhist_el_temp));
       wlhist_ta.push_back(dynamic_cast<TH1*>(wlhist_ta_temp));
+
+      TH1F* ewkwlhist_mu_temp = new TH1F(("ewkwjethist_mu_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      TH1F* ewkwlhist_el_temp = new TH1F(("ewkwjethist_el_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      TH1F* ewkwlhist_ta_temp = new TH1F(("ewkwjethist_ta_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+      ewkwlhist_mu.push_back(dynamic_cast<TH1*>(ewkwlhist_mu_temp));
+      ewkwlhist_el.push_back(dynamic_cast<TH1*>(ewkwlhist_el_temp));
+      ewkwlhist_ta.push_back(dynamic_cast<TH1*>(ewkwlhist_ta_temp));
     }
     zlhist.push_back(dynamic_cast<TH1*>(zlhist_temp));
     tthist.push_back(dynamic_cast<TH1*>(tthist_temp));
@@ -277,6 +287,9 @@ void sigdatamchist(TFile* outfile,
   vector<TH2*> gmhist_metUncUp_2D;
   vector<TH2*> gmhist_metUncDw_2D;
   vector<TH2*> ewkwhist_2D;
+  vector<TH2*> ewkwlhist_mu_2D;
+  vector<TH2*> ewkwlhist_el_2D;
+  vector<TH2*> ewkwlhist_ta_2D;
   vector<TH2*> ewkzhist_2D;
 
   vector<TH2*> dthist_2D;
@@ -309,6 +322,13 @@ void sigdatamchist(TFile* outfile,
       wlhist_mu_2D.push_back(dynamic_cast<TH2*>(wlhist_mu_temp));
       wlhist_el_2D.push_back(dynamic_cast<TH2*>(wlhist_el_temp));
       wlhist_ta_2D.push_back(dynamic_cast<TH2*>(wlhist_ta_temp));
+
+      TH2F* ewkwlhist_mu_temp = new TH2F(("ewkwjethist_mu_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      TH2F* ewkwlhist_el_temp = new TH2F(("ewkwjethist_el_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      TH2F* ewkwlhist_ta_temp = new TH2F(("ewkwjethist_ta_"+obs+"_2D").c_str(),"",int(bins.binX.size()-1),&bins.binX[0],int(bins.binY.size()-1),&bins.binY[0]);
+      ewkwlhist_mu_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_mu_temp));
+      ewkwlhist_el_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_el_temp));
+      ewkwlhist_ta_2D.push_back(dynamic_cast<TH2*>(ewkwlhist_ta_temp));
     }
     zlhist_2D.push_back(dynamic_cast<TH2*>(zlhist_temp));
     tthist_2D.push_back(dynamic_cast<TH2*>(tthist_temp));
@@ -406,6 +426,7 @@ void sigdatamchist(TFile* outfile,
   TFile* kffile_alt = NULL;
   TFile* kffile_alt2 = NULL;
   TFile* kffile_unlops = NULL;
+
   TH1*   aunlopshist = NULL;
   TH1*  znlohist = NULL;
   TH1*  zlohist  = NULL;
@@ -544,42 +565,78 @@ void sigdatamchist(TFile* outfile,
     ahists.push_back(aunlopshist);
   }
 
-  
+  // special corrections for VBF topology
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if(category == Category::VBF and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections
+
+    /////////////
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
-
+    
+    ////////////
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
     if(not nloSamples.useZJetsNLO)
       zhists.push_back(zjet_nlo_vbf);
     if(not nloSamples.useDYJetsNLO)
       dyhists.push_back(zjet_nlo_vbf);
     
-
+    ///////////////////
     TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
 
     TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      
     gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
+
     if(not nloSamples.usePhotonJetsNLO)
       ahists.push_back(gjet_nlo_vbf);
+  }
+
+  // for electroweak backgrounds
+  TFile* kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+  TFile* kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+  vector<TH2*> zewkhists;
+  vector<TH2*> wewkhists;
+  vector<TH2*> ehists2D;
+  if(applyEWKVKfactor){
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
   }
 
   bool isWJet = false;
@@ -597,20 +654,28 @@ void sigdatamchist(TFile* outfile,
   makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   if(splitWPerFlavor){
     cout<<"signal region: W+jets sample: wmn-gen "<<endl;
-    makehist4(wltree,wlhist_mu,wlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"muon");
+    makehist4(wltree,wlhist_mu,wlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"muon");
     cout<<"signal region: W+jets sample  wen-gen "<<endl;
-    makehist4(wltree,wlhist_el,wlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"electron");
+    makehist4(wltree,wlhist_el,wlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"electron");
     cout<<"signal region: W+jets sample  wta-gen "<<endl;
-    makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,-1,NULL,NULL,"tau");
+    makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"tau");
   }
   cout<<"signal region: Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: gamma+jets sample "<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::sig,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: ewkw+jets sample "<<endl;
-  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists);
+  if(splitWPerFlavor){
+    cout<<"signal region: ewkw+jets sample: wmn-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_mu,ewkwlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"muon");
+    cout<<"signal region: ewkw+jets sample  wen-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_el,ewkwlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"electron");
+    cout<<"signal region: ewkw+jets sample  wta-gen "<<endl;
+    makehist4(ewkwtree,ewkwlhist_ta,ewkwlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"tau");
+  }
   cout<<"signal region: ewkz+jets sample "<<endl;
-  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
+  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,zewkhists); // temp fix for a wrong xsec
   cout<<"signal region: TTbar sample "<<endl;
   makehist4(tttree,tthist,tthist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
     //alternative ttbar             
@@ -625,7 +690,7 @@ void sigdatamchist(TFile* outfile,
   makehist4(wgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"signal region: Zgamma+jets"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
- 
+
   cout<<"signal region: QCD sample "<<endl;
   makehist4(qcdtree,qcdhist,qcdhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
@@ -853,6 +918,11 @@ void sigdatamchist(TFile* outfile,
   for(auto hist : gmhist) hist->Write();
   for(auto hist : qcdhist) hist->Write();
   for(auto hist : ewkwhist) hist->Write();
+  if(splitWPerFlavor){
+    for(auto hist : ewkwlhist_mu) hist->Write();
+    for(auto hist : ewkwlhist_el) hist->Write();
+    for(auto hist : ewkwlhist_ta) hist->Write();
+  }
   for(auto hist : ewkzhist) hist->Write();
   for(auto hist : vghist) hist->Write();
   for(auto hist : dthist) hist->Write();
@@ -910,6 +980,11 @@ void sigdatamchist(TFile* outfile,
   for(auto hist_2D : dihist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : qcdhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : ewkwhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  if(splitWPerFlavor){
+    for(auto hist_2D : ewkwlhist_mu_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+    for(auto hist_2D : ewkwlhist_el_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+    for(auto hist_2D : ewkwlhist_ta_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
+  }
   for(auto hist_2D : ewkzhist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : vghist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
   for(auto hist_2D : dthist_2D){ TH1* temp = unroll2DHistograms(hist_2D); temp->Write(); }
@@ -956,6 +1031,57 @@ void sigdatamchist(TFile* outfile,
   whists.clear();
   dyhists.clear();
   ahists.clear();
+  zewkhists.clear();
+  wewkhists.clear();
+
+  for(auto hist: znhist) delete hist;
+  for(auto hist: wlhist) delete hist;
+  for(auto hist: wlhist_mu) delete hist;
+  for(auto hist: wlhist_el) delete hist;
+  for(auto hist: wlhist_ta) delete hist;
+  for(auto hist: zlhist) delete hist;
+  for(auto hist: zlhist_metJetUp) delete hist;
+  for(auto hist: zlhist_metJetDw) delete hist;
+  for(auto hist: zlhist_metResUp) delete hist;
+  for(auto hist: zlhist_metResDw) delete hist;
+  for(auto hist: zlhist_metUncUp) delete hist;
+  for(auto hist: zlhist_metUncDw) delete hist;
+  for(auto hist: tthist) delete hist;
+  for(auto hist: tthist_metJetUp) delete hist;
+  for(auto hist: tthist_metJetDw) delete hist;
+  for(auto hist: tthist_metResUp) delete hist;
+  for(auto hist: tthist_metResDw) delete hist;
+  for(auto hist: tthist_metUncUp) delete hist;
+  for(auto hist: tthist_metUncDw) delete hist;
+  for(auto hist: tthist_alt) delete hist;
+  for(auto hist: tthist_alt_metJetUp) delete hist;
+  for(auto hist: tthist_alt_metJetDw) delete hist;
+  for(auto hist: tthist_alt_metResUp) delete hist;
+  for(auto hist: tthist_alt_metResDw) delete hist;
+  for(auto hist: tthist_alt_metUncUp) delete hist;
+  for(auto hist: tthist_alt_metUncDw) delete hist;
+  for(auto hist: dihist) delete hist;
+  for(auto hist: dihist_metJetUp) delete hist;
+  for(auto hist: dihist_metJetDw) delete hist;
+  for(auto hist: dihist_metResUp) delete hist;
+  for(auto hist: dihist_metResDw) delete hist;
+  for(auto hist: dihist_metUncUp) delete hist;
+  for(auto hist: dihist_metUncDw) delete hist;
+  for(auto hist: gmhist) delete hist;
+  for(auto hist: gmhist_metJetUp) delete hist;
+  for(auto hist: gmhist_metJetDw) delete hist;
+  for(auto hist: gmhist_metResUp) delete hist;
+  for(auto hist: gmhist_metResDw) delete hist;
+  for(auto hist: gmhist_metUncUp) delete hist;
+  for(auto hist: gmhist_metUncDw) delete hist;
+  for(auto hist: qcdhist) delete hist;
+  for(auto hist: ewkwhist) delete hist;
+  for(auto hist: ewkwlhist_mu) delete hist;
+  for(auto hist: ewkwlhist_el) delete hist;
+  for(auto hist: ewkwlhist_ta) delete hist;
+  for(auto hist: ewkzhist) delete hist;
+  for(auto hist: vghist) delete hist;
+  for(auto hist: dthist) delete hist;
 
   znhist.clear();
   wlhist.clear();
@@ -999,9 +1125,55 @@ void sigdatamchist(TFile* outfile,
   gmhist_metUncDw.clear();
   qcdhist.clear();
   ewkwhist.clear();
+  ewkwlhist_mu.clear();
+  ewkwlhist_el.clear();
+  ewkwlhist_ta.clear();
   ewkzhist.clear();
   vghist.clear();
   dthist.clear();
+
+  for(auto hist_2D: znhist_2D) delete hist_2D;
+  for(auto hist_2D: wlhist_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: zlhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: tthist_alt_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: dihist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D: gmhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D: qcdhist_2D) delete hist_2D;
+  for(auto hist_2D: ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D: ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D: vghist_2D) delete hist_2D;
+  for(auto hist_2D: dthist_2D) delete hist_2D;
 
   znhist_2D.clear();
   wlhist_2D.clear();
@@ -1045,6 +1217,9 @@ void sigdatamchist(TFile* outfile,
   gmhist_metUncDw_2D.clear();
   qcdhist_2D.clear();
   ewkwhist_2D.clear();
+  ewkwlhist_mu_2D.clear();
+  ewkwlhist_el_2D.clear();
+  ewkwlhist_ta_2D.clear();
   ewkzhist_2D.clear();
   vghist_2D.clear();
   dthist_2D.clear();
@@ -1063,6 +1238,25 @@ void sigdatamchist(TFile* outfile,
     kffile_alt2->Close();
   if(kffile_unlops)
     kffile_unlops->Close();
+  if(kffile_zewk)
+    kffile_zewk->Close();
+  if(kffile_wewk)
+    kffile_wewk->Close();
+
+  if(zntree) delete zntree;
+  if(wltree) delete wltree;
+  if(zltree) delete zltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(ditree) delete ditree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(vgamtree) delete vgamtree;
+  if(zgtree) delete zgtree;
+  if(wgtree) delete wgtree;
+  if(dttree) delete dttree;
 
   cout << "Templates for the signal region computed ..." << endl;
 }
@@ -1086,7 +1280,6 @@ void gamdatamchist(TFile* outfile,
   TChain* wgtree = new TChain("tree/tree");
   TChain* zgtree = new TChain("tree/tree");
   TChain* vltree = new TChain("tree/tree");
-
 
   //dttree->Add((baseInputTreePath+"/SinglePhoton_jecReReco/gamfilter/*root").c_str());
   dttree->Add((baseInputTreePath+"/SinglePhoton_reMiniAOD/gamfilter/*root").c_str());
@@ -1244,28 +1437,43 @@ void gamdatamchist(TFile* outfile,
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if(category == Category::VBF  and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
+  if((category == Category::VBF or category == Category::VBFrelaxed)  and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                         
+                                                                     
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
+
     if(not nloSamples.useWJetsNLO)
       whists.push_back(wjet_nlo_vbf);
 
     TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
     if(not nloSamples.usePhotonJetsNLO)
       ahists.push_back(gjet_nlo_vbf);
   }
   
-
   // NLO k-factor for Zgamma is a function of gamma pT
   cout<<"gamma+jets control region --> gamma+jets"<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::gam,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
@@ -1302,6 +1510,19 @@ void gamdatamchist(TFile* outfile,
 
   whists.clear();
   ahists.clear();
+
+  for(auto hist : dthist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : vghist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+
+  for(auto hist : dthist_2D) delete hist;
+  for(auto hist : qcdhist_2D) delete hist;
+  for(auto hist : vghist_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+
   dthist.clear();
   qcdhist.clear();
   vghist.clear();
@@ -1323,6 +1544,13 @@ void gamdatamchist(TFile* outfile,
     kffile->Close();
   if(kffile_unlops)
     kffile_unlops->Close();
+  
+  if(dttree) delete dttree;
+  if(gmtree) delete gmtree;
+  if(wgtree) delete wgtree;
+  if(zgtree) delete zgtree;
+  if(vltree) delete vltree;
+
   cout << "Templates for the gamma+jets control region computed ..." << endl;
 }
 
@@ -1951,18 +2179,26 @@ void lepdatamchist(TFile* outfile,
     vllhists.push_back(reweight_zll);
   }
 
+  // VBF k-factors
   TFile* kfactzjet_vbf = NULL;
   TFile* kfactwjet_vbf = NULL;
   TFile* kfactgjet_vbf = NULL;
 
-  if(category == Category::VBF and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
+  if((category == Category::VBF or category == Category::VBFrelaxed) and not useTheoriestKFactors){ // apply further k-factors going to the VBF selections                                                                                                                
     kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
     kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
     kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
 
     TH1F* zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1F* zjet_nlo_mj  = (TH1F*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
-    zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     zjet_nlo_mj->Divide((TH1F*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
     if(not nloSamples.useDYJetsNLO)
@@ -1970,22 +2206,45 @@ void lepdatamchist(TFile* outfile,
 
     
     TH1F* wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1F* wjet_nlo_mj  = (TH1F*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-    wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+
     wjet_nlo_mj->Divide((TH1F*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
     wjet_nlo_vbf->Divide(wjet_nlo_mj);
     if(not nloSamples.useWJetsNLO)
       vlhists.push_back(wjet_nlo_vbf);
 
     TH1F* gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
     TH1F* gjet_nlo_mj  = (TH1F*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
-    gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
     gjet_nlo_mj->Divide((TH1F*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
     gjet_nlo_vbf->Divide(gjet_nlo_mj);
     if(not nloSamples.usePhotonJetsNLO)
       ahists.push_back(gjet_nlo_vbf);
   }
   
+  /// v-EWK k-factord
+  TFile* kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+  TFile* kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+  vector<TH2*> zewkhists;
+  vector<TH2*> wewkhists;
+  if(applyEWKVKfactor){
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
 
   bool isWJet = false;
   if(category == Category::monoV)
@@ -2024,9 +2283,9 @@ void lepdatamchist(TFile* outfile,
   cout<<"lepton+jets control region --> QCD"<<endl;
   makehist4(qctree,qchist,qchist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> EWK W"<<endl;
-  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, wewkhists);
   cout<<"lepton+jets control region --> EWK Z"<<endl;
-  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, zewkhists);
   cout<<"lepton+jets control region --> ZllGamma"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> Wgamma"<<endl;
@@ -2308,8 +2567,50 @@ void lepdatamchist(TFile* outfile,
   vlhists.clear();
   vllhists.clear();
   ahists.clear();
- 
+  zewkhists.clear();
+  wewkhists.clear();
 
+  for(auto hist : dthist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : tthist_metJetUp) delete hist;
+  for(auto hist : tthist_metJetDw) delete hist;
+  for(auto hist : tthist_metResUp) delete hist;
+  for(auto hist : tthist_metResDw) delete hist;
+  for(auto hist : tthist_metUncUp) delete hist;
+  for(auto hist : tthist_metUncDw) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : dbhist_metJetUp) delete hist;
+  for(auto hist : dbhist_metJetDw) delete hist;
+  for(auto hist : dbhist_metResUp) delete hist;
+  for(auto hist : dbhist_metResDw) delete hist;
+  for(auto hist : dbhist_metUncUp) delete hist;
+  for(auto hist : dbhist_metUncDw) delete hist;
+  for(auto hist : qchist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : gmhist_metJetUp) delete hist;
+  for(auto hist : gmhist_metJetDw) delete hist;
+  for(auto hist : gmhist_metResUp) delete hist;
+  for(auto hist : gmhist_metResDw) delete hist;
+  for(auto hist : gmhist_metUncUp) delete hist;
+  for(auto hist : gmhist_metUncDw) delete hist;  
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vlhist_metJetUp) delete hist;
+  for(auto hist : vlhist_metJetDw) delete hist;
+  for(auto hist : vlhist_metResUp) delete hist;
+  for(auto hist : vlhist_metResDw) delete hist;
+  for(auto hist : vlhist_metUncUp) delete hist;
+  for(auto hist : vlhist_metUncDw) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : vllhist_metJetUp) delete hist;
+  for(auto hist : vllhist_metJetDw) delete hist;
+  for(auto hist : vllhist_metResUp) delete hist;
+  for(auto hist : vllhist_metResDw) delete hist;
+  for(auto hist : vllhist_metUncUp) delete hist;
+  for(auto hist : vllhist_metUncDw) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : vghist) delete hist;
+  
   dthist.clear();
   tthist.clear();
   tthist_metJetUp.clear();
@@ -2350,6 +2651,47 @@ void lepdatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   vghist.clear();
+
+  for(auto hist_2D : dthist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : tthist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : qchist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_metUncDw_2D) delete hist_2D;  
+  for(auto hist_2D : vlhist_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metJetUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metJetDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metResUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metResDw_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metUncUp_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_metUncDw_2D) delete hist_2D;
+  for(auto hist_2D : ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D : vghist_2D) delete hist_2D;
 
   dthist_2D.clear();
   tthist_2D.clear();
@@ -2405,6 +2747,32 @@ void lepdatamchist(TFile* outfile,
     kffile_alt->Close();
   if(kffile_unlops)
     kffile_unlops->Close();
+  if(kffile_zewk)
+    kffile_zewk->Close();
+  if(kffile_wewk)
+    kffile_wewk->Close();
+
+  if(tttree) delete tttree;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qctree) delete qctree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(zgtree) delete zgtree;
+  if(wgtree) delete wgtree;
+  if(vltree_nlo1) delete vltree_nlo1;
+  if(vltree_nlo2) delete vltree_nlo2;
+  if(vltree_nlo3) delete vltree_nlo3;
+  if(vltree_nlo4) delete vltree_nlo4;
+  if(vlltree_nlo1) delete vlltree_nlo1;
+  if(vlltree_nlo2) delete vlltree_nlo2;
+  if(vlltree_nlo3) delete vlltree_nlo3;
+  if(vlltree_nlo4) delete vlltree_nlo4;
+  if(dttree) delete dttree;
+  if(dttree_2) delete dttree_2;
+
   cout << "Templates for the lepton control region computed ..." << endl;
 }
 
@@ -2502,7 +2870,7 @@ void topdatamchist(TFile* outfile,
 
     TH1F* dthist_temp = new TH1F((string("datahist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* dbhist_temp = new TH1F((string("dbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
-    TH1F* gmhist_temp = new TH1F((string("gbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
+    TH1F* gmhist_temp = new TH1F((string("gmkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* qchist_temp = new TH1F((string("qbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* vlhist_temp = new TH1F((string("vlbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
     TH1F* vllhist_temp = new TH1F((string("vllbkghist")+suffix+"_"+obs).c_str(),"",int(bins.size()-1),&bins[0]);
@@ -3046,6 +3414,39 @@ void topdatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : dthist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : tthist_alt) delete hist;
+  for(auto hist : qchist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : dbhist_metJetUp) delete hist;
+  for(auto hist : dbhist_metJetDw) delete hist;
+  for(auto hist : dbhist_metResUp) delete hist;
+  for(auto hist : dbhist_metResDw) delete hist;
+  for(auto hist : dbhist_metUncUp) delete hist;
+  for(auto hist : dbhist_metUncDw) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : gmhist_metJetUp) delete hist;
+  for(auto hist : gmhist_metJetDw) delete hist;
+  for(auto hist : gmhist_metResUp) delete hist;
+  for(auto hist : gmhist_metResDw) delete hist;
+  for(auto hist : gmhist_metUncUp) delete hist;
+  for(auto hist : gmhist_metUncDw) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vlhist_metJetUp) delete hist;
+  for(auto hist : vlhist_metJetDw) delete hist;
+  for(auto hist : vlhist_metResUp) delete hist;
+  for(auto hist : vlhist_metResDw) delete hist;
+  for(auto hist : vlhist_metUncUp) delete hist;
+  for(auto hist : vlhist_metUncDw) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : vllhist_metJetUp) delete hist;
+  for(auto hist : vllhist_metJetDw) delete hist;
+  for(auto hist : vllhist_metResUp) delete hist;
+  for(auto hist : vllhist_metResDw) delete hist;
+  for(auto hist : vllhist_metUncUp) delete hist;
+  for(auto hist : vllhist_metUncDw) delete hist;
+
   dthist.clear();
   tthist.clear();
   tthist_alt.clear();
@@ -3057,7 +3458,6 @@ void topdatamchist(TFile* outfile,
   dbhist_metResDw.clear();
   dbhist_metUncUp.clear();
   dbhist_metUncDw.clear();
-
   gmhist.clear();
   gmhist_metJetUp.clear();
   gmhist_metJetDw.clear();
@@ -3065,7 +3465,6 @@ void topdatamchist(TFile* outfile,
   gmhist_metResDw.clear();
   gmhist_metUncUp.clear();
   gmhist_metUncDw.clear();
-
   vlhist.clear();
   vlhist_metJetUp.clear();
   vlhist_metJetDw.clear();
@@ -3081,10 +3480,49 @@ void topdatamchist(TFile* outfile,
   vllhist_metUncUp.clear();
   vllhist_metUncDw.clear();
 
+  for(auto hist : tthist_matched) delete hist;
+  for(auto hist : tthist_matched_alt) delete hist;
+  for(auto hist : tthist_unmatched) delete hist;
+  for(auto hist : tthist_unmatched_alt) delete hist;
+
   tthist_matched.clear();
   tthist_matched_alt.clear();
   tthist_unmatched.clear();
   tthist_unmatched_alt.clear();
+
+  for(auto hist : dthist_2D) delete hist;
+  for(auto hist : tthist_2D) delete hist;
+  for(auto hist : tthist_alt_2D) delete hist;
+  for(auto hist : qchist_2D) delete hist;
+  for(auto hist : dbhist_2D) delete hist;
+  for(auto hist : dbhist_metJetUp_2D) delete hist;
+  for(auto hist : dbhist_metJetDw_2D) delete hist;
+  for(auto hist : dbhist_metResUp_2D) delete hist;
+  for(auto hist : dbhist_metResDw_2D) delete hist;
+  for(auto hist : dbhist_metUncUp_2D) delete hist;
+  for(auto hist : dbhist_metUncDw_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+  for(auto hist : gmhist_metJetUp_2D) delete hist;
+  for(auto hist : gmhist_metJetDw_2D) delete hist;
+  for(auto hist : gmhist_metResUp_2D) delete hist;
+  for(auto hist : gmhist_metResDw_2D) delete hist;
+  for(auto hist : gmhist_metUncUp_2D) delete hist;
+  for(auto hist : gmhist_metUncDw_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : vlhist_metJetUp_2D) delete hist;
+  for(auto hist : vlhist_metJetDw_2D) delete hist;
+  for(auto hist : vlhist_metResUp_2D) delete hist;
+  for(auto hist : vlhist_metResDw_2D) delete hist;
+  for(auto hist : vlhist_metUncUp_2D) delete hist;
+  for(auto hist : vlhist_metUncDw_2D) delete hist;
+  for(auto hist : vllhist_2D) delete hist;
+  for(auto hist : vllhist_metJetUp_2D) delete hist;
+  for(auto hist : vllhist_metJetDw_2D) delete hist;
+  for(auto hist : vllhist_metResUp_2D) delete hist;
+  for(auto hist : vllhist_metResDw_2D) delete hist;
+  for(auto hist : vllhist_metUncUp_2D) delete hist;
+  for(auto hist : vllhist_metUncDw_2D) delete hist;
+
 
   dthist_2D.clear();
   tthist_2D.clear();
@@ -3120,6 +3558,15 @@ void topdatamchist(TFile* outfile,
   vllhist_metResDw_2D.clear();
   vllhist_metUncUp_2D.clear();
   vllhist_metUncDw_2D.clear();
+
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qctree) delete qctree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the top control region computed ..." << endl;
 }
@@ -3431,6 +3878,17 @@ void qcddatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : vnnhist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : dthist) delete hist;
+
   vnnhist.clear();
   vlhist.clear();
   vllhist.clear();
@@ -3441,6 +3899,17 @@ void qcddatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   dthist.clear();
+
+  for(auto hist_2D : vnnhist_2D) delete hist_2D;
+  for(auto hist_2D : vlhist_2D) delete hist_2D;
+  for(auto hist_2D : vllhist_2D) delete hist_2D;
+  for(auto hist_2D : tthist_2D) delete hist_2D;
+  for(auto hist_2D : dbhist_2D) delete hist_2D;
+  for(auto hist_2D : gmhist_2D) delete hist_2D;
+  for(auto hist_2D : qcdhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkwhist_2D) delete hist_2D;
+  for(auto hist_2D : ewkzhist_2D) delete hist_2D;
+  for(auto hist_2D : dthist_2D) delete hist_2D;
 
   vnnhist_2D.clear();
   vlhist_2D.clear();
@@ -3453,6 +3922,18 @@ void qcddatamchist(TFile* outfile,
   ewkwhist_2D.clear();
   ewkzhist_2D.clear();
   dthist_2D.clear();
+
+  if(vnntree) delete vnntree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the QCD region computed ..." << endl;
 }
@@ -3765,6 +4246,17 @@ void taudatamchist(TFile* outfile,
 
   outfile->cd();
 
+  for(auto hist : vnnhist) delete hist;
+  for(auto hist : vlhist) delete hist;
+  for(auto hist : vllhist) delete hist;
+  for(auto hist : tthist) delete hist;
+  for(auto hist : dbhist) delete hist;
+  for(auto hist : gmhist) delete hist;
+  for(auto hist : qcdhist) delete hist;
+  for(auto hist : ewkwhist) delete hist;
+  for(auto hist : ewkzhist) delete hist;
+  for(auto hist : dthist) delete hist;
+
   vnnhist.clear();
   vlhist.clear();
   vllhist.clear();
@@ -3775,6 +4267,17 @@ void taudatamchist(TFile* outfile,
   ewkwhist.clear();
   ewkzhist.clear();
   dthist.clear();
+
+  for(auto hist : vnnhist_2D) delete hist;
+  for(auto hist : vlhist_2D) delete hist;
+  for(auto hist : vllhist_2D) delete hist;
+  for(auto hist : tthist_2D) delete hist;
+  for(auto hist : dbhist_2D) delete hist;
+  for(auto hist : gmhist_2D) delete hist;
+  for(auto hist : qcdhist_2D) delete hist;
+  for(auto hist : ewkwhist_2D) delete hist;
+  for(auto hist : ewkzhist_2D) delete hist;
+  for(auto hist : dthist_2D) delete hist;
 
   vnnhist_2D.clear();
   vlhist_2D.clear();
@@ -3787,6 +4290,18 @@ void taudatamchist(TFile* outfile,
   ewkwhist_2D.clear();
   ewkzhist_2D.clear();
   dthist_2D.clear();
+
+  if(vnntree) delete vnntree;
+  if(vltree) delete vltree;
+  if(vlltree) delete vlltree;
+  if(tttree) delete tttree;
+  if(tttree_alt) delete tttree_alt;
+  if(dbtree) delete dbtree;
+  if(gmtree) delete gmtree;
+  if(qcdtree) delete qcdtree;
+  if(ewkwtree) delete ewkwtree;
+  if(ewkztree) delete ewkztree;
+  if(dttree) delete dttree;
   
   cout << "Templates for the Tau region computed ..." << endl;
 }

@@ -52,6 +52,7 @@ if __name__ == '__main__':
 
     start_histo = False;
     iBin = 0;
+    input_file = open(options.inputFile,'r');
     for line in input_file:
         if "# BEGIN HISTO1D" in line:
             line = line.replace('\n','');

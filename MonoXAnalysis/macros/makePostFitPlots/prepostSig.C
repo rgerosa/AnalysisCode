@@ -3,7 +3,7 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool plotSignificance = false;
+static bool plotSignificance = true;
 
 void prepostSig(string   fitFilename, 
 		string   observable, 

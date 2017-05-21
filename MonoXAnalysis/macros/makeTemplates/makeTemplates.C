@@ -32,7 +32,7 @@ static bool useNewTheoryUncertainty = true;
 void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer factors and sys
 		   bool skipCorrectionHistograms = false,  // skip to open and dump transfer factors
 		   Category category             = Category::monojet,  // 0 = inclusive mono-j, 1 = exclsuive mono-j, 2 V-tag HP ..
-		   double lumi                   = 36.46, // 
+		   double lumi                   = 36.9, // 
 		   string outDir                 = "", // output dir for template file
 		   string templateSuffix         = "",  // suffix for the output file
 		   vector<string> observables    = {"met"}, // 1D histo
@@ -42,6 +42,12 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
 		   bool runOnlyBackground     = false, // produce a file with only background templates
 		   bool applyPostFitWeights   = false,
 		   bool addHistoForCutAndCount= false) {
+
+
+  if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet){
+    addZgamma = false;
+    addWgamma = false;
+  }
 
   system(("mkdir -p "+outDir).c_str());
 
@@ -75,13 +81,14 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     nloSamples.PhotonJetsDIR = "PhotonJetsNLO";
   ////////////////////////////
 
+  if (not skipTFsystematics and (category != Category::monojet and category != Category::monoV) and useNewTheoryUncertainty){
+    cerr<<"Protection --> new theory uncertainty can be used only for monojet category --> switched to false"<<endl;
+    useNewTheoryUncertainty = false;
+  }
+
+
   ////////// Transfer factors
   if(doCorrectionHistograms){    
-
-    if (not skipTFsystematics and (category != Category::monojet and category != Category::monoV) and useNewTheoryUncertainty){
-      cerr<<"Protection --> new theory uncertainty can be used only for monojet category"<<endl;
-      return;
-    }
 
     // NLO QCD + NLO EWK
     cout<<"make correction histogram for Zmm to Znn"<<endl;      
@@ -111,7 +118,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     /// Add Zgamma TFs ///
     //////////////////////
 
-    if(addZgamma){      
+    if(addZgamma and category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet){      
 
       ///////// no re-weight at all
       cout<<"make correction histogram for Gam+jets to Znn"<<endl;
@@ -474,7 +481,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
 
     // last blocl
-    if(addWgamma){
+    if(addWgamma and category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet){
       cout<<"make W/gamma ratio "<<endl;
       makewgamcorhist(baseInputTreePath+"/"+nloSamples.WJetsDIR+"/sigfilter/",
 		      baseInputTreePath+"/"+nloSamples.PhotonJetsDIR+"/gamfilter/",
@@ -723,7 +730,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
 
     // need to add EWK V-jet TFs
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       
       cout<<"make correction histogram for Zmm EWK to Znn EWK"<<endl;      
       makezmmcorhist(baseInputTreePath+"/ZJetsToNuNuEWK/sigfilter/",
@@ -753,13 +760,13 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
   }
 
-  TFile outfile((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
+  TFile outfile ((outDir+"/templates_"+templateSuffix+".root").c_str(), "RECREATE");  
 
   if(not skipCorrectionHistograms){
-    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZgamma,addZWratio,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+    fillAndSaveCorrQCDHistograms(observables,outfile,outDir,category,addZWratio,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
     if(not observables_2D.empty())
-      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZgamma,addZWratio,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
-    if(category == Category::VBF){
+      fillAndSaveCorrQCDHistograms(observables_2D,outfile,outDir,category,addZWratio,addZgamma,addWgamma,addTop,"",addHistoForCutAndCount,useNewTheoryUncertainty);
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       fillAndSaveCorrEWKHistograms(observables,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
       if(not observables_2D.empty())
 	fillAndSaveCorrEWKHistograms(observables_2D,outfile,outDir,category,addZWratio,addTop,"",addHistoForCutAndCount);
