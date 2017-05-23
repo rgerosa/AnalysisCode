@@ -303,7 +303,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
   else
-    frame2->GetYaxis()->SetRangeUser(0.70,1.30);
+    frame2->GetYaxis()->SetRangeUser(0.20,1.40);
 
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
