@@ -3,14 +3,16 @@
 
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
-static bool plotSignificance = true;
+static bool plotSignificance = false;
+static bool  addStatUncPull  = true;
+static bool  addPreliminary  = true;
 
 void prepostSig(string   fitFilename, 
 		string   observable, 
 		Category category, 
 		bool     isCombinedFit = false,
-		bool     plotSBFit = false,
-		bool     addPullPlot = false,  
+		bool     plotSBFit     = false,
+		bool     addPullPlot   = false,  
 		bool     isHiggsInvisible = false, 		
 		int      scaleSig = 1, 
 		bool     blind    = false){
@@ -86,10 +88,10 @@ void prepostSig(string   fitFilename,
       dir = "ch1_ch1";
     else if(category == Category::monoV)
       dir = "ch2_ch1";
-    else if(category == Category::VBF)
+    else if(category == Category::VBF or category == Category::VBFrelaxed)
       dir = "ch3_ch1";
   }
-  else if( category != Category::VBF)
+  else if( category != Category::VBF and category != Category::VBFrelaxed)
     dir = "ch1";
   else
     dir = "ch1";
@@ -97,7 +99,7 @@ void prepostSig(string   fitFilename,
   string postfix = "_MJ";
   if(category == Category::monoV)
     postfix = "_MV";
-  else if(category == Category::VBF)
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
     postfix = "_VBF";
 
   // in case of b-only fit just dispaly three possible signal on the stack
@@ -118,11 +120,11 @@ void prepostSig(string   fitFilename,
     mzhist = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/MonoZ").c_str());
   }
   else{
-    ggHhist  = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ggH").c_str());
-    vbfhist = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/qqH").c_str());
-    wHhist   = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WH").c_str());
-    zHhist   = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ZH").c_str());
-    ggZHhist = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ggZH").c_str());
+    ggHhist  = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ggH_hinv").c_str());
+    vbfhist = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/qqH_hinv").c_str());
+    wHhist   = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/WH_hinv").c_str());
+    zHhist   = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ZH_hinv").c_str());
+    ggZHhist = (TH1*) pfile->Get(("shapes_prefit/"+dir+"/ggZH_hinv").c_str());
   }
   
   TH1* znhist = NULL;
@@ -144,7 +146,7 @@ void prepostSig(string   fitFilename,
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());    
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());    
 
-  if(category == Category::VBF){
+  if(category == Category::VBF or category == Category::VBFrelaxed){
     ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
     ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());    
   }
@@ -163,11 +165,12 @@ void prepostSig(string   fitFilename,
     dthist = (TGraphAsymmErrors*)pfile->Get((fit_dir+"/"+dir+"/data").c_str());
   else{
     dthist = new TGraphAsymmErrors();
-    for(int iBin = 1; iBin < tohist->GetNbinsX()+1; iBin++){
-      dthist->SetPoint(iBin,tohist->GetBinCenter(iBin),tohist->GetBinContent(iBin));
-      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin)/2,tohist->GetBinWidth(iBin)/2,tohist->GetBinError(iBin)/2,tohist->GetBinError(iBin)/2);
+    for(int iBin = 0; iBin < tohist->GetNbinsX()+1; iBin++){
+      dthist->SetPoint(iBin,tohist->GetBinCenter(iBin+1),tohist->GetBinContent(iBin+1));
+      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinError(iBin+1)/2,tohist->GetBinError(iBin)/2);
     }
   }
+
   if(saveTextFile){
 
     ofstream outputfile;
@@ -205,9 +208,11 @@ void prepostSig(string   fitFilename,
       QCDRate << qchist->GetBinContent(iBin+1)*qchist->GetBinWidth(iBin+1) << " \\pm "<<qchist->GetBinError(iBin+1)*qchist->GetBinWidth(iBin+1);
     }
     
-    for(int iBin = 0; iBin < gmhist->GetNbinsX(); iBin++){
-      GJetsRate << "   ";
-      GJetsRate << gmhist->GetBinContent(iBin+1)*gmhist->GetBinWidth(iBin+1) << " \\pm "<<gmhist->GetBinError(iBin+1)*gmhist->GetBinWidth(iBin+1);
+    if(gmhist){
+      for(int iBin = 0; iBin < gmhist->GetNbinsX(); iBin++){
+	GJetsRate << "   ";
+	GJetsRate << gmhist->GetBinContent(iBin+1)*gmhist->GetBinWidth(iBin+1) << " \\pm "<<gmhist->GetBinError(iBin+1)*gmhist->GetBinWidth(iBin+1);
+      }
     }
     
     for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
@@ -220,7 +225,7 @@ void prepostSig(string   fitFilename,
       TopRate << tthist->GetBinContent(iBin+1)*tthist->GetBinWidth(iBin+1) << " \\pm "<<tthist->GetBinError(iBin+1)*tthist->GetBinWidth(iBin+1);
     }
   
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
 	EWKWRate << "   ";
 	EWKWRate << ewkwhist->GetBinContent(iBin+1);
@@ -268,13 +273,15 @@ void prepostSig(string   fitFilename,
     outputfile<<"######################"<<endl;
     outputfile<<QCDRate.str()<<endl;
     outputfile<<"######################"<<endl;
-    outputfile<<GJetsRate.str()<<endl;
-    outputfile<<"######################"<<endl;
+    if(gmhist){
+      outputfile<<GJetsRate.str()<<endl;
+      outputfile<<"######################"<<endl;
+    }
     outputfile<<DiBosonRate.str()<<endl;
     outputfile<<"######################"<<endl;
     outputfile<<TopRate.str()<<endl;
     
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       outputfile<<"######################"<<endl;
       outputfile<<EWKWRate.str()<<endl;
       outputfile<<"######################"<<endl;
@@ -330,7 +337,7 @@ void prepostSig(string   fitFilename,
   if(vbfhist){
     vbfhist->SetFillColor(0);
     vbfhist->SetFillStyle(0);
-    vbfhist->SetLineColor(kOrange+1);
+    vbfhist->SetLineColor(kBlack);
     vbfhist->SetLineWidth(3);
     vbfhist->Scale(scaleSig);
     vbfhist->SetMarkerSize(0);
@@ -383,11 +390,14 @@ void prepostSig(string   fitFilename,
     qchist->SetLineColor(kBlack);
   }
 
-  gmhist->SetFillColor(TColor::GetColor("#9A9EAB"));
-  gmhist->SetLineColor(TColor::GetColor("#9A9EAB"));
+  if(gmhist){
+    gmhist->SetFillColor(TColor::GetColor("#9A9EAB"));
+    gmhist->SetLineColor(TColor::GetColor("#9A9EAB"));
+  }
   zlhist->SetFillColor(TColor::GetColor("#9A9EAB"));  
   zlhist->SetLineColor(kBlack);
-  zlhist->Add(gmhist);
+  if(gmhist)
+    zlhist->Add(gmhist);
 
   znhist->SetFillColor(TColor::GetColor("#3A8C4C"));
   znhist->SetLineColor(kBlack);
@@ -395,7 +405,7 @@ void prepostSig(string   fitFilename,
   wlhist->SetFillColor(TColor::GetColor("#FAAF08"));
   wlhist->SetLineColor(kBlack);
 
-  if(category != Category::VBF)
+  if(category != Category::VBF and category != Category::VBFrelaxed)
     dihist->SetFillColor(TColor::GetColor("#4897D8"));
   else
     dihist->SetFillColor(kRed+3);
@@ -404,7 +414,7 @@ void prepostSig(string   fitFilename,
   tthist->SetFillColor(TColor::GetColor("#CF3721"));
   tthist->SetLineColor(kBlack);
 
-  if(category == Category::VBF){
+  if(category == Category::VBF or category == Category::VBFrelaxed){
     ewkzhist->SetFillColor(kCyan+1);
     ewkzhist->SetLineColor(kBlack);
     ewkwhist->SetFillColor(kAzure+1);
@@ -419,7 +429,6 @@ void prepostSig(string   fitFilename,
     sighist->SetFillStyle(0);
   }
 
-
   // make the stack for backgrounds
   THStack* stack = new THStack("stack", "stack");
   if(qchist)
@@ -427,9 +436,9 @@ void prepostSig(string   fitFilename,
   stack->Add(zlhist); 
   stack->Add(tthist);
   stack->Add(dihist);  
-  if(category == Category::VBF)
+  if(category == Category::VBF or category == Category::VBFrelaxed)
     stack->Add(ewkwhist);
-  if(category == Category::VBF)
+  if(category == Category::VBF or category == Category::VBFrelaxed)
     stack->Add(ewkzhist);
   stack->Add(wlhist);
   stack->Add(znhist);
@@ -444,7 +453,9 @@ void prepostSig(string   fitFilename,
   else if(category == Category::monoV)
     frame->GetYaxis()->SetRangeUser(0.01,wlhist->GetMaximum()*500);
   else if(category == Category::VBF)
-    frame->GetYaxis()->SetRangeUser(0.005,tphist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.015,tphist->GetMaximum()*3000);
+  else if(category == Category::VBFrelaxed)
+    frame->GetYaxis()->SetRangeUser(0.01,tphist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -452,14 +463,17 @@ void prepostSig(string   fitFilename,
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet)
+  if(category == Category::monojet or category == Category::VBFrelaxed)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
 
   frame->Draw();
 
-  CMS_lumi(canvas,"36.4");
+  if(addPreliminary)
+    CMS_lumi(canvas,"35.9",false,false);
+  else
+    CMS_lumi(canvas,"35.9");
 
   TLatex* categoryLabel = new TLatex();
   categoryLabel->SetNDC();
@@ -470,24 +484,45 @@ void prepostSig(string   fitFilename,
     categoryLabel ->DrawLatex(0.175,0.80,"monojet");
   else if(category == Category::monoV)
     categoryLabel ->DrawLatex(0.175,0.80,"mono-V");
-  else if(category == Category::VBF)
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
     categoryLabel ->DrawLatex(0.175,0.80,"VBF");
   categoryLabel->Draw("same");
 
   stack ->Draw("HIST SAME");
-  if(mwhist && !plotSBFit)
+
+  if(mwhist and mzhist and !plotSBFit){
+    mwhist->Add(mzhist);
+    mwhist->SetLineStyle(2);
     mwhist->Draw("HIST SAME");
-  if(mzhist && !plotSBFit)
-    mzhist->Draw("HIST SAME");
-  if(mjhist && !plotSBFit)
+  }
+
+  if(mjhist and !plotSBFit)
     mjhist->Draw("HIST SAME");
-  
-  if(vbfhist && !plotSBFit)
-    vbfhist->Draw("HIST SAME");
-  if(wHhist && !plotSBFit)
+
+  if(vbfhist and !plotSBFit){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
+      vbfhist->Draw("HIST SAME");
+    }
+    else{
+      vbfhist->SetLineStyle(7);
+      vbfhist->Draw("HIST SAME");
+    }
+  }
+
+  if(wHhist and !plotSBFit){
+    wHhist->SetLineStyle(2);
     wHhist->Draw("HIST SAME");
-  if(ggHhist && !plotSBFit)
-    ggHhist->Draw("HIST SAME");
+  }
+
+  if(ggHhist and !plotSBFit){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
+      ggHhist->SetLineStyle(2);      
+      ggHhist->Draw("HIST SAME");
+    }
+    else{
+      ggHhist->Draw("HIST SAME");
+    }
+  }
   
   if(plotSBFit)
     sighist->Draw("HIST same");
@@ -501,39 +536,50 @@ void prepostSig(string   fitFilename,
   dthist->SetMarkerColor(kBlack);
   dthist->Draw("PE SAME");
 
-
-
-  TLegend* leg = new TLegend(0.50, 0.55, 0.92, 0.92);
+  TLegend* leg = NULL;
+  if(category == Category::VBF){
+    leg = new TLegend(0.35, 0.60, 0.92, 0.85);
+    leg->SetNColumns(2);
+  }
+  else
+    leg = new TLegend(0.50, 0.55, 0.92, 0.92);
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-
+    
   leg->AddEntry(dthist, "Data", "PEL");
-  if(sighist && plotSBFit)
-    leg->AddEntry(sighist, "Fitted signal", "L");
-  leg->AddEntry(znhist,  "Z(#nu#nu)+jets", "F");
-  leg->AddEntry(wlhist,  "W(l#nu)+jets", "F");
-  if(category == Category::VBF){
+
+  leg->AddEntry(znhist,    "Z(#nu#nu)+jets", "F");
+  leg->AddEntry(wlhist,    "W(l#nu)+jets", "F");
+  if(category == Category::VBF or category == Category::VBFrelaxed){
     leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
-    leg->AddEntry(ewkzhist,"W(l#nu)+jets EWK", "F");
+    leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
   }
   leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
   leg->AddEntry(tthist,  "Top quark", "F");
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)
     leg->AddEntry(qchist,  "QCD", "F");
-  if(mjhist && !plotSBFit)
+  if(mjhist and !plotSBFit)
     leg->AddEntry(mjhist,"Vector mono-jet, m_{med} = 2 TeV","L");
-  if(mwhist && !plotSBFit)
+  if(mwhist and !plotSBFit)
     leg->AddEntry(mjhist,"Vector mono-W, m_{med} = 2 TeV","L");
-  if(mzhist && !plotSBFit)
+  if(mzhist and !plotSBFit)
     leg->AddEntry(mjhist,"Vector mono-Z, m_{med} = 2 TeV","L");
-  if(ggHhist && !plotSBFit)
-    leg->AddEntry(ggHhist, "Gluon-fusion, m_{H} = 125 GeV","L");
-  if(vbfhist && !plotSBFit)
-    leg->AddEntry(vbfhist, "VBF, m_{H} = 125 GeV","L");
-  if(wHhist && !plotSBFit)
-    leg->AddEntry(wHhist, "VH, m_{H} = 125 GeV","L");
+
+  if(sighist && plotSBFit)
+    leg->AddEntry(sighist, "Fitted signal", "L");
+  else if(not plotSBFit){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
+      leg->AddEntry(vbfhist, "qqH_{inv} m_{h} = 125 GeV", "L");
+      leg->AddEntry(ggHhist, "ggH_{inv} m_{h} = 125 GeV", "L");
+    }
+    else{
+      leg->AddEntry(ggHhist, "ggH_{inv} m_{h} = 125 GeV", "L");
+      leg->AddEntry(vbfhist, "qqH_{inv} m_{h} = 125 GeV", "L");
+      leg->AddEntry(wHhist, "VH_{inv} m_{h} = 125 GeV", "L");
+    }
+  }
 
   leg->Draw("SAME");    
   canvas->RedrawAxis("sameaxis");
@@ -543,7 +589,6 @@ void prepostSig(string   fitFilename,
   pad2->Draw();
   pad2->cd();
 
-
   ////
   TH1* frame2 =  (TH1*) tohist->Clone("frame");
   frame2->Reset();
@@ -552,10 +597,12 @@ void prepostSig(string   fitFilename,
 
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+  else if(category == Category::monoV)
+    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
     frame2->GetYaxis()->SetRangeUser(0.4,1.6);
 
-  if(category == Category::monojet)
+  if(category == Category::monojet or category == Category::VBFrelaxed)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
@@ -563,7 +610,7 @@ void prepostSig(string   fitFilename,
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    if(category == Category::VBF and TString(observable).Contains("mjj"))
+    if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
     frame2->GetYaxis()->SetTitle("Data/Pred.");
     frame2->GetYaxis()->CenterTitle();
@@ -582,9 +629,8 @@ void prepostSig(string   fitFilename,
     frame2->GetYaxis()->CenterTitle();
   }
 
-  frame2->GetXaxis()->SetTickLenght(0.025);
+  frame2->GetXaxis()->SetTickLength(0.025);
   frame2->Draw();
-
 
   // for post-fit pre-fit data/mc
   TGraphAsymmErrors* dphist = (TGraphAsymmErrors*)dthist->Clone("dphist");
@@ -613,7 +659,7 @@ void prepostSig(string   fitFilename,
   mchist->Add(dihist);
   mchist->Add(znhist);
 
-  if(category == Category::VBF){
+  if(category == Category::VBF or category == Category::VBFrelaxed){
     mchist->Add(ewkwhist);
     mchist->Add(ewkzhist);
   }
@@ -634,7 +680,6 @@ void prepostSig(string   fitFilename,
   }
 
   
-
   TH1F* band = (TH1F*) tohist->Clone("band");
 
   tohist->Divide(mchist);
@@ -695,13 +740,20 @@ void prepostSig(string   fitFilename,
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3,3);
-    if(category == Category::monojet)
+    if(category == Category::monojet or category == Category::VBFrelaxed)
       frame3->GetXaxis()->SetNdivisions(510);
     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
-    frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
+    if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
+      frame3->GetXaxis()->SetTitle("M_{jj} [GeV]");
+  
+
+    if(addStatUncPull)
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
+    else
+      frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma_{pred}}");
 
     frame3->GetYaxis()->CenterTitle();
     frame3->GetYaxis()->SetTitleOffset(1.5);
@@ -710,7 +762,7 @@ void prepostSig(string   fitFilename,
     frame3->GetXaxis()->SetLabelSize(0.04);
     frame3->GetXaxis()->SetTitleSize(0.05);
     frame3->GetYaxis()->SetNdivisions(504);
-    frame3->GetXaxis()->SetTickLenght(0.025);
+    frame3->GetXaxis()->SetTickLength(0.025);
     frame3->Draw("AXIS");
     frame3->Draw("AXIG same");
 
@@ -728,8 +780,11 @@ void prepostSig(string   fitFilename,
     data_pull_post->SetFillColor(TColor::GetColor("#0066ff"));
     data_pull_post->SetLineWidth(1);
     for(int iBin = 0; iBin < data_pull_post->GetNbinsX()+1; iBin++){
-      data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1)); // divide by sigma data                                                                
-      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data                                                                                                                                 
+      if(addStatUncPull)
+	data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/sqrt(pow(band->GetBinError(iBin+1),2)+pow((dthist->GetErrorYlow(iBin)+dthist->GetErrorYhigh(iBin))/2,2)));
+      else
+	data_pull_post->SetBinContent(iBin+1,data_pull_post->GetBinContent(iBin+1)/band->GetBinError(iBin+1));
+      data_pull_post->SetBinError(iBin+1,+1); // divide by sigma data  
     }
 
     // line at 1                                                                                                                                                                                      
@@ -746,8 +801,7 @@ void prepostSig(string   fitFilename,
     data_pull_post->Draw("hist same");
     pad3->RedrawAxis("G sameaxis");
     pad3->Modified();
-
-  }
+ }
 
 
   if(blind and not addPullPlot){
@@ -841,7 +895,5 @@ void prepostSig(string   fitFilename,
       outFile->Close();
     }
   }
-
-
 }
 

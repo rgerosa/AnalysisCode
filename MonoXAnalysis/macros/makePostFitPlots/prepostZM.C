@@ -87,10 +87,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
       dir = "ch1_ch2";
     else if(category == Category::monoV)
       dir = "ch2_ch2";
-    else if(category == Category::VBF)
+    else if(category == Category::VBF or category == Category::VBFrelaxed)
       dir = "ch3_ch2";
   }
-  else if( category != Category::VBF)
+  else if( category != Category::VBF and category != Category::VBFrelaxed)
     dir = "ch2";
   else
     dir = "ch2";
@@ -99,7 +99,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   string postfix = "_MJ";
   if(category == Category::monoV)
     postfix = "_MV";
-  else if(category == Category::VBF)
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
     postfix = "_VBF";
 
 
@@ -143,7 +143,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
       VVRate << dihist->GetBinContent(iBin);
     }
     
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       for(int iBin = 0; iBin < ewkwhist->GetNbinsX(); iBin++){
 	EWKWRate << "   ";
 	EWKWRate << ewkwhist->GetBinContent(iBin);
@@ -182,7 +182,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     outputfile<<"######################"<<endl;
     outputfile<<VVRate.str()<<endl;
     outputfile<<"######################"<<endl;
-    if(category == Category::VBF){
+    if(category == Category::VBF or category == Category::VBFrelaxed){
       outputfile<<EWKWRate.str()<<endl;
       outputfile<<"######################"<<endl;
       outputfile<<EWKZRate.str()<<endl;
@@ -212,7 +212,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
-  if(category == Category::VBF){
+  if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkwhist);
     ewkzhist->SetFillColor(kCyan+1);
     ewkzhist->SetLineColor(kBlack);
@@ -232,7 +232,9 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   else if(category == Category::monoV)
     frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
   else if(category == Category::VBF)
-    frame->GetYaxis()->SetRangeUser(0.0007,prhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.005,prhist->GetMaximum()*1000);
+  else if(category == Category::VBFrelaxed)
+    frame->GetYaxis()->SetRangeUser(0.001,prhist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -240,7 +242,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet)
+  if(category == Category::monojet or category == Category::VBFrelaxed)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
@@ -261,13 +263,13 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     categoryLabel ->DrawLatex(0.175,0.82,"monojet");
   else if(category == Category::monoV)
     categoryLabel ->DrawLatex(0.175,0.82,"mono-V");
-  else if(category == Category::VBF)
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
     categoryLabel ->DrawLatex(0.175,0.82,"VBF");
   categoryLabel->Draw("same");
 
   prhist->Draw("HIST SAME");
   pohist->Draw("HIST SAME");
-  if(category == Category::VBF)
+  if(category == Category::VBF or category == Category::VBFrelaxed)
     ewkzhist->Draw("HIST same");
   wlhist->Draw("HIST SAME");
   
@@ -283,7 +285,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   leg->AddEntry(dthist, "Data","PEL");
   leg->AddEntry(pohist, "Post-fit Z(#mu#mu)+jets","L");
   leg->AddEntry(prhist, "Pre-fit Z(#mu#mu)+jets","L");
-  if(category == Category::VBF)
+  if(category == Category::VBF or category == Category::VBFrelaxed)
     leg->AddEntry(ewkzhist, "Z-EWK","F");
   leg->AddEntry(wlhist, "Other backgrounds", "F");
   leg->Draw("SAME");
@@ -302,10 +304,12 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
   if(category == Category::monojet)
     frame2->GetYaxis()->SetRangeUser(0.80,1.20);
-  else
+  else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.20,1.40);
+  else
+    frame2->GetYaxis()->SetRangeUser(0.40,1.60);
 
-  if(category == Category::monojet)
+  if(category == Category::monojet or category == Category::VBFrelaxed)
     frame2->GetXaxis()->SetNdivisions(510);
   else
     frame2->GetXaxis()->SetNdivisions(210);
@@ -313,7 +317,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
-    if(category == Category::VBF and TString(observable).Contains("mjj"))
+    if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
       frame2->GetXaxis()->SetTitle("M_{jj} [GeV]");
     frame2->GetYaxis()->SetTitle("Data / Pred.");
     frame2->GetYaxis()->CenterTitle();
@@ -434,12 +438,15 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
-    if(category == Category::monojet)
+    if(category == Category::monojet or category == Category::VBFrelaxed)
       frame3->GetXaxis()->SetNdivisions(510);
     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
+    if((category == Category::VBF or category == Category::VBFrelaxed) and TString(observable).Contains("mjj"))
+      frame3->GetXaxis()->SetTitle("M_{jj} [GeV]");
+ 
     if(addStatUncPull)
       frame3->GetYaxis()->SetTitle("#frac{(Data-Pred.)}{#sigma}");
     else

@@ -203,9 +203,9 @@ void prepostSig_fromScan(string   fitFilename,
   else{
 
     dthist = new TGraphAsymmErrors();
-    for(int iBin = 1; iBin < tohist->GetNbinsX()+1; iBin++){
-      dthist->SetPoint(iBin,tohist->GetBinCenter(iBin),tohist->GetBinContent(iBin));
-      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin)/2,tohist->GetBinWidth(iBin)/2,tohist->GetBinError(iBin)/2,tohist->GetBinError(iBin)/2);
+    for(int iBin = 0; iBin < tohist->GetNbinsX()+1; iBin++){
+      dthist->SetPoint(iBin,tohist->GetBinCenter(iBin+1),tohist->GetBinContent(iBin+1));
+      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinError(iBin+1)/2,tohist->GetBinError(iBin+1)/2);
     }
   }
 
