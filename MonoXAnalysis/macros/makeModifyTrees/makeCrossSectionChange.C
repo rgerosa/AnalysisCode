@@ -1,10 +1,10 @@
 
-void makeCrossSectionChange(string fileName, string outputName, float newXSEC){
+void makeCrossSectionChange(string fileName, string outputName, float newXSEC, string treename = "tree/tree"){
 
   gROOT->SetBatch(kTRUE);
 
   TFile* input = TFile::Open(fileName.c_str(),"READ");
-  TTree* tree = (TTree*) input->Get("tree/tree");
+  TTree* tree = (TTree*) input->Get(treename.c_str());
   TTree* gentree = (TTree*) input->Get("gentree/gentree");
   
   TFile* output = new TFile(outputName.c_str(),"RECREATE");

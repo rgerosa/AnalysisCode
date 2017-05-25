@@ -1011,7 +1011,7 @@ void makeControlPlots(string templateFileName,
   
   canvas->SaveAs((observable+"_"+controlRegion+postfix+".png").c_str());
   canvas->SaveAs((observable+"_"+controlRegion+postfix+".pdf").c_str());
-  canvas->SaveAs((observable+"_"+controlRegion+postfix+".C").c_str());
+  //  canvas->SaveAs((observable+"_"+controlRegion+postfix+".C").c_str());
 
   if(addSBPlots){
 

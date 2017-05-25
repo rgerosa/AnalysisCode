@@ -27,14 +27,15 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
   else if(category == Category::VBFrelaxed or category == Category::VBF){
     met_cut    = 200;
     jetpt1_cut = 80;
-    dphijj_cut  = 1.5;
     if(category == Category::VBF){
       detajj_cut = 4.0;
-      mjj_cut    = 1400;
+      mjj_cut    = 1300;
+      dphijj_cut  = 1.5;
     }
     else if(category == Category::VBFrelaxed){
       detajj_cut = 1.0;
-      mjj_cut    = 300;
+      mjj_cut    = 0;
+      dphijj_cut  = 1.3;
     }
   }
 
@@ -55,14 +56,15 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
   //TTreeReaderValue<double> wgtsum        (myReader,"wgtsum");
  
   /////////////// triggers 
-  TTreeReaderValue<UChar_t> hltm90     (myReader,"hltmet90");
+  TTreeReaderValue<UChar_t> hltm90      (myReader,"hltmet90");
   TTreeReaderValue<UChar_t> hltm100     (myReader,"hltmet100");
   TTreeReaderValue<UChar_t> hltm110     (myReader,"hltmet110");
-  TTreeReaderValue<UChar_t> hltm120    (myReader,"hltmet120");
-  TTreeReaderValue<UChar_t> hltmwm120  (myReader,"hltmetwithmu120");
-  TTreeReaderValue<UChar_t> hltmwm170  (myReader,"hltmetwithmu170");
-  TTreeReaderValue<UChar_t> hltmwm300  (myReader,"hltmetwithmu300");
-  TTreeReaderValue<UChar_t> hltmwm90   (myReader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hltm120     (myReader,"hltmet120");
+  TTreeReaderValue<UChar_t> hltmwm90    (myReader,"hltmetwithmu90");
+  TTreeReaderValue<UChar_t> hltmwm120   (myReader,"hltmetwithmu120");
+  TTreeReaderValue<UChar_t> hltmwm170   (myReader,"hltmetwithmu170");
+  TTreeReaderValue<UChar_t> hltmwm300   (myReader,"hltmetwithmu300");
+
   TTreeReaderValue<UChar_t> hlte       (myReader,"hltsingleel");
   TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
@@ -250,13 +252,13 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     // trigger
     int hlt = 0;
     if (controlRegion == Sample::sig || controlRegion == Sample::zmm || controlRegion == Sample::wmn)// single and double muon                                         
-      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm170+*hltmwm300+*hltmwm90;
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm120+*hltmwm170+*hltmwm300;
     else if(controlRegion == Sample::zee || controlRegion == Sample::wen)
       hlt = *hlte;
     else if(controlRegion == Sample::gam)
       hlt = *hltp165+*hltp175;
     if(hlt == 0) continue;
-      
+
     // met filters
     if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue; 
     n_metfilter++;
@@ -301,7 +303,6 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
       if(*el1pt < 40) continue;
        if(fabs(*el1eta) > 2.5) continue;
        if(*el1id != 1) continue;
-       if(*el1idt != 1) continue;
     }
     else if(controlRegion == Sample::zee){      
       if (*nelectrons != 2 ) continue;
@@ -541,6 +542,9 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
 	if(fabs(leadingJet.DeltaPhi(subleadingJet)) > dphijj_cut) continue;
 	n_dphijjVBF++;
 	nwgt_dphijjVBF += *wgt;
+
+	VBFSelection <<*run <<"  "<<*lumi<<" "<<*event<<"\n";
+
       }
       else if(category == Category::VBF){
 
@@ -551,13 +555,10 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
 	if((leadingJet+subleadingJet).M() < 300) continue; 
 	n_mjjVBF++;
 	nwgt_mjjVBF += *wgt;
-	
+
 	if(fabs(leadingJet.DeltaPhi(subleadingJet)) > dphijj_cut) continue;
 	n_dphijjVBF++;
 	nwgt_dphijjVBF += *wgt;
-
-
-	//VBFSelection <<" file Name "<<currentFile<<" run "<< *run << " lumi  "<<*lumi<<" event "<<*event<<" jetpt "<<jetpt->at(0)<<" "<<jetpt->at(1)<<" detajj "<<fabs(leadingJet.Eta()-subleadingJet.Eta())<<" jetmetdphi "<<*jmmdphi<<" met "<<*mmet<<" dphijj "<<fabs(leadingJet.DeltaPhi(subleadingJet))<<" xsec/wgtsum "<<*xsec/(*wgtsum)<<"\n";
 
 
 	if(fabs(leadingJet.Eta()-subleadingJet.Eta()) < detajj_cut) continue;
@@ -568,8 +569,6 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
 	n_mjjVBF_tight++;
 	nwgt_mjjVBF_tight += *wgt;       
 
-	VBFSelection <<" file Name "<<currentFile<<" run "<< *run << " lumi  "<<*lumi<<" event "<<*event<<" jetpt "<<jetpt->at(0)<<" "<<jetpt->at(1)<<" detajj "<<fabs(leadingJet.Eta()-subleadingJet.Eta())<<" jetmetdphi "<<*jmmdphi<<" met "<<*mmet<<" dphijj "<<fabs(leadingJet.DeltaPhi(subleadingJet))<<"\n";
-	
       }
       
     }

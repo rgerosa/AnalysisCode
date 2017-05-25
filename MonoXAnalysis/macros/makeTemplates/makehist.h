@@ -58,7 +58,7 @@ const bool  reweightNVTX    = true;
 /// photon scale
 const bool  applyPhotonScale = true;
 const float photonScaleUnc   = -0.0125;
-static bool  doSmoothing     = false;
+static bool doSmoothing      = false;
 // trigger
 const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useMoriondSetup = true;
@@ -71,6 +71,7 @@ const bool  applyEWKVKfactor = false;
 
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
+//string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v4/vvj.root";
@@ -552,21 +553,20 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltm        (myReader,"hltsinglemu");
   TTreeReaderValue<UChar_t> hltp120     (myReader,"hltphoton120");
-  TTreeReaderValue<float>  pswgt_ph120  (myReader,"pswgt_ph120");
+  TTreeReaderValue<float>   pswgt_ph120 (myReader,"pswgt_ph120");
   TTreeReaderValue<UChar_t> hltp165     (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (myReader,"hltphoton175");
   TTreeReaderValue<UChar_t> hltpPFHT800 (myReader,"hltPFHT800");
 
-
   /// met filters
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
+  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
   TTreeReaderValue<UChar_t> fbadmu (myReader,"flagbadpfmu");
   TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
-  TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
   TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
@@ -771,13 +771,13 @@ void makehist4(TTree* tree,            /*input tree*/
 
     // MET Filters --> apply on both data and monte-carlo
     if(*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fbadmu == 0 || *fbadch == 0) continue;
-    
+
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
     if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun) jmdphi = fabs(*jmmdphi);
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) jmdphi = fabs(*jemdphi);
     else if (sample == Sample::qcdgam || sample == Sample::gam) jmdphi = fabs(*jpmdphi);
-
+    
     //set met
     Double_t pfmet = 0.0;
     Double_t pfmetphi = 0.0;
@@ -791,12 +791,7 @@ void makehist4(TTree* tree,            /*input tree*/
     if(metSuffix != "" and sample != Sample::sig){
       pfmet += (*met-*met_orig)/2;
     }
-
-    // noise cleaner
-    if(category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet and 
-       (sample != Sample::gam and sample != Sample::zee and sample != Sample::wen) and fabs(*met-*metcalo)/pfmet > 0.5) continue;
-    else if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and fabs(*met-*metcalo)/pfmet > 0.5) continue;
-
+    
     // set lepton info
     Int_t    id1   = 0, id2   = 0, id1t  = 0, id2t  = 0;
     Double_t pt1   = 0.0, pt2   = 0.0;
@@ -889,17 +884,6 @@ void makehist4(TTree* tree,            /*input tree*/
       bosonPhi = (lep4V+met4V).Phi();
     }
 
-    /// Tau-veto or tau tag
-    if (*ntaus != 0 and sample != Sample::taun) continue;
-    else if (*ntaus != 1 and sample == Sample::taun) continue;
-
-    // B-veto, not for top control sample
-    if (*nbjets > 0 and sample != Sample::topmu and sample != Sample::topel) continue; 
-
-    // control regions with two leptons --> opposite charge
-    if (sample == Sample::zmm && *mu1pid == *mu2pid) continue;
-    if (sample == Sample::zee && *el1pid == *el2pid) continue;
-
     // control regions with two leptons --> one should be tight
     if ((sample == Sample::zmm || sample == Sample::zee)){
       if(sample == Sample::zmm){	
@@ -910,9 +894,16 @@ void makehist4(TTree* tree,            /*input tree*/
       }
     }
 
-    // number of central jets
-    if (category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and *njets < 1) continue; 
-    else if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed) and *nincjets < 2) continue;
+    // control regions with two leptons --> opposite charge
+    if (sample == Sample::zmm && *mu1pid == *mu2pid) continue;
+    if (sample == Sample::zee && *el1pid == *el2pid) continue;
+
+    /// Tau-veto or tau tag
+    if (*ntaus != 0 and sample != Sample::taun) continue;
+    else if (*ntaus != 1 and sample == Sample::taun) continue;
+
+    // B-veto, not for top control sample
+    if (*nbjets > 0 and sample != Sample::topmu and sample != Sample::topel) continue; 
 
     // control regions wit one lepton --> tight requirement 
     if ((sample == Sample::wen || sample == Sample::wmn) && id1 !=1) continue;
@@ -934,7 +925,6 @@ void makehist4(TTree* tree,            /*input tree*/
       if(*wtmt > 160) continue;
     }
 
-
     // n-bjets cut for unboosted categories
     if ((sample == Sample::topmu || sample == Sample::topel) && 
 	(category != Category::monoV and category != Category::boosted and category != Category::prunedMass and category != Category::tau2tau1)  && 
@@ -950,7 +940,7 @@ void makehist4(TTree* tree,            /*input tree*/
       // veto di-lepton events
       if(pt2 > 0) continue;
     }
-    
+
     // met selection
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
       if (pfmet < pfMetVBFLower) continue;
@@ -964,6 +954,17 @@ void makehist4(TTree* tree,            /*input tree*/
       if(pfmet < pfMetMonoVLower) continue;
       if(pfmet > pfMetMonoVUpper) continue;
     }
+
+    // noise cleaner
+    if(category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet){
+      if(sample != Sample::gam and sample != Sample::zee and sample != Sample::wen and fabs(*met-*metcalo)/pfmet > 0.5) continue;
+    }
+    else if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and fabs(*met-*metcalo)/pfmet > 0.5) continue;
+
+    // number of central jets
+    if (category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and *njets < 1) continue; 
+    else if((category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed) and *nincjets < 2) continue;
+
 
     //apply charge cut to separate W+ from W- in case
     if(sample == Sample::wmn or sample == Sample::wen){ // in case charge is required to be 1 skip events with negative leptons, viceversa
@@ -980,7 +981,7 @@ void makehist4(TTree* tree,            /*input tree*/
       if(leptonPID == "tau" and (fabs(*l1pid) != 15 and fabs(*l1pid) != 16)) continue;
       if(leptonPID == "tau" and (fabs(*l2pid) != 15 and fabs(*l2pid) != 16)) continue;
     }
-
+    
     // selection on jet --> split them between forward and central
     vector<TLorentzVector> centralJets;
     vector<TLorentzVector> forwardJets;
@@ -1001,8 +1002,7 @@ void makehist4(TTree* tree,            /*input tree*/
     
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos < 0)  continue;
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed and leadingCentralJetPos != 0) continue; 
-    
-    
+        
     /// re-miniADO specific to adjust lumi
     Double_t sfwgt = 1.0;
 
@@ -1230,12 +1230,12 @@ void makehist4(TTree* tree,            /*input tree*/
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
       btagw = 0.92;
-    else if(isMC and sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet)
-      btagw = 0.98;
-    else if(isMC and sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet)
+    if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 1.017;
-    else if(isMC and sample == Sample::wmn and category != Category::VBF and category != Category::VBFrelaxed and category != Category::twojet)
+    if(isMC and (sample == Sample::wmn and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 1.01;
+    if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
+      btagw = 0.98;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -1254,21 +1254,22 @@ void makehist4(TTree* tree,            /*input tree*/
 
     //Gen level info --> kfactor NLO for V-EWK processes
     Double_t kewkgt = 1.0;
-    if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet){
+    if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
       double genpt = *wzpt;
-      if(jetpt->size() < 2) continue;
-      TLorentzVector jet1 ;
-      TLorentzVector jet2 ;
-      jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
-      jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-      double mjj = (jet1+jet2).M();
-      for(size_t i = 0; i < kVEWKhists.size(); i++){
-	if(kVEWKhists[i]){// good histogram
-	  if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-	  if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
-	  if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
-	  if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
-	  kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
+      if(jetpt->size() > 2) {
+	TLorentzVector jet1 ;
+	TLorentzVector jet2 ;
+	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	double mjj = (jet1+jet2).M();
+	for(size_t i = 0; i < kVEWKhists.size(); i++){
+	  if(kVEWKhists[i]){// good histogram
+	    if(genpt <= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	    if(genpt >= kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)) genpt = kVEWKhists[i]->GetXaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsX()+1)-1;
+	    if(mjj <= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(1) + 1;
+	    if(mjj >= kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)) mjj = kVEWKhists[i]->GetYaxis()->GetBinLowEdge(kVEWKhists[i]->GetNbinsY()+1)-1;
+	    kewkgt *= kVEWKhists[i]->GetBinContent(kVEWKhists[i]->FindBin(genpt,mjj));
+	  }
 	}
       }
     }
@@ -1461,12 +1462,13 @@ void makehist4(TTree* tree,            /*input tree*/
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF)  continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
-      
+
       if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
       else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
-      
-      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+
+      if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
+
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajj) continue;
       //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
@@ -1476,6 +1478,7 @@ void makehist4(TTree* tree,            /*input tree*/
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjj) continue;
       if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
+
       goodVBF = true;
     }
 
@@ -1519,6 +1522,7 @@ void makehist4(TTree* tree,            /*input tree*/
     if(category == Category::VBF and goodVBF == false) continue;
     if(category == Category::monoV and goodMonoV == false) continue;
     if(category == Category::monojet and goodMonoJet == false) continue;
+    
 
     // fill 1D histogram
     // fill the histograms --> with the right observable
@@ -1961,7 +1965,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	// pu-weight
 	if (*nvtx <= 60 and not isSummer16) 
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	else if(isSummer16 and sample != Sample::sig and sample  != Sample::gam and (category == Category::monojet or category == Category::monoV))
+	else if(isSummer16 and sample != Sample::sig and sample != Sample::gam and (category == Category::monojet or category == Category::monoV))
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else if(isSummer16 and (category == Category::VBFrelaxed or category == Category::twojet or category == Category::VBF))
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
