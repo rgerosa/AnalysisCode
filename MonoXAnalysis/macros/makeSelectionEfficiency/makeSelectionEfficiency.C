@@ -249,6 +249,7 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     else
       currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
 
+
     // trigger
     int hlt = 0;
     if (controlRegion == Sample::sig || controlRegion == Sample::zmm || controlRegion == Sample::wmn)// single and double muon                                         
