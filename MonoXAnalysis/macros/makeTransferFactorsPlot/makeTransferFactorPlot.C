@@ -9,11 +9,17 @@ float elsf = 0.015;
 float phsf = 0.020;
 float mutrack = 0.01;
 float eltrack = 0.01;
-float mettrig = 0.015;
+float mettrig = 0.02;
 float eltrig = 0.01;
 float phtrig = 0.02;
 float lepveto = 0.03;
-float jes = 0.00;
+float lepveto_ewk = 0.04;
+float jesZ_up = 0.01;
+float jesZ_dw = 0.015;
+float jesW_up = 0.02;
+float jesW_dw = 0.03;
+float jesW_ewk_up = 0.01;
+float jesW_ewk_dw = 0.15;
 
 /////////////////////////////
 void rzmm(string fileName, Category category, string observable, bool isEWK) {
@@ -39,9 +45,9 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");	
 	else if(not isEWK and observable != "met_onebin")
-	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 13., "");	
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 18., "");	
 	else if(isEWK and observable != "met_onebin")
-	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 20., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 80., "");
 	else if(isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 17., "");	
 	frame->GetXaxis()->SetTitle("Recoil [GeV]");
@@ -50,7 +56,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 30., "");
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
 
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
@@ -65,7 +71,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 30., "");
+	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
 
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
@@ -103,7 +109,8 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
         err += pow(hist->GetBinContent(i)*musf*2, 2);
         err += pow(hist->GetBinContent(i)*mutrack*2, 2);	
         err += pow(hist->GetBinContent(i)*mettrig, 2);	
-        err += pow(hist->GetBinContent(i)*jes, 2);	
+	if(category == Category::VBF)
+	  err += pow(hist->GetBinContent(i)*max(jesZ_up,jesZ_dw), 2);	
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -175,14 +182,14 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
       else if(TString(observable).Contains("jetmetdphi")){
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0.0, bins.back(), 35., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 22., "");
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
       else if(TString(observable).Contains("detajj")){
@@ -221,11 +228,12 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
 
     for (int i = 1; i <= ehist->GetNbinsX(); i++) {
         double err = 0.0;
-        err +=    hist->GetBinError(i)*hist->GetBinError(i);
+        err += hist->GetBinError(i)*hist->GetBinError(i);
         err += pow(hist->GetBinContent(i)*elsf*2, 2);
         err += pow(hist->GetBinContent(i)*eltrack*2, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);
-        err += pow(hist->GetBinContent(i)*jes, 2);	
+	if(category == Category::VBF)
+          err += pow(hist->GetBinContent(i)*max(jesZ_up,jesZ_dw), 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -334,9 +342,15 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
         err +=    hist->GetBinError(i)*hist->GetBinError(i);
         err += pow(hist->GetBinContent(i)*musf, 2);
         err += pow(hist->GetBinContent(i)*mutrack, 2);
-        err += pow(hist->GetBinContent(i)*lepveto, 2);
+	if(not isEWK)
+	  err += pow(hist->GetBinContent(i)*lepveto, 2);
+	else
+	  err += pow(hist->GetBinContent(i)*lepveto_ewk, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);	
-        err += pow(hist->GetBinContent(i)*jes, 2);	
+	if(category == Category::VBF and not isEWK)
+	  err += pow(hist->GetBinContent(i)*max(jesW_up,jesW_dw), 2);	
+	else if(category == Category::VBF and isEWK)
+	  err += pow(hist->GetBinContent(i)*max(jesW_ewk_up,jesW_ewk_dw), 2);	
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -448,9 +462,16 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
         err += pow(hist->GetBinContent(i)*eltrack, 2);
         err += pow(hist->GetBinContent(i)*eltrig, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);
-        err += pow(hist->GetBinContent(i)*lepveto, 2);
-        err += pow(hist->GetBinContent(i)*jes, 2);
+	if(not isEWK)
+	  err += pow(hist->GetBinContent(i)*lepveto, 2);
+	else
+	  err += pow(hist->GetBinContent(i)*lepveto_ewk, 2);
 
+	if(category == Category::VBF and not isEWK)
+          err += pow(hist->GetBinContent(i)*max(jesW_up,jesW_dw), 2);
+        else if(category == Category::VBF and isEWK)
+          err += pow(hist->GetBinContent(i)*max(jesW_ewk_up,jesW_ewk_dw), 2);
+ 
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -630,7 +651,6 @@ void rgam(string fileName, Category category, string observable, bool isEWK, boo
         err += pow(hist->GetBinContent(i)*phtrig, 2);
         err += pow(hist->GetBinContent(i)*phsf, 2);
         err += pow(hist->GetBinContent(i)*mettrig, 2);
-        err += pow(hist->GetBinContent(i)*jes, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -755,7 +775,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+	  frame = canvas->DrawFrame(bins.front(), 0.5, bins.back(), 3.5, "");
 
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
@@ -763,7 +783,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 
 	frame->GetXaxis()->SetTitle("#Delta#phi(jet,met)");
       }
@@ -771,7 +791,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 4.0, "");
+	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 
 	frame->GetXaxis()->SetTitle("#Delta#eta_{jj}");
       }
@@ -832,8 +852,10 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	  err += pow(pdfhist->GetBinContent(i)*hist->GetBinContent(i), 2);
 	  ehistQCD->SetBinError(i, sqrt(err));
 	}
-        err += pow(hist->GetBinContent(i)*lepveto, 2);
-        err += pow(hist->GetBinContent(i)*jes, 2);
+	if(not isEWK)
+	  err += pow(hist->GetBinContent(i)*lepveto, 2);
+	else
+	  err += pow(hist->GetBinContent(i)*lepveto_ewk, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 
@@ -857,8 +879,9 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
     }
     else{
       leg->AddEntry(hist  , "R(Z/W)-EWK Stat. Unc.","pl");
-      leg->AddEntry(ehistEWK, "Stat. + Syst. (QCD+EWK+PDF)", "F");
-      leg->AddEntry(ehist, "Stat. + Syst.", "F");
+      leg->AddEntry(ehistEWK, "Stat. + Syst. (EWK)", "F");
+      leg->AddEntry(ehistQCD, "Stat. + Syst. (EWK+QCD)", "F");
+      leg->AddEntry(ehist,    "Stat. + Syst. (EWK+QCD+Exp.)", "F");
     }
     leg->Draw("SAME");
 
@@ -1022,7 +1045,6 @@ void rwgam(string fileName, Category category, string observable, bool isEWK, bo
 	err += pow(hist->GetBinContent(i)*phtrig, 2);
 	err += pow(hist->GetBinContent(i)*mettrig, 2);
         err += pow(hist->GetBinContent(i)*lepveto, 2);
-        err += pow(hist->GetBinContent(i)*jes, 2);
         ehist->SetBinError(i, sqrt(err));
     }
 

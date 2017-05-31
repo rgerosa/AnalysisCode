@@ -2282,6 +2282,7 @@ void lepdatamchist(TFile* outfile,
   makehist4(gmtree,gmhist,gmhist_2D,true,sample,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> QCD"<<endl;
   makehist4(qctree,qchist,qchist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+
   cout<<"lepton+jets control region --> EWK W"<<endl;
   makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, wewkhists);
   cout<<"lepton+jets control region --> EWK Z"<<endl;

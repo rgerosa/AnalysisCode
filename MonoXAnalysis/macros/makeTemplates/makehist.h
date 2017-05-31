@@ -38,14 +38,14 @@ const float pfMetMonoVUpper = 8000.;
 const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 40.;
 const float detajj          = 4.0;
-const float detajjrelaxed   = 1.0;
+const float detajjrelaxed   = 1.5;
 const float mjj             = 1300;
-const float mjjrelaxed      = 300;
+const float mjjrelaxed      = 400;
 const float jetmetdphiVBF   = 0.5;
 const float pfMetVBFLower   = 200.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
-const float dphijjrelaxed   = 1.5;
+const float dphijjrelaxed   = 1.3;
 const bool  removeVBF       = false;
 // Additional selections
 const float photonPt        = 175;
@@ -67,11 +67,11 @@ const bool  useSingleMuon   = true;
 // other general options
 const bool  runOnlyData     = false;
 // k-factors
-const bool  applyEWKVKfactor = false;
+const bool  applyEWKVKfactor = true;
 
 // k-factors
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-//string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
+//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v4/vvj.root";
@@ -364,7 +364,8 @@ void makehist4(TTree* tree,            /*input tree*/
   // Met trigger efficiency
   TFile* triggerfile_MET     = NULL;
   TFile* triggerfile_MET_zmm = NULL;
-  vector<TFile*> triggerfile_MET_binned;
+  vector<TFile*> triggerfile_MET_binned_Wmn;
+  vector<TFile*> triggerfile_MET_binned_Zmm;
   if(useMoriondSetup){
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
       // Use Wmn or Wen for W+jets and SR
@@ -378,16 +379,24 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     else{
       if(useSingleMuon){
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_0.0_800.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_800.0_1200.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1200.0_1700.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1700.0_3000.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_0.0_800.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_800.0_1200.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1200.0_1700.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_1700.0_3000.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_0.0_800.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_800.0_1200.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1200.0_1700.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1700.0_3000.0.root"));
       }
       else{
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_0.0_800.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_800.0_1200.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1200.0_1700.0.root"));
-	triggerfile_MET_binned.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1700.0_3000.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_0.0_800.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_800.0_1200.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1200.0_1700.0.root"));
+	triggerfile_MET_binned_Wmn.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_ele_mjj_vbf_1700.0_3000.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_0.0_800.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_800.0_1200.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1200.0_1700.0.root"));
+	triggerfile_MET_binned_Zmm.push_back(TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/metTriggerEfficiency_mjj_vbf_zmm_1700.0_3000.0.root"));
       }
     }
   }
@@ -434,10 +443,15 @@ void makehist4(TTree* tree,            /*input tree*/
     triggermet_graph_zmm = triggermet_zmm->CreateGraph();
   }
   
-  vector<TF1*> triggermet_func_binned;
-  if(triggerfile_MET_binned.size() != 0){
-    for(auto ifile : triggerfile_MET_binned)
-      triggermet_func_binned.push_back((TF1*) ifile->Get("efficiency_func"));    
+  vector<TF1*> triggermet_func_binned_Wmn;
+  vector<TF1*> triggermet_func_binned_Zmm;
+  if(triggerfile_MET_binned_Wmn.size() != 0){
+    for(auto ifile : triggerfile_MET_binned_Wmn)
+      triggermet_func_binned_Wmn.push_back((TF1*) ifile->Get("efficiency_func"));    
+  }
+  if(triggerfile_MET_binned_Zmm.size() != 0){
+    for(auto ifile : triggerfile_MET_binned_Zmm)
+      triggermet_func_binned_Zmm.push_back((TF1*) ifile->Get("efficiency_func"));    
   }
 
   // Photon trigger efficiency measured in jetHT
@@ -1200,20 +1214,32 @@ void makehist4(TTree* tree,            /*input tree*/
       else if(triggermet_graph and sample == Sample::zmm)
 	sfwgt *= triggermet_graph->Eval(min(pfmet,triggermet_graph->GetXaxis()->GetXmax()));      
       // for VBF
-      else if(triggermet_func_binned.size() != 0 and (category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed)){
+      else if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed){
 	if(centralJets.size()+forwardJets.size() >= 2){
 	  TLorentzVector jet1 ;
 	  TLorentzVector jet2 ;
 	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	  if((jet1+jet2).M() < 800)
-	    sfwgt *= triggermet_func_binned.at(0)->Eval(min(pfmet,triggermet_func_binned.at(0)->GetXaxis()->GetXmax()));
-	  else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
-	    sfwgt *= triggermet_func_binned.at(1)->Eval(min(pfmet,triggermet_func_binned.at(1)->GetXaxis()->GetXmax()));
-	  else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
-	    sfwgt *= triggermet_func_binned.at(2)->Eval(min(pfmet,triggermet_func_binned.at(2)->GetXaxis()->GetXmax()));
-	  else if((jet1+jet2).M() >= 1700)
-	    sfwgt *= triggermet_func_binned.at(3)->Eval(min(pfmet,triggermet_func_binned.at(3)->GetXaxis()->GetXmax()));	  
+	  if(sample != Sample::zmm){
+	    if((jet1+jet2).M() < 800)
+	      sfwgt *= triggermet_func_binned_Wmn.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(0)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
+	      sfwgt *= triggermet_func_binned_Wmn.at(1)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(1)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
+	      sfwgt *= triggermet_func_binned_Wmn.at(2)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(2)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1700)
+	      sfwgt *= triggermet_func_binned_Wmn.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(3)->GetXaxis()->GetXmax()));	  
+	  }
+	  else{
+	    if((jet1+jet2).M() < 800)
+	      sfwgt *= triggermet_func_binned_Zmm.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(0)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
+	      sfwgt *= triggermet_func_binned_Zmm.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(1)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
+	      sfwgt *= triggermet_func_binned_Zmm.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(2)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1700)
+	      sfwgt *= triggermet_func_binned_Zmm.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(3)->GetXaxis()->GetXmax()));	  
+	  }	  
 	}
       }
     }
@@ -1256,7 +1282,7 @@ void makehist4(TTree* tree,            /*input tree*/
     Double_t kewkgt = 1.0;
     if((category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet) and isMC){
       double genpt = *wzpt;
-      if(jetpt->size() > 2) {
+      if(jetpt->size() >= 2) {
 	TLorentzVector jet1 ;
 	TLorentzVector jet2 ;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
@@ -1478,13 +1504,11 @@ void makehist4(TTree* tree,            /*input tree*/
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjj) continue;
       if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijj) continue;
-
       goodVBF = true;
     }
 
     ///////////////
     else if(category == Category::VBFrelaxed){
-
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF) continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
@@ -1520,6 +1544,7 @@ void makehist4(TTree* tree,            /*input tree*/
     
     //////// Remove Category Overlaps    
     if(category == Category::VBF and goodVBF == false) continue;
+    if(category == Category::VBFrelaxed and goodVBF == false) continue;
     if(category == Category::monoV and goodMonoV == false) continue;
     if(category == Category::monojet and goodMonoJet == false) continue;
     
@@ -2208,7 +2233,9 @@ void makehist4(TTree* tree,            /*input tree*/
     trackingefficiencyFile_electron->Close();
   if(postFitFile != NULL)
     postFitFile->Close();
-  for(auto file : triggerfile_MET_binned)
+  for(auto file : triggerfile_MET_binned_Wmn)
+    file->Close();
+  for(auto file : triggerfile_MET_binned_Zmm)
     file->Close();
 }
 #endif

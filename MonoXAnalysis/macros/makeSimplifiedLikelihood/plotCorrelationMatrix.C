@@ -189,6 +189,10 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monojet_text.png").c_str());
+    TFile* outputFile = new TFile((outputDIR+"/correlation_monojet.root").c_str(),"RECREATE");
+    outputFile->cd();
+    corr->Write("correlation_monojet");
+    outputFile->Close();
   }
   else if(category == Category::monoV){
     corr->SetMarkerColor(kBlack);
@@ -204,6 +208,10 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
     canvas->SaveAs((outputDIR+"/correlation_monov_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_monov_text.png").c_str());
+    TFile* outputFile = new TFile((outputDIR+"/correlation_monov.root").c_str(),"RECREATE");
+    outputFile->cd();
+    corr->Write("correlation_monov");
+    outputFile->Close();
   }
   else if(category == Category::total){
     corr->SetMarkerColor(kBlack);
@@ -220,5 +228,9 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     canvas->SaveAs((outputDIR+"/correlation_total_text.pdf").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.png").c_str());
     canvas->SaveAs((outputDIR+"/correlation_total_text.root").c_str());
+    TFile* outputFile = new TFile((outputDIR+"/correlation_total.root").c_str(),"RECREATE");
+    outputFile->cd();
+    corr->Write("correlation_total");
+    outputFile->Close();
   }
 }

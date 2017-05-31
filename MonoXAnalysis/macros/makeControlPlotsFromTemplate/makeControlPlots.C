@@ -939,7 +939,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::twojet and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.65,1.35);
   else if(category == Category::VBFrelaxed and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if(category == Category::VBF and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.5,1.5);
   else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")

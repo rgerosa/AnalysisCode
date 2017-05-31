@@ -2,16 +2,22 @@
 #include "../makeTemplates/histoUtils2D.h"
 #include "../CMS_lumi.h"
 
-float musf = 0.015;
-float elsf = 0.02;
-float phsf = 0.02;
+float musf = 0.010;
+float elsf = 0.015;
+float phsf = 0.020;
 float mutrack = 0.01;
 float eltrack = 0.01;
-float mettrig = 0.01;
+float mettrig = 0.02;
 float eltrig = 0.01;
-float phtrig = 0.01;
+float phtrig = 0.02;
 float lepveto = 0.03;
-float inflateWZ_ewk = sqrt(2);
+float lepveto_ewk = 0.04;
+float jesZ_up = 0.01;
+float jesZ_dw = 0.015;
+float jesW_up = 0.02;
+float jesW_dw = 0.03;
+float jesW_ewk_up = 0.01;
+float jesW_ewk_dw = 0.15;
 
 
 void makePlot(TH1* histoData, TH1* histoMC,const string & observable, const Category & category, const string & observableLatex, const string & postfix, const bool & useNewTheoryUncertainty){
@@ -347,9 +353,9 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     gbkg_gam->Add(qbkg_gam);
     gbkg_gam->Add(vgbkg_gam);
     gbkg_gam->Add(vlbkg_gam);
+    gbkg_gam->Rebin(rebinFactor);
   }
 
-  gbkg_gam->Rebin(rebinFactor);
 
   //SYS Unc on ratios
   TH1*  ZG_ewk = NULL;
@@ -390,7 +396,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     ZG_NNLOMiss_1  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_NNLOMiss1_"+observable).c_str()))->Clone("ZG_NNLOMiss1");
     ZG_NNLOMiss_2  = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_NNLOMiss2_"+observable).c_str()))->Clone("ZG_NNLOMiss2");  
   }
-  
+
   ////
   TH1*  ZW_ewk = NULL;
   TH1*  ZW_re1 = NULL;
@@ -494,6 +500,9 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += ZWMC_mm->GetBinError(iBin+1)*ZWMC_mm->GetBinError(iBin+1);
     err += pow(ZWMC_mm->GetBinContent(iBin+1)*musf*2,2);
     err += pow(ZWMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
+    if(category == Category::VBF) // small residual uncertainty --> mostly cancelling out
+      err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
+
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
       err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
@@ -514,10 +523,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
       err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_mm->GetBinContent(iBin+1), 2);
     }
-    if(category == Category::VBF)
-      ZWMC_mm->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
-    else
-      ZWMC_mm->SetBinError(iBin+1,sqrt(err));
+    ZWMC_mm->SetBinError(iBin+1,sqrt(err));
   }
   
   for(int iBin = 0; iBin < ZWMC_ee->GetNbinsX(); iBin++){
@@ -525,6 +531,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += ZWMC_ee->GetBinError(iBin+1)*ZWMC_ee->GetBinError(iBin+1);
     err += pow(ZWMC_ee->GetBinContent(iBin+1)*elsf*2,2);
     err += pow(ZWMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
+    if(category == Category::VBF)
+      err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
       err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
@@ -545,10 +553,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
       err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
     }
-    if(category == Category::VBF)
-      ZWMC_ee->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
-    else
-      ZWMC_ee->SetBinError(iBin+1,sqrt(err));
+    ZWMC_ee->SetBinError(iBin+1,sqrt(err));
   }
 
   for(int iBin = 0; iBin < ZWMC_ll->GetNbinsX(); iBin++){
@@ -560,6 +565,8 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(mutrack/2)*2,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(mettrig/2),2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(eltrig/2),2);
+    if(category == Category::VBF)
+      err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
       err += pow(ZW_re1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
@@ -580,12 +587,9 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
       err += pow(ZW_NNLOMiss_1->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
       err += pow(ZW_NNLOMiss_2->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
     }
-    if(category == Category::VBF)
-      ZWMC_ll->SetBinError(iBin+1,inflateWZ_ewk*sqrt(err));
-    else
-      ZWMC_ll->SetBinError(iBin+1,sqrt(err));
+    ZWMC_ll->SetBinError(iBin+1,sqrt(err));
   }
-
+  
   TH1* ZGData_mm = NULL;
   TH1* ZGData_ee = NULL;
   TH1* ZGData_ll = NULL;
