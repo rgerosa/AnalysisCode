@@ -14,10 +14,6 @@ options.register (
 	'isReMiniAOD',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'flag to indicate new re-miniAOD');
 
-options.register (
-	'isFastSIM',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
-	'flag to indicate full or fast SIM for MC');
-
 ## MET filter options
 options.register (
 	'filterHighMETEvents',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
@@ -148,6 +144,10 @@ options.register (
 	'addSubstructurePuppi',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'run substructure algo for AK8Puppi jets (Pruning, softDrop)');
 
+options.register (
+	'useMiniAODSubstructure',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'use miniAOD AK8CHS and AK8Puppi jets instead of re-running');
+
 ## processName
 options.register (
 	'processName','TREE',VarParsing.multiplicity.singleton,VarParsing.varType.string,
@@ -237,7 +237,6 @@ print "##### Settings ######"
 print "##### General #####"
 print "Running with isMC                = ",options.isMC	
 print "Running with isReMiniAOD         = ",options.isReMiniAOD	
-print "Running with isFastSIM           = ",options.isFastSIM
 print "Running with processName         = ",options.processName	
 print "Running with miniAODProcess      = ",options.miniAODProcess	
 print "Running with outputFileName      = ",options.outputFileName	
@@ -284,6 +283,7 @@ print "Running with applyDiElectronFilter  = ",options.applyDiElectronFilter
 print "##### Jet Substructure #####"
 print "Running with addSubstructureCHS   = ",options.addSubstructureCHS
 print "Running with addSubstructurePuppi = ",options.addSubstructurePuppi
+print "Running with useMiniAODSubstructure = ",options.useMiniAODSubstructure
 print "##### Generator info #####"
 print "Running with useLHEWeights       = ",options.useLHEWeights
 print "Running with addQCDPDFWeights    = ",options.addQCDPDFWeights
@@ -356,7 +356,7 @@ else:
 		numberOfStreams = cms.untracked.uint32(options.nThreads))
 
 
-#process.source.eventsToProcess = cms.untracked.VEventRange('1:887:1672340','1:1450:1672623','1:1450:1023397');
+#process.source.eventsToProcess = cms.untracked.VEventRange("273725:305:443915886");
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 #					ignoreTotal = cms.untracked.int32(1),
 #					moduleMemorySummary = cms.untracked.bool(True)
@@ -384,7 +384,7 @@ process.load('AnalysisCode.MonoXAnalysis.METFilters_cff')
 
 # run cut-based electron ID https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedElectronIdentificationRun2
 from AnalysisCode.MonoXAnalysis.ElectronTools_cff import ElectronTools
-ElectronTools(process,options.addEGMSmear,options.isMC,options.addEGMRegression,addElectronCorrection = False)
+ElectronTools(process,options.addEGMSmear,options.isMC,options.addEGMRegression, addElectronCorrection = False)
 
 # run cut-based photon ID 
 from AnalysisCode.MonoXAnalysis.PhotonTools_cff import PhotonTools
@@ -399,7 +399,7 @@ jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.
 ## apply JEC and propagation on MET for AK4PFPuppi
 if options.addPuppiJets:
 	jetPuppiCollName = JetCorrector(process,jetPuppiCollName,"AK4PFPuppi",options.isMC,options.applyL2L3Residuals)
-
+	
 # to apply analysis selections
 process.load('AnalysisCode.MonoXAnalysis.selectionObjects_cfi')
 process.selectedObjects.jets = cms.InputTag(jetCollName)
@@ -422,7 +422,7 @@ if options.addQGLikelihood:
 	jetCollName = addQGLikelihood(process,jetCollName,"");
 	if options.addPuppiJets:
 		jetPuppiCollName = addQGLikelihood(process,jetPuppiCollName,"Puppi");
-
+		
 ### correct the MET
 from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
 if not options.isReMiniAOD: #### don't 
@@ -472,70 +472,52 @@ else:
                                       fileName = cms.untracked.string(options.outputFileName),
                                       outputCommands = cms.untracked.vstring(
                                         'drop *',
-					'keep *_*reducedEgamma*_*_*',
-					'keep *_offlineSlimmedPrimaryVertices*_*_*',
-					'keep *_packedPFCandidates_*_*',
-                                      	'keep *_*T1*_*_*'+options.processName+'*',
-                                      	'keep *_*metSysProducer*_*_*'+options.processName+'*',
-                                      	'drop *_*T0*_*_*'+options.processName+'*',
-                                      	'drop *_*T2*_*_*'+options.processName+'*',
-                                      	'keep *_*slimmed*_*_*'+options.processName+'*',
-					'keep *_*slimmedJets*_*_*',
-					'keep *_*slimmedMuons*_*_*',
-					'keep *_*slimmedElectrons*_*_*',
-					'keep *_*slimmedTaus*_*_*',
-					'keep *_*slimmedPhotons*_*_*',
-                                      	'keep *_*slimmedMETs*_*_*',
-                                      	'keep *_patJetsAK8*_*_*',
-                                      	'keep *_*Matched_*_*',
-                                      	'keep *_*Packed_*_*',
-					'keep *_*selectedObjects*_*_*',
-					'keep *_*mvaMET*_*_*',
-					'keep *_*t1mumet*_*_*',
-					'keep *_*t1elmet*_*_*',
-					'keep *_*t1phmet*_*_*',
-					'keep *_*t1taumet*_*_*',
+                                      	'keep *_*selectedObjects*_*_*',
+                                      	'keep *_*t1*_*_*',
                                       	))
 
    process.output = cms.EndPath(process.out)
 
 #### substructure sequence
-from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
 boostedJetCollection = "";
 boostedPuppiJetCollection = "";
-if options.addSubstructureCHS:
-	boostedJetCollection = JetSubstructure(process,
-					       options.isMC,
-					       coneSize = 0.8, 
-					       algo = "AK",
-					       pileupMethod = "chs", 
-					       selection = "pt > 190 && abs(eta) < 2.5",
-					       addPruning   = True, 
-					       addSoftDrop  = True, 
-					       addTrimming  = False, 
-					       addFiltering = False,
-					       addNsubjettiness = True, 
-					       addEnergyCorrelation = False, 
-					       addQJets        = False,
-					       addQGLikelihood = False);
-
-if options.addSubstructurePuppi:
-	boostedPuppiJetCollection = JetSubstructure(process,
-						    options.isMC,
-						    coneSize = 0.8, 
-						    algo = "AK",
-						    pileupMethod = "Puppi", 
-						    selection = "pt > 190 && abs(eta) < 2.5",
-						    addPruning  = True, 
-						    addSoftDrop = True, 
-						    addTrimming = False,
-						    addFiltering = False,
-						    addNsubjettiness = True, 
-						    addEnergyCorrelation = False, 
-						    addQJets = False,
-						    addQGLikelihood = False);
-
-
+if not options.useMiniAODSubstructure:
+	from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
+	if options.addSubstructureCHS:
+		boostedJetCollection = JetSubstructure(process,
+						       options.isMC,
+						       coneSize = 0.8, 
+						       algo = "AK",
+						       pileupMethod = "chs", 
+						       selection = "pt > 190 && abs(eta) < 2.5",
+						       addPruning   = True, 
+						       addSoftDrop  = True, 
+						       addTrimming  = False, 
+						       addFiltering = False,
+						       addNsubjettiness = True, 
+						       addEnergyCorrelation = False, 
+						       addQJets        = False,
+						       addQGLikelihood = False);
+		
+	if options.addSubstructurePuppi:
+			boostedPuppiJetCollection = JetSubstructure(process,
+								    options.isMC,
+								    coneSize = 0.8, 
+								    algo = "AK",
+								    pileupMethod = "Puppi", 
+								    selection = "pt > 190 && abs(eta) < 2.5",
+								    addPruning  = True, 
+								    addSoftDrop = True, 
+								    addTrimming = False,
+								    addFiltering = False,
+								    addNsubjettiness = True, 
+								    addEnergyCorrelation = False, 
+								    addQJets = False,
+								    addQGLikelihood = False);
+			
+else:	
+	boostedJetCollection = JetCorrector(process,"slimmedJetsAK8","AK8PFchs",options.isMC, options.applyL2L3Residuals);
+	
 ### apply event selections
 from AnalysisCode.MonoXAnalysis.applyEventFilters_cff import applyEventFilters
 looseMuonPt = 10. ; tightMuonPt = 20.; 
@@ -700,6 +682,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      minJetPtBveto        = cms.double(20),
 			      minJetPtAK4Store     = cms.double(25),
 			      ## CHS jet substructure
+			      useMiniAODSubstructure = cms.bool(options.useMiniAODSubstructure),
 			      addSubstructureCHS   = cms.bool(options.addSubstructureCHS),
 			      boostedJetsCHS       = cms.InputTag(boostedJetCollection),
 			      addSubstructurePuppi = cms.bool(options.addSubstructurePuppi),
@@ -718,6 +701,8 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 
 if options.useMiniAODMet:
 	process.tree.t1met = cms.InputTag("slimmedMETs","",options.miniAODProcess)
+	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
+if options.useMiniAODPuppiMet:
 	process.tree.puppit1met = cms.InputTag("slimmedMETsPuppi","",options.miniAODProcess)
 
 if options.isReMiniAOD:
@@ -854,15 +839,6 @@ if options.addSubstructurePuppi:
 				)
 			))
 
-## fast sim business
-if options.isFastSIM:
-	## fix LHE info
-	process.tree.lheinfo = cms.InputTag("source")
-	process.tree.lheRuninfo = cms.InputTag("source")
-	process.gentree.lheinfo = cms.InputTag("source")
-	process.gentree.lheRuninfo = cms.InputTag("source")	
-	process.tree.pileup = cms.InputTag("addPileupInfo");
-	
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
 	if options.isMC:

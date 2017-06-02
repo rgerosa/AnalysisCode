@@ -115,8 +115,8 @@ void CandCorrectedMETProducerT<T>::produce(edm::Event& iEvent, const edm::EventS
     pat::MET* ccmetcand = metH->front().clone();
     ccmetcand->setP4(reco::Candidate::LorentzVector(ccmetx, ccmety, 0., ccmet));
     output->push_back(*ccmetcand);
-
     iEvent.put(output);
+    if(ccmetcand) delete ccmetcand;
 
 }
 
@@ -140,13 +140,12 @@ reco::Candidate::LorentzVector CandCorrectedMETProducerT<T>::findParticle(const 
     const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>(&(pfCandCollection.at(icand)));
     if(lPack->puppiWeightNoLep() == 0) // in case of puppi, only the one used for MET calculations are useful                                                                   
       continue;
-
     for(auto ipart : particles){
       if(ipart == ptrCand){
         total4V += ptrCand->p4()*lPack->puppiWeightNoLep();
         break;
       }
-    }
+    }    
   }
 
   particles.clear();
@@ -231,8 +230,8 @@ void CandCorrectedMETProducerT<pat::Muon>::produce(edm::Event& iEvent, const edm
     pat::MET* ccmetcand = metH->front().clone();
     ccmetcand->setP4(reco::Candidate::LorentzVector(ccmetx, ccmety, 0., ccmet));
     output->push_back(*ccmetcand);
-
     iEvent.put(output);
+    if(ccmetcand) delete ccmetcand;
 }
 
 

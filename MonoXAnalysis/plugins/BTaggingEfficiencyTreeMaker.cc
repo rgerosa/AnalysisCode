@@ -122,11 +122,6 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
   // loop over jets
   StringCutObjectSelector<pat::Jet> jetSelection(selection);
 
-  // apply pileup jet id                                                                                                                                                   
-  //  bool isPuppi = false;
-  //  if(TString(srcJets.label()).Contains("Puppi"))
-  //  isPuppi = true;
-
   int ijet = 0;
   for(auto itJet = jetsH->begin(); itJet != jetsH->end(); ++itJet){
 
@@ -173,21 +168,10 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
 	}
       }
       
-      if (skipjet) continue;
-      
-      // require jet id
-      bool passjetid = applyJetID(jet,"loose");
-      if (!passjetid)
-	continue;
-
-      // require puid
-      // bool passpuid = applyPileupJetID(jet,"medium",isPuppi);
-      // if (!passpuid)
-      // continue;
-
+      if (skipjet) continue;      
       int hadronFlavor = jet.hadronFlavour();          
-      for(auto iPSet : bDiscriminatorInfo){ 
-      
+
+      for(auto iPSet : bDiscriminatorInfo){       
 	std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
 	std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
 	double wpValue = iPSet.getParameter<double>("wpValue");
