@@ -179,8 +179,8 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
 	continue;
 
       int hadronFlavor = jet.hadronFlavour();          
-      for(auto iPSet : bDiscriminatorInfo){ 
-      
+
+      for(auto iPSet : bDiscriminatorInfo){       
 	std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
 	std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
 	double wpValue = iPSet.getParameter<double>("wpValue");
