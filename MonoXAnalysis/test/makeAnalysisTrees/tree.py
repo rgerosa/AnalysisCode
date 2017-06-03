@@ -302,8 +302,6 @@ if options.inputFiles == []:
 	if not options.isMC :
 
 		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/327DB0D1-F93C-E611-8A11-02163E01450B.root')
-		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/48E5D6C8-F93C-E611-8A3E-02163E014439.root')
-		#process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/528A6ECD-F93C-E611-B0A1-02163E01383E.root')
 		process.source.fileNames.append('/store/data/Run2016C/MET/MINIAOD/PromptReco-v2/000/275/782/00000/768B07C9-F93C-E611-A52A-02163E0145D2.root')
 		#process.source.fileNames.append('/store/data/Run2016B/SinglePhoton/MINIAOD/23Sep2016-v1/50000/004F3A63-2E84-E611-AEFB-00266CFFC43C.root')
 		#process.source.fileNames.append('/store/data/Run2016G/MET/MINIAOD/23Sep2016-v1/90000/124A2693-B38A-E611-BC48-002590FC5ACC.root')
@@ -680,9 +678,9 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      boostedJetsPuppi     = cms.InputTag(boostedPuppiJetCollection),
 			      ## b-tag scale factors
 			      addBTagScaleFactor         = cms.bool(True),
-			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_80X.csv'), 	     
-			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedMVAV2BJetTags_80X.csv'), 	 
-			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/pfCombinedInclusiveSecondaryVertexV2BJetTags_76X_subjet.csv'),
+			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/CSVv2_Moriond17_B_H.csv'), 	     
+			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/cMVAv2_Moriond17_B_H.csv'), 	 
+			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/cMVAv2_Moriond17_B_H.csv'),
 			      ## photon id
 			      addPhotonIDVariables = cms.bool(options.addPhotonIDVariables),
 			      photonIDCollection   = cms.InputTag("slimmedPhotons"),
@@ -732,7 +730,7 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 				 cleanPhotonJet  = cms.bool(True),
 				 srcPhotons      = cms.InputTag("selectedObjects","photons"),
 				 selection       = cms.string('abs(eta)<2.4 && pt > 20'),
-				 ptBins          = cms.vdouble(20,30,40,50,60,80,110,150,1000),
+				 ptBins          = cms.vdouble(20,25,30,40,50,60,80,120,160,200,250,350,450,600,800),
 				 etaBins         = cms.vdouble(0.,0.5,1.,1.5,2.0,2.4),
 				 ## CSV v2 wp in 76X
 				 bDiscriminatorInfo = cms.VPSet(

@@ -66,6 +66,7 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
   TTreeReaderValue<UChar_t> hltmwm300   (myReader,"hltmetwithmu300");
 
   TTreeReaderValue<UChar_t> hlte       (myReader,"hltsingleel");
+  TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltp165    (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175    (myReader,"hltphoton175");
 
@@ -249,13 +250,14 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     else
       currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
 
+    if(*event != 246060098) continue;
 
     // trigger
     int hlt = 0;
     if (controlRegion == Sample::sig || controlRegion == Sample::zmm || controlRegion == Sample::wmn)// single and double muon                                         
-      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm120+*hltmwm170+*hltmwm300;
+      hlt = *hltm90+*hltm100+*hltm110+*hltm120+*hltmwm90+*hltmwm170+*hltmwm120+*hltmwm300;
     else if(controlRegion == Sample::zee || controlRegion == Sample::wen)
-      hlt = *hlte;
+      hlt = *hlte+*hltenoiso;
     else if(controlRegion == Sample::gam)
       hlt = *hltp165+*hltp175;
     if(hlt == 0) continue;
@@ -302,15 +304,12 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
       n_electronLooseSelection++;
       nwgt_electronLooseSelection += *wgt;
       if(*el1pt < 40) continue;
-       if(fabs(*el1eta) > 2.5) continue;
        if(*el1id != 1) continue;
     }
     else if(controlRegion == Sample::zee){      
       if (*nelectrons != 2 ) continue;
       n_electronLooseSelection++;
       nwgt_electronLooseSelection += *wgt;
-      if (fabs(*el1eta) > 2.5) continue;
-      if (fabs(*el2eta) > 2.5) continue;
       if (*el1pid == *el2pid) continue;
       if (not ((*el1pt > 40 and *el1id == 1) or (*el2pt > 40 and *el2id == 1))) continue;
       if (*zeemass < 60 or *zeemass > 120) continue;
@@ -350,7 +349,7 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
 
     /////////// met + mT
     if(controlRegion == Sample::wen){
-      if(*met < 50) continue;
+      if(*met  < 50) continue;
       if(*wemt > 160) continue;
     }    
     else if(controlRegion == Sample::wmn){
@@ -569,6 +568,9 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
 	if((leadingJet+subleadingJet).M() < mjj_cut) continue; 
 	n_mjjVBF_tight++;
 	nwgt_mjjVBF_tight += *wgt;       
+
+	VBFSelection <<*run <<"  "<<*lumi<<" "<<*event<<"\n";
+
 
       }
       

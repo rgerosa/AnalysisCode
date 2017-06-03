@@ -4,7 +4,7 @@
 static float minTau2Tau1 = 0.1;
 static bool saveTextYields = false;
 static bool addEWKBkg = false;
-static bool addVgamma = false;
+static bool addVgamma = true;
 
 void makeControlPlots(string templateFileName, 
 		      Category category, 
@@ -197,14 +197,12 @@ void makeControlPlots(string templateFileName,
   else if(controlRegion == "SR"){
 
     datahist = (TH1*)inputFile->FindObjectAny(("datahist_"+observable).c_str());
-
     if(category == Category::monojet and observable == "met")
       qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     else if(category == Category::monoV and observable == "met")
       qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     if(qcdhist == 0 or qcdhist == NULL)
-      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());
-    
+      qcdhist  = (TH1*)inputFile->FindObjectAny(("qbkghist_"+observable).c_str());    
     tophist  = (TH1*)inputFile->FindObjectAny(("tbkghist_"+observable).c_str());
     vlhist   = (TH1*)inputFile->FindObjectAny(("wjethist_"+observable).c_str());
     vllhist  = (TH1*)inputFile->FindObjectAny(("zjethist_"+observable).c_str());
@@ -433,6 +431,8 @@ void makeControlPlots(string templateFileName,
 	yield += ewkzhist->GetBinContent(i);
 	yield += ewkwhist->GetBinContent(i);
       }
+      if(vghist and addVgamma)
+	yield += vghist->GetBinContent(i);
       yield += vllhist->GetBinContent(i);
       yield += vlhist->GetBinContent(i);
       yield += vnnhist->GetBinContent(i);
@@ -466,8 +466,8 @@ void makeControlPlots(string templateFileName,
       tophist->SetLineColor(kBlack);
   }
   if(vghist){
-    vghist->SetFillColor(kGreen+1);
-    vghist->SetLineColor(kBlack);
+    vghist->SetFillColor(TColor::GetColor("#4897D8"));
+    vghist->SetLineColor(TColor::GetColor("#4897D8"));
   }
   if(tophist_matched){
     tophist_matched->SetFillColor(kGreen+1);
@@ -479,20 +479,25 @@ void makeControlPlots(string templateFileName,
   }
   if(dbhist){
     dbhist->SetFillColor(TColor::GetColor("#4897D8"));
+    dbhist->SetLineColor(kBlack);
   }
   if(qcdhist) {
     qcdhist->SetFillColor(TColor::GetColor("#F1F1F2"));
     qcdhist->SetLineColor(kBlack);
   }
-  if(gamhist){
-    if(controlRegion == "SR"){
+  if(gamhist){ 
+    if(controlRegion == "SR" or controlRegion == "wmn" or controlRegion == "wen"){
       gamhist->SetFillColor(TColor::GetColor("#9A9EAB"));
       gamhist->SetLineColor(TColor::GetColor("#9A9EAB"));
     }
-    else{
+    else if (controlRegion == "gam"){
       gamhist->SetFillColor(TColor::GetColor("#db4dff"));
       gamhist->SetLineColor(kBlack);
     } 
+    else {
+      gamhist->SetFillColor(TColor::GetColor("#FAAF08"));
+      gamhist->SetLineColor(TColor::GetColor("#FAAF08"));
+    }
   }
 
   if(ewkwhist){
@@ -567,12 +572,12 @@ void makeControlPlots(string templateFileName,
     stack->Add(gamhist);
   }
   else if(controlRegion == "zmm" or controlRegion == "zee"){
-    stack->Add(qcdhist);
-    stack->Add(gamhist);
+    stack->Add(qcdhist);    
+    vlhist->Add(gamhist);
     stack->Add(vlhist);
     stack->Add(tophist);
+    if(vghist and addVgamma) dbhist->Add(vghist);
     stack->Add(dbhist);
-    if(vghist and addVgamma) stack->Add(vghist);
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
@@ -581,12 +586,11 @@ void makeControlPlots(string templateFileName,
   }
   else if(controlRegion == "wmn" or controlRegion == "wen" or controlRegion == "taun"){
     stack->Add(qcdhist);
-    if(controlRegion == "wmn")
-      stack->Add(gamhist);
+    vllhist->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
+    if(vghist and addVgamma) dbhist->Add(vghist);
     stack->Add(dbhist);
-    if(vghist and addVgamma) stack->Add(vghist);
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
@@ -595,13 +599,13 @@ void makeControlPlots(string templateFileName,
   }
   else if((controlRegion == "topmu" or controlRegion == "topel") and not plotResonant){
     stack->Add(qcdhist);
-    stack->Add(gamhist);
+    vllhist->Add(gamhist);
     stack->Add(vllhist);
-    if(vghist and addVgamma) stack->Add(vghist);
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
+    if(vghist and addVgamma) dbhist->Add(vghist);
     stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist);    
@@ -610,12 +614,12 @@ void makeControlPlots(string templateFileName,
     stack->Add(qcdhist);
     stack->Add(gamhist);
     stack->Add(vllhist);
-    stack->Add(dbhist);
-    if(vghist and addVgamma) stack->Add(vghist);
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
     }
+    if(vghist and addVgamma) dbhist->Add(vghist);
+    stack->Add(dbhist);
     stack->Add(vlhist);
     stack->Add(tophist_unmatched);    
     stack->Add(tophist_matched);    
@@ -641,12 +645,15 @@ void makeControlPlots(string templateFileName,
       stack->Add(qcdhist);
   }
   else if(controlRegion == "SR"){
+    
     stack->Add(qcdhist);
+    // sum Zll and gamma+jets together
     vllhist->Add(gamhist);
     stack->Add(vllhist);
     stack->Add(tophist);
+    // sum VV and Vgamma
+    dbhist->Add(vghist);
     stack->Add(dbhist);
-    if(vghist and addVgamma) stack->Add(vghist);
     if(category == Category::VBF or category == Category::VBFrelaxed or category == Category::twojet or addEWKBkg){
       ewkwhist->Add(ewkzhist);
       stack->Add(ewkwhist);
@@ -753,114 +760,124 @@ void makeControlPlots(string templateFileName,
 
   if(controlRegion == "gam"){
     leg->AddEntry(datahist, "Data","PLE");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
-    leg->AddEntry(qcdhist, "QCD","F");
-    leg->AddEntry(vlhist, "W+Jets","F");
-    leg->AddEntry(vghist, "V#gamma","F");
+    leg->AddEntry(gamhist,  "#gamma+jets","F");
+    leg->AddEntry(qcdhist,  "QCD","F");
+    leg->AddEntry(vlhist,   "W+Jets","F");
+    leg->AddEntry(vghist,   "V#gamma","F");
   }
 
   else if(controlRegion == "zmm"){
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z#rightarrow #mu#mu","F");
-    leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(dbhist,  "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
+      leg->AddEntry(ewkwhist, "EWK V+jets","F");
+    leg->AddEntry(tophist,    "Top","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,   "VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+    leg->AddEntry(vlhist,  "W #rightarrow #mu#nu, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "zee"){
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vllhist, "Z #rightarrow ee","F");
-    leg->AddEntry(vlhist,  "W #rightarrow e #nu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
     leg->AddEntry(tophist, "Top","F");
-    leg->AddEntry(dbhist,  "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+    leg->AddEntry(vlhist,  "W #rightarrow e #nu, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "wmn"){
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
+      leg->AddEntry(ewkwhist,  "EWK V+jets","F");
     leg->AddEntry(tophist,  "Top","F");
-    leg->AddEntry(dbhist,   "Di-Boson","F");
-    leg->AddEntry(gamhist,  "#gamma+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist, "VV","F");
+    else
+      leg->AddEntry(dbhist, "VV,V#gamma","F");    
+    leg->AddEntry(vllhist,  "Z #rightarrow #mu#mu, #gamma+jets","F");
     leg->AddEntry(qcdhist,  "QCD","F");
   }
 
   else if(controlRegion == "taun"){
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist,   "W #rightarrow #tau#nu","F");
-    leg->AddEntry(vllhist,  "Z #rightarrow ll","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
+      leg->AddEntry(ewkwhist,  "EWK V+jets","F");
     leg->AddEntry(tophist,  "Top","F");
-    leg->AddEntry(dbhist,   "Di-Boson","F");
-    leg->AddEntry(gamhist,  "#gamma+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist, "VV","F");
+    else
+      leg->AddEntry(dbhist, "VV,V#gamma","F");
+
+    leg->AddEntry(vllhist,  "Z #rightarrow ll, #gamma+jets","F");
     leg->AddEntry(qcdhist,  "QCD","F");
   }
 
   else if(controlRegion == "wen"){
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
-    leg->AddEntry(vllhist,"Z #rightarrow ee","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
+      leg->AddEntry(ewkwhist,  "EWK V+jets","F");
     leg->AddEntry(tophist,"Top","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist,"#gamma+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+
+    leg->AddEntry(vllhist,"Z #rightarrow ee, #gamma+jets","F");
     leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "topmu" and plotResonant){
     leg->AddEntry(datahist, "Data","PLE");
     leg->AddEntry(tophist_matched, "Top Resonant","F");
-    leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
+    leg->AddEntry(tophist_unmatched,"Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist,"#gamma+jets","F");
-    leg->AddEntry(qcdhist,"QCD","F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu, #gamma+jets","F");
+    leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "topmu" and not plotResonant){
     leg->AddEntry(datahist,"Data","PLE");
-    leg->AddEntry(tophist,"Top","F");
-    leg->AddEntry(vlhist, "W #rightarrow #mu#nu","F");
-    leg->AddEntry(vllhist,"Z #rightarrow #mu#mu","F");
+    leg->AddEntry(tophist, "Top","F");
+    leg->AddEntry(vlhist,  "W #rightarrow #mu#nu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist,"#gamma+jets","F");
-    leg->AddEntry(qcdhist,"QCD","F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+    leg->AddEntry(vllhist, "Z #rightarrow #mu#mu, #gamma+jets","F");
+    leg->AddEntry(qcdhist, "QCD","F");
   }
 
   else if(controlRegion == "topel" and not plotResonant){
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(tophist, "Top","F");
     leg->AddEntry(vlhist,  "W #rightarrow e#nu","F");
-    leg->AddEntry(vllhist, "Z #rightarrow e#mu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist,  "Di-Boson","F");
-    leg->AddEntry(gamhist, "#gamma+jets","F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+    leg->AddEntry(vllhist, "Z #rightarrow ee, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD","F");
   }
 
@@ -869,40 +886,51 @@ void makeControlPlots(string templateFileName,
     leg->AddEntry(tophist_matched, "Top Resonant","F");
     leg->AddEntry(tophist_unmatched, "Top non Resonant","F");
     leg->AddEntry(vlhist, "W #rightarrow e#nu","F");
-    leg->AddEntry(vllhist,"Z #rightarrow e#mu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist, "Di-Boson","F");
-    leg->AddEntry(gamhist,"#gamma+jets","F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV","F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma","F");
+
+    leg->AddEntry(vllhist,"Z #rightarrow ee, #gamma+jets","F");
     leg->AddEntry(qcdhist,"QCD","F");
   }
 
   else if(controlRegion == "qcd"){
 
     leg->AddEntry(datahist, "Data","PLE");
-    leg->AddEntry(qcdhist,"QCD","F");
-    leg->AddEntry(vnnhist,"Z #rightarrow #nu#nu","F");
-    leg->AddEntry(vlhist,"W #rightarrow l#nu","F");
+    leg->AddEntry(qcdhist,  "QCD","F");
+    leg->AddEntry(vnnhist,  "Z #rightarrow #nu#nu","F");
+    leg->AddEntry(vlhist,   "W #rightarrow l#nu","F");
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
+      leg->AddEntry(ewkwhist,"EWK V + jets","F");
+    if(not addVgamma)
+      leg->AddEntry(dbhist,"VV", "F");
+    else
+      leg->AddEntry(dbhist,"VV,V#gamma", "F");
     leg->AddEntry(tophist, "Top quark", "F");
     leg->AddEntry(vllhist, "Z #rightarrow ll, #gamma+jets","F");
   }
 
   else if(controlRegion == "SR"){
+
     leg->AddEntry(datahist,"Data","PLE");
     leg->AddEntry(vnnhist, "Z #rightarrow #nu#nu","F");
     leg->AddEntry(vlhist,  "W #rightarrow l#nu", "F");
+
     if(category == Category::VBF or category == Category::twojet or category == Category::VBFrelaxed or addEWKBkg)	  
-      leg->AddEntry(ewkwhist,  "EWK W/Z + 2jet","F");
-    if(vghist and addVgamma) leg->AddEntry(vghist, "V#gamma","F");
-    leg->AddEntry(dbhist,  "WW/WZ/ZZ", "F");
+      leg->AddEntry(ewkwhist,"EWK V+jets","F");
+    
+    if(not addVgamma) 
+      leg->AddEntry(dbhist, "VV", "F");
+    else
+      leg->AddEntry(dbhist, "VV,V#gamma","F");
+    
     leg->AddEntry(tophist, "Top quark", "F");
     leg->AddEntry(vllhist, "Z #rightarrow ll, #gamma+jets","F");
     leg->AddEntry(qcdhist, "QCD", "F");
+
     if( not isHiggsInvisible){
       TString mass = TString::Format("%.1f TeV",stof(mediatorMass)/1000); 
       if(monoJhist)
