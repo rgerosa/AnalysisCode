@@ -1,4 +1,5 @@
 import os, re
+import sys
 import FWCore.ParameterSet.Config as cms
   
 ### CMSSW command line parameter parser
@@ -87,6 +88,10 @@ options.register (
 
 options.register (
         'addMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'store met sys variation in the output tree');
+
+options.register (
+        'addPuppiMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'store met sys variation in the output tree');
 	
 options.register (
@@ -269,6 +274,7 @@ print "Running with addPuppiMET            = ",options.addPuppiMET
 print "Running with useMiniAODMet          = ",options.useMiniAODMet
 print "Running with useMiniAODPuppiMet     = ",options.useMiniAODPuppiMet
 print "Running with addMETSystematics      = ",options.addMETSystematics
+print "Running with addPuppiMETSystematics = ",options.addPuppiMETSystematics
 print "Running with useOfficialMETSystematics = ",options.useOfficialMETSystematics
 print "Running with addMETBreakDown        = ",options.addMETBreakDown	
 print "##### Electrons/Photons #####"
@@ -291,6 +297,9 @@ print "Running with isSignalSample      = ",options.isSignalSample
 print "Running with addGenParticles     = ",options.addGenParticles
 print "Running with crossSection        = ",options.crossSection
 print "#####################"
+
+if (options.addSubstructureCHS or options.addSubstructurePuppi) and options.useMiniAODSubstructure:
+	sys.exit("cannot specifiy both useMiniAODSubstructure and one between addSubstructureCHS or addSubstructurePuppi --> exit");
 
 ## Define the CMSSW process
 process = cms.Process(options.processName)
@@ -323,7 +332,6 @@ if options.inputFiles == []:
 #		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
 		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
-
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/SMM_MonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/8C1FE6FF-69D0-E611-91A5-FA163EF2F0A3.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
@@ -425,10 +433,10 @@ from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
 if not options.isReMiniAOD: #### don't 
 	if not options.useMiniAODMet:
 		metCollection = "slimmedMETs"
-		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addBadMuonClean);	
+		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addMETSystematics,options.addBadMuonClean);
 	if options.addPuppiMET and not options.useMiniAODPuppiMet:
 		metCollectionPuppi = "slimmedMETsPuppi"
-		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addBadMuonClean);
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addPuppiMETSystematics,options.addBadMuonClean);
 #### e-gamma fix in met for re-miniAOD
 elif options.isReMiniAOD and not options.useMiniAODMet:
 	from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
@@ -688,7 +696,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      addBTagScaleFactor         = cms.bool(True),
 			      bTagScaleFactorFileCSV     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/CSVv2_Moriond17_B_H.csv'), 	     
 			      bTagScaleFactorFileMVA     = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/cMVAv2_Moriond17_B_H.csv'), 	 
-			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/cMVAv2_Moriond17_B_H.csv'),
+			      bTagScaleFactorFileSubCSV  = cms.FileInPath('AnalysisCode/MonoXAnalysis/data/BTagScaleFactors/subjet_CSVv2_Moriond17_B_H.csv'),
 			      ## photon id
 			      addPhotonIDVariables = cms.bool(options.addPhotonIDVariables),
 			      photonIDCollection   = cms.InputTag("slimmedPhotons"),
@@ -749,21 +757,28 @@ process.tree.puppijetsJESUp =  cms.InputTag("");
 process.tree.puppijetsJESDw =  cms.InputTag("");
 process.tree.puppijetsJER   =  cms.InputTag("");
 
-if options.useOfficialMETSystematics and not options.useMiniAODMet: 
-	process.tree.jetsJESUp = cms.InputTag("shiftedPatJetEnUp")
-	process.tree.jetsJESDw = cms.InputTag("shiftedPatJetEnDown")
-	process.tree.jetsJER   = cms.InputTag("patSmearedJets")
-	process.tree.jetsJESUp = cms.InputTag("metSysProducer",jetCollName+"EnUp")
-	process.tree.jetsJESDw = cms.InputTag("metSysProducer",jetCollName+"EnDown")
-	process.tree.jetsJER   = cms.InputTag("metSysProducer",jetCollName+"Smear")
+if options.addMETSystematics:
+	if options.useOfficialMETSystematics :
+		process.tree.jetsJESUp = cms.InputTag("shiftedPatJetEnUp")
+		process.tree.jetsJESDw = cms.InputTag("shiftedPatJetEnDown")
+		process.tree.jetsJER   = cms.InputTag("patSmearedJets")
+	else:
+		process.tree.jetsJESUp = cms.InputTag("metSysProducer",jetCollName+"EnUp")
+		process.tree.jetsJESDw = cms.InputTag("metSysProducer",jetCollName+"EnDown")
+		process.tree.jetsJER   = cms.InputTag("metSysProducer",jetCollName+"Smear")
 
-if options.addPuppiJets and options.addPuppiMET and not options.useMiniAODPuppiMet:
-	process.tree.puppijetsJESUp = cms.InputTag("shiftedPatJetEnUpPuppi")
-	process.tree.puppijetsJESDw = cms.InputTag("shiftedPatJetEnDownPuppi")
-	process.tree.puppijetsJER   = cms.InputTag("patSmearedJetsPuppi")
-	process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
-	process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
-	process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
+if options.addPuppiMETSystematics:
+	
+	if options.addPuppiJets and options.addPuppiMET and options.useOfficialMETSystematics:
+		process.tree.puppijetsJESUp = cms.InputTag("shiftedPatJetEnUpPuppi")
+		process.tree.puppijetsJESDw = cms.InputTag("shiftedPatJetEnDownPuppi")
+		process.tree.puppijetsJER   = cms.InputTag("patSmearedJetsPuppi")
+		
+	if options.addPuppiJets and options.addPuppiMET and not options.useOfficialMETSystematics:
+		process.tree.puppijetsJESUp = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnUp")
+		process.tree.puppijetsJESDw = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"EnDown")
+		process.tree.puppijetsJER   = cms.InputTag("metSysProducerPuppi",jetPuppiCollName+"Smear")
+
 
 
 # Histo for Btag efficiency

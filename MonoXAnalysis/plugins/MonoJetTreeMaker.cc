@@ -1016,8 +1016,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
     bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_C,"ttbar");
     bMediumMVA.back().load(calibMVA,BTagEntry::FLAV_UDSG,"incl");
 
-    if(addSubstructureCHS or addSubstructurePuppi){
-
+    if(useMiniAODSubstructure or addSubstructureCHS or addSubstructurePuppi){
+      
       bTagScaleFactorFileSubCSV = iConfig.getParameter<edm::FileInPath>("bTagScaleFactorFileSubCSV");
       if ( bTagScaleFactorFileSubCSV.location()!=edm::FileInPath::Local)
 	throw cms::Exception("MonoJetTreeMaker") << " Failed to find File = " << bTagScaleFactorFileSubCSV << " !!\n";
@@ -3419,7 +3419,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       softDropPuppiSubJetBtagSF_2.clear(); softDropPuppiSubJetBtagSFUp_2.clear(); softDropPuppiSubJetBtagSFDown_2.clear();
       
       // in this case one has real jets
-      if(addSubstructurePuppi){ 
+      if(addSubstructurePuppi and not useMiniAODSubstructure){
+ 
 	for(size_t i = 0; i < puppiJetsBoosted.size(); i++){	  
 	  boostedPuppiJetpt  .push_back( puppiJetsBoosted[i]->pt());
 	  boostedPuppiJeteta .push_back( puppiJetsBoosted[i]->eta());
@@ -3723,8 +3724,8 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  }
 	}	
       }
-      else{
-
+      else if(useMiniAODSubstructure){
+	
 	for(size_t i = 0; i < jetsBoosted.size(); i++){	  
  	  boostedPuppiJetpt  .push_back( jetsBoosted[i]->userFloat("ak8PFJetsPuppiValueMap:pt"));
 	  boostedPuppiJeteta  .push_back( jetsBoosted[i]->userFloat("ak8PFJetsPuppiValueMap:eta"));
@@ -3810,6 +3811,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
       }
     }
+
     // phtoon and electron ID info
     if(photonIDH.isValid() and addPhotonIDVariables and not isTriggerTree and not applyDiMuonFilter and not applyDiElectronFilter){
 
@@ -5127,40 +5129,41 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropSubJeteta_1","std::vector<float>",  &softDropSubJeteta_1);
     tree->Branch("softDropSubJetphi_1","std::vector<float>",  &softDropSubJetphi_1);
     tree->Branch("softDropSubJetm_1", "std::vector<float>", &softDropSubJetm_1);
+    tree->Branch("softDropSubJetBtagSF_1",   "std::vector<float>", &softDropSubJetBtagSF_1);
+    tree->Branch("softDropSubJetBtagSFUp_1",   "std::vector<float>", &softDropSubJetBtagSFUp_1);
+    tree->Branch("softDropSubJetBtagSFDown_1",   "std::vector<float>", &softDropSubJetBtagSFDown_1);
+    tree->Branch("softDropSubJetHFlav_1", "std::vector<float>", &softDropSubJetHFlav_1);
+
     if(addSubstructureCHS){
       tree->Branch("softDropSubJetGenpt_1","std::vector<float>",  &softDropSubJetGenpt_1);
       tree->Branch("softDropSubJetGenm_1", "std::vector<float>", &softDropSubJetGenm_1);
       tree->Branch("softDropSubJetGeneta_1", "std::vector<float>", &softDropSubJetGeneta_1);
       tree->Branch("softDropSubJetGenphi_1", "std::vector<float>", &softDropSubJetGenphi_1);      
-      tree->Branch("softDropSubJetHFlav_1", "std::vector<float>", &softDropSubJetHFlav_1);
       tree->Branch("softDropSubJetPFlav_1", "std::vector<float>", &softDropSubJetPFlav_1);
       tree->Branch("softDropSubJetQGL_1", "std::vector<float>", &softDropSubJetQGL_1);
       tree->Branch("softDropSubJetBtag_1", "std::vector<float>", &softDropSubJetBtag_1);
       tree->Branch("softDropSubJetptraw_1", "std::vector<float>", &softDropSubJetptraw_1);
       tree->Branch("softDropSubJetmraw_1", "std::vector<float>", &softDropSubJetmraw_1);
-      tree->Branch("softDropSubJetBtagSF_1",   "std::vector<float>", &softDropSubJetBtagSF_1);
-      tree->Branch("softDropSubJetBtagSFUp_1",   "std::vector<float>", &softDropSubJetBtagSFUp_1);
-      tree->Branch("softDropSubJetBtagSFDown_1",   "std::vector<float>", &softDropSubJetBtagSFDown_1);
     }
     
     tree->Branch("softDropSubJetpt_2","std::vector<float>",  &softDropSubJetpt_2);
     tree->Branch("softDropSubJeteta_2","std::vector<float>",  &softDropSubJeteta_2);
     tree->Branch("softDropSubJetphi_2","std::vector<float>",  &softDropSubJetphi_2);
     tree->Branch("softDropSubJetm_2", "std::vector<float>", &softDropSubJetm_2);
+    tree->Branch("softDropSubJetBtagSF_2",   "std::vector<float>", &softDropSubJetBtagSF_2);
+    tree->Branch("softDropSubJetBtagSFUp_2",   "std::vector<float>", &softDropSubJetBtagSFUp_2);
+    tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<float>", &softDropSubJetBtagSFDown_2);
+    tree->Branch("softDropSubJetHFlav_2", "std::vector<float>", &softDropSubJetHFlav_2);
     if(addSubstructureCHS){
       tree->Branch("softDropSubJetGenpt_2","std::vector<float>",  &softDropSubJetGenpt_2);
       tree->Branch("softDropSubJetGenm_2", "std::vector<float>", &softDropSubJetGenm_2);
       tree->Branch("softDropSubJetGeneta_2", "std::vector<float>", &softDropSubJetGeneta_2);
       tree->Branch("softDropSubJetGenphi_2", "std::vector<float>", &softDropSubJetGenphi_2);
-      tree->Branch("softDropSubJetHFlav_2", "std::vector<float>", &softDropSubJetHFlav_2);
       tree->Branch("softDropSubJetPFlav_2", "std::vector<float>", &softDropSubJetPFlav_2);
       tree->Branch("softDropSubJetQGL_2", "std::vector<float>", &softDropSubJetQGL_2);
       tree->Branch("softDropSubJetBtag_2", "std::vector<float>", &softDropSubJetBtag_2);
       tree->Branch("softDropSubJetptraw_2", "std::vector<float>", &softDropSubJetptraw_2);
       tree->Branch("softDropSubJetmraw_2", "std::vector<float>", &softDropSubJetmraw_2);
-      tree->Branch("softDropSubJetBtagSF_2",   "std::vector<float>", &softDropSubJetBtagSF_2);
-      tree->Branch("softDropSubJetBtagSFUp_2",   "std::vector<float>", &softDropSubJetBtagSFUp_2);
-      tree->Branch("softDropSubJetBtagSFDown_2",   "std::vector<float>", &softDropSubJetBtagSFDown_2);
     }
   }
   
@@ -5284,40 +5287,41 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("softDropPuppiSubJeteta_1","std::vector<float>",  &softDropPuppiSubJeteta_1);
     tree->Branch("softDropPuppiSubJetphi_1","std::vector<float>",  &softDropPuppiSubJetphi_1);
     tree->Branch("softDropPuppiSubJetm_1", "std::vector<float>", &softDropPuppiSubJetm_1);
+    tree->Branch("softDropPuppiSubJetBtagSF_1", "std::vector<float>", &softDropPuppiSubJetBtagSF_1);
+    tree->Branch("softDropPuppiSubJetBtagSFUp_1", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_1);
+    tree->Branch("softDropPuppiSubJetBtagSFDown_1", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_1);
+    tree->Branch("softDropPuppiSubJetHFlav_1", "std::vector<float>", &softDropPuppiSubJetHFlav_1);
     if(addSubstructurePuppi){
       tree->Branch("softDropPuppiSubJetGenpt_1","std::vector<float>",  &softDropPuppiSubJetGenpt_1);
       tree->Branch("softDropPuppiSubJetGenm_1", "std::vector<float>", &softDropPuppiSubJetGenm_1);
       tree->Branch("softDropPuppiSubJetGeneta_1", "std::vector<float>", &softDropPuppiSubJetGeneta_1);
       tree->Branch("softDropPuppiSubJetGenphi_1", "std::vector<float>", &softDropPuppiSubJetGenphi_1);
-      tree->Branch("softDropPuppiSubJetHFlav_1", "std::vector<float>", &softDropPuppiSubJetHFlav_1);
       tree->Branch("softDropPuppiSubJetPFlav_1", "std::vector<float>", &softDropPuppiSubJetPFlav_1);
       tree->Branch("softDropPuppiSubJetQGL_1", "std::vector<float>", &softDropPuppiSubJetQGL_1);
       tree->Branch("softDropPuppiSubJetBtag_1", "std::vector<float>", &softDropPuppiSubJetBtag_1);
       tree->Branch("softDropPuppiSubJetptraw_1", "std::vector<float>", &softDropPuppiSubJetptraw_1);
       tree->Branch("softDropPuppiSubJetmraw_1", "std::vector<float>", &softDropPuppiSubJetmraw_1);
-      tree->Branch("softDropPuppiSubJetBtagSF_1", "std::vector<float>", &softDropPuppiSubJetBtagSF_1);
-      tree->Branch("softDropPuppiSubJetBtagSFUp_1", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_1);
-      tree->Branch("softDropPuppiSubJetBtagSFDown_1", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_1);
     }
 
     tree->Branch("softDropPuppiSubJetpt_2","std::vector<float>",  &softDropPuppiSubJetpt_2);
     tree->Branch("softDropPuppiSubJeteta_2","std::vector<float>",  &softDropPuppiSubJeteta_2);
     tree->Branch("softDropPuppiSubJetphi_2","std::vector<float>",  &softDropPuppiSubJetphi_2);
     tree->Branch("softDropPuppiSubJetm_2", "std::vector<float>", &softDropPuppiSubJetm_2);
+    tree->Branch("softDropPuppiSubJetBtagSF_2", "std::vector<float>", &softDropPuppiSubJetBtagSF_2);
+    tree->Branch("softDropPuppiSubJetBtagSFUp_2", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_2);
+    tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_2);
+    tree->Branch("softDropPuppiSubJetHFlav_2", "std::vector<float>", &softDropPuppiSubJetHFlav_2);
+
     if(addSubstructurePuppi){
       tree->Branch("softDropPuppiSubJetGenpt_2","std::vector<float>",  &softDropPuppiSubJetGenpt_2);
       tree->Branch("softDropPuppiSubJetGenm_2", "std::vector<float>", &softDropPuppiSubJetGenm_2);
       tree->Branch("softDropPuppiSubJetGeneta_2", "std::vector<float>", &softDropPuppiSubJetGeneta_2);
       tree->Branch("softDropPuppiSubJetGenphi_2", "std::vector<float>", &softDropPuppiSubJetGenphi_2);
-      tree->Branch("softDropPuppiSubJetHFlav_2", "std::vector<float>", &softDropPuppiSubJetHFlav_2);
       tree->Branch("softDropPuppiSubJetPFlav_2", "std::vector<float>", &softDropPuppiSubJetPFlav_2);
       tree->Branch("softDropPuppiSubJetQGL_2", "std::vector<float>", &softDropPuppiSubJetQGL_2);
       tree->Branch("softDropPuppiSubJetBtag_2", "std::vector<float>", &softDropPuppiSubJetBtag_2);
       tree->Branch("softDropPuppiSubJetptraw_2", "std::vector<float>", &softDropPuppiSubJetptraw_2);
       tree->Branch("softDropPuppiSubJetmraw_2", "std::vector<float>", &softDropPuppiSubJetmraw_2);
-      tree->Branch("softDropPuppiSubJetBtagSF_2", "std::vector<float>", &softDropPuppiSubJetBtagSF_2);
-      tree->Branch("softDropPuppiSubJetBtagSFUp_2", "std::vector<float>", &softDropPuppiSubJetBtagSFUp_2);
-      tree->Branch("softDropPuppiSubJetBtagSFDown_2", "std::vector<float>", &softDropPuppiSubJetBtagSFDown_2);
     }
   }
 
@@ -5561,12 +5565,12 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
 				       std::vector<float> & scalefactor, std::vector<float> & scalefactorUp, std::vector<float> & scalefactorDown){
 
   if(algorithm != "CSV" and algorithm != "MVA" and algorithm != "SubCSV") return;
+
   // bounds for CSVv2 and MVAv2
   float jetPt = jet.pt();
   float jetEta = jet.eta();
 
   if(algorithm == "CSV"){
-
     if(jet.hadronFlavour() == 5){
       scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
       scalefactorUp.push_back(bMediumCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
@@ -5578,7 +5582,7 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
       scalefactorDown.push_back(bMediumCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
     }
     else{
-      scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt)); // for light jet is folded in eta	      
       scalefactorUp.push_back(bMediumCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
       scalefactorDown.push_back(bMediumCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }	      
@@ -5608,14 +5612,14 @@ void MonoJetTreeMaker::calculateBtagSF(const pat::Jet & jet, const std::string &
       scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
     }
     else if(jet.hadronFlavour() == 4){
-      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_C,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_C,jetEta,jetPt));	      
     }
     else{      
-      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_B,jetEta,jetPt));	      
-      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_B,jetEta,jetPt));	      
+      scalefactor.push_back(bMediumSubCSV.back().eval_auto_bounds("central",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorUp.push_back(bMediumSubCSV.back().eval_auto_bounds("up",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
+      scalefactorDown.push_back(bMediumSubCSV.back().eval_auto_bounds("down",BTagEntry::FLAV_UDSG,jetEta,jetPt));	      
     }
   }
 }

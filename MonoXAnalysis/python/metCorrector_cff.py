@@ -7,7 +7,7 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import pfMEtMultShiftCorr
 
 ## generic function that corrects jet and MET given a JEC
-def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3Residuals,useOfficialMETSystematics,addBadMuonClean):
+def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3Residuals,useOfficialMETSystematics,addMETSystematics,addBadMuonClean):
 	
 	## propagation on missing energy + full systematics
 	if "Puppi" in metCollection or "PUPPI" in metCollection:
@@ -25,7 +25,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 		process.puppiPhoton.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
 
 	######################
-	if useOfficialMETSystematics:
+	if useOfficialMETSystematics and addMETSystematics:
 
 		## use the official jet-MET tool for puppi met --> re-comput met from pf-candidates + t1 correction  + systematics
 		if postfix == "Puppi" :
@@ -160,118 +160,120 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 			addMETCollection(process, labelName='patCaloMet'+postfix, metSource='metrawCalo'+postfix)
 			getattr(process,"patCaloMet"+postfix).addGenMET = cms.bool(False)
 
-
-		setattr(process,"metSysProducer"+postfix,
-			cms.EDProducer("METSystematicsProducer",
-				       inputMET    = cms.InputTag("patPFMetT1"+postfix),
-				       rho         = cms.InputTag("fixedGridRhoFastjetAll"),
-				       pfCandidate = cms.InputTag("packedPFCandidates"),
-				       ## skip candidates
-				       storeSmearedShiftedCollections = cms.bool(True),
-				       skipMuon    = cms.bool(False),
-				       skipElectron    = cms.bool(False),
-				       skipTau     = cms.bool(False),
-				       skipPhoton  = cms.bool(False),
-				       skipJet     = cms.bool(False),
-				       ## muons
-				       muon = cms.PSet(
-					src = cms.InputTag("slimmedMuons"),
-					useExternalUncertainty = cms.bool(True),
-					binning = cms.VPSet(
-						cms.PSet(binSelection = cms.string("pt < 100"),
-							 uncertainty = cms.double(0.002)),
-						cms.PSet(binSelection = cms.string("pt >= 100"),
-							 uncertainty = cms.double(0.05))
-						)
-					),
-				       ## electrons
-				       electron = cms.PSet(
-					src = cms.InputTag("slimmedElectrons"),
-					useExternalUncertainty = cms.bool(True),
-					binning = cms.VPSet(
-						cms.PSet(binSelection = cms.string("isEB"),
-							 uncertainty = cms.double(0.006)),
-						cms.PSet(binSelection = cms.string("!isEB"),
-							 uncertainty = cms.double(0.015))
-						)
-					),
-				       ## electrons
-				       photon = cms.PSet(
-					src = cms.InputTag("slimmedPhotons"),
-					useExternalUncertainty = cms.bool(True),
-					binning = cms.VPSet(
-						cms.PSet(binSelection = cms.string('isEB'),
-							 uncertainty = cms.double(0.01)),
-						cms.PSet(binSelection = cms.string('!isEB'),
-							 uncertainty = cms.double(0.025))
-						)
-					),
-				       ## taus
-				       tau = cms.PSet(
-					src = cms.InputTag("slimmedTaus"),
-					useExternalUncertainty = cms.bool(True),
-					binning = cms.VPSet(
-						cms.PSet(binSelection = cms.string("abs(eta) < 2.5 && pt > 18. && tauID(\'decayModeFindingNewDMs\')> 0.5"),
-							 uncertainty = cms.double(0.03)),
-						)
-					),
-				       jet = cms.PSet(
-					## input collection
-					src = cms.InputTag(jetCollection),
-					selection = cms.string('pt > 15 && abs(eta) < 9.9 && (chargedEmEnergyFraction+neutralEmEnergyFraction) < 0.9'),
-					## information for jet energy correction
-					payloadName = cms.string(payloadName),
-					useExternalJECUncertainty = cms.bool(False),
-					JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_DATA_Uncertainty_"+payloadName+".txt"),
-					#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
-					JERFile      = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_PtResolution_"+payloadName+".txt"),
-					JERSFFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_"+payloadName+".txt"),
-					jetCorrLabel    = cms.InputTag("L3Absolute"),
-					jetCorrLabelRes = cms.InputTag("L2L3Residual"), 
-					useExternalJERSF = cms.bool(False),
-					useExternalJER   = cms.bool(False)),
-				       ## unclustered component
-				       unclustered = cms.PSet(
-					useExternalUncertainty = cms.bool(True),
-					binning = cms.VPSet(
-						cms.PSet( binSelection   = cms.string("charge!=0"),
-							  binUncertainty = cms.string("sqrt(pow(0.00009*pt,2)+pow(0.0085/sqrt(sin(2*atan(exp(eta)))),2))")
-							  ),
-						cms.PSet( binSelection   = cms.string("pdgId==130"),
-							  binUncertainty = cms.string("((abs(eta)<1.3)?(max(0.25,sqrt(pow(0.8/sqrt(energy), 2)+0.05*0.05))):(max(0.30,sqrt(pow(1.0/sqrt(energy),2)+0.04*0.04))))")
-							  ),
-						cms.PSet( binSelection   = cms.string("pdgId==22"),
-							  binUncertainty = cms.string("sqrt(pow(0.00009*energy,2)+pow(0.0085/sqrt(sin(2*atan(exp(eta)))),2))")
-							  ),
-						
-							cms.PSet(
-							binSelection = cms.string('pdgId==1 || pdgId==2'),
-							binUncertainty = cms.string('sqrt(pow(1/sqrt(energy),2)+0.05*0.05)+0*eta'),
-							)),
-					
-					))
-			)
 			
-		
-		if isMC:
-			getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_MC_Uncertainty_"+payloadName+".txt");
-			getattr(process,"metSysProducer"+postfix).jet.JERFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_MC_PtResolution_"+payloadName+".txt");
+		if addMETSystematics:
+			
+			setattr(process,"metSysProducer"+postfix,
+				cms.EDProducer("METSystematicsProducer",
+					       inputMET    = cms.InputTag("patPFMetT1"+postfix),
+					       rho         = cms.InputTag("fixedGridRhoFastjetAll"),
+					       pfCandidate = cms.InputTag("packedPFCandidates"),
+					       ## skip candidates
+					       storeSmearedShiftedCollections = cms.bool(True),
+					       skipMuon    = cms.bool(False),
+					       skipElectron    = cms.bool(False),
+					       skipTau     = cms.bool(False),
+					       skipPhoton  = cms.bool(False),
+					       skipJet     = cms.bool(False),
+					       ## muons
+					       muon = cms.PSet(
+						src = cms.InputTag("slimmedMuons"),
+						useExternalUncertainty = cms.bool(True),
+						binning = cms.VPSet(
+							cms.PSet(binSelection = cms.string("pt < 100"),
+								 uncertainty = cms.double(0.002)),
+							cms.PSet(binSelection = cms.string("pt >= 100"),
+								 uncertainty = cms.double(0.05))
+							)
+						),
+					       ## electrons
+					       electron = cms.PSet(
+						src = cms.InputTag("slimmedElectrons"),
+						useExternalUncertainty = cms.bool(True),
+						binning = cms.VPSet(
+							cms.PSet(binSelection = cms.string("isEB"),
+								 uncertainty = cms.double(0.006)),
+							cms.PSet(binSelection = cms.string("!isEB"),
+								 uncertainty = cms.double(0.015))
+							)
+						),
+					       ## electrons
+					       photon = cms.PSet(
+						src = cms.InputTag("slimmedPhotons"),
+						useExternalUncertainty = cms.bool(True),
+						binning = cms.VPSet(
+							cms.PSet(binSelection = cms.string('isEB'),
+								 uncertainty = cms.double(0.01)),
+							cms.PSet(binSelection = cms.string('!isEB'),
+								 uncertainty = cms.double(0.025))
+							)
+						),
+					       ## taus
+					       tau = cms.PSet(
+						src = cms.InputTag("slimmedTaus"),
+						useExternalUncertainty = cms.bool(True),
+						binning = cms.VPSet(
+							cms.PSet(binSelection = cms.string("abs(eta) < 2.5 && pt > 18. && tauID(\'decayModeFindingNewDMs\')> 0.5"),
+							 uncertainty = cms.double(0.03)),
+							)
+						),
+				       jet = cms.PSet(
+						## input collection
+						src = cms.InputTag(jetCollection),
+						selection = cms.string('pt > 15 && abs(eta) < 9.9 && (chargedEmEnergyFraction+neutralEmEnergyFraction) < 0.9'),
+						## information for jet energy correction
+						payloadName = cms.string(payloadName),
+						useExternalJECUncertainty = cms.bool(False),
+						JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_DATA_Uncertainty_"+payloadName+".txt"),
+						#https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
+						JERFile      = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_PtResolution_"+payloadName+".txt"),
+						JERSFFile    = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_DATA_SF_"+payloadName+".txt"),
+						jetCorrLabel    = cms.InputTag("L3Absolute"),
+						jetCorrLabelRes = cms.InputTag("L2L3Residual"), 
+						useExternalJERSF = cms.bool(False),
+						useExternalJER   = cms.bool(False)),
+					       ## unclustered component
+					       unclustered = cms.PSet(
+						useExternalUncertainty = cms.bool(True),
+						binning = cms.VPSet(
+							cms.PSet( binSelection   = cms.string("charge!=0"),
+								  binUncertainty = cms.string("sqrt(pow(0.00009*pt,2)+pow(0.0085/sqrt(sin(2*atan(exp(eta)))),2))")
+								  ),
+							cms.PSet( binSelection   = cms.string("pdgId==130"),
+								  binUncertainty = cms.string("((abs(eta)<1.3)?(max(0.25,sqrt(pow(0.8/sqrt(energy), 2)+0.05*0.05))):(max(0.30,sqrt(pow(1.0/sqrt(energy),2)+0.04*0.04))))")
+								  ),
+							cms.PSet( binSelection   = cms.string("pdgId==22"),
+								  binUncertainty = cms.string("sqrt(pow(0.00009*energy,2)+pow(0.0085/sqrt(sin(2*atan(exp(eta)))),2))")
+								  ),
+							
+							cms.PSet(
+								binSelection = cms.string('pdgId==1 || pdgId==2'),
+								binUncertainty = cms.string('sqrt(pow(1/sqrt(energy),2)+0.05*0.05)+0*eta'),
+								)),
+						
+						))
+				)
+			
+			
+			if isMC:
+				getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_MC_Uncertainty_"+payloadName+".txt");
+				getattr(process,"metSysProducer"+postfix).jet.JERFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_MC_PtResolution_"+payloadName+".txt");
 
-		### add xy corrections
-		if not hasattr(process,"patPFMetTxyCorr"+postfix):
-			setattr(process,"patPFMetTxyCorr"+postfix,pfMEtMultShiftCorr.clone(
-					srcPFlow = cms.InputTag('packedPFCandidates'),
-					vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
-					))
-				
-			setattr(process,'patPFMetT1Txy'+postfix,
-				cms.EDProducer("CorrectedPATMETProducer",
-					       src = cms.InputTag("patPFMet"+postfix),
-					       srcCorrections = cms.VInputTag(cms.InputTag("patPFMetT1Corr"+postfix,"type1"), cms.InputTag("patPFMetTxyCorr"+postfix))))
+		        ### add xy corrections
+			if not hasattr(process,"patPFMetTxyCorr"+postfix):
+				setattr(process,"patPFMetTxyCorr"+postfix,pfMEtMultShiftCorr.clone(
+						srcPFlow = cms.InputTag('packedPFCandidates'),
+						vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
+						))
+
+				setattr(process,'patPFMetT1Txy'+postfix,
+					cms.EDProducer("CorrectedPATMETProducer",
+						       src = cms.InputTag("patPFMet"+postfix),
+						       srcCorrections = cms.VInputTag(cms.InputTag("patPFMetT1Corr"+postfix,"type1"), cms.InputTag("patPFMetTxyCorr"+postfix))))
 						       
 					 
-			## final slimmed MET			
-		       	setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
+		        ## final slimmed MET			
+			setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
 								      caloMET = cms.InputTag("patCaloMet"+postfix),
 								      rawVariation = cms.InputTag("patPFMet"+postfix),
 								      runningOnMiniAOD = cms.bool(True),
