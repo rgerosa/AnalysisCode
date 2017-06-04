@@ -23,18 +23,18 @@ class MuonRefCountFilter : public edm::stream::EDFilter<> {
 public:
   explicit MuonRefCountFilter(const edm::ParameterSet&);
   ~MuonRefCountFilter();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&) ;        
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override; 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override; 
+
+  virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  const bool filterEvents_;  
+
+  const bool filterEvents_;
   const bool produceOutputCollection_;
   edm::InputTag src_;
   int minNumber_;
@@ -49,20 +49,20 @@ MuonRefCountFilter::MuonRefCountFilter(const edm::ParameterSet& iConfig):
   produceOutputCollection_(iConfig.existsAs<bool>("produceOutputCollection") ? iConfig.getParameter<bool>("produceOutputCollection") : false),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   minNumber_(iConfig.getParameter<int>("minNumber")),
-  maxNumber_(iConfig.getParameter<int>("maxNumber")),  
+  maxNumber_(iConfig.getParameter<int>("maxNumber")),
   selection_(iConfig.existsAs<std::string>("selection") ? iConfig.getParameter<std::string>("selection") : "abs(eta) < 5.0"),
   selectionObj_(StringCutObjectSelector<pat::Muon>(selection_))
 {
   srcToken_    = consumes<pat::MuonRefVector> (src_);
   if(produceOutputCollection_)
     produces<pat::MuonCollection>();
-  
+
 }
 
 MuonRefCountFilter::~MuonRefCountFilter() {}
 
 bool MuonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // if you don't want to filter just exit
   if(filterEvents_ == false) return true;
 
@@ -70,10 +70,10 @@ bool MuonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(srcToken_,candCollectionH);
   pat::MuonRefVector candCollection = *candCollectionH;
 
-  std::auto_ptr<pat::MuonCollection> filteredObjects (new pat::MuonCollection);
-  
+  std::unique_ptr<pat::MuonCollection> filteredObjects (new pat::MuonCollection);
+
   int size = 0;
-  for(size_t itMuon = 0; itMuon < candCollection.size(); itMuon++){        
+  for(size_t itMuon = 0; itMuon < candCollection.size(); itMuon++){
     pat::MuonRef candRef = candCollection[itMuon];
     const pat::Muon* cand = dynamic_cast<const pat::Muon*> ((*candRef).clone());
     if(not selectionObj_(*cand)) continue;
@@ -88,7 +88,7 @@ bool MuonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     accept = true;
 
   if(produceOutputCollection_)
-    iEvent.put(filteredObjects);
+    iEvent.put(std::move(filteredObjects));
 
   return accept;
 }
@@ -112,18 +112,18 @@ class ElectronRefCountFilter : public edm::stream::EDFilter<> {
 public:
   explicit ElectronRefCountFilter(const edm::ParameterSet&);
   ~ElectronRefCountFilter();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&) ;        
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override; 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override; 
+
+  virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  const bool filterEvents_;  
+
+  const bool filterEvents_;
   const bool produceOutputCollection_;
   edm::InputTag src_;
   int minNumber_;
@@ -138,20 +138,20 @@ ElectronRefCountFilter::ElectronRefCountFilter(const edm::ParameterSet& iConfig)
   produceOutputCollection_(iConfig.existsAs<bool>("produceOutputCollection") ? iConfig.getParameter<bool>("produceOutputCollection") : true),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   minNumber_(iConfig.getParameter<int>("minNumber")),
-  maxNumber_(iConfig.getParameter<int>("maxNumber")),  
+  maxNumber_(iConfig.getParameter<int>("maxNumber")),
   selection_(iConfig.existsAs<std::string>("selection") ? iConfig.getParameter<std::string>("selection") : "abs(eta) < 5.0"),
   selectionObj_(StringCutObjectSelector<pat::Electron>(selection_))
 {
   srcToken_    = consumes<pat::ElectronRefVector> (src_);
   if(produceOutputCollection_)
     produces<pat::ElectronCollection>();
-  
+
 }
 
 ElectronRefCountFilter::~ElectronRefCountFilter() {}
 
 bool ElectronRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // if you don't want to filter just exit
   if(filterEvents_ == false) return true;
 
@@ -159,10 +159,10 @@ bool ElectronRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(srcToken_,candCollectionH);
   pat::ElectronRefVector candCollection = *candCollectionH;
 
-  std::auto_ptr<pat::ElectronCollection> filteredObjects (new pat::ElectronCollection);
-  
+  std::unique_ptr<pat::ElectronCollection> filteredObjects (new pat::ElectronCollection);
+
   int size = 0;
-  for(size_t itElectron = 0; itElectron < candCollection.size(); itElectron++){        
+  for(size_t itElectron = 0; itElectron < candCollection.size(); itElectron++){
     pat::ElectronRef candRef = candCollection[itElectron];
     const pat::Electron* cand = dynamic_cast<const pat::Electron*> ((*candRef).clone());
     if(not selectionObj_(*cand)) continue;
@@ -175,9 +175,9 @@ bool ElectronRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   bool accept = false;
   if(size >= minNumber_ and size <= maxNumber_)
     accept = true;
-  
+
   if(produceOutputCollection_)
-    iEvent.put(filteredObjects);
+    iEvent.put(std::move(filteredObjects));
 
   return accept;
 }
@@ -201,18 +201,18 @@ class PhotonRefCountFilter : public edm::stream::EDFilter<> {
 public:
   explicit PhotonRefCountFilter(const edm::ParameterSet&);
   ~PhotonRefCountFilter();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&) ;        
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override; 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override; 
+
+  virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  const bool filterEvents_;  
+
+  const bool filterEvents_;
   const bool produceOutputCollection_;
   edm::InputTag src_;
   int minNumber_;
@@ -227,20 +227,20 @@ PhotonRefCountFilter::PhotonRefCountFilter(const edm::ParameterSet& iConfig):
   produceOutputCollection_(iConfig.existsAs<bool>("produceOutputCollection") ? iConfig.getParameter<bool>("produceOutputCollection") : true),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   minNumber_(iConfig.getParameter<int>("minNumber")),
-  maxNumber_(iConfig.getParameter<int>("maxNumber")),  
+  maxNumber_(iConfig.getParameter<int>("maxNumber")),
   selection_(iConfig.existsAs<std::string>("selection") ? iConfig.getParameter<std::string>("selection") : "abs(eta) < 5.0"),
   selectionObj_(StringCutObjectSelector<pat::Photon>(selection_))
 {
   srcToken_    = consumes<pat::PhotonRefVector> (src_);
   if(produceOutputCollection_)
     produces<pat::PhotonCollection>();
-  
+
 }
 
 PhotonRefCountFilter::~PhotonRefCountFilter() {}
 
 bool PhotonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // if you don't want to filter just exit
   if(filterEvents_ == false) return true;
 
@@ -248,9 +248,9 @@ bool PhotonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(srcToken_,candCollectionH);
   pat::PhotonRefVector candCollection = *candCollectionH;
 
-  std::auto_ptr<pat::PhotonCollection> filteredObjects (new pat::PhotonCollection);
+  std::unique_ptr<pat::PhotonCollection> filteredObjects (new pat::PhotonCollection);
   int size = 0;
-  for(size_t itPhoton = 0; itPhoton < candCollection.size(); itPhoton++){        
+  for(size_t itPhoton = 0; itPhoton < candCollection.size(); itPhoton++){
     pat::PhotonRef candRef = candCollection[itPhoton];
     const pat::Photon* cand = dynamic_cast<const pat::Photon*> ((*candRef).clone());
     if(not selectionObj_(*cand)) continue;
@@ -265,7 +265,7 @@ bool PhotonRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     accept = true;
 
   if(produceOutputCollection_)
-    iEvent.put(filteredObjects);
+    iEvent.put(std::move(filteredObjects));
 
   return accept;
 }
@@ -289,18 +289,18 @@ class TauRefCountFilter : public edm::stream::EDFilter<> {
 public:
   explicit TauRefCountFilter(const edm::ParameterSet&);
   ~TauRefCountFilter();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&) ;        
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override; 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override; 
+
+  virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  const bool filterEvents_;  
+
+  const bool filterEvents_;
   const bool produceOutputCollection_;
   edm::InputTag src_;
   int minNumber_;
@@ -315,20 +315,20 @@ TauRefCountFilter::TauRefCountFilter(const edm::ParameterSet& iConfig):
   produceOutputCollection_(iConfig.existsAs<bool>("produceOutputCollection") ? iConfig.getParameter<bool>("produceOutputCollection") : true),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   minNumber_(iConfig.getParameter<int>("minNumber")),
-  maxNumber_(iConfig.getParameter<int>("maxNumber")),  
+  maxNumber_(iConfig.getParameter<int>("maxNumber")),
   selection_(iConfig.existsAs<std::string>("selection") ? iConfig.getParameter<std::string>("selection") : "abs(eta) < 5.0"),
   selectionObj_(StringCutObjectSelector<pat::Tau>(selection_))
 {
   srcToken_    = consumes<pat::TauRefVector> (src_);
   if(produceOutputCollection_)
     produces<pat::TauCollection>();
-  
+
 }
 
 TauRefCountFilter::~TauRefCountFilter() {}
 
 bool TauRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // if you don't want to filter just exit
   if(filterEvents_ == false) return true;
 
@@ -336,10 +336,10 @@ bool TauRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByToken(srcToken_,candCollectionH);
   pat::TauRefVector candCollection = *candCollectionH;
 
-  std::auto_ptr<pat::TauCollection> filteredObjects (new pat::TauCollection);
-  
+  std::unique_ptr<pat::TauCollection> filteredObjects (new pat::TauCollection);
+
   int size = 0;
-  for(size_t itTau = 0; itTau < candCollection.size(); itTau++){        
+  for(size_t itTau = 0; itTau < candCollection.size(); itTau++){
     pat::TauRef candRef = candCollection[itTau];
     const pat::Tau* cand = dynamic_cast<const pat::Tau*> ((*candRef).clone());
     if(not selectionObj_(*cand)) continue;
@@ -352,9 +352,9 @@ bool TauRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   bool accept = false;
   if(size >= minNumber_ and size <= maxNumber_)
     accept = true;
-  
+
   if(produceOutputCollection_)
-    iEvent.put(filteredObjects);
+    iEvent.put(std::move(filteredObjects));
 
   return accept;
 }
@@ -378,18 +378,18 @@ class JetRefCountFilter : public edm::stream::EDFilter<> {
 public:
   explicit JetRefCountFilter(const edm::ParameterSet&);
   ~JetRefCountFilter();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  
-  virtual bool filter(edm::Event&, const edm::EventSetup&) ;        
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override; 
-  virtual void endRun(edm::Run const&, edm::EventSetup const&) override; 
+
+  virtual bool filter(edm::Event&, const edm::EventSetup&) ;
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  const bool filterEvents_;  
+
+  const bool filterEvents_;
   const bool produceOutputCollection_;
   edm::InputTag src_;
   int minNumber_;
@@ -404,20 +404,20 @@ JetRefCountFilter::JetRefCountFilter(const edm::ParameterSet& iConfig):
   produceOutputCollection_(iConfig.existsAs<bool>("produceOutputCollection") ? iConfig.getParameter<bool>("produceOutputCollection") : true),
   src_(iConfig.getParameter<edm::InputTag>("src")),
   minNumber_(iConfig.getParameter<int>("minNumber")),
-  maxNumber_(iConfig.getParameter<int>("maxNumber")),  
+  maxNumber_(iConfig.getParameter<int>("maxNumber")),
   selection_(iConfig.existsAs<std::string>("selection") ? iConfig.getParameter<std::string>("selection") : "abs(eta) < 5.0"),
   selectionObj_(StringCutObjectSelector<pat::Jet>(selection_))
 {
   srcToken_    = consumes<pat::JetRefVector> (src_);
   if(produceOutputCollection_)
     produces<pat::JetCollection>();
-  
+
 }
 
 JetRefCountFilter::~JetRefCountFilter() {}
 
 bool JetRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // if you don't want to filter just exit
   if(filterEvents_ == false) return true;
 
@@ -425,10 +425,10 @@ bool JetRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByToken(srcToken_,candCollectionH);
   pat::JetRefVector candCollection = *candCollectionH;
 
-  std::auto_ptr<pat::JetCollection> filteredObjects (new pat::JetCollection);
-  
+  std::unique_ptr<pat::JetCollection> filteredObjects (new pat::JetCollection);
+
   int size = 0;
-  for(size_t itJet = 0; itJet < candCollection.size(); itJet++){        
+  for(size_t itJet = 0; itJet < candCollection.size(); itJet++){
     pat::JetRef candRef = candCollection[itJet];
     const pat::Jet* cand = dynamic_cast<const pat::Jet*> ((*candRef).clone());
     if(not selectionObj_(*cand)) continue;
@@ -441,9 +441,9 @@ bool JetRefCountFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   bool accept = false;
   if(size >= minNumber_ and size <= maxNumber_)
     accept = true;
-  
+
   if(produceOutputCollection_)
-    iEvent.put(filteredObjects);
+    iEvent.put(std::move(filteredObjects));
 
   return accept;
 }
@@ -459,7 +459,3 @@ void JetRefCountFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
 }
 
 DEFINE_FWK_MODULE(JetRefCountFilter);
-
-
-
-

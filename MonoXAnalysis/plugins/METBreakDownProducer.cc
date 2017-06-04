@@ -16,14 +16,14 @@ class METBreakDownProducer : public edm::stream::EDProducer<> {
     public:
         explicit METBreakDownProducer(const edm::ParameterSet&);
   ~METBreakDownProducer();
-        
+
         static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-    
+
     private:
         virtual void beginJob() ;
         virtual void produce(edm::Event&, const edm::EventSetup&) ;
         virtual void endJob() ;
-        
+
         virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
         virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -34,7 +34,7 @@ class METBreakDownProducer : public edm::stream::EDProducer<> {
 };
 
 template <class T>
-METBreakDownProducer<T>::METBreakDownProducer(const edm::ParameterSet& iConfig): 
+METBreakDownProducer<T>::METBreakDownProducer(const edm::ParameterSet& iConfig):
   candsTag(iConfig.getParameter<edm::InputTag>("pfcands")){
   produces<std::vector<T> >("pfMetHadronHF");
   produces<std::vector<T> >("pfMetEgammaHF");
@@ -58,20 +58,20 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   using namespace edm;
   using namespace reco;
   using namespace std;
-  
+
   Handle<View<Candidate> > candsH;
   iEvent.getByToken(candsToken, candsH);
-  
-  std::auto_ptr<std::vector<T> > pfMet(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetHadronHF(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetEgammaHF(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetChargedHadron(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetNeutralHadron(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetElectrons(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetMuons(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetPhotons(new std::vector<T>);
-  std::auto_ptr<std::vector<T> > pfMetUnclustered(new std::vector<T>);
-  
+
+  std::unique_ptr<std::vector<T> > pfMet(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetHadronHF(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetEgammaHF(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetChargedHadron(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetNeutralHadron(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetElectrons(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetMuons(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetPhotons(new std::vector<T>);
+  std::unique_ptr<std::vector<T> > pfMetUnclustered(new std::vector<T>);
+
   // full met
   double metx  = 0.0, mety  = 0.0;
   // neutral hadron met
@@ -82,11 +82,11 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   double ametx = 0.0, amety = 0.0;
   // hadron forward region
   double bmetx = 0.0, bmety = 0.0;
-  // electrons  
+  // electrons
   double emetx = 0.0, emety = 0.0;
-  // muons 
+  // muons
   double mmetx = 0.0, mmety = 0.0;
-  // photons 
+  // photons
   double pmetx = 0.0, pmety = 0.0;
   // others
   double ometx = 0.0, omety = 0.0;
@@ -97,7 +97,7 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
       cmetx -= cands_iter->pt() * cos(cands_iter->phi());
       cmety -= cands_iter->pt() * sin(cands_iter->phi());
     }
-    else if (absid == 130) { // neutral hadrons in the tracker covered region --> 
+    else if (absid == 130) { // neutral hadrons in the tracker covered region -->
       hmetx -= cands_iter->pt() * cos(cands_iter->phi());
       hmety -= cands_iter->pt() * sin(cands_iter->phi());
     }
@@ -127,7 +127,7 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
     }
     metx -= cands_iter->pt() * cos(cands_iter->phi());
     mety -= cands_iter->pt() * sin(cands_iter->phi());
-  }            
+  }
   // calculate met values
   double  met = sqrt( metx* metx +  mety* mety);
   double hmet = sqrt(hmetx*hmetx + hmety*hmety);
@@ -141,7 +141,7 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
 
   T metcand; metcand.setP4(reco::Candidate::LorentzVector( metx,  mety, 0., met));
   pfMet->push_back(metcand);
-  
+
   T cmetcand; cmetcand.setP4(reco::Candidate::LorentzVector( cmetx,  cmety, 0., cmet));
   pfMetChargedHadron->push_back(cmetcand);
 
@@ -166,15 +166,15 @@ void METBreakDownProducer<T>::produce(edm::Event& iEvent, const edm::EventSetup&
   T ometcand; ometcand.setP4(reco::Candidate::LorentzVector( ometx,  omety, 0., omet));
   pfMetUnclustered->push_back(ometcand);
 
-  iEvent.put(pfMet,"pfMet");
-  iEvent.put(pfMetChargedHadron,"pfMetChargedHadron");
-  iEvent.put(pfMetNeutralHadron,"pfMetNeutralHadron");
-  iEvent.put(pfMetHadronHF,"pfMetHadronHF");
-  iEvent.put(pfMetEgammaHF,"pfMetEgammaHF");
-  iEvent.put(pfMetElectrons,"pfMetElectrons");
-  iEvent.put(pfMetMuons,"pfMetMuons");
-  iEvent.put(pfMetPhotons,"pfMetPhotons");
-  iEvent.put(pfMetUnclustered,"pfMetUnclustered");
+  iEvent.put(std::move(pfMet),"pfMet");
+  iEvent.put(std::move(pfMetChargedHadron),"pfMetChargedHadron");
+  iEvent.put(std::move(pfMetNeutralHadron),"pfMetNeutralHadron");
+  iEvent.put(std::move(pfMetHadronHF),"pfMetHadronHF");
+  iEvent.put(std::move(pfMetEgammaHF),"pfMetEgammaHF");
+  iEvent.put(std::move(pfMetElectrons),"pfMetElectrons");
+  iEvent.put(std::move(pfMetMuons),"pfMetMuons");
+  iEvent.put(std::move(pfMetPhotons),"pfMetPhotons");
+  iEvent.put(std::move(pfMetUnclustered),"pfMetUnclustered");
 
 }
 

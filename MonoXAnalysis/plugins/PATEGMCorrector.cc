@@ -79,7 +79,7 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
   Handle<EcalRecHitCollection> endcapRecHitH;
   iEvent.getByToken(recHitEEToken,endcapRecHitH);
 
-  std::auto_ptr<std::vector<pat::Electron>> egammaoutput (new std::vector<pat::Electron>());
+  std::unique_ptr<std::vector<pat::Electron>> egammaoutput (new std::vector<pat::Electron>());
   for (auto egamma_iter : *egammaCandidatesH){
     if(isMC){// just make a close
       egammaoutput->push_back(egamma_iter);
@@ -90,9 +90,9 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
       float Ecorr = 1;
       if (detid.subdetId() == EcalBarrel) {
 	auto rh_i =  barrelRecHitH->find(detid);
-	if(rh_i !=  barrelRecHitH->end()) 
+	if(rh_i !=  barrelRecHitH->end())
 	  rh = &(*rh_i);
-	else 
+	else
 	  rh = NULL;
       } else {
 	rh = NULL;
@@ -104,13 +104,13 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
 	     rh->energy() < pset.getParameter<double>("eMax") )
 	    Ecorr = pset.getParameter<double>("value");
 	}
-      }    
-      
+      }
+
       float newEcalEnergy = egamma_iter.correctedEcalEnergy()*Ecorr;
       float newEcalEnergyError = egamma_iter.correctedEcalEnergyError()*Ecorr;
       // clone the electron as it was --> no need for Eecal and P combination
       if(Ecorr == 1)
-	egammaoutput->push_back(egamma_iter);          
+	egammaoutput->push_back(egamma_iter);
       else{
 	math::XYZTLorentzVector oldMomentum = egamma_iter.p4();
 	math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector(oldMomentum.x()*newEcalEnergy/egamma_iter.correctedEcalEnergy(),
@@ -120,11 +120,11 @@ void PATEGMCorrectorT<pat::Electron>::produce(edm::Event& iEvent, const edm::Eve
 	egamma_iter.setCorrectedEcalEnergy(newEcalEnergy);
 	egamma_iter.setCorrectedEcalEnergyError(newEcalEnergyError);
 	egamma_iter.correctMomentum(newMomentum,egamma_iter.trackMomentumError(),egamma_iter.p4Error(reco::GsfElectron::P4_COMBINATION));
-	egammaoutput->push_back(egamma_iter);          
+	egammaoutput->push_back(egamma_iter);
       }
     }
   }
-  iEvent.put(egammaoutput);  
+  iEvent.put(std::move(egammaoutput));  
 }
 
 template<>
@@ -142,7 +142,7 @@ void PATEGMCorrectorT<pat::Photon>::produce(edm::Event& iEvent, const edm::Event
   Handle<EcalRecHitCollection> endcapRecHitH;
   iEvent.getByToken(recHitEEToken,endcapRecHitH);
 
-  std::auto_ptr<std::vector<pat::Photon>> egammaoutput (new std::vector<pat::Photon>());
+  std::unique_ptr<std::vector<pat::Photon>> egammaoutput (new std::vector<pat::Photon>());
 
   for (auto egamma_iter : *egammaCandidatesH){
     if(isMC)
@@ -153,9 +153,9 @@ void PATEGMCorrectorT<pat::Photon>::produce(edm::Event& iEvent, const edm::Event
       float Ecorr = 1;
       if (detid.subdetId() == EcalBarrel) {
 	auto rh_i =  barrelRecHitH->find(detid);
-	if(rh_i !=  barrelRecHitH->end()) 
+	if(rh_i !=  barrelRecHitH->end())
 	rh = &(*rh_i);
-	else 
+	else
 	  rh = NULL;
       } else {
 	rh = NULL;
@@ -167,21 +167,21 @@ void PATEGMCorrectorT<pat::Photon>::produce(edm::Event& iEvent, const edm::Event
 	     rh->energy() < pset.getParameter<double>("eMax") )
 	    Ecorr = pset.getParameter<double>("value");
 	}
-      }    
-           
+      }
+
       float newEcalEnergy = egamma_iter.getCorrectedEnergy(reco::Photon::P4type::regression2)*Ecorr;
       float newEcalEnergyError = egamma_iter.getCorrectedEnergyError(reco::Photon::P4type::regression2)*Ecorr;
       // clone the electron as it was --> no need for Eecal and P combination
       if(Ecorr == 1)
-	egammaoutput->push_back(egamma_iter);          
+	egammaoutput->push_back(egamma_iter);
       else{
-	egamma_iter.setCorrectedEnergy(reco::Photon::P4type::regression2,newEcalEnergy,newEcalEnergyError, true); 
-	egammaoutput->push_back(egamma_iter);          
+	egamma_iter.setCorrectedEnergy(reco::Photon::P4type::regression2,newEcalEnergy,newEcalEnergyError, true);
+	egammaoutput->push_back(egamma_iter);
       }
     }
-  }      
-  iEvent.put(egammaoutput);  
-  
+  }
+  iEvent.put(std::move(egammaoutput));
+
 }
 
 
