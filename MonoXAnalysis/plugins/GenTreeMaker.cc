@@ -12,12 +12,13 @@
 // FWCore
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h" 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 // Gen Info
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -40,21 +41,21 @@ class GenTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::
 public:
   explicit GenTreeMaker(const edm::ParameterSet&);
   ~GenTreeMaker();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  
+
+
 private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  
+
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  
+
   int  sample;
   bool isMiniAOD;
-  edm::InputTag lheruntag;  
+  edm::InputTag lheruntag;
   edm::EDGetTokenT<LHEEventProduct> lheInfoToken;
   edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken;
   edm::EDGetTokenT<GenEventInfoProduct>            genevtInfoToken;
@@ -62,9 +63,9 @@ private:
   edm::EDGetTokenT<std::vector<reco::GenJet> >     jetsToken;
   edm::EDGetTokenT<edm::View<pat::MET> >           metToken;
   edm::EDGetTokenT<edm::View<reco::GenMET> >       metTrueToken;
-  
+
   TTree* tree;
-  
+
   edm::InputTag lheRunTag;
   bool     readDMFromGenParticle;
   bool     addEvtInfo;
@@ -72,7 +73,7 @@ private:
   double   minBosonPt;
 
   // event information
-  uint32_t event, run, lumi;  
+  uint32_t event, run, lumi;
   float    xsec, wgt, wgtoriginal;
 
   // PDF
@@ -101,19 +102,18 @@ private:
   int   dmid,dmX1id,dmX2id;
 
 
-  template<typename T> 
+  template<typename T>
   class PtSorter{
   public:
     bool operator ()(const T & i, const T & j) const {
       return (i->pt() > j->pt());
     }
-    
-  };
-  
-  PtSorter<reco::GenJetRef> jetSorter;
-  
-};
 
+  };
+
+  PtSorter<reco::GenJetRef> jetSorter;
+
+};
 
 GenTreeMaker::GenTreeMaker(const edm::ParameterSet& iConfig) {
   isMiniAOD       = iConfig.getParameter<bool>("isMiniAOD");
@@ -121,21 +121,21 @@ GenTreeMaker::GenTreeMaker(const edm::ParameterSet& iConfig) {
   addEvtInfo      = (iConfig.existsAs<bool>("addEventInfo")    ? iConfig.getParameter<bool>("addEventInfo")  : false);
   isSignalSample  = (iConfig.existsAs<bool>("isSignalSample")  ? iConfig.getParameter<bool>("isSignalSample")  : false);
   xsec            = (iConfig.existsAs<double>("xsec")        ? iConfig.getParameter<double>("xsec") * 1000.0 : -1000.);
-  sample          = (iConfig.existsAs<int>("sample")         ? iConfig.getParameter<int>("sample")           : -1);    
+  sample          = (iConfig.existsAs<int>("sample")         ? iConfig.getParameter<int>("sample")           : -1);
   jetsToken       = consumes<std::vector<reco::GenJet> >   (iConfig.getParameter<edm::InputTag>("jets"));
   if(isMiniAOD)
     metToken        = consumes<edm::View<pat::MET> >         (iConfig.getParameter<edm::InputTag>("met"));
   else
     metTrueToken    = consumes<edm::View<reco::GenMET> >     (iConfig.getParameter<edm::InputTag>("met"));
 
-  lheInfoToken    = consumes<LHEEventProduct>              (iConfig.getParameter<edm::InputTag>("lheevt")); 
+  lheInfoToken    = consumes<LHEEventProduct>              (iConfig.getParameter<edm::InputTag>("lheevt"));
   lheRunTag       = iConfig.getParameter<edm::InputTag>("lherun");
   lheRunInfoToken = consumes<LHERunInfoProduct,edm::InRun> (iConfig.getParameter<edm::InputTag>("lherun"));
   genevtInfoToken = consumes<GenEventInfoProduct>          (iConfig.getParameter<edm::InputTag>("genevt"));
-  gensToken       = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("gens"));   
+  gensToken       = consumes<edm::View<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("gens"));
   minBosonPt      = (iConfig.existsAs<double>("minBosonPt")? iConfig.getParameter<double>("minBosonPt") : 100.);
   usesResource();
-  usesResource("TFileService");    
+  usesResource("TFileService");
 }
 
 
@@ -147,14 +147,14 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   using namespace reco;
   using namespace std;
   using namespace boost::algorithm;
-    
+
   Handle<LHEEventProduct> lheInfoH;
   Handle<GenEventInfoProduct>  genevtInfoH;
   Handle<View<GenParticle> >   gensH;
   Handle<vector<GenJet> >      jetsH;
   Handle<View<pat::MET> >      metH;
   Handle<View<reco::GenMET> >  metTrueH;
-  
+
   iEvent.getByToken(lheInfoToken, lheInfoH);
   iEvent.getByToken(genevtInfoToken, genevtInfoH);
   iEvent.getByToken(gensToken      , gensH);
@@ -163,21 +163,21 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByToken(metToken       , metH);
   else
     iEvent.getByToken(metTrueToken   , metTrueH);
-  
+
   event = iEvent.id().event();
   run   = iEvent.id().run();
   lumi  = iEvent.luminosityBlock();
-  
-  if(genevtInfoH.isValid()) 
-    wgt = genevtInfoH->weight();    
-  else 
+
+  if(genevtInfoH.isValid())
+    wgt = genevtInfoH->weight();
+  else
     wgt = 1.0;
-  if(lheInfoH.isValid()) 
+  if(lheInfoH.isValid())
     wgtoriginal = lheInfoH->originalXWGTUP();
-  else 
+  else
     wgtoriginal = 1.0;
-  
-  if(metH.isValid()) {      
+
+  if(metH.isValid()) {
     met    = metH->front().genMET()->pt();
     metphi = metH->front().genMET()->phi();
   }
@@ -194,16 +194,16 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     met    = -99.;
     metphi = -99.;
   }
-  
+
 
   // PDF and scale weights
   wgtpdf.clear();
   qcdscalewgt.clear();
   couplingwgt.clear();
-  gDMV.clear(); 
-  gDMA.clear(); 
-  gV.clear(); 
-  gA.clear(); 
+  gDMV.clear();
+  gDMA.clear();
+  gV.clear();
+  gA.clear();
   couplingwgt.clear();
   gTheta.clear();
 
@@ -213,28 +213,28 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     TString weight_name (weights[i].id);
     split(tokens, weights[i].id, is_any_of("_"));
     tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
-    if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")){ // DMsimp Scalar-PS                                           
+    if(weight_name.Contains("gdms") and weight_name.Contains("gdmp") and weight_name.Contains("gs") and weight_name.Contains("gp")){ // DMsimp Scalar-PS
       gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
       gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
       gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
       gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
       couplingwgt.push_back(weights[i].wgt);
     }
-    else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")){ // DMSimp V/AV                                           
+    else if(weight_name.Contains("gdmv") and weight_name.Contains("gdma") and weight_name.Contains("gv") and weight_name.Contains("ga")){ // DMSimp V/AV
       gDMV.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
       gDMA.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
       gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
       gA.push_back(std::stod(std::string(TString(tokens.at(7)).ReplaceAll("p","."))));
       couplingwgt.push_back(weights[i].wgt);
     }
-    else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")){ //SMM                                                                                     
+    else if(weight_name.Contains("sin") and weight_name.Contains("gDM") and weight_name.Contains("gH")){ //SMM
       gTheta.push_back(std::stod(std::string(TString(tokens.at(1)).ReplaceAll("p","."))));
       gDMV.push_back(std::stod(std::string(TString(tokens.at(3)).ReplaceAll("p","."))));
       gV.push_back(std::stod(std::string(TString(tokens.at(5)).ReplaceAll("p","."))));
       couplingwgt.push_back(weights[i].wgt);
     }
     else{
-      if(qcdscale.size() != 0){ // qcd scale variations                                                                                                                                         
+      if(qcdscale.size() != 0){ // qcd scale variations
 	if(weight_name.Contains("rwgt")) continue;
 	if(find(qcdscale.begin(),qcdscale.end(),std::stoi(weights[i].id)) != qcdscale.end())
 	  qcdscalewgt.push_back(weights[i].wgt);
@@ -244,7 +244,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	else if((std::stoi(weights[i].id) >=1 and std::stoi(weights[i].id) <= 9) or (std::stoi(weights[i].id) >= 1000 and std::stoi(weights[i].id) <= 1009))
 	  qcdscalewgt.push_back(weights[i].wgt);
       }
-      
+
       if(pdfvariation.size() != 0){
 	if(weight_name.Contains("rwgt")) continue;
 	if(find(pdfvariation.begin(),pdfvariation.end(),std::stoi(weights[i].id)) != pdfvariation.end())
@@ -253,7 +253,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
   }
-  
+
   wzid = 0; wzmass = -99; wzpt  = -99; wzeta = -99; wzphi = -99;
   mvid = 0; mvmass = -99; mvpt  = -99; mveta = -99; mvphi = -99;
   l1id = 0; l1pt   = -99; l1eta = -99; l1phi = -99;
@@ -271,7 +271,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     TLorentzVector dm2vec;
     bool foundfirst = false;
 
-    // loop on gen particles looking for the DM particles --> then to the mediator                                                                                                                   
+    // loop on gen particles looking for the DM particles --> then to the mediator
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
       bool goodParticle = false;
       if (abs(gens_iter->pdgId()) >= 1000001 and abs(gens_iter->pdgId()) <= 1000039)
@@ -280,13 +280,13 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	goodParticle = true;
       else if(abs(gens_iter->pdgId()) == 9100012)
 	goodParticle = true;
-      else if(abs(gens_iter->pdgId()) == 18) // DM particles in MG DMSimp and SMM                                                                                                                    
+      else if(abs(gens_iter->pdgId()) == 18) // DM particles in MG DMSimp and SMM
 	goodParticle = true;
 
       if(not goodParticle)
 	continue;
 
-      if(!foundfirst) { // first DM particle                                                                                                                                                         
+      if(!foundfirst) { // first DM particle
 	dm1vec.SetPtEtaPhiM(gens_iter->pt(), gens_iter->eta(), gens_iter->phi(), gens_iter->mass());
 	dmX1id = gens_iter->pdgId();
 	foundfirst = true;
@@ -317,10 +317,10 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     dmeta = medvec.Eta();
     dmphi = medvec.Phi();
     dmmass = medvec.M();
-    
-    
-    if(foundfirst == false){ //not found the DM particles and mediator --> look for Higgs invisible                                                                                                  
-      
+
+
+    if(foundfirst == false){ //not found the DM particles and mediator --> look for Higgs invisible
+
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter){
 	if(gens_iter->pdgId() != 25) continue;
 	if(gens_iter->numberOfDaughters() <= 1) continue;
@@ -330,7 +330,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	dmphi  = gens_iter->phi();
 	dmmass = gens_iter->mass();
 	dmid   = gens_iter->pdgId();
-	
+
 	dmX1pt   = gens_iter->daughter(0)->pt();
 	dmX1eta  = gens_iter->daughter(0)->eta();
 	dmX1phi  = gens_iter->daughter(0)->phi();
@@ -344,7 +344,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       }
     }
   }
-  
+
   else  if (gensH.isValid() && (sample == 23 || sample == 24)) { // Z+jets or W+jets
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
 
@@ -358,41 +358,41 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       }
 
       // LHE level leptons
-      if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton                                                                                          
+      if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton
 	l1id_lhe   = gens_iter->pdgId();
 	l1pt_lhe   = gens_iter->pt();
 	l1eta_lhe  = gens_iter->eta();
 	l1phi_lhe  = gens_iter->phi();
       }
-      if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton                                                                                   
+      if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton
 	l2id_lhe   = gens_iter->pdgId();
 	l2pt_lhe   = gens_iter->pt();
 	l2eta_lhe  = gens_iter->eta();
 	l2phi_lhe  = gens_iter->phi();
       }
-      
+
       // Boson kinematic after shower
-      if (abs(gens_iter->pdgId()) == sample && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) { // take the gen particle with that specific pdgId, decayed in more than 1 daugheter, one of the two to be a lepton/parton 
+      if (abs(gens_iter->pdgId()) == sample && gens_iter->numberOfDaughters() > 1 && abs(gens_iter->daughter(0)->pdgId()) > 10 && abs(gens_iter->daughter(0)->pdgId()) < 17) { // take the gen particle with that specific pdgId, decayed in more than 1 daugheter, one of the two to be a lepton/parton
 	wzid   = gens_iter->pdgId();
 	wzmass = gens_iter->mass();
 	wzpt   = gens_iter->pt();
 	wzeta  = gens_iter->eta();
 	wzphi  = gens_iter->phi();
-        
+
 	l1id   = gens_iter->daughter(0)->pdgId();
 	l1pt   = gens_iter->daughter(0)->pt();
 	l1eta  = gens_iter->daughter(0)->eta();
 	l1phi  = gens_iter->daughter(0)->phi();
-            
+
 	l2id   = gens_iter->daughter(1)->pdgId();
 	l2pt   = gens_iter->daughter(1)->pt();
 	l2eta  = gens_iter->daughter(1)->eta();
 	l2phi  = gens_iter->daughter(1)->phi();
-      } 
+      }
     }
-    
+
     // if id is not valid --> do a trick for madgraph. A V-boson is not a boson with the right pdgID if outside the BW cutoff
-    if (wzid == 0) {      
+    if (wzid == 0) {
       float l1mass = 0.;
       float l2mass = 0.;
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
@@ -435,14 +435,14 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       float l1mass = 0.;
       float l2mass = 0.;
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
-	if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton                                                                                       
+	if (gens_iter->pdgId() >  10 && gens_iter->pdgId() <  17 and gens_iter->status() == 23) { //lepton
 	  l1id_lhe   = gens_iter->pdgId();
 	  l1pt_lhe   = gens_iter->pt();
 	  l1eta_lhe  = gens_iter->eta();
 	  l1phi_lhe  = gens_iter->phi();
 	  l1mass     = gens_iter->mass();
 	}
-	if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton                                                                              
+	if (gens_iter->pdgId() < -10 && gens_iter->pdgId() > -17 and gens_iter->status() == 23) { //anti-lepton
 	  l2id_lhe   = gens_iter->pdgId();
 	  l2pt_lhe   = gens_iter->pt();
 	  l2eta_lhe  = gens_iter->eta();
@@ -467,8 +467,8 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       }
     }
   }
-  
-    
+
+
   // photon +jets
   if (gensH.isValid() && sample == 22) {
     for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
@@ -480,7 +480,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	mveta  = gens_iter->eta();
 	mvphi  = gens_iter->phi();
       }
-      
+
       if (gens_iter->pdgId() == sample && gens_iter->status() == 1 && gens_iter->isPromptFinalState() && gens_iter->pt() > wzpt) {
 	wzid   = gens_iter->pdgId();
 	wzpt   = gens_iter->pt();
@@ -489,7 +489,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       }
     }
   }
-  
+
 
   // make bosonPt slections
   if(isSignalSample and dmpt < minBosonPt) return;
@@ -515,15 +515,15 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // sort in pt
   if(jets.size() > 0) sort(jets.begin(), jets.end(), jetSorter);
-    
+
   jetpt  .clear();
   jeteta .clear();
   jetphi .clear();
   jetmass.clear();
-  
+
   njets    = 0;
   njetsinc = 0;
-  
+
   for(size_t i = 0; i < jets.size(); i++){
     if(jets[i]->pt() > 30.) {
       njetsinc++;
@@ -534,16 +534,16 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       jetmass.push_back(jets[i]->mass());
     }
   }
-  tree->Fill();    
-}    
+  tree->Fill();
+}
 
 void GenTreeMaker::beginJob() {
 
   ///
   edm::Service<TFileService> fs;
   tree = fs->make<TTree>("tree","tree");
-  
-  if (addEvtInfo) { 
+
+  if (addEvtInfo) {
     tree->Branch("event"                , &event                , "event/i");
     tree->Branch("run"                  , &run                  , "run/i");
     tree->Branch("lumi"                 , &lumi                 , "lumi/i");
@@ -561,7 +561,7 @@ void GenTreeMaker::beginJob() {
   // PDF info
   tree->Branch("pdflhaid"          , "std::vector<int>",    &pdflhaid);
   tree->Branch("wgtpdf"            , "std::vector<float>",  &wgtpdf);
-  
+
   // Kinematic
   tree->Branch("njets"                , &njets                , "njets/i");
   tree->Branch("njetsinc"             , &njetsinc             , "njetsinc/i");
@@ -611,14 +611,14 @@ void GenTreeMaker::beginJob() {
     tree->Branch("gTheta","std::vector<float>",&gTheta);
     tree->Branch("gDMA","std::vector<float>",&gDMA);
     tree->Branch("gV","std::vector<float>",&gV);
-    tree->Branch("gA","std::vector<float>",&gA);     
+    tree->Branch("gA","std::vector<float>",&gA);
     tree->Branch("dmmass",&dmmass,"dmmass/F");
     tree->Branch("dmpt",&dmpt,"dmpt/F");
     tree->Branch("dmeta",&dmeta,"dmeta/F");
     tree->Branch("dmphi",&dmphi,"dmphi/F");
     tree->Branch("dmid",&dmid,"dmid/I");
 
-    // DM particles                                                                                                                                                                                   
+    // DM particles
     tree->Branch("dmX1id",&dmX1id,"dmX1id/I");
     tree->Branch("dmX1pt",&dmX1pt,"dmX1pt/F");
     tree->Branch("dmX1eta",&dmX1eta,"dmX1eta/F");
@@ -645,36 +645,36 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
   qcdscale.clear();
   qcdscale_muR.clear();
   qcdscale_muF.clear();
- 
+
   using namespace boost::algorithm;
   using namespace edm;
 
   edm::Handle<LHERunInfoProduct> run;
   iRun.getByLabel(lheRunTag,run);
   LHERunInfoProduct myLHERunInfoProduct = *(run.product());
-  
+
   for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++){
     std::vector<std::string> lines = iter->lines();
     for (unsigned int iLine = 0; iLine<lines.size(); iLine++) {
       std::vector<std::string> tokens;
       std::vector<std::string> tokens_alt;
       if(isSignalSample){
-	if(lines.at(iLine).find("DMmass") !=std::string::npos){// powheg mono-j                                                                                                                      
+	if(lines.at(iLine).find("DMmass") !=std::string::npos){// powheg mono-j
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  sampledmM = std::stod(tokens.at(1));
 	}
-	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){// powheg mono-j                                                                                                                
+	else if(lines.at(iLine).find("DMVmass") !=std::string::npos){// powheg mono-j
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  samplemedM = std::stod(tokens.at(1));
 	}
-	else if(lines.at(iLine).find("DMSmass") !=std::string::npos){// powheg mono-j                                                                                                                
+	else if(lines.at(iLine).find("DMSmass") !=std::string::npos){// powheg mono-j
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  samplemedM = std::stod(tokens.at(1));
 	}
-	else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V                                                                                                        
+	else if(lines.at(iLine).find("import model") !=std::string::npos){ // madgraph mono-V
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  std::vector<std::string> subtokens;
@@ -688,7 +688,7 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    sampledmM = std::stod(subtokens.at(2));
 	  }
 	}
-	else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop                                                 
+	else if(lines.at(iLine).find("Resonance:") != std::string::npos){ // JHUGen --> only resonance mass (mediator) .. dM fixed in the event loop
 	  split(tokens, lines.at(iLine), is_any_of(" "));
 	  tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	  samplemedM = std::stod(tokens.at(3));
@@ -696,7 +696,7 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	  readDMFromGenParticle = true;
 	}
       }
-      // read-weights for scale variation                                                                                                                                                         
+      // read-weights for scale variation
       if(lines.at(iLine).find("Central scale variation") != std::string::npos or lines.at(iLine).find("scale_variation") != std::string::npos){
 	for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
 	  TString line_string (lines.at(iLine2));
@@ -705,7 +705,7 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    qcdscale.push_back(std::stoi(tokens.at(1)));
 	    for(auto tok: tokens){
-	      TString token_line (tok);		
+	      TString token_line (tok);
 	      if((token_line.Contains("muR") and token_line.Contains("muF")) or (token_line.Contains("mur") and token_line.Contains("muf"))){
 		token_line.ReplaceAll("dyn=  -1","");
 		token_line.ReplaceAll("muR=","");
@@ -715,10 +715,10 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 		token_line.ReplaceAll(">","");
 		token_line.ReplaceAll("<","");
 		std::string token_line_string = std::string(token_line);
-		split(tokens_alt,token_line_string,is_any_of(" "));		  		 
+		split(tokens_alt,token_line_string,is_any_of(" "));
 		for(auto tok_alt : tokens_alt){
 		  if(tok_alt == "" or tok_alt == " " or tok_alt == "\n") continue;
-		  try 
+		  try
 		    {
 		      float x = boost::lexical_cast<double>(tok_alt); // double could be anything with >> operator.
 		      if(qcdscale_muR.size() == qcdscale_muF.size()){
@@ -739,7 +739,7 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	  else if(lines.at(iLine2) != "" and line_string.Contains("</weightgroup>"))
 	    break;
 	}
-      }      
+      }
       if(lines.at(iLine).find("PDF_variation") != std::string::npos){
 	for(unsigned int iLine2 = iLine+1; iLine2 < lines.size(); iLine2++){
 	  TString line_string (lines.at(iLine2));
@@ -748,7 +748,7 @@ void GenTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 	    tokens.erase(std::remove(tokens.begin(), tokens.end(),""), tokens.end());
 	    pdfvariation.push_back(std::stoi(tokens.at(1)));
 	    for(auto tok : tokens){
-	      TString token_line (tok);		
+	      TString token_line (tok);
 	      if(token_line.Contains("PDF set =") or token_line.Contains("pdfset")){
 		token_line.ReplaceAll("PDF set = ","");
 		token_line.ReplaceAll("pdfset=","");
@@ -777,4 +777,3 @@ void GenTreeMaker::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 }
 
 DEFINE_FWK_MODULE(GenTreeMaker);
-
