@@ -4,8 +4,8 @@
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
 static bool plotSignificance = false;
-static bool  addStatUncPull  = true;
-static bool  addPreliminary  = true;
+static bool addStatUncPull  = true;
+static bool addPreliminary  = true;
 
 void prepostSig(string   fitFilename, 
 		string   observable, 

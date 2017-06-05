@@ -99,8 +99,7 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
       }
     }
     else if(nuisancetype == Nuisance::experimental){
-      if(name.Contains("CMS_eff") or name.Contains("CMS_trig") or name.Contains("CMS_met") or name.Contains("CMS_btag") or name.Contains("CMS_reco") or name.Contains("veto") or 
-	 name.Contains("CMS_Vtag"))
+      if(name.Contains("CMS_eff") or name.Contains("CMS_trig") or name.Contains("CMS_met") or name.Contains("CMS_btag") or name.Contains("CMS_reco") or name.Contains("veto") or name.Contains("lepVeto") or name.Contains("CMS_Vtag") or name.Contains("CMS_scale"))
 	listParamPreFit[name] = (RooRealVar*) parlist_init.at(isize);
     }
     else if(nuisancetype == Nuisance::stat){
@@ -109,34 +108,34 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
     }
     else if(nuisancetype == Nuisance::ratios){
 
-      if((name.Contains("ZM") and name.Contains("Runc")) or (name.Contains("ZE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig"))
+      if((name.Contains("ZM") and name.Contains("Runc")) or (name.Contains("ZE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met") or name.Contains("CMS_scale"))
 	listParamPreFit_ZZ[name] = (RooRealVar*) parlist_init.at(isize);
-
-      if((name.Contains("WM") and name.Contains("Runc")) or (name.Contains("WE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig") or name.Contains("CMS_eff_trig_e") or name.Contains("WtoWPDF") or name.Contains("muon_veto") or name.Contains("ele_veto") or name.Contains("tau_veto"))
+      
+      if((name.Contains("WM") and name.Contains("Runc")) or (name.Contains("WE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig") or name.Contains("CMS_eff_trig_e") or name.Contains("WtoWPDF") or name.Contains("muon_veto") or name.Contains("ele_veto") or name.Contains("tau_veto") or name.Contains("CMS_scale") or name.Contains("CMS_met") or name.Contains("lepVeto"))
 	listParamPreFit_WW[name] = (RooRealVar*) parlist_init.at(isize);
       
-      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("WJets_SR"))
+      if(((name.Contains("WJets_SR") or name.Contains("WJets_EWK_SR")) and name.Contains("Runc")) or name.Contains("ZW_QCD")  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("WJets_SR") or name.Contains("ZW_EWK") or name.Contains("Znunu_EWK_SR") or (name.Contains("Znunu_EWK_SR") and name.Contains("Runc")))
 	listParamPreFit_ZW[name] = (RooRealVar*) parlist_init.at(isize);
 
       if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("Gamma_GJ"))
 	listParamPreFit_ZG[name] = (RooRealVar*) parlist_init.at(isize);
     }
     else if(nuisancetype == Nuisance::otherbkg){
-      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat"))
+      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_WM") or name.Contains("QCD_WE") or name.Contains("QCD_SR") or name.Contains("WJets_ZM") or name.Contains("WJets_ZE") or name.Contains("WJets_EWK_ZM") or name.Contains("WJets_EWK_ZE") or name.Contains("ZJets_WM") or name.Contains("ZJets_WE") or name.Contains("Norm") or name.Contains("ZJets_EWK_WM") or name.Contains("ZJets_EWK_WE") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat") and not name.Contains("ZW"))
 	listParamPreFit[name] = (RooRealVar*) parlist_init.at(isize);
     }
   }
-
+  
   ///////
   for(int isize = 0; isize < parlist_final.getSize(); isize++){
     TString name (parlist_final.at(isize)->GetName());
     if(nuisancetype == Nuisance::theory){
-      if((name.Contains("QCDScale") and (name.Contains("ZW") or name.Contains("ZG")))  or name.Contains("QCDShape") or name.Contains("QCDProcess") or name.Contains("PDF") or name.Contains("NNLOMiss") or name.Contains("Sudakov") or name.Contains("QCDEWKMIX") or name.Contains("NNLOEWK"))
+      if((name.Contains("QCDScale") and (name.Contains("ZW") or name.Contains("ZG"))) or name.Contains("QCDShape") or name.Contains("QCDProcess") or name.Contains("PDF") or name.Contains("NNLOMiss") or name.Contains("Sudakov") or name.Contains("QCDEWKMIX") or name.Contains("NNLOEWK")){
 	listParamPostFit[name] = (RooRealVar*) parlist_final.at(isize);
+      }
     }
     else if(nuisancetype == Nuisance::experimental){
-      if(name.Contains("CMS_eff") or name.Contains("CMS_trig") or name.Contains("CMS_met") or name.Contains("CMS_btag") or name.Contains("CMS_reco") or name.Contains("veto") or 
-	 name.Contains("CMS_Vtag"))
+      if(name.Contains("CMS_eff") or name.Contains("CMS_trig") or name.Contains("CMS_met") or name.Contains("CMS_btag") or name.Contains("CMS_reco") or name.Contains("veto") or name.Contains("lepVeto") or name.Contains("CMS_Vtag") or name.Contains("CMS_scale"))
 	listParamPostFit[name] = (RooRealVar*) parlist_final.at(isize);
     }
     else if(nuisancetype == Nuisance::stat){
@@ -145,21 +144,20 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
     }
     else if(nuisancetype == Nuisance::ratios){
 
-      if((name.Contains("ZM") and name.Contains("Runc")) or (name.Contains("ZE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig"))
+      if((name.Contains("ZM") and name.Contains("Runc")) or (name.Contains("ZE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met") or name.Contains("CMS_scale"))
 	listParamPostFit_ZZ[name] = (RooRealVar*) parlist_final.at(isize);
 
-      if((name.Contains("WM") and name.Contains("Runc")) or (name.Contains("WE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig") or name.Contains("CMS_eff_trig_e") or name.Contains("WtoWPDF") or name.Contains("muon_veto") or name.Contains("ele_veto") or name.Contains("tau_veto"))
+      if((name.Contains("WM") and name.Contains("Runc")) or (name.Contains("WE") and name.Contains("Runc")) or name.Contains("CMS_eff_m") or name.Contains("CMS_reco_m") or name.Contains("CMS_eff_e") or name.Contains("CMS_reco_e") or name.Contains("CMS_met_trig") or name.Contains("CMS_eff_trig_e") or name.Contains("muon_veto") or name.Contains("ele_veto") or name.Contains("tau_veto") or name.Contains("lepVeto") or name.Contains("CMS_scale") or name.Contains("CMS_met"))
 	listParamPostFit_WW[name] = (RooRealVar*) parlist_final.at(isize);
 
-
-      if((name.Contains("WJets_SR") and name.Contains("Runc"))  or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("WJets_SR"))
+      if(((name.Contains("WJets_SR") or name.Contains("WJets_EWK_SR")) and name.Contains("Runc"))  or name.Contains("ZW_QCD") or name.Contains("ZW_SR") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV") and not name.Contains("Znunu_SR_VBF")) or name.Contains("WJets_SR") or name.Contains("ZW_EWK") or (name.Contains("Znunu_EWK_SR") and not name.Contains("Znunu_EWK_SR_VBF")) or  (name.Contains("Znunu_EWK_SR") and name.Contains("Runc")))
 	listParamPostFit_ZW[name] = (RooRealVar*) parlist_final.at(isize);
-
+      
       if((name.Contains("Znunu_GJ") and name.Contains("Runc"))  or name.Contains("ZG_GJ") or (name.Contains("Znunu_SR") and not name.Contains("Znunu_SR_MJ") and not name.Contains("Znunu_SR_MV")) or name.Contains("Gamma_GJ"))
 	listParamPostFit_ZG[name] = (RooRealVar*) parlist_final.at(isize);
     }
     else if(nuisancetype == Nuisance::otherbkg){
-      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat"))
+      if((name.Contains("Top") or name.Contains("Diboson") or name.Contains("QCD_WM") or name.Contains("QCD_WE") or name.Contains("QCD_SR") or name.Contains("WJets_ZM") or name.Contains("WJets_ZE") or name.Contains("WJets_EWK_ZM") or name.Contains("WJets_EWK_ZE") or name.Contains("ZJets_WM") or name.Contains("ZJets_WE") or name.Contains("Norm") or name.Contains("ZJets_EWK_WM") or name.Contains("ZJets_EWK_WE") or name.Contains("Purity") or name.Contains("GJets")) and not name.Contains("bin") and not name.Contains("stat") and not name.Contains("ZW"))
 	listParamPostFit[name] = (RooRealVar*) parlist_final.at(isize);
     }
   }
@@ -190,11 +188,12 @@ void makePostFitNuisancePull(string inputFileName, string outputDIR, Nuisance nu
     
     TCanvas* canvas = new TCanvas ("canvas","canvas",900,600);
     canvas->SetBottomMargin(0.35);
-    
+
     plotNuisance(canvas,listParamPreFit_ZZ,listParamPostFit_ZZ,outputDIR,"ZZ_ratio");
     plotNuisance(canvas,listParamPreFit_WW,listParamPostFit_WW,outputDIR,"WW_ratio");
     plotNuisance(canvas,listParamPreFit_ZW,listParamPostFit_ZW,outputDIR,"ZW_ratio");
-    plotNuisance(canvas,listParamPreFit_ZG,listParamPostFit_ZG,outputDIR,"ZG_ratio");    
+    if(listParamPreFit_ZG.size() != 0)
+      plotNuisance(canvas,listParamPreFit_ZG,listParamPostFit_ZG,outputDIR,"ZG_ratio");    
   }
 }
 			
