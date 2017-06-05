@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 import random
 
-def PhotonTools(process,addEGMSmear,isMC,addPhotonCorrection):
+def PhotonTools(process,addEGMSmear,isMC,addEGMRegression,addPhotonCorrection):
 
 	# Photon ValueMaps for identification
 	dataFormat = DataFormat.MiniAOD;
@@ -57,3 +57,13 @@ def PhotonTools(process,addEGMSmear,isMC,addPhotonCorrection):
 		if addEGMSmear:
 			getattr(process,"correctedPhotons").src = cms.InputTag("calibratedPhotons");
 			
+			
+	#######                                                                                                                                                                                      
+        if addEGMRegression:
+                ### read from DB                                                                                                                                                                        
+                from EgammaAnalysis.ElectronTools.regressionWeights_cfi import regressionWeights
+                process = regressionWeights(process)
+		process.load('EgammaAnalysis.ElectronTools.regressionApplication_cff')
+                process.photonMVAValueMapProducer.srcMiniAOD = cms.InputTag('slimmedPhotons')
+                process.photonRegressionValueMapProducer.srcMiniAOD = cms.InputTag('slimmedPhotons')
+		process.photonIDValueMapProducer.srcMiniAOD = cms.InputTag('slimmedPhotons')

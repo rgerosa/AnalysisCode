@@ -108,7 +108,6 @@ void makeSmallGenTree(string inputDirectory, string interaction, string signalTy
     postfix = "_DMF";
   else if(not isDMSimp and isSMM)
     postfix = "_SMM";
-    
 
   TFile* outputFile = new TFile((outputDirectory+"/tree_"+interaction+"_"+signalType+postfix+".root").c_str(),"RECREATE");
   outputFile->cd();

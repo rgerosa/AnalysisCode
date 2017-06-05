@@ -38,7 +38,7 @@ const float pfMetMonoVUpper = 8000.;
 const float leadingJetPtCutVBF  = 80.;
 const float trailingJetPtCutVBF = 40.;
 const float detajj          = 4.0;
-const float detajjrelaxed   = 1.5;
+const float detajjrelaxed   = 1.0;
 const float mjj             = 1300;
 const float mjjrelaxed      = 400;
 const float jetmetdphiVBF   = 0.5;
@@ -65,13 +65,13 @@ const bool  useMoriondSetup = true;
 const bool  isSummer16      = true;
 const bool  useSingleMuon   = true;
 // other general options
-const bool  runOnlyData     = false;
+const bool  runOnlyData      = false;
 // k-factors
 const bool  applyEWKVKfactor = true;
 
 // k-factors
-string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
-//string kfactorFile     = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
+//string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
+string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
 string kFactorTheoristFile_zvv = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors_theorist_v4/vvj.root";
@@ -576,6 +576,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> fhbhe  (myReader,"flaghbhenoise");
   TTreeReaderValue<UChar_t> fhbiso (myReader,"flaghbheiso");
   TTreeReaderValue<UChar_t> fcsc   (myReader,"flagglobaltighthalo");
+  TTreeReaderValue<UChar_t> fcsct  (myReader,"flagcsctight");
   TTreeReaderValue<UChar_t> feeb   (myReader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (myReader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (myReader,"flaggoodvertices");
@@ -674,7 +675,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> tmetphi     (myReader,"t1pfmetphi");
   TTreeReaderValue<float> metpf       (myReader,"pfmet");
   TTreeReaderValue<float> metcalo     (myReader,"calomet");
- 
+
   ////////////////// dphi
   TTreeReaderValue<float> jmmdphi (myReader,("incjetmumetdphimin4"+jetSuffix).c_str());
   TTreeReaderValue<float> jemdphi (myReader,("incjetelmetdphimin4"+jetSuffix).c_str());
@@ -781,11 +782,12 @@ void makehist4(TTree* tree,            /*input tree*/
     }
 
     // Trigger Selection
-    if (hlt  == 0) continue; // trigger    
+    if(hlt  == 0) continue; // trigger    
 
     // MET Filters --> apply on both data and monte-carlo
-    if(*fhbhe == 0 || *fhbiso == 0 || *feeb == 0 || *fetp == 0 || *fvtx == 0 || *fcsc == 0 || *fbadmu == 0 || *fbadch == 0) continue;
-
+    if(not isMC and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fcsct == 0)) continue;
+    if(*fbadmu == 0 or *fbadch == 0) continue;
+       
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
     if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun) jmdphi = fabs(*jmmdphi);
@@ -1220,7 +1222,17 @@ void makehist4(TTree* tree,            /*input tree*/
 	  TLorentzVector jet2 ;
 	  jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	  jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	  if(sample != Sample::zmm){
+	  if(sample == Sample::zmm){
+	    if((jet1+jet2).M() < 800)
+	      sfwgt *= triggermet_func_binned_Zmm.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(0)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
+	      sfwgt *= triggermet_func_binned_Zmm.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(1)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
+	      sfwgt *= triggermet_func_binned_Zmm.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(2)->GetXaxis()->GetXmax()));
+	    else if((jet1+jet2).M() >= 1700)
+	      sfwgt *= triggermet_func_binned_Zmm.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(3)->GetXaxis()->GetXmax()));	  
+	  }
+	  else{
 	    if((jet1+jet2).M() < 800)
 	      sfwgt *= triggermet_func_binned_Wmn.at(0)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(0)->GetXaxis()->GetXmax()));
 	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
@@ -1230,16 +1242,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	    else if((jet1+jet2).M() >= 1700)
 	      sfwgt *= triggermet_func_binned_Wmn.at(3)->Eval(min(pfmet,triggermet_func_binned_Wmn.at(3)->GetXaxis()->GetXmax()));	  
 	  }
-	  else{
-	    if((jet1+jet2).M() < 800)
-	      sfwgt *= triggermet_func_binned_Zmm.at(0)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(0)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 800 and (jet1+jet2).M() < 1200)
-	      sfwgt *= triggermet_func_binned_Zmm.at(1)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(1)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1200 and (jet1+jet2).M() < 1700)
-	      sfwgt *= triggermet_func_binned_Zmm.at(2)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(2)->GetXaxis()->GetXmax()));
-	    else if((jet1+jet2).M() >= 1700)
-	      sfwgt *= triggermet_func_binned_Zmm.at(3)->Eval(min(pfmet,triggermet_func_binned_Zmm.at(3)->GetXaxis()->GetXmax()));	  
-	  }	  
 	}
       }
     }
@@ -1255,13 +1257,15 @@ void makehist4(TTree* tree,            /*input tree*/
     // B-tag weight to be adjusted
     double btagw = 1;
     if(isMC and (sample == Sample::topmu or sample == Sample::topel))
-      btagw = 0.92;
+      btagw = 0.920;
     if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.017;
+      btagw = 1.015;
     if(isMC and (sample == Sample::wmn and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.01;
+      btagw = 1.010;
     if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 0.98;
+      btagw = 0.980;
+    if(isMC and sample == Sample::sig  and (category == Category::VBF or category != Category::VBFrelaxed))
+      btagw = 1.010;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -1485,6 +1489,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
     ///////////////
     else if(category == Category::VBF){
+      if(centralJets.size()+forwardJets.size() < 2) continue;
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF)  continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
@@ -1509,6 +1514,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
     ///////////////
     else if(category == Category::VBFrelaxed){
+      if(centralJets.size()+forwardJets.size() < 2) continue;
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF) continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
@@ -1516,8 +1522,8 @@ void makehist4(TTree* tree,            /*input tree*/
       if (sample != Sample::qcd and jmdphi < jetmetdphiVBF) continue;
       else if(sample == Sample::qcd and jmdphi > jetmetdphiVBF) continue;
       
-      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjrelaxed) continue;
       //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
@@ -1527,6 +1533,7 @@ void makehist4(TTree* tree,            /*input tree*/
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
       if((jet1+jet2).M() < mjjrelaxed) continue;
       if(fabs(deltaPhi(jetphi->at(0),jetphi->at(1))) > dphijjrelaxed) continue;
+
       goodVBF = true;
     }
     else if(category == Category::twojet){
@@ -1534,8 +1541,8 @@ void makehist4(TTree* tree,            /*input tree*/
       if(fabs(jeteta->at(0)) > 4.7 or fabs(jeteta->at(1)) > 4.7) continue;
       if(jetpt->at(0) < leadingJetPtCutVBF) continue;
       if(jetpt->at(1) < trailingJetPtCutVBF) continue;
-      if(fabs(jeteta->at(0)) < 2.5 and chfrac->at(0) < 0.1) continue;
-      if(fabs(jeteta->at(0)) < 2.5 and nhfrac->at(0) > 0.8) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
       //if(fabs(jeteta->at(0)) >= 3.0 and fabs(jeteta->at(0)) <= 3.2 and nhfrac->at(0) > 0.96) continue;
       if (sample != Sample::qcd and jmdphi < 0.5) continue;
       else if(sample == Sample::qcd and jmdphi > 0.5) continue;	      
@@ -1543,8 +1550,6 @@ void makehist4(TTree* tree,            /*input tree*/
   
     
     //////// Remove Category Overlaps    
-    if(category == Category::VBF and goodVBF == false) continue;
-    if(category == Category::VBFrelaxed and goodVBF == false) continue;
     if(category == Category::monoV and goodMonoV == false) continue;
     if(category == Category::monojet and goodMonoJet == false) continue;
     
@@ -1561,6 +1566,9 @@ void makehist4(TTree* tree,            /*input tree*/
       // number of vertices
       if(name.Contains("nvtx")) 
 	fillvar = *nvtx;
+      // number of vertices
+      else if(name.Contains("ntaus")) 
+	fillvar = *ntaus;
       // Z-mass peak to mumu
       else if(name.Contains("zmass")) 
 	fillvar = *zmass;
@@ -1992,8 +2000,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else if(isSummer16 and sample != Sample::sig and sample != Sample::gam and (category == Category::monojet or category == Category::monoV))
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	else if(isSummer16 and (category == Category::VBFrelaxed or category == Category::twojet or category == Category::VBF))
-	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else
 	  puwgt = 1;
 
@@ -2165,7 +2171,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
       // total event weight
       double evtwgt  = 1.0;
-      Double_t puwgt = 0.;
+      Double_t puwgt = 1.0;
 
       if (isMC and not reweightNVTX){
 

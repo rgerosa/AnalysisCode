@@ -122,11 +122,6 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
   // loop over jets
   StringCutObjectSelector<pat::Jet> jetSelection(selection);
 
-  // apply pileup jet id                                                                                                                                                   
-  //  bool isPuppi = false;
-  //  if(TString(srcJets.label()).Contains("Puppi"))
-  //  isPuppi = true;
-
   int ijet = 0;
   for(auto itJet = jetsH->begin(); itJet != jetsH->end(); ++itJet){
 
@@ -144,15 +139,18 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
 	  subjets.push_back(*(isubjet.get()));
       }
     }
-			
+
+    // subjets will be a single jet or mre then one jet 
+
     for(auto jet : subjets){
       
       // apply selection
       if(not jetSelection(jet)) continue;
-      // make sure is from ME
+      // make sure is from ME --> i.e. not interested in pileup jet
       if(not jet.genJet()) continue;
-      
-      //clean from leptons                                                                                                                                                     
+      if(jet.genJet()->pt() < 8) continue; // as suggested in https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods#b_tagging_efficiency_in_MC_sampl 
+
+      //clean from identified and isolated leptons                                                                                                                                                   
       bool skipjet = false;
       if(muonsH.isValid()){
 	for (std::size_t j = 0; j < muons.size(); j++) {
@@ -180,38 +178,37 @@ void BTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm::E
       if (!passjetid)
 	continue;
 
-      // require puid
-      // bool passpuid = applyPileupJetID(jet,"medium",isPuppi);
-      // if (!passpuid)
-      // continue;
-
       int hadronFlavor = jet.hadronFlavour();          
-      for(auto iPSet : bDiscriminatorInfo){ 
-      
+
+      for(auto iPSet : bDiscriminatorInfo){       
 	std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
 	std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
 	double wpValue = iPSet.getParameter<double>("wpValue");
+
+	// to handling correctly the overflow
+	double jetpt = jet.pt();
+	if(jetpt > ptBins.back()) jetpt = ptBins.back();
 	
 	if( abs(hadronFlavor)==5 ){
 	  // fill denominator
-	  eff_histo_Denom_b["eff_"+discriminatorName+"_"+wpLabel+"_Denom_b"]->Fill(jet.pt(), fabs(jet.eta()));
+	  eff_histo_Denom_b["eff_"+discriminatorName+"_"+wpLabel+"_Denom_b"]->Fill(jetpt, fabs(jet.eta()));
 	  // selection
 	  if(jet.bDiscriminator(discriminatorName) > wpValue)
-	    eff_histo_Num_b["eff_"+discriminatorName+"_"+wpLabel+"_Num_b"]->Fill(jet.pt(), fabs(jet.eta()));
+	    eff_histo_Num_b["eff_"+discriminatorName+"_"+wpLabel+"_Num_b"]->Fill(jetpt, fabs(jet.eta()));
 	}
 	else if( abs(hadronFlavor)==4 ){
 	  // fill denominator
-	  eff_histo_Denom_c["eff_"+discriminatorName+"_"+wpLabel+"_Denom_c"]->Fill(jet.pt(), fabs(jet.eta()));
+	  eff_histo_Denom_c["eff_"+discriminatorName+"_"+wpLabel+"_Denom_c"]->Fill(jetpt, fabs(jet.eta()));
 	  // selection
 	  if(jet.bDiscriminator(discriminatorName) > wpValue)
-	    eff_histo_Num_c["eff_"+discriminatorName+"_"+wpLabel+"_Num_c"]->Fill(jet.pt(), fabs(jet.eta()));
+	    eff_histo_Num_c["eff_"+discriminatorName+"_"+wpLabel+"_Num_c"]->Fill(jetpt, fabs(jet.eta()));
 	}
 	else{
 	// fill denominator
-	  eff_histo_Denom_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Denom_ucsdg"]->Fill(jet.pt(), fabs(jet.eta()));
+	  eff_histo_Denom_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Denom_ucsdg"]->Fill(jetpt, fabs(jet.eta()));
 	  // selection
 	  if(jet.bDiscriminator(discriminatorName) > wpValue)
-	    eff_histo_Num_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Num_ucsdg"]->Fill(jet.pt(), fabs(jet.eta()));
+	    eff_histo_Num_ucsdg["eff_"+discriminatorName+"_"+wpLabel+"_Num_ucsdg"]->Fill(jetpt, fabs(jet.eta()));
 	}
       }
     }

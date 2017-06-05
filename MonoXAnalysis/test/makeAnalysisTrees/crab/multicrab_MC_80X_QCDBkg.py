@@ -7,12 +7,12 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 pyCfgParams = ['isMC=True',
-               'filterOnHLT=False',
-               'setHLTFilterFlag=True',
-               'filterHighMETEvents=True',
-               'metCut=50',
-               'applyL2L3Residuals=False',
-               'addQGLikelihood=True',
+               'filterOnHLT=False', ## don't filter event according to the trigger bit
+               'setHLTFilterFlag=False',
+               'filterHighMETEvents=True', ## apply a low recoil cut at 50 GeV
+               'metCut=50',                ## 50 GeV
+               'applyL2L3Residuals=False', 
+               'addQGLikelihood=False', 
                'addPileupJetID=False',
                'addPuppiJets=True',
                'addPuppiMET=True',
@@ -22,13 +22,13 @@ pyCfgParams = ['isMC=True',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=False',
                'addSubstructureCHS=True',
-               'addSubstructurePuppi=True',
+               'addSubstructurePuppi=False', ## to spead up
                'miniAODProcess=PAT',
-               'globalTag=80X_mcRun2_asymptotic_2016_miniAODv2_v1',
+               'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v8',
                'outputFileName=tree.root',
-               'usePrivateSQliteJEC=True',
+               'usePrivateSQliteJEC=False',
                'isQCDTree=True',
-               'nThreads=3',
+               'nThreads=4',
                'isCrab=True']
 
 config.section_('General')
@@ -41,14 +41,14 @@ config.JobType.pluginName       = 'Analysis'
 config.JobType.outputFiles      = ['tree.root']
 config.JobType.allowUndistributedCMSSW = True
 config.JobType.maxMemoryMB      = 2480
-config.JobType.numCores         = 3
+config.JobType.numCores         = 4
 
 
 config.section_('Data')    
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
-config.Data.unitsPerJob   = 40000
-config.Data.outLFNDirBase = '/store/group/upgrade/delphes/VBS_SS/ProductionMC_02_12_2016_QCDBkg/'
+config.Data.unitsPerJob   = 25000
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_21_05_2017_QCDBkg'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

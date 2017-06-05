@@ -21,8 +21,9 @@ pyCfgParams = ['isMC=True',
                'addPuppiMETSystematics=False',
                'useOfficialMETSystematics=True',
                'addMETBreakDown=False',
-               'addSubstructureCHS=True',
-               'addSubstructurePuppi=True',
+               'addSubstructureCHS=False',
+               'addSubstructurePuppi=False',
+               'useMiniAODSubstructure=True',
                'miniAODProcess=PAT',
                'outputFileName=tree.root',
                'globalTag=80X_mcRun2_asymptotic_2016_TrancheIV_v8',
@@ -46,7 +47,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 25000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_28_01_2016/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_03_06_2017/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

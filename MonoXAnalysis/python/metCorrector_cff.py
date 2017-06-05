@@ -7,7 +7,7 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import pfMEtMultShiftCorr
 
 ## generic function that corrects jet and MET given a JEC
-def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3Residuals,addMETSystematics,useOfficialMETSystematics):
+def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3Residuals,useOfficialMETSystematics,addMETSystematics,addBadMuonClean):
 	
 	## propagation on missing energy + full systematics
 	if "Puppi" in metCollection or "PUPPI" in metCollection:
@@ -18,16 +18,16 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 	#### run the right recipe for puppi candidates for MET (as well taking last for jets)
 	if postfix == "Puppi" and not hasattr(process,"puppi") and not hasattr(process,"puppiForMET"):
 		from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
-		makePuppiesFromMiniAOD( process, False);
+		makePuppiesFromMiniAOD(process, False);
 		process.puppi.useExistingWeights = cms.bool(False)
 		process.puppiNoLep.useExistingWeights = cms.bool(False)
 		process.puppiForMET.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
 		process.puppiPhoton.photonId = cms.InputTag("egmPhotonIDs:cutBasedPhotonID-Spring16-V2p2-loose");
-		
+
 	######################
 	if useOfficialMETSystematics and addMETSystematics:
-		## use the official jet-MET tool
-		## re-run for standard met
+
+		## use the official jet-MET tool for puppi met --> re-comput met from pf-candidates + t1 correction  + systematics
 		if postfix == "Puppi" :
 			if isMC:
 				runMetCorAndUncFromMiniAOD(process,
@@ -53,11 +53,47 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 				process.patPFMetT2SmearCorrPuppi.jetCorrLabelRes = cms.InputTag("L3Absolute")
 				process.shiftedPatJetEnDownPuppi.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 				process.shiftedPatJetEnUpPuppi.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-		else:
-			if isMC:
-				runMetCorAndUncFromMiniAOD(process,isData=False)
+
+		else: 
+			### tag bad muons and compute the MET + systematics
+			if addBadMuonClean:
+				from PhysicsTools.PatUtils.tools.muonRecoMitigation import muonRecoMitigation
+				muonRecoMitigation(
+					process = process,
+					pfCandCollection = "packedPFCandidates", #input PF Candidate Collection
+					runOnMiniAOD = True, #To determine if you are running on AOD or MiniAOD
+					selection = "",      #You can use a custom selection for your bad muons. Leave empty if you would like to use the bad muon recipe definition. 
+					muonCollection = "", #The muon collection name where your custom selection will be applied to. Leave empty if you would like to use the bad muon recipe
+					cleanCollName = "cleanMuonsPFCandidates", #output pf candidate collection ame
+					cleaningScheme = "computeAllApplyClone", #Options are: "all", "computeAllApplyBad","computeAllApplyClone". Decides which (or both) bad muon collections to be used for MET cleaning coming from the bad muon recipe.
+					postfix ="" #Use if you would like to add a post fix to your muon / pf collections
+					)
+
+				if isMC:
+					runMetCorAndUncFromMiniAOD(process,
+								   isData=False,
+								   pfCandColl="cleanMuonsPFCandidates",
+								   recoMetFromPFCs=True,
+								   postfix="MuClean"
+								   )
+				else:
+					runMetCorAndUncFromMiniAOD(process,
+								   isData=False,
+								   pfCandColl="cleanMuonsPFCandidates",
+								   recoMetFromPFCs=True,
+								   postfix="MuClean"
+								   )
+				process.mucorMET = cms.Sequence( process.badGlobalMuonTaggerMAOD *
+								 process.cloneGlobalMuonTaggerMAOD *
+								 process.cleanMuonsPFCandidates *
+								 process.fullPatMetSequenceMuClean)
+				
+				
 			else:
-				runMetCorAndUncFromMiniAOD(process,isData=True)
+				if isMC:
+					runMetCorAndUncFromMiniAOD(process,isData=False)
+				else:
+					runMetCorAndUncFromMiniAOD(process,isData=True)
 				
 			if applyL2L3Residuals == False and not isMC:
 				process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
@@ -66,9 +102,9 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 				process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
 				process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
 				process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
-				
+							
 
-        else:		
+	else:		
     	        ## extract genMet		
 		if not hasattr(process,"genMetExtractor") and isMC:
 			setattr(process,"genMetExtractor",
@@ -124,10 +160,9 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 			addMETCollection(process, labelName='patCaloMet'+postfix, metSource='metrawCalo'+postfix)
 			getattr(process,"patCaloMet"+postfix).addGenMET = cms.bool(False)
 
-
-	        ## re-compute all MET systematics
+			
 		if addMETSystematics:
-
+			
 			setattr(process,"metSysProducer"+postfix,
 				cms.EDProducer("METSystematicsProducer",
 					       inputMET    = cms.InputTag("patPFMetT1"+postfix),
@@ -146,7 +181,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 						useExternalUncertainty = cms.bool(True),
 						binning = cms.VPSet(
 							cms.PSet(binSelection = cms.string("pt < 100"),
-							 uncertainty = cms.double(0.002)),
+								 uncertainty = cms.double(0.002)),
 							cms.PSet(binSelection = cms.string("pt >= 100"),
 								 uncertainty = cms.double(0.05))
 							)
@@ -179,10 +214,10 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 						useExternalUncertainty = cms.bool(True),
 						binning = cms.VPSet(
 							cms.PSet(binSelection = cms.string("abs(eta) < 2.5 && pt > 18. && tauID(\'decayModeFindingNewDMs\')> 0.5"),
-								 uncertainty = cms.double(0.03)),
+							 uncertainty = cms.double(0.03)),
 							)
 						),
-					       jet = cms.PSet(
+				       jet = cms.PSet(
 						## input collection
 						src = cms.InputTag(jetCollection),
 						selection = cms.string('pt > 15 && abs(eta) < 9.9 && (chargedEmEnergyFraction+neutralEmEnergyFraction) < 0.9'),
@@ -209,7 +244,7 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 								  ),
 							cms.PSet( binSelection   = cms.string("pdgId==22"),
 								  binUncertainty = cms.string("sqrt(pow(0.00009*energy,2)+pow(0.0085/sqrt(sin(2*atan(exp(eta)))),2))")
-                                                                  ),
+								  ),
 							
 							cms.PSet(
 								binSelection = cms.string('pdgId==1 || pdgId==2'),
@@ -219,26 +254,26 @@ def metCorrector(process,jetCollection,metCollection,isMC,payloadName,applyL2L3R
 						))
 				)
 			
-		
+			
 			if isMC:
 				getattr(process,"metSysProducer"+postfix).jet.JECUncFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JEC/Fall15_25nsV2_MC_Uncertainty_"+payloadName+".txt");
 				getattr(process,"metSysProducer"+postfix).jet.JERFile = cms.FileInPath("AnalysisCode/MonoXAnalysis/data/JER/Fall15_25nsV2_MC_PtResolution_"+payloadName+".txt");
-			
-			### add xy corrections
+
+		        ### add xy corrections
 			if not hasattr(process,"patPFMetTxyCorr"+postfix):
 				setattr(process,"patPFMetTxyCorr"+postfix,pfMEtMultShiftCorr.clone(
 						srcPFlow = cms.InputTag('packedPFCandidates'),
 						vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
 						))
-				
+
 				setattr(process,'patPFMetT1Txy'+postfix,
 					cms.EDProducer("CorrectedPATMETProducer",
 						       src = cms.InputTag("patPFMet"+postfix),
 						       srcCorrections = cms.VInputTag(cms.InputTag("patPFMetT1Corr"+postfix,"type1"), cms.InputTag("patPFMetTxyCorr"+postfix))))
 						       
 					 
-			## final slimmed MET			
-		       	setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
+		        ## final slimmed MET			
+			setattr(process,metCollection, cms.EDProducer("PATMETSlimmer",
 								      caloMET = cms.InputTag("patCaloMet"+postfix),
 								      rawVariation = cms.InputTag("patPFMet"+postfix),
 								      runningOnMiniAOD = cms.bool(True),

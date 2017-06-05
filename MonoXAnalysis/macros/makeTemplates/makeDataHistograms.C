@@ -581,13 +581,12 @@ void sigdatamchist(TFile* outfile,
     TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
     if(category == Category::VBFrelaxed)
       zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-
     TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+
     if(category == Category::VBF)
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
     else if(category == Category::VBFrelaxed)
       zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-
     zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
     zjet_nlo_vbf->Divide(zjet_nlo_mj);
 
@@ -601,6 +600,7 @@ void sigdatamchist(TFile* outfile,
     if(category == Category::VBFrelaxed)
       wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
     TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+
     if(category == Category::VBF)
       wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
     else if(category == Category::VBFrelaxed)
@@ -2280,9 +2280,9 @@ void lepdatamchist(TFile* outfile,
   makehist4(dbtree,dbhist,dbhist_2D,true,sample,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> gamma+jets"<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,sample,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+
   cout<<"lepton+jets control region --> QCD"<<endl;
   makehist4(qctree,qchist,qchist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-
   cout<<"lepton+jets control region --> EWK W"<<endl;
   makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight, wewkhists);
   cout<<"lepton+jets control region --> EWK Z"<<endl;

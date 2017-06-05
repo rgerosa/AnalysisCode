@@ -12,6 +12,7 @@
 
 void filters(){}
 
+// function taking a path and a flag for EOS cern and returns a list of files as vector of strings
 vector<string> fileListForChain (const std::string path, bool isEOS){
 
   vector<string> outputFileList;
@@ -49,6 +50,7 @@ double sumxsec(TChain* tree){
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sumxsec function --> loop on gentree: nEvents = "<<tree->GetEntries()<<std::endl;
+  std::cout<<"###################################"<<std::endl;
 
   TTreeReader treeReader(tree);
   TTreeReaderValue<float> wgtsign (treeReader,"lheXSEC");
@@ -65,6 +67,7 @@ double sumxsec(TChain* tree){
     nEvents++;
   }
 
+  std::cout<<"###################################"<<std::endl;
   std::cout<<"sumxsec function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
   
@@ -80,6 +83,7 @@ double sumwgt(TChain* tree) {
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sumwgt function --> loop on gentree: nEntries "<<tree->GetEntries()<<std::endl;
+  std::cout<<"###################################"<<std::endl;
 
   TTreeReader treeReader(tree);
   TTreeReaderValue<float> wgt (treeReader,"wgt");
@@ -95,6 +99,7 @@ double sumwgt(TChain* tree) {
     nEvents++;
   }
 
+  std::cout<<"###################################"<<std::endl;
   std::cout<<"sumwgt function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
  
@@ -110,6 +115,7 @@ TH1D* pileupwgt(TChain* tree, std::string scenario = ""){
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"pileupwgt function --> start"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
   
   // PU data  
   TH1D*  histoPUData;
@@ -133,6 +139,7 @@ TH1D* pileupwgt(TChain* tree, std::string scenario = ""){
   TH1D* puRatio = (TH1D*) histoPUData->Clone("histoRatio");
   puRatio->Divide(histoPUMC);
 
+  std::cout<<"###################################"<<std::endl;
   std::cout<<"pileupwgt function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
 
@@ -145,6 +152,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"btagWeights function --> start"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
 
   // smooth input histograms to deal with low statistics
   eff_b->Smooth();
@@ -158,7 +166,8 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
 
   double jetPtMin  = 20;
   double jetEtaMax = 2.4;
-  double btagWP    = 0.89; // medium working point
+  double btagCSVMediumWP = 0.8484; // medium working point
+  double btagMVAMediumWP = 0.4432; // medium working point
   
   // decleare reader
   TTreeReader myReader(tree);
@@ -170,7 +179,6 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   TTreeReaderValue<std::vector<float> > combinejetBtagSFUp   (myReader,"combinejetBtagSFUp");
   TTreeReaderValue<std::vector<float> > combinejetBtagSFDown (myReader,"combinejetBtagSFDown");
 
-
   // add a b-tag weight branch for medium wp
   float wgtbtag, wgtbtagUp, wgtbtagDown;
   TBranch* bwgtbtag     = tree->Branch("wgtbtag", &wgtbtag, "wgtbtag/F");  
@@ -178,7 +186,6 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   TBranch* bwgtbtagDown = tree->Branch("wgtbtagDown", &wgtbtagDown, "wgtbtagDown/F");  
 
   long int nEvents = 0;
-
   while(myReader.Next()){
 
     // recipe for b-tag weight on https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
@@ -188,55 +195,66 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     vector<float> PDATAErrDw ;
     float efficiency = 1.;
 
-    if(nEvents %100000 == 0){
+    if(nEvents %10000 == 0){
       std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
     }      
 
     // take only events in the acceptance region for b-tagging   
     for(size_t iJet = 0; iJet < combinejetpt->size(); iJet++){            
-      if(combinejetpt->at(iJet) > jetPtMin and fabs(combinejeteta->at(iJet)) < jetEtaMax){
-	// get efficiency
-	if(combinejetHFlav->at(iJet) == 5)
-	  efficiency     = graph_b->Interpolate(combinejetpt->at(iJet) ,fabs(combinejeteta->at(iJet)));
-	else if(combinejetHFlav->at(iJet) == 4)
-	  efficiency     = graph_c->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
-	else
-	  efficiency     = graph_ucsdg->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
+      if(combinejetpt->at(iJet) < jetPtMin) continue;
+      if(fabs(combinejeteta->at(iJet)) > jetEtaMax) continue;
 
-	//checks
-	if(efficiency > 1) efficiency = 1;
-	if(efficiency < 0) efficiency = 0;
-	
-	// check b-tag value
-	if(combinejetbtag->at(iJet) > btagWP){
-	  PMC.push_back(efficiency);
-	  PDATA.push_back(efficiency*(combinejetBtagSF->at(iJet)));		  
-	  PDATAErrUp.push_back(efficiency*(combinejetBtagSFUp->at(iJet)));
-	  PDATAErrDw.push_back(efficiency*(combinejetBtagSFDown->at(iJet)));
-	}
-	else{
-	  PMC.push_back((1-efficiency));
-	  PDATA.push_back((1-efficiency*(combinejetBtagSF->at(iJet))));
-	  PDATAErrUp.push_back(1-efficiency*(combinejetBtagSFUp->at(iJet)));
-	  PDATAErrDw.push_back(1-efficiency*(combinejetBtagSFDown->at(iJet)));
-	}	
+      // get efficiency --> get a value for the efficiency interpolating the histogram
+      if(combinejetHFlav->at(iJet) == 5)
+	efficiency     = graph_b->Interpolate(combinejetpt->at(iJet) ,fabs(combinejeteta->at(iJet)));
+      else if(combinejetHFlav->at(iJet) == 4)
+	efficiency     = graph_c->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
+      else
+	efficiency     = graph_ucsdg->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
+
+      //checks
+      if(efficiency > 1){
+	cerr<<"Problem b-tagging efficiency larger than 1 for this bin: pt "<<combinejetpt->at(iJet)<<" eta "<<fabs(combinejeteta->at(iJet)) <<endl;
+	efficiency = 1;
       }
+      if(efficiency < 0){
+	cerr<<"Problem b-tagging efficiency larger smaller than 0 for this bin: pt "<<combinejetpt->at(iJet)<<" eta "<<fabs(combinejeteta->at(iJet)) <<endl;
+	efficiency = 0;
+      }
+	
+      // check b-tag value
+      if(combinejetbtag->at(iJet) > btagCSVMediumWP){
+	PMC.push_back(efficiency);
+	PDATA.push_back(efficiency*combinejetBtagSF->at(iJet));		  
+	PDATAErrUp.push_back(efficiency*combinejetBtagSFUp->at(iJet));
+	PDATAErrDw.push_back(efficiency*combinejetBtagSFDown->at(iJet));
+      }
+      else{
+	PMC.push_back(1-efficiency);
+	PDATA.push_back(1-efficiency*combinejetBtagSF->at(iJet));
+	PDATAErrUp.push_back(1-efficiency*combinejetBtagSFUp->at(iJet));
+	PDATAErrDw.push_back(1-efficiency*combinejetBtagSFDown->at(iJet));
+	}	
     }
-
+  
+  
     // Fill branch
     float Num = 1.;
     float Den = 1.;
 
     for(size_t iJet = 0; iJet < PMC.size(); iJet++){
-      Num *= PDATA.at(iJet);
-      Den *= PMC.at(iJet);
+      Num *= PDATA.at(iJet); // probability of data
+      Den *= PMC.at(iJet);   // probability of MC
     }
-
+    
     if(Den != 0)
       wgtbtag = Num/Den;
-    else
+    else{
+      cerr<<"Problem : null probability for denominator PMC --> fix weight to 1 "<<endl;
       wgtbtag = 1.;
-
+    }
+    
+    // uncertainty 
     vector<float> wbtagErr;
     float NumMax = 1.;
     float NumMin = 1.;
@@ -267,6 +285,7 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     nEvents++;
   }
 
+  std::cout<<"###################################"<<std::endl;
   std::cout<<"btagWeights function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
 
@@ -295,6 +314,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sigfilter --> start function"<<std::endl;
+  std::cout<<"###################################"<<std::endl;
 
   if(inputFileName == "")
     inputFileName = "tree.root";
@@ -304,10 +324,13 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   TFile*  infile = NULL;
   TChain* frtree = new TChain("tree/tree");
   vector<string> fileList;
-  if( not isInputDirectory){
+
+  // single file as input --> load the tree
+  if(not isInputDirectory){
     infile = TFile::Open(inputFileName.c_str());
     frtree = (TChain*)infile->Get("tree/tree");
   }
+  // fill the chain with the files
   else{    
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList){
@@ -319,6 +342,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   TH1D*   puRatio = NULL;
   double  wgtsum;
 
+  // only for MC take the gentree to evaluate sum of weights and true pileup one
   if(isMC){
     if(not isInputDirectory)
       intree = (TChain*)infile->Get("gentree/gentree");
@@ -337,6 +361,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   if (not dropHLTFilter)
     cut += " && (hltmet90 > 0 || hltmet100 > 0 || hltmet110 > 0 || hltmet120 > 0 || hltmetwithmu90 > 0 ||  hltmetwithmu100 > 0 || hltmetwithmu110 || hltmetwithmu120 || hltmetwithmu170 > 0 || hltmetwithmu300 > 0 || hltjetmet > 0 )";
       
+  // output file
   TFile* outfile = new TFile(outputFileName.c_str(), "RECREATE");
   outfile->cd();
   TDirectoryFile* treedir = new TDirectoryFile("tree", "tree"); 
@@ -364,6 +389,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   frtree->SetBranchStatus("taumu*",0);
   frtree->SetBranchStatus("taue*",0);
 
+  // copy output tree from input apply selections and discarding useless branches
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"sigfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
 
@@ -375,6 +401,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   double wgtpileup = 1;
   double xsec;
 
+  // add wgtsum, pileupwgt and xsec if needed
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
   else if(xsType == 2 and isMC)
@@ -406,9 +433,6 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 
   if(applyBTagWeights and isMC){
 
-    std::cout<<"sigfilter --> apply btag-weight"<<std::endl; 
-    // applying b-tag weights
-    // take numerators for b-tag
     TH2F*  eff_Num_b = 0;
     TH2F*  eff_Num_c = 0;
     TH2F*  eff_Num_ucsdg = 0;
@@ -416,8 +440,8 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     TH2F*  eff_Denom_c = 0;
     TH2F*  eff_Denom_ucsdg = 0;
 
+    // in case it's not a list of files
     if(not isInputDirectory){
-
       eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
       eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
       eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
@@ -428,7 +452,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     }
     else{
 
-      // loop on the file      
+      // loop on the file --> open each at a time     
       TFile* file_temp = 0;
       for(auto name : fileList){
 	file_temp = TFile::Open(name.c_str());
@@ -459,7 +483,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 	}
 	else
 	  eff_Denom_b->Add((TH2F*) file_temp->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_b"));
-	
+
 	if(not eff_Denom_c){
           eff_Denom_c = (TH2F*) file_temp->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_c")->Clone("eff_Denom_c");
 	  eff_Denom_c->SetDirectory(0);
@@ -474,6 +498,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 	else
           eff_Denom_ucsdg->Add((TH2F*) file_temp->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"));	
 
+	// close the file
 	file_temp->Close();
       }
     }
@@ -487,6 +512,8 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     eff_ucsdg->Divide(eff_Denom_ucsdg);
 
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+
+
   }
   
   // write tree in the file  
@@ -537,7 +564,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
   
 
@@ -551,7 +578,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                                 
@@ -646,8 +673,6 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
     TH2F*  eff_Denom_ucsdg = 0;
 
     if(not isInputDirectory){
-
- 
       eff_Num_b = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_b"); 
       eff_Num_c = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_c"); 
       eff_Num_ucsdg = (TH2F*) infile->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Num_ucsdg"); 
@@ -702,11 +727,10 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
 	}
         else
           eff_Denom_ucsdg->Add((TH2F*) file_temp->Get("btageff/eff_pfCombinedInclusiveSecondaryVertexV2BJetTags_Medium_Denom_ucsdg"));
-
         file_temp->Close();
       }
     }
-
+    
     // compute efficiency
     TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
     TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
@@ -769,7 +793,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
 
   TChain* intree  = new TChain("gentree/gentree");
@@ -782,7 +806,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                                 
@@ -1002,7 +1026,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
   
   TChain* intree  = new TChain("gentree/gentree");
@@ -1015,7 +1039,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                                 
@@ -1227,7 +1251,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
 
 
@@ -1241,7 +1265,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                               
@@ -1462,7 +1486,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
 
   TChain* intree  = new TChain("gentree/gentree");
@@ -1475,7 +1499,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                             
@@ -1693,7 +1717,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
   
 
@@ -1707,7 +1731,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
     // calculate sum of weights                                                                                                                                             
     wgtsum = sumwgt(intree);
@@ -1913,7 +1937,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   TFile* infile  =  NULL;
   TChain* frtree = new TChain("tree/tree");
   vector<string> fileList;
-  if( not isInputDirectory){
+  if(not isInputDirectory){
     infile = TFile::Open(inputFileName.c_str());
     frtree = (TChain*)infile->Get("tree/tree");
   }
@@ -1921,7 +1945,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
     frtree = new TChain("tree/tree");
     fileList = fileListForChain(inputFileName,isEOS);
     for(auto name : fileList)
-      frtree->AddFile(name.c_str());
+      frtree->Add(name.c_str());
   }
 
   TChain* intree  = new TChain("gentree/gentree");
@@ -1934,7 +1958,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
     else{
       intree = new TChain("gentree/gentree");
       for(auto name : fileList)
-        intree->AddFile(name.c_str());
+        intree->Add(name.c_str());
     }
 
     // calculate sum of weights                                                                                                                                                
@@ -2027,8 +2051,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
     
     std::cout<<"topfilter --> apply btag-weight"<<std::endl;
 
-    // applying b-tag weights
-    // take numerators for b-tag
+    // applying b-tag weights --> taking numerators and denominators for efficiency 
     TH2F*  eff_Num_b = 0;
     TH2F*  eff_Num_c = 0;
     TH2F*  eff_Num_ucsdg = 0;
