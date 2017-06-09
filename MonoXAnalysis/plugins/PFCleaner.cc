@@ -36,26 +36,26 @@ class PFCleaner : public edm::stream::EDProducer<> {
 public:
   explicit PFCleaner(const edm::ParameterSet&);
   ~PFCleaner();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
   virtual void beginJob();
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
-  
+
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  
+
   //for purity
   bool   randomConeOverlaps(const double &, const double &, const double &, const std::vector<pat::Jet> &, const double &);
   // for isolation
   double computePhotonIso( const pat::Photon &, edm::Handle<edm::View<reco::Candidate>> , const double &, const double &, const double &);
   double computeCHhadronIso(const pat::Photon &, edm::Handle<edm::View<reco::Candidate> > , const double &, const double &, const double &, const reco::Vertex &);
-  double computeNHhadronIso(const pat::Photon &, edm::Handle<edm::View<reco::Candidate> > , const double &, const double &, const double &);  
+  double computeNHhadronIso(const pat::Photon &, edm::Handle<edm::View<reco::Candidate> > , const double &, const double &, const double &);
   // effective area according to 80X Spring 16 ID
   double getGammaEAForPhotonIso(const double & eta);
   double getNeutralHadronEAForPhotonIso(const double & eta);
@@ -107,12 +107,12 @@ private:
 
 };
 
-PFCleaner::PFCleaner(const edm::ParameterSet& iConfig): 
+PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   rhoToken                 (consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
   verticesToken            (consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("vertices"))),
   pfcandsToken             (consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("pfcands"))),
   jetsToken                (consumes<std::vector<pat::Jet> > (iConfig.getParameter<edm::InputTag>("jets"))),
-  muonsToken               (consumes<std::vector<pat::Muon> > (iConfig.getParameter<edm::InputTag>("muons"))), 
+  muonsToken               (consumes<std::vector<pat::Muon> > (iConfig.getParameter<edm::InputTag>("muons"))),
   muonSelection            (iConfig.getParameter<std::vector<edm::ParameterSet > >("muonSelection")),
   tausToken                (consumes<std::vector<pat::Tau> >  (iConfig.getParameter<edm::InputTag>("taus"))),
   tauSelection             (iConfig.getParameter<std::vector<edm::ParameterSet> >("tauSelection")),
@@ -122,20 +122,20 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   photonsToken             (consumes<std::vector<pat::Photon> > (iConfig.getParameter<edm::InputTag>("photons"))),
   photonSelection          (iConfig.getParameter<std::vector<edm::ParameterSet> >("photonSelection")),
   useCalibratedPhotons     (iConfig.existsAs<bool>("useCalibratedPhotons") ? iConfig.getParameter<bool>("useCalibratedPhotons") : false),
-  photonsieieToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"))), 
-  photonPHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonphiso"))), 
-  photonCHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonchiso"))),   
-  photonNHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonnhiso"))),   
+  photonsieieToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonsieie"))),
+  photonPHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonphiso"))),
+  photonCHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonchiso"))),
+  photonNHisoToken         (consumes<edm::ValueMap<float> > (iConfig.getParameter<edm::InputTag>("photonnhiso"))),
   photonPurityID           (iConfig.getParameter<edm::ParameterSet>("photonPurityID")),
   userandomphi             (iConfig.existsAs<bool>("userandomphiforRC") ? iConfig.getParameter<bool>("userandomphiforRC") : true),
   addPhotonPurity          (iConfig.existsAs<bool>("addPhotonPurity") ? iConfig.getParameter<bool>("addPhotonPurity") : false)
 {
 
   rand.SetSeed(0);
-  
+
   if(useCalibratedElectrons)
     calibratedElectronsToken = consumes<std::vector<pat::Electron> > (iConfig.getParameter<edm::InputTag>("calibratedElectrons"));
-  
+
   if(useCalibratedPhotons)
     calibratedPhotonsToken   = consumes<std::vector<pat::Photon> >   (iConfig.getParameter<edm::InputTag>("calibratedPhotons"));
 
@@ -145,7 +145,7 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
   // produces tau output
   for(auto itau : tauSelection)
     produces<pat::TauRefVector>(itau.getParameter<std::string>("tauCollectionName"));
-  
+
   // produces ele + get value map
   for (auto iele : electronSelection){
     electronIdMapToken.push_back(consumes<edm::ValueMap<bool> > (iele.getParameter<edm::InputTag>("eleValueMap")));
@@ -157,7 +157,7 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     photonIdMapToken.push_back(consumes<edm::ValueMap<bool> > (ipho.getParameter<edm::InputTag>("photonValueMap")));
     produces<pat::PhotonRefVector>(ipho.getParameter<std::string>("photonCollectionName"));
   }
-  
+
   // random cone information
   if(addPhotonPurity){
     produces<edm::ValueMap<float> >("rndchhadiso04");
@@ -180,7 +180,7 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     if(muonSelection.at(imuon).getParameter<std::string>("idType") == "loose" or muonSelection.at(imuon).getParameter<std::string>("idType") == "Loose")
       looseMuonPosition = imuon;
   }
-  
+
   if(looseMuonPosition < 0 or looseMuonPosition == int(muonSelection.size()))
     throw cms::Exception("PFCleaner") <<" no loose muons found  --> check \n";
 
@@ -188,7 +188,7 @@ PFCleaner::PFCleaner(const edm::ParameterSet& iConfig):
     if(electronSelection.at(iele).getParameter<std::string>("idType") == "veto" or electronSelection.at(iele).getParameter<std::string>("idType") == "Veto")
       vetoElectronPosition = iele;
   }
-  
+
   if(vetoElectronPosition < 0 or vetoElectronPosition == int(electronSelection.size()))
     throw cms::Exception("PFCleaner") <<" no veto electrons found  --> check \n";
 
@@ -202,20 +202,20 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
   using namespace reco;
   using namespace std;
-  
+
   Handle<std::vector<reco::Vertex> > verticesH;
   iEvent.getByToken(verticesToken, verticesH);
 
   Handle<edm::View<reco::Candidate> > pfcandsH;
   iEvent.getByToken(pfcandsToken, pfcandsH);
-  
+
   Handle<std::vector<pat::Jet> > jetsH;
   iEvent.getByToken(jetsToken, jetsH);
-  
+
   // muons
   Handle<std::vector<pat::Muon> > muonsH;
   iEvent.getByToken(muonsToken, muonsH);
-  
+
   // electrons
   Handle<std::vector<pat::Electron> > electronsH;
   iEvent.getByToken(electronsToken, electronsH);
@@ -228,7 +228,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     electronMapH.push_back(Handle<edm::ValueMap<bool> > ());
     iEvent.getByToken(eleToken,electronMapH.back());
   }
-  
+
   // taus
   Handle<std::vector<pat::Tau> > tausH;
   iEvent.getByToken(tausToken, tausH);
@@ -246,7 +246,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   Handle<edm::ValueMap<float> > photonsieieH;
-  iEvent.getByToken(photonsieieToken, photonsieieH);  
+  iEvent.getByToken(photonsieieToken, photonsieieH);
   Handle<edm::ValueMap<float> > photonPHisoH;
   iEvent.getByToken(photonPHisoToken, photonPHisoH);
   Handle<edm::ValueMap<float> > photonCHisoH;
@@ -259,63 +259,63 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   double rho = *rhoH;
 
   // output
-  std::vector<std::auto_ptr<pat::MuonRefVector> > outputmuons;
+  std::vector<std::unique_ptr<pat::MuonRefVector> > outputmuons;
   for(auto imuon : muonSelection)
-    outputmuons.push_back(std::auto_ptr<pat::MuonRefVector>(new pat::MuonRefVector));
-  std::vector<std::auto_ptr<pat::ElectronRefVector> > outputelectrons;
+    outputmuons.push_back(std::unique_ptr<pat::MuonRefVector>(new pat::MuonRefVector));
+  std::vector<std::unique_ptr<pat::ElectronRefVector> > outputelectrons;
   for(auto iele  : electronSelection)
-    outputelectrons.push_back(std::auto_ptr<pat::ElectronRefVector>(new pat::ElectronRefVector));
-  std::vector<std::auto_ptr<pat::TauRefVector> > outputtaus;
+    outputelectrons.push_back(std::unique_ptr<pat::ElectronRefVector>(new pat::ElectronRefVector));
+  std::vector<std::unique_ptr<pat::TauRefVector> > outputtaus;
   for(auto itau  : tauSelection)
-    outputtaus.push_back(std::auto_ptr<pat::TauRefVector>(new pat::TauRefVector));
-  std::vector<std::auto_ptr<pat::PhotonRefVector> > outputphotons;
+    outputtaus.push_back(std::unique_ptr<pat::TauRefVector>(new pat::TauRefVector));
+  std::vector<std::unique_ptr<pat::PhotonRefVector> > outputphotons;
   for(auto ipho  : photonSelection)
-    outputphotons.push_back(std::auto_ptr<pat::PhotonRefVector>(new pat::PhotonRefVector));
-  
-  std::auto_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputnhhadisomap(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputsigietaietamap(new ValueMap<float>());
+    outputphotons.push_back(std::unique_ptr<pat::PhotonRefVector>(new pat::PhotonRefVector));
 
-  std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso04map(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputrndgammaiso08map(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso04map(new ValueMap<float>());
-  std::auto_ptr<edm::ValueMap<float> > outputrndchhadiso08map(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputgammaisomap(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputchhadisomap(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputnhhadisomap(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputsigietaietamap(new ValueMap<float>());
+
+  std::unique_ptr<edm::ValueMap<float> > outputrndgammaiso04map(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputrndgammaiso08map(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputrndchhadiso04map(new ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float> > outputrndchhadiso08map(new ValueMap<float>());
   // for purity studies
-  std::auto_ptr<pat::PhotonRefVector>  outputphotonsPurity(new pat::PhotonRefVector);
-  
+  std::unique_ptr<pat::PhotonRefVector>  outputphotonsPurity(new pat::PhotonRefVector);
+
   //muon info https://twiki.cern.ch/twiki/bin/viewauth/CMS/SWGuideMuonIdRun2
   for (vector<pat::Muon>::const_iterator muons_iter = muonsH->begin(); muons_iter != muonsH->end(); ++muons_iter) {
     if (verticesH->size() == 0) continue;
 
     // loop on the muon selection definition
     size_t ipos = 0;
-    for(auto imuon : muonSelection){      
-      bool passeskincuts = (muons_iter->pt() > imuon.getParameter<double>("ptMin") && 
+    for(auto imuon : muonSelection){
+      bool passeskincuts = (muons_iter->pt() > imuon.getParameter<double>("ptMin") &&
 			    fabs(muons_iter->eta()) < imuon.getParameter<double>("absEta"));
-      float isoval       = std::max(0.,muons_iter->pfIsolationR04().sumNeutralHadronEt+muons_iter->pfIsolationR04().sumPhotonEt 
+      float isoval       = std::max(0.,muons_iter->pfIsolationR04().sumNeutralHadronEt+muons_iter->pfIsolationR04().sumPhotonEt
 				    -imuon.getParameter<double>("deltaBeta")*muons_iter->pfIsolationR04().sumPUPt);
       isoval += muons_iter->pfIsolationR04().sumChargedHadronPt;
       isoval /= muons_iter->pt();
 
       if (passeskincuts) {
 	if(imuon.getParameter<std::string>("idType") == "loose" or imuon.getParameter<std::string>("idType") =="Loose"){
-	  if (muon::isLooseMuon(*muons_iter) && isoval < imuon.getParameter<double>("isolation")) 
+	  if (muon::isLooseMuon(*muons_iter) && isoval < imuon.getParameter<double>("isolation"))
 	    outputmuons.at(ipos)->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
 	}
 	else if(imuon.getParameter<std::string>("idType") == "tight" or imuon.getParameter<std::string>("idType") =="Tight"){
-	  if (muon::isTightMuon(*muons_iter,verticesH->at(0)) && isoval < imuon.getParameter<double>("isolation")) 
+	  if (muon::isTightMuon(*muons_iter,verticesH->at(0)) && isoval < imuon.getParameter<double>("isolation"))
 	    outputmuons.at(ipos)->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
 	}
 	else if(imuon.getParameter<std::string>("idType") == "highPt" or imuon.getParameter<std::string>("idType") =="HighPt"){
-	  if (muon::isHighPtMuon(*muons_iter,verticesH->at(0)) && isoval < imuon.getParameter<double>("isolation")) 
+	  if (muon::isHighPtMuon(*muons_iter,verticesH->at(0)) && isoval < imuon.getParameter<double>("isolation"))
 	    outputmuons.at(ipos)->push_back(pat::MuonRef(muonsH, muons_iter - muonsH->begin()));
 	}
       }
       ipos++;
     }
   }
-  
+
   // electrons --> id applied on standard slimmed, in case of calibrated use them to fill the output collection
   //electron info https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2
   for (vector<pat::Electron>::const_iterator electrons_iter = electronsH->begin(); electrons_iter != electronsH->end(); ++electrons_iter) {
@@ -324,7 +324,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for(auto iele : electronSelection){
 
       // bool for the electron id
-      bool passesid = (*electronMapH.at(ipos))[electronPtr];      
+      bool passesid = (*electronMapH.at(ipos))[electronPtr];
 
       // bool for dxy and dz cut that are taken out from standard electron VID
       bool pass_dxy = false;
@@ -332,38 +332,38 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       if(verticesH->size() > 0){
 	const reco::Vertex & vtx  = verticesH->at(0);
 	// barrel
-	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and
 	   fabs(electrons_iter->gsfTrack()->dxy(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Barrel"))
 	  pass_dxy = true;
 	// endcalp
-	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and
 		fabs(electrons_iter->gsfTrack()->dxy(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Endcap"))
 	  pass_dxy = true;
 	// barrel
-	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and
 	   fabs(electrons_iter->gsfTrack()->dz(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzBarrel"))
 	  pass_dz = true;
 	//endcap
-	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and
 		fabs(electrons_iter->gsfTrack()->dz(vtx.position())) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzEndcap"))
 	  pass_dz = true;
       }
       else{
 	//barrel
-	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and
 	   fabs(electrons_iter->gsfTrack()->dxy()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Barrel"))
 	  pass_dxy = true;
 	//endcap
-	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and
 		fabs(electrons_iter->gsfTrack()->dxy()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("d0Endcap"))
 	  pass_dxy = true;
-	
+
 	//barrel
-	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and 
+	if(fabs(electrons_iter->superCluster()->eta()) < 1.5 and
 	   fabs(electrons_iter->gsfTrack()->dz()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzBarrel"))
 	  pass_dz = true;
 	//endcap
-	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and 
+	else if(fabs(electrons_iter->superCluster()->eta()) > 1.5 and
 		fabs(electrons_iter->gsfTrack()->dz()) < iele.getParameter<edm::ParameterSet>("PVSelection").getParameter<double>("dzEndcap"))
 	  pass_dz = true;
       }
@@ -373,26 +373,26 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	pass_dxy = true;
 	pass_dz  = true;
       }
-      
+
       if(passesid and pass_dxy and pass_dz){
 	// match with calibrate electrons if possible
 	if(calibratedElectronsH.isValid()){ // check if it exists
 	  for(vector<pat::Electron>::const_iterator calibele_iter = calibratedElectronsH->begin();
 	      calibele_iter != calibratedElectronsH->end(); ++calibele_iter){
 	    // match by reference
-	    if(calibele_iter->pfCandidateRef()     == electrons_iter->pfCandidateRef() or 
+	    if(calibele_iter->pfCandidateRef()     == electrons_iter->pfCandidateRef() or
 	       calibele_iter->core()               == electrons_iter->core() or
 	       calibele_iter->originalObjectRef()  == electrons_iter->originalObjectRef()){
-	      
+
 	      bool passeskincuts  = (calibele_iter->pt() > iele.getParameter<double>("ptMin") &&
 				     fabs(calibele_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
-	      
+
 	      if(not passeskincuts) continue;
 	      outputelectrons.at(ipos)->push_back(pat::ElectronRef(calibratedElectronsH,calibele_iter-calibratedElectronsH->begin()));
 	    }
 	  }
 	}
-	else{	  
+	else{
 	  // apply basic kinematic cuts
 	  bool passeskincuts  = (electrons_iter->pt() > iele.getParameter<double>("ptMin") &&
 				 fabs(electrons_iter->superCluster()->eta()) < iele.getParameter<double>("absEta"));
@@ -403,22 +403,22 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       ipos++;
     }
   }
-  
+
   // taus
   for (vector<pat::Tau>::const_iterator taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
     if (verticesH->size() == 0) continue;
-        
+
     size_t ipos = 0;
     for(auto itau : tauSelection){
       // clean tau candidates from identified muons and electrons (loosely identified)
       bool skiptau = false;
 
       for (std::size_t j = 0; j < outputmuons.at(looseMuonPosition)->size(); j++) {
-	if (deltaR(outputmuons.at(looseMuonPosition)->at(j)->eta(), outputmuons.at(looseMuonPosition)->at(j)->phi(), 
+	if (deltaR(outputmuons.at(looseMuonPosition)->at(j)->eta(), outputmuons.at(looseMuonPosition)->at(j)->phi(),
 		   taus_iter->eta(), taus_iter->phi()) < itau.getParameter<double>("dRCleaning")) skiptau = true;
       }
       for (std::size_t j = 0; j < outputelectrons.at(vetoElectronPosition)->size(); j++) {
-	if (deltaR(outputelectrons.at(vetoElectronPosition)->at(j)->eta(), outputelectrons.at(vetoElectronPosition)->at(j)->phi(), 
+	if (deltaR(outputelectrons.at(vetoElectronPosition)->at(j)->eta(), outputelectrons.at(vetoElectronPosition)->at(j)->phi(),
 		   taus_iter->eta(), taus_iter->phi()) < itau.getParameter<double>("dRCleaning")) skiptau = true;
       }
 
@@ -426,12 +426,12 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       string decayMode = "decayModeFinding";
       if(itau.getParameter<bool>("useNewDecayMode"))
 	decayMode = "decayModeFindingNewDMs";
-      
+
       if(itau.getParameter<bool>("graterThan") == true){
 	if (taus_iter->pt() > itau.getParameter<double>("ptMin") &&
 	    fabs(taus_iter->eta()) < itau.getParameter<double>("absEta") &&
-	    taus_iter->tauID(decayMode) > itau.getParameter<double>("decayModeFinding") && 	    
-	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) > itau.getParameter<double>("isolation") && !skiptau){	
+	    taus_iter->tauID(decayMode) > itau.getParameter<double>("decayModeFinding") &&
+	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) > itau.getParameter<double>("isolation") && !skiptau){
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}
       }
@@ -439,11 +439,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	if (taus_iter->pt() > itau.getParameter<double>("ptMin") &&
 	    fabs(taus_iter->eta()) < itau.getParameter<double>("absEta") &&
 	    taus_iter->tauID(decayMode) > itau.getParameter<double>("decayModeFinding") &&
-	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) < itau.getParameter<double>("isolation") && !skiptau){	
+	    taus_iter->tauID(itau.getParameter<std::string>("tauIDName")) < itau.getParameter<double>("isolation") && !skiptau){
 	  outputtaus.at(ipos)->push_back(pat::TauRef(tausH, taus_iter - tausH->begin()));
 	}
       }
-      ipos++;      
+      ipos++;
     }
   }
 
@@ -456,7 +456,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<float> rndgammaiso08;
   std::vector<float> rndchhadiso04;
   std::vector<float> rndchhadiso08;
-  
+
   // loop on the photon colection
   for (vector<pat::Photon>::const_iterator photons_iter = photonsH->begin(); photons_iter != photonsH->end(); ++photons_iter) {
 
@@ -465,13 +465,13 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool isValid = false;
     bool isMatched = false;
 
-    if(calibratedPhotonsH.isValid()){ // check if it exists                                                                                                                                        
+    if(calibratedPhotonsH.isValid()){ // check if it exists
       isValid = true;
       calibpho_iter = calibratedPhotonsH->begin();
       if(calibratedPhotonsH->size() != photonsH->size())
 	throw cms::Exception("PFCleaner") <<" different size between calibrated and un-calibrated photons --> check \n";
       for( ; calibpho_iter != calibratedPhotonsH->end(); ++calibpho_iter){
-	// match by reference                                                                                                                                                                      
+	// match by reference
 	if(calibpho_iter->superCluster()       == photons_iter->superCluster() and
 	   calibpho_iter->originalObjectRef()  == photons_iter->originalObjectRef()){
 	  isMatched = true;
@@ -480,7 +480,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
       if(not isMatched) continue;
     }
-    
+
     // take the photon candidate
     pat::Photon photonCand;
     if(isValid)
@@ -521,28 +521,28 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  }
 	}
       }
-    
+
       // if the random cone is found --> charged hadron isolation from pfCandidates with dR = 0.3 smaller than random cones
       if(rndphi04 != -99)
 	rndchisoval04 = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),rndphi04,0.3, verticesH->at(0));
       else
 	rndchisoval04 = -99;
-      
+
       if(rndphi08 != -99)
 	rndchisoval08 = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),rndphi08,0.3, verticesH->at(0));
-      else 
+      else
 	rndchisoval08 = -99;
 
       // compute the photon isolation in the random cone with dR = 0.3 smaller than random cones
       if(rndphi04 != -99)
-	rndphisoval04 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi04, 0.3);      
-      else 
+	rndphisoval04 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi04, 0.3);
+      else
 	rndphisoval04 = -99;
       if(rndphi08 != -99)
-	rndphisoval08 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi08, 0.3);      
+	rndphisoval08 = computePhotonIso(photonCand,pfcandsH,photonCand.eta(), rndphi08, 0.3);
       else
 	rndphisoval08 = -99;
-      
+
       rndgammaiso04.push_back(rndphisoval04);
       rndgammaiso08.push_back(rndphisoval08);
       rndchhadiso04.push_back(rndchisoval04);
@@ -559,23 +559,23 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     sigietaieta.push_back(photonsieie);
     // photon component from PF-candidate pdgId
-    float gaisoval = computePhotonIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3);     
+    float gaisoval = computePhotonIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3);
     if(gaisoval != photonphiso)
       std::cout<<"PFCleaner::Photon isolation: difference between re-calculated and original one: "<<gaisoval<<" vs "<<photonphiso<<std::endl;
     gammaiso.push_back(gaisoval);
-    
+
     // charged hadron isolation
     float chisoval = computeCHhadronIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3, verticesH->at(0));
     if(chisoval != photonchiso)
       std::cout<<"PFCleaner::Photon Charged Hadron isolation: difference between re-calculated and original one: "<<chisoval<<" vs "<<photonchiso<<std::endl;
     chhadiso.push_back(chisoval);
-    
+
     // charged hadron isolation
     float nhisoval = computeNHhadronIso(photonCand,pfcandsH,photonCand.eta(),photonCand.phi(),0.3);
     if(nhisoval != photonnhiso)
       std::cout<<"PFCleaner::Photon Neutral Hadron isolation: difference between re-calculated and original one: "<<nhisoval<<" vs "<<photonnhiso<<std::endl;
     nhhadiso.push_back(nhisoval);
-    
+
     // Purity studies
     if(addPhotonPurity){
       if( photonCand.pt() > photonPurityID.getParameter<double>("ptMin") and
@@ -597,7 +597,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       // check only photons with the following proprierties
       // standard ID
       bool passesid = (*photonsMapH.at(ipos))[photonPtr];
-      if(passesid and isValid and isMatched){	
+      if(passesid and isValid and isMatched){
 	if (fabs(calibpho_iter->superCluster()->eta()) > ipho.getParameter<double>("absEta") ) continue;
 	if (calibpho_iter->pt() < ipho.getParameter<double>("ptMin")) continue;
 	if (not calibpho_iter->passElectronVeto()) continue;
@@ -610,7 +610,7 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	outputphotons.at(ipos)->push_back(pat::PhotonRef(photonsH, photons_iter - photonsH->begin()));
       }
       ipos++;
-    }    
+    }
   }
 
   // Value maps
@@ -622,11 +622,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       edm::ValueMap<float>::Filler rnd08gafiller(*outputrndgammaiso08map);
       rnd08gafiller.insert(calibratedPhotonsH, rndgammaiso08.begin(), rndgammaiso08.end());
       rnd08gafiller.fill();
-      
+
       edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
       rnd04chfiller.insert(calibratedPhotonsH, rndchhadiso04.begin(), rndchhadiso04.end());
       rnd04chfiller.fill();
-      
+
       edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
       rnd08chfiller.insert(calibratedPhotonsH, rndchhadiso08.begin(), rndchhadiso08.end());
       rnd08chfiller.fill();
@@ -638,11 +638,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       edm::ValueMap<float>::Filler rnd08gafiller(*outputrndgammaiso08map);
       rnd08gafiller.insert(photonsH, rndgammaiso08.begin(), rndgammaiso08.end());
       rnd08gafiller.fill();
-      
+
       edm::ValueMap<float>::Filler rnd04chfiller(*outputrndchhadiso04map);
       rnd04chfiller.insert(photonsH, rndchhadiso04.begin(), rndchhadiso04.end());
       rnd04chfiller.fill();
-      
+
       edm::ValueMap<float>::Filler rnd08chfiller(*outputrndchhadiso08map);
       rnd08chfiller.insert(photonsH, rndchhadiso08.begin(), rndchhadiso08.end());
       rnd08chfiller.fill();
@@ -653,11 +653,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
     gafiller.insert(calibratedPhotonsH, gammaiso.begin(), gammaiso.end());
     gafiller.fill();
-    
+
     edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
     chfiller.insert(calibratedPhotonsH, chhadiso.begin(), chhadiso.end());
     chfiller.fill();
-    
+
     edm::ValueMap<float>::Filler nhfiller(*outputnhhadisomap);
     nhfiller.insert(calibratedPhotonsH, nhhadiso.begin(), nhhadiso.end());
     nhfiller.fill();
@@ -671,11 +671,11 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     edm::ValueMap<float>::Filler gafiller(*outputgammaisomap);
     gafiller.insert(photonsH, gammaiso.begin(), gammaiso.end());
     gafiller.fill();
-    
+
     edm::ValueMap<float>::Filler chfiller(*outputchhadisomap);
     chfiller.insert(photonsH, chhadiso.begin(), chhadiso.end());
     chfiller.fill();
-    
+
     edm::ValueMap<float>::Filler nhfiller(*outputnhhadisomap);
     nhfiller.insert(photonsH, nhhadiso.begin(), nhhadiso.end());
     nhfiller.fill();
@@ -687,32 +687,32 @@ void PFCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
 
-  iEvent.put(outputgammaisomap,      "gammaiso");  
-  iEvent.put(outputchhadisomap,      "chhadiso");  
-  iEvent.put(outputnhhadisomap,      "nhhadiso");  
-  iEvent.put(outputsigietaietamap,   "sigmaietaieta");  
+  iEvent.put(std::move(outputgammaisomap),      "gammaiso");
+  iEvent.put(std::move(outputchhadisomap),      "chhadiso");
+  iEvent.put(std::move(outputnhhadisomap),      "nhhadiso");
+  iEvent.put(std::move(outputsigietaietamap),   "sigmaietaieta");
 
   if(addPhotonPurity){
-    iEvent.put(outputrndgammaiso04map, "rndgammaiso04");
-    iEvent.put(outputrndgammaiso08map, "rndgammaiso08");
-    iEvent.put(outputrndchhadiso04map, "rndchhadiso04");
-    iEvent.put(outputrndchhadiso08map, "rndchhadiso08");
-    iEvent.put(outputphotonsPurity,    "photonsPurity");
+    iEvent.put(std::move(outputrndgammaiso04map), "rndgammaiso04");
+    iEvent.put(std::move(outputrndgammaiso08map), "rndgammaiso08");
+    iEvent.put(std::move(outputrndchhadiso04map), "rndchhadiso04");
+    iEvent.put(std::move(outputrndchhadiso08map), "rndchhadiso08");
+    iEvent.put(std::move(outputphotonsPurity),    "photonsPurity");
   }
 
 
   ///////////
   for(size_t imuon = 0; imuon < outputmuons.size(); imuon++)
-    iEvent.put(outputmuons.at(imuon), muonSelection.at(imuon).getParameter<std::string>("muonCollectionName"));
+    iEvent.put(std::move(outputmuons.at(imuon)), muonSelection.at(imuon).getParameter<std::string>("muonCollectionName"));
 
   for(size_t ielectron = 0; ielectron < outputelectrons.size(); ielectron++)
-    iEvent.put(outputelectrons.at(ielectron), electronSelection.at(ielectron).getParameter<std::string>("electronCollectionName"));
+    iEvent.put(std::move(outputelectrons.at(ielectron)), electronSelection.at(ielectron).getParameter<std::string>("electronCollectionName"));
 
   for(size_t itau = 0; itau < outputtaus.size(); itau++)
-    iEvent.put(outputtaus.at(itau), tauSelection.at(itau).getParameter<std::string>("tauCollectionName"));
+    iEvent.put(std::move(outputtaus.at(itau)), tauSelection.at(itau).getParameter<std::string>("tauCollectionName"));
 
   for(size_t iphoton = 0; iphoton < outputphotons.size(); iphoton++)
-    iEvent.put(outputphotons.at(iphoton), photonSelection.at(iphoton).getParameter<std::string>("photonCollectionName"));
+    iEvent.put(std::move(outputphotons.at(iphoton)), photonSelection.at(iphoton).getParameter<std::string>("photonCollectionName"));
 
 }
 
@@ -743,7 +743,7 @@ void PFCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 // Photon purity studies
 bool PFCleaner::randomConeOverlaps(const double & randomphi, const double & photoneta, const double & photonphi, const std::vector<pat::Jet> & jets, const double & vetoCone) {
   if (reco::deltaR(photoneta, randomphi, photoneta, photonphi) < vetoCone) return true;
-  for (std::size_t i = 0; i < jets.size(); i++) {    
+  for (std::size_t i = 0; i < jets.size(); i++) {
     if (reco::deltaR(photoneta,photonphi,jets[i].eta(),jets[i].phi()) < 0.4) continue;
     if (jets[i].pt() > 30. && reco::deltaR(photoneta, randomphi, jets[i].eta(), jets[i].phi()) < vetoCone){
       return true;
@@ -782,15 +782,15 @@ double PFCleaner::computeCHhadronIso(const pat::Photon & photon, edm::Handle<edm
       // check footprint
       bool skipCandidate = isInFootprint(photon.associatedPackedPFCandidates(),pfcand);
       if(skipCandidate) continue;
-      
+
       // only charged hadrons from PV
-      const reco::Track *theTrack = &( ((const edm::Ptr<pat::PackedCandidate>) pfcand)->pseudoTrack());      
+      const reco::Track *theTrack = &( ((const edm::Ptr<pat::PackedCandidate>) pfcand)->pseudoTrack());
       float dxy = theTrack->dxy(pv.position());
       if(fabs(dxy) > 0.1) continue;
-      
+
       float dz  = theTrack->dz(pv.position());
       if (fabs(dz) > 0.2) continue;
-      
+
       isoval += pfcand->pt();
     }
   }

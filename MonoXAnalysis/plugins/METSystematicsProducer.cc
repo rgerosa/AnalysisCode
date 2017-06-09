@@ -72,8 +72,8 @@ private:
   edm::EDGetTokenT<std::vector<pat::Tau> >      tauToken_;
   const edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
   const edm::EDGetTokenT<double>  rhoToken_;
-  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_; 
-  edm::EDGetTokenT<reco::JetCorrector> jetCorrTokenRes_; 
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrTokenRes_;
 
   // PSet for the object uncertainties
   const edm::ParameterSet electronPSet_;
@@ -110,7 +110,7 @@ private:
   edm::FileInPath jetJERFile_;
   edm::FileInPath jetJERSFFile_;
   // Random numbers
-  std::auto_ptr<TRandom3> rand_;
+  std::unique_ptr<TRandom3> rand_;
 
   // unclustered
   std::vector<StringCutObjectSelector<reco::Candidate> > unclusteredSelection_;
@@ -167,7 +167,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
    if(jetPSet_.existsAs<edm::InputTag>("jetCorrLabel"))
      jetCorrToken_ = mayConsume<reco::JetCorrector>(jetPSet_.getParameter<edm::InputTag>("jetCorrLabel"));
    if(jetPSet_.existsAs<edm::InputTag>("jetCorrLabelRes"))
-     jetCorrTokenRes_ = mayConsume<reco::JetCorrector>(jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes")); 
+     jetCorrTokenRes_ = mayConsume<reco::JetCorrector>(jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes"));
 
   // selector definitions
   for(auto bin : muonPSet_.getParameter<std::vector<edm::ParameterSet> >("binning")){
@@ -199,18 +199,18 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   jetJECUncFile_ = jetPSet_.getParameter<edm::FileInPath>("JECUncFile");
   if(not jetJECUncFile_.location() and jetPSet_.getParameter<bool> ("useExternalJECUncertainty") and not skipJet_)
     throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
-  
+
   // file for JER truth
   jetJERFile_    = jetPSet_.getParameter<edm::FileInPath>("JERFile");
   jetJERSFFile_  = jetPSet_.getParameter<edm::FileInPath>("JERSFFile");
-  
+
   if(not jetJERFile_.location() and jetPSet_.getParameter<bool> ("useExternalJER") and not skipJet_)
     throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERFile_ << " !!\n";
 
   if(not jetJERSFFile_.location() and jetPSet_.getParameter<bool> ("useExternalJERSF") and not skipJet_)
     throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJERSFFile_ << " !!\n";
 
-  
+
 
   // produce shifed and smearead particles
   produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label()));
@@ -232,7 +232,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"ElectronEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"ElectronEnDown");
   }
-  
+
   if(not skipPhoton_){
     if(storeSmearedShiftedCollections_){
       produces<pat::PhotonCollection>(std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
@@ -254,7 +254,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
   if(not skipJet_){
     if(storeSmearedShiftedCollections_){
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
-      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");    
+      produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
       produces<pat::JetCollection>(std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
@@ -262,7 +262,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetEnDown");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetResUp");
-    produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetResDown");    
+    produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"JetResDown");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"Smear");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"SmearJetResUp");
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"SmearJetResDown");
@@ -270,7 +270,7 @@ METSystematicsProducer::METSystematicsProducer(const edm::ParameterSet& iConfig)
     produces<pat::METCollection>(std::string(iConfig.getParameter<edm::InputTag>("inputMET").label())+"UnclusteredEnDown");
   }
 
-  rand_ = std::auto_ptr<TRandom3>(new TRandom3());
+  rand_ = std::unique_ptr<TRandom3>(new TRandom3());
   rand_->SetSeed(0);
 }
 
@@ -284,12 +284,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
   //get original MET collection
   edm::Handle<pat::METCollection> metCollection;
-  iEvent.getByToken(metToken_, metCollection);  
+  iEvent.getByToken(metToken_, metCollection);
 
   //get pfCands
   edm::Handle<edm::View<reco::Candidate> > pfCandCollection;
   iEvent.getByToken(pfCandToken_, pfCandCollection);
-  
+
   //get objects
   edm::Handle<std::vector<pat::Jet> > jetColl;
   iEvent.getByToken(jetToken_, jetColl);
@@ -312,43 +312,43 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   iEvent.getByToken(tauToken_, tauColl);
 
   // create output autoPtr
-  std::auto_ptr<pat::METCollection> MET (new pat::METCollection);
+  std::unique_ptr<pat::METCollection> MET (new pat::METCollection);
   MET->push_back((*metCollection)[0]);
-  iEvent.put(MET,inputMET_.label());
+  iEvent.put(std::move(MET),inputMET_.label());
 
-  std::auto_ptr<pat::MuonCollection> muonEnUp(new pat::MuonCollection);
-  std::auto_ptr<pat::MuonCollection> muonEnDown(new pat::MuonCollection);
+  std::unique_ptr<pat::MuonCollection> muonEnUp(new pat::MuonCollection);
+  std::unique_ptr<pat::MuonCollection> muonEnDown(new pat::MuonCollection);
   CorrMETData corrMuonEnUp;
   CorrMETData corrMuonEnDown;
-  std::auto_ptr<pat::METCollection> metMuonEnUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metMuonEnDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metMuonEnUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metMuonEnDown(new pat::METCollection);
 
-  std::auto_ptr<pat::ElectronCollection> electronEnUp(new pat::ElectronCollection);
-  std::auto_ptr<pat::ElectronCollection> electronEnDown(new pat::ElectronCollection);
+  std::unique_ptr<pat::ElectronCollection> electronEnUp(new pat::ElectronCollection);
+  std::unique_ptr<pat::ElectronCollection> electronEnDown(new pat::ElectronCollection);
   CorrMETData corrElectronEnUp;
   CorrMETData corrElectronEnDown;
-  std::auto_ptr<pat::METCollection> metElectronEnUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metElectronEnDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metElectronEnUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metElectronEnDown(new pat::METCollection);
 
-  std::auto_ptr<pat::PhotonCollection> photonEnUp(new pat::PhotonCollection);
-  std::auto_ptr<pat::PhotonCollection> photonEnDown(new pat::PhotonCollection);
+  std::unique_ptr<pat::PhotonCollection> photonEnUp(new pat::PhotonCollection);
+  std::unique_ptr<pat::PhotonCollection> photonEnDown(new pat::PhotonCollection);
   CorrMETData corrPhotonEnUp;
   CorrMETData corrPhotonEnDown;
-  std::auto_ptr<pat::METCollection> metPhotonEnUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metPhotonEnDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metPhotonEnUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metPhotonEnDown(new pat::METCollection);
 
-  std::auto_ptr<pat::TauCollection> tauEnUp(new pat::TauCollection);
-  std::auto_ptr<pat::TauCollection> tauEnDown(new pat::TauCollection);
+  std::unique_ptr<pat::TauCollection> tauEnUp(new pat::TauCollection);
+  std::unique_ptr<pat::TauCollection> tauEnDown(new pat::TauCollection);
   CorrMETData corrTauEnUp;
   CorrMETData corrTauEnDown;
-  std::auto_ptr<pat::METCollection> metTauEnUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metTauEnDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metTauEnUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metTauEnDown(new pat::METCollection);
 
-  std::auto_ptr<pat::JetCollection> jetEnUp(new pat::JetCollection);
-  std::auto_ptr<pat::JetCollection> jetEnDown(new pat::JetCollection);
-  std::auto_ptr<pat::JetCollection> jetSmear(new pat::JetCollection);
-  std::auto_ptr<pat::JetCollection> jetSmearResUp(new pat::JetCollection);
-  std::auto_ptr<pat::JetCollection> jetSmearResDown(new pat::JetCollection);
+  std::unique_ptr<pat::JetCollection> jetEnUp(new pat::JetCollection);
+  std::unique_ptr<pat::JetCollection> jetEnDown(new pat::JetCollection);
+  std::unique_ptr<pat::JetCollection> jetSmear(new pat::JetCollection);
+  std::unique_ptr<pat::JetCollection> jetSmearResUp(new pat::JetCollection);
+  std::unique_ptr<pat::JetCollection> jetSmearResDown(new pat::JetCollection);
   CorrMETData corrJetEnUp;
   CorrMETData corrJetEnDown;
   CorrMETData corrJetResUp;
@@ -356,22 +356,22 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
   CorrMETData corrJetSmear;
   CorrMETData corrJetSmearResUp;
   CorrMETData corrJetSmearResDown;
-  std::auto_ptr<pat::METCollection> metJetEnUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetEnDown(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetResUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetResDown(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetSmearResUp(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetSmearResDown(new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metJetSmear(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetEnUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetEnDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetResUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetResDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetSmearResUp(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetSmearResDown(new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metJetSmear(new pat::METCollection);
 
   CorrMETData corrUnclusteredEnUp;
   CorrMETData corrUnclusteredEnDown;
-  std::auto_ptr<pat::METCollection> metUnclusteredEnUp (new pat::METCollection);
-  std::auto_ptr<pat::METCollection> metUnclusteredEnDown (new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metUnclusteredEnUp (new pat::METCollection);
+  std::unique_ptr<pat::METCollection> metUnclusteredEnDown (new pat::METCollection);
 
   // boolean for puppi MET
   bool isPuppiMET = false;
-  if(TString(inputMET_.label()).Contains("Puppi") or TString(inputMET_.label()).Contains("puppi") or TString(inputMET_.label()).Contains("PUPPI")) 
+  if(TString(inputMET_.label()).Contains("Puppi") or TString(inputMET_.label()).Contains("puppi") or TString(inputMET_.label()).Contains("PUPPI"))
     isPuppiMET = true;
 
   // link from high level objects to pfCandidates
@@ -383,7 +383,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
   // loop on muons
   if(not skipMuon_){
-    for(auto muon : *muColl){    
+    for(auto muon : *muColl){
       if(isPuppiMET){
 	// find the particle in the puppi pfCandidate rescaling correctly the momentum
 	reco::Candidate::LorentzVector p4 = findParticle(muon,*pfCandCollection);
@@ -401,29 +401,29 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       float ptError = 0.;
       // used numeric uncertainties provided at python level and cloned from: http://cmslxr.fnal.gov/source/PhysicsTools/PatUtils/python/tools/runMETCorrsAndUncertainties.py
-      if(muonPSet_.getParameter<bool>("useExternalUncertainty")){	
+      if(muonPSet_.getParameter<bool>("useExternalUncertainty")){
 	int iBin = 0;
 	if( muonScaleUnc_.size() == muonSelection_.size()){
-	  for(auto selection : muonSelection_){	    
+	  for(auto selection : muonSelection_){
 	    if(selection(muon)){
-	      ptError = muonScaleUnc_.at(iBin);	    	      
+	      ptError = muonScaleUnc_.at(iBin);
 	      break;
 	    }
 	    else iBin++;
-	  }	
+	  }
 	}
       }
-      else{	  
+      else{
 	//use stadard ptError or the tunePMuonBestTrack
 	reco::Track muonTrack;
 	if(muon.tunePMuonBestTrack().isNonnull())
-	   muonTrack = *(muon.tunePMuonBestTrack().get());      
+	   muonTrack = *(muon.tunePMuonBestTrack().get());
 	else if(muon.muonBestTrack().isNonnull())
-	  muonTrack = *(muon.muonBestTrack().get());     
+	  muonTrack = *(muon.muonBestTrack().get());
 	else
-	  muonTrack = *(muon.globalTrack().get());	     
-	
-	ptError = muonTrack.ptError()/(muon.pt());	  
+	  muonTrack = *(muon.globalTrack().get());
+
+	ptError = muonTrack.ptError()/(muon.pt());
       }
 
       // build vector scaled on the transverse plane
@@ -444,18 +444,18 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       newMuonEnDown.setP4(muon.p4()*(1-ptError));
 
       muonEnUp->push_back(newMuonEnUp);
-      muonEnDown->push_back(newMuonEnDown);      
+      muonEnDown->push_back(newMuonEnDown);
     }
 
     // correct met --> loop on met collection of input
     for(auto met : *metCollection){
       //build corrected MET
       reco::MET corrMETMuonEnUp(met.sumEt()+corrMuonEnUp.sumet,
-		       reco::Candidate::LorentzVector(met.px()+corrMuonEnUp.mex, met.py()+corrMuonEnUp.mey, 0., 
+		       reco::Candidate::LorentzVector(met.px()+corrMuonEnUp.mex, met.py()+corrMuonEnUp.mey, 0.,
 		       sqrt((met.px()+corrMuonEnUp.mex)*(met.px()+corrMuonEnUp.mex)+(met.py()+corrMuonEnUp.mey)*(met.py()+corrMuonEnUp.mey))),met.vertex());
 
       reco::MET corrMETMuonEnDown(met.sumEt()-corrMuonEnDown.sumet,
-	       reco::Candidate::LorentzVector(met.px()+corrMuonEnDown.mex, met.py()+corrMuonEnDown.mey, 0., 
+	       reco::Candidate::LorentzVector(met.px()+corrMuonEnDown.mex, met.py()+corrMuonEnDown.mey, 0.,
 	       sqrt((met.px()+corrMuonEnDown.mex)*(met.px()+corrMuonEnDown.mex)+(met.py()+corrMuonEnDown.mey)*(met.py()+corrMuonEnDown.mey))),met.vertex());
 
       pat::MET metMuonUp(corrMETMuonEnUp,met);
@@ -466,18 +466,18 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     if(storeSmearedShiftedCollections_){
       std::sort(muonEnUp->begin(),muonEnUp->end(),muonSorter);
-      iEvent.put(muonEnUp,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(std::move(muonEnUp),std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(muonEnDown->begin(),muonEnDown->end(),muonSorter);
-      iEvent.put(muonEnDown,std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+      iEvent.put(std::move(muonEnDown),std::string(muonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
-    iEvent.put(metMuonEnUp,std::string(inputMET_.label())+"MuonEnUp");
-    iEvent.put(metMuonEnDown,std::string(inputMET_.label())+"MuonEnDown");    
+    iEvent.put(std::move(metMuonEnUp),std::string(inputMET_.label())+"MuonEnUp");
+    iEvent.put(std::move(metMuonEnDown),std::string(inputMET_.label())+"MuonEnDown");
   }
 
 
   // loop on electrons
   if(not skipElectron_){
-    for(auto ele : *eleColl){    
+    for(auto ele : *eleColl){
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(ele,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -492,16 +492,16 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       }
 
       float p4Error = 0.;
-      if(electronPSet_.getParameter<bool>("useExternalUncertainty")){	
+      if(electronPSet_.getParameter<bool>("useExternalUncertainty")){
 	int iBin = 0;
 	if( electronScaleUnc_.size() == electronSelection_.size()){
 	  for(auto selection : electronSelection_){
 	    if(selection(ele)){
-	      p4Error = electronScaleUnc_.at(iBin);	    
+	      p4Error = electronScaleUnc_.at(iBin);
 	      break;
 	    }
 	    else iBin++;
-	  }	
+	  }
 	}
       }
       else{
@@ -519,9 +519,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  }
 	}
 	else{
-	  if(ele.correctedEcalEnergyError() != 999.) 
-	    p4Error = ele.correctedEcalEnergyError()/ele.energy();	
-	  else 
+	  if(ele.correctedEcalEnergyError() != 999.)
+	    p4Error = ele.correctedEcalEnergyError()/ele.energy();
+	  else
 	    p4Error = ele.p4Error(reco::GsfElectron::P4_COMBINATION)/ele.energy();
 	}
       }
@@ -544,7 +544,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       electronEnUp->push_back(newElectronEnUp);
       electronEnDown->push_back(newElectronEnDown);
-      
+
     }
 
     // correct met --> loop on met collection of input
@@ -552,10 +552,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       //build corrected MET
       reco::MET corrMETElectronEnUp(met.sumEt()+corrElectronEnUp.sumet,
-		       reco::Candidate::LorentzVector(met.px()+corrElectronEnUp.mex, met.py()+corrElectronEnUp.mey, 0., 
+		       reco::Candidate::LorentzVector(met.px()+corrElectronEnUp.mex, met.py()+corrElectronEnUp.mey, 0.,
 		       sqrt((met.px()+corrElectronEnUp.mex)*(met.px()+corrElectronEnUp.mex)+(met.py()+corrElectronEnUp.mey)*(met.py()+corrElectronEnUp.mey))),met.vertex());
       reco::MET corrMETElectronEnDown(met.sumEt()-corrElectronEnDown.sumet,
-		reco::Candidate::LorentzVector(met.px()+corrElectronEnDown.mex, met.py()+corrElectronEnDown.mey, 0., 
+		reco::Candidate::LorentzVector(met.px()+corrElectronEnDown.mex, met.py()+corrElectronEnDown.mey, 0.,
 		sqrt((met.px()+corrElectronEnDown.mex)*(met.px()+corrElectronEnDown.mex)+(met.py()+corrElectronEnDown.mey)*(met.py()+corrElectronEnDown.mey))),met.vertex());
 
       pat::MET metElectronUp(corrMETElectronEnUp,met);
@@ -566,24 +566,24 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     if(storeSmearedShiftedCollections_){
       std::sort(electronEnUp->begin(),electronEnUp->end(),electronSorter);
-      iEvent.put(electronEnUp,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(std::move(electronEnUp),std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(electronEnDown->begin(),electronEnDown->end(),electronSorter);
-      iEvent.put(electronEnDown,std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+      iEvent.put(std::move(electronEnDown),std::string(electronPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
-    iEvent.put(metElectronEnUp,std::string(inputMET_.label())+"ElectronEnUp");
-    iEvent.put(metElectronEnDown,std::string(inputMET_.label())+"ElectronEnDown");
+    iEvent.put(std::move(metElectronEnUp),std::string(inputMET_.label())+"ElectronEnUp");
+    iEvent.put(std::move(metElectronEnDown),std::string(inputMET_.label())+"ElectronEnDown");
   }
-  
+
   // loop on photons
   if(not skipPhoton_){
-    for(auto pho : *phColl){    
+    for(auto pho : *phColl){
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(pho,*pfCandCollection);
 	if(p4.pt() == 0)
 	  continue;
 	pho.setP4(p4);
       }
-      
+
       for(size_t ipart = 0 ; ipart < pho.numberOfSourceCandidatePtrs(); ipart++){
 	if(pho.sourceCandidatePtr(ipart).isNonnull() and pho.sourceCandidatePtr(ipart).isAvailable()){
           particlesInPhoton.push_back(pho.sourceCandidatePtr(ipart));
@@ -591,14 +591,14 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       }
 
       float p4Error = 0.;
-      if(photonPSet_.getParameter<bool>("useExternalUncertainty")){	
+      if(photonPSet_.getParameter<bool>("useExternalUncertainty")){
 	int iBin = 0;
 	if( photonScaleUnc_.size() == photonSelection_.size()){
 	  for(auto selection : photonSelection_){
 	    if(selection(pho)){
-	      p4Error = photonScaleUnc_.at(iBin);	    
+	      p4Error = photonScaleUnc_.at(iBin);
 	      break;
-	    }	
+	    }
 	    else iBin++;
 	  }
 	}
@@ -616,7 +616,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	      }
 	      else iBin++;
 	    }
-	  }	  
+	  }
 	}
       }
 
@@ -646,10 +646,10 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     for(auto met : *metCollection){
       //build corrected MET
       reco::MET corrMETPhotonEnUp(met.sumEt()+corrPhotonEnUp.sumet,
-		       reco::Candidate::LorentzVector(met.px()+corrPhotonEnUp.mex, met.py()+corrPhotonEnUp.mey, 0., 
+		       reco::Candidate::LorentzVector(met.px()+corrPhotonEnUp.mex, met.py()+corrPhotonEnUp.mey, 0.,
 		       sqrt((met.px()+corrPhotonEnUp.mex)*(met.px()+corrPhotonEnUp.mex)+(met.py()+corrPhotonEnUp.mey)*(met.py()+corrPhotonEnUp.mey))),met.vertex());
       reco::MET corrMETPhotonEnDown(met.sumEt()-corrPhotonEnDown.sumet,
-	       reco::Candidate::LorentzVector(met.px()+corrPhotonEnDown.mex, met.py()+corrPhotonEnDown.mey, 0., 
+	       reco::Candidate::LorentzVector(met.px()+corrPhotonEnDown.mex, met.py()+corrPhotonEnDown.mey, 0.,
 	       sqrt((met.px()+corrPhotonEnDown.mex)*(met.px()+corrPhotonEnDown.mex)+(met.py()+corrPhotonEnDown.mey)*(met.py()+corrPhotonEnDown.mey))),met.vertex());
 
       pat::MET metPhotonUp(corrMETPhotonEnUp,met);
@@ -661,17 +661,17 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     if(storeSmearedShiftedCollections_){
       std::sort(photonEnUp->begin(),photonEnUp->end(),photonSorter);
-      iEvent.put(photonEnUp,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(std::move(photonEnUp),std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(photonEnDown->begin(),photonEnDown->end(),photonSorter);
-      iEvent.put(photonEnDown,std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+      iEvent.put(std::move(photonEnDown),std::string(photonPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
-    iEvent.put(metPhotonEnUp,std::string(inputMET_.label())+"PhotonEnUp");
-    iEvent.put(metPhotonEnDown,std::string(inputMET_.label())+"PhotonEnDown");
+    iEvent.put(std::move(metPhotonEnUp),std::string(inputMET_.label())+"PhotonEnUp");
+    iEvent.put(std::move(metPhotonEnDown),std::string(inputMET_.label())+"PhotonEnDown");
   }
-  
+
   // taus
   if(not skipTau_){
-    for(auto tau : *tauColl){    
+    for(auto tau : *tauColl){
       if(isPuppiMET){
 	reco::Candidate::LorentzVector p4 = findParticle(tau,*pfCandCollection);
 	if(p4.pt() == 0)
@@ -686,14 +686,14 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       }
 
       float p4Error = 0.;
-      if(tauPSet_.getParameter<bool>("useExternalUncertainty")){	
+      if(tauPSet_.getParameter<bool>("useExternalUncertainty")){
 	int iBin = 0;
 	if( tauScaleUnc_.size() == tauSelection_.size()){
 	  for(auto selection : tauSelection_){
 	    if(selection(tau)){
-	      p4Error = tauScaleUnc_.at(iBin);	    
+	      p4Error = tauScaleUnc_.at(iBin);
 	      break;
-	    }	
+	    }
 	    else iBin++;
 	  }
 	}
@@ -702,7 +702,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	// do nothing, set to 0
 	p4Error = 0;
       }
-      
+
       // build vector scaled on the transverse plane
       TVector2 p2Up, p2Down;
       p2Up.SetMagPhi(tau.pt()*(1+p4Error),tau.phi());
@@ -721,7 +721,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       tauEnUp->push_back(newTauEnUp);
       tauEnDown->push_back(newTauEnDown);
- 
+
     }
 
     // correct met --> loop on met collection of input
@@ -729,12 +729,12 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       //build corrected MET
       reco::MET corrMETTauEnUp(met.sumEt()+corrTauEnUp.sumet,
-		       reco::Candidate::LorentzVector(met.px()+corrTauEnUp.mex, met.py()+corrTauEnUp.mey, 0., 
+		       reco::Candidate::LorentzVector(met.px()+corrTauEnUp.mex, met.py()+corrTauEnUp.mey, 0.,
 		       sqrt((met.px()+corrTauEnUp.mex)*(met.px()+corrTauEnUp.mex)+(met.py()+corrTauEnUp.mey)*(met.py()+corrTauEnUp.mey))),met.vertex());
       reco::MET corrMETTauEnDown(met.sumEt()-corrTauEnDown.sumet,
-		       reco::Candidate::LorentzVector(met.px()+corrTauEnDown.mex, met.py()+corrTauEnDown.mey, 0., 
+		       reco::Candidate::LorentzVector(met.px()+corrTauEnDown.mex, met.py()+corrTauEnDown.mey, 0.,
 		       sqrt((met.px()+corrTauEnDown.mex)*(met.px()+corrTauEnDown.mex)+(met.py()+corrTauEnDown.mey)*(met.py()+corrTauEnDown.mey))),met.vertex());
-      
+
       pat::MET metTauUp(corrMETTauEnUp,met);
       pat::MET metTauDown(corrMETTauEnDown,met);
       metTauEnUp->push_back(metTauUp);
@@ -743,33 +743,33 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     if(storeSmearedShiftedCollections_){
       std::sort(tauEnUp->begin(),tauEnUp->end(),tauSorter);
-      iEvent.put(tauEnUp,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(std::move(tauEnUp),std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(tauEnDown->begin(),tauEnDown->end(),tauSorter);
-      iEvent.put(tauEnDown,std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+      iEvent.put(std::move(tauEnDown),std::string(tauPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
-    iEvent.put(metTauEnUp,std::string(inputMET_.label())+"TauEnUp");
-    iEvent.put(metTauEnDown,std::string(inputMET_.label())+"TauEnDown");
+    iEvent.put(std::move(metTauEnUp),std::string(inputMET_.label())+"TauEnUp");
+    iEvent.put(std::move(metTauEnDown),std::string(inputMET_.label())+"TauEnDown");
   }
 
   if(not skipJet_ ){
-    
-    std::auto_ptr<JetCorrectionUncertainty> jecUnc;
+
+    std::unique_ptr<JetCorrectionUncertainty> jecUnc;
     JME::JetResolution Resolution;
     JME::JetResolutionScaleFactor ScalarFactor;
 
     // get the proper file for JEC uncertintay --> jets already calibrated outside this module
     if(jetPSet_.getParameter<bool>("useExternalJECUncertainty") == false){
       edm::ESHandle<JetCorrectorParametersCollection> JetCorParColl;
-      iSetup.get<JetCorrectionsRecord>().get(jetPSet_.getParameter<std::string>("payloadName"),JetCorParColl); 
+      iSetup.get<JetCorrectionsRecord>().get(jetPSet_.getParameter<std::string>("payloadName"),JetCorParColl);
       JetCorrectorParameters const & JetCorPar = (*JetCorParColl)["Uncertainty"];
-      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
+      jecUnc = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(JetCorPar));
     }
     else{
       if(not jetJECUncFile_.location())
 	throw cms::Exception("METSystematicsProducer") << " Failed to find File = " << jetJECUncFile_ << " !!\n";
 
-      jecUnc = std::auto_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
-    
+      jecUnc = std::unique_ptr<JetCorrectionUncertainty>(new JetCorrectionUncertainty(jetJECUncFile_.fullPath()));
+
     }
 
     // take jet energy resolution
@@ -777,7 +777,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       Resolution = JME::JetResolution::get(iSetup,jetPSet_.getParameter<std::string>("payloadName")+"_pt");
     else
       Resolution = JME::JetResolution(jetJERFile_.fullPath());
-    
+
     if(jetPSet_.getParameter<bool>("useExternalJERSF") == false)
       ScalarFactor = JME::JetResolutionScaleFactor::get(iSetup,jetPSet_.getParameter<std::string>("payloadName"));
     else
@@ -799,8 +799,8 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	if ( mu != 0 && (mu->isGlobalMuon() || mu->isStandAloneMuon() )) {
 	  muonP4 += (*cand)->p4();
 	}
-      }      
-      
+      }
+
       rawJetP4 -= muonP4;
 
       // re-correct jets
@@ -808,7 +808,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       PATJetCorrExtractor jetCorrExtractor;
       const pat::Jet & jet_temp = jet;
       if(iEvent.isRealData())
-	correctedP4 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawJetP4);      
+	correctedP4 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawJetP4);
       else
 	correctedP4 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawJetP4);
 
@@ -818,7 +818,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	if (rawJetP4.pt() > 1.e-1 ) {
 	  reco::Candidate::LorentzVector corrJetP4upToL3 = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawJetP4);
 	  reco::Candidate::LorentzVector corrJetP4upToL3Res = jetCorrExtractor(jet_temp, jetPSet_.getParameter<edm::InputTag>("jetCorrLabelRes").label(),9.9, &rawJetP4);
-	  if ( corrJetP4upToL3.pt() > 1.e-1 && corrJetP4upToL3Res.pt() > 1.e-1 ) 
+	  if ( corrJetP4upToL3.pt() > 1.e-1 && corrJetP4upToL3Res.pt() > 1.e-1 )
 	    residualJES =  (corrJetP4upToL3Res.pt()/corrJetP4upToL3.pt()) - 1.;
 	}
       }
@@ -828,9 +828,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jecUnc->setJetPt(correctedP4.pt());
       float uncertainty = jecUnc->getUncertainty(true);
       float p4Error     = sqrt(uncertainty*uncertainty+residualJES*residualJES);
-      
-           
-      // build vector scaled on the transverse plane                                                                                                                            
+
+
+      // build vector scaled on the transverse plane
       TVector2 p2Up, p2Down;
       p2Up.SetMagPhi(correctedP4.pt()*(1+p4Error),correctedP4.phi());
       p2Down.SetMagPhi(correctedP4.pt()*(1-p4Error),correctedP4.phi());
@@ -840,7 +840,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       corrJetEnDown.mex += (-p2Down.Px()+correctedP4.px());
       corrJetEnDown.mey += (-p2Down.Py()+correctedP4.py());
       corrJetEnDown.sumet += fabs(p2Down.Mod()-correctedP4.pt());
-     
+
       pat::Jet newJetEnUp(jet);
       newJetEnUp.setP4(jet.p4()*(1+p4Error));
       pat::Jet newJetEnDown(jet);
@@ -863,7 +863,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jerSF   = ScalarFactor.getScaleFactor(jetParam, Variation::NOMINAL);
       jerSFUp = ScalarFactor.getScaleFactor(jetParam, Variation::UP);
       jerSFDw = ScalarFactor.getScaleFactor(jetParam, Variation::DOWN);
-      
+
       //take the truth resolution
       float resCorrection     = 0;
       float resCorrectionUp   = 0;
@@ -880,32 +880,32 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	  useRandomSmear    = false;
 	}
       }
-	
+
       if(useRandomSmear){
-	    
+
 	// take jet resolution from db/text file in case of random smearing
 	// apply smearing to jet 4V
 	float smearingWidth     = sqrt(jerSF*jerSF-1)*sigmaPt;
 	float smearingWidthUp   = sqrt(jerSFUp*jerSFUp-1)*sigmaPt;
 	float smearingWidthDown = sqrt(jerSFDw*jerSFDw-1)*sigmaPt;
-	resCorrection     = 1+rand_->Gaus(0,smearingWidth)/correctedP4.pt();       
-	resCorrectionUp   = 1+rand_->Gaus(0,smearingWidthUp)/correctedP4.pt(); 
+	resCorrection     = 1+rand_->Gaus(0,smearingWidth)/correctedP4.pt();
+	resCorrectionUp   = 1+rand_->Gaus(0,smearingWidthUp)/correctedP4.pt();
         resCorrectionDown = 1+rand_->Gaus(0,smearingWidthDown)/correctedP4.pt();
       }
-      
+
       pat::Jet newJetSmear(jet);
       pat::Jet newJetSmearResUp(jet);
       pat::Jet newJetSmearResDown(jet);
       newJetSmear.setP4(jet.p4()*resCorrection);
       newJetSmearResUp.setP4(jet.p4()*resCorrectionUp);
-      newJetSmearResDown.setP4(jet.p4()*resCorrectionDown);           
+      newJetSmearResDown.setP4(jet.p4()*resCorrectionDown);
 
       jetSmear->push_back(newJetSmear);
       jetSmearResUp->push_back(newJetSmearResUp);
       jetSmearResDown->push_back(newJetSmearResDown);
-      
 
-      // build vector scaled on the transverse plane                                                                                                                            
+
+      // build vector scaled on the transverse plane
       TVector2 p2Smear;
       pat::Jet jetResMET   = jet;
       pat::Jet jetResUpMET = jet;
@@ -914,7 +914,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       jetResUpMET.setP4(correctedP4*resCorrectionUp);
       jetResDwMET.setP4(correctedP4*resCorrectionDown);
 
-      // re-correct jets after smearing, only the central value for smeared met                                                                                                                  
+      // re-correct jets after smearing, only the central value for smeared met
       const pat::Jet & jet_temp_2 = jetResMET;
       reco::Candidate::LorentzVector rawP4Smear = jet_temp_2.correctedP4("Uncorrected");
       reco::Candidate::LorentzVector correctedP4Smear;
@@ -924,9 +924,9 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
         correctedP4Smear = jetCorrExtractor(jet_temp_2, jetPSet_.getParameter<edm::InputTag>("jetCorrLabel").label(),9.9, &rawP4Smear);
 
       jetResMET.setP4(correctedP4Smear);
-      
 
-      // clone correction level from imput jet      
+
+      // clone correction level from imput jet
       p2Smear.SetMagPhi(jetResMET.pt(),jetResMET.phi());
       p2Up.SetMagPhi(jetResUpMET.pt(),jetResUpMET.phi());
       p2Down.SetMagPhi(jetResDwMET.pt(),jetResDwMET.phi());
@@ -954,7 +954,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	corrJetSmearResDown.mey += (-p2Down.Py()+jetResMET.py());
 	corrJetSmearResDown.sumet += p2Down.Mod()-jetResMET.pt();
       }
-      
+
       //store all the candidates inside the jet
       particlesInJet.insert(particlesInJet.end(), jet.daughterPtrVector().begin(), jet.daughterPtrVector().end());
     }
@@ -962,7 +962,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
     //sort Ptr according to the object key
     std::sort(particlesInJet.begin(),particlesInJet.end());
 
-  
+
     // check all the particles not belonging to a jet over threshold
     for(unsigned int icand = 0; icand < pfCandCollection->size(); icand++){
 
@@ -978,47 +978,47 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       // check overlaps with other particles
       bool isfound = false;
-      for(auto part : particlesInJet){  	
+      for(auto part : particlesInJet){
 	if(part == ptrCand){
 	  isfound = true;
 	  break;
-	}      	
-      }
-
-      if(isfound) continue;
-       
-      for(auto part : particlesInTau){  	
-	if(part == ptrCand){
-	  isfound = true;
-	  break;
-	}      	
+	}
       }
 
       if(isfound) continue;
 
-      for(auto part : particlesInMuon){  	
+      for(auto part : particlesInTau){
 	if(part == ptrCand){
 	  isfound = true;
 	  break;
-	}      	
+	}
       }
 
       if(isfound) continue;
 
-      for(auto part : particlesInElectron){  	
+      for(auto part : particlesInMuon){
 	if(part == ptrCand){
 	  isfound = true;
 	  break;
-	}      	
+	}
       }
 
       if(isfound) continue;
 
-      for(auto part : particlesInPhoton){  	
+      for(auto part : particlesInElectron){
 	if(part == ptrCand){
 	  isfound = true;
 	  break;
-	}      	
+	}
+      }
+
+      if(isfound) continue;
+
+      for(auto part : particlesInPhoton){
+	if(part == ptrCand){
+	  isfound = true;
+	  break;
+	}
       }
 
       if(isfound) continue;
@@ -1026,7 +1026,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
       float uncertaintyP4 = 0;
       int iBin = 0;
-      for(auto selection : unclusteredSelection_){ // use the formula for single particle PF resolution	   
+      for(auto selection : unclusteredSelection_){ // use the formula for single particle PF resolution
 	if(selection(pfCandCollection->at(icand))){
 	  TString formula (unclusteredUnc_.at(iBin).c_str());
 	  double  varX = 0;
@@ -1051,7 +1051,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 	else
 	  iBin++;
       }
-      
+
       TVector2 p2Up, p2Down;
       p2Up.SetMagPhi(pfCandCollection->at(icand).pt()*weightp4*(1+uncertaintyP4),pfCandCollection->at(icand).phi());
       p2Down.SetMagPhi(pfCandCollection->at(icand).pt()*weightp4*(1-uncertaintyP4),pfCandCollection->at(icand).phi());
@@ -1060,13 +1060,13 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       corrUnclusteredEnUp.sumet += fabs(p2Up.Mod()-pfCandCollection->at(icand).pt());
       corrUnclusteredEnDown.mex += (-p2Down.Px()+pfCandCollection->at(icand).px());
       corrUnclusteredEnDown.mey += (-p2Down.Py()+pfCandCollection->at(icand).py());
-      corrUnclusteredEnDown.sumet += fabs(p2Down.Mod()-pfCandCollection->at(icand).pt());	  
+      corrUnclusteredEnDown.sumet += fabs(p2Down.Mod()-pfCandCollection->at(icand).pt());
     }
 
-    // correct met --> loop on met collection of input                                                                                                                          
+    // correct met --> loop on met collection of input
     for(auto met : *metCollection){
 
-      //build corrected MET                                                                                                                                                     
+      //build corrected MET
       reco::MET corrMETJetEnUp(met.sumEt()+corrJetEnUp.sumet,
 		reco::Candidate::LorentzVector(met.px()+corrJetEnUp.mex, met.py()+corrJetEnUp.mey, 0.,
 		sqrt((met.px()+corrJetEnUp.mex)*(met.px()+corrJetEnUp.mex)+(met.py()+corrJetEnUp.mey)*(met.py()+corrJetEnUp.mey))),met.vertex());
@@ -1093,7 +1093,7 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
       metJetResUp->push_back(metJetRUp);
       metJetResDown->push_back(metJetRDown);
 
-      
+
       reco::MET corrMETJetSmear(met.sumEt()+corrJetSmear.sumet,
 		reco::Candidate::LorentzVector(met.px()+corrJetSmear.mex, met.py()+corrJetSmear.mey, 0.,
 		sqrt((met.px()+corrJetSmear.mex)*(met.px()+corrJetSmear.mex)+(met.py()+corrJetSmear.mey)*(met.py()+corrJetSmear.mey))),met.vertex());
@@ -1134,29 +1134,29 @@ void METSystematicsProducer::produce(edm::Event & iEvent, const edm::EventSetup 
 
     if(storeSmearedShiftedCollections_){
       std::sort(jetEnUp->begin(),jetEnUp->end(),jetSorter); // sort again collections
-      iEvent.put(jetEnUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
+      iEvent.put(std::move(jetEnUp),std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnUp");
       std::sort(jetEnDown->begin(),jetEnDown->end(),jetSorter); // sort again collections
-      iEvent.put(jetEnDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
+      iEvent.put(std::move(jetEnDown),std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"EnDown");
     }
-    iEvent.put(metJetEnUp,std::string(inputMET_.label())+"JetEnUp");
-    iEvent.put(metJetEnDown,std::string(inputMET_.label())+"JetEnDown");    
-   
+    iEvent.put(std::move(metJetEnUp),std::string(inputMET_.label())+"JetEnUp");
+    iEvent.put(std::move(metJetEnDown),std::string(inputMET_.label())+"JetEnDown");
+
     if(storeSmearedShiftedCollections_){
       std::sort(jetSmear->begin(),jetSmear->end(),jetSorter);
-      iEvent.put(jetSmear,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
+      iEvent.put(std::move(jetSmear),std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"Smear");
       std::sort(jetSmearResUp->begin(),jetSmearResUp->end(),jetSorter);
-      iEvent.put(jetSmearResUp,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
+      iEvent.put(std::move(jetSmearResUp),std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResUp");
       std::sort(jetSmearResDown->begin(),jetSmearResDown->end(),jetSorter);
-      iEvent.put(jetSmearResDown,std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
+      iEvent.put(std::move(jetSmearResDown),std::string(jetPSet_.getParameter<edm::InputTag>("src").label())+"SmearJetResDown");
     }
-    iEvent.put(metJetResUp,std::string(inputMET_.label())+"JetResUp");
-    iEvent.put(metJetResDown,std::string(inputMET_.label())+"JetResDown");    
-    iEvent.put(metJetSmear,std::string(inputMET_.label())+"Smear");
-    iEvent.put(metJetSmearResUp,std::string(inputMET_.label())+"SmearJetResUp");
-    iEvent.put(metJetSmearResDown,std::string(inputMET_.label())+"SmearJetResDown");    
+    iEvent.put(std::move(metJetResUp),std::string(inputMET_.label())+"JetResUp");
+    iEvent.put(std::move(metJetResDown),std::string(inputMET_.label())+"JetResDown");
+    iEvent.put(std::move(metJetSmear),std::string(inputMET_.label())+"Smear");
+    iEvent.put(std::move(metJetSmearResUp),std::string(inputMET_.label())+"SmearJetResUp");
+    iEvent.put(std::move(metJetSmearResDown),std::string(inputMET_.label())+"SmearJetResDown");
 
-    iEvent.put(metUnclusteredEnUp,std::string(inputMET_.label())+"UnclusteredEnUp");
-    iEvent.put(metUnclusteredEnDown,std::string(inputMET_.label())+"UnclusteredEnDown");    
+    iEvent.put(std::move(metUnclusteredEnUp),std::string(inputMET_.label())+"UnclusteredEnUp");
+    iEvent.put(std::move(metUnclusteredEnDown),std::string(inputMET_.label())+"UnclusteredEnDown");
   }
 }
 
@@ -1169,7 +1169,7 @@ reco::Candidate::LorentzVector METSystematicsProducer::findParticle(const T & pa
   std::vector<reco::CandidatePtr> particles;
 
   // take all the PF candidate linked to the particles
-  for(size_t ipart = 0 ; ipart < particle.numberOfSourceCandidatePtrs(); ipart++){      
+  for(size_t ipart = 0 ; ipart < particle.numberOfSourceCandidatePtrs(); ipart++){
     if(particle.sourceCandidatePtr(ipart).isNonnull() and particle.sourceCandidatePtr(ipart).isAvailable()){
       particles.push_back(particle.sourceCandidatePtr(ipart));
     }
@@ -1177,25 +1177,25 @@ reco::Candidate::LorentzVector METSystematicsProducer::findParticle(const T & pa
 
   // no-pfCandidates return 0
   if(particles.size() == 0)
-    return particle.p4();  
+    return particle.p4();
 
   for(unsigned int icand = 0; icand <  pfCandCollection.size(); icand++){
-    
+
     reco::CandidatePtr ptrCand = pfCandCollection.ptrAt(icand);
-    const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>(&(pfCandCollection.at(icand)));	
+    const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>(&(pfCandCollection.at(icand)));
     // check the puppiWeight used in the met calculation
     if(lPack->puppiWeightNoLep() == 0) // in case of puppi, only the one used for MET calculations are useful
       continue;
-    
+
     // find and return the resclae 4V
     for(auto ipart : particles){
       if(ipart == ptrCand){
 	total4V += ptrCand->p4()*lPack->puppiWeightNoLep();
 	break;
-      }      
+      }
     }
   }
-     
+
   return total4V;
 
 }

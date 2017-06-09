@@ -20,46 +20,46 @@ class CandCorrectedMETProducerT : public edm::stream::EDProducer<> {
 public:
   explicit CandCorrectedMETProducerT(const edm::ParameterSet&);
   ~CandCorrectedMETProducerT();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
+
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&); 
+  virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
 
   reco::Candidate::LorentzVector findParticle(const T & particle, const edm::View<reco::Candidate> & pfCandCollection);
-  
+
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
+
   const edm::InputTag    metTag;
   std::vector<edm::InputTag> candTags;
   const edm::InputTag    pfCandidatesTag;
   const bool isPuppiTag;
   const bool useuncorrmet;
-  
+
   edm::EDGetTokenT<edm::View<pat::MET> > metToken;
-  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidateToken; 
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandidateToken;
   edm::EDGetTokenT<edm::View<T> > theCandToken;
   std::vector<edm::EDGetTokenT<edm::View<T> > > candTokens;
 };
 
 template< class T>
-CandCorrectedMETProducerT<T>::CandCorrectedMETProducerT(const edm::ParameterSet& iConfig): 
+CandCorrectedMETProducerT<T>::CandCorrectedMETProducerT(const edm::ParameterSet& iConfig):
   metTag(iConfig.getParameter<edm::InputTag>("met")),
   candTags(iConfig.getParameter<std::vector<edm::InputTag> >("cands")),
-  pfCandidatesTag(iConfig.existsAs<edm::InputTag>("pfCandidates") ? iConfig.getParameter<edm::InputTag>("pfCandidates") : edm::InputTag("packedPFCandidates")), 
+  pfCandidatesTag(iConfig.existsAs<edm::InputTag>("pfCandidates") ? iConfig.getParameter<edm::InputTag>("pfCandidates") : edm::InputTag("packedPFCandidates")),
   isPuppiTag(iConfig.existsAs<bool>("isPuppiTag") ? iConfig.getParameter<bool>("isPuppi") : false),
   useuncorrmet(iConfig.existsAs<bool>("useuncorrmet") ? iConfig.getParameter<bool>("useuncorrmet") : false){
 
   produces<pat::METCollection>();
-  
+
   metToken = consumes<edm::View<pat::MET> > (metTag);
   pfCandidateToken = consumes<edm::View<reco::Candidate> >(pfCandidatesTag);
-  
+
   for (std::size_t i = 0; i < candTags.size(); i++) {
     theCandToken = consumes<edm::View<T> > (candTags[i]);
     candTokens.push_back(theCandToken);
@@ -91,11 +91,11 @@ void CandCorrectedMETProducerT<T>::produce(edm::Event& iEvent, const edm::EventS
         candHs.push_back(candH);
     }
 
-    std::auto_ptr<pat::METCollection> output(new pat::METCollection);
+    std::unique_ptr<pat::METCollection> output(new pat::METCollection);
 
     double met    = (useuncorrmet ? metH->front().uncorPt()  : metH->front().corPt());
     double metphi = (useuncorrmet ? metH->front().uncorPhi() : metH->front().corPhi());
-    
+
     double ccmetx = met * cos(metphi);
     double ccmety = met * sin(metphi);
 
@@ -104,18 +104,18 @@ void CandCorrectedMETProducerT<T>::produce(edm::Event& iEvent, const edm::EventS
 	  reco::Candidate::LorentzVector total4V;
 	  if(isPuppiTag)
 	    total4V = findParticle(*cands_iter,*pfCandH);
-	  else 
+	  else
 	    total4V = cands_iter->p4();
 	  ccmetx += total4V.pt() * cos(total4V.phi());
 	  ccmety += total4V.pt() * sin(total4V.phi());
-        }            
+        }
     }
     double ccmet = sqrt(ccmetx*ccmetx + ccmety*ccmety);
 
     pat::MET* ccmetcand = metH->front().clone();
     ccmetcand->setP4(reco::Candidate::LorentzVector(ccmetx, ccmety, 0., ccmet));
     output->push_back(*ccmetcand);
-    iEvent.put(output);
+    iEvent.put(std::move(output));
     if(ccmetcand) delete ccmetcand;
 
 }
@@ -135,17 +135,17 @@ reco::Candidate::LorentzVector CandCorrectedMETProducerT<T>::findParticle(const 
     return particle.p4();
 
   for(unsigned int icand = 0; icand <  pfCandCollection.size(); icand++){
-    
+
     reco::CandidatePtr ptrCand = pfCandCollection.ptrAt(icand);
     const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate *>(&(pfCandCollection.at(icand)));
-    if(lPack->puppiWeightNoLep() == 0) // in case of puppi, only the one used for MET calculations are useful                                                                   
+    if(lPack->puppiWeightNoLep() == 0) // in case of puppi, only the one used for MET calculations are useful
       continue;
     for(auto ipart : particles){
       if(ipart == ptrCand){
         total4V += ptrCand->p4()*lPack->puppiWeightNoLep();
         break;
       }
-    }    
+    }
   }
 
   particles.clear();
@@ -204,11 +204,11 @@ void CandCorrectedMETProducerT<pat::Muon>::produce(edm::Event& iEvent, const edm
       candHs.push_back(candH);
     }
 
-    std::auto_ptr<pat::METCollection> output(new pat::METCollection);
+    std::unique_ptr<pat::METCollection> output(new pat::METCollection);
 
     double met    = (useuncorrmet ? metH->front().uncorPt()  : metH->front().corPt());
     double metphi = (useuncorrmet ? metH->front().uncorPhi() : metH->front().corPhi());
-    
+
     double ccmetx = met * cos(metphi);
     double ccmety = met * sin(metphi);
 
@@ -218,19 +218,19 @@ void CandCorrectedMETProducerT<pat::Muon>::produce(edm::Event& iEvent, const edm
 	  reco::Candidate::LorentzVector total4V;
 	  if(isPuppiTag)
 	    total4V = findParticle(*cands_iter,*pfCandH);
-	  else 
+	  else
 	    total4V = cands_iter->pfP4();
 
 	  ccmetx += total4V.pt() * cos(total4V.phi());
 	  ccmety += total4V.pt() * sin(total4V.phi());
-      }            
+      }
     }
     double ccmet = sqrt(ccmetx*ccmetx + ccmety*ccmety);
 
     pat::MET* ccmetcand = metH->front().clone();
     ccmetcand->setP4(reco::Candidate::LorentzVector(ccmetx, ccmety, 0., ccmet));
     output->push_back(*ccmetcand);
-    iEvent.put(output);
+    iEvent.put(std::move(output));
     if(ccmetcand) delete ccmetcand;
 }
 
