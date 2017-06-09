@@ -850,6 +850,13 @@ if options.addSubstructurePuppi:
 					 wpValue = cms.double(0.800)),
 				)
 			))
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+dataFormat = DataFormat.MiniAOD
+switchOnVIDPhotonIdProducer(process, dataFormat)
+my_id_modules = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring16_V2p2_cff', 'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring16_nonTrig_V1_cff']
+for idmod in my_id_modules:
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+
 
 # Set up the path
 if options.dropAnalyzerDumpEDM == False:
@@ -858,6 +865,7 @@ if options.dropAnalyzerDumpEDM == False:
 					    process.metFilters+
 					    process.btageff+
 					    getattr(process,"eventFilters")+
+                                            process.egmPhotonIDSequence+
 					    process.tree)
 		if(options.addPuppiJets):
 			process.treePath = cms.Path(process.gentree +
@@ -878,6 +886,7 @@ if options.dropAnalyzerDumpEDM == False:
 		process.treePath = cms.Path(
 			process.metFilters+
 			getattr(process,"eventFilters")+
+                        process.egmPhotonIDSequence+
 			process.tree)
 
 		if options.addMETBreakDown:
