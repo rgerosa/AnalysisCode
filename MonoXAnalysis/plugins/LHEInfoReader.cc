@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Run.h" 
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
@@ -13,15 +14,15 @@ class LHEInfoReader : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit LHEInfoReader(const edm::ParameterSet &);
   ~LHEInfoReader();
-  
+
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  
+
+
 private:
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  
+
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -46,12 +47,12 @@ void LHEInfoReader::beginRun(edm::Run const& iRun, edm::EventSetup const&) {}
 
 void LHEInfoReader::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 
-    edm::Handle<LHERunInfoProduct> run;    
+    edm::Handle<LHERunInfoProduct> run;
     iRun.getByLabel("externalLHEProducer", run);
     LHERunInfoProduct myLHERunInfoProduct = *(run.product());
 
     std::ofstream outfile(outputLHEFileName_.c_str());
-    
+
     for (auto iter=myLHERunInfoProduct.headers_begin(); iter!=myLHERunInfoProduct.headers_end(); iter++){
       outfile << iter->tag();
       std::vector<std::string> lines = iter->lines();
