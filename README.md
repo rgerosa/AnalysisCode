@@ -4,38 +4,16 @@ AnalysisCode
 
 Repository for analysis code
 
-Recipe for 80X: 
+Recipe for 92X: 
 
-       cmsrel CMSSW_8_0_24_patch1
-       cd CMSSW_8_0_24_patch1/src
+       cmsrel CMSSW_9_2_2
+       cd CMSSW_9_2_2_patch1/src
        cmsenv
        git cms-init
-       git cms-addpkg FWCore/Framework	
-       git revert ccdf67f9dc7ee3968bc489b773561af6025e2115   
-       git cms-merge-topic -u shervin86:Moriond2017_JEC_energyScales
-       cd EgammaAnalysis/ElectronTools/data
-       git clone git@github.com:ECALELFS/ScalesSmearings.git
-       cd -
-       git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
-       git cms-merge-topic -u cms-met:METRecipe_8020
-       git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
-       git cms-merge-topic -u ikrav:egm_id_80X_v2
-       git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
-       git cms-merge-topic -u gpetruc:badMuonFilters_80X_v2
-       git cms-merge-topic mmarionncern:METRecipe_80X_part2 -u	
-       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
+       #git cms-addpkg FWCore/Framework	
+       #git revert ccdf67f9dc7ee3968bc489b773561af6025e2115   
+       git clone git@github.com:rgerosa/AnalysisCode.git -b Giannis92X
        scramv1 b j 4;
-       cd $CMSSW_BASE/external/$SCRAM_ARCH;
-       git clone https://github.com/ikrav/RecoEgamma-PhotonIdentification.git   RecoEgamma/PhotonIdentification/data
-       git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
-       cd RecoEgamma/PhotonIdentification/data;
-       git checkout remotes/origin/egm_id_80X_v1;
-       cd -
-       cd RecoEgamma/ElectronIdentification/data;
-       git checkout remotes/origin/egm_id_80X_v2;
-       cd -
-       scp -r RecoEgamma/PhotonIdentification/data/* $CMSSW_BASE/src/RecoEgamma/PhotonIdentification/data/;
-       scp -r RecoEgamma/ElectronIdentification/data/* $CMSSW_BASE/src/RecoEgamma/ElectronIdentification/data/;
        
 	   
 How to Run the ntuple production (for analysis):
@@ -51,7 +29,6 @@ Caveat: multithreading is not working at the moment
 Options:   
 
 	   isMC                : set to True when running on simulated events
-	   isFastSIM           : set to True when running on fast sim miniAOD (still temp and relying on Emanuele miniAOD)
 	   filterHighMETEvents : apply metCut GeV seletion on recoil/met (mumet or elmet or phmet or met)
 	   metCut              : met threshold
 	   filterOnHLT         : require the OR of all the trigger path definied in the MonoJetTreeMaker (beginRun)
@@ -63,7 +40,6 @@ Options:
 	   addQGLikelihood     : add QGL value for AK4PFchs and AK4PFPuppi in case
 	   addPuppiJets        : dump Puppi jet info in the MonoJetTreeMaker and add all the related modules in the process
 	   addPuppiMET         : dump Puppi met info in the MonoJetTreeMaker and add all the related modules in the process
-	   addMVAMet           : add the MVA met (still not working in 76X)
 	   useMiniAODMet       : set to True when using miniAOD computed met and related systematics
 	   addMETSystematics   : dump MET systematic variations in the tree and, when useMiniAODMet = False, re-evaluate thorugh METSystematicProducer (for PUPPI too)
 	   useOfficialMETSystematics : use the official MET tool for systematics and not the private code
