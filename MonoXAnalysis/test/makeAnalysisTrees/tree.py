@@ -61,11 +61,11 @@ options.register (
 
 ## PUPPI Jets
 options.register (
-	'addPuppiJets',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPuppiJets',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add PUPPI jets to the output');
 
 options.register (
-	'addPuppiMET',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+	'addPuppiMET',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
 	'add PUPPI met to the output');
 
 #### Add scale and smear corrections for electrons and photons
@@ -91,7 +91,7 @@ options.register (
         'store met sys variation in the output tree');
 
 options.register (
-        'addPuppiMETSystematics',False,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
+        'addPuppiMETSystematics',True,VarParsing.multiplicity.singleton,VarParsing.varType.bool,
         'store met sys variation in the output tree');
 
 options.register (
@@ -574,7 +574,7 @@ triggerLabel = "RECO";
 if options.isMC:
 	triggerLabel = "PAT";
 
-
+print(jetCollName)
 # Make the tree
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      ## gen info
@@ -904,7 +904,7 @@ if options.dropAnalyzerDumpEDM == False:
 						process.edTask
 			)
 
-                process.treePathEnd = cms.Path(
+                process.treePath = cms.Path(
 						process.taskseq+
 						process.metFilters+
 						getattr(process,"eventFilters")+
