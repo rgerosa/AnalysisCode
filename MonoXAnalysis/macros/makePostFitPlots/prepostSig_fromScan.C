@@ -7,7 +7,7 @@ static bool  plotSignificance = true;
 static float lumiScale_Higgs = 15;
 static float lumiScale_DM    = 1;
 static bool  addStatUncPull  = true;
-static bool  addPreliminary  = true;
+static bool  addPreliminary  = false;
 
 void prepostSig_fromScan(string   fitFilename, 
 			 string   observable, 
@@ -99,17 +99,17 @@ void prepostSig_fromScan(string   fitFilename,
     postfix = "_VBF";
 
   TFile*monoj_av = NULL, *monow_av = NULL, *monoz_av = NULL, *higgs = NULL;
-  
+
   if(category == Category::monoV){
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoJ_801_0.25_catmonov_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoW_801_0.25_catmonov_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoZ_801_0.25_catmonov_13TeV_v1.root","READ");
     higgs    = new TFile("~/work/MONOJET_ANALYSIS/CMSSW_7_4_16/src/AnalysisCode/MonoXAnalysis/macros/monoV_hinv_forCombination/templates_met_v2.root","READ");
   }
   else{
-    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
-    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Signal_DMSimp_Moriond/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monoj_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoJ_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monow_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoW_801_0.25_catmonojet_13TeV_v1.root","READ");
+    monoz_av = new TFile("/home/rgerosa/MONOJET_ANALYSIS_2016_Data/SignalTemplatesForLimit/Moriond_2016/DMSimp/MonoZ_801_0.25_catmonojet_13TeV_v1.root","READ");
     higgs    = new TFile("~/work/MONOJET_ANALYSIS/HiggsCombine/CMSSW_7_6_4/src/AnalysisCode/MonoXAnalysis/macros/makeWorkspace/templates_Moriond_reMiniAOD_v6/templates_monojet_hinv.root","READ");
   }
 
@@ -166,6 +166,7 @@ void prepostSig_fromScan(string   fitFilename,
   TH1* wlhist = NULL;
   TH1* tthist = NULL;
   TH1* dihist = NULL;
+  TH1* vghist = NULL;
   TH1* qchist = NULL;
   TH1* gmhist = NULL;
   TH1* ewkwhist = NULL;
@@ -179,6 +180,7 @@ void prepostSig_fromScan(string   fitFilename,
   wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets").c_str());    
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());    
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());    
+  vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());    
 
   if(category == Category::VBF){
     ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
@@ -220,6 +222,9 @@ void prepostSig_fromScan(string   fitFilename,
     GJetsRate << "Process: GJets";
     stringstream DiBosonRate;
     DiBosonRate << "Process: DiBoson";
+    stringstream VGammaRate;
+    if(vghist)
+      VGammaRate << "Process: VGamma";
     stringstream TopRate;
     TopRate << "Process: TopRate";  
     stringstream EWKWRate;
@@ -254,6 +259,13 @@ void prepostSig_fromScan(string   fitFilename,
     for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
       DiBosonRate << "   ";
       DiBosonRate << dihist->GetBinContent(iBin+1)*dihist->GetBinWidth(iBin+1) << " \\pm "<<dihist->GetBinError(iBin+1)*dihist->GetBinWidth(iBin+1);
+    }
+
+    if(vghist){
+      for(int iBin = 0; iBin < vghist->GetNbinsX(); iBin++){
+	VGammaRate << "   ";
+	VGammaRate << vghist->GetBinContent(iBin+1)*vghist->GetBinWidth(iBin+1) << " \\pm "<<vghist->GetBinError(iBin+1)*vghist->GetBinWidth(iBin+1);
+      }
     }
     
     for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
@@ -312,6 +324,10 @@ void prepostSig_fromScan(string   fitFilename,
     outputfile<<GJetsRate.str()<<endl;
     outputfile<<"######################"<<endl;
     outputfile<<DiBosonRate.str()<<endl;
+    if(vghist){
+      outputfile<<"######################"<<endl;
+      outputfile<<VGammaRate.str()<<endl;
+    }
     outputfile<<"######################"<<endl;
     outputfile<<TopRate.str()<<endl;
     
@@ -376,6 +392,8 @@ void prepostSig_fromScan(string   fitFilename,
   wlhist->SetFillColor(TColor::GetColor("#FAAF08"));
   wlhist->SetLineColor(kBlack);
 
+  if(vghist)
+    dihist->Add(vghist);
   if(category != Category::VBF)
     dihist->SetFillColor(TColor::GetColor("#4897D8"));
   else
@@ -498,7 +516,10 @@ void prepostSig_fromScan(string   fitFilename,
   leg->AddEntry(wlhist,  "W(l#nu)+jets", "F");
   if(ewkzhist)  leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
   if(ewkwhist)  leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
-  leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
+  if(not vghist)
+    leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
+  else
+    leg->AddEntry(dihist,  "VV, V#gamma", "F");
   leg->AddEntry(tthist,  "Top quark", "F");
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)

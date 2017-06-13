@@ -73,6 +73,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   TH1* dihist = NULL;
   TH1* ewkwhist = NULL;
   TH1* ewkzhist = NULL;
+  TH1* vghist = NULL;
   TH1* pohist = NULL;
   TH1* prhist = NULL;
 
@@ -107,6 +108,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_ZM").c_str());
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());
+  vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());
   ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK_ZM").c_str());
   ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
@@ -120,6 +122,9 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     TopRate << "Process: Top";
     stringstream VVRate;
     VVRate << "Process: DiBoson";
+    stringstream VGammaRate;
+    if(vghist)
+      VGammaRate << "Process: VGamma";
     stringstream EWKWRate;
     EWKWRate << "Process: EWKW";
     stringstream EWKZRate;
@@ -141,6 +146,13 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     for(int iBin = 0; iBin < dihist->GetNbinsX(); iBin++){
       VVRate << "   ";
       VVRate << dihist->GetBinContent(iBin);
+    }
+
+    if(vghist){
+      for(int iBin = 0; iBin < vghist->GetNbinsX(); iBin++){
+	VGammaRate << "   ";
+	VGammaRate << vghist->GetBinContent(iBin);
+      }
     }
     
     if(category == Category::VBF or category == Category::VBFrelaxed){
@@ -182,6 +194,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     outputfile<<"######################"<<endl;
     outputfile<<VVRate.str()<<endl;
     outputfile<<"######################"<<endl;
+    if(vghist){
+      outputfile<<VGammaRate.str()<<endl;
+      outputfile<<"######################"<<endl;
+    }
     if(category == Category::VBF or category == Category::VBFrelaxed){
       outputfile<<EWKWRate.str()<<endl;
       outputfile<<"######################"<<endl;
@@ -212,6 +228,9 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   wlhist->SetLineColor(kBlack);
   wlhist->Add(tthist);
   wlhist->Add(dihist);
+  if(vghist)
+    vghist->Add(vghist);
+
   if(category == Category::VBF or category == Category::VBFrelaxed){
     wlhist->Add(ewkwhist);
     ewkzhist->SetFillColor(kCyan+1);

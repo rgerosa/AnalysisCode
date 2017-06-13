@@ -132,6 +132,7 @@ void prepostSig(string   fitFilename,
   TH1* wlhist = NULL;
   TH1* tthist = NULL;
   TH1* dihist = NULL;
+  TH1* vghist = NULL;
   TH1* qchist = NULL;
   TH1* gmhist = NULL;
   TH1* ewkwhist = NULL;
@@ -145,6 +146,7 @@ void prepostSig(string   fitFilename,
   wlhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets").c_str());    
   tthist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Top").c_str());    
   dihist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Dibosons").c_str());    
+  vghist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/VGamma").c_str());    
 
   if(category == Category::VBF or category == Category::VBFrelaxed){
     ewkwhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/WJets_EWK").c_str());    
@@ -182,6 +184,9 @@ void prepostSig(string   fitFilename,
     GJetsRate << "Process: GJets";
     stringstream DiBosonRate;
     DiBosonRate << "Process: DiBoson";
+    stringstream VGammaRate;
+    if(vghist)
+      VGammaRate << "Process: VGamma";
     stringstream TopRate;
     TopRate << "Process: TopRate";  
     stringstream EWKWRate;
@@ -219,7 +224,14 @@ void prepostSig(string   fitFilename,
       DiBosonRate << "   ";
       DiBosonRate << dihist->GetBinContent(iBin+1)*dihist->GetBinWidth(iBin+1) << " \\pm "<<dihist->GetBinError(iBin+1)*dihist->GetBinWidth(iBin+1);
     }
-    
+
+    if(vghist){
+      for(int iBin = 0; iBin < vghist->GetNbinsX(); iBin++){
+	VGammaRate << "   ";
+	VGammaRate << vghist->GetBinContent(iBin+1)*vghist->GetBinWidth(iBin+1) << " \\pm "<<vghist->GetBinError(iBin+1)*vghist->GetBinWidth(iBin+1);
+      }
+    }
+
     for(int iBin = 0; iBin < tthist->GetNbinsX(); iBin++){
       TopRate << "   ";
       TopRate << tthist->GetBinContent(iBin+1)*tthist->GetBinWidth(iBin+1) << " \\pm "<<tthist->GetBinError(iBin+1)*tthist->GetBinWidth(iBin+1);
@@ -405,6 +417,8 @@ void prepostSig(string   fitFilename,
   wlhist->SetFillColor(TColor::GetColor("#FAAF08"));
   wlhist->SetLineColor(kBlack);
 
+  if(vghist)
+    dihist->Add(vghist);
   if(category != Category::VBF and category != Category::VBFrelaxed)
     dihist->SetFillColor(TColor::GetColor("#4897D8"));
   else
@@ -555,7 +569,11 @@ void prepostSig(string   fitFilename,
     leg->AddEntry(ewkzhist,"Z(#nu#nu)+jets EWK", "F");
     leg->AddEntry(ewkwhist,"W(l#nu)+jets EWK", "F");
   }
-  leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
+  if(not vghist)
+    leg->AddEntry(dihist,  "WW/WZ/ZZ", "F");
+  else
+    leg->AddEntry(dihist,  "VV, V#gamma", "F");
+
   leg->AddEntry(tthist,  "Top quark", "F");
   leg->AddEntry(zlhist,  "Z/#gamma(ll), #gamma+jets", "F");
   if(qchist)
