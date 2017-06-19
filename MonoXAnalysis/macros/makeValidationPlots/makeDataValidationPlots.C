@@ -248,13 +248,16 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* data_zee = (TH1*) inputFile->FindObjectAny(("datahistzee_"+observable).c_str());
   TH1* data_wen = (TH1*) inputFile->FindObjectAny(("datahistwen_"+observable).c_str());
   TH1* data_wmn = (TH1*) inputFile->FindObjectAny(("datahistwmn_"+observable).c_str());
-  TH1* data_gam = (TH1*) inputFile->FindObjectAny(("datahistgam_"+observable).c_str());
+  TH1* data_gam = NULL;
+  if(category == Category::VBF or category == Category::VBFrelaxed)
+    data_gam = (TH1*) inputFile->FindObjectAny(("datahistgam_"+observable).c_str());
 
   data_zmm->Rebin(rebinFactor);
   data_zee->Rebin(rebinFactor);
   data_wen->Rebin(rebinFactor);
   data_wmn->Rebin(rebinFactor);
-  data_gam->Rebin(rebinFactor);
+  if(data_gam)
+    data_gam->Rebin(rebinFactor);
     
   // ZMM control region  
   TH1* vllbkg_zmm = (TH1*) inputFile->FindObjectAny(("vllbkghistzmm_"+observable).c_str());
@@ -273,10 +276,9 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     vllbkg_zmm->Add(ewkzbkg_zmm);
   }
   vllbkg_zmm->Add(gambkg_zmm);
-  vllbkg_zmm->Add(qcdbkg_zmm);
-  
+  vllbkg_zmm->Add(qcdbkg_zmm);  
   vllbkg_zmm->Rebin(rebinFactor);
-
+  
   // ZEE  control region
   TH1* vllbkg_zee = (TH1*) inputFile->FindObjectAny(("vllbkghistzee_"+observable).c_str());
   TH1* vlbkg_zee = (TH1*) inputFile->FindObjectAny(("vlbkghistzee_"+observable).c_str());
@@ -375,7 +377,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  ZG_NNLOMiss_2 = NULL;
   TH1*  ZG_QCDEWKMix  = NULL;
 
-  if(category != Category::VBF and not useNewTheoryUncertainty){
+  if(category != Category::VBF and category != Category::VBFrelaxed and not useNewTheoryUncertainty){
     ZG_ewk = (TH1*)inputFile->FindObjectAny(("ZG_EWK_"+observable).c_str());
     ZG_re1 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale1_"+observable).c_str());
     ZG_re2 = (TH1*)inputFile->FindObjectAny(("ZG_RenScale2_"+observable).c_str());
@@ -384,7 +386,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     ZG_pdf = (TH1*)inputFile->FindObjectAny(("ZG_PDF_"+observable).c_str());
     ZG_fp  = (TH1*)inputFile->FindObjectAny(("ZG_Footprint_"+observable).c_str());
   }
-  else if(category != Category::VBF and useNewTheoryUncertainty){
+  else if(category != Category::VBF and category != Category::VBFrelaxed and useNewTheoryUncertainty){
     ZG_QCDScale = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDScale_"+observable).c_str()))->Clone("ZG_QCDScale");
     ZG_QCDShape = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDShape_"+observable).c_str()))->Clone("ZG_QCDShape");
     ZG_QCDProcess = (TH1*) ((TH1*)inputFile->FindObjectAny(("ZG_QCDProcess_"+observable).c_str()))->Clone("ZG_QCDProcess");
@@ -453,7 +455,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1*  WG_NNLOMiss_2 = NULL;
   TH1*  WG_QCDEWKMix  = NULL;
 
-  if(category != Category::VBF and not useNewTheoryUncertainty){
+  if(category != Category::VBF and category != Category::VBFrelaxed and not useNewTheoryUncertainty){
     WG_ewk = (TH1*)inputFile->FindObjectAny(("WG_EWK_"+observable).c_str());
     WG_re1 = (TH1*)inputFile->FindObjectAny(("WG_RenScale1_"+observable).c_str());
     WG_re2 = (TH1*)inputFile->FindObjectAny(("WG_RenScale2_"+observable).c_str());
@@ -462,7 +464,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     WG_pdf = (TH1*)inputFile->FindObjectAny(("WG_PDF_"+observable).c_str());
     WG_fp = (TH1*)inputFile->FindObjectAny(("WG_Footprint_"+observable).c_str());
   }
-  else if(category != Category::VBF and useNewTheoryUncertainty){
+  else if(category != Category::VBF and category != Category::VBFrelaxed and useNewTheoryUncertainty){
     WG_QCDScale = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDScale_"+observable).c_str()))->Clone("WG_QCDScale");
     WG_QCDShape = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDShape_"+observable).c_str()))->Clone("WG_QCDShape");
     WG_QCDProcess = (TH1*) ((TH1*)inputFile->FindObjectAny(("WG_QCDProcess_"+observable).c_str()))->Clone("WG_QCDProcess");
@@ -500,7 +502,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += ZWMC_mm->GetBinError(iBin+1)*ZWMC_mm->GetBinError(iBin+1);
     err += pow(ZWMC_mm->GetBinContent(iBin+1)*musf*2,2);
     err += pow(ZWMC_mm->GetBinContent(iBin+1)*mutrack*2,2);
-    if(category == Category::VBF) // small residual uncertainty --> mostly cancelling out
+    if(category == Category::VBF or category == Category::VBFrelaxed) // small residual uncertainty --> mostly cancelling out
       err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
 
     if(not useNewTheoryUncertainty){
@@ -531,7 +533,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += ZWMC_ee->GetBinError(iBin+1)*ZWMC_ee->GetBinError(iBin+1);
     err += pow(ZWMC_ee->GetBinContent(iBin+1)*elsf*2,2);
     err += pow(ZWMC_ee->GetBinContent(iBin+1)*eltrack*2,2);
-    if(category == Category::VBF)
+    if(category == Category::VBF or category == Category::VBFrelaxed)
       err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ee->GetBinContent(iBin+1), 2);
@@ -565,7 +567,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(mutrack/2)*2,2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(mettrig/2),2);
     err += pow(ZWMC_ll->GetBinContent(iBin+1)*(eltrig/2),2);
-    if(category == Category::VBF)
+    if(category == Category::VBF or category == Category::VBFrelaxed)
       err += pow(ZWMC_mm->GetBinContent(iBin+1)*max(jesZ_up,jesZ_dw),2);
     if(not useNewTheoryUncertainty){
       err += pow(ZW_ewk->GetBinContent(iBin+1)*ZWMC_ll->GetBinContent(iBin+1), 2);
@@ -604,7 +606,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   TH1* WGMC_e = NULL;
   TH1* WGMC_l = NULL;
 
-  if(category != Category::VBF){
+  if(category != Category::VBF and category != Category::VBFrelaxed){
     //Ratios Data
     ZGData_mm = (TH1*) data_zmm->Clone("ZGData_mm");
     ZGData_mm->Divide(data_gam);
@@ -851,7 +853,7 @@ void makeDataValidationPlots(string inputFileName, Category category, string obs
   makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee"+theory_new,useNewTheoryUncertainty);
   makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll"+theory_new,useNewTheoryUncertainty);  
 
-  if(category != Category::VBF){
+  if(category != Category::VBF and category != Category::VBFrelaxed){
     makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm"+theory_new,useNewTheoryUncertainty);  
     makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee"+theory_new,useNewTheoryUncertainty);
     makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll"+theory_new,useNewTheoryUncertainty);

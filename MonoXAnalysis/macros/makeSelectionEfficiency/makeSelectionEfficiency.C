@@ -30,12 +30,12 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     if(category == Category::VBF){
       detajj_cut = 4.0;
       mjj_cut    = 1300;
-      dphijj_cut  = 1.5;
+      dphijj_cut = 1.5;
     }
     else if(category == Category::VBFrelaxed){
       detajj_cut = 1.0;
       mjj_cut    = 0;
-      dphijj_cut  = 1.3;
+      dphijj_cut = 1.3;
     }
   }
 
@@ -250,8 +250,6 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     else
       currentFile = dynamic_cast<TChain*>(myReader.GetTree())->GetFile()->GetName();
 
-    if(*event != 246060098) continue;
-
     // trigger
     int hlt = 0;
     if (controlRegion == Sample::sig || controlRegion == Sample::zmm || controlRegion == Sample::wmn)// single and double muon                                         
@@ -263,7 +261,7 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     if(hlt == 0) continue;
 
     // met filters
-    if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue; 
+    //if(*fhbhe == 0 or *fhbiso == 0 or *fcsc == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fbadmu == 0 or *fbadch == 0) continue; 
     n_metfilter++;
     nwgt_metfilter += *wgt;
 

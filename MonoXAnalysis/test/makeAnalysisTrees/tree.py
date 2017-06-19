@@ -47,7 +47,7 @@ options.register (
 	'apply or not L2L3 Residual JEC on data');
 
 options.register (
-	'JECEra','Summer16_23Sep2016V3',VarParsing.multiplicity.singleton,VarParsing.varType.string,
+	'JECEra','Summer16_23Sep2016V4',VarParsing.multiplicity.singleton,VarParsing.varType.string,
 	'JEC correction era');
 
 ## JET information
@@ -225,7 +225,7 @@ options.parseArguments()
 ### check consistentcy of basic options
 if options.isMC and 'dataRun2' in options.globalTag:
 	options.globalTag = '80X_mcRun2_asymptotic_2016_TrancheIV_v8';
-	options.JECEra  = 'Summer16_23Sep2016V3';
+	options.JECEra  = 'Summer16_23Sep2016V4';
 if options.isMC and options.applyL2L3Residuals:
 	options.applyL2L3Residuals = False
 	

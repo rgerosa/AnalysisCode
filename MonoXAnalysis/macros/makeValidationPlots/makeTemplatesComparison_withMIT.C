@@ -110,11 +110,11 @@ void drawDownPlot(TH1* histo_1, TH1* histo_2,string xAxisTitle){
 
 void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
 				     string templateFile_2, // template file 2
-				     string controlRegion, // control region name
-				     Category  category,  // category
-				     string observable, 
-				     bool   isHiggsInvisible,
-				     string templateFile_1_Label, string templateFile_2_Label, string xAxisTitle){
+				     Sample controlRegion, // control region name
+				     Category category,  // category
+				     string   observable, 
+				     bool     isHiggsInvisible,
+				     string   templateFile_1_Label, string templateFile_2_Label, string xAxisTitle){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -124,126 +124,193 @@ void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
   TFile* template1 = TFile::Open(templateFile_1.c_str());
   TFile* template2 = TFile::Open(templateFile_2.c_str());
 
+  string dir_mit;
+  if(category == Category::monojet)
+    dir_mit = "category_monojet";
+  else if(category == Category::monoV)
+    dir_mit = "category_monov";
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
+    dir_mit = "category_vbf";
+
+  string cat_mit;
+  string cat_ucsd;
+
+  if(controlRegion == Sample::zmm){
+    cat_mit  = "Zmm";
+    cat_ucsd = "zmm";
+  }
+  else if(controlRegion == Sample::zee){
+    cat_mit  = "Zee";
+    cat_ucsd = "zee";
+  }
+  else if(controlRegion == Sample::wen){
+    cat_mit  = "Wen";
+    cat_ucsd = "wen";
+  }
+  else if(controlRegion == Sample::wmn){
+    cat_mit  = "Wmn";
+    cat_ucsd = "wmn";
+  }
+  else if(controlRegion == Sample::gam){
+    cat_mit = "gjets";
+    cat_ucsd = "gam";
+  }
+  else if(controlRegion == Sample::sig){
+    cat_mit  = "signal";
+    cat_ucsd = "SR";
+  }
+
+  ////// DATA  
   TH1* data_1 = NULL;
   TH1* data_2 = NULL;
 
-  string dir;
-  if(category == Category::monojet)
-    dir = "category_monojet";
-  else if(category == Category::monoV)
-    dir = "category_monov";
-
-  string cat;
-  if(controlRegion == "zmm")
-    cat = "Zmm";
-  else if(controlRegion == "zee")
-    cat = "Zee";
-  else if(controlRegion == "wen")
-    cat = "Wen";
-  else if(controlRegion == "wmn")
-    cat = "Wmn";
-  else if(controlRegion == "gam")
-    cat = "gjets";
-  else if(controlRegion == "SR")
-    cat = "signal";
-
-  if(controlRegion == "SR"){
+  if(controlRegion == Sample::sig){
     data_1 = (TH1*) template1->FindObjectAny(("datahist_"+observable).c_str());
-    data_2 = (TH1*) template2->Get((dir+"/"+cat+"_data").c_str());
+    data_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_data").c_str());
   }
   else{
-    data_1 = (TH1*) template1->FindObjectAny(("datahist"+controlRegion+"_"+observable).c_str());
-    data_2 = (TH1*) template2->Get((dir+"/"+cat+"_data").c_str());
+    data_1 = (TH1*) template1->FindObjectAny(("datahist"+cat_ucsd+"_"+observable).c_str());
+    data_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_data").c_str());
   }
 
+  ////// Z-inv  
   TH1* zinv_1 = NULL; 
   TH1* zinv_2 = NULL;
-  if(controlRegion == "SR"){
+
+  if(controlRegion == Sample::sig and category != Category::VBF){
     zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist_"+observable).c_str());
-    zinv_2 = (TH1*) template2->Get((dir+"/"+cat+"_zjets").c_str());
+    zinv_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_zjets").c_str());
+  }
+  else if(controlRegion == Sample::sig and category == Category::VBF){
+    zinv_1 = (TH1*) template1->FindObjectAny(("zinvhist_"+observable).c_str());
+    zinv_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcdzjets").c_str());
   }
 
+  ////// EWK Z-inv  
+  TH1* ewkzinv_1 = NULL; 
+  TH1* ewkzinv_2 = NULL;
+
+  if(controlRegion == Sample::sig and category == Category::VBF){
+    ewkzinv_1 = (TH1*) template1->FindObjectAny(("ewkzhist_"+observable).c_str());
+    ewkzinv_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkzjets").c_str());
+  }
+  else if(controlRegion != Sample::sig and category == Category::VBF){
+    ewkzinv_1 = (TH1*) template1->FindObjectAny(("ewkzbkghist_"+cat_ucsd+"_"+observable).c_str());
+    ewkzinv_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkzjets").c_str());    
+  }
+
+
+  ////// W+jets 
   TH1* wjet_1 = NULL;
   TH1* wjet_2 = NULL;
-  if(controlRegion == "SR"){
+
+  if(controlRegion == Sample::sig and category != Category::VBF){
     wjet_1 = (TH1*) template1->FindObjectAny(("wjethist_"+observable).c_str());
-    wjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_wjets").c_str());
+    wjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_wjets").c_str());
   }
-  else{
-    wjet_1 = (TH1*) template1->FindObjectAny(("vlbkghist"+controlRegion+"_"+observable).c_str());
-    wjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_wjets").c_str());
+  else if(controlRegion == Sample::sig and category == Category::VBF){
+    wjet_1 = (TH1*) template1->FindObjectAny(("wjethist_"+observable).c_str());
+    wjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcdwjets").c_str());
+  }
+  else if(controlRegion != Sample::sig and category != Category::VBF){
+    wjet_1 = (TH1*) template1->FindObjectAny(("vlbkghist"+cat_ucsd+"_"+observable).c_str());
+    wjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_wjets").c_str());
+  }
+  else if(controlRegion != Sample::sig and category == Category::VBF){
+    wjet_1 = (TH1*) template1->FindObjectAny(("vlbkghist"+cat_ucsd+"_"+observable).c_str());
+    wjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcdwjets").c_str());
   }
 
+  ////// EWK W+jets 
+  TH1* ewkwjet_1 = NULL;
+  TH1* ewkwjet_2 = NULL;
+
+  if(controlRegion == Sample::sig and category == Category::VBF){
+    ewkwjet_1 = (TH1*) template1->FindObjectAny(("ewkwhist_"+observable).c_str());
+    ewkwjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkwjets").c_str());
+  }
+  else if(controlRegion !=  Sample::sig and category == Category::VBF){
+    ewkwjet_1 = (TH1*) template1->FindObjectAny(("ewkwbkghist"+cat_ucsd+"_"+observable).c_str());
+    ewkwjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkwjets").c_str());
+  }
+
+  // DY+jets
   TH1* zjet_1 = NULL;
   TH1* zjet_2 = NULL;
-  if(controlRegion == "SR"){
+
+  if(controlRegion == Sample::sig and category != Category::VBF){
     zjet_1 = (TH1*) template1->FindObjectAny(("zjethist_"+observable).c_str());
-    zjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_zll").c_str());
+    zjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_zll").c_str());
   }
-  else{
-    zjet_1 = (TH1*) template1->FindObjectAny(("vllbkghist"+controlRegion+"_"+observable).c_str());
-    zjet_2 = (TH1*) template2->Get((dir+"/"+cat+"_zll").c_str());
+  else if(controlRegion == Sample::sig and category == Category::VBF){
+    zjet_1 = (TH1*) template1->FindObjectAny(("zjethist_"+observable).c_str());
+    zjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcdzll").c_str());
+  }
+  else if(controlRegion != Sample::sig and category != Category::VBF){
+    zjet_1 = (TH1*) template1->FindObjectAny(("vllbkghist"+cat_ucsd+"_"+observable).c_str());
+    zjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_zll").c_str());
+  }
+  else if(controlRegion != Sample::sig and category == Category::VBF){
+    zjet_1 = (TH1*) template1->FindObjectAny(("vllbkghist"+cat_ucsd+"_"+observable).c_str());
+    zjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcdzll").c_str());
   }
 
+  // EWK DY+jets
+  TH1* ewkzjet_1 = NULL;
+  TH1* ewkzjet_2 = NULL;
+
+  if(controlRegion != Sample::sig and category == Category::VBF){
+    ewkzjet_1 = (TH1*) template1->FindObjectAny(("ewkzbkghist"+cat_ucsd+"_"+observable).c_str());
+    ewkzjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkzll").c_str());
+  }
+  else if(controlRegion != Sample::sig and category == Category::VBF){
+    ewkzjet_1 = (TH1*) template1->FindObjectAny(("ewkzbkghist"+cat_ucsd+"_"+observable).c_str());
+    ewkzjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkzll").c_str());
+  }
+
+  /// Di-boson
   TH1* diboson_1 = NULL;
   TH1* diboson_2 = NULL;
-  if(controlRegion == "SR"){
+  if(controlRegion == Sample::sig){
     diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist_"+observable).c_str());
-    diboson_2 = (TH1*) template2->Get((dir+"/"+cat+"_diboson").c_str());
+    diboson_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_diboson").c_str());
   }
   else{
-    diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist"+controlRegion+"_"+observable).c_str());
-    diboson_2 = (TH1*) template2->Get((dir+"/"+cat+"_diboson").c_str());
+    diboson_1 = (TH1*) template1->FindObjectAny(("dbkghist"+cat_ucsd+"_"+observable).c_str());
+    diboson_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_diboson").c_str());
   }
 
   TH1* qcd_1 = NULL;
   TH1* qcd_2 = NULL;
-  if(controlRegion == "SR"){
+  if(controlRegion == Sample::sig){
     qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist_"+observable).c_str());
-    qcd_2 = (TH1*) template2->Get((dir+"/"+cat+"_qcd").c_str());
+    qcd_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcd").c_str());
   }
   else{
-    qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist"+controlRegion+"_"+observable).c_str());
-    qcd_2 = (TH1*) template2->Get((dir+"/"+cat+"_qcd").c_str());
+    qcd_1 = (TH1*) template1->FindObjectAny(("qbkghist"+cat_ucsd+"_"+observable).c_str());
+    qcd_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_qcd").c_str());
   }
 
   TH1* gamma_1 = NULL;
   TH1* gamma_2 = NULL;
-  if(controlRegion == "SR"){
+  if(controlRegion == Sample::sig){
     gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist_"+observable).c_str());
-    gamma_2 = (TH1*) template2->Get((dir+"/"+cat+"_gjets").c_str());
+    gamma_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_gjets").c_str());
   }
   else{
-    gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist"+controlRegion+"_"+observable).c_str());
-    gamma_2 = (TH1*) template2->Get((dir+"/"+cat+"_gjets").c_str());
+    gamma_1 = (TH1*) template1->FindObjectAny(("gbkghist"+cat_ucsd+"_"+observable).c_str());
+    gamma_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_gjets").c_str());
   }
 
   TH1* top_1 = NULL;
   TH1* top_2 = NULL;
-  if(controlRegion == "SR"){
+  if(controlRegion == Sample::sig){
     top_1 = (TH1*) template1->FindObjectAny(("tbkghist_"+observable).c_str());
-    top_2 = (TH1*) template2->Get((dir+"/"+cat+"_top").c_str());
+    top_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_top").c_str());
   }
   else{
-    top_1 = (TH1*) template1->FindObjectAny(("tbkghist"+controlRegion+"_"+observable).c_str());
-    top_2 = (TH1*) template2->Get((dir+"/"+cat+"_top").c_str());
-  }
-
-  TH1* ewk_1 = NULL;
-  TH1* ewk_2 = NULL;
-  if(controlRegion == "SR"){
-    ewk_1 = (TH1*) template1->FindObjectAny(("ewkbkgzhist_"+observable).c_str());
-    TH1* temp =  (TH1*) template1->FindObjectAny(("ewkbkgwhist_"+observable).c_str());
-    if(temp)
-      ewk_1->Add(temp);
-    ewk_2 = (TH1*) template2->Get((dir+"/"+cat+"_ewk").c_str());
-  }
-  else{
-    ewk_1 = (TH1*) template1->FindObjectAny(("ewkzbkghist"+controlRegion+"_"+observable).c_str());
-    TH1* temp = (TH1*) template1->FindObjectAny(("ewkwbkghist"+controlRegion+"_"+observable).c_str());
-    if(temp)
-      ewk_1->Add(temp);
-    ewk_2 = (TH1*) template2->Get((dir+"/"+cat+"_ewk").c_str());
+    top_1 = (TH1*) template1->FindObjectAny(("tbkghist"+cat_ucsd+"_"+observable).c_str());
+    top_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_top").c_str());
   }
 
   // start comparison
@@ -255,67 +322,96 @@ void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
   canvas->SetRightMargin(0.06);
   canvas->SetLogy();
 
+  string postfix;
+  if(controlRegion == Sample::sig)
+    postfix = "SR";
+  else if(controlRegion == Sample::zmm)
+    postfix = "ZM";
+  else if(controlRegion == Sample::zee)
+    postfix = "ZE";
+  else if(controlRegion == Sample::wmn)
+    postfix = "WM";
+  else if(controlRegion == Sample::wen)
+    postfix = "WE";
+  else if(controlRegion == Sample::gam)
+    postfix = "GJ";
+
+
   if(data_1 != NULL and data_2 != NULL and data_1 != 0 and data_2 != 0){
-    drawUpperPlot(canvas,data_1,data_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,data_1,data_2,"Data "+ templateFile_1_Label,"Data "+ templateFile_2_Label);
     drawDownPlot(data_1,data_2,xAxisTitle);
-    canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("Data_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("Data_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Data_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
   if(zinv_1 != NULL and zinv_2 != NULL){
-    drawUpperPlot(canvas,zinv_1,zinv_2,"Z #rightarrow #nu#nu "+ templateFile_1_Label,"Z #rightarrow #nu#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,zinv_1,zinv_2,"Z #rightarrow #nu#nu QCD"+ templateFile_1_Label,"Z #rightarrow #nu#nu QCD"+ templateFile_2_Label);
     drawDownPlot(zinv_1,zinv_2,xAxisTitle);
-    canvas->SaveAs(("Znunu_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("Znunu_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("Znunu_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Znunu_"+postfix+"_"+observable+".png").c_str(),"png");
+  }
+
+  if(ewkzinv_1 != NULL and ewkzinv_2 != NULL){
+    drawUpperPlot(canvas,ewkzinv_1,ewkzinv_2,"Z #rightarrow #nu#nu EWK"+ templateFile_1_Label,"Z #rightarrow #nu#nu EWK"+ templateFile_2_Label);
+    drawDownPlot(ewkzinv_1,ewkzinv_2,xAxisTitle);
+    canvas->SaveAs(("Znunu_EWK_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Znunu_EWK_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
   if(wjet_1 != NULL and wjet_2 != NULL){
-    drawUpperPlot(canvas,wjet_1,wjet_2,"W #rightarrow l#nu "+ templateFile_1_Label,"W #rightarrow l#nu "+ templateFile_2_Label);
+    drawUpperPlot(canvas,wjet_1,wjet_2,"W #rightarrow l#nu QCD"+ templateFile_1_Label,"W #rightarrow l#nu QCD"+ templateFile_2_Label);
     drawDownPlot(wjet_1,wjet_2,xAxisTitle);
-    canvas->SaveAs(("Wjet_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("Wjet_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("Wjet_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Wjet_"+postfix+"_"+observable+".png").c_str(),"png");
+  }
+
+  if(ewkwjet_1 != NULL and ewkwjet_2 != NULL){
+    drawUpperPlot(canvas,ewkwjet_1,ewkwjet_2,"W #rightarrow l#nu EWK"+ templateFile_1_Label,"W #rightarrow l#nu EWK"+ templateFile_2_Label);
+    drawDownPlot(ewkwjet_1,ewkwjet_2,xAxisTitle);
+    canvas->SaveAs(("Wjet_EWK_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Wjet_EWK_"+postfix+"_"+observable+".png").c_str(),"png");
   }
   
   if(zjet_1 != NULL and zjet_2 != NULL){
-    drawUpperPlot(canvas,zjet_1,zjet_2,"Z #rightarrow ll "+ templateFile_1_Label,"Z #rightarrow ll "+ templateFile_2_Label);
+    drawUpperPlot(canvas,zjet_1,zjet_2,"Z #rightarrow ll QCD"+ templateFile_1_Label,"Z #rightarrow ll QCD"+ templateFile_2_Label);
     drawDownPlot(zjet_1,zjet_2,xAxisTitle);
-    canvas->SaveAs(("Zjet_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("Zjet_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("Zjet_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Zjet_"+postfix+"_"+observable+".png").c_str(),"png");
+  }
+
+  if(ewkzjet_1 != NULL and ewkzjet_2 != NULL){
+    drawUpperPlot(canvas,ewkzjet_1,ewkzjet_2,"Z #rightarrow ll EWK"+ templateFile_1_Label,"Z #rightarrow ll EWK"+ templateFile_2_Label);
+    drawDownPlot(ewkzjet_1,ewkzjet_2,xAxisTitle);
+    canvas->SaveAs(("Zjet_EWK_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Zjet_EWK_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
   if(qcd_1 != NULL and qcd_2 != NULL){
     drawUpperPlot(canvas,qcd_1,qcd_2,"QCD "+ templateFile_1_Label,"QCD "+ templateFile_2_Label);
     drawDownPlot(qcd_1,qcd_2,xAxisTitle);
-    canvas->SaveAs(("QCD_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("QDC_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("QCD_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("QCD_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
   if(diboson_1 != NULL and diboson_2 != NULL){
     drawUpperPlot(canvas,diboson_1,diboson_2,"DiBoson "+ templateFile_1_Label,"DiBoson "+ templateFile_2_Label);
     drawDownPlot(diboson_1,diboson_2,xAxisTitle);
-    canvas->SaveAs(("DiBoson_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("DiBoson_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("DiBoson_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("DiBoson_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
 
   if(gamma_1 != NULL and gamma_2 != NULL){
     drawUpperPlot(canvas,gamma_1,gamma_2,"#gamma+jet "+ templateFile_1_Label,"#gamma+jet "+ templateFile_2_Label);
     drawDownPlot(gamma_1,gamma_2,xAxisTitle);
-    canvas->SaveAs(("GJets_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("GJets_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("GJets_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("GJets_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 
   if(top_1 != NULL and top_2 != NULL){
     drawUpperPlot(canvas,top_1,top_2,"top "+ templateFile_1_Label,"top "+ templateFile_2_Label);
     drawDownPlot(top_1,top_2,xAxisTitle);
-    canvas->SaveAs(("Top_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("Top_"+controlRegion+"_"+observable+".png").c_str(),"png");
-  }
-
-  if(ewk_1 != NULL and ewk_2 != NULL){
-    drawUpperPlot(canvas,ewk_1,ewk_2,"W/Z ewk "+ templateFile_1_Label,"W/Z ewk "+ templateFile_2_Label);
-    drawDownPlot(ewk_1,ewk_2,xAxisTitle);
-    canvas->SaveAs(("EWK_"+controlRegion+"_"+observable+".pdf").c_str(),"pdf");
-    canvas->SaveAs(("EWK_"+controlRegion+"_"+observable+".png").c_str(),"png");
+    canvas->SaveAs(("Top_"+postfix+"_"+observable+".pdf").c_str(),"pdf");
+    canvas->SaveAs(("Top_"+postfix+"_"+observable+".png").c_str(),"png");
   }
 }

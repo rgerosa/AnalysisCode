@@ -3,6 +3,14 @@
 
 static float luminosity = 35.9;
 
+void checkNegativeBin(TH1* histo){
+  for(int iBin = 0; iBin < histo->GetNbinsX()+1; iBin++){
+    if(histo->GetBinContent(iBin+1) <= 0)
+      histo->SetBinContent(iBin+1,0.0001);
+  }
+}
+
+
 void makeInterpolatedDMFDMSimpComparison(string inputTemplateDMFName, string inputTemplateDMSimpName, string outputDirectory, string interpolationPoint, Category category){
 
   gROOT->SetBatch(kTRUE);
@@ -17,6 +25,9 @@ void makeInterpolatedDMFDMSimpComparison(string inputTemplateDMFName, string inp
   
   // compare correctly the luminosity
   histo_interpolation_DMF->Scale(luminosity/12.9);
+
+  checkNegativeBin(histo_interpolation_DMF);
+  checkNegativeBin(histo_interpolation_DMSimp);
   
   TCanvas* canvas = new TCanvas("canvas","",600,700);
   canvas->cd();
@@ -81,6 +92,7 @@ void makeInterpolatedDMFDMSimpComparison(string inputTemplateDMFName, string inp
   ratio->GetYaxis()->SetTitle("DMSimp/DMF");
   ratio->GetYaxis()->CenterTitle();
   ratio->GetYaxis()->SetNdivisions(504);
+  ratio->GetYaxis()->SetRangeUser(0,2);
   ratio->GetYaxis()->SetTitleOffset(1.25);
   ratio->GetYaxis()->SetLabelSize(0.04);
   ratio->GetYaxis()->SetTitleSize(0.04);

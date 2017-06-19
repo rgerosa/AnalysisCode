@@ -54,7 +54,7 @@ const int   nBjets          = 1; // for top-tagged region
 const int   njetsMin        = 1;
 const int   njetsMax        = 100;
 // Re-weight and smoothing
-const bool  reweightNVTX    = true;
+static bool  reweightNVTX    = false;
 /// photon scale
 const bool  applyPhotonScale = true;
 const float photonScaleUnc   = -0.0125;
@@ -65,7 +65,7 @@ const bool  useMoriondSetup = true;
 const bool  isSummer16      = true;
 const bool  useSingleMuon   = true;
 // other general options
-const bool  runOnlyData      = false;
+const bool  runOnlyData     = false;
 // k-factors
 const bool  applyEWKVKfactor = true;
 
@@ -82,7 +82,7 @@ string kFactorFile_wjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kF
 string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_ZToNuNu_pT_Mjj.root";
 
 /// basic trees
-string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_1_02_2017/";
+string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
 
 VectorSorter jetSorter;
 
@@ -146,7 +146,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	       vector<TH1*>   khists,     // NLO k-factors vs boson pT
 	       const string   & sysName,  // Sys variation	
 	       const bool     & reWeightTopPt      = false,
-	       const bool     & reweightNVTX       = true,	       
+	       bool             reweightNVTX       = true,	       
 	       const int      & resonantSelection  = 0,
 	       const bool     & isHiggsInvisible   = false, // reject VBF events
 	       const bool     & applyPostFitWeight = false,
@@ -164,6 +164,8 @@ void makehist4(TTree* tree,            /*input tree*/
   }
 
   if(runOnlyData and isMC) return;
+  // fix by hand for 2016 data
+  if((category == Category::monojet or category == Category::monoV) and reweightNVTX == false) reweightNVTX = true;
 
   // Pileup Weights
   TFile* pufile = NULL;
@@ -179,18 +181,10 @@ void makehist4(TTree* tree,            /*input tree*/
 	puhist = (TH1*) pufile->Get("puhist");
       }
     }
-    else {
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
-      puhist = (TH1*) pufile->Get("puhist");
-    }
   }
   else{
     if(reweightNVTX){
       pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_12p9fb.root");    
-      puhist = (TH1*) pufile->Get("puhist");
-    }
-    else {
-      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/pileupWeight/puweight_12p9fb.root");
       puhist = (TH1*) pufile->Get("puhist");
     }
   }
@@ -369,8 +363,9 @@ void makehist4(TTree* tree,            /*input tree*/
   if(useMoriondSetup){
     if(category != Category::VBF and category != Category::twojet and category != Category::VBFrelaxed){ // monojet
       // Use Wmn or Wen for W+jets and SR
-      if(useSingleMuon)
+      if(useSingleMuon){
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_recoil_monojet.root");
+      }
       else
 	triggerfile_MET = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/metTriggerEfficiency_ele_recoil_monojet.root");
       // Zmm measurement for Zmm CR
@@ -543,16 +538,23 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> xsec               (myReader,"xsec");
   TTreeReaderValue<float> wgt                (myReader,"wgt");
 
+  TTreeReaderValue<double>* wgtsum = NULL;
+  if(isMC){
+    wgtsum  = new TTreeReaderValue<double>(myReader,"wgtsum");
+  }
+
+  string wgtpuname = "wgtpileup";
+  string wgtbtagname = "wgtbtag";
+  if(not isMC){
+    wgtpuname = "wgt";
+    wgtbtagname = "wgt";
+  }
+  TTreeReaderValue<float> wgtpu              (myReader,wgtpuname.c_str());
+  TTreeReaderValue<float> wgtbtag            (myReader,wgtbtagname.c_str());
+  
   // take some wgt for MC events
   string prescalename;
   string hltphotonname;
-
-  TTreeReaderValue<double>* wgtsum = NULL;
-
-  if(isMC){
-    // defined branches for re-weigthing only in MC
-    wgtsum  = new TTreeReaderValue<double>(myReader,"wgtsum");
-  }
   
   // trigger
   TTreeReaderValue<UChar_t> hltm90      (myReader,"hltmet90");
@@ -596,7 +598,6 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedJetphi");
   TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
   TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm");
-  TTreeReaderValue<vector<float> > prunedJetpt     (myReader,"prunedJetpt");
   TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
 
@@ -785,9 +786,11 @@ void makehist4(TTree* tree,            /*input tree*/
     if(hlt  == 0) continue; // trigger    
 
     // MET Filters --> apply on both data and monte-carlo
-    if(not isMC and (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fcsct == 0)) continue;
-    if(*fbadmu == 0 or *fbadch == 0) continue;
-       
+    if((category != Category::VBF and category != Category::VBFrelaxed) and 
+       (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
+    if((category == Category::VBF or category == Category::VBFrelaxed) and not isMC and 
+       (*fhbhe == 0 or *fhbiso == 0 or *feeb == 0 or *fetp == 0 or *fvtx == 0 or *fcsc == 0 or *fbadmu == 0 or *fbadch == 0)) continue;
+    
     // check dphi jet-met
     Double_t jmdphi = 0.0;    
     if (sample == Sample::sig || sample == Sample::wmn || sample == Sample::zmm || sample == Sample::topmu || sample == Sample::qcd || sample == Sample::taun) jmdphi = fabs(*jmmdphi);
@@ -931,7 +934,8 @@ void makehist4(TTree* tree,            /*input tree*/
     if ((sample == Sample::qcdgam || sample == Sample::gam) && fabs(*pheta) > 1.4442) continue;    
 
     // Wenu kill QCD
-    if (sample == Sample::wen && *met < 50.) continue;
+    if (category != Category::twojet and category != Category::VBF and category != Category::VBFrelaxed and sample == Sample::wen && *met < 50.) continue;
+    else if((category  == Category::twojet or category == Category::VBF or category == Category::VBFrelaxed) and sample == Sample::wen && *met < 50.) continue;
     
     // tau-nu control region
     if(sample == Sample::taun){
@@ -1264,8 +1268,8 @@ void makehist4(TTree* tree,            /*input tree*/
       btagw = 1.010;
     if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 0.980;
-    if(isMC and sample == Sample::sig  and (category == Category::VBF or category != Category::VBFrelaxed))
-      btagw = 1.010;
+    else
+      btagw = *wgtbtag;
     
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
@@ -1899,7 +1903,7 @@ void makehist4(TTree* tree,            /*input tree*/
       else if(name.Contains("tau2tau1")){
 	if(boostedJettau1->size() > 0 and boostedJettau2->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8)
 	  fillvar = boostedJettau2->at(0)/boostedJettau1->at(0);
-	//	fillvar = boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/prunedJetpt->at(0));
+	//	fillvar = boostedJettau2->at(0)/boostedJettau1->at(0)+0.063*log(pow(prunedJetm->at(0),2)/boostedJetpt->at(0));
       }
       // b-tagging
       else if(name.Contains("btagCSV_max")){
@@ -1986,12 +1990,10 @@ void makehist4(TTree* tree,            /*input tree*/
       double evtwgt  = 1.0;
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
-	if (*putrue <= 100)
-	  puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 
@@ -2174,13 +2176,10 @@ void makehist4(TTree* tree,            /*input tree*/
       Double_t puwgt = 1.0;
 
       if (isMC and not reweightNVTX){
-
-	if (*putrue <= 100)
-          puwgt = puhist->GetBinContent(puhist->FindBin(*putrue));
         if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  
@@ -2192,12 +2191,13 @@ void makehist4(TTree* tree,            /*input tree*/
           puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else
           puwgt = 1;
-
+	
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
 	else
 	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
       }
+
       if (!isMC && sample == Sample::qcdgam) 
 	evtwgt = sfwgt*hltw;
       else if (!isMC)

@@ -5,7 +5,7 @@ static bool skipCorrelations = false;
 #include "simplifiedLikelihoodUtils.h"
 #include "../CMS_lumi.h"
 
-static bool addPreliminary = true;
+static bool addPreliminary = false;
 
 void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, string outputDIR, bool addLabel = false, bool suppressDiagonal = false){
 
@@ -24,15 +24,20 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     dir = "monojet_signal";
   else if(category == Category::monoV and isZeynep)
     dir = "monov_signal";
-  
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
+    dir = "ch1";
+    
+    
   TCanvas* canvas = NULL;
   if(category == Category::monoV)
+    canvas = new TCanvas("canvas","",900,900);
+  else if(category == Category::VBF or category == Category::VBFrelaxed)
     canvas = new TCanvas("canvas","",900,900);
   else if(category == Category::monojet)
     canvas = new TCanvas("canvas","",1300,900);
   else if(category == Category::total)
     canvas = new TCanvas("canvas","",1600,1000);
-
+  
   canvas->cd();  
   canvas->SetGrid();
   canvas->SetRightMargin(0.12);
@@ -40,6 +45,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     canvas->SetBottomMargin(0.24);
     canvas->SetLeftMargin(0.2);
   }
+
   TH1F* bkg   = NULL;
   TH2F* covar = NULL;
   TH2F* covar_total = NULL;
@@ -67,7 +73,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     // merge for the background total
     bkg = new TH1F("bkg_total","",bkg_monojet->GetNbinsX()+bkg_monov->GetNbinsX(),0,bkg_monojet->GetNbinsX()+bkg_monov->GetNbinsX()+1);
     bkg->Sumw2();
-
+    
     int iBin = 0;
     for(; iBin < bkg_monojet->GetNbinsX(); iBin++){
       bkg->SetBinContent(iBin+1,bkg_monojet->GetBinContent(iBin+1));
@@ -83,7 +89,7 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     else
       covar = importCorrelationMatrix(covar_total,"monojet_signal","monov_signal");	
   }
-
+  
 
   TH2F* corr = (TH2F*) covar->Clone("test");
   corr->Reset();
@@ -105,13 +111,13 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
       corr->SetBinContent(b,j,covar->GetBinContent(b,j)/(sigb*sigj));      
       
       if(addLabel){
-	if(category != Category::total){
+	if(category != Category::total and category != Category::VBF and category != Category::VBFrelaxed){
 	  if(b == 1)
 	    corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(j)),int(bkg->GetXaxis()->GetBinLowEdge(j+1))));
 	  if(j == 1) 
 	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(b)),int(bkg->GetXaxis()->GetBinLowEdge(b+1))));
 	}
-	else{
+	else if(category == Category::total and category != Category::VBF and category != Category::VBFrelaxed){
 	  if(b == 1 and j <= bkg_monojet->GetNbinsX())
 	    corr->GetYaxis()->SetBinLabel(j,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(j)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(j+1))));
 	  if(b == 1 and j > bkg_monojet->GetNbinsX())
@@ -120,6 +126,12 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
 	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monojet->GetXaxis()->GetBinLowEdge(b)),int(bkg_monojet->GetXaxis()->GetBinLowEdge(b+1))));
 	  if(j == 1 and b > bkg_monojet->GetNbinsX())
 	    corr->GetXaxis()->SetBinLabel(b,Form("%d < E_{T}^{miss} < %d (GeV)",int(bkg_monov->GetXaxis()->GetBinLowEdge(b-bkg_monojet->GetNbinsX())),int(bkg_monov->GetXaxis()->GetBinLowEdge(b+1-bkg_monojet->GetNbinsX()))));
+	}
+	else if(category != Category::total and (category == Category::VBF or category == Category::VBFrelaxed)){
+	  if(b == 1)
+	    corr->GetYaxis()->SetBinLabel(j,Form("%d < m_{jj} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(j)),int(bkg->GetXaxis()->GetBinLowEdge(j+1))));
+	  if(j == 1) 
+	    corr->GetXaxis()->SetBinLabel(b,Form("%d < m_{jj} < %d (GeV)",int(bkg->GetXaxis()->GetBinLowEdge(b)),int(bkg->GetXaxis()->GetBinLowEdge(b+1))));
 	}
       }
       else{
@@ -211,6 +223,25 @@ void plotCorrelationMatrix(string inputFile, Category category, bool isZeynep, s
     TFile* outputFile = new TFile((outputDIR+"/correlation_monov.root").c_str(),"RECREATE");
     outputFile->cd();
     corr->Write("correlation_monov");
+    outputFile->Close();
+  }
+  else if(category == Category::VBF or category == Category::VBFrelaxed){
+    corr->SetMarkerColor(kBlack);
+    canvas->SaveAs((outputDIR+"/correlation_VBF.pdf").c_str());
+    canvas->SaveAs((outputDIR+"/correlation_VBF.png").c_str());
+    //    canvas->SetLogz();
+    //    canvas->SaveAs((outputDIR+"/correlation_monov_log.pdf").c_str());
+    //    canvas->SaveAs((outputDIR+"/correlation_monov_log.png").c_str());
+    corr->Draw("TEXT");
+    canvas->SetLogz(0);
+    canvas->SetRightMargin(0.07);
+    corr->SetMarkerColor(kBlack);
+    CMS_lumi(canvas,"35.9",true,true,true,0.05,-0.01);
+    canvas->SaveAs((outputDIR+"/correlation_VBF_text.pdf").c_str());
+    canvas->SaveAs((outputDIR+"/correlation_VBF_text.png").c_str());
+    TFile* outputFile = new TFile((outputDIR+"/correlation_monov.root").c_str(),"RECREATE");
+    outputFile->cd();
+    corr->Write("correlation_VBF");
     outputFile->Close();
   }
   else if(category == Category::total){

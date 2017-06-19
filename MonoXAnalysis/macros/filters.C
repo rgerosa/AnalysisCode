@@ -66,7 +66,7 @@ double sumxsec(TChain* tree){
     xsecsum += (*wgtsign);
     nEvents++;
   }
-
+  std::cout<<std::endl;
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sumxsec function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
@@ -121,7 +121,7 @@ TH1D* pileupwgt(TChain* tree, std::string scenario = ""){
   TH1D*  histoPUData;
   TFile* fileInputData;
   
-  fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_271036-275125_13TeV_PromptReco_Collisions16_JSON.root");
+  fileInputData = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/JSON_PILEUP/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.root");
   histoPUData   = (TH1D*) fileInputData->Get("pileup");
 
   histoPUData->SetName("histoPUData");
@@ -153,11 +153,6 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   std::cout<<"###################################"<<std::endl;
   std::cout<<"btagWeights function --> start"<<std::endl;
   std::cout<<"###################################"<<std::endl;
-
-  // smooth input histograms to deal with low statistics
-  eff_b->Smooth();
-  eff_c->Smooth();
-  eff_ucsdg->Smooth();
 
   // make graph 2D for interpolation for central values
   TGraph2D* graph_b = new TGraph2D(eff_b);
@@ -207,10 +202,13 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
       // get efficiency --> get a value for the efficiency interpolating the histogram
       if(combinejetHFlav->at(iJet) == 5)
 	efficiency     = graph_b->Interpolate(combinejetpt->at(iJet) ,fabs(combinejeteta->at(iJet)));
+      //efficiency     = eff_b->GetBinContent(eff_b->FindBin(combinejetpt->at(iJet) ,fabs(combinejeteta->at(iJet))));
       else if(combinejetHFlav->at(iJet) == 4)
 	efficiency     = graph_c->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
+      //efficiency     = eff_c->GetBinContent(eff_c->FindBin(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet))));
       else
 	efficiency     = graph_ucsdg->Interpolate(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet)));
+      //efficiency     = eff_ucsdg->GetBinContent(eff_ucsdg->FindBin(combinejetpt->at(iJet),fabs(combinejeteta->at(iJet))));
 
       //checks
       if(efficiency > 1){
@@ -398,7 +396,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
 
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
 
   // add wgtsum, pileupwgt and xsec if needed
@@ -505,11 +503,15 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 
     // compute efficiency
     TH2F* eff_b = (TH2F*) eff_Num_b->Clone("eff_b");
-    TH2F* eff_c = (TH2F*) eff_Num_b->Clone("eff_c");
+    TH2F* eff_c = (TH2F*) eff_Num_c->Clone("eff_c");
     TH2F* eff_ucsdg = (TH2F*) eff_Num_ucsdg->Clone("eff_ucsdg");
     eff_b->Divide(eff_Denom_b);
     eff_c->Divide(eff_Denom_c);
     eff_ucsdg->Divide(eff_Denom_ucsdg);
+
+    eff_b->Smooth();
+    eff_c->Smooth();
+    eff_ucsdg->Smooth();
 
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
 
@@ -627,7 +629,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bwgtsum;
   TBranch *bwgtpileup; 
   TBranch *bxsec = NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -863,7 +865,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
 
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -1067,7 +1069,7 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bwgtsum = NULL;
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -1322,7 +1324,7 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bwgtsum = NULL;
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec =  NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -1552,7 +1554,7 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   TBranch* bwgtsum = NULL;
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -1777,7 +1779,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   TBranch* bwgtsum = NULL;
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;
@@ -2015,7 +2017,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   TBranch* bwgtsum = NULL;
   TBranch* bwgtpileup = NULL;
   TBranch* bxsec = NULL;
-  double wgtpileup = 1;
+  float wgtpileup = 1;
   double xsec;
   if(xsType == 1 and isMC)
     xsec = (wgtsum/intree->GetEntries())*1000;

@@ -1,15 +1,16 @@
 #include "../CMS_lumi.h"
 
-vector<float> bosonPt          {150.,200.,250.,350,500.,700.,1000};
-vector<float> mjj_bin          {150.,200.,250.,350,500.,700.,1000};
+vector<float> bosonPt   {150.,200.,250.,350,500.,700.,1000};
+vector<float> mjj_bin   {150.,200.,250.,350,500.,700.,1000};
 
 static float mjj            = 1300;
-static float mjjrelaxed     = 350;
-static float detajj         = 3.5;
-static float detajjrelaxed  = 1.75;
+static float mjjrelaxed     = 400;
+static float detajj         = 4.0;
+static float detajjrelaxed  = 1.0;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
-static float dphijj         = 0.75;
+static float dphijj         = 1.5;
+static float dphijjrelaxed  = 1.3;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -222,14 +223,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
 	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
-	if(deltaPhi > dphijj) continue;
-	bosonPt_LO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
-	mjj_LO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+	if(deltaPhi < dphijjrelaxed){
+	  bosonPt_LO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+	  mjj_LO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      
+	}
 
 	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
-	bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
-	mjj_LO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
+	if(deltaPhi < dphijj){
+	  bosonPt_LO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
+	  mjj_LO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));      	
+	}
       }
     }
     ifile++;
@@ -322,14 +326,17 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
 	float deltaPhi = fabs(jets.at(0).Phi()-jets.at(1).Phi());
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
-	if(deltaPhi > dphijj) continue;
-	bosonPt_NLO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
-	mjj_NLO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
-	
+	if(deltaPhi < dphijjrelaxed){
+	  bosonPt_NLO_vbf_relaxed->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
+	  mjj_NLO_vbf_relaxed->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));      
+	}
+
 	if((jets.at(0)+jets.at(1)).M() < mjj) continue;
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajj) continue;
-	bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
-	mjj_NLO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
+	if(deltaPhi < dphijj){
+	  bosonPt_NLO_vbf->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
+	  mjj_NLO_vbf->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));	
+	}
       }
     }
     ifile++;
