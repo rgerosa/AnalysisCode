@@ -980,7 +980,7 @@ void makehist4(TTree* tree,            /*input tree*/
 
     // Wenu kill QCD
     if (category != Category::twojet and category != Category::VBF and category != Category::VBFrelaxed and sample == Sample::wen && *met < 50.) continue;
-    else if((category  == Category::twojet or category == Category::VBF or category == Category::VBFrelaxed) and sample == Sample::wen && *met < 50.) continue;
+    else if((category  == Category::twojet or category == Category::VBF or category == Category::VBFrelaxed) and sample == Sample::wen && *met < 60.) continue;
     
     // tau-nu control region
     if(sample == Sample::taun){
