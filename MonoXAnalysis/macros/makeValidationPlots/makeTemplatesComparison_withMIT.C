@@ -191,7 +191,7 @@ void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
   TH1* ewkzinv_2 = NULL;
 
   if(controlRegion == Sample::sig and category == Category::VBF){
-    ewkzinv_1 = (TH1*) template1->FindObjectAny(("ewkzhist_"+observable).c_str());
+    ewkzinv_1 = (TH1*) template1->FindObjectAny(("ewkbkgzhist_"+observable).c_str());
     ewkzinv_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkzjets").c_str());
   }
   else if(controlRegion != Sample::sig and category == Category::VBF){
@@ -226,7 +226,7 @@ void makeTemplateComparison_withMIT( string templateFile_1, // template file 1
   TH1* ewkwjet_2 = NULL;
 
   if(controlRegion == Sample::sig and category == Category::VBF){
-    ewkwjet_1 = (TH1*) template1->FindObjectAny(("ewkwhist_"+observable).c_str());
+    ewkwjet_1 = (TH1*) template1->FindObjectAny(("ewkbkgwhist_"+observable).c_str());
     ewkwjet_2 = (TH1*) template2->Get((dir_mit+"/"+cat_mit+"_ewkwjets").c_str());
   }
   else if(controlRegion !=  Sample::sig and category == Category::VBF){

@@ -65,7 +65,7 @@ void makeSignalTemplates(
   }
   else if(runHiggsInvisible){
     //signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"110",{5.579E+04,4.434E+03,1.335E+03,8.587E+02,1.309E+03,0.},typeOfDMSignal,applyNNLOKfactor);
-    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,8.400E+02,5.328E+02,8.839E+02,1.227E+02},typeOfDMSignal,applyNNLOKfactor);
+    signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"125",{4.858E+04,3.782E+03,8.400E+02*0.6741,5.328E+02*0.6741,8.839E+02*0.6991,1.227E+02*0.6991},typeOfDMSignal,applyNNLOKfactor);
     //signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"150",{3.129E+04,3.239E+03,5.037E+02,3.117E+02,5.279E+02},typeOfDMSignal,applyNNLOKfactor);
     //signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"200",{1.694E+04,2.282E+03,1.899E+02,1.124E+02,2.054E+02},typeOfDMSignal,applyNNLOKfactor);
     //signalHiggshist(&outfile,category,observables,observables_2D,lumi,doShapeSystematics,"300",{6.590E+03,1.256E+03,4.348E+01,2.376E+01,4.132E+01},typeOfDMSignal,applyNNLOKfactor);
