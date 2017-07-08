@@ -54,9 +54,9 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
       }
       else if(TString(observable).Contains("mjj")){
 	if(not isEWK)
-	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 6.0, bins.back(), 18., "");
+	  frame = canvas->DrawFrame(bins.front(), 4.0, bins.back(), 25., "");
 
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
@@ -124,6 +124,7 @@ void rzmm(string fileName, Category category, string observable, bool isEWK) {
 
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
     leg->SetFillColor(0);
+    leg->SetFillStyle(0);
     leg->SetBorderSize(0);
     if(not isEWK)
       leg->AddEntry(hist  , "R(Z(#mu#mu)) Stat. Unc.","pl");
@@ -246,6 +247,7 @@ void rzee(string fileName, Category category, string observable, bool isEWK) {
     canvas->RedrawAxis();
 
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK)
@@ -363,6 +365,7 @@ void rwmn(string fileName, Category category, string observable, bool isEWK) {
     canvas->RedrawAxis();
 
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK)
@@ -484,6 +487,7 @@ void rwen(string fileName, Category category, string observable, bool isEWK) {
     canvas->RedrawAxis();
 
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK)
@@ -667,6 +671,7 @@ void rgam(string fileName, Category category, string observable, bool isEWK, boo
     canvas->RedrawAxis();
 
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK){
@@ -763,7 +768,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	if(not isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 0.3, bins.back(), 3.0, "");
 	else if(not isEWK and observable == "met_onebin")
-	  frame = canvas->DrawFrame(bins.front(), 0.5, bins.back(), 2.0, "");
+	  frame = canvas->DrawFrame(bins.front(), 1.0, bins.back(), 2.5, "");
 	else if(isEWK and observable != "met_onebin")
 	  frame = canvas->DrawFrame(bins.front(), 0.3, bins.back(), 3.0, "");
 	else if(isEWK and observable == "met_onebin")
@@ -775,7 +780,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 	if(not isEWK)
 	  frame = canvas->DrawFrame(bins.front(), 0, bins.back(), 3.0, "");
 	else
-	  frame = canvas->DrawFrame(bins.front(), 0.5, bins.back(), 3.5, "");
+	  frame = canvas->DrawFrame(bins.front(), 1.0, bins.back(), 4.0, "");
 
 	frame->GetXaxis()->SetTitle("M_{jj} [GeV]");
       }
@@ -869,6 +874,7 @@ void rzwj(string fileName, Category category, string observable, bool isEWK, boo
 
     canvas->RedrawAxis();
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK){
@@ -1060,6 +1066,7 @@ void rwgam(string fileName, Category category, string observable, bool isEWK, bo
     canvas->RedrawAxis();
     
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     if(not isEWK){
@@ -1140,6 +1147,7 @@ void rtopmu(string fileName, Category category, string observable) {
 
     canvas->RedrawAxis();
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(hist  , "R(top,#mu) Stat. Unc.","pl");
@@ -1207,6 +1215,7 @@ void rtopel(string fileName, Category category, string observable) {
 
     canvas->RedrawAxis();
     TLegend* leg = new TLegend(0.3, 0.7, 0.7, 0.9);
+    leg->SetFillStyle(0);
     leg->SetFillColor(0);
     leg->SetBorderSize(0);
     leg->AddEntry(hist  , "R(top,el) Stat. Unc.","pl");

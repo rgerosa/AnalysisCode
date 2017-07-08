@@ -40,9 +40,9 @@ const float trailingJetPtCutVBF = 40.;
 const float detajj          = 4.0;
 const float detajjrelaxed   = 1.0;
 const float mjj             = 1300;
-const float mjjrelaxed      = 0.;
+const float mjjrelaxed      = 200.;
 const float jetmetdphiVBF   = 0.5;
-const float pfMetVBFLower   = 200.;
+const float pfMetVBFLower   = 250.;
 const float pfMetVBFUpper   = 8000.;
 const float dphijj          = 1.5;
 const float dphijjrelaxed   = 1.3;
@@ -380,12 +380,27 @@ void makehist4(TTree* tree,            /*input tree*/
   TFile* triggerfile_SinglEle_jetHT = NULL;
   TEfficiency* triggerel_eff        = NULL;
   TEfficiency* triggerel_eff_jetHT  = NULL;
+  TH2* triggerelhist    = NULL;
+  TH2* triggerelhist_ht = NULL;
+
 
   if(useMoriondSetup){
-    triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
-    triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
-    triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
-    triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
+    if(category != Category::VBF and category != Category::VBFrelaxed){
+      triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+      triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/Monojet/triggerEfficiency_DATA_SingleElectron.root");
+      triggerel_eff        = (TEfficiency*) triggerfile_SinglEle->Get("trgeff_ele");
+      triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("trgeff_ele");
+      triggerelhist    = triggerel_eff->CreateHistogram();
+      triggerelhist_ht = triggerel_eff_jetHT->CreateHistogram();
+      triggerelhist->SetName("triggerelhist");
+      triggerelhist_ht->SetName("triggerelhist_ht");
+    }
+    else{
+      triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
+      triggerfile_SinglEle_jetHT = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_MORIOND/VBF/eleTrig.root");
+      triggerelhist     = (TH2*) triggerfile_SinglEle->Get("hEffEtaPt");
+      triggerelhist_ht  = (TH2*) triggerfile_SinglEle_jetHT->Get("hEffEtaPt");
+    }
   }
   else{
     triggerfile_SinglEle       = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/triggerSF_2016/trigger_ICHEP/Monojet/triggerEfficiency_DATA_SingleElectron_12p9fb.root");
@@ -394,10 +409,6 @@ void makehist4(TTree* tree,            /*input tree*/
     triggerel_eff_jetHT  = (TEfficiency*) triggerfile_SinglEle_jetHT->Get("efficiency");
   }
 
-  TH2* triggerelhist    = triggerel_eff->CreateHistogram();
-  TH2* triggerelhist_ht = triggerel_eff_jetHT->CreateHistogram();
-  triggerelhist->SetName("triggerelhist");
-  triggerelhist_ht->SetName("triggerelhist_ht");
 
   
   // Met trigger efficiency
@@ -1252,12 +1263,27 @@ void makehist4(TTree* tree,            /*input tree*/
     
     // trigger scale factor for electrons
     if (isMC && triggerelhist && triggerelhist_ht && (sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
-      float sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-      if(pt1 >= 200)
-	sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
-      float sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-      if(pt2 >= 200)
-	sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
+      float sf1 = 1.;
+      float sf2 = 1.;
+
+      if(category != Category::VBF and category != Category::VBFrelaxed){
+	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta1),min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt1 >= 200)
+	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta1),min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
+	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(fabs(eta2),min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt2 >= 200)
+	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
+      }
+      else{
+	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta1,min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt1 >= 200)
+	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(eta1,min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
+	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
+	if(pt2 >= 200)
+	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(eta2,min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
+      }
+
+      //////////////
       if (pt1 > 40. && id1 == 1 and id2 == 1)
 	sfwgt *= min(1.,double(sf1+sf2-sf1*sf2));
       else if(pt1 > 40 and id1 == 1 and id2 != 1)

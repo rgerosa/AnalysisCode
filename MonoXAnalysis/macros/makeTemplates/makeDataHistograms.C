@@ -2275,7 +2275,11 @@ void lepdatamchist(TFile* outfile,
   }
 
   cout<<"lepton+jets control region --> top"<<endl;
-  makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  if(category != Category::VBF and category != Category::VBFrelaxed)
+    makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  else
+    makehist4(tttree,tthist,tthist_2D,true,sample,category,false,1.00,lumi,ehists,"",true,reweightNVTX,0,isHInv,applyPFWeight);
+
   cout<<"lepton+jets control region --> Diboson"<<endl;
   makehist4(dbtree,dbhist,dbhist_2D,true,sample,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"lepton+jets control region --> gamma+jets"<<endl;
@@ -2314,12 +2318,22 @@ void lepdatamchist(TFile* outfile,
   if(doShapeSystematics){
 
     cout<<"lepton +jets region --> systematics for top"<<endl;
-    makehist4(tttree,tthist_metJetUp,tthist_metJetUp_2D,true,sample,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(tttree,tthist_metJetDw,tthist_metJetDw_2D,true,sample,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(tttree,tthist_metResUp,tthist_metResUp_2D,true,sample,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(tttree,tthist_metResDw,tthist_metResDw_2D,true,sample,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(tttree,tthist_metUncUp,tthist_metUncUp_2D,true,sample,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,isHInv,applyPFWeight);
-    makehist4(tttree,tthist_metUncDw,tthist_metUncDw_2D,true,sample,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,isHInv,applyPFWeight);
+    if(category != Category::VBF and category != Category::VBFrelaxed){
+      makehist4(tttree,tthist_metJetUp,tthist_metJetUp_2D,true,sample,category,false,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metJetDw,tthist_metJetDw_2D,true,sample,category,false,1.00,lumi,ehists,"jesDw",false,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metResUp,tthist_metResUp_2D,true,sample,category,false,1.00,lumi,ehists,"jerUp",false,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metResDw,tthist_metResDw_2D,true,sample,category,false,1.00,lumi,ehists,"jerDw",false,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metUncUp,tthist_metUncUp_2D,true,sample,category,false,1.00,lumi,ehists,"uncUp",false,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metUncDw,tthist_metUncDw_2D,true,sample,category,false,1.00,lumi,ehists,"uncDw",false,reweightNVTX,0,isHInv,applyPFWeight);
+    }
+    else{
+      makehist4(tttree,tthist_metJetUp,tthist_metJetUp_2D,true,sample,category,false,1.00,lumi,ehists,"jesUp",true,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metJetDw,tthist_metJetDw_2D,true,sample,category,false,1.00,lumi,ehists,"jesDw",true,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metResUp,tthist_metResUp_2D,true,sample,category,false,1.00,lumi,ehists,"jerUp",true,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metResDw,tthist_metResDw_2D,true,sample,category,false,1.00,lumi,ehists,"jerDw",true,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metUncUp,tthist_metUncUp_2D,true,sample,category,false,1.00,lumi,ehists,"uncUp",true,reweightNVTX,0,isHInv,applyPFWeight);
+      makehist4(tttree,tthist_metUncDw,tthist_metUncDw_2D,true,sample,category,false,1.00,lumi,ehists,"uncDw",true,reweightNVTX,0,isHInv,applyPFWeight);
+    }
 
     cout<<"lepton +jets region --> systematics for di-boson"<<endl;
     makehist4(dbtree,dbhist_metJetUp,dbhist_metJetUp_2D,true,sample,category,isWJet,1.00,lumi,ehists,"jesUp",false,reweightNVTX,0,isHInv,applyPFWeight);

@@ -693,7 +693,7 @@ void makeControlPlots(string templateFileName,
   else if(category == Category::twojet and isLog)
     frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::VBFrelaxed and isLog)
-    frame->GetYaxis()->SetRangeUser(1.5e-3,datahist->GetMaximum()*500);  
+    frame->GetYaxis()->SetRangeUser(0.5e-3,datahist->GetMaximum()*500);  
   else if(category == Category::VBF and isLog)
     frame->GetYaxis()->SetRangeUser(1e-4,datahist->GetMaximum()*500);  
   else
@@ -1036,9 +1036,14 @@ void makeControlPlots(string templateFileName,
     postfix = "_boosted";
   if(category == Category::VBF or category == Category::VBFrelaxed)
     postfix = "_VBF";
+
+  TString obs = Form("%s",observable.c_str());
+  obs.ReplaceAll("_v2","");
+  obs.ReplaceAll("_v3","");
+  obs.ReplaceAll("_v4","");
   
-  canvas->SaveAs((observable+"_"+controlRegion+postfix+".png").c_str());
-  canvas->SaveAs((observable+"_"+controlRegion+postfix+".pdf").c_str());
+  canvas->SaveAs((string(obs)+"_"+controlRegion+postfix+".png").c_str());
+  canvas->SaveAs((string(obs)+"_"+controlRegion+postfix+".pdf").c_str());
   //  canvas->SaveAs((observable+"_"+controlRegion+postfix+".C").c_str());
 
   if(addSBPlots){
