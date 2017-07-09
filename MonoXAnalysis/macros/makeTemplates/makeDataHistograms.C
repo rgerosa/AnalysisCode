@@ -3,7 +3,7 @@
 
 using namespace std;
 
-static bool splitWPerFlavor = false;
+static bool splitWPerFlavor = true;
 
 void sigdatamchist(TFile* outfile,
                    const Category & category,
