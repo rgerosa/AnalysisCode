@@ -545,4 +545,13 @@ TH1F* generateEnvelopeMin(vector<TH1F*> & histoVec, string nameBase){
 
 }
 
+void checkCombinePostFitUncertainty(TH1* histo, const float & upperCut = 0.30){
+
+  for(int iBin = 0; iBin < histo->GetNbinsX(); iBin++){
+    if(histo->GetBinError(iBin+1)/histo->GetBinContent(iBin+1) > upperCut) {
+      histo->SetBinError(iBin+1,upperCut*histo->GetBinContent(iBin+1));
+    }
+  } 
+}
+
 #endif

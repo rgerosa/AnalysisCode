@@ -4,7 +4,7 @@
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
 static bool addStatUncPull = true;
-static bool addPreliminary = true;
+static bool addPreliminary = false;
 
 void prepostZM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -113,6 +113,9 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   ewkzhist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/Znunu_EWK").c_str());
   pohist = (TH1*)pfile->Get((fit_dir+"/"+dir+"/total_background").c_str());
   prhist = (TH1*)pfile->Get(("shapes_prefit/"+dir+"/total_background").c_str());
+
+  if(category == Category::VBFrelaxed and TString(observable).Contains("mjj"))
+    checkCombinePostFitUncertainty(pohist);
   
   if(saveTextFile){
 
@@ -253,7 +256,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.005,prhist->GetMaximum()*1000);
   else if(category == Category::VBFrelaxed)
-    frame->GetYaxis()->SetRangeUser(0.001,prhist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.0002,prhist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -261,8 +264,10 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
+  else if(category == Category::VBFrelaxed)
+    frame->GetXaxis()->SetNdivisions(505);
   else
     frame->GetXaxis()->SetNdivisions(504);
 
@@ -326,13 +331,16 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.20,1.40);
   else
-    frame2->GetYaxis()->SetRangeUser(0.40,1.60);
+    frame2->GetYaxis()->SetRangeUser(0.60,1.40);
 
-  if(category == Category::monojet or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
-  else
+  else if(category == Category::VBFrelaxed)
+    frame2->GetXaxis()->SetNdivisions(505);
+   else
     frame2->GetXaxis()->SetNdivisions(210);
-  frame2->GetYaxis()->SetNdivisions(3);
+
+  frame2->GetYaxis()->SetNdivisions(5);
 
   if(not addPullPlot){
     frame2->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
@@ -457,9 +465,11 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
-    if(category == Category::monojet or category == Category::VBFrelaxed)
+    if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
-    else
+    else if(category == Category::VBFrelaxed)
+      frame3->GetXaxis()->SetNdivisions(505);
+     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");

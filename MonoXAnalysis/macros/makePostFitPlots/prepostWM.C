@@ -4,7 +4,7 @@
 static bool saveTextFile = false;
 static bool dumpInfo     = false;
 static bool addStatUncPull = true;
-static bool addPreliminary = true;
+static bool addPreliminary = false;
 
 void prepostWM(string fitFilename, string observable, Category category, bool isCombinedFit = false, bool plotSBFit = false, bool addPullPlot = false,  bool dumpHisto = false) {
 
@@ -264,9 +264,11 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet  or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
-  else
+  else if(category == Category::VBFrelaxed)
+    frame->GetXaxis()->SetNdivisions(505);
+   else
     frame->GetXaxis()->SetNdivisions(504);
 
   frame->Draw();
@@ -329,11 +331,13 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.70,1.30);
   else
-    frame2->GetYaxis()->SetRangeUser(0.40,1.60);
+    frame2->GetYaxis()->SetRangeUser(0.60,1.40);
 
-  if(category == Category::monojet or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
-  else
+  else if(category == Category::VBFrelaxed)
+    frame2->GetXaxis()->SetNdivisions(505);
+   else
     frame2->GetXaxis()->SetNdivisions(210);
   frame2->GetYaxis()->SetNdivisions(5);
 
@@ -460,9 +464,11 @@ void prepostWM(string fitFilename, string observable, Category category, bool is
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3.5,3.5);
-    if(category == Category::monojet  or category == Category::VBFrelaxed)
+    if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
-    else
+    else if(category == Category::VBFrelaxed)
+      frame3->GetXaxis()->SetNdivisions(505);
+     else
       frame3->GetXaxis()->SetNdivisions(210);
 
     frame3->GetXaxis()->SetTitle("Hadronic recoil p_{T} [GeV]");
