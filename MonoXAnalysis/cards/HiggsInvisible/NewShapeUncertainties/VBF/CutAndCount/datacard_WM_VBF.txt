@@ -1,0 +1,47 @@
+imax * number of bins
+jmax * number of processes minus 1
+kmax * number of nuisance parameters
+
+-----------------------------------------------------------------------------------------------------------------
+shapes data_obs      onemuon_VBF   workspace_VBF.root WM_VBF:data_obs_WM_VBF
+shapes WJets         onemuon_VBF   workspace_VBF.root WM_VBF:WJets_WM_VBF
+shapes WJets_EWK     onemuon_VBF   workspace_VBF.root WM_VBF:WJets_EWK_WM_VBF
+shapes ZJets_WM      onemuon_VBF   workspace_VBF.root WM_VBF:ZJets_WM_VBF     WM_VBF:ZJets_WM_VBF_$SYSTEMATIC
+shapes ZJets_EWK_WM  onemuon_VBF   workspace_VBF.root WM_VBF:ZJets_EWK_WM_VBF WM_VBF:ZJets_EWK_WM_VBF_$SYSTEMATIC
+shapes Dibosons      onemuon_VBF   workspace_VBF.root WM_VBF:Dibosons_WM_VBF  WM_VBF:Dibosons_WM_VBF_$SYSTEMATIC
+shapes Top           onemuon_VBF   workspace_VBF.root WM_VBF:Top_WM_VBF       WM_VBF:Top_WM_VBF_$SYSTEMATIC
+shapes QCD_WM        onemuon_VBF   workspace_VBF.root WM_VBF:QCD_WM_VBF       WM_VBF:QCD_WM_VBF_$SYSTEMATIC
+shapes VGamma        onemuon_VBF   workspace_VBF.root WM_VBF:VGamma_WM_VBF    WM_VBF:VGamma_WM_VBF_$SYSTEMATIC
+-----------------------------------------------------------------------------------------------------------------
+bin         onemuon_VBF
+observation -1
+----------------------------------------------------------------------------------------------------------------------------------
+bin                                 onemuon_VBF  onemuon_VBF  onemuon_VBF  onemuon_VBF   onemuon_VBF     onemuon_VBF   onemuon_VBF   onemuon_VBF
+process                             WJets        WJets_EWK    ZJets_WM     ZJets_EWK_WM  Dibosons        Top           QCD_WM        VGamma
+process                             3            4            12           13            6               7             14            9
+rate                                1            1            -1           -1           -1              -1             -1            -1
+---------------------------------------------------------------------------------------------------------------------------------- 
+lumi_13TeV                lnN       -            -            1.025        1.025         1.025           1.025         1.025         1.025 
+CMS_eff_m                 lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010         1.010
+CMS_reco_m                lnN       1.010       1.010         1.010        1.010         1.010           1.010         1.010         1.010
+CMS_met_trig              lnN       1.020       1.020         1.020        1.020         1.020           1.020         1.020         1.020
+CMS_eff_lepVeto_13TeV     lnN       1.030       1.040         -             -             -              -             -             -
+ZJets_WM_Norm13TeV        lnN       -           -             1.200         -             -              -             -             -
+ZJets_EWK_WM_Norm13TeV    lnN       -           -             -            1.200          -              -             -             -
+Dibosons_Norm13TeV        lnN       -           -             -             -           1.150            -             -             -
+VGamma_Norm13TeV          lnN       -           -             -             -             -              -             -             1.150
+Top_Norm13TeV             lnN       -           -             -             -             -              1.100         -             -
+Top_Reweight13TeV         lnN       -           -             -             -             -              1.100         -             -
+QCD_WM_Norm13TeV          lnN       -           -             -             -             -              -             1.500         -
+CMS_scale_j_13TeV         lnN    0.97/1.02   0.97/1.02    0.88/1.10    0.88/1.10      0.88/1.10      0.88/1.10      0.88/1.10       0.88/1.10
+CMS_btag_13TeV            lnN       -           -            1.010       1.010           1.010         1.030          1.010          -
+ZJets_WM_VBF_CMS_bin1_stat shape    -           -             1             -             -              -             -             - 
+Dibosons_WM_VBF_CMS_bin1_stat shape -           -             -             -             1              -             -             -
+Top_WM_VBF_CMS_bin1_stat shape      -           -             -             -             -              1             -             -
+ZJets_EWK_WM_VBF_CMS_bin1_stat shape -          -             -             1             -              -             -             -
+QCD_WM_VBF_CMS_bin1_stat shape      -           -             -             -             -              -             1             -
+VGamma_WM_VBF_CMS_bin1_stat shape   -           -             -             -             -              -             -             1
+WJets_WM_VBF_bin1_Runc     param    0     1
+WJets_EWK_WM_VBF_bin1_Runc param    0     1
+------------------------------------------------------------------------------------------------
+

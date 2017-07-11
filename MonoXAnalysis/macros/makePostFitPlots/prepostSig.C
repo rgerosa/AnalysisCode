@@ -5,7 +5,7 @@ static bool saveTextFile = false;
 static bool dumpInfo     = false;
 static bool plotSignificance = false;
 static bool addStatUncPull  = true;
-static bool addPreliminary  = true;
+static bool addPreliminary  = false;
 
 void prepostSig(string   fitFilename, 
 		string   observable, 
@@ -169,7 +169,7 @@ void prepostSig(string   fitFilename,
     dthist = new TGraphAsymmErrors();
     for(int iBin = 0; iBin < tohist->GetNbinsX()+1; iBin++){
       dthist->SetPoint(iBin,tohist->GetBinCenter(iBin+1),tohist->GetBinContent(iBin+1));
-      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinError(iBin+1)/2,tohist->GetBinError(iBin)/2);
+      dthist->SetPointError(iBin,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinWidth(iBin+1)/2,tohist->GetBinError(iBin+1),tohist->GetBinError(iBin+1));
     }
   }
 
@@ -469,7 +469,7 @@ void prepostSig(string   fitFilename,
   else if(category == Category::VBF)
     frame->GetYaxis()->SetRangeUser(0.015,tphist->GetMaximum()*3000);
   else if(category == Category::VBFrelaxed)
-    frame->GetYaxis()->SetRangeUser(0.01,tphist->GetMaximum()*500);
+    frame->GetYaxis()->SetRangeUser(0.0007,tphist->GetMaximum()*500);
 
   frame->GetXaxis()->SetTitleSize(0);
   frame->GetXaxis()->SetLabelSize(0);
@@ -477,7 +477,7 @@ void prepostSig(string   fitFilename,
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame->GetXaxis()->SetNdivisions(510);
   else
     frame->GetXaxis()->SetNdivisions(504);
@@ -551,8 +551,8 @@ void prepostSig(string   fitFilename,
   dthist->Draw("PE SAME");
 
   TLegend* leg = NULL;
-  if(category == Category::VBF){
-    leg = new TLegend(0.35, 0.60, 0.92, 0.85);
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    leg = new TLegend(0.35, 0.64, 0.92, 0.90);
     leg->SetNColumns(2);
   }
   else
@@ -618,10 +618,12 @@ void prepostSig(string   fitFilename,
   else if(category == Category::monoV)
     frame2->GetYaxis()->SetRangeUser(0.4,1.6);
   else
-    frame2->GetYaxis()->SetRangeUser(0.4,1.6);
+    frame2->GetYaxis()->SetRangeUser(0.6,1.4);
 
-  if(category == Category::monojet or category == Category::VBFrelaxed)
+  if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);
+  else if(category == Category::VBFrelaxed)
+    frame2->GetXaxis()->SetNdivisions(505);
   else
     frame2->GetXaxis()->SetNdivisions(210);
   frame2->GetYaxis()->SetNdivisions(5);
@@ -758,8 +760,10 @@ void prepostSig(string   fitFilename,
     frame3->SetLineColor(kBlack);
     frame3->SetLineWidth(1);
     frame3->GetYaxis()->SetRangeUser(-3,3);
-    if(category == Category::monojet or category == Category::VBFrelaxed)
+    if(category == Category::monojet)
       frame3->GetXaxis()->SetNdivisions(510);
+    else if(category == Category::VBFrelaxed)
+      frame3->GetXaxis()->SetNdivisions(505);
     else
       frame3->GetXaxis()->SetNdivisions(210);
 
