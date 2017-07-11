@@ -30,6 +30,7 @@ static bool  addFlatWZUncertainty     = false; // use a flat nuisance for the Z/
 static bool  addFlatZgammaUncertainty = false; // use a flat nuisance for the Z/gamma ratio uncertainty : aka HIG-16-016
 static float flatWZUncertainty     = 0.15;
 static float flatZgammaUncertainty = 0.15;
+static bool  freezeZQCDOverZEWKNuisances = false; // set to constant the Z-QCD / Z-EWK constraint in VBF
 static bool  addBinByBinMCUncertainty = true;
 static bool  useNewTheoryUncertainty  = true;
 static bool  addNewShapeSysUncertainties = true;
@@ -41,12 +42,12 @@ void createWorkspace(string   inputName,                        // input templat
 		     string   observable    = "met",            // observable 1D or 2D
 		     bool     isHiggsInvisible    = false,      // Higgs invisible or DM analsysis
 		     bool     addShapeSystematics = false,      // add shapeN2 for experimental uncertatinties on minor backgrounds
-		     string   interaction   = "Vector", // DM interaction 
-		     string   mediatorMass  = "1000",   // Med mass
-		     string   DMMass        = "50",     // DM mass
 		     bool     RunOnlySignal     = false,  // run only on signal templates --> workspace with only signals 
 		     bool     RunOnlyBackground = false,  // run only on signal templates --> workspace with only background 
 		     bool     UseNewTheoryUncertainty = false,
+		     string   interaction   = "Vector", // DM interaction 
+		     string   mediatorMass  = "1000",   // Med mass
+		     string   DMMass        = "50",     // DM mass
 		     bool     isCutAndCount = false,    // to produce a workspace for a cut and count analysis
 		     std::pair<float,float> xAxisSelection = {-10000,10000}, // define bins for cut and count
 		     std::pair<float,float> yAxisSelection = {-10000,10000}  // define bins for cut and count --> only when 2D templates are considered
@@ -357,8 +358,11 @@ void createWorkspace(string   inputName,                        // input templat
 			     znn_ewk_SR_syst, //list of systematic variations for the TFs                                                                                                             
 			     znn_SR_bins,     //bins for Znunu                                                                                                                                        
 			     &znn_ewk_SR_bins, 
-			     observable
+			     observable,
+			     not freezeZQCDOverZEWKNuisances
 			     );
+	
+	
 	
       }
     }
