@@ -84,6 +84,7 @@ string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kF
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
+//string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_1_02_2017";
 
 VectorSorter jetSorter;
 
@@ -2113,10 +2114,14 @@ void makehist4(TTree* tree,            /*input tree*/
       Double_t puwgt = 0.;
       if (isMC and not reweightNVTX){
 
+	if(fabs(*wgtpu) > 100)  puwgt = 1;
+	else if(fabs(*wgtpu) < 0.01) puwgt = 1;
+	else puwgt = *wgtpu;
+	
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
       }
       else if (isMC and reweightNVTX){
 
@@ -2127,7 +2132,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else
 	  puwgt = 1;
-
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
 	else
@@ -2299,10 +2303,15 @@ void makehist4(TTree* tree,            /*input tree*/
       Double_t puwgt = 1.0;
 
       if (isMC and not reweightNVTX){
-        if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+
+	if(fabs(*wgtpu) > 100)  puwgt = 1;
+	else if(fabs(*wgtpu) < 0.01) puwgt = 1;
+	else puwgt = *wgtpu;
+
+	if(XSEC != -1)
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(*wgtpu)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  

@@ -31,9 +31,9 @@ parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBT
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isCrabDirectory', action="store_true",        dest="isCrabDirectory",            help="isCrabDirectory: when the input directory has been created by crab with many files")
 parser.add_option('--dropHLTFilter',       action="store_true",    dest="dropHLTFilter",              help="drop HLT filter requirement")
-
 parser.add_option('--grepName', action="callback", type="string", dest="grepName", default="", callback=foo_callback, help="grep a set of names in the directory") ## useful when submitting only signal or data
 parser.add_option('--skipName', action="callback", type="string", dest="skipName", default="", callback=foo_callback, help="drop a set of names in the directory")
+parser.add_option('--splitPerFile', action="store_true",          dest="splitPerFile",         help="splitPerFile")
 
 ##  for submitting jobs in lxbatch                                                                                                                                              
 parser.add_option('--jobDIR',       action="store", type="string", dest="jobDIR",  default="",        help="directory for job")
@@ -75,6 +75,8 @@ if __name__ == '__main__':
           command += "--isCrabDirectory ";
         if options.dropHLTFilter:
           command += "--dropHLTFilter";        
+        if options.splitPerFile:
+          command += "--splitPerFile";
 
         print command    
         os.system(command)
