@@ -6202,6 +6202,7 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
   pswgt_ht900 = 1.0;
   
   for (size_t i = 0; i < triggerResultsH->size(); i++) {
+    TString name (trignames.triggerName(i));
     if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt_ph90 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT125_v") != string::npos) pswgt_ht125 = triggerPrescalesH->getPrescaleForIndex(i);

@@ -62,7 +62,6 @@ void makeMergeTrees(string inputDirectory, bool isEOS, string outputDIR, string 
   // create the new branch
   TBranch* bwgtsum = outputTree->Branch("wgtsum", &wgtsum, "wgtsum/D");
  
-  //
   myReader.SetEntry(0);
   cout<<"Store wgtsum in the tree "<<endl;
   while(myReader.Next()){

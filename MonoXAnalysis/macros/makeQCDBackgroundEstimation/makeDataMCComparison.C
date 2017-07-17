@@ -29,9 +29,37 @@ void loadChain(const string & inputPath, TChain* chain, const bool & isEOS){
   system("rm file.temp");
 }
 
-void fillHistograms(TChain* chain, vector<TH1F*> histoA, vector<TH1F*> histoB, vector<TH1F*> histoC, const bool & isMC, const Category & category){
+void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histoB, vector<TH1F*> & histoC, const bool & isMC, const Category & category){
 
+  TFile* kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
+  TH1* znlohist = (TH1*) kffile->Get("ZJets_012j_NLO/nominal");
+  TH1* zlohist  = (TH1*) kffile->Get("ZJets_LO/inv_pt");
+  TH1* zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
 
+  if(zewkhist)
+    zewkhist->Divide(znlohist);
+  if(znlohist)
+    znlohist->Divide(zlohist);
+  
+  TH1* wnlohist = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+  TH1* wlohist  = (TH1*) kffile->Get("WJets_LO/inv_pt");
+  TH1* wewkhist  = (TH1*) kffile->Get("EWKcorr/W");
+  
+  if(wewkhist)
+    wewkhist->Divide(wnlohist);
+  if(wnlohist)
+    wnlohist->Divide(wlohist);
+
+  vector<TH1*> khists;
+  if(TString(histoA.at(0)->GetName()).Contains("ZJets")){
+    khists.push_back(zewkhist);
+    khists.push_back(znlohist);
+  }
+  else if(TString(histoA.at(0)->GetName()).Contains("WJets")){
+    khists.push_back(wewkhist);
+    khists.push_back(wnlohist);
+  }
+  
   TTreeReader reader(chain);
 
   TTreeReaderValue<UChar_t> hltPFHT350 (reader,"hltPFHT350");
@@ -121,11 +149,23 @@ void fillHistograms(TChain* chain, vector<TH1F*> histoA, vector<TH1F*> histoB, v
 	ht += jetpt->at(ijet);
     }
 
-    if(ht < 350) continue;
+    //if(ht < 350) continue;
+
+    //Gen level info --> NLO re-weight                                                                                                                                                                
+    Double_t kwgt = 1.0;
+    double genpt = *met;
+    for (size_t i = 0; i < khists.size(); i++) {
+      if (khists[i]) {
+        if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+        if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
+        kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+      }
+    }
+
 
     double evtweight = 1 ;
     if(isMC)
-      evtweight = *xsec*luminosity*(*wgt)*(*wgtpileup)*(*wgtbtag)/(**wgtsum);
+      evtweight = *xsec*luminosity*(*wgt)*(*wgtpileup)*(*wgtbtag)*kwgt/(**wgtsum);
     else{ // check trigger prescales
       if(*hltPFHT900) evtweight = *pswgt_ht900;
       else if(not *hltPFHT900 and *hltPFHT800)  evtweight = *pswgt_ht800;
@@ -154,7 +194,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> histoA, vector<TH1F*> histoB, v
 	else if(name.Contains("jetpt"))
 	  hist->Fill(jet1.Pt(),evtweight);
 	else if(name.Contains("jeteta"))
-	  hist->Fill(jet2.Eta(),evtweight);
+	  hist->Fill(jet1.Eta(),evtweight);
       }
     }
 
@@ -175,7 +215,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> histoA, vector<TH1F*> histoB, v
 	else if(name.Contains("jetpt"))
 	  hist->Fill(jet1.Pt(),evtweight);
 	else if(name.Contains("jeteta"))
-	  hist->Fill(jet2.Eta(),evtweight);
+	  hist->Fill(jet1.Eta(),evtweight);
       }
     }
     
@@ -196,15 +236,15 @@ void fillHistograms(TChain* chain, vector<TH1F*> histoA, vector<TH1F*> histoB, v
 	else if(name.Contains("jetpt"))
 	  hist->Fill(jet1.Pt(),evtweight);
 	else if(name.Contains("jeteta"))
-	  hist->Fill(jet2.Eta(),evtweight);
+	  hist->Fill(jet1.Eta(),evtweight);
       }
     }
   }
   cout<<endl;
-  
+  if(kffile) kffile->Close();
 }
 
-void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & outputDIR){
+void plotDataMC(TH1* histoData, THStack* histoBkg, TCanvas* canvas, const string & outputDIR){
 
   canvas->cd();
   histoData->SetMarkerColor(kBlack);
@@ -219,23 +259,28 @@ void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & o
   pad2->SetGridy(1);
   pad2->SetFillStyle(0);
 
-  histoData->GetYaxis()->SetRangeUser(min(histoQCD->GetMinimum(),histoData->GetMinimum())*0.1,max(histoQCD->GetMaximum(),histoData->GetMaximum())*100);
+  // total background from the Stack
+  TH1* totalBkg = (TH1*) histoBkg->GetStack()->At(histoBkg->GetNhists()-1);
+  TString name (histoData->GetName());
+  
+  if(not name.Contains("jeteta"))
+    histoData->GetYaxis()->SetRangeUser(min(totalBkg->GetMinimum(),histoData->GetMinimum())*0.01,max(totalBkg->GetMaximum(),histoData->GetMaximum())*100);
+  else
+    histoData->GetYaxis()->SetRangeUser(0,max(totalBkg->GetMaximum(),histoData->GetMaximum())*1.30);
+
   histoData->GetYaxis()->SetTitle("Events");
   histoData->GetYaxis()->SetTitleOffset(1.10);
   histoData->GetYaxis()->SetLabelSize(0.035);
 
-  TH1* nhist = (TH1*) histoData->Clone("nhist");
-  TH1* dhist = (TH1*) histoQCD->Clone("dhist");
-  TH1* dhist_2 = (TH1*) histoQCD->Clone("dhist_2");
-  TH1* unhist = (TH1*) histoData->Clone("unhist");
+  TH1* nhist   = (TH1*) histoData->Clone("nhist");
+  TH1* dhist   = (TH1*) totalBkg->Clone("dhist");
+  TH1* dhist_2 = (TH1*) totalBkg->Clone("dhist_2");
+  TH1* unhist  = (TH1*) histoData->Clone("unhist");
 
   histoData->GetXaxis()->SetTitleSize(0);
   histoData->GetXaxis()->SetLabelSize(0);
 
-  histoQCD->SetFillColor(kAzure+1);
-  histoQCD->SetFillStyle(1001);
-  histoQCD->SetLineColor(kBlack);
-  histoQCD->Draw("hist same");
+  histoBkg->Draw("hist same");
   histoData->Draw("same");
 
   TLegend* leg = new TLegend(0.65,0.7,0.9,0.9);
@@ -243,9 +288,20 @@ void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & o
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
   leg->AddEntry(histoData,"Data","EP");
-  leg->AddEntry(histoQCD,"QCD MC","F");
+  TObjArray* listHisto = histoBkg->GetStack();
+  TIter iObject(listHisto);
+  while (TH1F* histo = dynamic_cast<TH1F*>(iObject())) {
+    TString name (histo->GetName());
+    if(name.Contains("QCD"))
+      leg->AddEntry(histo,"QCD Multijet","F");
+    else if(name.Contains("WJets"))
+      leg->AddEntry(histo,"W+jets","F");
+    else if(name.Contains("ZJets"))
+      leg->AddEntry(histo,"Z+jets","F");    
+  }
+  
   leg->Draw("same");
-
+  
   canvas->RedrawAxis("sameaxis");
   CMS_lumi(canvas,"");
 
@@ -259,8 +315,7 @@ void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & o
   nhist->GetYaxis()->SetTitleSize(0.04);
   nhist->GetXaxis()->SetLabelSize(0.04);
   nhist->GetXaxis()->SetTitleSize(0.05);
- 
-  TString name (histoData->GetName());
+  
   if(name.Contains("mjj"))
     nhist->GetXaxis()->SetTitle("M_{jj} [GeV]");
   else if(name.Contains("jetpt2"))
@@ -318,8 +373,12 @@ void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & o
   
   pad2->RedrawAxis("sameaxis");
 
-  canvas->SetLogy();
-  
+  if(not name.Contains("jeteta"))
+    canvas->SetLogy();
+  else
+    canvas->SetLogy(0);
+
+
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");
 
@@ -332,110 +391,178 @@ void plotDataMC(TH1* histoData, TH1* histoQCD, TCanvas* canvas, const string & o
   
 }
 
+void bookHistogram(vector<TH1F*> & histoA, vector<TH1F*> & histoB, vector<TH1F*> & histoC, const string & postfix, const Category & category){
+
+  // variable binning in the different regions (Region A)
+  vector<double> bins_mjj_A     = {200.,350.,500.,650.,800.,1000.,1200.,1400.,1600.,1800.,2000.,2350.,2800.,3500,5000};
+  vector<double> bins_jeteta_A  = selectBinning("jeteta",category);
+  vector<double> bins_jeteta2_A = selectBinning("jeteta2",category);
+  vector<double> bins_ht_A      = {250.,350.,400.,450.,500.,550.,600.,650,700.,750,800,850,950,1050,1150,1250};
+  vector<double> bins_met_A     = {100.,115.,130.,145.,160.,175.,190.,210.,230.,250.};
+
+  // variable binning in the different regions (Region B)
+  vector<double> bins_mjj_B     = selectBinning("mjj",category);
+  vector<double> bins_jeteta_B  = selectBinning("jeteta",category);
+  vector<double> bins_jeteta2_B = selectBinning("jeteta2",category);
+  vector<double> bins_ht_B      = {250.,350.,450.,600.,750,900,1050,1200,1400,1600,1800,2000,2500};
+  vector<double> bins_met_B     = {250.,300.,350.,450.,600.,800.,1000.};
+
+  // variable binning in the different regions (Region C)
+  vector<double> bins_mjj_C     = {200.,450.,700.,1000.,1300.,1600.,2000.,2500.,3250.,5000.};
+  vector<double> bins_jeteta_C  = selectBinning("jeteta",category);
+  vector<double> bins_jeteta2_C = selectBinning("jeteta2",category);
+  vector<double> bins_ht_C      = {250.,350.,400,450.,500,550.,600.,650.,700.,775.,850.,950.,1050.,1150,1250.};  
+  vector<double> bins_met_C     = {100.,120.,140.,160.,180.,200.,225.,250.};
+  
+  histoA.push_back(new TH1F(Form("histo_%s_mjj_regionA",postfix.c_str()),"",bins_mjj_A.size()-1,&bins_mjj_A[0]));
+  histoB.push_back(new TH1F(Form("histo_%s_mjj_regionB",postfix.c_str()),"",bins_mjj_B.size()-1,&bins_mjj_B[0]));
+  histoC.push_back(new TH1F(Form("histo_%s_mjj_regionC",postfix.c_str()),"",bins_mjj_C.size()-1,&bins_mjj_C[0]));
+  histoA.back()->Sumw2();
+  histoB.back()->Sumw2();
+  histoC.back()->Sumw2();
+
+  histoA.push_back(new TH1F(Form("histo_%s_ht_regionA",postfix.c_str()),"",bins_ht_A.size()-1,&bins_ht_A[0]));
+  histoB.push_back(new TH1F(Form("histo_%s_ht_regionB",postfix.c_str()),"",bins_ht_B.size()-1,&bins_ht_B[0]));
+  histoC.push_back(new TH1F(Form("histo_%s_ht_regionC",postfix.c_str()),"",bins_ht_C.size()-1,&bins_ht_C[0]));
+  histoA.back()->Sumw2();
+  histoB.back()->Sumw2();
+  histoC.back()->Sumw2();
+  
+  histoA.push_back(new TH1F(Form("histo_%s_met_regionA",postfix.c_str()),"",bins_met_A.size()-1,&bins_met_A[0]));
+  histoB.push_back(new TH1F(Form("histo_%s_met_regionB",postfix.c_str()),"",bins_met_B.size()-1,&bins_met_B[0]));
+  histoC.push_back(new TH1F(Form("histo_%s_met_regionC",postfix.c_str()),"",bins_met_C.size()-1,&bins_met_C[0]));
+  histoA.back()->Sumw2();
+  histoB.back()->Sumw2();
+  histoC.back()->Sumw2();
+
+  histoA.push_back(new TH1F(Form("histo_%s_jeteta_regionA",postfix.c_str()),"",bins_jeteta_A.size()-1,&bins_jeteta_A[0]));
+  histoB.push_back(new TH1F(Form("histo_%s_jeteta_regionB",postfix.c_str()),"",bins_jeteta_B.size()-1,&bins_jeteta_B[0]));
+  histoC.push_back(new TH1F(Form("histo_%s_jeteta_regionC",postfix.c_str()),"",bins_jeteta_C.size()-1,&bins_jeteta_C[0]));
+  histoA.back()->Sumw2();
+  histoB.back()->Sumw2();
+  histoC.back()->Sumw2();
+
+  histoA.push_back(new TH1F(Form("histo_%s_jeteta2_regionA",postfix.c_str()),"",bins_jeteta2_A.size()-1,&bins_jeteta2_A[0]));
+  histoB.push_back(new TH1F(Form("histo_%s_jeteta2_regionB",postfix.c_str()),"",bins_jeteta2_B.size()-1,&bins_jeteta2_B[0]));
+  histoC.push_back(new TH1F(Form("histo_%s_jeteta2_regionC",postfix.c_str()),"",bins_jeteta2_C.size()-1,&bins_jeteta2_C[0]));
+  histoA.back()->Sumw2();
+  histoB.back()->Sumw2();
+  histoC.back()->Sumw2();
+}
+
+vector<THStack*> createBackgroundStack(const vector<TH1F*> & histoWJets, const vector<TH1F*> & histoZJets, const vector<TH1F*> & histoQCD){
+
+  // create new empty stacks
+  vector<THStack*> bkgStack;
+  for(auto hist : histoQCD){
+    TString name = Form("%s",hist->GetName());
+    name.ReplaceAll("QCD","Bkg");    
+    bkgStack.push_back(new THStack(name,name));    
+  }
+
+  // Fill the stack and set the right colors
+  for(size_t ihist = 0; ihist < histoQCD.size(); ihist++){
+
+    if(histoWJets.size() != 0){
+      histoWJets.at(ihist)->SetLineColor(kBlack);
+      histoWJets.at(ihist)->SetFillColor(TColor::GetColor("#FAAF08"));
+      bkgStack.at(ihist)->Add(histoWJets.at(ihist));
+    }
+
+    if(histoZJets.size() != 0){
+      histoZJets.at(ihist)->SetLineColor(kBlack);
+      histoZJets.at(ihist)->SetFillColor(TColor::GetColor("#4D975D"));
+      bkgStack.at(ihist)->Add(histoZJets.at(ihist));
+    }
+
+    histoQCD.at(ihist)->SetLineColor(kBlack);
+    histoQCD.at(ihist)->SetFillColor(TColor::GetColor("#F1F1F2"));
+    bkgStack.at(ihist)->Add(histoQCD.at(ihist));
+  }
+
+  return bkgStack;
+  
+}
+
 ///////////
-void makeDataMCComparison (string inputPathMC, string inputPathData, string outputDIR, Category category, bool isEOS){
+void makeDataMCComparison (Category category, string outputDIR, bool addEWKBackgrounds, bool isEOS){
+
+  string inputPathData = "/home/rgerosa/MONOJET_ANALYSIS/QCDEstimation/JetHT_DATA/";
+  string inputPathQCDMC = "/home/rgerosa/MONOJET_ANALYSIS/QCDEstimation/QCD_MC/";
+  string inputPathWJetsMC = "/home/rgerosa/MONOJET_ANALYSIS/QCDEstimation/WJets_MC/";
+  string inputPathZJetsMC = "/home/rgerosa/MONOJET_ANALYSIS/QCDEstimation/ZJets_MC/";
 
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
   initializeBinning();
   gROOT->SetBatch(kTRUE);
   
-  TChain* chainMC = new TChain("tree/tree");  
+  TChain* chainQCD  = new TChain("tree/tree");  
   TChain* chainData = new TChain("tree/tree");  
+  TChain* chainWJets = NULL;
+  TChain* chainZJets = NULL;
 
-  loadChain(inputPathMC,chainMC,isEOS);
+  loadChain(inputPathQCDMC,chainQCD,isEOS);
   loadChain(inputPathData,chainData,isEOS);
-
-  // variables --> we can just check agreement in region A, B and C
-  vector<double> bins_mjj  = selectBinning("mjj",category);
-  vector<double> bins_jeteta  = selectBinning("jeteta",category);
-  vector<double> bins_jeteta2 = selectBinning("jeteta2",category);
-  vector<double> bins_ht   = selectBinning("HT",category);
-  vector<double> bins_lowMet  = {100.,120.,140.,160.,180,200.,225.,250.};
-  vector<double> bins_highMet = {250.,300.,350.,500.,1000};
-
-
+  
+  if(addEWKBackgrounds){
+    chainWJets = new TChain("tree/tree");
+    chainZJets = new TChain("tree/tree");
+    loadChain(inputPathWJetsMC,chainWJets,isEOS);
+    loadChain(inputPathZJetsMC,chainZJets,isEOS);
+  }
+  
+  // Book QCD MC and Fill
   vector<TH1F*> histoQCD_A, histoQCD_B, histoQCD_C;
+  cout<<"Run on QCD-MC "<<endl;
+  bookHistogram(histoQCD_A,histoQCD_B,histoQCD_C,"QCD",category);
+  fillHistograms(chainQCD,histoQCD_A,histoQCD_B,histoQCD_C,true,category);
 
-  histoQCD_A.push_back(new TH1F("histoQCD_mjj_regionA","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoQCD_B.push_back(new TH1F("histoQCD_mjj_regionB","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoQCD_C.push_back(new TH1F("histoQCD_mjj_regionC","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoQCD_A.back()->Sumw2();
-  histoQCD_B.back()->Sumw2();
-  histoQCD_C.back()->Sumw2();
+  // Book WJets MC and Fill
+  vector<TH1F*> histoWJets_A, histoWJets_B, histoWJets_C;
+  if(addEWKBackgrounds){
+    cout<<"Run on WJets-MC "<<endl;
+    bookHistogram(histoWJets_A,histoWJets_B,histoWJets_C,"WJets",category);
+    fillHistograms(chainWJets,histoWJets_A,histoWJets_B,histoWJets_C,true,category);
+  }
 
-  histoQCD_A.push_back(new TH1F("histoQCD_ht_regionA","",bins_ht.size()-1,&bins_ht[0]));
-  histoQCD_B.push_back(new TH1F("histoQCD_ht_regionB","",bins_ht.size()-1,&bins_ht[0]));
-  histoQCD_C.push_back(new TH1F("histoQCD_ht_regionC","",bins_ht.size()-1,&bins_ht[0]));
-  histoQCD_A.back()->Sumw2();
-  histoQCD_B.back()->Sumw2();
-  histoQCD_C.back()->Sumw2();
+  // Book ZJets MC and Fill
+  vector<TH1F*> histoZJets_A, histoZJets_B, histoZJets_C;
+  if(addEWKBackgrounds){
+    cout<<"Run on ZJets-MC "<<endl;
+    bookHistogram(histoZJets_A,histoZJets_B,histoZJets_C,"ZJets",category);
+    fillHistograms(chainZJets,histoZJets_A,histoZJets_B,histoZJets_C,true,category);
+  }
+
   
-  histoQCD_A.push_back(new TH1F("histoQCD_met_regionA","",bins_lowMet.size()-1,&bins_lowMet[0]));
-  histoQCD_B.push_back(new TH1F("histoQCD_met_regionB","",bins_highMet.size()-1,&bins_highMet[0]));
-  histoQCD_C.push_back(new TH1F("histoQCD_met_regionC","",bins_lowMet.size()-1,&bins_lowMet[0]));
-  histoQCD_A.back()->Sumw2();
-  histoQCD_B.back()->Sumw2();
-  histoQCD_C.back()->Sumw2();
-
-  histoQCD_A.push_back(new TH1F("histoQCD_jeteta_regionA","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoQCD_B.push_back(new TH1F("histoQCD_jeteta_regionB","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoQCD_C.push_back(new TH1F("histoQCD_jeteta_regionC","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoQCD_A.back()->Sumw2();
-  histoQCD_B.back()->Sumw2();
-  histoQCD_C.back()->Sumw2();
-
-  histoQCD_A.push_back(new TH1F("histoQCD_jeteta2_regionA","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoQCD_B.push_back(new TH1F("histoQCD_jeteta2_regionB","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoQCD_C.push_back(new TH1F("histoQCD_jeteta2_regionC","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoQCD_A.back()->Sumw2();
-  histoQCD_B.back()->Sumw2();
-  histoQCD_C.back()->Sumw2();
-
-  // fill histograms
-  fillHistograms(chainMC,histoQCD_A,histoQCD_B,histoQCD_C,true,category);
-
+  // Book Data and Fill
   vector<TH1F*> histoData_A, histoData_B, histoData_C;
-
-  histoData_A.push_back(new TH1F("histoData_mjj_regionA","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoData_B.push_back(new TH1F("histoData_mjj_regionB","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoData_C.push_back(new TH1F("histoData_mjj_regionC","",bins_mjj.size()-1,&bins_mjj[0]));
-  histoData_A.back()->Sumw2();
-  histoData_B.back()->Sumw2();
-  histoData_C.back()->Sumw2();
-
-  histoData_A.push_back(new TH1F("histoData_ht_regionA","",bins_ht.size()-1,&bins_ht[0]));
-  histoData_B.push_back(new TH1F("histoData_ht_regionB","",bins_ht.size()-1,&bins_ht[0]));
-  histoData_C.push_back(new TH1F("histoData_ht_regionC","",bins_ht.size()-1,&bins_ht[0]));
-  histoData_A.back()->Sumw2();
-  histoData_B.back()->Sumw2();
-  histoData_C.back()->Sumw2();
-  
-  histoData_A.push_back(new TH1F("histoData_met_regionA","",bins_lowMet.size()-1,&bins_lowMet[0]));
-  histoData_B.push_back(new TH1F("histoData_met_regionB","",bins_highMet.size()-1,&bins_highMet[0]));
-  histoData_C.push_back(new TH1F("histoData_met_regionC","",bins_lowMet.size()-1,&bins_lowMet[0]));
-  histoData_A.back()->Sumw2();
-  histoData_B.back()->Sumw2();
-  histoData_C.back()->Sumw2();
-
-  histoData_A.push_back(new TH1F("histoData_jeteta_regionA","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoData_B.push_back(new TH1F("histoData_jeteta_regionB","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoData_C.push_back(new TH1F("histoData_jeteta_regionC","",bins_jeteta.size()-1,&bins_jeteta[0]));
-  histoData_A.back()->Sumw2();
-  histoData_B.back()->Sumw2();
-  histoData_C.back()->Sumw2();
-
-  histoData_A.push_back(new TH1F("histoData_jeteta2_regionA","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoData_B.push_back(new TH1F("histoData_jeteta2_regionB","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoData_C.push_back(new TH1F("histoData_jeteta2_regionC","",bins_jeteta2.size()-1,&bins_jeteta2[0]));
-  histoData_A.back()->Sumw2();
-  histoData_B.back()->Sumw2();
-  histoData_C.back()->Sumw2();
-
-  // fill histograms
+  cout<<"Run on Data "<<endl;
+  bookHistogram(histoData_A,histoData_B,histoData_C,"Data",category);
   fillHistograms(chainData,histoData_A,histoData_B,histoData_C,false,category);
+
+  // Create THStack for the backgrounds
+  vector<THStack*> histoBkg_A = createBackgroundStack(histoWJets_A,histoZJets_A,histoQCD_A);
+  vector<THStack*> histoBkg_B = createBackgroundStack(histoWJets_B,histoZJets_B,histoQCD_B);
+  vector<THStack*> histoBkg_C = createBackgroundStack(histoWJets_C,histoZJets_C,histoQCD_C);
+
+  cout<<"W+jets rate in Region A: "<<histoWJets_A.front()->Integral()<<endl;
+  cout<<"Z+jets rate in Region A: "<<histoZJets_A.front()->Integral()<<endl;
+  cout<<"QCD rate in Region A: "<<histoQCD_A.front()->Integral()<<endl;
+  cout<<"Data rate in Region A: "<<histoData_A.front()->Integral()<<endl;
+
+  cout<<"W+jets rate in Region B: "<<histoWJets_B.front()->Integral()<<endl;
+  cout<<"Z+jets rate in Region B: "<<histoZJets_B.front()->Integral()<<endl;
+  cout<<"QCD rate in Region B: "<<histoQCD_B.front()->Integral()<<endl;
+  cout<<"Data rate in Region B: "<<histoData_B.front()->Integral()<<endl;
+
+  cout<<"W+jets rate in Region C: "<<histoWJets_C.front()->Integral()<<endl;
+  cout<<"Z+jets rate in Region C: "<<histoZJets_C.front()->Integral()<<endl;
+  cout<<"QCD rate in Region C: "<<histoQCD_C.front()->Integral()<<endl;
+  cout<<"Data rate in Region C: "<<histoData_C.front()->Integral()<<endl;
   
-  //////
+  //////  
+  cout<<"Start plotting "<<endl;
   TCanvas* canvas = new TCanvas("canvas","",600,650);
   canvas->cd();
   canvas->SetTickx(1);
@@ -443,16 +570,13 @@ void makeDataMCComparison (string inputPathMC, string inputPathData, string outp
   canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
 
-  for(size_t ihist = 0; ihist < histoData_A.size(); ihist++){
-    plotDataMC(histoData_A.at(ihist),histoQCD_A.at(ihist),canvas,outputDIR);
-  }
+  for(size_t ihist = 0; ihist < histoData_A.size(); ihist++)
+    plotDataMC(histoData_A.at(ihist),histoBkg_A.at(ihist),canvas,outputDIR);
 
-  for(size_t ihist = 0; ihist < histoData_B.size(); ihist++){
-    plotDataMC(histoData_B.at(ihist),histoQCD_B.at(ihist),canvas,outputDIR);
-  }
+  for(size_t ihist = 0; ihist < histoData_B.size(); ihist++)
+    plotDataMC(histoData_B.at(ihist),histoBkg_B.at(ihist),canvas,outputDIR);
 
-  for(size_t ihist = 0; ihist < histoData_C.size(); ihist++){
-    plotDataMC(histoData_C.at(ihist),histoQCD_C.at(ihist),canvas,outputDIR);
-  }
+  for(size_t ihist = 0; ihist < histoData_C.size(); ihist++)
+    plotDataMC(histoData_C.at(ihist),histoBkg_C.at(ihist),canvas,outputDIR);
   
 }

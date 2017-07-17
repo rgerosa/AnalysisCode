@@ -216,17 +216,21 @@ NumV qcd_ggF_uncertSF_jve(int Njets30, double pT, int STXS_Stage1, double Nsigma
 
 void makeGluonFusionUncertainties(float njet, string outputName){
 
-  NumV nuis250 = qcd_ggF_uncert_2017(njet,250,0);
-  NumV nuis300 = qcd_ggF_uncert_2017(njet,300,0);
-  NumV nuis350 = qcd_ggF_uncert_2017(njet,350,0);
-  NumV nuis400 = qcd_ggF_uncert_2017(njet,400,0);
-  NumV nuis500 = qcd_ggF_uncert_2017(njet,500,0);
-  NumV nuis600 = qcd_ggF_uncert_2017(njet,600,0);
-  NumV nuis700 = qcd_ggF_uncert_2017(njet,700,0);
-  NumV nuis800 = qcd_ggF_uncert_2017(njet,800,0);
-  NumV nuis900 = qcd_ggF_uncert_2017(njet,900,0);
-  NumV nuis1000 = qcd_ggF_uncert_2017(njet,1000,0);
-  NumV nuis1200 = qcd_ggF_uncert_2017(njet,1200,0);
+  NumV nuis150 = qcd_ggF_uncert_2017(njet,150,107);
+  NumV nuis175 = qcd_ggF_uncert_2017(njet,175,107);
+  NumV nuis200 = qcd_ggF_uncert_2017(njet,200,107);
+  NumV nuis225 = qcd_ggF_uncert_2017(njet,225,107);
+  NumV nuis250 = qcd_ggF_uncert_2017(njet,250,107);
+  NumV nuis300 = qcd_ggF_uncert_2017(njet,300,107);
+  NumV nuis350 = qcd_ggF_uncert_2017(njet,350,107);
+  NumV nuis400 = qcd_ggF_uncert_2017(njet,400,107);
+  NumV nuis500 = qcd_ggF_uncert_2017(njet,500,107);
+  NumV nuis600 = qcd_ggF_uncert_2017(njet,600,107);
+  NumV nuis700 = qcd_ggF_uncert_2017(njet,700,107);
+  NumV nuis800 = qcd_ggF_uncert_2017(njet,800,107);
+  NumV nuis900 = qcd_ggF_uncert_2017(njet,900,107);
+  NumV nuis1000 = qcd_ggF_uncert_2017(njet,1000,107);
+  NumV nuis1200 = qcd_ggF_uncert_2017(njet,1200,107);
 
   TGraph* scaleVariation = new TGraph();
   TGraph* resummation = new TGraph() ;
@@ -238,82 +242,106 @@ void makeGluonFusionUncertainties(float njet, string outputName){
   for(size_t ipos = 0; ipos < nuis250.size(); ipos++){
 
     if(ipos == 0){
-      scaleVariation->SetPoint(0,250,nuis250.at(ipos)); 
-      scaleVariation->SetPoint(1,300,nuis300.at(ipos)); 
-      scaleVariation->SetPoint(2,350,nuis350.at(ipos)); 
-      scaleVariation->SetPoint(3,400,nuis400.at(ipos)); 
-      scaleVariation->SetPoint(4,500,nuis500.at(ipos)); 
-      scaleVariation->SetPoint(5,600,nuis600.at(ipos)); 
-      scaleVariation->SetPoint(6,700,nuis700.at(ipos)); 
-      scaleVariation->SetPoint(7,800,nuis800.at(ipos)); 
-      scaleVariation->SetPoint(8,900,nuis900.at(ipos)); 
-      scaleVariation->SetPoint(9,1000,nuis1000.at(ipos)); 
-      scaleVariation->SetPoint(10,1200,nuis1200.at(ipos)); 
+      scaleVariation->SetPoint(0,150,nuis150.at(ipos)); 
+      scaleVariation->SetPoint(1,175,nuis175.at(ipos)); 
+      scaleVariation->SetPoint(2,200,nuis200.at(ipos)); 
+      scaleVariation->SetPoint(3,225,nuis225.at(ipos)); 
+      scaleVariation->SetPoint(4,250,nuis250.at(ipos)); 
+      scaleVariation->SetPoint(5,300,nuis300.at(ipos)); 
+      scaleVariation->SetPoint(6,350,nuis350.at(ipos)); 
+      scaleVariation->SetPoint(7,400,nuis400.at(ipos)); 
+      scaleVariation->SetPoint(8,500,nuis500.at(ipos)); 
+      scaleVariation->SetPoint(9,600,nuis600.at(ipos)); 
+      scaleVariation->SetPoint(10,700,nuis700.at(ipos)); 
+      scaleVariation->SetPoint(11,800,nuis800.at(ipos)); 
+      scaleVariation->SetPoint(12,900,nuis900.at(ipos)); 
+      scaleVariation->SetPoint(13,1000,nuis1000.at(ipos)); 
+      scaleVariation->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
     else if(ipos == 1){
-      resummation->SetPoint(0,250,nuis250.at(ipos)); 
-      resummation->SetPoint(1,300,nuis300.at(ipos)); 
-      resummation->SetPoint(2,350,nuis350.at(ipos)); 
-      resummation->SetPoint(3,400,nuis400.at(ipos)); 
-      resummation->SetPoint(4,500,nuis500.at(ipos)); 
-      resummation->SetPoint(5,600,nuis600.at(ipos)); 
-      resummation->SetPoint(6,700,nuis700.at(ipos)); 
-      resummation->SetPoint(7,800,nuis800.at(ipos)); 
-      resummation->SetPoint(8,900,nuis900.at(ipos)); 
-      resummation->SetPoint(9,1000,nuis1000.at(ipos)); 
-      resummation->SetPoint(10,1200,nuis1200.at(ipos)); 
+      resummation->SetPoint(0,150,nuis150.at(ipos)); 
+      resummation->SetPoint(1,175,nuis175.at(ipos)); 
+      resummation->SetPoint(2,200,nuis200.at(ipos)); 
+      resummation->SetPoint(3,225,nuis225.at(ipos)); 
+      resummation->SetPoint(4,250,nuis250.at(ipos)); 
+      resummation->SetPoint(5,300,nuis300.at(ipos)); 
+      resummation->SetPoint(6,350,nuis350.at(ipos)); 
+      resummation->SetPoint(7,400,nuis400.at(ipos)); 
+      resummation->SetPoint(8,500,nuis500.at(ipos)); 
+      resummation->SetPoint(9,600,nuis600.at(ipos)); 
+      resummation->SetPoint(10,700,nuis700.at(ipos)); 
+      resummation->SetPoint(11,800,nuis800.at(ipos)); 
+      resummation->SetPoint(12,900,nuis900.at(ipos)); 
+      resummation->SetPoint(13,1000,nuis1000.at(ipos)); 
+      resummation->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
     else if(ipos == 2){
-      migration01->SetPoint(0,250,nuis250.at(ipos)); 
-      migration01->SetPoint(1,300,nuis300.at(ipos)); 
-      migration01->SetPoint(2,350,nuis350.at(ipos)); 
-      migration01->SetPoint(3,400,nuis400.at(ipos)); 
-      migration01->SetPoint(4,500,nuis500.at(ipos)); 
-      migration01->SetPoint(5,600,nuis600.at(ipos)); 
-      migration01->SetPoint(6,700,nuis700.at(ipos)); 
-      migration01->SetPoint(7,800,nuis800.at(ipos)); 
-      migration01->SetPoint(8,900,nuis900.at(ipos)); 
-      migration01->SetPoint(9,1000,nuis1000.at(ipos)); 
-      migration01->SetPoint(10,1200,nuis1200.at(ipos)); 
+      migration01->SetPoint(0,150,nuis150.at(ipos)); 
+      migration01->SetPoint(1,175,nuis175.at(ipos)); 
+      migration01->SetPoint(2,200,nuis200.at(ipos)); 
+      migration01->SetPoint(3,225,nuis225.at(ipos)); 
+      migration01->SetPoint(4,250,nuis250.at(ipos)); 
+      migration01->SetPoint(5,300,nuis300.at(ipos)); 
+      migration01->SetPoint(6,350,nuis350.at(ipos)); 
+      migration01->SetPoint(7,400,nuis400.at(ipos)); 
+      migration01->SetPoint(8,500,nuis500.at(ipos)); 
+      migration01->SetPoint(9,600,nuis600.at(ipos)); 
+      migration01->SetPoint(10,700,nuis700.at(ipos)); 
+      migration01->SetPoint(11,800,nuis800.at(ipos)); 
+      migration01->SetPoint(12,900,nuis900.at(ipos)); 
+      migration01->SetPoint(13,1000,nuis1000.at(ipos)); 
+      migration01->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
     else if(ipos == 3){
-      migration12->SetPoint(0,250,nuis250.at(ipos)); 
-      migration12->SetPoint(1,300,nuis300.at(ipos)); 
-      migration12->SetPoint(2,350,nuis350.at(ipos)); 
-      migration12->SetPoint(3,400,nuis400.at(ipos)); 
-      migration12->SetPoint(4,500,nuis500.at(ipos)); 
-      migration12->SetPoint(5,600,nuis600.at(ipos)); 
-      migration12->SetPoint(6,700,nuis700.at(ipos)); 
-      migration12->SetPoint(7,800,nuis800.at(ipos)); 
-      migration12->SetPoint(8,900,nuis900.at(ipos)); 
-      migration12->SetPoint(9,1000,nuis1000.at(ipos)); 
-      migration12->SetPoint(10,1200,nuis1200.at(ipos)); 
+      migration12->SetPoint(0,150,nuis150.at(ipos)); 
+      migration12->SetPoint(1,175,nuis175.at(ipos)); 
+      migration12->SetPoint(2,200,nuis200.at(ipos)); 
+      migration12->SetPoint(3,225,nuis225.at(ipos)); 
+      migration12->SetPoint(4,250,nuis250.at(ipos)); 
+      migration12->SetPoint(5,300,nuis300.at(ipos)); 
+      migration12->SetPoint(6,350,nuis350.at(ipos)); 
+      migration12->SetPoint(7,400,nuis400.at(ipos)); 
+      migration12->SetPoint(8,500,nuis500.at(ipos)); 
+      migration12->SetPoint(9,600,nuis600.at(ipos)); 
+      migration12->SetPoint(10,700,nuis700.at(ipos)); 
+      migration12->SetPoint(11,800,nuis800.at(ipos)); 
+      migration12->SetPoint(12,900,nuis900.at(ipos)); 
+      migration12->SetPoint(13,1000,nuis1000.at(ipos)); 
+      migration12->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
     else if(ipos == 7){
-      higgsPt->SetPoint(0,250,nuis250.at(ipos)); 
-      higgsPt->SetPoint(1,300,nuis300.at(ipos)); 
-      higgsPt->SetPoint(2,350,nuis350.at(ipos)); 
-      higgsPt->SetPoint(3,400,nuis400.at(ipos)); 
-      higgsPt->SetPoint(4,500,nuis500.at(ipos)); 
-      higgsPt->SetPoint(5,600,nuis600.at(ipos)); 
-      higgsPt->SetPoint(6,700,nuis700.at(ipos)); 
-      higgsPt->SetPoint(7,800,nuis800.at(ipos)); 
-      higgsPt->SetPoint(8,900,nuis900.at(ipos)); 
-      higgsPt->SetPoint(9,1000,nuis1000.at(ipos)); 
-      higgsPt->SetPoint(10,1200,nuis1200.at(ipos)); 
+      higgsPt->SetPoint(0,150,nuis150.at(ipos)); 
+      higgsPt->SetPoint(1,175,nuis175.at(ipos)); 
+      higgsPt->SetPoint(2,200,nuis200.at(ipos)); 
+      higgsPt->SetPoint(3,225,nuis225.at(ipos)); 
+      higgsPt->SetPoint(4,250,nuis250.at(ipos)); 
+      higgsPt->SetPoint(5,300,nuis300.at(ipos)); 
+      higgsPt->SetPoint(6,350,nuis350.at(ipos)); 
+      higgsPt->SetPoint(7,400,nuis400.at(ipos)); 
+      higgsPt->SetPoint(8,500,nuis500.at(ipos)); 
+      higgsPt->SetPoint(9,600,nuis600.at(ipos)); 
+      higgsPt->SetPoint(10,700,nuis700.at(ipos)); 
+      higgsPt->SetPoint(11,800,nuis800.at(ipos)); 
+      higgsPt->SetPoint(12,900,nuis900.at(ipos)); 
+      higgsPt->SetPoint(13,1000,nuis1000.at(ipos)); 
+      higgsPt->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
     else if(ipos == 8){
-      topEffect->SetPoint(0,250,nuis250.at(ipos)); 
-      topEffect->SetPoint(1,300,nuis300.at(ipos)); 
-      topEffect->SetPoint(2,350,nuis350.at(ipos)); 
-      topEffect->SetPoint(3,400,nuis400.at(ipos)); 
-      topEffect->SetPoint(4,500,nuis500.at(ipos)); 
-      topEffect->SetPoint(5,600,nuis600.at(ipos)); 
-      topEffect->SetPoint(6,700,nuis700.at(ipos)); 
-      topEffect->SetPoint(7,800,nuis800.at(ipos)); 
-      topEffect->SetPoint(8,900,nuis900.at(ipos)); 
-      topEffect->SetPoint(9,1000,nuis1000.at(ipos)); 
-      topEffect->SetPoint(10,1200,nuis1200.at(ipos)); 
+      topEffect->SetPoint(0,150,nuis150.at(ipos)); 
+      topEffect->SetPoint(1,175,nuis175.at(ipos)); 
+      topEffect->SetPoint(2,200,nuis200.at(ipos)); 
+      topEffect->SetPoint(3,225,nuis225.at(ipos)); 
+      topEffect->SetPoint(4,250,nuis250.at(ipos)); 
+      topEffect->SetPoint(5,300,nuis300.at(ipos)); 
+      topEffect->SetPoint(6,350,nuis350.at(ipos)); 
+      topEffect->SetPoint(7,400,nuis400.at(ipos)); 
+      topEffect->SetPoint(8,500,nuis500.at(ipos)); 
+      topEffect->SetPoint(9,600,nuis600.at(ipos)); 
+      topEffect->SetPoint(10,700,nuis700.at(ipos)); 
+      topEffect->SetPoint(11,800,nuis800.at(ipos)); 
+      topEffect->SetPoint(12,900,nuis900.at(ipos)); 
+      topEffect->SetPoint(13,1000,nuis1000.at(ipos)); 
+      topEffect->SetPoint(14,1200,nuis1200.at(ipos)); 
     }
   }
   

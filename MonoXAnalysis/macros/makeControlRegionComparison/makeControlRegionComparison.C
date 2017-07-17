@@ -86,7 +86,7 @@ void makeControlRegionComparison(string inputFileName, string outputDIR, string 
   
   signalregion->GetYaxis()->SetRangeUser(min(signalregion->GetMinimum(),min(controlregion1->GetMinimum(),controlregion2->GetMinimum()))*0.1,
 					 max(signalregion->GetMaximum(),max(controlregion1->GetMaximum(),controlregion2->GetMaximum()))*10);
-  
+
   
   canvas->SetLogy();
 
@@ -118,9 +118,9 @@ void makeControlRegionComparison(string inputFileName, string outputDIR, string 
   ratio1->Draw("hist");
   ratio2->Draw("hist same");
   if(sample == Sample::zjet)
-    ratio1->GetYaxis()->SetRangeUser(0.7,1.3);
+    ratio1->GetYaxis()->SetRangeUser(0.8,1.2);
   else if(sample == Sample::wjet)
-    ratio1->GetYaxis()->SetRangeUser(0.3,1.7);
+    ratio1->GetYaxis()->SetRangeUser(0.8,1.2);
   
   TH1* uncertainty = (TH1*) controlregion1->Clone("uncertainty");
   uncertainty->Divide(signalregion);
