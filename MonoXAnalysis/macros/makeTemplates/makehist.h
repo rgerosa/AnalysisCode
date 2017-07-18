@@ -1082,7 +1082,7 @@ void makehist4(TTree* tree,            /*input tree*/
         
     /// re-miniADO specific to adjust lumi
     Double_t sfwgt = 1.0;
-
+    //float sf_track = 1.0;
     // apply tracking efficiency for electrons from POGs / private files
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
       if(not isSummer16){
@@ -1117,12 +1117,14 @@ void makehist4(TTree* tree,            /*input tree*/
 	  if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	  else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
 	  sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
+	  //sf_track =  trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
 	}
 	if(pt2 > 0.){
 	  float ptVal = pt1;
 	  if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
 	  else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
 	  sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
+	  //sf_track =  trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
 	}
       }
     }
@@ -1155,7 +1157,7 @@ void makehist4(TTree* tree,            /*input tree*/
     TH2* sflhist_highpu = NULL;
     TH2* sfthist_highpu = NULL;
 
-    double sf_lepID = 1;
+    //double sf_lepID = 1;
 
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
 
@@ -1184,7 +1186,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	  else{
 	    if (id2 == 1){
 	      sfwgt *= msftight_highpu->GetBinContent(msftight_highpu->FindBin(fabs(eta2),min(pt2,msftight_highpu->GetYaxis()->GetBinLowEdge(msftight_highpu->GetNbinsY()+1)-1))); 
-	      sf_lepID *= msftight_highpu->GetBinContent(msftight_highpu->FindBin(fabs(eta2),min(pt2,msftight_highpu->GetYaxis()->GetBinLowEdge(msftight_highpu->GetNbinsY()+1)-1)));
 	    }
 	    else
 	      sfwgt *= msfloose_highpu->GetBinContent(msfloose_highpu->FindBin(fabs(eta2),min(pt2,msfloose_highpu->GetYaxis()->GetBinLowEdge(msfloose_highpu->GetNbinsY()+1)-1))); 
@@ -1221,15 +1222,27 @@ void makehist4(TTree* tree,            /*input tree*/
 	  float ptVal = pt1;
 	  if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
 	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	  if (id1 == 1) sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
-	  else  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
+	  if (id1 == 1) {
+	    sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
+	    //sf_lepID *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
+	  }
+	  else{  
+	    sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
+	    //sf_lepID *=esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
+	  }
 	}
 	if (pt2 > 0.) {
 	  float ptVal = pt2;
 	  if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
 	  else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	  if (id1 == 1) sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
-	  else  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
+	  if (id1 == 1){
+	    sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
+	    //sf_lepID *=esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
+	  }
+	  else{
+	    sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
+	    //sf_lepID  *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
+	  }
 	}
       }
       else{
@@ -1263,6 +1276,7 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     
     // trigger scale factor for electrons
+    float sf_trigger = 1.;
     if (isMC && triggerelhist && triggerelhist_ht && (sample == Sample::zee || sample == Sample::topel || sample == Sample::wen)) {
       float sf1 = 1.;
       float sf2 = 1.;
@@ -1276,21 +1290,40 @@ void makehist4(TTree* tree,            /*input tree*/
 	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(fabs(eta2),min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
       }
       else{
-	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta1,min(pt1,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-	if(pt1 >= 200)
-	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(eta1,min(pt1,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));
-	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,min(pt2,triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1)));
-	if(pt2 >= 200)
-	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist_ht->FindBin(eta2,min(pt2,triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1)));	  
+
+	float ptVal = pt1;
+	if(pt1 > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
+	sf1 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
+	if(pt1 >= 200){
+	  ptVal = pt1;
+	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
+	  sf1 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta1,ptVal));
+	}
+
+	ptVal = pt2;
+	if(ptVal > triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)) ptVal = triggerelhist->GetYaxis()->GetBinLowEdge(triggerelhist->GetNbinsY()+1)-1;	
+	sf2 = triggerelhist->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
+	if(pt2 >= 200){
+	  ptVal = pt2;
+	  if(ptVal > triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)) ptVal = triggerelhist_ht->GetYaxis()->GetBinLowEdge(triggerelhist_ht->GetNbinsY()+1)-1;
+	  sf2 = triggerelhist_ht->GetBinContent(triggerelhist->FindBin(eta2,ptVal));
+	}	
+
       }
 
       //////////////
-      if (pt1 > 40. && id1 == 1 and id2 == 1)
+      if (pt1 > 40. && id1 == 1 and id2 == 1){
 	sfwgt *= min(1.,double(sf1+sf2-sf1*sf2));
-      else if(pt1 > 40 and id1 == 1 and id2 != 1)
+	sf_trigger *= min(1.,double(sf1+sf2-sf1*sf2));
+      }
+      else if(pt1 > 40 and id1 == 1 and id2 != 1){	
 	sfwgt *= sf1;
-      else if(pt2 > 40 and id2 == 1 and id1 != 1)
+	sf_trigger *= sf1;
+      }
+      else if(pt2 > 40 and id2 == 1 and id1 != 1){
 	sfwgt *= sf2;
+	sf_trigger *= sf2;
+      }
     }
     
     
@@ -1401,11 +1434,21 @@ void makehist4(TTree* tree,            /*input tree*/
     //Gen level info --> NLO re-weight    
     Double_t kwgt = 1.0;    
     double genpt = *wzpt;
+    float sf_ewk = 1.0;
+    float sf_qcd_mj  = 1.0;
+    float sf_qcd_vbf = 1.0;
     for (size_t i = 0; i < khists.size(); i++) {
       if (khists[i]) {
 	if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
 	if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
 	kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+
+	if(i == 1)
+	  sf_ewk = khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	else if(i == 0)
+	  sf_qcd_mj *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+	else if(i == 2)
+	  sf_qcd_vbf *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
       }
     }
 
@@ -2117,7 +2160,9 @@ void makehist4(TTree* tree,            /*input tree*/
 	if(fabs(*wgtpu) > 100)  puwgt = 1;
 	else if(fabs(*wgtpu) < 0.01) puwgt = 1;
 	else puwgt = *wgtpu;
-	
+
+	cout<<"event "<<*event<<" lumi "<<*lumisection<<" ewk "<<sf_ewk<<" qcd_mj "<<sf_qcd_mj<<" qcd_vbf "<<sf_qcd_vbf<<" wzpt "<<*wzpt<<endl;
+
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else

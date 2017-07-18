@@ -4029,17 +4029,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       
       // loop on genParticles (prunedGenParticles) trying to find W/Z decying leptonically or hadronically, top and anti-top quarks
       for (auto gens_iter = gensH->begin(); gens_iter != gensH->end(); ++gens_iter) {
+
 	if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson
 	     gens_iter->numberOfDaughters() > 1 && // before the decay (more than one daughter)
 	     abs(gens_iter->daughter(0)->pdgId()) > 10 && 
 	     abs(gens_iter->daughter(0)->pdgId()) < 17)  { // decays into leptons, neutrinos 
-	  
+
 	  wzid   = gens_iter->pdgId();
 	  wzmass = gens_iter->mass();
 	  wzpt   = gens_iter->pt();
 	  wzeta  = gens_iter->eta();
 	  wzphi  = gens_iter->phi();
-	  
+
 	  l1id   = gens_iter->daughter(0)->pdgId();
 	  l1pt   = gens_iter->daughter(0)->pt();
 	  l1eta  = gens_iter->daughter(0)->eta();
@@ -4049,7 +4050,26 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  l2pt   = gens_iter->daughter(1)->pt();
 	  l2eta  = gens_iter->daughter(1)->eta();
 	  l2phi  = gens_iter->daughter(1)->phi();
+
+	  // look for the tau --> to be more specific
+	  if(abs(gens_iter->daughter(0)->pdgId()) == 15){
+	    for(size_t ipart = 0; ipart < gens_iter->daughter(0)->numberOfDaughters(); ipart++){
+	      if(abs(gens_iter->daughter(0)->daughter(ipart)->pdgId()) == 11 or abs(gens_iter->daughter(0)->daughter(ipart)->pdgId()) == 13) // if there is a muon / electron -> leptonic decay
+		l1id = gens_iter->daughter(0)->daughter(ipart)->pdgId();
+	      // otherwise it remains a tau --> hadronic decays
+	    }
+	  }
+	  
+	  if(abs(gens_iter->daughter(1)->pdgId()) == 15){
+	    for(size_t ipart = 0; ipart < gens_iter->daughter(1)->numberOfDaughters(); ipart++){
+	      if(abs(gens_iter->daughter(1)->daughter(ipart)->pdgId()) == 11 or abs(gens_iter->daughter(1)->daughter(ipart)->pdgId()) == 13) // if there is a muon / electron -> leptonic decay
+		l1id = gens_iter->daughter(1)->daughter(ipart)->pdgId();
+	      // otherwise it remains a tau --> hadronic decays
+	    }
+	  }
+
 	  wzmt   = sqrt(2.0 * l1pt * l2pt * (1.0 - cos(deltaPhi(l1phi, l2phi))));
+	  
 	}
       
 	else if ( (gens_iter->pdgId() == 23 || abs(gens_iter->pdgId()) == 24) && // Z or W-boson

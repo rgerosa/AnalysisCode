@@ -388,6 +388,7 @@ void GenTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	l2pt   = gens_iter->daughter(1)->pt();
 	l2eta  = gens_iter->daughter(1)->eta();
 	l2phi  = gens_iter->daughter(1)->phi();
+
       } 
     }
     

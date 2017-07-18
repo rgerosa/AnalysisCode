@@ -449,7 +449,7 @@ void sigdatamchist(TFile* outfile,
     zewkhist  = (TH1*) kffile->Get("EWKcorr/Z");
     
     if(zewkhist)
-      zewkhist->Divide(znlohist);c
+      zewkhist->Divide(znlohist);
     if(znlohist)
       znlohist->Divide(zlohist);
 

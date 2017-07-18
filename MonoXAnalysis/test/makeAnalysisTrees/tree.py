@@ -329,10 +329,12 @@ if options.inputFiles == []:
 		process.source.fileNames.append('/store/data/Run2016C/JetHT/MINIAOD/03Feb2017-v1/110000/F6340B16-C1EB-E611-BE2F-008CFA197D60.root')
 
 	else:
+		#process.source.fileNames.append('file:pickevents.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
-#		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
+		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
+		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/4CAA7972-9BCB-E611-A395-0025905A6060.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/SMM_MonoW_Mphi-1000_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/100000/8C1FE6FF-69D0-E611-91A5-FA163EF2F0A3.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Axial_MonoJ_NLO_Mphi-1000_Mchi-1_gSM-0p25_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/80000/B6B3A7ED-05D6-E611-BA96-008CFA11113C.root')
@@ -815,6 +817,32 @@ process.btageff = cms.EDAnalyzer("BTaggingEfficiencyTreeMaker",
 			 wpValue = cms.double(0.4432)),
 		))
 
+
+
+process.taueff = cms.EDAnalyzer("TauTaggingEfficiencyTreeMaker",
+				 directoryName = cms.string("tautagEff"),
+				 srcTaus       = cms.InputTag("slimmedTaus"),
+				 dRClean       = cms.double(0.4),
+				 cleanMuonJet  = cms.bool(True),
+				 srcMuons      = cms.InputTag("selectedObjects","muons"),
+				 cleanElectronJet = cms.bool(True),
+				 srcElectrons    = cms.InputTag("selectedObjects","electrons"),
+				 cleanPhotonJet  = cms.bool(True),
+				 srcPhotons      = cms.InputTag("selectedObjects","photons"),
+				 selection       = cms.string('abs(eta)<2.3 && pt > 18'),
+				 ptBins          = cms.vdouble(15,20,25,30,40,50,60,80,120,160,200,250,350,450,600,800),
+				 etaBins         = cms.vdouble(0.,0.5,1.,1.5,2.0,2.3),
+				 ## CSV v2 wp in 76X
+				 tauDiscriminatorInfo = cms.VPSet(
+		cms.PSet(discriminatorName = cms.string("VLooseTauOldDM"),
+			 wpLabel = cms.string("byVLooseIsolationMVArun2v1DBoldDMwLT"),
+			 decayModeFinding = cms.string("decayModeFinding")),
+
+		cms.PSet(discriminatorName = cms.string("VLooseTauNewDM"),
+			 wpLabel = cms.string("byVLooseIsolationMVArun2v1DBnewDMwLT"),
+			 decayModeFinding = cms.string("decayModeFindingNewDMs"))
+		))
+
 if options.addPuppiJets: ## make b-tagging efficiency maps also for puppi jets
 	setattr(process,"btageffPuppi",process.btageff.clone(
 			srcJets = cms.InputTag(jetPuppiCollName)))
@@ -858,12 +886,14 @@ if options.dropAnalyzerDumpEDM == False:
 		process.treePath = cms.Path(process.gentree + 					    
 					    process.metFilters+
 					    process.btageff+
+					    process.taueff+
 					    getattr(process,"eventFilters")+
 					    process.tree)
 		if(options.addPuppiJets):
 			process.treePath = cms.Path(process.gentree +
 						    process.metFilters+
 						    process.btageff+
+						    process.taueff+
 						    process.btageffPuppi+
 						    getattr(process,"eventFilters")+
 						    process.tree)		
