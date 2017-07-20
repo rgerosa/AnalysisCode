@@ -1420,8 +1420,6 @@ void makehist4(TTree* tree,            /*input tree*/
       btagw = 0.920;
     if(isMC and (sample == Sample::sig and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 1.015;
-    if(isMC and (sample == Sample::wmn and category != Category::VBF and category != Category::VBFrelaxed))
-      btagw = 1.010;
     if(isMC and (sample == Sample::zee and category != Category::VBF and category != Category::VBFrelaxed))
       btagw = 0.980;
     else

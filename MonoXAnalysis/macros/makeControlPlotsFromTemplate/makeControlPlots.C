@@ -4,7 +4,7 @@
 static float minTau2Tau1 = 0.1;
 static bool saveTextYields = false;
 static bool addEWKBkg = false;
-static bool addVgamma = true;
+static bool addVgamma = false;
 
 void makeControlPlots(string templateFileName, 
 		      Category category, 
