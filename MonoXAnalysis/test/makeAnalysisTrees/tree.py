@@ -637,6 +637,7 @@ process.tree = cms.EDAnalyzer("MonoJetTreeMaker",
 			      photonCHiso = cms.InputTag("selectedObjects", "chhadiso"),
 			      photonNHiso = cms.InputTag("selectedObjects", "nhhadiso"),
 			      ## taus
+			      tausCollection  = cms.InputTag("slimmedTaus"),
 			      tausVLNew       = cms.InputTag("selectedObjects","tausVLNew"),
 			      tausVLOld       = cms.InputTag("selectedObjects","tausVLOld"),
 			      tausRawNew      = cms.InputTag("selectedObjects","tausRawNew"),

@@ -257,6 +257,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float> >   rndchhadiso08Token;
 
   // Taus
+  const edm::InputTag tausCollection;
   const edm::InputTag tausVLNewTag;
   const edm::InputTag tausVLOldTag;
   const edm::InputTag tausRawNewTag;
@@ -264,6 +265,7 @@ private:
   const edm::InputTag tausTightNewTag;
   const edm::InputTag tausTightOldTag;
 
+  edm::EDGetTokenT<pat::TauCollection> tausCollectionToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausVLNewToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausVLOldToken;
   edm::EDGetTokenT<pat::TauRefVector>  tausRawNewToken;
@@ -410,16 +412,18 @@ private:
 
   // pileup info
   int32_t puobs,putrue; 
+
   // W/Z boson ifo
   int32_t wzid,l1id,l2id;
   int32_t wzid_h,q1id,q2id;
   int32_t top_1,top_2;  
+
   // lepton info
   int32_t mu1pid,mu2pid,mu1id,mu2id,mu1idm,mu2idm,mu1idt,mu2idt;
   int32_t el1pid,el2pid,el1id,el1idl,el1idt,el2id,el2idl,el2idt,el1idmval, el2idmval, el1idmvat, el2idmvat;
+
   // subject to gain switch
   int32_t el1gs, el2gs;
-  int32_t tau1pid,tau2pid;
   int32_t phidm,phidt,phidh,phidmval, phidmvat, phgs;
   int32_t parid,ancid; 
 
@@ -441,10 +445,13 @@ private:
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
   uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
   uint8_t hltjetmet;
+
   // photon trigger
   uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf,hltphoton90PFHT;
+
   // lepton trigger
   uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
+
   // PF HT trigger
   uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350;
   uint8_t hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
@@ -461,9 +468,8 @@ private:
   // muon, ele, dilepton info
   float mu1pt,mu1eta,mu1phi,mu1pfpt,mu1pfeta,mu1pfphi,mu1iso,mu2pt,mu2eta,mu2phi,mu2pfpt,mu2pfeta,mu2pfphi,mu2iso;
   float el1pt,el1eta,el1phi,ele1e,el2pt,ele2e,el2eta,el2phi,phpt,pheta,phphi,phe;
-  float tau1pt,tau1eta,tau1phi,tau1m,tau1id,tau1idold,tau2pt,tau2eta,tau2phi,tau2m,tau2id,tau2idold;
-  float zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt,zttmass,zttpt,ztteta,zttphi,wtmt; 
-  float emumass,emupt,emueta,emuphi,taumumass,taumupt,taumueta,taumuphi,tauemass,tauept,taueeta,tauephi;
+  float zmass,zpt,zeta,zphi,wmt,zeemass,zeept,zeeeta,zeephi,wemt;
+
   // fake muons in 2016 HIP mitigated data
   vector<float> fakemupt, fakemueta, fakemuphi;
 
@@ -489,9 +495,6 @@ private:
   // Puppi MET info (typeI and Raw)
   float puppipfmet,puppipfmetphi,puppimumet,puppimumetphi,puppielmet,puppielmetphi,puppiphmet,puppiphmetphi,puppitaumet,puppitaumetphi;
   float puppit1pfmet,puppit1pfmetphi,puppit1mumet,puppit1mumetphi,puppit1elmet,puppit1elmetphi,puppit1phmet,puppit1phmetphi,puppit1taumet,puppit1taumetphi;
-
-  // mva met
-  float mvamet,mvametphi;
 
   // gen met
   float genmet,genmetphi;
@@ -528,6 +531,11 @@ private:
   float incjetmetdphimin4up,incjetmumetdphimin4up,incjetelmetdphimin4up,incjetphmetdphimin4up; 
   float incjetmetdphimin4dw,incjetmumetdphimin4dw,incjetelmetdphimin4dw,incjetphmetdphimin4dw; 
   float incjetmetdphimin4jer,incjetmumetdphimin4jer,incjetelmetdphimin4jer,incjetphmetdphimin4jer; 
+
+  //Taus
+  std::vector<int> combinetauidnew, combinetauidold, combinetaupid;
+  std::vector<float> combinetaupt,combinetaueta,combinetauphi,combinetaum;
+  std::vector<float> combinetauGenpt, combinetauGeneta, combinetauGenphi, combinetauGenm;
 
   // AK4Puppi combine jet
   std::vector<float> combinePuppijetpt,combinePuppijeteta,combinePuppijetphi,combinePuppijetm,combinePuppijetbtag,combinePuppijetbtagMVA;
@@ -642,20 +650,25 @@ private:
 
   // gen info leptoni W/Z boson (1 per event)
   float wzmass,wzmt,wzpt,wzeta,wzphi,wzmothid,l1pt,l1eta,l1phi,l2pt,l2eta,l2phi;
+
   // photon info
   float parpt,pareta,parphi,parmass,ancpt,anceta,ancphi,ancmass;
   int32_t ismatch, isdirect;
+
   // hadronic V and related quarks (1 per event)
   float wzmass_h,wzmt_h,wzpt_h,wzeta_h,wzphi_h,q1pt,q1eta,q1phi,q2pt,q2eta,q2phi;
+
   // one top
   float topmass,toppt,topeta,topphi;
-  // second top
   float atopmass,atoppt,atopeta,atopphi;
+
   // DM mediator and DM particles
   float dmmass,dmpt,dmeta,dmphi,dmX1pt,dmX1eta,dmX1phi,dmX1mass,dmX2pt,dmX2eta,dmX2phi,dmX2mass;
   int   dmid,dmX1id,dmX2id;
+
   // for fastSIM
   float samplemedM,sampledmM;
+
   // weights
   float wgt,kfact,puwgt;
   std::vector<float> qcdscalewgt;
@@ -763,6 +776,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   // photon purity
   isPhotonPurity(iConfig.existsAs<bool>("isPhotonPurity") ? iConfig.getParameter<bool>("isPhotonPurity") : false),
   // taus
+  tausCollection(iConfig.getParameter<edm::InputTag>("tausCollection")),
   tausVLNewTag(iConfig.getParameter<edm::InputTag>("tausVLNew")),
   tausVLOldTag(iConfig.getParameter<edm::InputTag>("tausVLOld")),
   tausRawNewTag(iConfig.getParameter<edm::InputTag>("tausRawNew")),
@@ -869,6 +883,7 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   }
 
   // taus
+  tausCollectionToken = consumes<pat::TauCollection> (tausCollection);
   tausVLNewToken = consumes<pat::TauRefVector> (tausVLNewTag);
   tausVLOldToken = consumes<pat::TauRefVector> (tausVLOldTag);
   tausRawNewToken = consumes<pat::TauRefVector> (tausRawNewTag);
@@ -1214,6 +1229,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
     // TAUS
+    Handle<pat::TauCollection> tausH;
+    iEvent.getByToken(tausCollectionToken, tausH);
+    pat::TauCollection taus = *tausH;
+
     Handle<pat::TauRefVector > tausVLNewH;
     iEvent.getByToken(tausVLNewToken, tausVLNewH);
     pat::TauRefVector tausVLNew = *tausVLNewH;
@@ -1524,7 +1543,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     t1pfmet    = -99. ; t1pfmetphi = -99. ;
     pfmet      = -99. ; pfmetphi   = -99. ;
     calomet    = -99. ; calometphi = -99. ;
-    mvamet    = -99.;   mvametphi = -99.;
     t1mumet    = -99;   t1mumetphi = -99;
     mumet      = -99;   mumetphi   = -99;
     t1elmet    = -99;   t1elmetphi = -99;
@@ -1961,6 +1979,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    combinejetGenphi.push_back(incjets[i]->genJet()->phi()); 
 	    combinejetGenm.push_back(incjets[i]->genJet()->mass()); 
 	  }
+	  else{
+	    combinejetGenpt.push_back(0.); 
+	    combinejetGeneta.push_back(0.); 
+	    combinejetGenphi.push_back(0.); 
+	    combinejetGenm.push_back(0.); 
+	  }
 	  // b-tag SF for jets
 	  if(addBTagScaleFactor){
 	    calculateBtagSF(*incjets[i],"CSV",combinejetBtagSF,combinejetBtagSFUp,combinejetBtagSFDown);
@@ -2262,6 +2286,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      combinePuppijetGenphi.push_back(incPuppijets[i]->genJet()->phi()); 
 	      combinePuppijetGenm.push_back(incPuppijets[i]->genJet()->mass()); 
 	    }	  
+	    else{
+	      combinePuppijetGenpt.push_back(0.); 
+	      combinePuppijetGeneta.push_back(0.); 
+	      combinePuppijetGenphi.push_back(0.); 
+	      combinePuppijetGenm.push_back(0.); 
+	    }
 	    
 	      // b-tag SF for Puppijets
 	    if(addBTagScaleFactor){
@@ -2456,79 +2486,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(mvatightelectronsH.isValid())
       nmvatightelectrons = mvatightelectronsH->size();      
     
-    // re-apply the cleaning to be sure
-    vector<pat::TauRef> tauvector;
-    ntaus = 0;
-    if(tausVLNewH.isValid()){
-      for(std::size_t itau =0 ; itau < tausVLNew.size(); itau++){
-	bool skiptau = false;
-	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausVLNew[itau]->eta(), tausVLNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausVLNew[itau]->eta(), tausVLNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	if(skiptau) continue;
-	tauvector.push_back(tausVLNew[itau]);
-	ntaus++;
-      }
-    }
-
- 
-    ntausold = 0;
-    if(tausVLOldH.isValid()){
-      for(std::size_t itau =0 ; itau < tausVLOld.size(); itau++){
-	bool skiptau = false;
-	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausVLOld[itau]->eta(), tausVLOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausVLOld[itau]->eta(), tausVLOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	if(skiptau) continue;
-	ntausold++;
-      }
-    }
-
-    // old isolation
-    ntausraw = 0;
-    if(tausRawNewH.isValid()){
-      for(std::size_t itau =0 ; itau < tausRawNew.size(); itau++){
-	bool skiptau = false;
-	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRawNew[itau]->eta(), tausRawNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRawNew[itau]->eta(), tausRawNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	if(skiptau) continue;
-	ntausraw++;
-      }
-    }
-
-    ntausrawold = 0;
-    if(tausRawOldH.isValid()){
-      for(std::size_t itau =0 ; itau < tausRawOld.size(); itau++){
-	bool skiptau = false;
-	for (std::size_t j = 0; j < muons.size(); j++) {
-	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRawOld[itau]->eta(), tausRawOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	for (std::size_t j = 0; j < electrons.size(); j++) {
-	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRawOld[itau]->eta(), tausRawOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
-	}
-	if(skiptau) continue;
-	ntausrawold++;
-      }
-    }
 
     // W, Z control sample information
     zmass       = 0.0; zpt         = 0.0; zeta        = 0.0; zphi        = 0.0;
     zeemass     = 0.0; zeept       = 0.0; zeeeta      = 0.0; zeephi      = 0.0;
-    zttmass     = 0.0; zttpt       = 0.0; ztteta      = 0.0; zttphi      = 0.0;
-    wmt         = 0.0; wemt        = 0.0; wtmt        = 0.0; 
-    emumass     = 0.0; emupt       = 0.0; emueta      = 0.0; emuphi      = 0.0;
-    taumumass   = 0.0; taumupt     = 0.0; taumueta    = 0.0; taumuphi    = 0.0;
-    tauemass    = 0.0; tauept      = 0.0; taueeta     = 0.0; tauephi     = 0.0;
+    wmt         = 0.0; wemt        = 0.0; 
 
     mu1pid      = 0;   mu1pt       = 0.0; mu1eta      = 0.0; mu1phi      = 0.0;
     mu1pfpt     = 0.0; mu1pfeta    = 0.0; mu1pfphi    = 0.0; mu1id       = 0;
@@ -2541,14 +2503,11 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     el1pid      = 0; el1pt       = 0.0; el1eta      = 0.0; el1phi      = 0.0; el1id       = 0; el1idl       = 0; el1idt       = 0; el1idmval = 0; el1idmvat = 0;
     el2pid      = 0; el2pt       = 0.0; el2eta      = 0.0; el2phi      = 0.0; el2id       = 0; el2idl       = 0; el2idt       = 0; el2idmval = 0; el2idmvat = 0;
     el1gs       = 0; el2gs       = 0;
-    tau1pid     = 0;   tau1pt    = 0.0; tau1eta     = 0.0; tau1phi     = 0.0; tau1m       = 0.0; tau1id = 0; tau1idold = 0;
-    tau2pid     = 0;   tau2pt    = 0.0; tau2eta     = 0.0; tau2phi     = 0.0; tau2m       = 0.0; tau2id = 0; tau2idold = 0;
     
 
     // sort electrons and muons
     sort(muonvector.begin(), muonvector.end(), muonSorter);
     sort(electronvector.begin(), electronvector.end(), electronSorter);
-    sort(tauvector.begin(), tauvector.end(), tauSorter);
     
     // one or two loose muons
     if (nmuons == 1 || nmuons == 2) {
@@ -2716,109 +2675,133 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         zeephi  = zvec.Phi();
     }
 
-    ///// taus
-    // one or two loose muons
-    if (ntaus == 1 || ntaus == 2) {
-      
-      pat::TauRef tau = tauvector[0];
-      tau1pid   = tau->pdgId(); 
-      tau1pt    = tau->pt(); 
-      tau1eta   = tau->eta(); 
-      tau1phi   = tau->phi();
-      tau1m     = tau->mass();
+    // dump taus
+    combinetaupt.clear(); combinetaueta.clear(); combinetauphi.clear(); combinetaum.clear();
+    combinetauGenpt.clear(); combinetauGeneta.clear(); combinetauGenphi.clear(); combinetauGenm.clear();
+    combinetaupid.clear(); combinetauidnew.clear(); combinetauidold.clear();
 
-      // new decay mode
-      for(std::size_t itau = 0; itau < tausTightNew.size(); itau++)
-	if(tau == tausTightNew[itau]) tau1id = 1;
+    // re-apply the cleaning to be sure --> count number of taus according to different selctions
+    ntausold = 0;
 
-      // old decay decay mode
-      for(std::size_t itau = 0; itau < tausTightOld.size(); itau++)
-	if(tau == tausTightOld[itau]) tau1idold = 1;
-
-      if (ntaus == 1) 
-	wtmt = sqrt(2.0 * tau1pt * t1pfmet * (1.0 - cos(deltaPhi(tau1phi, t1pfmetphi))));
-      
-    }
-   
-    // two loose muons
-    if (ntaus == 2) {        
-
-      pat::TauRef tau = tauvector[1];
-      tau2pid   = tau->pdgId(); 
-      tau2pt    = tau->pt(); 
-      tau2eta   = tau->eta(); 
-      tau2phi   = tau->phi();
-      tau2m     = tau->mass();
-      // new decay mode
-      for(std::size_t itau = 0; itau < tausTightNew.size(); itau++)
-	if(tau == tausTightNew[itau]) tau2id = 1;
-
-      // old decay decay mode
-      for(std::size_t itau = 0; itau < tausTightOld.size(); itau++)
-	if(tau == tausTightOld[itau]) tau2idold = 1;
-      
-      TLorentzVector tau1vec; 
-      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
-      TLorentzVector tau2vec; 
-      tau2vec.SetPtEtaPhiE(tau2pt, tau2eta, tau2phi, tau->p());
-      
-      TLorentzVector zvec(tau1vec);
-      zvec += tau2vec;
-    
-      zttmass = zvec.M();
-      zttpt   = zvec.Pt();
-      ztteta  = zvec.Eta();            
-      zttphi  = zvec.Phi();
+    if(tausVLOldH.isValid()){
+      for(std::size_t itau =0 ; itau < tausVLOld.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausVLOld[itau]->eta(), tausVLOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausVLOld[itau]->eta(), tausVLOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausold++;
+      }
     }
     
+    ntaus = 0;
+    if(tausVLNewH.isValid()){
+      for(std::size_t itau =0 ; itau < tausVLNew.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausVLNew[itau]->eta(), tausVLNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausVLNew[itau]->eta(), tausVLNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntaus++;
+      }
+    }
+ 
+    // old isolation
+    ntausraw = 0;
+    if(tausRawNewH.isValid()){
+      for(std::size_t itau =0 ; itau < tausRawNew.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRawNew[itau]->eta(), tausRawNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRawNew[itau]->eta(), tausRawNew[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausraw++;
+      }
+    }
 
-    // one electron and one muon (ttbar DF fully leptonic)
-    if (nmuons == 1 && nelectrons == 1) {
-      TLorentzVector mu1vec; 
-      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muonvector[0]->p());
-      TLorentzVector el1vec; 
-      el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi, electronvector[0]->p());
-      
-      TLorentzVector emuvec(mu1vec);
-      emuvec += el1vec;
-      
-      emumass = emuvec.M();
-      emupt   = emuvec.Pt();
-      emueta  = emuvec.Eta();
-      emuphi  = emuvec.Phi();
-    } 
+    ntausrawold = 0;
+    if(tausRawOldH.isValid()){
+      for(std::size_t itau =0 ; itau < tausRawOld.size(); itau++){
+	bool skiptau = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), tausRawOld[itau]->eta(), tausRawOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanElectronJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), tausRawOld[itau]->eta(), tausRawOld[itau]->phi()) < dRCleaningAK4) skiptau = true;
+	}
+	if(skiptau) continue;
+	ntausrawold++;
+      }
+    }
 
-    // one electron and one tau (ttbar DF fully leptonic)
-    if (ntaus == 1 && nelectrons == 1) {
-      TLorentzVector tau1vec; 
-      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
-      TLorentzVector el1vec; 
-      el1vec.SetPtEtaPhiE(el1pt, el1eta, el1phi,  electronvector[0]->p());
-      
-      TLorentzVector emuvec(tau1vec);
-      emuvec += el1vec;
-      
-      tauemass = emuvec.M();
-      tauept   = emuvec.Pt();
-      taueeta  = emuvec.Eta();
-      tauephi  = emuvec.Phi();
-    } 
+    /// tau information
+    if(tausH.isValid()){
+      for (auto taus_iter = tausH->begin(); taus_iter != tausH->end(); ++taus_iter) {
 
-    // one tau and one muon (ttbar DF fully leptonic)
-    if (nmuons == 1 && ntaus == 1) {
-      TLorentzVector mu1vec; 
-      mu1vec.SetPtEtaPhiE(mu1pt, mu1eta, mu1phi, muonvector[0]->p());
-      TLorentzVector tau1vec; 
-      tau1vec.SetPtEtaPhiE(tau1pt, tau1eta, tau1phi, tauvector[0]->p());
-      
-      TLorentzVector emuvec(tau1vec);
-      emuvec += mu1vec;
-      
-      taumumass = emuvec.M();
-      taumupt   = emuvec.Pt();
-      taumueta  = emuvec.Eta();
-      taumuphi  = emuvec.Phi();
-    } 
+	//clean from leptons                                                                                                                                                                        
+	bool skipjet = false;
+	for (std::size_t j = 0; j < muons.size(); j++) {
+	  if (cleanMuonJet && deltaR(muons[j]->eta(), muons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < dRCleaningAK4)
+	    skipjet = true;
+	}
+
+	for (std::size_t j = 0; j < electrons.size(); j++) {
+	  if (cleanMuonJet && deltaR(electrons[j]->eta(), electrons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < dRCleaningAK4)
+	    skipjet = true;
+	}
+
+	for (std::size_t j = 0; j < photons.size(); j++) {
+	  if (cleanMuonJet && deltaR(photons[j]->eta(), photons[j]->phi(), taus_iter->eta(), taus_iter->phi()) < dRCleaningAK4)
+	    skipjet = true;
+	}
+
+	if(skipjet) continue;
+
+	// dump tau information
+	combinetaupt.push_back(taus_iter->pt());
+	combinetaueta.push_back(taus_iter->eta());
+	combinetauphi.push_back(taus_iter->phi());
+	combinetaum.push_back(taus_iter->mass());
+	combinetaupid.push_back(taus_iter->pdgId());
+
+	// save the id information
+	pat::TauRef tauref = pat::TauRef(tausH, taus_iter - tausH->begin());
+
+	combinetauidold.push_back(0);
+	if(std::find(tausVLOld.begin(),tausVLOld.end(),tauref) != tausVLOld.end())
+	  combinetauidold.back() += 1;
+	if(std::find(tausTightOld.begin(),tausTightOld.end(),tauref) != tausTightOld.end())
+	  combinetauidold.back() += 1;
+	
+	combinetauidnew.push_back(0);
+	if(std::find(tausVLNew.begin(),tausVLNew.end(),tauref) != tausVLNew.end())
+	  combinetauidnew.back() += 1;
+	if(std::find(tausTightNew.begin(),tausTightNew.end(),tauref) != tausTightNew.end())
+	  combinetauidnew.back() += 1;
+
+	if(taus_iter->genJet()){
+	  combinetauGenpt.push_back(taus_iter->genJet()->pt()); 
+	  combinetauGeneta.push_back(taus_iter->genJet()->eta());
+	  combinetauGenphi.push_back(taus_iter->genJet()->phi());
+	  combinetauGenm.push_back(taus_iter->genJet()->mass());
+	}
+	else{
+	  combinetauGenpt.push_back(0); 
+	  combinetauGeneta.push_back(0); 
+	  combinetauGenphi.push_back(0); 
+	  combinetauGenm.push_back(0);
+	}
+      }
+    }
     
     // Photon information
     phidm    = 0; phidt    = 0; phidh    = 0; phgs = 0;
@@ -3027,6 +3010,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	    boostedJetGeneta  .push_back( jetsBoosted[i]->genJet()->eta());
 	    boostedJetGenphi  .push_back( jetsBoosted[i]->genJet()->phi());	      
 	  }	  
+	  else{
+	    boostedJetGenpt .push_back(0);
+	    boostedJetGenm  .push_back(0);
+	    boostedJetGeneta  .push_back(0);
+	    boostedJetGenphi  .push_back(0);	      
+	  }
 	  boostedJetHFlav .push_back( jetsBoosted[i]->hadronFlavour());
 	  boostedJetPFlav .push_back( jetsBoosted[i]->partonFlavour());	  
 	}
@@ -3267,7 +3256,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedSubJetGenm_1  .push_back( subjets[0]->genJet()->mass()); 
 		  prunedSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  prunedSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
-	      }
+		}
+		else{
+		  prunedSubJetGenpt_1 .push_back(0);
+                  prunedSubJetGenm_1  .push_back(0);
+                  prunedSubJetGeneta_1  .push_back(0);
+                  prunedSubJetGenphi_1  .push_back(0);
+		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets[0],"SubCSV",prunedSubJetBtagSF_1,prunedSubJetBtagSFUp_1,prunedSubJetBtagSFDown_1);
 	      }
@@ -3295,6 +3290,13 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedSubJetGenm_2  .push_back( subjets.at(1)->genJet()->mass());
 		  prunedSubJetGeneta_2 .push_back( subjets.at(1)->genJet()->eta());
 		  prunedSubJetGenphi_2 .push_back( subjets.at(1)->genJet()->phi());
+		}
+		else{
+		  prunedSubJetGenpt_2 .push_back(0);
+                  prunedSubJetGenm_2  .push_back(0);
+                  prunedSubJetGeneta_2  .push_back(0);
+                  prunedSubJetGenphi_2  .push_back(0);
+
 		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(1),"SubCSV",prunedSubJetBtagSF_2,prunedSubJetBtagSFUp_2,prunedSubJetBtagSFDown_2);
@@ -3328,6 +3330,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		softDropSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		softDropSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 	      }
+	      else{
+		softDropSubJetGenpt_1 .push_back(0);
+		softDropSubJetGenm_1  .push_back(0);
+		softDropSubJetGeneta_1  .push_back(0);
+		softDropSubJetGenphi_1  .push_back(0);
+	      }
 	      if(addBTagScaleFactor)
 		calculateBtagSF(subjets[0],"SubCSV",softDropSubJetBtagSF_1,softDropSubJetBtagSFUp_1,softDropSubJetBtagSFDown_1);
 	    }
@@ -3354,6 +3362,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		softDropSubJetGenm_2  .push_back( subjets.at(1)->genJet()->mass());
 		softDropSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		softDropSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
+	      }
+	      else{
+		softDropSubJetGenpt_2 .push_back(0);
+		softDropSubJetGenm_2  .push_back(0);
+		softDropSubJetGeneta_2  .push_back(0);
+		softDropSubJetGenphi_2  .push_back(0);
 	      }
 	      if(addBTagScaleFactor)
 		calculateBtagSF(subjets.at(1),"SubCSV",softDropSubJetBtagSF_2,softDropSubJetBtagSFUp_2,softDropSubJetBtagSFDown_2);
@@ -3448,6 +3462,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      boostedPuppiJetGenm  .push_back( puppiJetsBoosted[i]->genJet()->mass());
 	      boostedPuppiJetGeneta  .push_back( puppiJetsBoosted[i]->genJet()->eta());
 	      boostedPuppiJetGenphi  .push_back( puppiJetsBoosted[i]->genJet()->phi());
+	    }
+	    else{
+	      boostedPuppiJetGenpt .push_back(0);
+	      boostedPuppiJetGeneta .push_back(0);
+	      boostedPuppiJetGenphi .push_back(0);
+	      boostedPuppiJetGenm .push_back(0);
 	    }
 	    boostedPuppiJetHFlav .push_back( puppiJetsBoosted[i]->hadronFlavour());
 	    boostedPuppiJetPFlav .push_back( puppiJetsBoosted[i]->partonFlavour());	  
@@ -3629,10 +3649,16 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		prunedPuppiSubJetHFlav_1 .push_back( subjets[0]->hadronFlavour()); 
 		prunedPuppiSubJetPFlav_1 .push_back( subjets[0]->partonFlavour()); 
 		if(subjets[0]->genJet()){
-		prunedPuppiSubJetGenpt_1 .push_back( subjets[0]->genJet()->pt());
-		prunedPuppiSubJetGenm_1  .push_back( subjets[0]->genJet()->mass());
-		prunedPuppiSubJetGeneta_1 .push_back( subjets[0]->genJet()->eta());
-		prunedPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi());
+		  prunedPuppiSubJetGenpt_1 .push_back( subjets[0]->genJet()->pt());
+		  prunedPuppiSubJetGenm_1  .push_back( subjets[0]->genJet()->mass());
+		  prunedPuppiSubJetGeneta_1 .push_back( subjets[0]->genJet()->eta());
+		  prunedPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi());
+		}
+		else{
+		  prunedPuppiSubJetGenpt_1 .push_back(0);
+		  prunedPuppiSubJetGeneta_1 .push_back(0);
+		  prunedPuppiSubJetGenphi_1 .push_back(0);
+		  prunedPuppiSubJetGenm_1 .push_back(0);
 		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(0),"SubCSV",prunedPuppiSubJetBtagSF_1,prunedPuppiSubJetBtagSFUp_1,prunedPuppiSubJetBtagSFDown_1);
@@ -3661,6 +3687,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  prunedPuppiSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
 		  prunedPuppiSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		}	      
+		else{
+		  prunedPuppiSubJetGenpt_2 .push_back(0);
+		  prunedPuppiSubJetGeneta_2 .push_back(0);
+		  prunedPuppiSubJetGenphi_2 .push_back(0);
+		  prunedPuppiSubJetGenm_2 .push_back(0);
+		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(1),"SubCSV",prunedPuppiSubJetBtagSF_2,prunedPuppiSubJetBtagSFUp_2,prunedPuppiSubJetBtagSFDown_2);
 	      }
@@ -3691,6 +3723,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  softDropPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 		}
+		else{
+		  softDropPuppiSubJetGenpt_1 .push_back(0);
+		  softDropPuppiSubJetGeneta_1 .push_back(0);
+		  softDropPuppiSubJetGenphi_1 .push_back(0);
+		  softDropPuppiSubJetGenm_1 .push_back(0);
+		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(0),"SubCSV",softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1);
 	      }
@@ -3716,6 +3754,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGenm_2  .push_back( subjets.at(1)->genJet()->mass());
 		  softDropPuppiSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		  softDropPuppiSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
+		}
+		else{
+		  softDropPuppiSubJetGenpt_2 .push_back(0);
+		  softDropPuppiSubJetGenm_2 .push_back(0);
+		  softDropPuppiSubJetGeneta_2 .push_back(0);
+		  softDropPuppiSubJetGenphi_2 .push_back(0);
 		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(1),"SubCSV",softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2);
@@ -3777,6 +3821,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGeneta_1  .push_back( subjets[0]->genJet()->eta()); 
 		  softDropPuppiSubJetGenphi_1  .push_back( subjets[0]->genJet()->phi()); 
 		}
+		else{
+		  softDropPuppiSubJetGenpt_1 .push_back(0);
+		  softDropPuppiSubJetGenm_1  .push_back(0);
+		  softDropPuppiSubJetGeneta_1  .push_back(0);
+		  softDropPuppiSubJetGenphi_1  .push_back(0);
+		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(0),"SubCSV",softDropPuppiSubJetBtagSF_1,softDropPuppiSubJetBtagSFUp_1,softDropPuppiSubJetBtagSFDown_1);
 	      }
@@ -3802,6 +3852,12 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  softDropPuppiSubJetGenm_2  .push_back( subjets.at(1)->genJet()->mass());
 		  softDropPuppiSubJetGeneta_2  .push_back( subjets.at(1)->genJet()->eta());
 		  softDropPuppiSubJetGenphi_2  .push_back( subjets.at(1)->genJet()->phi());
+		}
+		else{
+		  softDropPuppiSubJetGenpt_2 .push_back(0);
+		  softDropPuppiSubJetGeneta_2 .push_back(0);
+		  softDropPuppiSubJetGenphi_2 .push_back(0);
+		  softDropPuppiSubJetGenm_2 .push_back(0);
 		}
 		if(addBTagScaleFactor)
 		  calculateBtagSF(subjets.at(1),"SubCSV",softDropPuppiSubJetBtagSF_2,softDropPuppiSubJetBtagSFUp_2,softDropPuppiSubJetBtagSFDown_2);
@@ -4828,21 +4884,17 @@ void MonoJetTreeMaker::beginJob() {
   }
 
   if(not isTriggerTree and not isPhotonPurity and not isQCDTree and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
-    tree->Branch("tau1pid"               , &tau1pid               , "tau1pid/I");
-    tree->Branch("tau1pt"                , &tau1pt                , "tau1pt/F");
-    tree->Branch("tau1eta"               , &tau1eta               , "tau1eta/F");
-    tree->Branch("tau1phi"               , &tau1phi               , "tau1phi/F");
-    tree->Branch("tau1m"                 , &tau1m                 , "tau1m/F");
-    tree->Branch("tau1id"                , &tau1id                , "tau1id/F");
-    tree->Branch("tau1idold"             , &tau1idold             , "tau1idold/F");
-    /////
-    tree->Branch("tau2pid"               , &tau2pid               , "tau2pid/I");
-    tree->Branch("tau2pt"                , &tau2pt                , "tau2pt/F");
-    tree->Branch("tau2eta"               , &tau2eta               , "tau2eta/F");
-    tree->Branch("tau2phi"               , &tau2phi               , "tau2phi/F");
-    tree->Branch("tau2m"                 , &tau2m                 , "tau2m/F");
-    tree->Branch("tau2id"                , &tau2id                , "tau2id/F");
-    tree->Branch("tau2idold"             , &tau2idold             , "tau2idold/F");
+    tree->Branch("combinetaupt", "std::vector<float>", &combinetaupt);
+    tree->Branch("combinetaueta", "std::vector<float>", &combinetaueta);
+    tree->Branch("combinetauphi", "std::vector<float>", &combinetauphi);
+    tree->Branch("combinetaum", "std::vector<float>", &combinetaum);
+    tree->Branch("combinetauGenpt", "std::vector<float>", &combinetauGenpt);
+    tree->Branch("combinetauGeneta", "std::vector<float>", &combinetauGeneta);
+    tree->Branch("combinetauGenphi", "std::vector<float>", &combinetauGenphi);
+    tree->Branch("combinetauGenm", "std::vector<float>", &combinetauGenm);
+    tree->Branch("combinetaupid", "std::vector<int>", &combinetaupid);
+    tree->Branch("combinetauidnew", "std::vector<int>", &combinetauidnew);
+    tree->Branch("combinetauidold", "std::vector<int>", &combinetauidold);
   }
 
   // Dilepton info
@@ -4855,31 +4907,11 @@ void MonoJetTreeMaker::beginJob() {
     tree->Branch("zpt"                  , &zpt                  , "zpt/F");
     tree->Branch("zeta"                 , &zeta                 , "zeta/F");
     tree->Branch("zphi"                 , &zphi                 , "zphi/F");
-    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
-      tree->Branch("emumass"              , &emumass              , "emumass/F");
-      tree->Branch("emupt"                , &emupt                , "emupt/F");
-      tree->Branch("emueta"               , &emueta               , "emueta/F");
-      tree->Branch("emuphi"               , &emuphi               , "emuphi/F");
-    }
     tree->Branch("zeept"                , &zeept                , "zeept/F");
     tree->Branch("zeeeta"               , &zeeeta               , "zeeeta/F");
     tree->Branch("zeephi"               , &zeephi               , "zeephi/F");
-    if(not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){
-      tree->Branch("zttmass"              , &zttmass              , "zttmass/F");
-      tree->Branch("zttpt"                , &zttpt                , "zttept/F");
-      tree->Branch("ztteta"               , &ztteta               , "ztteta/F");
-      tree->Branch("zttphi"               , &zttphi               , "zttphi/F");
-      tree->Branch("wtmt"                 , &wtmt                 , "wtmt/F");
-      tree->Branch("taumumass"              , &taumumass              , "taumumass/F");
-      tree->Branch("taumupt"                , &taumupt                , "taumupt/F");
-      tree->Branch("taumueta"               , &taumueta               , "taumueta/F");
-      tree->Branch("taumuphi"               , &taumuphi               , "taumuphi/F");
-      tree->Branch("tauemass"              , &tauemass              , "tauemass/F");
-      tree->Branch("tauept"                , &tauept                , "tauept/F");
-      tree->Branch("taueeta"               , &taueeta               , "taueeta/F");
-      tree->Branch("tauephi"               , &tauephi               , "tauephi/F");
-    }
   }
+
   // Photon info
   tree->Branch("phidm"                , &phidm                , "phidm/I");
   tree->Branch("phidt"                , &phidt                , "phidt/I");

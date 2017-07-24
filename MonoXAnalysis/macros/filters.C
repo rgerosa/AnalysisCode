@@ -10,6 +10,29 @@
 #include "TH2F.h"
 #include "TGraph2D.h"
 
+/// for the tau-scale factor
+class tauScaleFactor {
+
+public:
+    
+  tauScaleFactor(float ptMin, float ptMax, float etaMin, float etaMax, float SFValue, float SFError){
+    ptMin_ = ptMin;
+    ptMax_ = ptMax;
+    etaMin_ = etaMin;
+    etaMax_ = etaMax;
+    SFValue_ = SFValue;
+    SFError_ = SFError;
+  }
+
+  float ptMin_;
+  float ptMax_;
+  float etaMin_;
+  float etaMax_;
+  float SFValue_;
+  float SFError_;
+  
+};
+
 void filters(){}
 
 // function taking a path and a flag for EOS cern and returns a list of files as vector of strings
@@ -98,7 +121,7 @@ double sumwgt(TChain* tree) {
     weightsum += (*wgt);
     nEvents++;
   }
-
+  std::cout<<std::endl;
   std::cout<<"###################################"<<std::endl;
   std::cout<<"sumwgt function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
@@ -163,7 +186,8 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
   double jetEtaMax = 2.4;
   double btagCSVMediumWP = 0.8484; // medium working point
   double btagMVAMediumWP = 0.4432; // medium working point
-  
+
+   
   // decleare reader
   TTreeReader myReader(tree);
   TTreeReaderValue<std::vector<float> > combinejetpt         (myReader,"combinejetpt");
@@ -282,10 +306,160 @@ void btagWeights(TTree* tree, TH2F* eff_b, TH2F* eff_c, TH2F* eff_ucsdg){
     
     nEvents++;
   }
-
+  std::cout<<std::endl;
   std::cout<<"###################################"<<std::endl;
   std::cout<<"btagWeights function --> end"<<std::endl;
   std::cout<<"###################################"<<std::endl;
+
+}
+
+
+
+
+
+//function to return the pileup weights
+void tauWeights(TTree* tree, TH2F* eff_tau){
+
+  std::cout<<"#################################"<<std::endl;
+  std::cout<<"tauWeights function --> start"<<std::endl;
+  std::cout<<"#################################"<<std::endl;
+
+  // make graph 2D for interpolation for central values
+  TGraph2D* graph_tau = new TGraph2D(eff_tau);
+
+  // scale factor for the VLooseTauID --> oldDM
+  vector<tauScaleFactor> vLooseTauSF;
+  vLooseTauSF.push_back(tauScaleFactor(18.,1000.,-2.3,2.3,0.99,0.05));
+
+  // only for real taus
+  double tauPtMin  = 18;
+  double tauEtaMax = 2.3;
+  
+  // decleare reader
+  TTreeReader myReader(tree);
+  TTreeReaderValue<std::vector<float> > combinetaupt         (myReader,"combinetaupt");
+  TTreeReaderValue<std::vector<float> > combinetaueta        (myReader,"combinetaueta");
+  TTreeReaderValue<std::vector<float> > combinetauphi        (myReader,"combinetauphi");
+  TTreeReaderValue<std::vector<float> > combinetaum          (myReader,"combinetaum");
+  TTreeReaderValue<std::vector<int> >   combinetauid         (myReader,"combinetauidold"); // 0 don't pass any id, 1 VLoose, 2 LooseId, 3 TightID --> oldDM for all of them
+  TTreeReaderValue<std::vector<float> > combinegentaupt      (myReader,"combinetauGenpt");
+  TTreeReaderValue<std::vector<float> > combinegentaueta     (myReader,"combinetauGeneta");
+  TTreeReaderValue<std::vector<float> > combinegentauphi     (myReader,"combinetauGenphi");
+  TTreeReaderValue<std::vector<float> > combinegentaum       (myReader,"combinetauGenm");
+
+  // add a b-tag weight branch for medium wp
+  float wgttautag = 1, wgttautagUp = 1, wgttautagDown = 1;
+  TBranch* bwgttautag     = tree->Branch("wgttautag", &wgttautag, "wgttautag/F");  
+  TBranch* bwgttautagUp   = tree->Branch("wgttautagUp", &wgttautagUp, "wgttautagUp/F");  
+  TBranch* bwgttautagDown = tree->Branch("wgttautagDown", &wgttautagDown, "wgttautagDown/F");  
+  
+  long int nEvents = 0;
+  while(myReader.Next()){
+    
+    // recipe for b-tag weight on https://twiki.cern.ch/twiki/bin/view/CMS/BTagSFMethods
+    vector<float> PMC;
+    vector<float> PDATA ;
+    vector<float> PDATAErrUp ;
+    vector<float> PDATAErrDw ;
+    float efficiency = 1.;
+
+    if(nEvents %10000 == 0) std::cout<<"Events "<<float(nEvents)/tree->GetEntries()*100<<"%"<<std::endl;
+
+    // take only events in the acceptance region for b-tagging   
+    for(size_t iTau = 0; iTau < combinetaupt->size(); iTau++){            
+      if(combinetaupt->at(iTau) < tauPtMin) continue;
+      if(fabs(combinetaueta->at(iTau)) > tauEtaMax) continue;
+
+      // only for real taus
+      if(combinegentaupt->at(iTau) > 0){
+
+	efficiency     = graph_tau->Interpolate(combinetaupt->at(iTau) ,fabs(combinetaueta->at(iTau)));      
+
+	if(efficiency > 1){
+	  cerr<<"Problem tau-tagging efficiency larger than 1 for this bin: pt "<<combinetaupt->at(iTau)<<" eta "<<fabs(combinetaueta->at(iTau)) <<endl;
+	  efficiency = 1;
+	}
+	if(efficiency < 0){
+	  cerr<<"Problem b-tagging efficiency larger smaller than 0 for this bin: pt "<<combinetaupt->at(iTau)<<" eta "<<fabs(combinetaueta->at(iTau)) <<endl;
+	  efficiency = 0;
+	}
+	
+	// check tau-tag value
+	if(combinetauid->at(iTau) > 0){ // pass the VLoose ID	  
+	  PMC.push_back(efficiency);
+	  for(auto sfBin : vLooseTauSF){
+	    if(combinetaupt->at(iTau) > sfBin.ptMin_ and combinetaupt->at(iTau) <= sfBin.ptMax_ and
+	       combinetaueta->at(iTau) > sfBin.etaMin_ and combinetaueta->at(iTau) <= sfBin.etaMax_){
+	      PDATA.push_back(efficiency*sfBin.SFValue_);		  
+	      PDATAErrUp.push_back(efficiency*(sfBin.SFValue_+sfBin.SFError_));
+	      PDATAErrDw.push_back(efficiency*(sfBin.SFValue_-sfBin.SFError_));
+	    }
+	  }
+	}
+	else{ // when fails
+	  PMC.push_back(1-efficiency);
+	  for(auto sfBin : vLooseTauSF){
+	    if(combinetaupt->at(iTau) > sfBin.ptMin_ and combinetaupt->at(iTau) <= sfBin.ptMax_ and
+	       combinetaueta->at(iTau) > sfBin.etaMin_ and combinetaueta->at(iTau) <= sfBin.etaMax_){
+	      PDATA.push_back(1-efficiency*sfBin.SFValue_);		  
+	      PDATAErrUp.push_back(1-efficiency*(sfBin.SFValue_+sfBin.SFError_));
+	      PDATAErrDw.push_back(1-efficiency*(sfBin.SFValue_-sfBin.SFError_));
+	    }	
+	  }
+	}
+      }
+    }
+      
+    // Fill branch
+    float Num = 1.;
+    float Den = 1.;
+
+    for(size_t iTau = 0; iTau < PMC.size(); iTau++){
+      Num *= PDATA.at(iTau); // probability of data
+      Den *= PMC.at(iTau);   // probability of MC
+    }
+
+    if(Den != 0)
+      wgttautag = Num/Den;
+    else{
+      cerr<<"Problem : null probability for denominator PMC --> fix weight to 1 "<<endl;
+      wgttautag = 1.;
+    }
+
+    // uncertainty 
+    vector<float> wtautagErr;
+    float NumMax = 1.;
+    float NumMin = 1.;
+    for(size_t iErr = 0; iErr < PDATAErrUp.size(); iErr++){
+      if(PDATAErrUp.at(iErr) > PDATAErrDw.at(iErr)){
+	NumMax *= PDATAErrUp.at(iErr);
+	NumMin *= PDATAErrDw.at(iErr);
+      }
+      else{
+	NumMax *= PDATAErrDw.at(iErr);
+	NumMin *= PDATAErrUp.at(iErr);	
+      }
+    }
+
+    if(Den != 0){
+      wgttautagUp   = NumMax/Den;
+      wgttautagDown = NumMin/Den;
+    }
+    else{
+      wgttautagUp   = wgttautag;
+      wgttautagDown = wgttautag;
+    }
+
+    bwgttautag->Fill();
+    bwgttautagUp->Fill();
+    bwgttautagDown->Fill();
+    
+    nEvents++;
+  }
+  std::cout<<std::endl;
+  std::cout<<"################################"<<std::endl;
+  std::cout<<"tauWeights function --> end"<<std::endl;
+  std::cout<<"################################"<<std::endl;
 
 }
 
@@ -295,6 +469,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 		std::string outputFileName,  // output file name --> single file
 		bool isMC, // is data or MC
 		bool applyBTagWeights, // store b-tag weights
+		bool applyTauTagWeights, // store tau-weights
 		bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory
 		bool isEOS, // if the directory is on eos or not
 		int  xsType = 0, 		
@@ -383,9 +558,6 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   // copy output tree from input apply selections and discarding useless branches
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -514,9 +686,49 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
     eff_ucsdg->Smooth();
 
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
-
-
   }
+
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();     
+    tauWeights(outtree,eff_tau);    
+  }  
   
   // write tree in the file  
   outfile->cd();
@@ -536,6 +748,7 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
 	       std::string outputFileName,  // output file name --> single file                                                                                                 
 	       bool isMC, // is data or MC                                                                                                                                      
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
+	       bool applyTauTagWeights, 
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
 	       bool isEOS, // if the directory is on eos or not                                                                                                                 
 	       int  xsType = 0,
@@ -744,6 +957,49 @@ void zmmfilter(std::string inputFileName,  // name of a single file or directory
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -762,6 +1018,7 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 	       std::string outputFileName,  // output file name --> single file                                                                                                 
 	       bool isMC, // is data or MC                                                                                                                                      
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
+	       bool applyTauTagWeights,
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
 	       bool isEOS, // if the directory is on eos or not                                                                                                                 
 	       int  xsType = 0,
@@ -854,9 +1111,6 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"zeefilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -980,6 +1234,48 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -996,8 +1292,9 @@ void zeefilter(std::string inputFileName,  // name of a single file or directory
 // function to apply Wmunu selections
 void wmnfilter(std::string inputFileName,  // name of a single file or directory path                                                                                           
 	       std::string outputFileName,  // output file name --> single file                                                                                                 
-	       bool isMC, // is data or MC                                                                                                                                      
+	       bool isMC, // is data or MC                                                                                                                                      	       
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
+	       bool applyTauTagWeights,
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
 	       bool isEOS, // if the directory is on eos or not                                                                                                                 
 	       int  xsType = 0,
@@ -1092,9 +1389,6 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   if(isMC){
 
@@ -1203,6 +1497,48 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
 
   }
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -1219,8 +1555,9 @@ void wmnfilter(std::string inputFileName,  // name of a single file or directory
 // function to apply Wenu selections
 void wenfilter(std::string inputFileName,  // name of a single file or directory path                                                                                           
 	       std::string outputFileName,  // output file name --> single file                                                                                                 
-	       bool isMC, // is data or MC                                                                                                                                      
+	       bool isMC, // is data or MC                                                                                                                                      	       
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
+	       bool applyTauTagWeights,
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
 	       bool isEOS, // if the directory is on eos or not                                                                                                                 
 	       int  xsType = 0,
@@ -1314,9 +1651,6 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"wenfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1438,6 +1772,48 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -1453,8 +1829,9 @@ void wenfilter(std::string inputFileName,  // name of a single file or directory
 // function to apply photon+jets selections
 void gamfilter(std::string inputFileName,  // name of a single file or directory path                                                                                           
 	       std::string outputFileName,  // output file name --> single file                                                                                                 
-	       bool isMC, // is data or MC                                                                                                                                      
+	       bool isMC, // is data or MC                                                                                                                                      	       
 	       bool applyBTagWeights, // store b-tag weights                                                                                                                    
+	       bool applyTauTagWeights,
 	       bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                       
 	       bool isEOS, // if the directory is on eos or not                                                                                                                
 	       int  xsType = 0,
@@ -1544,9 +1921,6 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"gamfilter --> outtree events "<<outtree->GetEntries()<<std::endl;
@@ -1669,6 +2043,48 @@ void gamfilter(std::string inputFileName,  // name of a single file or directory
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }  
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -1689,6 +2105,7 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
 		 std::string outputFileName,  // output file name --> single file                                                                                            
 		 bool isMC, // is data or MC                                                                                                                                  
 		 bool applyBTagWeights, // store b-tag weights                                                                                                                
+		 bool applyTauTagWeights,
 		 bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                   
 		 bool isEOS, // if the directory is on eos or not                                                                                                             
 		 int  xsType = 0,
@@ -1893,6 +2310,48 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
   }  
 
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
+  }  
+
   outfile->cd();
   if(storeGenTree){
     TDirectoryFile* gentreedir = new TDirectoryFile("gentree", "gentree");
@@ -1913,6 +2372,7 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
 		 std::string outputFileName,  // output file name --> single file                                                                                            
 		 bool isMC, // is data or MC                                                                                                                                  
 		 bool applyBTagWeights, // store b-tag weights                                                                                                                
+		 bool applyTauTagWeights,
 		 bool isInputDirectory, // to tell wether the inputFileName is a single file or a directory                                                                   
 		 bool isEOS, // if the directory is on eos or not                                                                                                             
 		 int  xsType = 0,
@@ -2006,9 +2466,6 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
@@ -2128,6 +2585,48 @@ void topelfilter(std::string inputFileName,  // name of a single file or directo
     eff_ucsdg->Divide(eff_Denom_ucsdg);
     
     btagWeights(outtree,eff_b,eff_c,eff_ucsdg);
+  }  
+
+  // for tau-weights
+  if(applyTauTagWeights and isMC){
+
+    TH2F*  eff_Num_tau = 0;
+    TH2F*  eff_Denom_tau = 0;
+
+    // in case it's not a list of files
+    if(not isInputDirectory){
+      eff_Num_tau   = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Num_tau"); 
+      eff_Denom_tau = (TH2F*) infile->Get("taueff/eff_VLooseTauOldDM_Denom_tau"); 
+    }
+    else{
+      // loop on the file --> open each at a time     
+      TFile* file_temp = 0;
+      for(auto name : fileList){
+	file_temp = TFile::Open(name.c_str());
+	if(not eff_Num_tau){
+	  eff_Num_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau")->Clone("eff_Num_tau");
+	  eff_Num_tau->SetDirectory(0);
+	}
+	else
+	  eff_Num_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Num_tau"));
+
+	if(not eff_Denom_tau){
+	  eff_Denom_tau = (TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau")->Clone("eff_Denom_tau");
+	  eff_Denom_tau->SetDirectory(0);
+	}
+	else
+	  eff_Denom_tau->Add((TH2F*) file_temp->Get("taueff/eff_VLooseTauOldDM_Denom_tau"));
+
+	// close the file
+	file_temp->Close();
+      }
+    }
+    
+    // compute efficiency
+    TH2F* eff_tau = (TH2F*) eff_Num_tau->Clone("eff_tau");
+    eff_tau->Divide(eff_Denom_tau);
+    eff_tau->Smooth();    
+    tauWeights(outtree,eff_tau);    
   }  
 
   outfile->cd();

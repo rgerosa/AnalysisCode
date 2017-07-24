@@ -189,7 +189,7 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
   TFile* outputFile = new TFile((outputDIR+"/distributions_qcd_mc.root").c_str(),"RECREATE");
   outputFile->cd();
 
-  vector<double> bins_mjj = {200.,500.,800.,1300.,2200.,5000.};
+  vector<double> bins_mjj = {200.,500.,800.,1300.,2000.,2800,5000.};
   
   TH1F* histoQCD_mjj_inclusive = new TH1F("histoQCD_mjj_inclusive","",bins_mjj.size()-1,&bins_mjj[0]);
   TH1F* histoQCD_mjj_regionA = new TH1F("histoQCD_mjj_regionA","",bins_mjj.size()-1,&bins_mjj[0]);
