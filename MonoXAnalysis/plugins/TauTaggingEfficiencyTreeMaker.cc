@@ -114,6 +114,7 @@ void TauTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm:
   // loop over jets
   StringCutObjectSelector<pat::Tau> tauSelection(selection);
 
+  ////////// ---------
   for(auto itTau = tausH->begin(); itTau != tausH->end(); ++itTau){      
     // apply selection
     if(not tauSelection(*itTau)) continue;
@@ -140,8 +141,10 @@ void TauTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm:
     }
     
     if (skipjet) continue;
-    
+
+    //////////
     for(auto iPSet : tauDiscriminatorInfo){       
+
       std::string discriminatorName = iPSet.getParameter<std::string>("discriminatorName");
       std::string wpLabel = iPSet.getParameter<std::string>("wpLabel");
       std::string decayMode = iPSet.getParameter<std::string>("decayModeFinding");
@@ -149,7 +152,7 @@ void TauTaggingEfficiencyTreeMaker::analyze(const edm::Event& iEvent, const edm:
       // to handling correctly the overflow
       double jetpt = itTau->pt();
       if(jetpt > ptBins.back()) jetpt = ptBins.back();
-      
+      ///////
       if(not itTau->genJet()){	
 	eff_histo_Denom_fake ["eff_"+discriminatorName+"_Denom_fake"]->Fill(jetpt, fabs(itTau->eta()));
 	if(itTau->tauID(decayMode) > 0.5 and itTau->tauID(wpLabel) > 0.5)

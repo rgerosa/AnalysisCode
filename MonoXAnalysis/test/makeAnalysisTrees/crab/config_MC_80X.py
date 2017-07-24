@@ -47,7 +47,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 25000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_03_06_2017/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_21_07_2017/'
 config.Data.allowNonValidInputDataset = True
 
 config.section_('Site')

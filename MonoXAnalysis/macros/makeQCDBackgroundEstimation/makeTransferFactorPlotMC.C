@@ -36,7 +36,7 @@ void makePlots(TCanvas* canvas,TH1* histoA, TH1* histoB, TH1* histoC, TH1* histo
   leg->AddEntry(histoD,"E_{T}^{miss} > 250 GeV, #Delta#phi > 0.5","L");
   leg->Draw("same");
 
-  CMS_lumi(canvas,"");
+  CMS_lumi(canvas,"35.9");
 
   histoA->GetYaxis()->SetRangeUser(min(histoA->GetMinimum(),min(histoB->GetMinimum(),min(histoC->GetMinimum(),histoD->GetMinimum())))*0.1,max(histoA->GetMaximum(),max(histoB->GetMaximum(),max(histoC->GetMaximum(),histoD->GetMaximum())))*100);
   
@@ -160,6 +160,14 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
   system("rm file.temp");
 
   TTreeReader reader(chain);
+  TTreeReaderValue<UChar_t> hltPFHT350 (reader,"hltPFHT350");
+  TTreeReaderValue<UChar_t> hltPFHT400 (reader,"hltPFHT400");
+  TTreeReaderValue<UChar_t> hltPFHT475 (reader,"hltPFHT475");
+  TTreeReaderValue<UChar_t> hltPFHT600 (reader,"hltPFHT600");
+  TTreeReaderValue<UChar_t> hltPFHT650 (reader,"hltPFHT650");
+  TTreeReaderValue<UChar_t> hltPFHT800 (reader,"hltPFHT800");
+  TTreeReaderValue<UChar_t> hltPFHT900 (reader,"hltPFHT900");
+
   TTreeReaderValue<unsigned int> lumisection (reader,"lumi");
   TTreeReaderValue<unsigned int> event       (reader,"event");
   TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
@@ -181,7 +189,7 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
   TFile* outputFile = new TFile((outputDIR+"/distributions_qcd_mc.root").c_str(),"RECREATE");
   outputFile->cd();
 
-  vector<double> bins_mjj = {200.,500.,800.,1400.,2200.,5000.};
+  vector<double> bins_mjj = {200.,500.,800.,1300.,2200.,5000.};
   
   TH1F* histoQCD_mjj_inclusive = new TH1F("histoQCD_mjj_inclusive","",bins_mjj.size()-1,&bins_mjj[0]);
   TH1F* histoQCD_mjj_regionA = new TH1F("histoQCD_mjj_regionA","",bins_mjj.size()-1,&bins_mjj[0]);
@@ -212,6 +220,10 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
   double sumwgt  = 0;
 
   while(reader.Next()){
+
+    // require one of the trigger to be accpted                                                                                                                                                      
+    int passHT = *hltPFHT350+*hltPFHT400+*hltPFHT475+*hltPFHT600+*hltPFHT650+*hltPFHT800+*hltPFHT900;
+    if( passHT == 0) continue;
 
     if(jetpt->size() < 2) continue;
     
@@ -260,7 +272,7 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
     }
 
     if(category == Category::VBF or category == Category::VBFrelaxed){
-      if(*met > 100 and *met < 250 and *jmmdphi < 0.5){
+      if(*met > 100 and *met < 160 and *jmmdphi < 0.5){
 	histoQCD_mjj_regionA->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
 	histoQCD_ht_regionA->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
       }
@@ -269,14 +281,13 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
 	histoQCD_mjj_regionB->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
 	histoQCD_ht_regionB->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
       }
-      else if(*met > 100 and *met < 250 and *jmmdphi > 0.5){
+      else if(*met > 100 and *met < 160 and *jmmdphi > 0.5){
 	histoQCD_mjj_regionC->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
 	histoQCD_ht_regionC->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
       }
       else if(*met > 250 and *jmmdphi > 0.5){
 	histoQCD_mjj_regionD->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
 	histoQCD_ht_regionD->Fill(ht,*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));
-	cout<<"event "<<*event<<" lumi "<<*lumisection<<" mjj "<<(jet1+jet2).M()<<" jetmetdphi "<<*jmmdphi<<endl;
       }      
     }
   }  

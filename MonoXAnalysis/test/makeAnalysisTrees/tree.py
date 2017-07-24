@@ -829,8 +829,8 @@ process.taueff = cms.EDAnalyzer("TauTaggingEfficiencyTreeMaker",
 				 srcElectrons    = cms.InputTag("selectedObjects","electrons"),
 				 cleanPhotonJet  = cms.bool(True),
 				 srcPhotons      = cms.InputTag("selectedObjects","photons"),
-				 selection       = cms.string('abs(eta)<2.3 && pt > 18'),
-				 ptBins          = cms.vdouble(15,20,25,30,40,50,60,80,120,160,200,250,350,450,600,800),
+				 selection       = cms.string('abs(eta) < 2.3 && pt > 18'),
+				 ptBins          = cms.vdouble(18,21,25,30,40,50,60,80,120,160,200,250,350,450,600,800),
 				 etaBins         = cms.vdouble(0.,0.5,1.,1.5,2.0,2.3),
 				 ## CSV v2 wp in 76X
 				 tauDiscriminatorInfo = cms.VPSet(

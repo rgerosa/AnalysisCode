@@ -2,7 +2,7 @@
 #include "../makeTemplates/histoUtils.h"
 
 static float lowMetBound  = 100;
-static float highMetBound = 250;
+static float highMetBound = 160;
 static float luminosity = 35.9;
 
 void loadChain(const string & inputPath, TChain* chain, const bool & isEOS){
@@ -82,6 +82,8 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
   TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
   TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
   TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
+  TTreeReaderValue<vector<float> > chfrac  (reader,"combinejetCHfrac");
+  TTreeReaderValue<vector<float> > nhfrac  (reader,"combinejetNHfrac");
   TTreeReaderValue<float> jmmdphi     (reader,"incjetmumetdphimin4");
   TTreeReaderValue<float> metcalo     (reader,"calomet");
 
@@ -126,6 +128,9 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       if(fabs(jeteta->at(1)) > 4.7) continue;
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+      if(fabs(jeteta->at(0)) < 2.4 and chfrac->at(0) < 0.1) continue;
+      if(fabs(jeteta->at(0)) < 2.4 and nhfrac->at(0) > 0.8) continue;
+      if(jeteta->at(0)*jeteta->at(1) > 0 ) continue;
     }
         
     if(category == Category::VBFrelaxed){
@@ -198,8 +203,8 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       }
     }
 
-    // fill histo N
-    if(*jmmdphi < 0.5 and *met > highMetBound){
+    // fill histo B
+    if(*jmmdphi < 0.5 and *met > 250){
       for(auto hist : histoB){
 	TString name (hist->GetName());
 	if(name.Contains("mjj"))
@@ -219,7 +224,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       }
     }
     
-    // fill histo N
+    // fill histo C
     if(*jmmdphi > 0.5 and *met > lowMetBound and *met < highMetBound){
       for(auto hist : histoC){
 	TString name (hist->GetName());
@@ -398,7 +403,7 @@ void bookHistogram(vector<TH1F*> & histoA, vector<TH1F*> & histoB, vector<TH1F*>
   vector<double> bins_jeteta_A  = selectBinning("jeteta",category);
   vector<double> bins_jeteta2_A = selectBinning("jeteta2",category);
   vector<double> bins_ht_A      = {250.,350.,400.,450.,500.,550.,600.,650,700.,750,800,850,950,1050,1150,1250};
-  vector<double> bins_met_A     = {100.,115.,130.,145.,160.,175.,190.,210.,230.,250.};
+  vector<double> bins_met_A     = {100.,110.,120.,130.,140.,150.,160.};
 
   // variable binning in the different regions (Region B)
   vector<double> bins_mjj_B     = selectBinning("mjj",category);
@@ -408,11 +413,11 @@ void bookHistogram(vector<TH1F*> & histoA, vector<TH1F*> & histoB, vector<TH1F*>
   vector<double> bins_met_B     = {250.,300.,350.,450.,600.,800.,1000.};
 
   // variable binning in the different regions (Region C)
-  vector<double> bins_mjj_C     = {200.,450.,700.,1000.,1300.,1600.,2000.,2500.,3250.,5000.};
+  vector<double> bins_mjj_C     = {200.,450.,700.,1000.,1300.,1600.,2000.,2750.,5000.};
   vector<double> bins_jeteta_C  = selectBinning("jeteta",category);
   vector<double> bins_jeteta2_C = selectBinning("jeteta2",category);
   vector<double> bins_ht_C      = {250.,350.,400,450.,500,550.,600.,650.,700.,775.,850.,950.,1050.,1150,1250.};  
-  vector<double> bins_met_C     = {100.,120.,140.,160.,180.,200.,225.,250.};
+  vector<double> bins_met_C     = {100.,110.,120.,130.,140.,150.,160.};
   
   histoA.push_back(new TH1F(Form("histo_%s_mjj_regionA",postfix.c_str()),"",bins_mjj_A.size()-1,&bins_mjj_A[0]));
   histoB.push_back(new TH1F(Form("histo_%s_mjj_regionB",postfix.c_str()),"",bins_mjj_B.size()-1,&bins_mjj_B[0]));
@@ -578,5 +583,32 @@ void makeDataMCComparison (Category category, string outputDIR, bool addEWKBackg
 
   for(size_t ihist = 0; ihist < histoData_C.size(); ihist++)
     plotDataMC(histoData_C.at(ihist),histoBkg_C.at(ihist),canvas,outputDIR);
+
+  TFile* outputFile = new TFile((outputDIR+"/distributions.root").c_str(),"RECREATE");
+  outputFile->cd();
+  outputFile->mkdir("WJets_MC");
+  outputFile->cd("WJets_MC");
+  for(auto hist : histoWJets_A) hist->Write();
+  for(auto hist : histoWJets_B) hist->Write();
+  for(auto hist : histoWJets_C) hist->Write();
+  outputFile->cd();
+  outputFile->mkdir("ZJets_MC");
+  outputFile->cd("ZJets_MC");
+  for(auto hist : histoZJets_A) hist->Write();
+  for(auto hist : histoZJets_B) hist->Write();
+  for(auto hist : histoZJets_C) hist->Write();
+  outputFile->cd();
+  outputFile->mkdir("QCD_MC");
+  outputFile->cd("QCD_MC");
+  for(auto hist : histoQCD_A) hist->Write();
+  for(auto hist : histoQCD_B) hist->Write();
+  for(auto hist : histoQCD_C) hist->Write();
+  outputFile->cd();
+  outputFile->mkdir("Data_MC");
+  outputFile->cd("Data_MC");
+  for(auto hist : histoData_A) hist->Write();
+  for(auto hist : histoData_B) hist->Write();
+  for(auto hist : histoData_C) hist->Write();
+  outputFile->cd();
   
 }

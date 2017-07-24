@@ -2159,8 +2159,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	else if(fabs(*wgtpu) < 0.01) puwgt = 1;
 	else puwgt = *wgtpu;
 
-	cout<<"event "<<*event<<" lumi "<<*lumisection<<" ewk "<<sf_ewk<<" qcd_mj "<<sf_qcd_mj<<" qcd_vbf "<<sf_qcd_vbf<<" wzpt "<<*wzpt<<endl;
-
 	if(XSEC != -1)
 	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
 	else
