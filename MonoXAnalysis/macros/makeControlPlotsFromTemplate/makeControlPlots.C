@@ -399,8 +399,7 @@ void makeControlPlots(string templateFileName,
   }
   else{
     if(controlRegion == "SR" and not TString(qcdhist->GetName()).Contains("qbkghistDD"))
-      qcdhist->Scale(2.);
-
+      qcdhist->Scale(1.);    
     if(ggHhist)
       ggHhist->Scale(signalScale);
     if(vbfHhist)

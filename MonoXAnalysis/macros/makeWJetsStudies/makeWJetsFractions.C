@@ -218,6 +218,7 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   TTreeReaderValue<float> l2pt    (reader,"l2pt");
   TTreeReaderValue<int>   l2id    (reader,"l2id");
   TTreeReaderValue<float> wzpt    (reader,"wzpt");
+  
 
 
   // Met trigger efficiency                                                                                                                                                                         
@@ -314,18 +315,18 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
     if(fabs(*wgtpu) > 100)  puwgt = 1;
     else if(fabs(*wgtpu) < 0.01) puwgt = 1;
     else puwgt = *wgtpu;
- 
+
     // Fill histograms
     histo_mjj_total->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum));
-
-    if((fabs(*l1id) == 11 and fabs(*l2id) == 12) or (fabs(*l1id) == 12 and fabs(*l2id) == 11)) // electron decays
+    
+    if(fabs(*l1id) == 11 or fabs(*l2id) == 11) // electron decays
       histo_mjj_ele->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum));
-    else if((fabs(*l1id) == 13 and fabs(*l2id) == 14) or (fabs(*l1id) == 14 and fabs(*l2id) == 13)) // muon decays
+    else if(fabs(*l1id) == 13 or fabs(*l2id) == 13)// muon decays
       histo_mjj_muon->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum));
-    else if((fabs(*l1id) == 15 and fabs(*l2id) == 16) or (fabs(*l1id) == 15 and fabs(*l2id) == 16)) // tau decays
+    else if(fabs(*l1id) == 15 or fabs(*l2id) == 16)
       histo_mjj_tau->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum));
-
-    if((fabs(*l1id) == 11 and fabs(*l2id) == 12) or (fabs(*l1id) == 12 and fabs(*l2id) == 11)){ // electron decays 
+    
+    if(fabs(*l1id) == 11 or fabs(*l2id) == 11){
       if(fabs(*l1id) == 11){
 	if(*l1pt < 10 or fabs(*l1eta) > 2.5)
 	  histo_mjj_ele_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum)); // out of acceptance electrons
@@ -340,7 +341,7 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
       }
     }
 
-    if((fabs(*l1id) == 13 and fabs(*l2id) == 14) or (fabs(*l1id) == 14 and fabs(*l2id) == 13)){ // muon decays 
+    if(fabs(*l1id) == 13 or fabs(*l2id) == 13){
       if(fabs(*l1id) == 13){
 	if(*l1pt < 10 or fabs(*l1eta) > 2.4)
 	  histo_mjj_muon_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum)); // out of acceptance electrons
@@ -355,8 +356,8 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
       }
     }
 
-    if((fabs(*l1id) == 15 and fabs(*l2id) == 16) or (fabs(*l1id) == 16 and fabs(*l2id) == 15)){ // tau decays 
-      if(fabs(*l1id) == 15){
+    if(fabs(*l1id) == 15 or fabs(*l2id) == 15){
+      if(fabs(*l1id) == 15){	
 	if(*l1pt < 18 or fabs(*l1eta) > 2.3)
 	  histo_mjj_tau_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)/(*wgtsum)); // out of acceptance electrons
 	else

@@ -44,7 +44,7 @@ parser.add_option('--queque',       action="store", type="string", dest="queque"
 if __name__ == '__main__':
 
     ###### make the directory list
-    command = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root ";
+    command = "/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root ";
     for name in options.grepName:
         command += " | grep "+name;
     for name in options.skipName:

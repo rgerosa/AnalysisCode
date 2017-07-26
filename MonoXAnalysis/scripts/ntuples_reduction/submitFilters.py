@@ -29,6 +29,7 @@ parser.add_option('--calculateXSfromSW', action="store_true",      dest="calcula
 parser.add_option('--calculateXSfromLHE',action="store_true",      dest="calculateXSfromLHE",         help="calculateXSfromLHE means take the values in the LHE")
 parser.add_option('--isMC',         action="store_true",           dest="isMC",                       help="isMC")
 parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBTagSF",                help="applyBTagSF")
+parser.add_option('--applyTauTagWeights',  action="store_true",    dest="applyTauTagWeights",         help="applyTauTagWeights")
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
 parser.add_option('--isJetHT',      action="store_true",           dest="isJetHT",                    help="isJetHT")
@@ -52,7 +53,7 @@ parser.add_option('--queque',       action="store", type="string", dest="queque"
 if __name__ == '__main__':
 
     ###### make the directory list
-    command = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root ";
+    command = "/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root ";
     for name in options.grepName:
         command += " | grep "+name;
     for name in options.skipName:
@@ -94,7 +95,9 @@ if __name__ == '__main__':
         if options.dropPuppiBoostedJets:
           command += "--dropPuppiBoostedJets ";
         if options.dropHLTFilter:
-          command += "--dropHLTFilter";        
+          command += "--dropHLTFilter ";        
+        if options.applyTauTagWeights:
+          command += " --applyTauTagWeights";
 
         print command    
         os.system(command)

@@ -26,6 +26,7 @@ parser.add_option('--calculateXSfromSW', action="store_true",      dest="calcula
 parser.add_option('--calculateXSfromLHE',action="store_true",      dest="calculateXSfromLHE",         help="calculateXSfromLHE means take the values in the LHE")
 parser.add_option('--isMC',         action="store_true",           dest="isMC",                       help="isMC")
 parser.add_option('--applyBTagSF',  action="store_true",           dest="applyBTagSF",                help="applyBTagSF")
+parser.add_option('--applyTauTagWeights',  action="store_true",    dest="applyTauTagWeights",         help="applyTauTagWeights")
 parser.add_option('--storeGenTree', action="store_true",           dest="storeGenTree",               help="storeGenTree")
 parser.add_option('--isSinglePhoton', action="store_true",         dest="isSinglePhoton",             help="isSinglePhoton")
 parser.add_option('--isJetHT',        action="store_true",         dest="isJetHT",                    help="isJetHT")
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         os.system("rm file_temp.txt");
 
     elif not options.isCrabDirectory and options.isOnEOS: ## not a crab directory do the same with eos ls command
-        os.system("/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root | grep -v failed  > file_temp.txt");
+        os.system("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root | grep -v failed  > file_temp.txt");
         fs = open("file_temp.txt","r");
         for line in fs:
             line = line.replace('\n','');
@@ -139,6 +140,10 @@ if __name__ == '__main__':
         xsType = 2;
     if options.calculateXSfromSW and options.calculateXSfromLHE:
         sys.exit("decide to fix the cross section as sum of weights or taking LHE value");
+        
+    applyTauTagWeights = 0;
+    if options.applyTauTagWeights:
+        applyTauTagWeights = 1;
 
     ####################### loop on the file list
     for ifile in fileList:        
@@ -161,7 +166,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
                 
-                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("sigfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 
                 ROOT.gROOT.ProcessLine(command.Data());
@@ -180,7 +185,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_sig_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"sigfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"sig_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                     
                 jobmacro.write("}\n");
                 jobmacro.close();
@@ -193,8 +198,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_sig_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir -p "+options.outputDIR+"/sigfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir -p "+options.outputDIR+"/sigfilter/\n");
                 jobscript.write("xrdcp -f sig_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/sigfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_sig_"+subdirName))
@@ -209,7 +214,7 @@ if __name__ == '__main__':
             
             if not options.batchMode:
 
-                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("zmmfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -227,7 +232,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zmm_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zmmfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zmm_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -239,8 +244,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_zmm_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/zmmfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/zmmfilter/\n");
                 jobscript.write("xrdcp -f zmm_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/zmmfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_zmm_"+subdirName))
@@ -253,7 +258,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("zeefilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -271,7 +276,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_zee_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"zeefilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"zee_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -283,8 +288,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_zee_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/zeefilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/zeefilter/\n");
                 jobscript.write("xrdcp -f zee_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/zeefilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_zee_"+subdirName))
@@ -297,7 +302,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("wmnfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -315,7 +320,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wmn_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wmnfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wmn_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -327,8 +332,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_wmn_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/wmnfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/wmnfilter/\n");
                 jobscript.write("xrdcp -f wmn_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/wmnfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_wmn_"+subdirName))
@@ -341,7 +346,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("wenfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -359,7 +364,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_wen_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"wenfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"wen_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -371,8 +376,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_wen_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/wenfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/wenfilter/\n");
                 jobscript.write("xrdcp -f wen_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/wenfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_wen_"+subdirName))
@@ -385,7 +390,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("gamfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -403,7 +408,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_gam_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"gamfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"gam_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -415,8 +420,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_gam_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/gamfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/gamfilter/\n");
                 jobscript.write("xrdcp -f gam_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/gamfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_gam_"+subdirName))
@@ -430,7 +435,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topmufilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("topmufilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -448,7 +453,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_topmu_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topmufilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topmufilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topmu_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -460,8 +465,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_topmu_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/topmufilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/topmufilter/\n");
                 jobscript.write("xrdcp -f topmu_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/topmufilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_topmu_"+subdirName))
@@ -475,7 +480,7 @@ if __name__ == '__main__':
 
             if not options.batchMode:
 
-                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
+                command = ROOT.TString("topelfilter(\"%s\",\"%s\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\"%s\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut))
                 print command
                 ROOT.gROOT.ProcessLine(command.Data());
                 os.system("mkdir -p "+options.outputDIR);
@@ -493,7 +498,7 @@ if __name__ == '__main__':
                 jobmacro = open('%s/%s/job.C'%(options.jobDIR,"JOB_topel_"+subdirName),'w')
                 jobmacro.write("{\n");
                 jobmacro.write("gROOT->ProcessLine(\".L "+currentDIR+"/macros/filters.C+\");\n");
-                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
+                jobmacro.write("gROOT->ProcessLine(\""+"topelfilter(\\\"%s\\\",\\\"%s\\\",%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,%i,\\\"%s\\\")"%(ifile,"topel_"+outFileName,isMC,applyBTagSF,applyTauTagWeights,isCrabDirectory,isOnEOS,xsType,storeGenTree,isSinglePhoton,isJetHT,isDoubleEG,dropPuppiBranches,dropPuppiBoostedJets,dropSubJetsBranches,dropHLTFilter,options.metCut)+"\");\n");
                 jobmacro.write("}\n");
                 jobmacro.close();
 
@@ -505,8 +510,8 @@ if __name__ == '__main__':
                     jobscript.write("xrdcp -f root://eoscms.cern.ch//eos/cms"+options.inputDIR+"/"+fileName+" ./\n")
                 jobscript.write('scp '+currentDIR+'/%s/%s/job.C ./ \n'%(options.jobDIR,"JOB_topel_"+subdirName))
                 jobscript.write('root -l -b -q job.C\n');
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
-                jobscript.write("/afs/cern.ch/project/eos/installation/cms/bin/eos.select mkdir  -p "+options.outputDIR+"/topelfilter/\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"\n");
+                jobscript.write("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select mkdir  -p "+options.outputDIR+"/topelfilter/\n");
                 jobscript.write("xrdcp -f topel_"+outFileName+" root://eoscms.cern.ch//eos/cms"+options.outputDIR+"/topelfilter/");
 
                 os.system('chmod a+x %s/%s/job.sh'%(options.jobDIR,"JOB_topel_"+subdirName))

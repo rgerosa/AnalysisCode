@@ -40,7 +40,7 @@ vector<string> fileListForChain (const std::string path, bool isEOS){
 
   vector<string> outputFileList;
   if(isEOS)
-    system(("/afs/cern.ch/project/eos/installation/cms/bin/eos.select find "+path+" -name \"*.root\" | grep -v failed > file.temp").c_str());
+    system(("/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select find "+path+" -name \"*.root\" | grep -v failed > file.temp").c_str());
   else
     system(("find "+path+" -name \"*.root\" | grep -v failed > file.temp").c_str());
 
@@ -329,7 +329,7 @@ void tauWeights(TTree* tree, TH2F* eff_tau){
 
   // scale factor for the VLooseTauID --> oldDM
   vector<tauScaleFactor> vLooseTauSF;
-  vLooseTauSF.push_back(tauScaleFactor(18.,1000.,-2.3,2.3,0.99,0.05));
+  vLooseTauSF.push_back(tauScaleFactor(18.,10000.,-2.3,2.3,0.99,0.05));
 
   // only for real taus
   double tauPtMin  = 18;
@@ -367,9 +367,15 @@ void tauWeights(TTree* tree, TH2F* eff_tau){
 
     // take only events in the acceptance region for b-tagging   
     for(size_t iTau = 0; iTau < combinetaupt->size(); iTau++){            
+      
       if(combinetaupt->at(iTau) < tauPtMin) continue;
       if(fabs(combinetaueta->at(iTau)) > tauEtaMax) continue;
 
+      if(combinetaupt->size() != combinegentaupt->size()) {
+	cerr<<"Problem with gen-tau and reco-tau vector dimension --> skip entry "<<endl;
+	continue;
+      }
+	  
       // only for real taus
       if(combinegentaupt->at(iTau) > 0){
 
@@ -387,36 +393,49 @@ void tauWeights(TTree* tree, TH2F* eff_tau){
 	// check tau-tag value
 	if(combinetauid->at(iTau) > 0){ // pass the VLoose ID	  
 	  PMC.push_back(efficiency);
+	  float SF = 1;
+	  float SFError = 1;
 	  for(auto sfBin : vLooseTauSF){
 	    if(combinetaupt->at(iTau) > sfBin.ptMin_ and combinetaupt->at(iTau) <= sfBin.ptMax_ and
 	       combinetaueta->at(iTau) > sfBin.etaMin_ and combinetaueta->at(iTau) <= sfBin.etaMax_){
-	      PDATA.push_back(efficiency*sfBin.SFValue_);		  
-	      PDATAErrUp.push_back(efficiency*(sfBin.SFValue_+sfBin.SFError_));
-	      PDATAErrDw.push_back(efficiency*(sfBin.SFValue_-sfBin.SFError_));
+	      SF = sfBin.SFValue_;
+	      SFError = sfBin.SFError_;
 	    }
 	  }
+	  PDATA.push_back(efficiency*SF);		  
+	  PDATAErrUp.push_back(efficiency*(SF+SFError));
+	  PDATAErrDw.push_back(efficiency*(SF-SFError));
 	}
 	else{ // when fails
 	  PMC.push_back(1-efficiency);
 	  for(auto sfBin : vLooseTauSF){
+	    float SF = 1;
+	    float SFError = 1;
 	    if(combinetaupt->at(iTau) > sfBin.ptMin_ and combinetaupt->at(iTau) <= sfBin.ptMax_ and
 	       combinetaueta->at(iTau) > sfBin.etaMin_ and combinetaueta->at(iTau) <= sfBin.etaMax_){
-	      PDATA.push_back(1-efficiency*sfBin.SFValue_);		  
-	      PDATAErrUp.push_back(1-efficiency*(sfBin.SFValue_+sfBin.SFError_));
-	      PDATAErrDw.push_back(1-efficiency*(sfBin.SFValue_-sfBin.SFError_));
-	    }	
-	  }
+	      SF = sfBin.SFValue_;
+              SFError = sfBin.SFError_;
+	    }
+	    PDATA.push_back(1-efficiency*SF);		  
+	    PDATAErrUp.push_back(1-efficiency*(SF+SFError));
+	    PDATAErrDw.push_back(1-efficiency*(SF-SFError));
+	  }	
 	}
       }
     }
-      
+    
     // Fill branch
     float Num = 1.;
     float Den = 1.;
 
-    for(size_t iTau = 0; iTau < PMC.size(); iTau++){
-      Num *= PDATA.at(iTau); // probability of data
-      Den *= PMC.at(iTau);   // probability of MC
+    if(PMC.size() != PDATA.size()){
+      cerr<<"Problem: PMC and PDATA has different size --> skip "<<endl;
+    }
+    else{
+      for(size_t iTau = 0; iTau < PMC.size(); iTau++){
+	Num *= PDATA.at(iTau); // probability of data
+	Den *= PMC.at(iTau);   // probability of MC
+      }
     }
 
     if(Den != 0)
@@ -430,6 +449,7 @@ void tauWeights(TTree* tree, TH2F* eff_tau){
     vector<float> wtautagErr;
     float NumMax = 1.;
     float NumMin = 1.;
+
     for(size_t iErr = 0; iErr < PDATAErrUp.size(); iErr++){
       if(PDATAErrUp.at(iErr) > PDATAErrDw.at(iErr)){
 	NumMax *= PDATAErrUp.at(iErr);
@@ -481,7 +501,7 @@ void sigfilter( std::string inputFileName,  // name of a single file or director
 		string metCut = "175"
 		) {
 
-  // if xsType = 0: means keep the value inside of xsec branch in the standard tree
+  // If- xsType = 0: means keep the value inside of xsec branch in the standard tree
   // if xsType = 1: evaluate the xs as sumwgt/Nevents (useful for powheg+minlo mono-jet samples)
   // if xsType = 2: take the cross section from gentree lheXSEC read from the lhe file, useful for madgraph samples
 
@@ -2186,9 +2206,6 @@ void topmufilter(std::string inputFileName,  // name of a single file or directo
   if(dropSubJetsBranches){
     frtree->SetBranchStatus("*SubJet*",0);
   }
-  frtree->SetBranchStatus("emu*",0);
-  frtree->SetBranchStatus("taumu*",0);
-  frtree->SetBranchStatus("taue*",0);
 
   TTree* outtree = frtree->CopyTree(cut.c_str());
   std::cout<<"topfilter --> outtree events "<<outtree->GetEntries()<<std::endl;

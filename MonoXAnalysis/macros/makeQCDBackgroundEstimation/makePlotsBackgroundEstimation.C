@@ -148,7 +148,7 @@ void plotComparison(TH1* histo1, TH1* histo2, const string & outputDIR, const st
   pad2->cd();
 
   ratio->Draw("EP");
-  ratio->GetYaxis()->SetRangeUser(min(0.,ratio->GetMinimum())*0.9,ratio->GetMaximum()*1.2);
+  ratio->GetYaxis()->SetRangeUser(min(0.,ratio->GetMinimum())*0.8,ratio->GetMaximum()*1.3);
   ratio->GetXaxis()->SetTitle("M_{jj} [GeV]");
   ratio->GetYaxis()->SetTitle("DD/MC");
   ratio->GetYaxis()->SetTitleSize(0.04);
@@ -255,21 +255,21 @@ void makePlotsBackgroundEstimation(string inputFileName, string outputDIR){
   TH1F* estimationRegion_D_closureTest_up = (TH1F*) estimationRegion_D->Clone("estimationRegion_D_closureTest_up");
   TH1F* estimationRegion_D_closureTest_dw = (TH1F*) estimationRegion_D->Clone("estimationRegion_D_closureTest_dw");
 
-  estimationRegion_D_closureTest_up->SetBinContent(1,estimationRegion_D_closureTest_up->GetBinContent(1)*1.25);
-  estimationRegion_D_closureTest_up->SetBinContent(2,estimationRegion_D_closureTest_up->GetBinContent(2)*1.25);
-  estimationRegion_D_closureTest_up->SetBinContent(3,estimationRegion_D_closureTest_up->GetBinContent(3)*1.25);
-  estimationRegion_D_closureTest_up->SetBinContent(4,estimationRegion_D_closureTest_up->GetBinContent(4)*1.25);
-  estimationRegion_D_closureTest_up->SetBinContent(5,estimationRegion_D_closureTest_up->GetBinContent(5)*1.35);
-  estimationRegion_D_closureTest_up->SetBinContent(6,estimationRegion_D_closureTest_up->GetBinContent(6)*1.35);
+  estimationRegion_D_closureTest_up->SetBinContent(1,estimationRegion_D_closureTest_up->GetBinContent(1)*1.50);
+  estimationRegion_D_closureTest_up->SetBinContent(2,estimationRegion_D_closureTest_up->GetBinContent(2)*1.50);
+  estimationRegion_D_closureTest_up->SetBinContent(3,estimationRegion_D_closureTest_up->GetBinContent(3)*1.50);
+  estimationRegion_D_closureTest_up->SetBinContent(4,estimationRegion_D_closureTest_up->GetBinContent(4)*1.50);
+  estimationRegion_D_closureTest_up->SetBinContent(5,estimationRegion_D_closureTest_up->GetBinContent(5)*1.50);
+  estimationRegion_D_closureTest_up->SetBinContent(6,estimationRegion_D_closureTest_up->GetBinContent(6)*1.50);
   estimationRegion_D_closureTest_up->SetBinContent(7,estimationRegion_D_closureTest_up->GetBinContent(7)*1.50);
   estimationRegion_D_closureTest_up->SetBinContent(8,estimationRegion_D_closureTest_up->GetBinContent(8)*1.50);
   estimationRegion_D_closureTest_up->SetBinContent(9,estimationRegion_D_closureTest_up->GetBinContent(9)*1.50);
-  estimationRegion_D_closureTest_dw->SetBinContent(1,estimationRegion_D_closureTest_dw->GetBinContent(1)*0.75);
-  estimationRegion_D_closureTest_dw->SetBinContent(2,estimationRegion_D_closureTest_dw->GetBinContent(2)*0.75);
-  estimationRegion_D_closureTest_dw->SetBinContent(3,estimationRegion_D_closureTest_dw->GetBinContent(3)*0.75);
-  estimationRegion_D_closureTest_dw->SetBinContent(4,estimationRegion_D_closureTest_dw->GetBinContent(4)*0.75);
-  estimationRegion_D_closureTest_dw->SetBinContent(5,estimationRegion_D_closureTest_dw->GetBinContent(5)*0.65);
-  estimationRegion_D_closureTest_dw->SetBinContent(6,estimationRegion_D_closureTest_dw->GetBinContent(6)*0.65);
+  estimationRegion_D_closureTest_dw->SetBinContent(1,estimationRegion_D_closureTest_dw->GetBinContent(1)*0.50);
+  estimationRegion_D_closureTest_dw->SetBinContent(2,estimationRegion_D_closureTest_dw->GetBinContent(2)*0.50);
+  estimationRegion_D_closureTest_dw->SetBinContent(3,estimationRegion_D_closureTest_dw->GetBinContent(3)*0.50);
+  estimationRegion_D_closureTest_dw->SetBinContent(4,estimationRegion_D_closureTest_dw->GetBinContent(4)*0.50);
+  estimationRegion_D_closureTest_dw->SetBinContent(5,estimationRegion_D_closureTest_dw->GetBinContent(5)*0.50);
+  estimationRegion_D_closureTest_dw->SetBinContent(6,estimationRegion_D_closureTest_dw->GetBinContent(6)*0.50);
   estimationRegion_D_closureTest_dw->SetBinContent(7,estimationRegion_D_closureTest_dw->GetBinContent(7)*0.50);
   estimationRegion_D_closureTest_dw->SetBinContent(8,estimationRegion_D_closureTest_dw->GetBinContent(8)*0.50);
   estimationRegion_D_closureTest_dw->SetBinContent(9,estimationRegion_D_closureTest_dw->GetBinContent(9)*0.50);
@@ -383,7 +383,7 @@ void makePlotsBackgroundEstimation(string inputFileName, string outputDIR){
   ratio_zjet_up->GetYaxis()->SetLabelSize(0.035);
   ratio_zjet_up->GetXaxis()->SetNdivisions(505);
   ratio_zjet_up->GetYaxis()->SetNdivisions(505);
-  ratio_zjet_up->GetYaxis()->SetRangeUser(0,2);
+  ratio_zjet_up->GetYaxis()->SetRangeUser(0,2.5);
   ratio_zjet_up->Draw("hist");
   ratio_zjet_dw->Draw("hist same");
   ratio_wjet_up->Draw("hist same");

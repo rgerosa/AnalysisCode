@@ -827,7 +827,7 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
 
     //add qcd data templates
-    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/templates_2016_12p9.root");
+    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/MonojetTemplates/templates_2016_12p9.root");
     if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
 
       cout<<"Take templates QCD from data"<<endl;
