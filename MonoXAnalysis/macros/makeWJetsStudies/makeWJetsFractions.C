@@ -32,16 +32,16 @@ void plotFraction(TH1* histo_total, TH1* histo_tau, TH1* histo_mu, TH1* histo_el
   histo_total->GetXaxis()->SetLabelSize(0);
   histo_total->GetXaxis()->SetTitleSize(0);
   
-  if(observable == "mjj")
+  if(TString(observable).Contains("mjj"))
     ratio_tau->GetXaxis()->SetTitle("M_{jj} [GeV]");
-  else if(observable == "met")
+  else if(TString(observable).Contains("met"))
     ratio_tau->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
 
   histo_total->GetYaxis()->SetRangeUser(min(histo_total->GetMinimum(),min(histo_tau->GetMinimum(),min(histo_mu->GetMinimum(),histo_el->GetMinimum())))*0.1,
 					max(histo_total->GetMaximum(),max(histo_tau->GetMaximum(),max(histo_mu->GetMaximum(),histo_el->GetMaximum())))*100);
 
   histo_total->GetYaxis()->SetTitle("Events");
-  histo_total->GetYaxis()->SetTitleOffset(1.1);
+  histo_total->GetYaxis()->SetTitleOffset(1.2);
   histo_total->SetLineColor(kBlack);
   histo_total->SetLineWidth(2);
   histo_mu->SetLineColor(kBlue);
@@ -73,8 +73,8 @@ void plotFraction(TH1* histo_total, TH1* histo_tau, TH1* histo_mu, TH1* histo_el
 
   pad2->Draw();
   pad2->cd();
-  ratio_tau->GetYaxis()->SetTitle("Ratio");
-  ratio_tau->GetYaxis()->SetTitleOffset(1.20);
+  ratio_tau->GetYaxis()->SetTitle("fraction");
+  ratio_tau->GetYaxis()->SetTitleOffset(1.30);
   ratio_tau->GetYaxis()->SetTitleSize(0.04);
   ratio_tau->GetYaxis()->SetLabelSize(0.03);
   ratio_tau->GetYaxis()->SetNdivisions(505);
@@ -124,16 +124,19 @@ void plotAcceptance(TH1* histo1, TH1* histo2, TH1* histo3, const string & output
   histo1->GetXaxis()->SetLabelSize(0);
   histo1->GetXaxis()->SetTitleSize(0);
   
-  if(observable == "mjj")
+  if(TString(observable).Contains("mjj"))
     ratio_1->GetXaxis()->SetTitle("M_{jj} [GeV]");
-  else if(observable == "met")
+  else if(TString(observable).Contains("met"))
     ratio_1->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
 
-  histo1->GetYaxis()->SetRangeUser(min(histo1->GetMinimum(),min(histo2->GetMinimum(),histo3->GetMinimum()))*0.1,
-				   max(histo1->GetMaximum(),max(histo2->GetMaximum(),histo3->GetMaximum()))*100);
-  
+  if(min(histo1->GetMinimum(),min(histo2->GetMinimum(),histo3->GetMinimum())) == 0) 
+    histo1->GetYaxis()->SetRangeUser(0.01, max(histo1->GetMaximum(),max(histo2->GetMaximum(),histo3->GetMaximum()))*100);
+  else
+    histo1->GetYaxis()->SetRangeUser(min(histo1->GetMinimum(),min(histo2->GetMinimum(),histo3->GetMinimum()))*0.1,
+				     max(histo1->GetMaximum(),max(histo2->GetMaximum(),histo3->GetMaximum()))*100);
+
   histo1->GetYaxis()->SetTitle("Events");
-  histo1->GetYaxis()->SetTitleOffset(1.1);
+  histo1->GetYaxis()->SetTitleOffset(1.2);
   histo1->SetLineColor(kBlack);
   histo1->SetLineWidth(2);
   histo2->SetLineColor(kRed);
@@ -154,17 +157,17 @@ void plotAcceptance(TH1* histo1, TH1* histo2, TH1* histo3, const string & output
   leg->SetFillColor(0);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
-  if(plot == "muonAcc"){
+  if(TString(plot).Contains("muonAcc")){
     leg->AddEntry(histo1,"W #rightarrow #mu#nu","L");
     leg->AddEntry(histo2,"W #rightarrow #mu#nu IN","L");
     leg->AddEntry(histo3,"W #rightarrow #mu#nu OUT","L");    
   }
-  else if(plot == "eleAcc"){
+  else if(TString(plot).Contains("eleAcc")){
     leg->AddEntry(histo1,"W #rightarrow e#nu","L");
     leg->AddEntry(histo2,"W #rightarrow e#nu IN","L");
     leg->AddEntry(histo3,"W #rightarrow e#nu OUT","L");    
   }
-  else if(plot == "tauAcc"){
+  else if(TString(plot).Contains("tauAcc")){
     leg->AddEntry(histo1,"W #rightarrow #tau#nu","L");
     leg->AddEntry(histo2,"W #rightarrow #tau#nu IN","L");
     leg->AddEntry(histo3,"W #rightarrow #tau#nu OUT","L");    
@@ -175,8 +178,8 @@ void plotAcceptance(TH1* histo1, TH1* histo2, TH1* histo3, const string & output
 
   pad2->Draw();
   pad2->cd();
-  ratio_1->GetYaxis()->SetTitle("Ratio");
-  ratio_1->GetYaxis()->SetTitleOffset(1.20);
+  ratio_1->GetYaxis()->SetTitle("fraction");
+  ratio_1->GetYaxis()->SetTitleOffset(1.30);
   ratio_1->GetYaxis()->SetTitleSize(0.04);
   ratio_1->GetYaxis()->SetLabelSize(0.03);
   ratio_1->GetYaxis()->SetNdivisions(505);
@@ -225,16 +228,16 @@ void plotUncertainty(TH1* histo_nominal, TH1* histo_up, TH1* histo_dw, const str
   histo_nominal->GetXaxis()->SetLabelSize(0);
   histo_nominal->GetXaxis()->SetTitleSize(0);
   
-  if(observable == "mjj")
+  if(TString(observable).Contains("mjj"))
     ratio_up->GetXaxis()->SetTitle("M_{jj} [GeV]");
-  else if(observable == "met")
+  else if(TString(observable).Contains("met"))
     ratio_up->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
 
   histo_nominal->GetYaxis()->SetRangeUser(min(histo_nominal->GetMinimum(),min(histo_up->GetMinimum(),histo_dw->GetMinimum()))*0.1,
 					  max(histo_nominal->GetMaximum(),max(histo_up->GetMaximum(),histo_dw->GetMaximum()))*100);
   
   histo_nominal->GetYaxis()->SetTitle("Events");
-  histo_nominal->GetYaxis()->SetTitleOffset(1.1);
+  histo_nominal->GetYaxis()->SetTitleOffset(1.2);
   histo_nominal->SetLineColor(kBlack);
   histo_nominal->SetLineWidth(2);
   histo_up->SetLineColor(kBlack);
@@ -282,8 +285,8 @@ void plotUncertainty(TH1* histo_nominal, TH1* histo_up, TH1* histo_dw, const str
 
   pad2->Draw();
   pad2->cd();
-  ratio_up->GetYaxis()->SetTitle("Ratio");
-  ratio_up->GetYaxis()->SetTitleOffset(1.20);
+  ratio_up->GetYaxis()->SetTitle("Uncertainty");
+  ratio_up->GetYaxis()->SetTitleOffset(1.30);
   ratio_up->GetYaxis()->SetTitleSize(0.04);
   ratio_up->GetYaxis()->SetLabelSize(0.03);
   ratio_up->GetYaxis()->SetNdivisions(505);
@@ -315,7 +318,7 @@ static float sfel_unc  = 0.015;
 static float sftau_unc = 0.06;
 static float sftau_val = 0.99;
 
-void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, Category category){
+void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bool isEWK = false){
 
   system(("mkdir -p "+outputDIR).c_str());
   setTDRStyle();
@@ -324,36 +327,46 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
 
   // k-factors
   cout<<"Load k-factors"<<endl;
-  TFile* kffile = TFile::Open(kfactorFile.c_str());
-  TH1* hist_nloqcdewk = NULL;
-  TH1* hist_nloqcd    = NULL;
-  TH1* hist_loqcd     = NULL;
-
-  hist_nloqcdewk = (TH1*) kffile->Get("EWKcorr/W");
-  hist_nloqcd    = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
-  hist_loqcd     = (TH1*) kffile->Get("WJets_LO/inv_pt");
-
-  hist_nloqcdewk->Divide(hist_nloqcd);
-  hist_nloqcd->Divide(hist_loqcd);
-
-  TFile* kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
-  ///////////////////                                                                                                                                                                                
-  TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
-  if(category == Category::VBFrelaxed)
-    wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
-  if(category == Category::VBF)
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
-  else if(category == Category::VBFrelaxed)
-    wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
-
-  TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
-  wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
-
-  wjet_nlo_vbf->Divide(wjet_nlo_mj);
-
-  // VBF k-factor
-  vector<TH1*> khists; khists.push_back(hist_nloqcd); khists.push_back(hist_nloqcdewk); khists.push_back(wjet_nlo_vbf);
-
+  TFile* kffile = NULL;
+  if(not isEWK)
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root");
+  else
+    kffile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kFactor_WToLNu_pT_Mjj.root");
+  
+  vector<TH1*> khists_qcd;
+  vector<TH2*> khists_ewk;
+  
+  if(not isEWK){
+    TH1* hist_nloqcdewk = NULL;
+    TH1* hist_nloqcd    = NULL;
+    TH1* hist_loqcd     = NULL;
+    
+    hist_nloqcdewk = (TH1*) kffile->Get("EWKcorr/W");
+    hist_nloqcd    = (TH1*) kffile->Get("WJets_012j_NLO/nominal");
+    hist_loqcd     = (TH1*) kffile->Get("WJets_LO/inv_pt");
+    
+    hist_nloqcdewk->Divide(hist_nloqcd);
+    hist_nloqcd->Divide(hist_loqcd);
+    
+    TFile* kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    ///////////////////                                                                                                                                                                                
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);    
+    khists_qcd.push_back(hist_nloqcd); khists_qcd.push_back(hist_nloqcdewk); khists_qcd.push_back(wjet_nlo_vbf);
+  }
+  else
+    khists_ewk.push_back((TH2*) kffile->Get("TH2F_kFactor"));
+  
   // histograms
   cout<<"Book histograms"<<endl;
   vector<double> mjj_bin;
@@ -477,8 +490,6 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   histo_met_muon_outaccept->Sumw2();
   histo_met_ele_outaccept->Sumw2();
   histo_met_tau_outaccept->Sumw2();
-
-
   
   // tree reader
   TChain* tree_wjet = new TChain("tree/tree");
@@ -629,12 +640,38 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
 
     //Gen level info --> NLO re-weight                                                                                                                                                                
     Double_t kwgt = 1.0;
-    double genpt = *wzpt;
-    for (size_t i = 0; i < khists.size(); i++) {
-      if (khists[i]) {
-        if(genpt <= khists[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(1) + 1;
-        if(genpt >= khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)) genpt = khists[i]->GetXaxis()->GetBinLowEdge(khists[i]->GetNbinsX()+1)-1;
-        kwgt *= khists[i]->GetBinContent(khists[i]->FindBin(genpt));
+    Double_t kewkgt = 1.0;
+    if(not isEWK){
+      double genpt = *wzpt;
+      for (size_t i = 0; i < khists_qcd.size(); i++) {
+	if (khists_qcd[i]) {
+	  if(genpt <= khists_qcd[i]->GetXaxis()->GetBinLowEdge(1)) genpt = khists_qcd[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	  if(genpt >= khists_qcd[i]->GetXaxis()->GetBinLowEdge(khists_qcd[i]->GetNbinsX()+1)) genpt = khists_qcd[i]->GetXaxis()->GetBinLowEdge(khists_qcd[i]->GetNbinsX()+1)-1;
+	  kwgt *= khists_qcd[i]->GetBinContent(khists_qcd[i]->FindBin(genpt));
+	}
+      }
+    }
+    else{
+      double genpt = *wzpt;
+      if(jetpt->size() >= 2) {
+	TLorentzVector jet1 ;
+	TLorentzVector jet2 ;
+	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
+	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
+	double mjj = (jet1+jet2).M();
+	for(size_t i = 0; i < khists_ewk.size(); i++){
+	  if(khists_ewk[i]){// good histogram                                                                                                                                                    
+	      if(genpt <= khists_ewk[i]->GetXaxis()->GetBinLowEdge(1)) 
+		genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(1) + 1;
+	      if(genpt >= khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)) 
+		genpt = khists_ewk[i]->GetXaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsX()+1)-1;
+	      if(mjj <= khists_ewk[i]->GetYaxis()->GetBinLowEdge(1)) 
+		mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(1) + 1;
+	      if(mjj >= khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)) 
+		mjj = khists_ewk[i]->GetYaxis()->GetBinLowEdge(khists_ewk[i]->GetNbinsY()+1)-1;
+	      kewkgt *= khists_ewk[i]->GetBinContent(khists_ewk[i]->FindBin(genpt,mjj));
+	  }
+	}
       }
     }
 
@@ -761,99 +798,99 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
 	sfwgt_dw *= 1;
       }
     }
-    
+
     // Fill histograms
-    histo_mjj_total->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-    histo_met_total->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+    histo_mjj_total->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+    histo_met_total->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
 
     if(leptonPDG == 11){
-      histo_mjj_total_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_total_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_total_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_total_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_total_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_total_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_total_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_total_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }
     else{
-      histo_mjj_total_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_total_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
     }
 
     if(leptonPDG == 13){
-      histo_mjj_total_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_total_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_total_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_total_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_total_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_total_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_total_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_total_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }
     else{
-      histo_mjj_total_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_total_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
     }
 
     if(leptonPDG == 15){
-      histo_mjj_total_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_total_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_total_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_total_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_total_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_total_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_total_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_total_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }
     else{
-      histo_mjj_total_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_total_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_total_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_total_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_total_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
     }
 
     if(leptonPDG == 11){// electron case
-      histo_mjj_ele->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_ele->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_ele->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_ele_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_ele_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_ele->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_ele_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_ele_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }      
     else if(leptonPDG == 13){ //muon case
-      histo_mjj_muon->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_muon->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_muon->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_muon_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_muon_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_muon->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_muon_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_muon_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }
       
     else if(leptonPDG == 15){ // hadronic tau
-      histo_mjj_tau->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_mjj_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_mjj_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
-      histo_met_tau->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
-      histo_met_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
-      histo_met_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_mjj_tau->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_mjj_tau_up->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_mjj_tau_dw->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
+      histo_met_tau->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum));
+      histo_met_tau_up->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_up)/(*wgtsum));
+      histo_met_tau_dw->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt_dw)/(*wgtsum));
     }
     
     if(leptonPDG == 11 and inAcceptance){      
-      histo_mjj_ele_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance electrons	
-      histo_met_ele_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance electrons	
+      histo_mjj_ele_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance electrons	
+      histo_met_ele_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance electrons	
     }
     else if(leptonPDG == 11 and not inAcceptance){
-      histo_mjj_ele_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
-      histo_met_ele_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
+      histo_mjj_ele_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
+      histo_met_ele_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance electrons
     }
     else if(leptonPDG == 13 and inAcceptance){      
-      histo_mjj_muon_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance muons
-      histo_met_muon_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance muons
+      histo_mjj_muon_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance muons
+      histo_met_muon_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance muons
     }
     else if(leptonPDG == 13 and not inAcceptance){
-      histo_mjj_muon_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
-      histo_met_muon_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
+      histo_mjj_muon_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
+      histo_met_muon_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance muons
     }
     else if(leptonPDG == 15 and inAcceptance){      
-      histo_mjj_tau_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance taus
-      histo_met_tau_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance taus
+      histo_mjj_tau_inaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance taus
+      histo_met_tau_inaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // IN of acceptance taus
     }
     else if(leptonPDG == 15 and not inAcceptance){
-      histo_mjj_tau_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
-      histo_met_tau_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
+      histo_mjj_tau_outaccept->Fill((jet1+jet2).M(),(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
+      histo_met_tau_outaccept->Fill(*met,(*xsec)*luminosity*(*wgt)*(trig_wgt)*(kwgt)*(kewkgt)*(puwgt)*(*wgtbtag)*(sfwgt)/(*wgtsum)); // OUT of acceptance taus
     }
   }
   cout<<endl;
@@ -881,25 +918,48 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   TH1F* histo_met_ele_v2 = (TH1F*) histo_met_ele->Clone("histo_met_ele_v2");
   TH1F* histo_met_tau_v2 = (TH1F*) histo_met_tau->Clone("histo_met_tau_v2");
 
-  plotFraction(histo_mjj_total,histo_mjj_tau,histo_mjj_muon,histo_mjj_ele,outputDIR,"mjj");
-  plotAcceptance(histo_mjj_muon,histo_mjj_muon_inaccept,histo_mjj_muon_outaccept,outputDIR,"muonAcc","mjj");
-  plotAcceptance(histo_mjj_ele,histo_mjj_ele_inaccept,histo_mjj_ele_outaccept,outputDIR,"eleAcc","mjj");
-  plotAcceptance(histo_mjj_tau,histo_mjj_tau_inaccept,histo_mjj_tau_outaccept,outputDIR,"tauAcc","mjj");  
-
-  plotFraction(histo_met_total,histo_met_tau,histo_met_muon,histo_met_ele,outputDIR,"met");
-  plotAcceptance(histo_met_muon,histo_met_muon_inaccept,histo_met_muon_outaccept,outputDIR,"muonAcc","met");
-  plotAcceptance(histo_met_ele,histo_met_ele_inaccept,histo_met_ele_outaccept,outputDIR,"eleAcc","met");
-  plotAcceptance(histo_met_tau,histo_met_tau_inaccept,histo_met_tau_outaccept,outputDIR,"tauAcc","met");  
-   
-  ///// ---------- ///
-  plotUncertainty(histo_mjj_muon_v2,histo_mjj_muon_up,histo_mjj_muon_dw,outputDIR,"muon_uncertainty","mjj");
-  plotUncertainty(histo_mjj_ele_v2,histo_mjj_ele_up,histo_mjj_ele_dw,outputDIR,"electron_uncertainty","mjj");
-  plotUncertainty(histo_mjj_tau_v2,histo_mjj_tau_up,histo_mjj_tau_dw,outputDIR,"tau_uncertainty","mjj");
-
-  ///// ---------- ///
-  plotUncertainty(histo_met_muon_v2,histo_met_muon_up,histo_met_muon_dw,outputDIR,"muon_uncertainty","mjt");
-  plotUncertainty(histo_met_ele_v2,histo_met_ele_up,histo_met_ele_dw,outputDIR,"electron_uncertainty","met");
-  plotUncertainty(histo_met_tau_v2,histo_met_tau_up,histo_met_tau_dw,outputDIR,"tau_uncertainty","met");
+  if(not isEWK){
+    plotFraction(histo_mjj_total,histo_mjj_tau,histo_mjj_muon,histo_mjj_ele,outputDIR,"mjj");
+    plotAcceptance(histo_mjj_muon,histo_mjj_muon_inaccept,histo_mjj_muon_outaccept,outputDIR,"muonAcc","mjj");
+    plotAcceptance(histo_mjj_ele,histo_mjj_ele_inaccept,histo_mjj_ele_outaccept,outputDIR,"eleAcc","mjj");
+    plotAcceptance(histo_mjj_tau,histo_mjj_tau_inaccept,histo_mjj_tau_outaccept,outputDIR,"tauAcc","mjj");  
+    
+    plotFraction(histo_met_total,histo_met_tau,histo_met_muon,histo_met_ele,outputDIR,"met");
+    plotAcceptance(histo_met_muon,histo_met_muon_inaccept,histo_met_muon_outaccept,outputDIR,"muonAcc","met");
+    plotAcceptance(histo_met_ele,histo_met_ele_inaccept,histo_met_ele_outaccept,outputDIR,"eleAcc","met");
+    plotAcceptance(histo_met_tau,histo_met_tau_inaccept,histo_met_tau_outaccept,outputDIR,"tauAcc","met");  
+    
+    ///// ---------- ///
+    plotUncertainty(histo_mjj_muon_v2,histo_mjj_muon_up,histo_mjj_muon_dw,outputDIR,"muon_uncertainty","mjj");
+    plotUncertainty(histo_mjj_ele_v2,histo_mjj_ele_up,histo_mjj_ele_dw,outputDIR,"electron_uncertainty","mjj");
+    plotUncertainty(histo_mjj_tau_v2,histo_mjj_tau_up,histo_mjj_tau_dw,outputDIR,"tau_uncertainty","mjj");
+    
+    ///// ---------- ///
+    plotUncertainty(histo_met_muon_v2,histo_met_muon_up,histo_met_muon_dw,outputDIR,"muon_uncertainty","met");
+    plotUncertainty(histo_met_ele_v2,histo_met_ele_up,histo_met_ele_dw,outputDIR,"electron_uncertainty","met");
+    plotUncertainty(histo_met_tau_v2,histo_met_tau_up,histo_met_tau_dw,outputDIR,"tau_uncertainty","met");
+  }
+  else{
+    plotFraction(histo_mjj_total,histo_mjj_tau,histo_mjj_muon,histo_mjj_ele,outputDIR,"mjj_ewk");
+    plotAcceptance(histo_mjj_muon,histo_mjj_muon_inaccept,histo_mjj_muon_outaccept,outputDIR,"muonAcc_ewk","mjj");
+    plotAcceptance(histo_mjj_ele,histo_mjj_ele_inaccept,histo_mjj_ele_outaccept,outputDIR,"eleAcc_ewk","mjj");
+    plotAcceptance(histo_mjj_tau,histo_mjj_tau_inaccept,histo_mjj_tau_outaccept,outputDIR,"tauAcc_ewk","mjj");  
+    
+    plotFraction(histo_met_total,histo_met_tau,histo_met_muon,histo_met_ele,outputDIR,"met_ewk");
+    plotAcceptance(histo_met_muon,histo_met_muon_inaccept,histo_met_muon_outaccept,outputDIR,"muonAcc_ewk","met");
+    plotAcceptance(histo_met_ele,histo_met_ele_inaccept,histo_met_ele_outaccept,outputDIR,"eleAcc_ewk","met");
+    plotAcceptance(histo_met_tau,histo_met_tau_inaccept,histo_met_tau_outaccept,outputDIR,"tauAcc_ewk","met");  
+    
+    ///// ---------- ///
+    plotUncertainty(histo_mjj_muon_v2,histo_mjj_muon_up,histo_mjj_muon_dw,outputDIR,"muon_uncertainty_ewk","mjj");
+    plotUncertainty(histo_mjj_ele_v2,histo_mjj_ele_up,histo_mjj_ele_dw,outputDIR,"electron_uncertainty_ewk","mjj");
+    plotUncertainty(histo_mjj_tau_v2,histo_mjj_tau_up,histo_mjj_tau_dw,outputDIR,"tau_uncertainty_ewk","mjj");
+    
+    ///// ---------- ///
+    plotUncertainty(histo_met_muon_v2,histo_met_muon_up,histo_met_muon_dw,outputDIR,"muon_uncertainty_ewk","mjt");
+    plotUncertainty(histo_met_ele_v2,histo_met_ele_up,histo_met_ele_dw,outputDIR,"electron_uncertainty_ewk","met");
+    plotUncertainty(histo_met_tau_v2,histo_met_tau_up,histo_met_tau_dw,outputDIR,"tau_uncertainty_ewk","met");
+  }
 
   ///// ---------- final plot for the uncertianty ///  
   TCanvas* canvas = new TCanvas("canvas","",600,700);
@@ -917,25 +977,40 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   pad2->SetFillStyle(0);
 
   //                                                                                                                                                                                                  
-  TH1* ratio_tau_up =  (TH1*) histo_mjj_total_tau_up->Clone("ratio_tau_up");
-  TH1* ratio_tau_dw =  (TH1*) histo_mjj_total_tau_dw->Clone("ratio_tau_dw");
-  TH1* ratio_muon_up =  (TH1*) histo_mjj_total_muon_up->Clone("ratio_muon_up");
-  TH1* ratio_muon_dw =  (TH1*) histo_mjj_total_muon_dw->Clone("ratio_muon_dw");
-  TH1* ratio_ele_up =  (TH1*) histo_mjj_total_ele_up->Clone("ratio_ele_up");
-  TH1* ratio_ele_dw =  (TH1*) histo_mjj_total_ele_dw->Clone("ratio_ele_dw");
+  TH1* ratio_mjj_tau_up =  (TH1*) histo_mjj_total_tau_up->Clone("ratio_mjj_tau_up");
+  TH1* ratio_mjj_tau_dw =  (TH1*) histo_mjj_total_tau_dw->Clone("ratio_mjj_tau_dw");
+  TH1* ratio_mjj_muon_up =  (TH1*) histo_mjj_total_muon_up->Clone("ratio_mjj_muon_up");
+  TH1* ratio_mjj_muon_dw =  (TH1*) histo_mjj_total_muon_dw->Clone("ratio_mjj_muon_dw");
+  TH1* ratio_mjj_ele_up =  (TH1*) histo_mjj_total_ele_up->Clone("ratio_mjj_ele_up");
+  TH1* ratio_mjj_ele_dw =  (TH1*) histo_mjj_total_ele_dw->Clone("ratio_mjj_ele_dw");
 
-  ratio_tau_up->Divide(histo_mjj_total);
-  ratio_tau_dw->Divide(histo_mjj_total);
-  ratio_muon_up->Divide(histo_mjj_total);
-  ratio_muon_dw->Divide(histo_mjj_total);
-  ratio_ele_up->Divide(histo_mjj_total);
-  ratio_ele_dw->Divide(histo_mjj_total);
+  ratio_mjj_tau_up->Divide(histo_mjj_total);
+  ratio_mjj_tau_dw->Divide(histo_mjj_total);
+  ratio_mjj_muon_up->Divide(histo_mjj_total);
+  ratio_mjj_muon_dw->Divide(histo_mjj_total);
+  ratio_mjj_ele_up->Divide(histo_mjj_total);
+  ratio_mjj_ele_dw->Divide(histo_mjj_total);
+
+  //                                                                                                                                                                                                  
+  TH1* ratio_met_tau_up =  (TH1*) histo_met_total_tau_up->Clone("ratio_met_tau_up");
+  TH1* ratio_met_tau_dw =  (TH1*) histo_met_total_tau_dw->Clone("ratio_met_tau_dw");
+  TH1* ratio_met_muon_up =  (TH1*) histo_met_total_muon_up->Clone("ratio_met_muon_up");
+  TH1* ratio_met_muon_dw =  (TH1*) histo_met_total_muon_dw->Clone("ratio_met_muon_dw");
+  TH1* ratio_met_ele_up =  (TH1*) histo_met_total_ele_up->Clone("ratio_met_ele_up");
+  TH1* ratio_met_ele_dw =  (TH1*) histo_met_total_ele_dw->Clone("ratio_met_ele_dw");
+
+  ratio_met_tau_up->Divide(histo_met_total);
+  ratio_met_tau_dw->Divide(histo_met_total);
+  ratio_met_muon_up->Divide(histo_met_total);
+  ratio_met_muon_dw->Divide(histo_met_total);
+  ratio_met_ele_up->Divide(histo_met_total);
+  ratio_met_ele_dw->Divide(histo_met_total);
 
   histo_mjj_total->GetXaxis()->SetLabelSize(0);
   histo_mjj_total->GetXaxis()->SetTitleSize(0);
   
   histo_mjj_total->GetYaxis()->SetTitle("Events");
-  histo_mjj_total->GetYaxis()->SetTitleOffset(1.1);
+  histo_mjj_total->GetYaxis()->SetTitleOffset(1.2);
   histo_mjj_total->SetLineColor(kBlack);
   histo_mjj_total->SetLineWidth(2);
   
@@ -959,7 +1034,85 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   histo_mjj_total_ele_dw->SetLineColor(kRed);
   histo_mjj_total_ele_dw->SetLineWidth(2);
   histo_mjj_total_ele_dw->SetLineStyle(7);
+
+  histo_mjj_total->GetXaxis()->SetLabelSize(0);
+  histo_mjj_total->GetXaxis()->SetTitleSize(0);
   
+  histo_met_total->GetYaxis()->SetTitle("Events");
+  histo_met_total->GetYaxis()->SetTitleOffset(1.1);
+  histo_met_total->SetLineColor(kBlack);
+  histo_met_total->SetLineWidth(2);
+  
+  histo_met_total_tau_up->SetLineColor(kGreen+1);
+  histo_met_total_tau_up->SetLineWidth(2);
+  histo_met_total_tau_up->SetLineStyle(7);
+  histo_met_total_tau_dw->SetLineColor(kGreen+1);
+  histo_met_total_tau_dw->SetLineWidth(2);
+  histo_met_total_tau_dw->SetLineStyle(7);
+  
+  histo_met_total_muon_up->SetLineColor(kBlue);
+  histo_met_total_muon_up->SetLineWidth(2);
+  histo_met_total_muon_up->SetLineStyle(7);
+  histo_met_total_muon_dw->SetLineColor(kBlue);
+  histo_met_total_muon_dw->SetLineWidth(2);
+  histo_met_total_muon_dw->SetLineStyle(7);
+
+  histo_met_total_ele_up->SetLineColor(kRed);
+  histo_met_total_ele_up->SetLineWidth(2);
+  histo_met_total_ele_up->SetLineStyle(7);
+  histo_met_total_ele_dw->SetLineColor(kRed);
+  histo_met_total_ele_dw->SetLineWidth(2);
+  histo_met_total_ele_dw->SetLineStyle(7);
+
+  ratio_mjj_tau_up->GetXaxis()->SetTitle("M_{jj} [GeV]");
+  ratio_mjj_tau_up->GetYaxis()->SetTitle("Uncertainty");
+  ratio_mjj_tau_up->GetYaxis()->SetTitleOffset(1.30);
+  ratio_mjj_tau_up->GetYaxis()->SetTitleSize(0.04);
+  ratio_mjj_tau_up->GetYaxis()->SetLabelSize(0.03);
+  ratio_mjj_tau_up->GetYaxis()->SetNdivisions(505);
+  ratio_mjj_tau_up->GetXaxis()->SetTitleOffset(1.10);
+  ratio_mjj_tau_up->GetXaxis()->SetNdivisions(505);
+
+  ratio_mjj_tau_up->SetLineColor(kGreen+1);
+  ratio_mjj_tau_up->SetLineWidth(2);
+  ratio_mjj_tau_dw->SetLineColor(kGreen+1);
+  ratio_mjj_tau_dw->SetLineWidth(2);
+
+  ratio_mjj_muon_up->SetLineColor(kBlue);
+  ratio_mjj_muon_up->SetLineWidth(2);
+  ratio_mjj_muon_dw->SetLineColor(kBlue);
+  ratio_mjj_muon_dw->SetLineWidth(2);
+
+  ratio_mjj_ele_up->SetLineColor(kRed);
+  ratio_mjj_ele_up->SetLineWidth(2);
+  ratio_mjj_ele_dw->SetLineColor(kRed);
+  ratio_mjj_ele_dw->SetLineWidth(2);
+
+  ratio_met_tau_up->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+  ratio_met_tau_up->GetYaxis()->SetTitle("Uncertainty");
+  ratio_met_tau_up->GetYaxis()->SetTitleOffset(1.30);
+  ratio_met_tau_up->GetYaxis()->SetTitleSize(0.04);
+  ratio_met_tau_up->GetYaxis()->SetLabelSize(0.03);
+  ratio_met_tau_up->GetYaxis()->SetNdivisions(505);
+  ratio_met_tau_up->GetXaxis()->SetTitleOffset(1.10);
+  ratio_met_tau_up->GetXaxis()->SetNdivisions(505);
+
+  ratio_met_tau_up->SetLineColor(kGreen+1);
+  ratio_met_tau_up->SetLineWidth(2);
+  ratio_met_tau_dw->SetLineColor(kGreen+1);
+  ratio_met_tau_dw->SetLineWidth(2);
+
+  ratio_met_muon_up->SetLineColor(kBlue);
+  ratio_met_muon_up->SetLineWidth(2);
+  ratio_met_muon_dw->SetLineColor(kBlue);
+  ratio_met_muon_dw->SetLineWidth(2);
+
+  ratio_met_ele_up->SetLineColor(kRed);
+  ratio_met_ele_up->SetLineWidth(2);
+  ratio_met_ele_dw->SetLineColor(kRed);
+  ratio_met_ele_dw->SetLineWidth(2);
+  
+  //// make the mjj plot
   histo_mjj_total->Draw("hist");
   histo_mjj_total_ele_up->Draw("hist same");
   histo_mjj_total_ele_dw->Draw("hist same");
@@ -969,7 +1122,6 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
   histo_mjj_total_tau_dw->Draw("hist same");
   histo_mjj_total->Draw("hist same");
 
-  ///                                                                                                                                                                                                 
   CMS_lumi(canvas,Form("%.1f",luminosity));
   
   TLegend* leg = new TLegend(0.55,0.6,0.9,0.9);
@@ -985,41 +1137,151 @@ void makeWJetsFractions(string inputDIR, string outputDIR, string kfactorFile, C
 
   pad2->Draw();
   pad2->cd();
-  ratio_tau_up->GetXaxis()->SetTitle("M_{jj} [GeV]");
-  ratio_tau_up->GetYaxis()->SetTitle("Ratio");
-  ratio_tau_up->GetYaxis()->SetTitleOffset(1.20);
-  ratio_tau_up->GetYaxis()->SetTitleSize(0.04);
-  ratio_tau_up->GetYaxis()->SetLabelSize(0.03);
-  ratio_tau_up->GetYaxis()->SetNdivisions(505);
-  ratio_tau_up->GetXaxis()->SetTitleOffset(1.10);
-  ratio_tau_up->GetXaxis()->SetNdivisions(505);
 
-  ratio_tau_up->SetLineColor(kGreen+1);
-  ratio_tau_up->SetLineWidth(2);
-  ratio_tau_dw->SetLineColor(kGreen+1);
-  ratio_tau_dw->SetLineWidth(2);
+  ratio_mjj_tau_up->Draw("hist");
+  ratio_mjj_tau_dw->Draw("hist same");
+  ratio_mjj_muon_up->Draw("hist same");
+  ratio_mjj_muon_dw->Draw("hist same");
+  ratio_mjj_ele_up->Draw("hist same");
+  ratio_mjj_ele_dw->Draw("hist same");
 
-  ratio_muon_up->SetLineColor(kBlue);
-  ratio_muon_up->SetLineWidth(2);
-  ratio_muon_dw->SetLineColor(kBlue);
-  ratio_muon_dw->SetLineWidth(2);
-
-  ratio_ele_up->SetLineColor(kRed);
-  ratio_ele_up->SetLineWidth(2);
-  ratio_ele_dw->SetLineColor(kRed);
-  ratio_ele_dw->SetLineWidth(2);
-
-  ratio_tau_up->Draw("hist");
-  ratio_tau_dw->Draw("hist same");
-  ratio_muon_up->Draw("hist same");
-  ratio_muon_dw->Draw("hist same");
-  ratio_ele_up->Draw("hist same");
-  ratio_ele_dw->Draw("hist same");
-
-  ratio_tau_up->GetYaxis()->SetRangeUser(0.95,1.05);
+  ratio_mjj_tau_up->GetYaxis()->SetRangeUser(0.95,1.05);
   
-  canvas->SaveAs((outputDIR+"/wjets_leptonveto_unc.png").c_str(),"png");
-  canvas->SaveAs((outputDIR+"/wjets_leptonveto_unc.pdf").c_str(),"pdf");
+  if(not isEWK){
+    canvas->SaveAs((outputDIR+"/wjets_mjj_leptonveto_unc.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/wjets_mjj_leptonveto_unc.pdf").c_str(),"pdf");
+  }
+  else{
+    canvas->SaveAs((outputDIR+"/wjets_ewk_mjj_leptonveto_unc.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/wjets_ewk_mjj_leptonveto_unc.pdf").c_str(),"pdf");
+  }
+
+  //// make the mjj plot
+  canvas->cd();
+
+  TPad* pad3 = new TPad("pad3","pad3",0,0.,1,0.9);
+  pad3->SetTopMargin(0.7);
+  pad3->SetRightMargin(0.06);
+  pad3->SetFillColor(0);
+  pad3->SetFillStyle(0);
+
+  histo_met_total->Draw("hist");
+  histo_met_total_ele_up->Draw("hist same");
+  histo_met_total_ele_dw->Draw("hist same");
+  histo_met_total_muon_up->Draw("hist same");
+  histo_met_total_muon_dw->Draw("hist same");
+  histo_met_total_tau_up->Draw("hist same");
+  histo_met_total_tau_dw->Draw("hist same");
+  histo_met_total->Draw("hist same");
+
+  CMS_lumi(canvas,Form("%.1f",luminosity));  
+  leg->Draw("same");  
+  canvas->SetLogy();
   
+  pad3->Draw();
+  pad3->cd();
+
+  ratio_met_tau_up->Draw("hist");
+  ratio_met_tau_dw->Draw("hist same");
+  ratio_met_muon_up->Draw("hist same");
+  ratio_met_muon_dw->Draw("hist same");
+  ratio_met_ele_up->Draw("hist same");
+  ratio_met_ele_dw->Draw("hist same");
+
+  ratio_met_tau_up->GetYaxis()->SetRangeUser(0.92,1.08);
+  
+  if(not isEWK){
+    canvas->SaveAs((outputDIR+"/wjets_met_leptonveto_unc.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/wjets_met_leptonveto_unc.pdf").c_str(),"pdf");
+  }
+  else{
+    canvas->SaveAs((outputDIR+"/wjets_ewk_met_leptonveto_unc.png").c_str(),"png");
+    canvas->SaveAs((outputDIR+"/wjets_ewk_met_leptonveto_unc.pdf").c_str(),"pdf");
+  }
+
   if(canvas) delete canvas;
+  
+  // total uncertainty
+  TCanvas* canvas2 = new TCanvas("canvas2","",700,450);
+  canvas2->cd();
+  canvas2->SetTickx(1);
+  canvas2->SetTicky(1);
+  canvas2->cd();
+  
+  TH1F* ratio_mjj_total_up = (TH1F*) ratio_mjj_tau_up->Clone("ratio_mjj_total_up");
+  TH1F* ratio_mjj_total_dw = (TH1F*) ratio_mjj_tau_dw->Clone("ratio_mjj_total_dw");
+  ratio_mjj_total_up->Reset();
+  ratio_mjj_total_dw->Reset();
+  
+  for(int iBin = 0; iBin < ratio_mjj_total_dw->GetNbinsX(); iBin++){
+    ratio_mjj_total_up->SetBinContent(iBin+1,1+sqrt(pow(1-ratio_mjj_tau_up->GetBinContent(iBin+1),2)+pow(1-ratio_mjj_muon_up->GetBinContent(iBin+1),2)+pow(1-ratio_mjj_ele_up->GetBinContent(iBin+1),2)));
+    ratio_mjj_total_dw->SetBinContent(iBin+1,1-sqrt(pow(1-ratio_mjj_tau_dw->GetBinContent(iBin+1),2)+pow(1-ratio_mjj_muon_dw->GetBinContent(iBin+1),2)+pow(1-ratio_mjj_ele_dw->GetBinContent(iBin+1),2)));
+  }
+
+  TH1F* ratio_met_total_up = (TH1F*) ratio_met_tau_up->Clone("ratio_met_total_up");
+  TH1F* ratio_met_total_dw = (TH1F*) ratio_met_tau_dw->Clone("ratio_met_total_dw");
+  ratio_met_total_up->Reset();
+  ratio_met_total_dw->Reset();
+  
+  for(int iBin = 0; iBin < ratio_met_total_dw->GetNbinsX(); iBin++){    
+    ratio_met_total_up->SetBinContent(iBin+1,1+sqrt(pow(1-ratio_met_tau_up->GetBinContent(iBin+1),2)+pow(1-ratio_met_muon_up->GetBinContent(iBin+1),2)+pow(1-ratio_met_ele_up->GetBinContent(iBin+1),2)));
+    ratio_met_total_dw->SetBinContent(iBin+1,1-sqrt(pow(1-ratio_met_tau_dw->GetBinContent(iBin+1),2)+pow(1-ratio_met_muon_dw->GetBinContent(iBin+1),2)+pow(1-ratio_met_ele_dw->GetBinContent(iBin+1),2)));
+  }
+  
+  ratio_mjj_total_up->SetLineColor(kBlack);
+  ratio_mjj_total_up->SetLineWidth(2);
+  ratio_mjj_total_dw->SetLineColor(kBlack);
+  ratio_mjj_total_dw->SetLineWidth(2);  
+  ratio_mjj_total_up->GetYaxis()->SetRangeUser(0.95,1.05);
+
+  ratio_met_total_up->SetLineColor(kBlack);
+  ratio_met_total_up->SetLineWidth(2);
+  ratio_met_total_dw->SetLineColor(kBlack);
+  ratio_met_total_dw->SetLineWidth(2);  
+  ratio_met_total_up->GetYaxis()->SetRangeUser(0.92,1.08);
+  
+  ratio_mjj_total_up->GetXaxis()->SetTitle("M_{jj} [GeV]");
+  ratio_mjj_total_up->GetYaxis()->SetTitle("Uncertainty");
+  ratio_mjj_total_up->Draw("hist");
+  ratio_mjj_total_dw->Draw("hist same");
+
+  CMS_lumi(canvas2,Form("%.1f",luminosity));  
+
+  if(not isEWK)
+    ratio_mjj_total_up->GetYaxis()->SetRangeUser(0.94,1.06);
+  else
+    ratio_mjj_total_up->GetYaxis()->SetRangeUser(0.93,1.07);
+
+  if(not isEWK){
+    canvas2->SaveAs((outputDIR+"/wjets_mjj_leptonveto_unc_total.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/wjets_mjj_leptonveto_unc_total.pdf").c_str(),"pdf");
+  }
+  else{
+    canvas2->SaveAs((outputDIR+"/wjets_ewk_mjj_leptonveto_unc_total.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/wjets_ewk_mjj_leptonveto_unc_total.pdf").c_str(),"pdf"); 
+  }
+
+  ratio_met_total_up->GetXaxis()->SetTitle("E_{T}^{miss} [GeV]");
+  ratio_met_total_up->GetYaxis()->SetTitle("Uncertainty");
+  ratio_met_total_up->Draw("hist");
+  ratio_met_total_dw->Draw("hist same");
+
+  CMS_lumi(canvas2,Form("%.1f",luminosity));  
+  
+  if(not isEWK)
+    ratio_met_total_up->GetYaxis()->SetRangeUser(0.92,1.08);
+  else
+    ratio_met_total_up->GetYaxis()->SetRangeUser(0.91,1.09);
+
+  if(not isEWK){
+    canvas2->SaveAs((outputDIR+"/wjets_met_leptonveto_unc_total.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/wjets_met_leptonveto_unc_total.pdf").c_str(),"pdf");
+  }
+  else{
+    canvas2->SaveAs((outputDIR+"/wjets_ewk_met_leptonveto_unc_total.png").c_str(),"png");
+    canvas2->SaveAs((outputDIR+"/wjets_ewk_met_leptonveto_unc_total.pdf").c_str(),"pdf");
+  }
+
+  if(canvas2) delete canvas2;
+  
 }

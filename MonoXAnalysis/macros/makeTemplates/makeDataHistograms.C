@@ -3,7 +3,7 @@
 
 using namespace std;
 
-static bool splitWPerFlavor = true;
+static bool splitWPerFlavor = false;
 
 void sigdatamchist(TFile* outfile,
                    const Category & category,
@@ -643,55 +643,55 @@ void sigdatamchist(TFile* outfile,
   if(category == Category::monoV)
     isWJet = true;
 
-  cout<<"signal region: Z->nunu sample "<<endl;
+  cout<<"signal region --> Znunu sample "<<endl;
 
   if(not nloSamples.useZJetsNLO)
     makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,1.00,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   else
     makehist4(zntree,znhist,znhist_2D,true,Sample::sig,category,false,scale,lumi,zhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
-  cout<<"signal region: W+jets sample "<<endl;
+  cout<<"signal region --> W+jets sample "<<endl;
   makehist4(wltree,wlhist,wlhist_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   if(splitWPerFlavor){
-    cout<<"signal region: W+jets sample: wmn-gen "<<endl;
+    cout<<"signal region --> W+jets sample: wmn-gen "<<endl;
     makehist4(wltree,wlhist_mu,wlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"muon");
-    cout<<"signal region: W+jets sample  wen-gen "<<endl;
+    cout<<"signal region --> W+jets sample  wen-gen "<<endl;
     makehist4(wltree,wlhist_el,wlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"electron");
-    cout<<"signal region: W+jets sample  wta-gen "<<endl;
+    cout<<"signal region --> W+jets sample  wta-gen "<<endl;
     makehist4(wltree,wlhist_ta,wlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,whists,"",false,reweightNVTX,0,isHInv,applyPFWeight,ehists2D,-1,NULL,NULL,NULL,"tau");
   }
-  cout<<"signal region: Z+jets sample "<<endl;
+  cout<<"signal region --> Z+jets sample "<<endl;
   makehist4(zltree,zlhist,zlhist_2D,true,Sample::sig,category,false,1.00,lumi,dyhists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  cout<<"signal region: gamma+jets sample "<<endl;
+  cout<<"signal region --> gamma+jets sample "<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::sig,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  cout<<"signal region: ewkw+jets sample "<<endl;
+  cout<<"signal region --> ewkw+jets sample "<<endl;
   makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists);
   if(splitWPerFlavor){
-    cout<<"signal region: ewkw+jets sample: wmn-gen "<<endl;
+    cout<<"signal region --> ewkw+jets sample: wmn-gen "<<endl;
     makehist4(ewkwtree,ewkwlhist_mu,ewkwlhist_mu_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"muon");
-    cout<<"signal region: ewkw+jets sample  wen-gen "<<endl;
+    cout<<"signal region --> ewkw+jets sample  wen-gen "<<endl;
     makehist4(ewkwtree,ewkwlhist_el,ewkwlhist_el_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"electron");
-    cout<<"signal region: ewkw+jets sample  wta-gen "<<endl;
+    cout<<"signal region --> ewkw+jets sample  wta-gen "<<endl;
     makehist4(ewkwtree,ewkwlhist_ta,ewkwlhist_ta_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists,-1,NULL,NULL,NULL,"tau");
   }
-  cout<<"signal region: ewkz+jets sample "<<endl;
+  cout<<"signal region --> ewkz+jets sample "<<endl;
   makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,zewkhists); // temp fix for a wrong xsec
-  cout<<"signal region: TTbar sample "<<endl;
+  cout<<"signal region --> TTbar sample "<<endl;
   makehist4(tttree,tthist,tthist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
     //alternative ttbar             
   if(doAlternativeTop){
-    cout<<"signal region: TTbar alternative sample "<<endl;
+    cout<<"signal region --> TTbar alternative sample "<<endl;
     makehist4(tttree_alt,tthist_alt,tthist_alt_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   }
 
-  cout<<"signal region: Diboson sample "<<endl;  
+  cout<<"signal region --> Diboson sample "<<endl;  
   makehist4(ditree,dihist,dihist_2D,true,Sample::sig,category,isWJet,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  cout<<"signal region: Wgamma+jets"<<endl;
+  cout<<"signal region --> Wgamma+jets"<<endl;
   makehist4(wgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
-  cout<<"signal region: Zgamma+jets"<<endl;
+  cout<<"signal region --> Zgamma+jets"<<endl;
   makehist4(zgtree,vghist,vghist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
-  cout<<"signal region: QCD sample "<<endl;
+  cout<<"signal region --> QCD sample "<<endl;
   makehist4(qcdtree,qcdhist,qcdhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 
   if(doShapeSystematics){

@@ -61,17 +61,16 @@ const float photonScaleUnc   = -0.0125;
 static bool doSmoothing      = false;
 // trigger and object corrections
 const float recoilThresholdTrigger = 350; // for photon trigger application
-const bool  isSummer16      = true;
 const bool  useSingleMuon   = true;
 const bool  useMoriondSetup = true;
 const bool  usePOGScaleFactors = true;
+const bool  applyLeptonVetoWeight = false;
 // other general options
 const bool  runOnlyData     = false;
 // k-factors
 const bool  applyEWKVKfactor = true;
 
 // k-factors
-//string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/uncertainties_EWK_24bins.root";
 string kfactorFile       = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_24bins.root";
 string kfactorFileUnc    = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactors_uncertainties.root";
 string kfactorFileUNLOPS = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_gamma_unlops.root";
@@ -84,7 +83,6 @@ string kFactorFile_zjetewk = "$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kF
 
 /// basic trees
 string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_6_06_2017/";
-//string baseInputTreePath = "/home/rgerosa/MONOJET_ANALYSIS_2016_Data/MetCut/Production_1_02_2017";
 
 VectorSorter jetSorter;
 
@@ -166,22 +164,14 @@ void makehist4(TTree* tree,            /*input tree*/
   }
 
   if(runOnlyData and isMC) return;
-  // fix by hand for 2016 data
-  if((category == Category::monojet or category == Category::monoV) and reweightNVTX == false) reweightNVTX = true;
 
   // Pileup Weights
   TFile* pufile = NULL;
   TH1*   puhist = NULL;
   if(useMoriondSetup){
     if(reweightNVTX){
-      if(not isSummer16){
-	pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/puwrt_35p9fb.root");    
-	puhist = (TH1*) pufile->Get("puhist");
-      }
-      else{
-	pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");    
-	puhist = (TH1*) pufile->Get("puhist");
-      }
+      pufile = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/npvWeight/purwt_36.40_summer16.root");    
+      puhist = (TH1*) pufile->Get("puhist");
     }
   }
   else{
@@ -198,23 +188,18 @@ void makehist4(TTree* tree,            /*input tree*/
   TFile* sffile_muLoose  = NULL;
   
   if(useMoriondSetup){
-    if(not isSummer16){
-      sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid.root");
-      sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid.root");
+    if(not usePOGScaleFactors){
+      sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid_summer16.root");
+      sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid_summer16.root");
     }
     else{
-      if(not usePOGScaleFactors){
-	sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_tightid_summer16.root");
-	sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_electron_vetoid_summer16.root");
-      }
-      else{
-	sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
-	sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");	
-      }
+      sffile_eleTight = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+      sffile_eleVeto  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");	
     }
+  
     if(usePOGScaleFactors){
-      sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors_37ifb.root");
-      sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors_37ifb.root");
+      sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
+      sffile_muLoose  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/muon_scalefactors.root");
     }
     else{
       sffile_muTight  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scaleFactor_muon_tightid.root");
@@ -245,37 +230,25 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2*  esftight = NULL;
   
   if(useMoriondSetup){
-    if(not isSummer16){
+    if(not usePOGScaleFactors){
       msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_0_17");
       msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
-      esfveto_lowpu   = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_17");
-      esftight_lowpu  = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_17");
       msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
       msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
-      esfveto_highpu  = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_17_50");
-      esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_17_50");
-    }
+      }
     else{
-      if(not usePOGScaleFactors){
-	msfloose_lowpu  = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_0_17");
-	msftight_lowpu  = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_0_17");
-	msfloose_highpu = (TH2*) sffile_muLoose->Get("scaleFactor_muon_looseid_RooCMSShape_pu_17_50");
-	msftight_highpu = (TH2*) sffile_muTight->Get("scaleFactor_muon_tightid_RooCMSShape_pu_17_50");
+      msfloose_id  = (TH2*) sffile_muLoose->Get("scalefactors_MuonLooseId_Muon");
+      msfloose_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
+      msftight_id  = (TH2*) sffile_muLoose->Get("scalefactors_TightId_Muon");
+      msftight_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonTightId");
+    }
+    if(not usePOGScaleFactors){
+      esfveto    = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_100");
+      esftight   = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_100");
       }
-      else{
-	msfloose_id  = (TH2*) sffile_muLoose->Get("scalefactors_MuonLooseId_Muon");
-	msfloose_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonLooseId");
-	msftight_id  = (TH2*) sffile_muLoose->Get("scalefactors_TightId_Muon");
-	msftight_iso = (TH2*) sffile_muLoose->Get("scalefactors_Iso_MuonTightId");
-      }
-      if(not usePOGScaleFactors){
-	esfveto    = (TH2*) sffile_eleVeto->Get("scaleFactor_electron_vetoid_RooCMSShape_pu_0_100");
-	esftight   = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape_pu_0_100");
-      }
-      else{
-	esfveto    = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
-	esftight   = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
-      }
+    else{
+      esfveto    = (TH2*) sffile_eleVeto->Get("scalefactors_Veto_Electron");
+      esftight   = (TH2*) sffile_eleTight->Get("scalefactors_Tight_Electron");
     }
   }
   else{
@@ -289,6 +262,16 @@ void makehist4(TTree* tree,            /*input tree*/
     esftight_highpu = (TH2*) sffile_eleTight->Get("scaleFactor_electron_tightid_RooCMSShape");
   }
 
+  // lepton loose id files --> MC efficiency
+  TFile* muon_efficiency_file = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonEfficiency_MC_2016/muon_efficiency_MC.root");
+  TFile* ele_efficiency_file  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonEfficiency_MC_2016/egamma_efficiency_MC.root");
+  TFile* tau_efficiency_file  = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonEfficiency_MC_2016/efficiency_tau_MC.root");
+
+  TH2F* effmuloose_id  = (TH2F*) muon_efficiency_file->Get("efficiency_MC_loose_id");
+  TH2F* effmuloose_iso = (TH2F*) muon_efficiency_file->Get("efficiency_MC_loose_iso");
+  TH2F* effeleveto_id  = (TH2F*) ele_efficiency_file->Get("efficiency_MC_vetoid");
+  TH2F* efftauloose_id = (TH2F*) tau_efficiency_file->Get("efficiency_tau_MC");
+    
   // Photon ID scale factor                                                                                                                                                     
   TFile* sffile_phoMedium = NULL;
   TH2*  psfmedium_lowpu   = NULL;
@@ -296,15 +279,8 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2*  psfmedium         = NULL;
 
   if(useMoriondSetup){
-    if(not isSummer16){
-      sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/scaleFactor_photon_mediumid.root");
-      psfmedium_lowpu  = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_0_17");
-      psfmedium_highpu = (TH2*) sffile_phoMedium->Get("scaleFactor_photon_mediumid_RooCMSShape_pu_17_50");
-    }
-    else{
-      sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/photonSF_egamma_80X.root");
-      psfmedium = (TH2*) sffile_phoMedium->Get("EGamma_SF2D");
-    }
+    sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_Moriond/photonSF_egamma_80X.root");
+    psfmedium = (TH2*) sffile_phoMedium->Get("EGamma_SF2D");
   }
   else{
     sffile_phoMedium = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/photonSF_2016/photonSF_ICHEP/scaleFactor_photon_mediumid_12p9.root");
@@ -330,6 +306,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2F*  trackingefficiency_muon_lowpu  = NULL;
   TH2F*  trackingefficiency_muon_highpu = NULL;
   TGraphAsymmErrors*  trackingefficiency_pog = NULL;
+
   if(useMoriondSetup){
     if(not usePOGScaleFactors){
       trackingefficiency_muon = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_muon_trackerid.root");
@@ -352,20 +329,13 @@ void makehist4(TTree* tree,            /*input tree*/
   TH2F* trackingefficiency_electron_highpu = NULL;
   TH2F* trackingefficiency_electron        = NULL;
   if(useMoriondSetup){
-    if(isSummer16){
-      if(usePOGScaleFactors){
-	trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
-	trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scalefactors_Reco_Electron");
-      }
-      else{
-	trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_electron_recoelectronmatch_summer16.root");
-	trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_100");	
-      }
+    if(usePOGScaleFactors){
+      trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/leptonSF_2016/leptonSF_Moriond/scalefactors_80x_egpog_37ifb.root");
+      trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scalefactors_Reco_Electron");
     }
     else{
-      trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_electron_recoelectronmatch.root");
-      trackingefficiency_electron_lowpu  = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_17");
-      trackingefficiency_electron_highpu = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_17_50");
+      trackingefficiencyFile_electron = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/trackingSF_2016/trackingSF_Moriond/scaleFactor_electron_recoelectronmatch_summer16.root");
+      trackingefficiency_electron = (TH2F*) trackingefficiencyFile_electron->Get("scaleFactor_electron_recoelectronmatch_RooCMSShape_pu_0_100");	
     }
   }
   else{
@@ -467,12 +437,10 @@ void makehist4(TTree* tree,            /*input tree*/
     }
   }
   
-  // single turn on
   TEfficiency*       triggermet         = NULL;
   TEfficiency*       triggermet_zmm     = NULL;
-  ////
-  TGraphAsymmErrors* triggermet_graph = NULL;    
-  TGraphAsymmErrors* triggermet_graph_zmm = NULL;    
+  TGraphAsymmErrors* triggermet_graph   = NULL;    
+  TGraphAsymmErrors* triggermet_graph_zmm     = NULL;    
   TGraphAsymmErrors* triggermet_graph_zvv_mc  = NULL;    
   TGraphAsymmErrors* triggermet_graph_wjet_mc = NULL;    
   TGraphAsymmErrors* triggermet_graph_wjet_sf = NULL;    
@@ -606,6 +574,7 @@ void makehist4(TTree* tree,            /*input tree*/
     wgtpuname = "wgt";
     wgtbtagname = "wgt";
   }
+
   TTreeReaderValue<float> wgtpu              (myReader,wgtpuname.c_str());
   TTreeReaderValue<float> wgtbtag            (myReader,wgtbtagname.c_str());
   
@@ -625,8 +594,6 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> hlte        (myReader,"hltsingleel");
   TTreeReaderValue<UChar_t> hltenoiso   (myReader,"hltelnoiso");
   TTreeReaderValue<UChar_t> hltm        (myReader,"hltsinglemu");
-  TTreeReaderValue<UChar_t> hltp120     (myReader,"hltphoton120");
-  TTreeReaderValue<float>   pswgt_ph120 (myReader,"pswgt_ph120");
   TTreeReaderValue<UChar_t> hltp165     (myReader,"hltphoton165");
   TTreeReaderValue<UChar_t> hltp175     (myReader,"hltphoton175");
   TTreeReaderValue<UChar_t> hltpPFHT800 (myReader,"hltPFHT800");
@@ -643,21 +610,19 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<UChar_t> fbadch (myReader,"flagbadchpf");
 
   TTreeReaderValue<unsigned int> njets      (myReader,"njets");
-  TTreeReaderValue<unsigned int> ntrigele   (myReader,"ntriggerelectrons");
   TTreeReaderValue<unsigned int> nbjets     (myReader,"nbjetslowpt");
   TTreeReaderValue<float> ht                (myReader,"ht");
   TTreeReaderValue<unsigned int> ntaus      (myReader,"ntausold");
 
   // AK8 jet
   TTreeReaderValue<vector<float> > boostedJetpt    (myReader,"boostedJetpt");
-  TTreeReaderValue<vector<float> > boostedJetQGL   (myReader,"boostedJetQGL");
   TTreeReaderValue<vector<float> > boostedJeteta   (myReader,"boostedJeteta");
   TTreeReaderValue<vector<float> > boostedJetphi   (myReader,"boostedJetphi");
   TTreeReaderValue<vector<float> > boostedJetm     (myReader,"boostedJetm");
   TTreeReaderValue<vector<float> > prunedJetm      (myReader,"prunedJetm");
   TTreeReaderValue<vector<float> > boostedJettau2  (myReader,"boostedJettau2");
   TTreeReaderValue<vector<float> > boostedJettau1  (myReader,"boostedJettau1");
-
+  // hadronic boson pt
   TTreeReaderValue<float> hadBosoneta  (myReader,"wzeta_h");
   TTreeReaderValue<float> hadBosonphi  (myReader,"wzphi_h");
   TTreeReaderValue<float> hadBosonpt   (myReader,"wzpt_h");
@@ -717,7 +682,6 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<vector<float> > chfrac  (myReader,"combinejetCHfrac");
   TTreeReaderValue<vector<float> > nhfrac  (myReader,"combinejetNHfrac");
   TTreeReaderValue<vector<float> > emfrac  (myReader,"combinejetEMfrac");
-  TTreeReaderValue<vector<float> > pFlav   (myReader,"combinejetPFlav");
   TTreeReaderValue<unsigned int> nincjets  (myReader,("njetsinc"+jetSuffix).c_str());
   
   TTreeReaderValue<float> met         (myReader,("t1pfmet"+metSuffix).c_str());
@@ -739,13 +703,6 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> jemdphi (myReader,("incjetelmetdphimin4"+jetSuffix).c_str());
   TTreeReaderValue<float> jpmdphi (myReader,("incjetphmetdphimin4"+jetSuffix).c_str());
 
-  string hltsafe1 = "el1idt";
-  if(not useMoriondSetup)
-    hltsafe1 = "el1id";
-  string hltsafe2 = "el2idt";
-  if(not useMoriondSetup)
-    hltsafe2 = "el2id";
-
   ////////////////
   TTreeReaderValue<int>    mu1pid (myReader,"mu1pid");
   TTreeReaderValue<int>    mu2pid (myReader,"mu2pid");
@@ -760,15 +717,13 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<int>    el1pid (myReader,"el1pid");
   TTreeReaderValue<int>    el2pid (myReader,"el2pid");
   TTreeReaderValue<int>    el1id  (myReader,"el1id");
-  TTreeReaderValue<int>    el1idt (myReader,hltsafe1.c_str());
   TTreeReaderValue<int>    el2id  (myReader,"el2id");
-  TTreeReaderValue<int>    el2idt (myReader,hltsafe2.c_str());
-  TTreeReaderValue<float> el1pt  (myReader,"el1pt");
-  TTreeReaderValue<float> el2pt  (myReader,"el2pt");
-  TTreeReaderValue<float> el1eta (myReader,"el1eta");
-  TTreeReaderValue<float> el2eta (myReader,"el2eta");
-  TTreeReaderValue<float> el1phi (myReader,"el1phi");
-  TTreeReaderValue<float> el2phi (myReader,"el2phi");
+  TTreeReaderValue<float>  el1pt  (myReader,"el1pt");
+  TTreeReaderValue<float>  el2pt  (myReader,"el2pt");
+  TTreeReaderValue<float>  el1eta (myReader,"el1eta");
+  TTreeReaderValue<float>  el2eta (myReader,"el2eta");
+  TTreeReaderValue<float>  el1phi (myReader,"el1phi");
+  TTreeReaderValue<float>  el2phi (myReader,"el2phi");
   ////////////////
   TTreeReaderValue<float>  tau1id  (myReader,"tau1idold");
   TTreeReaderValue<float>  tau1pt  (myReader,"tau1pt");
@@ -785,6 +740,7 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> wemt   (myReader,"wemt");
   TTreeReaderValue<float> wtmt   (myReader,"wtmt");
   TTreeReaderValue<float> wzpt   (myReader,"wzpt");
+  TTreeReaderValue<int>   wzid   (myReader,"wzid");
   TTreeReaderValue<float> wzpt_h (myReader,"wzpt_h");
   TTreeReaderValue<float> wzeta  (myReader,"wzeta");
   TTreeReaderValue<float> zmass  (myReader,"zmass");
@@ -796,9 +752,11 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float> zmmeta (myReader,"zeta");
   TTreeReaderValue<float> zmmphi (myReader,"zphi");
   ///////////////
+  TTreeReaderValue<float> l1pt  (myReader,"l1pt");
   TTreeReaderValue<float> l1eta (myReader,"l1eta");
   TTreeReaderValue<float> l1phi (myReader,"l1phi");
   TTreeReaderValue<int>   l1pid (myReader,"l1id");
+  TTreeReaderValue<float> l2pt  (myReader,"l2pt");
   TTreeReaderValue<float> l2eta (myReader,"l2eta");
   TTreeReaderValue<float> l2phi (myReader,"l2phi");
   TTreeReaderValue<int>   l2pid (myReader,"l2id");
@@ -869,7 +827,7 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     
     // set lepton info
-    Int_t    id1   = 0, id2   = 0, id1t  = 0, id2t  = 0;
+    Int_t    id1   = 0, id2   = 0;
     Double_t pt1   = 0.0, pt2   = 0.0;
     Double_t eta1  = 0.0, eta2  = 0.0;
     Double_t phi1  = 0.0, phi2  = 0.0;
@@ -879,7 +837,6 @@ void makehist4(TTree* tree,            /*input tree*/
 
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
       id1  = *mu1id;  id2  = *mu2id;
-      id1t = 1;       id2t = 1;
       pt1  = *mu1pt;  pt2  = *mu2pt;
       pid1 = *mu1pid; pid2 = *mu2pid;
       eta1 = *mu1eta; eta2 = *mu2eta;
@@ -887,7 +844,6 @@ void makehist4(TTree* tree,            /*input tree*/
     }
     else if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {
       id1  = *el1id; id2  = *el2id;
-      id1t = *el1idt;
       pt1  = *el1pt;  pt2  = *el2pt;
       eta1 = *el1eta; eta2 = *el2eta;
       phi1 = *el1phi; phi2 = *el2phi;
@@ -1085,47 +1041,17 @@ void makehist4(TTree* tree,            /*input tree*/
     //float sf_track = 1.0;
     // apply tracking efficiency for electrons from POGs / private files
     if(isMC && (sample == Sample::zee or sample == Sample::wen)){
-      if(not isSummer16){
-	if(pt1 > 0. and *nvtx <= numberOfVtxCorrection){	
-	  if(pt1 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
-	    sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,min(pt1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-	  else
-	    sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta1,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));	
-	}
-	if(pt2 > 0. and *nvtx <= numberOfVtxCorrection){
-	  if(pt2 > trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
-	    sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,min(pt2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_lowpu->GetNbinsY()+1)-1)));
-	  else
-	    sfwgt *= trackingefficiency_electron_lowpu->GetBinContent(trackingefficiency_electron_lowpu->FindBin(eta2,trackingefficiency_electron_lowpu->GetYaxis()->GetBinLowEdge(1)+1));
-	}
-	if(pt1 > 0. and *nvtx > numberOfVtxCorrection){
-	  if(pt1 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)) // above minimum
-	    sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,min(pt1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1)));
-	  else
-	    sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta1,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
-	}	
-	if(pt2 > 0. and *nvtx > numberOfVtxCorrection){ // above minimum
-	  if(pt2 > trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1))
-	    sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,min(pt2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(trackingefficiency_electron_highpu->GetNbinsY()+1)-1))); 
-	  else
-	    sfwgt *= trackingefficiency_electron_highpu->GetBinContent(trackingefficiency_electron_highpu->FindBin(eta2,trackingefficiency_electron_highpu->GetYaxis()->GetBinLowEdge(1)+1));
-	}
+      if(pt1 > 0.){	  
+	float ptVal = pt1;
+	if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
+	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
       }
-      else{// Summer 16 Corrention
-	if(pt1 > 0.){	  
-	  float ptVal = pt1;
-	  if(pt1 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(pt1 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	  sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
-	  //sf_track =  trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
-	}
-	if(pt2 > 0.){
-	  float ptVal = pt1;
-	  if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
-	  sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
-	  //sf_track =  trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta1,ptVal));
-	}
+      if(pt2 > 0.){
+	float ptVal = pt1;
+	if(pt2 < trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)) ptVal =  trackingefficiency_electron->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt2 > trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)) ptVal = trackingefficiency_electron->GetYaxis()->GetBinLowEdge(trackingefficiency_electron->GetNbinsY()+1)-1;
+	sfwgt *= trackingefficiency_electron->GetBinContent(trackingefficiency_electron->FindBin(eta2,ptVal));
       }
     }
 
@@ -1157,10 +1083,7 @@ void makehist4(TTree* tree,            /*input tree*/
     TH2* sflhist_highpu = NULL;
     TH2* sfthist_highpu = NULL;
 
-    //double sf_lepID = 1;
-
     if (sample == Sample::zmm || sample == Sample::wmn || sample == Sample::topmu) {
-
       if(not usePOGScaleFactors){
 	if (pt1 > 0.) {	
 	  if(*nvtx <= numberOfVtxCorrection){
@@ -1217,63 +1140,29 @@ void makehist4(TTree* tree,            /*input tree*/
 
     //////////////    
     if (sample == Sample::zee || sample == Sample::wen || sample == Sample::topel) {      
-      if(isSummer16){ // use e-gamma pog scale factors
-	if (pt1 > 0.) {
-	  float ptVal = pt1;
-	  if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+      if (pt1 > 0.) {
+	float ptVal = pt1;
+	if(pt1 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
 	  else if(pt1 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	  if (id1 == 1) {
-	    sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
-	    //sf_lepID *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
-	  }
-	  else{  
-	    sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
-	    //sf_lepID *=esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
-	  }
-	}
-	if (pt2 > 0.) {
-	  float ptVal = pt2;
-	  if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
-	  else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
-	  if (id1 == 1){
-	    sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
-	    //sf_lepID *=esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
-	  }
-	  else{
-	    sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
-	    //sf_lepID  *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
-	  }
-	}
+	if (id1 == 1) 
+	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta1,ptVal));
+	else  
+	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta1,ptVal));
       }
-      else{
-	// use private SF for Spring 16
-	if (pt1 > 0.) {
-	  if(*nvtx <= numberOfVtxCorrection){
-	    if (id1 == 1) sfwgt *= esftight_lowpu->GetBinContent(esftight_lowpu->FindBin(fabs(eta1),min(pt1,esftight_lowpu->GetYaxis()->GetBinLowEdge(esftight_lowpu->GetNbinsY()+1)-1))); 
-	    else sfwgt *= esfveto_lowpu->GetBinContent(esfveto_lowpu->FindBin(fabs(eta1),min(pt1,esfveto_lowpu->GetYaxis()->GetBinLowEdge(esfveto_lowpu->GetNbinsY()+1)-1))); 
-	  }
-	  else{
-	    if (id1 == 1) sfwgt *= esftight_highpu->GetBinContent(esftight_highpu->FindBin(fabs(eta1),min(pt1,esftight_highpu->GetYaxis()->GetBinLowEdge(esftight_highpu->GetNbinsY()+1)-1))); 
-	    else sfwgt *= esfveto_highpu->GetBinContent(esfveto_highpu->FindBin(fabs(eta1),min(pt1,esfveto_highpu->GetYaxis()->GetBinLowEdge(esfveto_highpu->GetNbinsY()+1)-1))); 
-	  }
-	}
-	if (pt2 > 0.) {
-	  if(*nvtx <= numberOfVtxCorrection){
-	    if (id2 == 1) sfwgt *= esftight_lowpu->GetBinContent(esftight_lowpu->FindBin(fabs(eta2),min(pt2,esftight_lowpu->GetYaxis()->GetBinLowEdge(esftight_lowpu->GetNbinsY()+1)-1))); 
-	    else sfwgt *= esfveto_lowpu->GetBinContent(esfveto_lowpu->FindBin(fabs(eta2),min(pt2,esfveto_lowpu->GetYaxis()->GetBinLowEdge(esfveto_lowpu->GetNbinsY()+1)-1))); 
-	  }
-	  else{
-	    if (id2 == 1) sfwgt *= esftight_highpu->GetBinContent(esftight_highpu->FindBin(fabs(eta2),min(pt2,esftight_highpu->GetYaxis()->GetBinLowEdge(esftight_highpu->GetNbinsY()+1)-1))); 
-	    else sfwgt *= esfveto_highpu->GetBinContent(esfveto_highpu->FindBin(fabs(eta2),min(pt2,esfveto_highpu->GetYaxis()->GetBinLowEdge(esfveto_highpu->GetNbinsY()+1)-1))); 
-	  }	  
-	}
+      if (pt2 > 0.) {
+	float ptVal = pt2;
+	if(pt2 < esftight->GetYaxis()->GetBinLowEdge(1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(1)+1;
+	else if(pt2 > esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)) ptVal = esftight->GetYaxis()->GetBinLowEdge(esftight->GetNbinsY()+1)-1;
+	if (id1 == 1)
+	  sfwgt *= esftight->GetBinContent(esftight->FindBin(eta2,ptVal));
+	else
+	  sfwgt *= esfveto->GetBinContent(esfveto->FindBin(eta2,ptVal));
       }
     }
-
+    
     // tight tau scale factor--> as suggested by tau pog https://twiki.cern.ch/twiki/bin/viewauth/CMS/TauIDRecommendation13TeV
-    if(isMC && sample == Sample::taun){
+    if(isMC && sample == Sample::taun)
       sfwgt *= 0.95;
-    }
     
     // trigger scale factor for electrons
     float sf_trigger = 1.;
@@ -1329,19 +1218,8 @@ void makehist4(TTree* tree,            /*input tree*/
     
     // photon id scale factor
     if (isMC && psfmedium_lowpu && psfmedium_highpu && sample == Sample::gam) {
-      if(not isSummer16){
-	if (pt1 > 0. && id1 == 1) {
-	  if(*nvtx <= numberOfVtxCorrection)
-	    sfwgt *= psfmedium_lowpu->GetBinContent(psfmedium_lowpu->FindBin(fabs(eta1),min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
-	  else
-	    sfwgt *= psfmedium_highpu->GetBinContent(psfmedium_highpu->FindBin(fabs(eta1),min(pt1,psfmedium_highpu->GetYaxis()->GetBinLowEdge(psfmedium_highpu->GetNbinsY()+1)-1)));
-	}
-      }
-      else{
-	if (pt1 > 0. && id1 == 1) {
-	  sfwgt *= psfmedium->GetBinContent(psfmedium_lowpu->FindBin(eta1,min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
-	}
-      }
+      if (pt1 > 0. && id1 == 1) 
+	sfwgt *= psfmedium->GetBinContent(psfmedium_lowpu->FindBin(eta1,min(pt1,psfmedium_lowpu->GetYaxis()->GetBinLowEdge(psfmedium_lowpu->GetNbinsY()+1)-1)));
     }
 
     // photon purity
@@ -1424,7 +1302,78 @@ void makehist4(TTree* tree,            /*input tree*/
       btagw = 0.980;
     else
       btagw = *wgtbtag;
-    
+
+
+    /// loose lepton veto weight
+    double veto_wgt = 1;
+    if(applyLeptonVetoWeight and sample == Sample::sig and (fabs(*wzid) == 23 or fabs(*wzid) == 24)){ // only for SR events and for W+jets / Z+jets
+      if(fabs(*l1pid) == 11){ // gen lepton = electron
+	float ptVal = *l1pt;
+	if(ptVal > 10 and fabs(*l1eta) < 2.5){ // in acceptance
+	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l1eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
+	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l1eta),esfveto->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+      else if(fabs(*l1pid) == 13){
+	float ptVal = *l1pt;
+	if(ptVal > 10 and fabs(*l1eta) < 2.4){
+	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
+	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
+	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
+	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l1eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
+	}		
+      }
+      else if(fabs(*l1pid) == 15){
+	float ptVal = *l1pt;
+	if(ptVal > 18 and fabs(*l1eta) < 2.3){
+	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
+	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
+	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l1eta)));
+	  float sf = 0.99;
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+
+      if(fabs(*l2pid) == 11){ // gen lepton = electron
+	float ptVal = *l2pt;
+	if(ptVal > 10 and fabs(*l2eta) < 2.5){ // in acceptance
+	  if(ptVal > effeleveto_id->GetYaxis()->GetXmax()) ptVal = effeleveto_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effeleveto_id->GetYaxis()->GetXmin()) ptVal = effeleveto_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effeleveto_id->GetBinContent(effeleveto_id->GetXaxis()->FindBin(*l2eta),effeleveto_id->GetYaxis()->FindBin(ptVal));
+	  float sf = esfveto->GetBinContent(esfveto->GetXaxis()->FindBin(*l2eta),esfveto->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+      else if(fabs(*l2pid) == 13){
+	float ptVal = *l2pt;
+	if(ptVal > 10 and fabs(*l2eta) < 2.4){
+	  if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
+	  if(ptVal < effmuloose_id->GetYaxis()->GetXmin()) ptVal = effmuloose_id->GetYaxis()->GetXmin()+1;
+	  float efficiency = effmuloose_id->GetBinContent(effmuloose_id->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_id->GetYaxis()->FindBin(ptVal))*
+	    effmuloose_iso->GetBinContent(effmuloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),effmuloose_iso->GetYaxis()->FindBin(ptVal));
+	  float sf = msfloose_id->GetBinContent(msfloose_id->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_id->GetYaxis()->FindBin(ptVal))*
+	    msfloose_iso->GetBinContent(msfloose_iso->GetXaxis()->FindBin(fabs(*l2eta)),msfloose_iso->GetYaxis()->FindBin(ptVal));
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);	  
+	}		
+      }
+      else if(fabs(*l2pid) == 15){
+	float ptVal = *l2pt;
+	if(ptVal > 18 and fabs(*l2eta) < 2.3){
+	  if(ptVal > efftauloose_id->GetXaxis()->GetXmax()) ptVal = efftauloose_id->GetXaxis()->GetXmax()-1;
+	  if(ptVal < efftauloose_id->GetXaxis()->GetXmin()) ptVal = efftauloose_id->GetXaxis()->GetXmin()+1;
+	  float efficiency = efftauloose_id->GetBinContent(efftauloose_id->GetXaxis()->FindBin(ptVal),efftauloose_id->GetYaxis()->FindBin(fabs(*l2eta)));
+	  float sf = 0.99;
+	  veto_wgt *= (1-efficiency*sf)/(1-efficiency);
+	}
+      }
+    }
+
     //V-tagging scale factor --> only for mono-V
     if(isMC && category == Category::monoV && isWJet)
       sfwgt *= getVtaggingScaleFactor(tau2tau1,sysName);
@@ -1749,7 +1698,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	fillvar = sqrt(dphi*dphi+fabs(*mu1eta-*mu2eta)*fabs(*mu1eta-*mu2eta));
       }
       else if(name.Contains("dRee")){
-	float dphi = fabs(*el1phi-*el2phi);
+	float dphi = fabs(*el2phi-*el2phi);
 	if(dphi > TMath::Pi()) dphi = 2*TMath::Pi() - dphi;
 	fillvar = sqrt(dphi*dphi+fabs(*el1eta-*el2eta)*fabs(*el1eta-*el2eta));
       }
@@ -2049,14 +1998,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	if(jetQGL->size() > 1)
 	  fillvar = jetQGL->at(1);
       }
-      else if(name.Contains("jetPFlav")){
-	if(pFlav->size() > 0)
-	  fillvar = fabs(pFlav->at(0));
-      }
-      else if(name.Contains("jetQGL_AK8")){
-	if(boostedJetpt->size() > 0)
-	  fillvar = boostedJetQGL->at(0);
-      }
       // substructure
       else if(name.Contains("mpruned")){
 	if(prunedJetm->size() > 0 and boostedJetpt->at(0) > ptJetMinAK8)	  
@@ -2160,23 +2101,21 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); 
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum); //(xsec, scale, lumi, wgt, pileup, sf, rw, kw, wgtsum)
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
 
 	// pu-weight
-	if (*nvtx <= 60 and not isSummer16) 
-	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-	else if(isSummer16 and sample != Sample::sig and sample != Sample::gam and (category == Category::monojet or category == Category::monoV))
+	if(sample != Sample::sig and sample != Sample::gam and (category == Category::monojet or category == Category::monoV))
 	  puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else
 	  puwgt = 1;
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
       
       // for data-based events 
@@ -2270,10 +2209,6 @@ void makehist4(TTree* tree,            /*input tree*/
 	fillvarX = sqrt(2*jetpt->at(0)*pfmet*(1-cos(deltaPhi)));
         fillvarY = *ht;
       }
-      else if(name.Contains("met_QGL")){
-	fillvarX = pfmet;
-	fillvarY = jetQGL->at(0);
-      }
       else if(name.Contains("met_minDphiJJ")){
 	fillvarX = pfmet;
 	if(jetphi->size() <= 1)
@@ -2350,25 +2285,23 @@ void makehist4(TTree* tree,            /*input tree*/
 	else puwgt = *wgtpu;
 
 	if(XSEC != -1)
-          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+          evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*topptwgt*sfwgt*veto_wgt*kwgt*kewkgt*hwgt*ggZHwgt*hnnlowgt*pfwgt/(**wgtsum);
       }
       else if (isMC and reweightNVTX){
         // pu-weight                                                                                                                                                                                  
-        if (*nvtx <= 60 and not isSummer16)
+        if(sample != Sample::sig and sample  != Sample::gam and (category == Category::monojet or category == Category::monoV))
           puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-        else if(isSummer16 and sample != Sample::sig and sample  != Sample::gam and (category == Category::monojet or category == Category::monoV))
-          puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
-        else if(isSummer16 and (category == Category::VBFrelaxed or category == Category::twojet or category == Category::VBF))
+        else if(category == Category::VBFrelaxed or category == Category::twojet or category == Category::VBF)
           puwgt = puhist->GetBinContent(puhist->FindBin(*nvtx));
 	else
           puwgt = 1;
 	
 	if(XSEC != -1)
-	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
+	  evtwgt = (XSEC)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);
 	else
-	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
+	  evtwgt = (*xsec)*(scale)*(lumi)*(*wgt)*(puwgt)*(btagw)*hltw*sfwgt*veto_wgt*topptwgt*ggZHwgt*kwgt*kewkgt*hwgt*hnnlowgt/(**wgtsum);	
       }
 
       if (!isMC && sample == Sample::qcdgam) 

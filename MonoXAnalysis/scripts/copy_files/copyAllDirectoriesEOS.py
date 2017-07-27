@@ -34,7 +34,7 @@ if __name__ == '__main__':
     
 
     if options.toEOS:
-         os.system('/afs/cern.ch/project/eos/installation/cms/bin/eos.select  mkdir -p '+options.outputDIR);
+         os.system('/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select  mkdir -p '+options.outputDIR);
     else:
         os.system('mkdir -p '+options.outputDIR);
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
     #### read all the subdirectories in the inputdit
     dirList = [];
     if not options.toEOS:   
-        command = "/afs/cern.ch/project/eos/installation/cms/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root | grep -v failed ";
+        command = "/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select ls "+options.inputDIR+" | grep -v txt | grep -v root | grep -v failed ";
         for name in options.grepName:
             command += " | grep "+name;
         for name in options.skipName:

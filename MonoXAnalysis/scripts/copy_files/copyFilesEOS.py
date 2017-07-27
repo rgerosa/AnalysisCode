@@ -31,7 +31,7 @@ parser.add_option('--fromXRD',      action="store_true", dest = "fromXRD", help=
 if __name__ == '__main__':
 
     if options.toEOS:
-         os.system('/afs/cern.ch/project/eos/installation/cms/bin/eos.select  mkdir -p '+options.outputDIR);
+         os.system('/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select  mkdir -p '+options.outputDIR);
     else:
         os.system('mkdir -p '+options.outputDIR);
 
