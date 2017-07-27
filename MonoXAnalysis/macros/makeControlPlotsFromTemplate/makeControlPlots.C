@@ -972,7 +972,7 @@ void makeControlPlots(string templateFileName,
   else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
     frame2->GetYaxis()->SetRangeUser(0.65,1.35);
   else if(controlRegion == "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,2.5);
+    frame2->GetYaxis()->SetRangeUser(0.,2.);
   
   if(category == Category::monojet)
     frame2->GetXaxis()->SetNdivisions(510);

@@ -3792,6 +3792,80 @@ void qcddatamchist(TFile* outfile,
     ahists.push_back(aewkhist);
   }
 
+  // special corrections for VBF topology
+  TFile* kfactzjet_vbf = NULL;
+  TFile* kfactwjet_vbf = NULL;
+  TFile* kfactgjet_vbf = NULL;
+
+  if(category == Category::VBF or category == Category::VBFrelaxed){ // apply further k-factors going to the VBF selections
+
+    /////////////
+    kfactzjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_zjets_v2.root");
+    kfactwjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_wjets_v2.root");
+    kfactgjet_vbf = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/kFactors/kfactor_VBF_gjets_v2.root");
+    
+    ////////////
+    TH1* zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+    TH1* zjet_nlo_mj  = (TH1*) kfactzjet_vbf->Get("bosonPt_NLO_monojet");
+
+    if(category == Category::VBF)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      zjet_nlo_vbf->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    zjet_nlo_mj->Divide((TH1*) kfactzjet_vbf->Get("bosonPt_LO_monojet"));
+    zjet_nlo_vbf->Divide(zjet_nlo_mj);
+
+    if(not nloSamples.useZJetsNLO)
+      zhists.push_back(zjet_nlo_vbf);
+    if(not nloSamples.useDYJetsNLO)
+      dyhists.push_back(zjet_nlo_vbf);
+    
+    ///////////////////
+    TH1* wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+    TH1* wjet_nlo_mj  = (TH1*) kfactwjet_vbf->Get("bosonPt_NLO_monojet");
+
+    if(category == Category::VBF)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      wjet_nlo_vbf->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+    
+    wjet_nlo_mj->Divide((TH1*) kfactwjet_vbf->Get("bosonPt_LO_monojet"));
+    wjet_nlo_vbf->Divide(wjet_nlo_mj);
+    if(not nloSamples.useWJetsNLO)
+      whists.push_back(wjet_nlo_vbf);
+
+    TH1* gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf");
+    if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_vbf_relaxed");
+
+    TH1* gjet_nlo_mj  = (TH1*) kfactgjet_vbf->Get("bosonPt_NLO_monojet");
+    if(category == Category::VBF)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf"));
+    else if(category == Category::VBFrelaxed)
+      gjet_nlo_vbf->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_vbf_relaxed"));
+      
+    gjet_nlo_mj->Divide((TH1*) kfactgjet_vbf->Get("bosonPt_LO_monojet"));
+    gjet_nlo_vbf->Divide(gjet_nlo_mj);
+
+    if(not nloSamples.usePhotonJetsNLO)
+      ahists.push_back(gjet_nlo_vbf);
+  }
+
+  // for electroweak backgrounds                                                                                                                                                                       
+  TFile* kffile_zewk = TFile::Open(kFactorFile_zjetewk.c_str(),"READ");
+  TFile* kffile_wewk = TFile::Open(kFactorFile_wjetewk.c_str(),"READ");
+  vector<TH2*> zewkhists;
+  vector<TH2*> wewkhists;
+  vector<TH2*> ehists2D;
+  if(applyEWKVKfactor){
+    zewkhists.push_back((TH2*) kffile_zewk->Get("TH2F_kFactor"));
+    wewkhists.push_back((TH2*) kffile_wewk->Get("TH2F_kFactor"));
+  }
+
 
   //////////////////
   bool isWJet = false;
@@ -3811,9 +3885,9 @@ void qcddatamchist(TFile* outfile,
   cout<<"QCD region: gamma+jets sample "<<endl;
   makehist4(gmtree,gmhist,gmhist_2D,true,Sample::qcd,category,false,1.00,lumi,ahists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
   cout<<"QCD region: ewkw+jets sample "<<endl;
-  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
+  makehist4(ewkwtree,ewkwhist,ewkwhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,wewkhists);
   cout<<"QCD region: ewkz+jets sample "<<endl;
-  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight); // temp fix for a wrong xsec
+  makehist4(ewkztree,ewkzhist,ewkzhist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight,zewkhists); // temp fix for a wrong xsec
   cout<<"QCD region: TTbar sample "<<endl;
   makehist4(tttree,tthist,tthist_2D,true,Sample::qcd,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,isHInv,applyPFWeight);
 

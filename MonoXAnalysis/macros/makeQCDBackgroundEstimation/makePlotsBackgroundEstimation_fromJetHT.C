@@ -395,7 +395,38 @@ void makePlotsBackgroundEstimation(string inputFileName, string outputDIR){
   
   canvas->SaveAs((outputDIR+"/distribution_estimationSR_systematics.png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/distribution_estimationSR_systeamtics.pdf").c_str(),"pdf");
-
+  
   if(canvas) delete canvas;
-    
+
+  // make a reduced output file for the QCD in SR
+  TFile* outputFile = new TFile((outputDIR+"/templates_QCD_DD.root").c_str(),"RECREATE");
+  outputFile->cd();
+
+  estimationRegion_D->Write("template_QCD_SR_fromDD");
+  outputFile->mkdir("BinByBin");
+  outputFile->cd("BinByBin");
+
+  int iBin = 0;
+  for(auto hist : estimationRegion_D_binByBinUp){
+    hist->Write(Form("template_QCD_SR_fromDD_bin_%d_statUp",iBin));
+    iBin++;
+  }
+  iBin = 0;
+  for(auto hist : estimationRegion_D_binByBinDw){
+    hist->Write(Form("template_QCD_SR_fromDD_bin_%d_statDown",iBin));
+    iBin++;
+  }
+
+  outputFile->cd();
+  outputFile->mkdir("ZJets");
+  outputFile->cd("ZJets");
+  estimationRegion_D_zjet_up->Write("template_QCD_SR_ZJetsUp");
+  estimationRegion_D_zjet_dw->Write("template_QCD_SR_ZJetsDown");
+  outputFile->cd();
+  outputFile->mkdir("WJets");
+  outputFile->cd("WJets");
+  estimationRegion_D_wjet_up->Write("template_QCD_SR_WJetsUp");
+  estimationRegion_D_wjet_dw->Write("template_QCD_SR_WJetsDown");
+  outputFile->cd();
+  outputFile->Close();
 }
