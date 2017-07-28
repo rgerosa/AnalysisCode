@@ -369,5 +369,24 @@ void makeVJetsShapeComparisons(string inputDIR_LO, string inputDIR_NLO, string k
 
   for(size_t ihist = 0; ihist < histogram_lo.size(); ihist++)
     drawHistogram(histogram_lo.at(ihist),histogram_nlo.at(ihist),histogram_reweight.at(ihist),sample,outputDIR);
+
+  string postfix;
+  if(sample == Sample::zjet)
+    postfix = "_zjet";
+  else if(sample == Sample::wjet)
+    postfix = "_wjet";
+    
+
+  TFile* outputFile = new TFile((outputDIR+"/outputFile_"+postfix+".root").c_str(),"RECREATE");
+  outputFile->cd();
+  for(auto hist : histogram_lo)
+    hist->Write();
+  for(auto hist : histogram_nlo)
+    hist->Write();
+  for(auto hist : histogram_reweight)
+    hist->Write();
+  
+  outputFile->Close();
+
   
 }

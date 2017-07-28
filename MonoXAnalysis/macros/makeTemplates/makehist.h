@@ -64,7 +64,7 @@ const float recoilThresholdTrigger = 350; // for photon trigger application
 const bool  useSingleMuon   = true;
 const bool  useMoriondSetup = true;
 const bool  usePOGScaleFactors = true;
-const bool  applyLeptonVetoWeight = false;
+const bool  applyLeptonVetoWeight = true;
 // other general options
 const bool  runOnlyData     = false;
 // k-factors

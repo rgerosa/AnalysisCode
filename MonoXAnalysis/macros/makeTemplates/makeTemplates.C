@@ -827,11 +827,11 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
     }
 
     //add qcd data templates
-    TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/MonojetTemplates/templates_2016_12p9.root");
-    if(qcdfile_data and (category == Category::monojet or category == Category::monoV)){
+    if(category == Category::monojet or category == Category::monoV){
+
+      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/MonojetTemplates/templates_2016_12p9.root");
 
       cout<<"Take templates QCD from data"<<endl;
-
       vector<double> met_bins = selectBinning("met",category);
       TH1F*  qcd_nominal    = new TH1F("qbkghistDD_met","",int(met_bins.size()-1),&met_bins[0]);
       TH1F*  qcd_nominal_up = new TH1F("qbkghistDD_shapeUp_met","",int(met_bins.size()-1),&met_bins[0]);
@@ -875,6 +875,46 @@ void makeTemplates(bool doCorrectionHistograms   = false,  // calculate transfer
       qcd_nominal_dw->Write();      
       outfile.cd();
     }
+    else if(category == Category::VBFrelaxed){
+
+      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD.root");
+      cout<<"Take templates QCD from data"<<endl;      
+      TH1F* qcd_nominal = (TH1F*) qcdfile_data->Get("template_QCD_SR_fromDD");
+      // set the bin errors to reflect the bin-by-bin variations in the TFs
+      for(int iBin = 0; iBin < qcd_nominal->GetNbinsX(); iBin++){
+	TH1F* qcd_temp_up = (TH1F*) qcdfile_data->Get(Form("BinByBin/template_QCD_SR_fromDD_bin_%d_statUp",iBin));
+	TH1F* qcd_temp_dw = (TH1F*) qcdfile_data->Get(Form("BinByBin/template_QCD_SR_fromDD_bin_%d_statDown",iBin));
+	qcd_nominal->SetBinError(iBin+1,(qcd_temp_up->GetBinContent(iBin+1)-qcd_temp_dw->GetBinContent(iBin+1))/2);
+      }
+
+      outfile.cd();
+      outfile.cd("SR");
+      qcd_nominal->Write("qbkghistDD_mjj");
+      outfile.cd();      
+    }
+    else if(category == Category::VBF){
+      TFile* qcdfile_data = TFile::Open("$CMSSW_BASE/src/AnalysisCode/MonoXAnalysis/data/QCD/VBFTemplates/templates_QCD_DD.root");
+      cout<<"Take templates QCD from data"<<endl;      
+
+      vector<double> met_bins = selectBinning("met_onebin",category);
+      TH1F* qbkghistDD_met_onebin = new TH1F("qbkghistDD_met_onebin","",met_bins.size()-1,&met_bins[0]);
+      
+      TH1F* qcd_nominal = (TH1F*) qcdfile_data->Get("template_QCD_SR_fromDD"); 
+      qbkghistDD_met_onebin->SetBinContent(1,qcd_nominal->Integral(qcd_nominal->FindBin(1300),qcd_nominal->GetNbinsX())); // special trick for the cut and count case
+
+      // set the bin errors to reflect the bin-by-bin variations in the TFs
+      float error = 0;
+      for(int iBin = qcd_nominal->FindBin(1300); iBin < qcd_nominal->GetNbinsX(); iBin++){
+	TH1F* qcd_temp_up = (TH1F*) qcdfile_data->Get(Form("BinByBin/template_QCD_SR_fromDD_bin_%d_statUp",iBin-1));
+	TH1F* qcd_temp_dw = (TH1F*) qcdfile_data->Get(Form("BinByBin/template_QCD_SR_fromDD_bin_%d_statDown",iBin-1));
+	error += pow((qcd_temp_up->GetBinContent(iBin)-qcd_temp_dw->GetBinContent(iBin))/2,2);
+      }      
+      qbkghistDD_met_onebin->SetBinError(1,sqrt(error));
+      outfile.cd();
+      outfile.cd("SR");
+      qbkghistDD_met_onebin->Write("qbkghistDD_met_onebin");
+      outfile.cd();      
+    }      
   }  
   outfile.Close();
 }

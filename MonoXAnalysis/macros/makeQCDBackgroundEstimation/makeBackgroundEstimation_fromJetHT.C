@@ -180,6 +180,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histoA, vector<TH1F*> & histo
       else if(not *hltPFHT900 and not *hltPFHT800 and not *hltPFHT650 and not *hltPFHT600 and not *hltPFHT475 and not *hltPFHT400 and *hltPFHT350) evtweight = *pswgt_ht350;
     }
       
+    if(isMC and evtweight > 1000) continue;
 
     // fill histo A
     if(*jmmdphi < 0.5 and *met > lowMetBound and *met < highMetBound){

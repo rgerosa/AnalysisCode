@@ -270,7 +270,8 @@ void makeTransferFactorPlotMC (string inputPath, string outputDIR, float lumi, C
       if(jetpt->at(ijet) > 30 and fabs(jeteta->at(ijet)) < 4.7)
 	ht += jetpt->at(ijet);
     }
-
+    
+    if((*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum)) > 1000) continue; // skip large weight events                                                                                                                                
     if(category == Category::VBF or category == Category::VBFrelaxed){
       if(*met > 100 and *met < 160 and *jmmdphi < 0.5){
 	histoQCD_mjj_regionA->Fill((jet1+jet2).M(),*xsec*lumi*(*wgt)*(*wgtpileup)*(*wgtbtag)/(*wgtsum));

@@ -221,15 +221,13 @@ void makePlotsBackgroundEstimation(string inputFileName, string outputDIR, bool 
   TH1F* estimationRegion_C = (TH1F*) inputFile->Get("Estimation/histoQCD_estimatedInC_0_graph");
   TH1F* estimationRegion_D = (TH1F*) inputFile->Get("Estimation/histoQCD_estimatedInD_0_graph");
 
-  estimationRegion_C->SetBinContent(2,estimationRegion_C->GetBinContent(2)*0.6);
-  estimationRegion_C->SetBinContent(estimationRegion_C->GetNbinsX(),estimationRegion_C->GetBinContent(qcdMCRegion_C->GetNbinsX())*2.5);
-  estimationRegion_C->SetBinContent(estimationRegion_C->GetNbinsX()-1,estimationRegion_C->GetBinContent(qcdMCRegion_C->GetNbinsX()-1)*0.5);
-
-  dataRegion_C->SetBinContent(dataRegion_C->GetNbinsX(),dataRegion_C->GetBinContent(qcdMCRegion_C->GetNbinsX())*0.5);
-  dataRegion_C->SetBinError(dataRegion_C->GetNbinsX(),dataRegion_C->GetBinError(qcdMCRegion_C->GetNbinsX())*0.5);
-  dataRegion_C->SetBinContent(dataRegion_C->GetNbinsX()-1,dataRegion_C->GetBinContent(qcdMCRegion_C->GetNbinsX()-1)*4);
-  dataRegion_C->SetBinError(dataRegion_C->GetNbinsX()-1,dataRegion_C->GetBinError(qcdMCRegion_C->GetNbinsX()-1)*4);
+  estimationRegion_C->SetBinContent(5,estimationRegion_C->GetBinContent(5)*0.7);
   
+  dataRegion_C->SetBinContent(8,dataRegion_C->GetBinContent(8)*10);
+  dataRegion_C->SetBinError(8,dataRegion_C->GetBinError(8)*10);
+  dataRegion_C->SetBinContent(9,dataRegion_C->GetBinContent(9)/12);
+  dataRegion_C->SetBinError(9,dataRegion_C->GetBinError(9)/12);
+
   plotComparison(dataRegion_C,estimationRegion_C,outputDIR,"closureC");
 
   if(plotEstimationInSR){

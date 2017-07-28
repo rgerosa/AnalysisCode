@@ -1245,6 +1245,13 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   ratio_mjj_total_up->Draw("hist");
   ratio_mjj_total_dw->Draw("hist same");
 
+  ratio_mjj_tau_up->Draw("hist same");
+  ratio_mjj_tau_dw->Draw("hist same");
+  ratio_mjj_muon_up->Draw("hist same");
+  ratio_mjj_muon_dw->Draw("hist same");
+  ratio_mjj_ele_up->Draw("hist same");
+  ratio_mjj_ele_dw->Draw("hist same");
+
   CMS_lumi(canvas2,Form("%.1f",luminosity));  
 
   if(not isEWK)
@@ -1265,6 +1272,13 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
   ratio_met_total_up->GetYaxis()->SetTitle("Uncertainty");
   ratio_met_total_up->Draw("hist");
   ratio_met_total_dw->Draw("hist same");
+
+  ratio_met_tau_up->Draw("hist same");
+  ratio_met_tau_dw->Draw("hist same");
+  ratio_met_muon_up->Draw("hist same");
+  ratio_met_muon_dw->Draw("hist same");
+  ratio_met_ele_up->Draw("hist same");
+  ratio_met_ele_dw->Draw("hist same");
 
   CMS_lumi(canvas2,Form("%.1f",luminosity));  
   
