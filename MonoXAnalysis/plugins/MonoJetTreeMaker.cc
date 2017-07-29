@@ -439,21 +439,21 @@ private:
 
   // trigger and met filters flags 
   uint8_t hltmet90,hltmet100,hltmet110,hltmet120;
-  uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu170,hltmetwithmu300;
+  uint8_t hltmetwithmu90,hltmetwithmu100,hltmetwithmu110,hltmetwithmu120,hltmetwithmu130,hltmetwithmu140;
   uint8_t hltjetmet;
   // photon trigger
-  uint8_t hltphoton165,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf,hltphoton90PFHT;
+  uint8_t hltphoton200,hltphoton175,hltphoton120,hltphoton90,hltphoton120vbf,hltphoton90PFHT;
   // lepton trigger
   uint8_t hltdoublemu,hltsinglemu,hltdoubleel,hltsingleel,hltsingleel27,hltelnoiso;
   // PF HT trigger
-  uint8_t hltPFHT125, hltPFHT200, hltPFHT250, hltPFHT300, hltPFHT350;
-  uint8_t hltPFHT400, hltPFHT475, hltPFHT600, hltPFHT650, hltPFHT800,hltPFHT900;
+  uint8_t hltPFHT180, hltPFHT250, hltPFHT300, hltPFHT350, hltPFHT370;
+  uint8_t hltPFHT430, hltPFHT510, hltPFHT590, hltPFHT680, hltPFHT780,hltPFHT890,hltPFHT1050;
   uint8_t hltEcalHT800;
 
   //pre-scales for PF-HT
-  float pswgt_ph120,pswgt_ph90;
-  float pswgt_ht125,pswgt_ht200,pswgt_ht250,pswgt_ht300,pswgt_ht350;  
-  float pswgt_ht400,pswgt_ht475,pswgt_ht600,pswgt_ht650,pswgt_ht800,pswgt_ht900;
+  float pswgt_ph175,pswgt_ph120,pswgt_ph90;
+  float pswgt_ht180,pswgt_ht250,pswgt_ht300,pswgt_ht350,pswgt_ht370;  
+  float pswgt_ht430,pswgt_ht510,pswgt_ht590,pswgt_ht680,pswgt_ht780,pswgt_ht890,pswgt_ht1050;
   
   //met filters
   uint8_t flagcsctight,flaghbhenoise,flaghbheiso,flageebadsc,flagecaltp,flaggoodvertices, flagglobaltighthalo, flagbadchpf, flagbadpfmu, flagbadmuon, flagduplicatemuon;
@@ -1395,18 +1395,18 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Trigger info
     hltmet90        = 0; hltmet100       = 0; hltmet110       = 0; hltmet120       = 0;
     hltmetwithmu90  = 0; hltmetwithmu100 = 0; hltmetwithmu110 = 0; hltmetwithmu120 = 0;
-    hltmetwithmu170 = 0; hltmetwithmu300 = 0;
+    hltmetwithmu130 = 0; hltmetwithmu140 = 0;
     hltjetmet       = 0; 
     hltphoton90     = 0; hltphoton120    = 0; hltphoton120vbf = 0;
-    hltphoton165    = 0; hltphoton175    = 0;
+    hltphoton200    = 0; hltphoton175    = 0;
     hltdoublemu     = 0;
     hltsinglemu     = 0;
     hltdoubleel     = 0;
     hltsingleel     = 0;
     hltsingleel27   = 0;
     hltelnoiso      = 0;
-    hltPFHT125      = 0; hltPFHT200 = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0;
-    hltPFHT400      = 0; hltPFHT475 = 0; hltPFHT600 = 0; hltPFHT650 = 0; hltPFHT800 = 0; hltPFHT900 = 0; 
+    hltPFHT180      = 0; hltPFHT250 = 0; hltPFHT300 = 0; hltPFHT350 = 0; hltPFHT370 = 0;
+    hltPFHT430      = 0; hltPFHT510 = 0; hltPFHT590 = 0; hltPFHT680 = 0; hltPFHT780 = 0; hltPFHT890 = 0; hltPFHT1050= 0; 
     hltEcalHT800    = 0; 
     hltphoton90PFHT = 0;
 
@@ -3140,10 +3140,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	else{
 
 	  // pruned matched jet --> raw                                                                                                                                                             
-          if(jetsBoosted[i]->hasUserFloat("ak8PFJetsCHSPrunedMass"))
-            prunedJetmraw .push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSPrunedMass"));	  
+          if(jetsBoosted[i]->hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"))
+            prunedJetmraw .push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass"));	  
 	  // correct the pruned mass on the fly
-	  prunedJetm.push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSPrunedMass")*jetsBoosted[i]->correctedP4(jetsBoosted[i]->availableJECLevels().back()).Pt()/jetsBoosted[i]->correctedP4("L1FastJet").Pt());
+	  prunedJetm.push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSPrunedMass")*jetsBoosted[i]->correctedP4(jetsBoosted[i]->availableJECLevels().back()).Pt()/jetsBoosted[i]->correctedP4("L1FastJet").Pt());
 	}
 		
 	if(not useMiniAODSubstructure){	  
@@ -3219,10 +3219,10 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	}
 	else{
 	  // pruned matched jet --> raw                                                                                                                                                             
-          if(jetsBoosted[i]->hasUserFloat("ak8PFJetsCHSSoftDropMass"))
-            softDropJetmraw .push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSSoftDropMass"));
+          if(jetsBoosted[i]->hasUserFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSSoftDropMass"))
+            softDropJetmraw .push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSSoftDropMass"));
 	  // correct the pruned mass on the fly
-	  softDropJetm.push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSSoftDropMass")*jetsBoosted[i]->correctedP4(jetsBoosted[i]->availableJECLevels().back()).Pt()/jetsBoosted[i]->correctedP4("L1FastJet").Pt());
+	  softDropJetm.push_back(jetsBoosted[i]->userFloat("ak8PFJetsCHSValueMap:ak8PFJetsCHSSoftDropMass")*jetsBoosted[i]->correctedP4(jetsBoosted[i]->availableJECLevels().back()).Pt()/jetsBoosted[i]->correctedP4("L1FastJet").Pt());
 	}
 	  	
 	if(not useMiniAODSubstructure){
@@ -3364,7 +3364,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     // Substructure Puppi
-    if((useMiniAODSubstructure or addSubstructurePuppi) and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){      
+    if(false and (useMiniAODSubstructure or addSubstructurePuppi) and not isTriggerTree and not isPhotonPurity and not applyDiMuonFilter and not applyDiElectronFilter and not applyPhotonJetsFilter){      
 
       //sort collection to make sure it is ordered
       vector<pat::JetRef> puppiJetsBoosted;
@@ -4209,14 +4209,14 @@ void MonoJetTreeMaker::beginJob() {
   tree->Branch("hltmetwithmu100"      , &hltmetwithmu100      , "hltmetwithmu100/b");
   tree->Branch("hltmetwithmu110"      , &hltmetwithmu110      , "hltmetwithmu110/b");
   tree->Branch("hltmetwithmu120"      , &hltmetwithmu120      , "hltmetwithmu120/b");
-  tree->Branch("hltmetwithmu170"      , &hltmetwithmu170      , "hltmetwithmu170/b");
-  tree->Branch("hltmetwithmu300"      , &hltmetwithmu300      , "hltmetwithmu300/b");
+  tree->Branch("hltmetwithmu130"      , &hltmetwithmu130      , "hltmetwithmu130/b");
+  tree->Branch("hltmetwithmu140"      , &hltmetwithmu140      , "hltmetwithmu140/b");
   tree->Branch("hltjetmet"            , &hltjetmet            , "hltjetmet/b");
   if(not isQCDTree){
     tree->Branch("hltphoton90"          , &hltphoton90          , "hltphoton90/b");
     tree->Branch("hltphoton120"         , &hltphoton120         , "hltphoton120/b");
     tree->Branch("hltphoton120vbf"      , &hltphoton120vbf      , "hltphoton120vbf/b");
-    tree->Branch("hltphoton165"         , &hltphoton165         , "hltphoton165/b");
+    tree->Branch("hltphoton200"         , &hltphoton200         , "hltphoton200/b");
     tree->Branch("hltphoton175"         , &hltphoton175         , "hltphoton175/b");
     tree->Branch("hltphoton90PFHT"      , &hltphoton90PFHT      , "hltphoton90PFHT/b");
   }
@@ -4234,36 +4234,40 @@ void MonoJetTreeMaker::beginJob() {
   if(not isPhotonPurity){
 
     if(isQCDTree){
-      tree->Branch("hltPFHT125"           , &hltPFHT125           , "hltPFHT125/b");
-      tree->Branch("hltPFHT200"           , &hltPFHT200           , "hltPFHT200/b");
+      tree->Branch("hltPFHT180"           , &hltPFHT180           , "hltPFHT180/b");
       tree->Branch("hltPFHT250"           , &hltPFHT250           , "hltPFHT250/b");
-      tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");
+      tree->Branch("hltPFHT300"           , &hltPFHT300           , "hltPFHT300/b");    
       tree->Branch("hltPFHT350"           , &hltPFHT350           , "hltPFHT350/b");
+      tree->Branch("hltPFHT370"           , &hltPFHT370           , "hltPFHT370/b");
+      tree->Branch("hltPFHT430"           , &hltPFHT430           , "hltPFHT430/b");
     }
 
     if(not isTriggerTree or (isTriggerTree and addNonETMTriggerObjects)){
-      tree->Branch("hltPFHT400"           , &hltPFHT400           , "hltPFHT400/b");
-      tree->Branch("hltPFHT475"           , &hltPFHT475           , "hltPFHT475/b");
-      tree->Branch("hltPFHT600"           , &hltPFHT600           , "hltPFHT600/b");
-      tree->Branch("hltPFHT650"           , &hltPFHT650           , "hltPFHT650/b");
-      tree->Branch("hltPFHT800"           , &hltPFHT800           , "hltPFHT800/b");
-      tree->Branch("hltPFHT900"           , &hltPFHT900           , "hltPFHT900/b");
+      tree->Branch("hltPFHT510"           , &hltPFHT510           , "hltPFHT510/b");
+      tree->Branch("hltPFHT590"           , &hltPFHT590           , "hltPFHT590/b");
+      tree->Branch("hltPFHT680"           , &hltPFHT680           , "hltPFHT680/b");
+      tree->Branch("hltPFHT780"           , &hltPFHT780           , "hltPFHT780/b");
+      tree->Branch("hltPFHT890"           , &hltPFHT890           , "hltPFHT890/b");
+      tree->Branch("hltPFHT1050"          , &hltPFHT1050          , "hltPFHT1050/b");
+      tree->Branch("pswgt_ph175"          , &pswgt_ph175          , "pswgt_ph175/F");
       tree->Branch("pswgt_ph120"          , &pswgt_ph120          , "pswgt_ph120/F");
       tree->Branch("pswgt_ph90"           , &pswgt_ph90           , "pswgt_ph90/F");
     }
 
     if((isTriggerTree and not isMC and addNonETMTriggerObjects) or isQCDTree){
-      tree->Branch("pswgt_ht125"          , &pswgt_ht125          , "pswgt_ht125/F");
-      tree->Branch("pswgt_ht200"          , &pswgt_ht200          , "pswgt_ht200/F");
+      tree->Branch("pswgt_ht180"          , &pswgt_ht180          , "pswgt_ht180/F");
       tree->Branch("pswgt_ht250"          , &pswgt_ht250          , "pswgt_ht250/F");
       tree->Branch("pswgt_ht300"          , &pswgt_ht300          , "pswgt_ht300/F");
       tree->Branch("pswgt_ht350"          , &pswgt_ht350          , "pswgt_ht350/F");
-      tree->Branch("pswgt_ht400"          , &pswgt_ht400          , "pswgt_ht400/F");
-      tree->Branch("pswgt_ht475"          , &pswgt_ht475          , "pswgt_ht475/F");
-      tree->Branch("pswgt_ht600"          , &pswgt_ht600          , "pswgt_ht600/F");
-      tree->Branch("pswgt_ht650"          , &pswgt_ht650          , "pswgt_ht650/F");
-      tree->Branch("pswgt_ht800"          , &pswgt_ht800          , "pswgt_ht800/F");
-      tree->Branch("pswgt_ht900"          , &pswgt_ht900          , "pswgt_ht900/F");
+      tree->Branch("pswgt_ht370"          , &pswgt_ht370          , "pswgt_ht370/F");
+      tree->Branch("pswgt_ht430"          , &pswgt_ht430          , "pswgt_ht430/F");
+      tree->Branch("pswgt_ht510"          , &pswgt_ht510          , "pswgt_ht510/F");
+      tree->Branch("pswgt_ht590"          , &pswgt_ht590          , "pswgt_ht590/F");
+      tree->Branch("pswgt_ht680"          , &pswgt_ht680          , "pswgt_ht680/F");
+      tree->Branch("pswgt_ht780"          , &pswgt_ht780          , "pswgt_ht780/F");
+      tree->Branch("pswgt_ht890"          , &pswgt_ht890          , "pswgt_ht890/F");
+      tree->Branch("pswgt_ht1050"          , &pswgt_ht1050          , "pswgt_ht1050/F");
+
     }
   }
   
@@ -5375,71 +5379,40 @@ void MonoJetTreeMaker::endJob() {}
 void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
 
   // triggers for the Analysis
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //0
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //1
-  triggerPathsVector.push_back("HLT_PFMETNoMu90_PFMHTNoMu90_IDTight"); //2
-  triggerPathsVector.push_back("HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v");//3
-  triggerPathsVector.push_back("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v");//4
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //5
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //6
-  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight"); //7
-  triggerPathsVector.push_back("HLT_PFMET90_PFMHT90_IDTight"); //8
-  triggerPathsVector.push_back("HLT_PFMET100_PFMHT100_IDTight_v"); //9 
-  triggerPathsVector.push_back("HLT_PFMET110_PFMHT110_IDTight_v");//10 
-  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //11
-  triggerPathsVector.push_back("HLT_PFMET170_NoiseCleaned"); //12
-  triggerPathsVector.push_back("HLT_PFMET170_JetIdCleaned"); //13
-  triggerPathsVector.push_back("HLT_PFMET170_HBHECleaned"); //14
-  triggerPathsVector.push_back("HLT_PFMET170_v"); //15
-  triggerPathsVector.push_back("HLT_PFMET300_NoiseCleaned"); //16
-  triggerPathsVector.push_back("HLT_PFMET300_JetIdCleaned"); //17
-  triggerPathsVector.push_back("HLT_PFMET300_v"); //18
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight"); //19
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight"); //20
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_IDTight");    //21
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu100_PFMHTNoMu100_IDTight_v");//22
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu110_PFMHTNoMu110_IDTight_v");//23
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight"); //24
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight"); //25
-  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight"); //26
-  triggerPathsVector.push_back("HLT_Photon165_HE10"); //27
-  triggerPathsVector.push_back("HLT_Photon175");      //28
-  triggerPathsVector.push_back("HLT_Photon120_v");    //29
-  triggerPathsVector.push_back("HLT_Photon90_v");     //30
-  triggerPathsVector.push_back("HLT_Photon120_R9Id90_HE10_Iso40_EBOnly_PFMET40_v");     //31
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"); //32
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v"); //33
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //34
-  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v"); //35
-  triggerPathsVector.push_back("HLT_IsoMu20_v"); //36
-  triggerPathsVector.push_back("HLT_IsoMu22_v"); //37
-  triggerPathsVector.push_back("HLT_IsoMu24_v"); //38
-  triggerPathsVector.push_back("HLT_IsoTkMu20"); //39
-  triggerPathsVector.push_back("HLT_IsoTkMu22"); //40
-  triggerPathsVector.push_back("HLT_IsoTkMu24"); //41
-  triggerPathsVector.push_back("HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //42
-  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //43
-  triggerPathsVector.push_back("HLT_Ele24_eta2p1_WPLoose_Gsf_v"); //44
-  triggerPathsVector.push_back("HLT_Ele25_eta2p1_WPTight_Gsf_v"); //45
-  triggerPathsVector.push_back("HLT_Ele27_WPTight_Gsf_v"); //46
-  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPLoose_Gsf_v"); //47 
-  triggerPathsVector.push_back("HLT_Ele27_eta2p1_WPTight_Gsf_v"); //48
-  triggerPathsVector.push_back("HLT_Ele105_CaloIdVT_GsfTrkIdT_v"); //49
-  triggerPathsVector.push_back("HLT_Ele115_CaloIdVT_GsfTrkIdT_v"); //50
-  triggerPathsVector.push_back("HLT_PFHT125_v");//51
-  triggerPathsVector.push_back("HLT_PFHT200_v");//52
-  triggerPathsVector.push_back("HLT_PFHT250_v");//53
-  triggerPathsVector.push_back("HLT_PFHT300_v");//54
-  triggerPathsVector.push_back("HLT_PFHT350_v");//55  
-  triggerPathsVector.push_back("HLT_PFHT400_v");//56
-  triggerPathsVector.push_back("HLT_PFHT475_v");//57
-  triggerPathsVector.push_back("HLT_PFHT600_v");//58
-  triggerPathsVector.push_back("HLT_PFHT650_v");//59
-  triggerPathsVector.push_back("HLT_PFHT800_v");//60
-  triggerPathsVector.push_back("HLT_PFHT900_v");//61
-  triggerPathsVector.push_back("HLT_ECALHT800_v");//62
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT500_v");//63
-  triggerPathsVector.push_back("HLT_Photon90_CaloIdL_PFHT600_v");//64
+  triggerPathsVector.push_back("HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v");//1
+  triggerPathsVector.push_back("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v");//2
+  triggerPathsVector.push_back("HLT_PFMET120_PFMHT120_IDTight"); //3
+  triggerPathsVector.push_back("HLT_PFMET130_PFMHT130_IDTight"); //4
+  triggerPathsVector.push_back("HLT_PFMET140_PFMHT140_IDTight"); //5
+  triggerPathsVector.push_back("HLT_PFMETTypeOne120_PFMHT120_IDTight"); //6
+  triggerPathsVector.push_back("HLT_PFMETTypeOne130_PFMHT130_IDTight"); //7
+  triggerPathsVector.push_back("HLT_PFMETTypeOne140_PFMHT140_IDTight"); //8
+  triggerPathsVector.push_back("HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight"); //9
+  triggerPathsVector.push_back("HLT_Photon200");      //10
+  triggerPathsVector.push_back("HLT_Photon175");      //11
+  triggerPathsVector.push_back("HLT_Photon120_v");    //12
+  triggerPathsVector.push_back("HLT_Photon90_v");     //13
+  triggerPathsVector.push_back("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v"); //14
+  triggerPathsVector.push_back("HLT_IsoMu24_v"); //15
+  triggerPathsVector.push_back("HLT_IsoMu27_v"); //16
+  triggerPathsVector.push_back("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ"); //17
+  triggerPathsVector.push_back("HLT_Ele27_WPTight_Gsf_v"); //1hltjetmet8
+  triggerPathsVector.push_back("HLT_Ele35_WPTight_Gsf_v"); //19
+  triggerPathsVector.push_back("HLT_Ele38_WPTight_Gsf_v"); //20
+  triggerPathsVector.push_back("HLT_Ele40_WPTight_Gsf_v"); //21
+  triggerPathsVector.push_back("HLT_PFHT180_v");//22
+  triggerPathsVector.push_back("HLT_PFHT250_v");//23
+  triggerPathsVector.push_back("HLT_PFHT300_v");//24
+  triggerPathsVector.push_back("HLT_PFHT350_v");//25
+  triggerPathsVector.push_back("HLT_PFHT370_v");//26  
+  triggerPathsVector.push_back("HLT_PFHT430_v");//27
+  triggerPathsVector.push_back("HLT_PFHT510_v");//28
+  triggerPathsVector.push_back("HLT_PFHT590_v");//29
+  triggerPathsVector.push_back("HLT_PFHT680_v");//30
+  triggerPathsVector.push_back("HLT_PFHT780_v");//31
+  triggerPathsVector.push_back("HLT_PFHT890_v");//32
+  triggerPathsVector.push_back("HLT_PFHT1050_v");//33
+  triggerPathsVector.push_back("HLT_ECALHT800_v");//34
 
   HLTConfigProvider hltConfig;
   bool changedConfig = false;
@@ -5469,7 +5442,7 @@ void MonoJetTreeMaker::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   filterPathsVector.push_back("Flag_HBHENoiseIsoFilter");
   filterPathsVector.push_back("Flag_EcalDeadCellTriggerPrimitiveFilter");
   filterPathsVector.push_back("Flag_goodVertices");
-  filterPathsVector.push_back("Flag_globalTightHalo2016Filter");
+  filterPathsVector.push_back("Flag_globalSuperTightHalo2016Filter");
   filterPathsVector.push_back("Flag_badMuons");
   filterPathsVector.push_back("Flag_duplicateMuons");
   
@@ -6007,30 +5980,71 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
     for (size_t i = 0; i < triggerPathsVector.size(); i++) {
       if (triggerPathsMap[triggerPathsVector[i]] == -1) continue;	
 	
-      if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
-      if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
-      if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
+      // if (i == 0  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
+      // if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
+      // if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet90        = 1; // MET trigger
       
-      if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet100       = 1; // MET trigger
-      if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet110       = 1; // MET trigger
+      // if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet100       = 1; // MET trigger
+      if (i == 1  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet110       = 1; // MET trigger
       
-      if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
-      if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
-      if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+      if (i == 2  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+      //if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
+      //if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmet120       = 1; // MET trigger
       
-      if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90   = 1; // MET trigger
-      if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu100  = 1; // MET trigger
-      if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu110  = 1; // MET trigger
-      if (i == 11  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
+      //if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu90   = 1; // MET trigger
+      //if (i == 9  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu100  = 1; // MET trigger
+      //if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu110  = 1; // MET trigger
+      if (i == 3  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
+      if (i == 4  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130 = 1; // MET trigger
+      if (i == 5  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu140 = 1; // MET trigger
+      if (i == 6  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu120 = 1; // MET trigger
+      if (i == 7  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130 = 1; // MET trigger
+      if (i == 8  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu140 = 1; // MET trigger
       
-      if (i == 12  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-      if (i == 13  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170 = 1; // MET trigger
-      if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170  = 1; // MET trigger
-      if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu170  = 1; // MET trigger
+      if (i == 9 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
+
+      if (i == 10 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton200    = 1; // Photon trigger
+      if (i == 11 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
+      if (i == 12 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
+      if (i == 13 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90     = 1; // Photon trigger
+
+      if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoublemu     = 1; // Double muon trigger
+
+      if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+      if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsinglemu     = 1; // Single muon trigger
+
+
+      if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltdoubleel     = 1; // Double electron trigger
       
-      if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
-      if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
-      if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu300 = 1; // MET trigger
+      if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+      if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+      if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel     = 1; // Single electron trigger
+      if (i == 21 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel   = 1; // Single electron trigger
+      if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltsingleel27   = 1; // Single electron trigger
+
+      if (i == 22 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT180      = 1; // jet ht
+      if (i == 23 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
+      if (i == 24 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
+      if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
+      if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT370      = 1; // jet ht
+      if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT430      = 1; // jet ht
+      if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT510      = 1; // jet ht
+      if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT590      = 1; // jet ht
+      if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT680      = 1; // jet ht
+      if (i == 31 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT780      = 1; // jet ht
+      if (i == 32 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT890      = 1; // jet ht
+      if (i == 33 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT1050   = 1;
+      if (i == 34 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
+
+/*
+      if (i == 12  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130 = 1; // MET trigger
+      if (i == 13  && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130 = 1; // MET trigger
+      if (i == 14 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130  = 1; // MET trigger
+      if (i == 15 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu130  = 1; // MET trigger
+      
+      if (i == 16 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu140 = 1; // MET trigger
+      if (i == 17 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu140 = 1; // MET trigger
+      if (i == 18 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltmetwithmu140 = 1; // MET trigger
       
       if (i == 19 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
       if (i == 20 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
@@ -6043,7 +6057,7 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
       if (i == 25 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
       if (i == 26 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltjetmet    = 1; // Jet-MET trigger
       
-      if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton165    = 1; // Photon trigger
+      if (i == 27 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton200    = 1; // Photon trigger
       if (i == 28 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton175    = 1; // Photon trigger
       if (i == 29 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton120    = 1; // Photon trigger
       if (i == 30 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90     = 1; // Photon trigger
@@ -6079,37 +6093,37 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
       if (i == 53 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT250      = 1; // jet ht
       if (i == 54 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT300      = 1; // jet ht
       if (i == 55 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT350      = 1; // jet ht
-      if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT400      = 1; // jet ht
-      if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT475      = 1; // jet ht
-      if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT600      = 1; // jet ht
-      if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT650      = 1; // jet ht
-      if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT800      = 1; // jet ht
-      if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT900      = 1; // jet ht
+      if (i == 56 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT430      = 1; // jet ht
+      if (i == 57 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT510      = 1; // jet ht
+      if (i == 58 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT590      = 1; // jet ht
+      if (i == 59 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT680      = 1; // jet ht
+      if (i == 60 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT780      = 1; // jet ht
+      if (i == 61 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltPFHT890      = 1; // jet ht
       if (i == 62 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltEcalHT800    = 1;
       if (i == 63 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;
       if (i == 64 && triggerResultsH->accept(triggerPathsMap[triggerPathsVector[i]])) hltphoton90PFHT = 1;      
-      
+     */
     }
   }
   else if(setHLTFilterFlag == true){
     /// met no-mu
     hltmet90        = 1; hltmet100       = 1; hltmet110       = 1; hltmet120       = 1;
     hltmetwithmu90  = 1; hltmetwithmu100 = 1; hltmetwithmu110 = 1; hltmetwithmu120 = 1;
-    hltmetwithmu170 = 1; hltmetwithmu300 = 1;
+    hltmetwithmu130 = 1; hltmetwithmu140 = 1;
     hltjetmet       = 1; 
     /// photon
-    hltphoton90     = 1; hltphoton120    = 1; hltphoton120vbf = 1; hltphoton165    = 1; hltphoton175    = 1;
+    hltphoton90     = 1; hltphoton120    = 1; hltphoton120vbf = 1; hltphoton200    = 1; hltphoton175    = 1;
     hltdoublemu     = 1; hltsinglemu     = 1;
     hltdoubleel     = 1; hltsingleel     = 1; hltsingleel27   = 1; hltelnoiso      = 1;
-    hltPFHT125   = 1; hltPFHT200 = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; 
-    hltPFHT400   = 1; hltPFHT475 = 1; hltPFHT600 = 1; hltPFHT650 = 1; hltPFHT800 = 1; hltPFHT900 = 1;
+    hltPFHT180   = 1; hltPFHT250 = 1; hltPFHT300 = 1; hltPFHT350 = 1; hltPFHT370 = 1; 
+    hltPFHT430 = 1; hltPFHT510 = 1; hltPFHT590 = 1; hltPFHT680 = 1; hltPFHT780 = 1; hltPFHT890 = 1; hltPFHT1050 = 1;
     hltEcalHT800 = 1; 
     hltphoton90PFHT = 1;
   }
   
   bool triggered = false;
   if (isPhotonPurity == true){ // for photon purity check only photon triggers
-    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton200    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
     if (hltphoton120vbf == 1) triggered = true;
@@ -6124,10 +6138,10 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
     if (hltmetwithmu100 == 1) triggered = true;
     if (hltmetwithmu110 == 1) triggered = true;
     if (hltmetwithmu120 == 1) triggered = true;
-    if (hltmetwithmu170 == 1) triggered = true;
-    if (hltmetwithmu300 == 1) triggered = true;
+    if (hltmetwithmu130 == 1) triggered = true;
+    if (hltmetwithmu140 == 1) triggered = true;
     if (hltjetmet       == 1) triggered = true;  
-    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton200    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
     if (hltphoton120vbf == 1) triggered = true;
@@ -6137,30 +6151,32 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
     if (hltdoubleel     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
     if (hltelnoiso      == 1) triggered = true;
-    if (hltPFHT400      == 1) triggered = true;
-    if (hltPFHT400      == 1) triggered = true;
-    if (hltPFHT400      == 1) triggered = true;  
-    if (hltPFHT400      == 1) triggered = true;
-    if (hltPFHT475      == 1) triggered = true;
-    if (hltPFHT600      == 1) triggered = true;
-    if (hltPFHT650      == 1) triggered = true;
-    if (hltPFHT800      == 1) triggered = true;
-    if (hltPFHT900      == 1) triggered = true;
+    if (hltPFHT430      == 1) triggered = true;
+    if (hltPFHT430      == 1) triggered = true;
+    if (hltPFHT430      == 1) triggered = true;  
+    if (hltPFHT430      == 1) triggered = true;
+    if (hltPFHT510      == 1) triggered = true;
+    if (hltPFHT590      == 1) triggered = true;
+    if (hltPFHT680      == 1) triggered = true;
+    if (hltPFHT780      == 1) triggered = true;
+    if (hltPFHT890      == 1) triggered = true;
+    if (hltPFHT1050     == 1) triggered = true;
     if (hltEcalHT800    == 1) triggered = true;
     if (hltphoton90PFHT == 1) triggered = true;
   }
   else if(isQCDTree == true){ // check only PF HT
-    if (hltPFHT125      == 1) triggered = true;
-    if (hltPFHT200      == 1) triggered = true;
+    if (hltPFHT180      == 1) triggered = true;
     if (hltPFHT250      == 1) triggered = true;
     if (hltPFHT300      == 1) triggered = true;
     if (hltPFHT350      == 1) triggered = true;
-    if (hltPFHT400      == 1) triggered = true;
-    if (hltPFHT475      == 1) triggered = true;
-    if (hltPFHT600      == 1) triggered = true;
-    if (hltPFHT650      == 1) triggered = true;
-    if (hltPFHT800      == 1) triggered = true;
-    if (hltPFHT900      == 1) triggered = true;
+    if (hltPFHT370      == 1) triggered = true;
+    if (hltPFHT430      == 1) triggered = true;
+    if (hltPFHT510      == 1) triggered = true;
+    if (hltPFHT590      == 1) triggered = true;
+    if (hltPFHT680      == 1) triggered = true;
+    if (hltPFHT780      == 1) triggered = true;
+    if (hltPFHT890      == 1) triggered = true;
+    if (hltPFHT1050     == 1) triggered = true;
     if (hltEcalHT800    == 1) triggered = true;
   }
   else{ // normal analysis: check photon triggers, met-nu-mu, single-ele, PF-HT
@@ -6172,49 +6188,54 @@ bool MonoJetTreeMaker::fillTriggerInfo(const edm::Handle<edm::TriggerResults> & 
     if (hltmetwithmu100 == 1) triggered = true;
     if (hltmetwithmu110 == 1) triggered = true;
     if (hltmetwithmu120 == 1) triggered = true;
-    if (hltmetwithmu170 == 1) triggered = true;
-    if (hltmetwithmu300 == 1) triggered = true;
+    if (hltmetwithmu130 == 1) triggered = true;
+    if (hltmetwithmu140 == 1) triggered = true;
     if (hltjetmet       == 1) triggered = true;  
-    if (hltphoton165    == 1) triggered = true;
+    if (hltphoton200    == 1) triggered = true;
     if (hltphoton175    == 1) triggered = true;
     if (hltphoton120    == 1) triggered = true;
     if (hltphoton120vbf == 1) triggered = true;
     if (hltsinglemu     == 1) triggered = true;
     if (hltsingleel     == 1) triggered = true;
     if (hltelnoiso      == 1) triggered = true;
-    if (hltPFHT800      == 1) triggered = true;
-    if (hltPFHT900      == 1) triggered = true;
+    //if (hltPFHT780      == 1) triggered = true;
+    //if (hltPFHT890      == 1) triggered = true;
+    if (hltPFHT1050     == 1) triggered = true;
     if (hltEcalHT800    == 1) triggered = true;
   }
-    
+
+  pswgt_ph175 = 1.0;    
   pswgt_ph120 = 1.0;
   pswgt_ph90  = 1.0;
-  pswgt_ht125 = 1.0; 
-  pswgt_ht200 = 1.0; 
+  pswgt_ht180 = 1.0; 
   pswgt_ht250 = 1.0; 
   pswgt_ht300 = 1.0; 
   pswgt_ht350 = 1.0; 
-  pswgt_ht400 = 1.0; 
-  pswgt_ht475 = 1.0; 
-  pswgt_ht600 = 1.0; 
-  pswgt_ht650 = 1.0; 
-  pswgt_ht800 = 1.0; 
-  pswgt_ht900 = 1.0;
+  pswgt_ht370 = 1.0; 
+  pswgt_ht430 = 1.0; 
+  pswgt_ht510 = 1.0; 
+  pswgt_ht590 = 1.0; 
+  pswgt_ht680 = 1.0; 
+  pswgt_ht780 = 1.0; 
+  pswgt_ht890 = 1.0;
+  pswgt_ht1050 = 1.0;
   
   for (size_t i = 0; i < triggerResultsH->size(); i++) {
     if (trignames.triggerName(i).find("HLT_Photon90_v") != string::npos) pswgt_ph90 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_Photon120_v") != string::npos) pswgt_ph120 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT125_v") != string::npos) pswgt_ht125 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT200_v") != string::npos) pswgt_ht200 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_Photon175_v") != string::npos) pswgt_ph175 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT180_v") != string::npos) pswgt_ht180 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT250_v") != string::npos) pswgt_ht250 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT300_v") != string::npos) pswgt_ht300 = triggerPrescalesH->getPrescaleForIndex(i);
     if (trignames.triggerName(i).find("HLT_PFHT350_v") != string::npos) pswgt_ht350 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT400_v") != string::npos) pswgt_ht400 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT475_v") != string::npos) pswgt_ht475 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT600_v") != string::npos) pswgt_ht600 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT650_v") != string::npos) pswgt_ht650 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT800_v") != string::npos) pswgt_ht800 = triggerPrescalesH->getPrescaleForIndex(i);
-    if (trignames.triggerName(i).find("HLT_PFHT900_v") != string::npos) pswgt_ht900 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT370_v") != string::npos) pswgt_ht370 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT430_v") != string::npos) pswgt_ht430 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT510_v") != string::npos) pswgt_ht510 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT590_v") != string::npos) pswgt_ht590 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT680_v") != string::npos) pswgt_ht680 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT780_v") != string::npos) pswgt_ht780 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT890_v") != string::npos) pswgt_ht890 = triggerPrescalesH->getPrescaleForIndex(i);
+    if (trignames.triggerName(i).find("HLT_PFHT1050_v") != string::npos) pswgt_ht1050 = triggerPrescalesH->getPrescaleForIndex(i);
   }
   
   
