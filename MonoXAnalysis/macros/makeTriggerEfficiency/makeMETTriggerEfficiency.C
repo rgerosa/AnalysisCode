@@ -67,10 +67,10 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
           tree->Add(line.c_str());
         }
       }
-      //system("rm list.txt");
+     system("rm list.txt");
     }
   }
-  //system("rm list_dir.txt");
+  system("rm list_dir.txt");
 
   // fitting function for the turn-on  as a function of recoil
   TF1 *fitfunc_monojet_recoil = new TF1("fitfunc_monojet_recoil",ErfCB,bins_monojet_recoil.front(), bins_monojet_recoil.back(),5);
