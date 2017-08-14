@@ -8,14 +8,14 @@
 
 
 /// plotting result
-void plotTurnOn(TFile* outputFile, TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
+void plotTurnOn(TFile* outputFile, TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity,
     const bool & singleMuon, const TString & banner = "");
 
 /// confidence interval for the band
 void GetConfidenceIntervals(TF1* funz, TH1F* obj, Double_t cl, const TFitResultPtr & fitResult);
 
 /// main function
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool isMuon = true, bool doubleLepton = false) {
+void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 3.8, bool isMuon = false, bool doubleLepton = false) {
 
 
  // recoil binning
@@ -47,22 +47,22 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   ifstream dirlist ("list_dir.txt");
   string dirname;
   if(dirlist.is_open()){
-    while(not dirlist.eof()){      
+    while(not dirlist.eof()){
       getline(dirlist,dirname);
       bool found = false;
       for(auto era : RunEra){
         if(dirname.find(era) != string::npos)
          found = true;
-      }       
+      }
       if(found == false) continue;
       system(("find "+inputDIR+"/"+dirname+" -name  \"*.root\" > list.txt").c_str());
-      ifstream file("list.txt");                                                                                                                                                                   
-      if(file.is_open()){                                                                                                                                                                        
-        string line;                                                                                                                                                                               
-        while(!file.eof()){                                                                                                                                                                       
-          getline(file,line);                                         
+      ifstream file("list.txt");
+      if(file.is_open()){
+        string line;
+        while(!file.eof()){
+          getline(file,line);
           if(TString(line).Contains("failed")) continue;
-          if(line == "" or not TString(line).Contains("root")) continue;    
+          if(line == "" or not TString(line).Contains("root")) continue;
           cout<<"adding following file: "<<line<<endl;
           tree->Add(line.c_str());
         }
@@ -108,18 +108,18 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<UChar_t> feeb   (reader,"flageebadsc");
   TTreeReaderValue<UChar_t> fetp   (reader,"flagecaltp");
   TTreeReaderValue<UChar_t> fvtx   (reader,"flaggoodvertices");
-  TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");                                                                                                                                       
-  TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");                                                                                                                                       
+  TTreeReaderValue<UChar_t> fbadmu (reader,"flagbadpfmu");
+  TTreeReaderValue<UChar_t> fbadch (reader,"flagbadchpf");
   TTreeReaderValue<unsigned int> ntaus       (reader,"ntausold");
   TTreeReaderValue<unsigned int> nmuons      (reader,"nmuons");
   TTreeReaderValue<unsigned int> nelectrons  (reader,"nelectrons");
   TTreeReaderValue<unsigned int> nphotons    (reader,"nphotons");
   TTreeReaderValue<unsigned int> nincjets    (reader,"njetsinc");
-  TTreeReaderValue<unsigned int> nbjets      (reader,"nbjetslowpt"); 
+  TTreeReaderValue<unsigned int> nbjets      (reader,"nbjetslowpt");
   TTreeReaderValue<vector<float> > jetpt   (reader,"combinejetpt");
   TTreeReaderValue<vector<float> > jetphi  (reader,"combinejetphi");
   TTreeReaderValue<vector<float> > jeteta  (reader,"combinejeteta");
-  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");  
+  TTreeReaderValue<vector<float> > jetm    (reader,"combinejetm");
   TTreeReaderValue<vector<float> > jetchfrac  (reader,"combinejetCHfrac");
   TTreeReaderValue<vector<float> > jetnhfrac  (reader,"combinejetNHfrac");
   TTreeReaderValue<float> met         (reader,"t1pfmet");
@@ -128,7 +128,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   TTreeReaderValue<float> metcalo     (reader,"calomet");
   TTreeReaderValue<float> jmmdphi (reader,"incjetmumetdphimin4");
   TTreeReaderValue<float> jemdphi (reader,"incjetelmetdphimin4");
- 
+
     TString lepton;
     if (isMuon) lepton = "mu";
     else        lepton = "el";
@@ -188,7 +188,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     nEvents++;
 
     lepton_met_recoil = *lepmet;
-    if(!isMuon) 
+    if(!isMuon)
       lepton_met_recoil = *met;
     //hden_monojet_recoil->Fill(*lepmet);
     // define the denominator
@@ -208,7 +208,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     if(not *fetp)  continue;
     if(not *fvtx)  continue;
     if(not *fbadmu) continue;
-    if(not *fbadch) continue; 
+    if(not *fbadch) continue;
     if(not *fhbhe)  continue;
     if(not *fhbiso) continue;
 
@@ -218,7 +218,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       if(not doubleLepton and not *hltsinglelepton) continue;
       else if(doubleLepton and not useDoubleMuonTriggers and not *hltsinglelepton) continue;
       else if(doubleLepton and useDoubleMuonTriggers and (not *hltdoublelepton or not *hltsinglelepton) ) continue;
-            
+
       efficiencyMonojetSelections->SetBinContent(6,efficiencyMonojetSelections->GetBinContent(6)+1);
 
       if(*lep1pt < lepton_cuts[(lepton+"_pt")] or fabs(*lep1eta) > lepton_cuts[(lepton+"_eta")] ) continue;
@@ -227,9 +227,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
 
 
-      if(not doubleLepton  and *lept1id != 1) continue;      
-      if(not doubleLepton  and *nleptons != 1) continue;      
-      else if(doubleLepton and *nleptons != 2) continue;    
+      if(not doubleLepton  and *lept1id != 1) continue;
+      if(not doubleLepton  and *nleptons != 1) continue;
+      else if(doubleLepton and *nleptons != 2) continue;
 
       if(doubleLepton){
           if(*lep1pid == *lep2pid) continue; //opposite charge
@@ -249,8 +249,8 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       if(fabs(*metpf-*metcalo)/(*lepmet) > 0.5) continue;
       efficiencyMonojetSelections->SetBinContent(10,efficiencyMonojetSelections->GetBinContent(10)+1);
 
-      if(applyJetSelections and *jmmdphi < 0.5 and isMuon) continue;      
-      if(applyJetSelections and *jemdphi < 0.5 and !isMuon) continue;      
+      if(applyJetSelections and *jmmdphi < 0.5 and isMuon) continue;
+      if(applyJetSelections and *jemdphi < 0.5 and !isMuon) continue;
       efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
 
       // transverse mass cut
@@ -262,10 +262,10 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
           if(mtw > 160) continue;
           //if(*met < 50) continue;  ///electron?
       }
-      
+
        // MONOJET
        if(applyJetSelections and (jetpt->at(0) < 100. or fabs(jeteta->at(0)) > 2.5 or jetchfrac->at(0) < 0.1 or jetnhfrac->at(0) > 0.8 or jetchfrac->at(0) > 0.997)) continue;
-  
+
        // monojet vs recoil and met
        hden_monojet_recoil->Fill(lepton_met_recoil);
 
@@ -273,18 +273,18 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
        // numerator monojet
        //if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm ){
        if(*hltm110 or *hltm120 or *hltmwm120 or *hltmwm130 or *hltmwm140 or *hltjm ){
-         hnum_monojet_recoil->Fill(lepton_met_recoil); 
-         efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);   
+         hnum_monojet_recoil->Fill(lepton_met_recoil);
+         efficiencyMonojetSelections->SetBinContent(13,efficiencyMonojetSelections->GetBinContent(13)+1);
        }
-      
+
        if(lepton_met_recoil > 300 and not (*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm130 or *hltmwm140 or *hltjm   )){
          cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1lepmet "<<lepton_met_recoil<<" lepton pt "<<*lep1pt<<" lepton eta "<<*lep1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
        }
 
    }
-    
+
   cout<<endl;
-  
+
   //////////////
   for(int iBin = 0; iBin < efficiencyMonojetSelections->GetNbinsX(); iBin++){
     efficiencyMonojetSelections->SetBinContent(iBin+1,efficiencyMonojetSelections->GetBinContent(iBin+1)/double(nEvents));
@@ -319,7 +319,7 @@ void plotTurnOn(TFile *outputFile,TCanvas* canvas, TEfficiency* eff, TF1* fitfun
 
 
   TH1* frame = canvas->DrawFrame(fitfunc->GetXaxis()->GetXmin(),0.,fitfunc->GetXaxis()->GetXmax(), 1.1, "");
-  frame->GetXaxis()->SetTitle(axisLabel.c_str());  
+  frame->GetXaxis()->SetTitle(axisLabel.c_str());
   frame->GetYaxis()->SetTitle("Trigger Efficiency");
   frame->GetYaxis()->SetLabelSize(0.8*frame->GetYaxis()->GetLabelSize());
   frame->GetXaxis()->SetLabelSize(0.8*frame->GetXaxis()->GetLabelSize());
@@ -330,24 +330,24 @@ void plotTurnOn(TFile *outputFile,TCanvas* canvas, TEfficiency* eff, TF1* fitfun
   // make the fit
   TGraphAsymmErrors* graph = eff->CreateGraph();
   TFitResultPtr fitResult = graph->Fit(fitfunc,"RS","",100,2000);
-  int npoints       = 350;                                                                                                                                                                   
+  int npoints       = 350;
   TH1F* error_band  = new TH1F(Form("%s_error_band",fitfunc->GetName()),"",npoints,fitfunc->GetXaxis()->GetXmin(),fitfunc->GetXaxis()->GetXmax());
   if(drawUncertaintyBand)
     (TVirtualFitter::GetFitter())->GetConfidenceIntervals(error_band,0.68);
-  
+
   canvas->SetRightMargin(0.075);
   canvas->SetTopMargin(0.06);
   canvas->Draw();
   canvas->cd();
   frame->Draw();
-  if(drawUncertaintyBand){    
+  if(drawUncertaintyBand){
     error_band->SetFillColor(kBlue);
     error_band->SetFillStyle(3001);
-    error_band->Draw("e4 same");  
+    error_band->Draw("e4 same");
   }
   eff->Draw("E1PSAME");
   fitfunc->Draw("SAME");
-  
+
   canvas->RedrawAxis();
   CMS_lumi(canvas,string(Form("%.2f",luminosity)),true);
 
@@ -371,4 +371,3 @@ void plotTurnOn(TFile *outputFile,TCanvas* canvas, TEfficiency* eff, TF1* fitfun
   fitfunc->Write("efficiency_func");
 
 }
-
