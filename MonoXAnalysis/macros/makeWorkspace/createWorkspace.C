@@ -668,8 +668,12 @@ void createWorkspace(string   inputName,                        // input templat
     TH1F* qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghistDD_"+observable).c_str());
     if(qcdhist){
       addTemplate("QCD_SR_"+suffix,vars,wspace_SR,qcdhist,isCutAndCount);
-      addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
-      addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRDown",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()),isCutAndCount);
+      if(category == Category::monojet or category == Category::monoV){
+	addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRUp",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeUp_"+observable).c_str()),isCutAndCount);
+	addTemplate("QCD_SR_"+suffix+"_CMS_QCD_SRDown",vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_shapeDw_"+observable).c_str()),isCutAndCount);
+      }
+      else if(category == Category::VBF or category == Category::VBFrelaxed)
+	generateStatTemplate("QCD_SR_"+suffix,vars,wspace_SR,(TH1F*)templatesfile->FindObjectAny(("qbkghistDD_"+observable).c_str()),1,isCutAndCount); // to take into account TF uncertainties	
     }
     else{
       qcdhist = (TH1F*)templatesfile->FindObjectAny(("qbkghist_"+observable).c_str());
@@ -770,10 +774,17 @@ void createWorkspace(string   inputName,                        // input templat
 	  znn_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	  znn_ewk_ZM_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	}
+	if(category != Category::VBFrelaxed)
+	  makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
+	else
+	  makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable,true,1.5);
 
-	makeConnectedBinList("Znunu_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zmmcorhist_"+observable).c_str()),znn_ZM_syst,znn_SR_bins,NULL,observable);
-	if(category == Category::VBF or category == Category::VBFrelaxed)
-	  makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
+	if(category == Category::VBF or category == Category::VBFrelaxed){
+	  if(category == Category::VBFrelaxed)
+	    makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable,true,1.75);
+	  else
+	    makeConnectedBinList("Znunu_EWK_ZM_"+suffix,*met,*wspace_ZM,(TH1F*)templatesfile->FindObjectAny(("zewkmmcorhist_"+observable).c_str()),znn_ewk_ZM_syst,znn_ewk_SR_bins,NULL,observable);
+	}
       }
       else{
 	
@@ -842,9 +853,18 @@ void createWorkspace(string   inputName,                        // input templat
 	  znn_ewk_ZE_syst.push_back(pair<RooRealVar*,TH1*>(CMS_met_trig,triggersys));
 	}
 
-	makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
-	if(category == Category::VBF or category == Category::VBFrelaxed)
-	  makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
+	if(category != Category::VBFrelaxed)
+	  makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable);
+	else
+	  makeConnectedBinList("Znunu_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zeecorhist_"+observable).c_str()),znn_ZE_syst,znn_SR_bins,NULL,observable,true,1.5);
+
+	if(category == Category::VBF or category == Category::VBFrelaxed){
+	  if(category == Category::VBFrelaxed)
+	    makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable,true,1.75);
+	  else
+	    makeConnectedBinList("Znunu_EWK_ZE_"+suffix,*met,*wspace_ZE,(TH1F*)templatesfile->FindObjectAny(("zewkeecorhist_"+observable).c_str()),znn_ewk_ZE_syst,znn_ewk_SR_bins,NULL,observable);
+	  
+	}
       }
       else{
 	vector<pair<RooRealVar*,systematicCutAndCount> > znn_ZE_syst;
