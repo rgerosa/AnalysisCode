@@ -39,11 +39,11 @@ void signalHiggshist(TFile* outfile,
       zHTree->Add((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_ZH_HToInvisible_ZToQQ_M110*.root").c_str());
     }
   }
-  else if(typeOfHiggsSignal == 1){ // fermion only
+  else if(typeOfHiggsSignal == 1){ // only ggH and VBF
     vbfHTree->Add((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_VBF_HToInvisible_M"+mH+"*.root").c_str());
     ggHTree->Add((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_GluGlu_HToInvisible_M"+mH+"*.root").c_str());
   }
-  else if(typeOfHiggsSignal == 2){  // boson only
+  else if(typeOfHiggsSignal == 2){// only VH modes
     if(mH != "125"){
       wHplusTree->Add((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_WplusH_HToInvisible_WToQQ_M"+mH+"*root").c_str());
       wHminusTree->Add((baseInputTreePath+"/HiggsInvisible/sigfilter/sig_WminusH_HToInvisible_WToQQ_M"+mH+"*root").c_str());
@@ -342,7 +342,6 @@ void signalHiggshist(TFile* outfile,
       makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,ehists2D,xs.at(0));
     else
       makehist4(ggHTree,ggHhist,ggHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,ehists2D,xs.at(0),NULL,MG_NNLO_FT);
-
     makehist4(vbfHTree,vbfHhist,vbfHhist_2D,true,Sample::sig,category,false,1.00,lumi,ehists,"",false,reweightNVTX,0,true,false,ehists2D,xs.at(1));
   }
 

@@ -174,7 +174,7 @@ void makePlot(TH1* histoData, TH1* histoMC, const string & observable, const Cat
 
 
 // make the data-validation plot from the mlfit.root given by combine --> using the prefit shapes
-void makeDataValidationPlotsMLFit(string inputFileName, Category category, string observable, string observableLatex, int rebinFactor = 1, bool isCombination = false){
+void makeDataValidationPlotsMLFit(string inputFileName, Category category, string observable, string observableLatex, int rebinFactor = 1, bool doBackgroundSubtraction = false, bool isCombination = false){
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -271,6 +271,130 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     }
   }
 
+  // Get backgrounds for Zmm CR
+  TH1* zjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Znunu").c_str());
+  TH1* wjet_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/WJets_ZM").c_str());
+  TH1* diboson_zmm = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Dibosons").c_str());
+  TH1* top_zmm     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Top").c_str());
+  TH1* vgamma_zmm  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/VGamma").c_str());
+
+  // data subtraction
+  if(doBackgroundSubtraction){
+    data_zmm_hist->Add(wjet_zmm,-1);
+    data_zmm_hist->Add(diboson_zmm,-1);
+    data_zmm_hist->Add(top_zmm,-1);
+    data_zmm_hist->Add(vgamma_zmm,-1);
+  }
+
+  TH1* zjet_zmm_ewk = NULL;
+  TH1* wjet_zmm_ewk = NULL;
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    zjet_zmm_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/WJets_EWK_ZM").c_str());
+    wjet_zmm_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zmm+"/Znunu_EWK").c_str());
+    zjet_zmm->Add(zjet_zmm_ewk);
+    if(doBackgroundSubtraction)
+      data_zmm_hist->Add(wjet_zmm_ewk,-1);    
+  }
+
+  // Get backgrounds for Zee CR
+  TH1* zjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Znunu").c_str());
+  TH1* wjet_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/WJets_ZE").c_str());
+  TH1* diboson_zee = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Dibosons").c_str());
+  TH1* top_zee     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Top").c_str());
+  TH1* vgamma_zee  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/VGamma").c_str());
+
+  // data subtraction
+  if(doBackgroundSubtraction){
+    data_zee_hist->Add(wjet_zee,-1);
+    data_zee_hist->Add(diboson_zee,-1);
+    data_zee_hist->Add(top_zee,-1);
+    data_zee_hist->Add(vgamma_zee,-1);
+  }
+  TH1* zjet_zee_ewk = NULL;
+  TH1* wjet_zee_ewk = NULL;
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    zjet_zee_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/WJets_EWK_ZE").c_str());
+    wjet_zee_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_zee+"/Znunu_EWK").c_str());
+    zjet_zee->Add(zjet_zee_ewk);
+    if(doBackgroundSubtraction)
+      data_zee_hist->Add(wjet_zee_ewk,-1);
+  }
+
+  // Get backgrounds for Wmn CR
+  TH1* zjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/ZJets_WM").c_str());
+  TH1* wjet_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/WJets").c_str());
+  TH1* diboson_wmn = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Dibosons").c_str());
+  TH1* top_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/Top").c_str());
+  TH1* vgamma_wmn  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/VGamma").c_str());
+  TH1* qcd_wmn     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/QCD_WM").c_str());
+
+  // data subtraction
+  if(doBackgroundSubtraction){
+    data_wmn_hist->Add(zjet_wmn,-1);
+    data_wmn_hist->Add(diboson_wmn,-1);
+    data_wmn_hist->Add(top_wmn,-1);
+    data_wmn_hist->Add(vgamma_wmn,-1);
+    data_wmn_hist->Add(qcd_wmn,-1);
+  }
+
+  TH1* zjet_wmn_ewk = NULL;
+  TH1* wjet_wmn_ewk = NULL;
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    zjet_wmn_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/WJets_EWK").c_str());
+    wjet_wmn_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wmn+"/ZJets_EWK_WM").c_str());
+    wjet_wmn->Add(wjet_wmn_ewk);
+    if(doBackgroundSubtraction)
+      data_wmn_hist->Add(zjet_wmn_ewk,-1);
+  }
+
+  // Get backgrounds for Wen CR
+  TH1* zjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/ZJets_WE").c_str());
+  TH1* wjet_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/WJets").c_str());
+  TH1* diboson_wen = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Dibosons").c_str());
+  TH1* top_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/Top").c_str());
+  TH1* vgamma_wen  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/VGamma").c_str());
+  TH1* qcd_wen     = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/QCD_WE").c_str());
+
+  // data subtraction
+  if(doBackgroundSubtraction){
+    data_wen_hist->Add(zjet_wen,-1);
+    data_wen_hist->Add(diboson_wen,-1);
+    data_wen_hist->Add(top_wen,-1);
+    data_wen_hist->Add(vgamma_wen,-1);
+    data_wen_hist->Add(qcd_wen,-1);
+  }
+  
+  TH1* zjet_wen_ewk = NULL;
+  TH1* wjet_wen_ewk = NULL;
+  if(category == Category::VBF or category == Category::VBFrelaxed){
+    zjet_wen_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/WJets_EWK").c_str());
+    wjet_wen_ewk = (TH1*) inputFile->Get(("shapes_prefit/"+dir_wen+"/ZJets_EWK_WE").c_str());    
+    wjet_wen->Add(wjet_wen_ewk);
+    if(doBackgroundSubtraction)      
+      data_wen_hist->Add(zjet_wen_ewk,-1);
+  }
+
+  // Get backgrounds for Gamma CR
+  TH1* gamma_gam = NULL;
+  TH1* wjet_gam  = NULL;
+  TH1* qcd_gam   = NULL;
+  TH1* vgamma_gam  = NULL;
+
+  if(useGammaJets){
+    gamma_gam  = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/Znunu").c_str());
+    wjet_gam   = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/WJets_GJ").c_str());
+    qcd_gam    = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/QCD_GJ").c_str());
+    vgamma_gam = (TH1*) inputFile->Get(("shapes_prefit/"+dir_gam+"/VGamma").c_str());
+    
+    // data subtraction
+    if(doBackgroundSubtraction){
+
+      data_gam_hist->Add(wjet_gam,-1);
+      data_gam_hist->Add(vgamma_gam,-1);
+      data_gam_hist->Add(qcd_gam,-1);
+    }
+  }
+
   // Rebin if needed
   data_zmm_hist->Rebin(rebinFactor);
   data_zee_hist->Rebin(rebinFactor);
@@ -279,12 +403,12 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   if(data_gam_hist)
     data_gam_hist->Rebin(rebinFactor);
 
-  total_background_zmm->Rebin(rebinFactor);
-  total_background_zee->Rebin(rebinFactor);
-  total_background_wmn->Rebin(rebinFactor);
-  total_background_wen->Rebin(rebinFactor);
-  if(total_background_gam)
-    total_background_gam->Rebin(rebinFactor);
+  zjet_zmm->Rebin(rebinFactor);
+  zjet_zee->Rebin(rebinFactor);
+  wjet_wmn->Rebin(rebinFactor);
+  wjet_wen->Rebin(rebinFactor);
+  if(gamma_gam)
+    gamma_gam->Rebin(rebinFactor);
 
   // Make the ratios Z/W
   TH1* ZWData_mm = (TH1*) data_zmm_hist->Clone("ZWData_mm");
@@ -297,21 +421,42 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
   ZWData_ll_den->Add(data_wen_hist);
   ZWData_ll->Divide(ZWData_ll_den);
 
-  TH1* ZWMC_mm = (TH1*) total_background_zmm->Clone("ZWMC_mm");
-  ZWMC_mm->Divide(total_background_wmn);
-  TH1* ZWMC_ee = (TH1*) total_background_zee->Clone("ZWMC_ee");
-  ZWMC_ee->Divide(total_background_wen);
-  TH1* ZWMC_ll = (TH1*) total_background_zmm->Clone("ZWMC_ll");
-  ZWMC_ll->Add(total_background_zee);
-  TH1* ZWMC_ll_den = (TH1*) total_background_wmn->Clone("ZWMC_ll_den");
-  ZWMC_ll_den->Add(total_background_wen);
-  ZWMC_ll->Divide(ZWMC_ll_den);
+  if(doBackgroundSubtraction){
 
-  // make the plots 
-  makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm");
-  makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee");
-  makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");
+    TH1* ZWMC_mm = (TH1*) zjet_zmm->Clone("ZWMC_mm");
+    ZWMC_mm->Divide(wjet_wmn);
+    TH1* ZWMC_ee = (TH1*) zjet_zee->Clone("ZWMC_ee");
+    ZWMC_ee->Divide(wjet_wen);
+    TH1* ZWMC_ll = (TH1*) zjet_zmm->Clone("ZWMC_ll");
+    ZWMC_ll->Add(zjet_zee);
+    TH1* ZWMC_ll_den = (TH1*) wjet_wmn->Clone("ZWMC_ll_den");
+    ZWMC_ll_den->Add(wjet_wen);
+    ZWMC_ll->Divide(ZWMC_ll_den);
+    
+    // make the plots 
+    makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm");
+    makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee");
+    makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");
 
+  }
+  else{
+
+    TH1* ZWMC_mm = (TH1*) total_background_zmm->Clone("ZWMC_mm");
+    ZWMC_mm->Divide(total_background_wmn);
+    TH1* ZWMC_ee = (TH1*) total_background_zee->Clone("ZWMC_ee");
+    ZWMC_ee->Divide(total_background_wen);
+    TH1* ZWMC_ll = (TH1*) total_background_zmm->Clone("ZWMC_ll");
+    ZWMC_ll->Add(total_background_zee);
+    TH1* ZWMC_ll_den = (TH1*) total_background_wmn->Clone("ZWMC_ll_den");
+    ZWMC_ll_den->Add(total_background_wen);
+    ZWMC_ll->Divide(ZWMC_ll_den);
+    
+    // make the plots 
+    makePlot(ZWData_mm,ZWMC_mm,observable,category,observableLatex,"ZW_mm");
+    makePlot(ZWData_ee,ZWMC_ee,observable,category,observableLatex,"ZW_ee");
+    makePlot(ZWData_ll,ZWMC_ll,observable,category,observableLatex,"ZW_ll");
+
+  }
   if(useGammaJets){
 
     TH1* ZGData_mm = (TH1*) data_zmm_hist->Clone("ZGData_mm");
@@ -322,17 +467,36 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     ZGData_ll->Add(data_zee_hist);
     ZGData_ll->Divide(data_gam_hist);
 
-    TH1* ZGMC_mm = (TH1*) total_background_zmm->Clone("ZGMC_mm");
-    ZGMC_mm->Divide(total_background_gam);
-    TH1* ZGMC_ee = (TH1*) total_background_zee->Clone("ZGMC_ee");
-    ZGMC_ee->Divide(total_background_gam);
-    TH1* ZGMC_ll = (TH1*) total_background_zmm->Clone("ZGMC_ll");
-    ZGMC_ll->Add(total_background_zee);
-    ZGMC_ll->Divide(total_background_gam);
+    if(doBackgroundSubtraction){
 
-    makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm");
-    makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee");
-    makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll");
+      TH1* ZGMC_mm = (TH1*) zjet_zmm->Clone("ZGMC_mm");
+      ZGMC_mm->Divide(gamma_gam);
+      TH1* ZGMC_ee = (TH1*) zjet_zee->Clone("ZGMC_ee");
+      ZGMC_ee->Divide(gamma_gam);
+      TH1* ZGMC_ll = (TH1*) zjet_zmm->Clone("ZGMC_ll");
+      ZGMC_ll->Add(zjet_zee);
+      ZGMC_ll->Divide(gamma_gam);
+
+      makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm");
+      makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee");
+      makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll");
+
+    }
+    else{
+
+      TH1* ZGMC_mm = (TH1*) total_background_zmm->Clone("ZGMC_mm");
+      ZGMC_mm->Divide(total_background_gam);
+      TH1* ZGMC_ee = (TH1*) total_background_zee->Clone("ZGMC_ee");
+      ZGMC_ee->Divide(total_background_gam);
+      TH1* ZGMC_ll = (TH1*) total_background_zmm->Clone("ZGMC_ll");
+      ZGMC_ll->Add(total_background_zee);
+      ZGMC_ll->Divide(total_background_gam);
+
+      makePlot(ZGData_mm,ZGMC_mm,observable,category,observableLatex,"ZG_mm");
+      makePlot(ZGData_ee,ZGMC_ee,observable,category,observableLatex,"ZG_ee");
+      makePlot(ZGData_ll,ZGMC_ll,observable,category,observableLatex,"ZG_ll");
+
+    }
     
 
     TH1* WGData_m = (TH1*) data_wmn_hist->Clone("WGData_m");
@@ -342,18 +506,34 @@ void makeDataValidationPlotsMLFit(string inputFileName, Category category, strin
     TH1* WGData_l = (TH1*) data_wmn_hist->Clone("WGData_l");
     WGData_l->Add(data_wen_hist);
     WGData_l->Divide(data_gam_hist);
-
-    TH1* WGMC_m = (TH1*) total_background_wmn->Clone("WGMC_m");
-    WGMC_m->Divide(total_background_gam);
-    TH1* WGMC_e = (TH1*) total_background_wen->Clone("WGMC_e");
-    WGMC_e->Divide(total_background_gam);
-    TH1* WGMC_l = (TH1*) total_background_wmn->Clone("WGMC_l");
-    WGMC_l->Add(total_background_wen);
-    WGMC_l->Divide(total_background_gam);
-
-    makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m");
-    makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e");
-    makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l");
     
+    if(doBackgroundSubtraction){
+      
+      TH1* WGMC_m = (TH1*) wjet_wmn->Clone("WGMC_m");
+      WGMC_m->Divide(gamma_gam);
+      TH1* WGMC_e = (TH1*) wjet_wen->Clone("WGMC_e");
+      WGMC_e->Divide(gamma_gam);
+      TH1* WGMC_l = (TH1*) wjet_wmn->Clone("WGMC_l");
+      WGMC_l->Add(wjet_wen);
+      WGMC_l->Divide(gamma_gam);
+      
+      makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m");
+      makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e");
+      makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l");
+    }
+    else{      
+
+      TH1* WGMC_m = (TH1*) total_background_wmn->Clone("WGMC_m");
+      WGMC_m->Divide(total_background_gam);
+      TH1* WGMC_e = (TH1*) total_background_wen->Clone("WGMC_e");
+      WGMC_e->Divide(total_background_gam);
+      TH1* WGMC_l = (TH1*) total_background_wmn->Clone("WGMC_l");
+      WGMC_l->Add(total_background_wen);
+      WGMC_l->Divide(total_background_gam);
+      
+      makePlot(WGData_m,WGMC_m,observable,category,observableLatex,"WG_m");
+      makePlot(WGData_e,WGMC_e,observable,category,observableLatex,"WG_e");
+      makePlot(WGData_l,WGMC_l,observable,category,observableLatex,"WG_l");
+    }
   }
 }
