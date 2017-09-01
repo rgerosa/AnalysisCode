@@ -32,7 +32,7 @@ Top_Norm13TeV             lnN     -            -       -           -          - 
 Top_Reweight13TeV         lnN     -            -       -           -          -          -           -          -          1.100        -            -
 CMS_scale_j_13TeV         lnN   0.88/1.10  0.88/1.10   -           -          -          -         0.88/1.10  0.88/1.10   0.88/1.10   0.88/1.10      0.88/1.10  
 CMS_btag_13TeV            lnN   1.010        1.010     -           -          -          -           1.010      1.010      1.030       1.010         1.010
-CMS_QCD_SR                lnN     -            -       -           -          -          -            -          -          -           2            -
+CMS_QCD_SR                lnN     -            -       -           -          -          -            -          -          -           1.6          -
 CMS_eff_lepVeto_13TeV     lnN     -            -       -           -          -          -           1.030      1.030     1.030         -            1.030
 QCDScale_qqH              lnN     -        0.997/1.004 -           -          -          -            -          -          -           -            -
 QCDScale_qqbar_accept     lnN     -         1.020      -           -          -          -            -          -          -           -            -          
@@ -48,6 +48,7 @@ ZJets_SR_VBF_CMS_bin1_stat shape  -            -       -           -          - 
 Top_SR_VBF_CMS_bin1_stat   shape  -   	       -       -           -	      -    	  -           -          -          1           -            - 
 Dibosons_SR_VBF_CMS_bin1_stat shape -          -       -           -          -           -           -          1          -           -            -
 VGamma_SR_VBF_CMS_bin1_stat shape -            -       -           -          -           -           -          -          -           -            1
+QCD_SR_VBF_CMS_bin1_stat shape    -            -       -           -          -           -           -          -          -           1            -
 ##### Z/W QCD
 ZW_QCD_SR_RenScale1        param     0     1
 ZW_QCD_SR_FactScale1       param     0     1

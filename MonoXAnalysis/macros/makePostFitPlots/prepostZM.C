@@ -450,6 +450,7 @@ void prepostZM(string fitFilename, string observable, Category category, bool is
   leg2->SetBorderSize(0);
   leg2->SetNColumns(2);
   leg2->AddEntry(d2hist,"Post-fit","PLE");
+
   leg2->AddEntry(d1hist,"Pre-fit","PLE");
   if(not addPullPlot)
     leg2->Draw("same");
