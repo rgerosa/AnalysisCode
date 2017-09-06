@@ -725,11 +725,11 @@ void makehist4(TTree* tree,            /*input tree*/
   TTreeReaderValue<float>  el1phi (myReader,"el1phi");
   TTreeReaderValue<float>  el2phi (myReader,"el2phi");
   ////////////////
-  TTreeReaderValue<float>  tau1id  (myReader,"tau1idold");
-  TTreeReaderValue<float>  tau1pt  (myReader,"tau1pt");
-  TTreeReaderValue<float>  tau1eta (myReader,"tau1eta");
-  TTreeReaderValue<float>  tau1phi (myReader,"tau1phi");
-  TTreeReaderValue<float>  tau1m   (myReader,"tau1m");
+  //  TTreeReaderValue<float>  tau1id  (myReader,"tau1idold");
+  //  TTreeReaderValue<float>  tau1pt  (myReader,"tau1pt");
+  //  TTreeReaderValue<float>  tau1eta (myReader,"tau1eta");
+  //  TTreeReaderValue<float>  tau1phi (myReader,"tau1phi");
+  //  TTreeReaderValue<float>  tau1m   (myReader,"tau1m");
   ////////////////  
   TTreeReaderValue<int>   phidm (myReader,"phidm");
   TTreeReaderValue<float> phpt  (myReader,"phpt");
@@ -738,7 +738,7 @@ void makehist4(TTree* tree,            /*input tree*/
   ////////////////
   TTreeReaderValue<float> wmt    (myReader,"wmt");
   TTreeReaderValue<float> wemt   (myReader,"wemt");
-  TTreeReaderValue<float> wtmt   (myReader,"wtmt");
+  //TTreeReaderValue<float> wtmt   (myReader,"wtmt");
   TTreeReaderValue<float> wzpt   (myReader,"wzpt");
   TTreeReaderValue<int>   wzid   (myReader,"wzid");
   TTreeReaderValue<float> wzpt_h (myReader,"wzpt_h");
@@ -857,6 +857,7 @@ void makehist4(TTree* tree,            /*input tree*/
       }
       eta1 = *pheta;
     }
+    /*
     else if (sample == Sample::taun){
       pt1  = *tau1pt;
       eta1 = *tau1eta; phi1 = *tau1phi;
@@ -879,6 +880,7 @@ void makehist4(TTree* tree,            /*input tree*/
 	jmdphi = fabs((met2D+tau2D).DeltaPhi(jet2D));	
       }
     }
+    */
 
     // set zpt in case of Zsamples
     Double_t bosonPt  = 0.0;
@@ -955,7 +957,7 @@ void makehist4(TTree* tree,            /*input tree*/
       if(fabs(eta1) > 2.3) continue;
       if(pt1 < 30) continue;
       if(id1 != 1) continue;
-      if(*wtmt > 160) continue;
+      //if(*wtmt > 160) continue;
     }
 
     // n-bjets cut for unboosted categories

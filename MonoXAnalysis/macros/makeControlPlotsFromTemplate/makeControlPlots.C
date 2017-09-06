@@ -13,6 +13,7 @@ void makeControlPlots(string templateFileName,
 		      string controlRegion, 
 		      bool blind, 
 		      bool isLog,
+		      bool addRatioPlot   = true,
 		      bool plotResonant   = false,
 		      bool isHiggsInvisible = false,
 		      bool addSBPlots     = false,
@@ -21,6 +22,9 @@ void makeControlPlots(string templateFileName,
 		      string mediatorMass = "1000",
 		      string DMMass       = "50",
 		      int signalScale     = 1) {
+
+
+  TGaxis::SetMaxDigits(4);
 
   gROOT->SetBatch(kTRUE);
   gROOT->ForceStyle(kTRUE);
@@ -33,16 +37,19 @@ void makeControlPlots(string templateFileName,
   canvas->SetTickx(1);
   canvas->SetTicky(1);
   canvas->cd();
-  canvas->SetBottomMargin(0.3);
+  if(addRatioPlot)
+    canvas->SetBottomMargin(0.3);
   canvas->SetRightMargin(0.06);
 
-  TPad *pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
-  pad2->SetTopMargin(0.7);
-  pad2->SetRightMargin(0.06);
-  pad2->SetFillColor(0);
-  pad2->SetGridy(1);
-  pad2->SetFillStyle(0);
-
+  TPad *pad2 = NULL;
+  if(addRatioPlot){
+    pad2 = new TPad("pad2","pad2",0,0.,1,0.9);
+    pad2->SetTopMargin(0.7);
+    pad2->SetRightMargin(0.06);
+    pad2->SetFillColor(0);
+    pad2->SetGridy(1);
+    pad2->SetFillStyle(0);
+  }
 
   TFile* inputFile = new TFile(templateFileName.c_str());
 
@@ -704,17 +711,20 @@ void makeControlPlots(string templateFileName,
   else
     frame->GetYaxis()->SetTitle("Events");
 
-  frame->GetXaxis()->SetTitleSize(0);
-  frame->GetXaxis()->SetLabelSize(0);
+  if(addRatioPlot){
+    frame->GetXaxis()->SetTitleSize(0);
+    frame->GetXaxis()->SetLabelSize(0);
+  }
   frame->GetYaxis()->SetLabelSize(0.045);
   frame->GetYaxis()->SetTitleSize(0.055);
   frame->GetYaxis()->SetTitleOffset(1.15);
   frame->GetYaxis()->SetLabelSize(0.040);
   frame->GetYaxis()->SetTitleSize(0.050);
-  if(category == Category::monojet)
+  if(not TString(observable).Contains("mjj"))
     frame->GetXaxis()->SetNdivisions(510);
   else
-    frame->GetXaxis()->SetNdivisions(504);
+    frame->GetXaxis()->SetNdivisions(505);
+
   
   frame->Draw();
   CMS_lumi(canvas,"35.9");
@@ -954,77 +964,83 @@ void makeControlPlots(string templateFileName,
 
   // make data/MC ratio plot
   canvas->cd();
-  pad2->Draw();
-  pad2->cd();
 
-  TH1* frame2 = (TH1*) datahist->Clone("frame");
-  frame2->Reset();
-  if((category == Category::monojet or category == Category::inclusive) and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.75,1.25);
-  else if(category == Category::monoV and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
-  else if(category == Category::twojet and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
-  else if(category == Category::VBFrelaxed and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
-  else if(category == Category::VBF and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.5,1.5);
-  else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.65,1.35);
-  else if(controlRegion == "qcd")
-    frame2->GetYaxis()->SetRangeUser(0.,2.);
+  TH1* frame2 = NULL;
+  TH1* unhist = NULL;
+  if(addRatioPlot){
+
+    pad2->Draw();
+    pad2->cd();
+    
+    frame2 = (TH1*) datahist->Clone("frame");
+    frame2->Reset();
+    if((category == Category::monojet or category == Category::inclusive) and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.75,1.25);
+    else if(category == Category::monoV and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.65,1.35);
+    else if(category == Category::twojet and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.65,1.35);
+    else if(category == Category::VBFrelaxed and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    else if(category == Category::VBF and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.5,1.5);
+    else if((category == Category::boosted or category == Category::prunedMass or category == Category::tau2tau1) and controlRegion != "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.65,1.35);
+    else if(controlRegion == "qcd")
+      frame2->GetYaxis()->SetRangeUser(0.,2.);
+    
+    if(category == Category::monojet)
+      frame2->GetXaxis()->SetNdivisions(510);
+    else
+      frame2->GetXaxis()->SetNdivisions(510);
+    frame2->GetYaxis()->SetNdivisions(5);
+    
+    frame2->GetXaxis()->SetTitle(observableLatex.c_str());
+    frame2->GetYaxis()->SetTitle("Data/Pred.");
+    frame2->GetYaxis()->CenterTitle();
+    frame2->GetYaxis()->SetTitleOffset(1.5);
+    frame2->GetYaxis()->SetLabelSize(0.035);
+    frame2->GetYaxis()->SetTitleSize(0.04);
+    frame2->GetXaxis()->SetLabelSize(0.04);
+    frame2->GetXaxis()->SetTitleSize(0.05);
+    frame2->Draw();
+    
+    
+    TH1* nhist = (TH1*) datahist->Clone("datahist_tot");
+    unhist = (TH1*) datahist->Clone("unhist");
+    TH1* dhist = (TH1*) stack->GetStack()->At(stack->GetNhists()-1)->Clone("mchist_tot");
+    TH1* dhist_p = (TH1*) stack->GetStack()->At(stack->GetNhists()-1)->Clone("mchist_tot_p");
+    
+    nhist->SetStats(kFALSE);
+    nhist->SetLineColor(kBlack);
+    nhist->SetMarkerColor(kBlack);
+    nhist->SetMarkerSize(0.8);
+    
+    // set to zero for plotting reasons of error bar and error band
+    for (int i = 1; i <= dhist->GetNbinsX(); i++) dhist->SetBinError(i, 0);
+    
+    nhist->Divide(dhist);
+    dhist_p->Divide(dhist);
+    
+    dhist_p->SetLineColor(0);
+    dhist_p->SetMarkerColor(0);
+    dhist_p->SetMarkerSize(0);
+    dhist_p->SetFillColor(kGray);
+    
+    for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
+    for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinError(i, 0);
+    unhist->SetMarkerSize(0);
+    unhist->SetLineColor(kBlack);
+    unhist->SetLineStyle(2);
+    unhist->SetFillColor(0);
   
-  if(category == Category::monojet)
-    frame2->GetXaxis()->SetNdivisions(510);
-  else
-    frame2->GetXaxis()->SetNdivisions(510);
-  frame2->GetYaxis()->SetNdivisions(5);
-
-  frame2->GetXaxis()->SetTitle(observableLatex.c_str());
-  frame2->GetYaxis()->SetTitle("Data/Pred.");
-  frame2->GetYaxis()->CenterTitle();
-  frame2->GetYaxis()->SetTitleOffset(1.5);
-  frame2->GetYaxis()->SetLabelSize(0.035);
-  frame2->GetYaxis()->SetTitleSize(0.04);
-  frame2->GetXaxis()->SetLabelSize(0.04);
-  frame2->GetXaxis()->SetTitleSize(0.05);
-  frame2->Draw();
-
-
-  TH1* nhist = (TH1*) datahist->Clone("datahist_tot");
-  TH1* unhist = (TH1*) datahist->Clone("unhist");
-  TH1* dhist = (TH1*) stack->GetStack()->At(stack->GetNhists()-1)->Clone("mchist_tot");
-  TH1* dhist_p = (TH1*) stack->GetStack()->At(stack->GetNhists()-1)->Clone("mchist_tot_p");
-
-  nhist->SetStats(kFALSE);
-  nhist->SetLineColor(kBlack);
-  nhist->SetMarkerColor(kBlack);
-  nhist->SetMarkerSize(0.8);
-
-  // set to zero for plotting reasons of error bar and error band
-  for (int i = 1; i <= dhist->GetNbinsX(); i++) dhist->SetBinError(i, 0);
-
-  nhist->Divide(dhist);
-  dhist_p->Divide(dhist);
-
-  dhist_p->SetLineColor(0);
-  dhist_p->SetMarkerColor(0);
-  dhist_p->SetMarkerSize(0);
-  dhist_p->SetFillColor(kGray);
+    nhist->Draw("PE1 SAME");
+    dhist_p->Draw("E2 SAME");
+    unhist->Draw("SAME");
+    nhist->Draw("PE SAME");
   
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinContent(i, 1);
-  for (int i = 1; i <= unhist->GetNbinsX(); i++) unhist->SetBinError(i, 0);
-  unhist->SetMarkerSize(0);
-  unhist->SetLineColor(kBlack);
-  unhist->SetLineStyle(2);
-  unhist->SetFillColor(0);
-  
-  nhist->Draw("PE1 SAME");
-  dhist_p->Draw("E2 SAME");
-  unhist->Draw("SAME");
-  nhist->Draw("PE SAME");
-  
-  pad2->RedrawAxis("sameaxis");
+    pad2->RedrawAxis("sameaxis");
+  }    
 
   string postfix;
   if(category == Category::monojet)
@@ -1035,7 +1051,7 @@ void makeControlPlots(string templateFileName,
     postfix = "_boosted";
   if(category == Category::VBF or category == Category::VBFrelaxed)
     postfix = "_VBF";
-
+  
   TString obs = Form("%s",observable.c_str());
   obs.ReplaceAll("_v2","");
   obs.ReplaceAll("_v3","");
@@ -1044,7 +1060,7 @@ void makeControlPlots(string templateFileName,
   canvas->SaveAs((string(obs)+"_"+controlRegion+postfix+".png").c_str());
   canvas->SaveAs((string(obs)+"_"+controlRegion+postfix+".pdf").c_str());
   //  canvas->SaveAs((observable+"_"+controlRegion+postfix+".C").c_str());
-
+  
   if(addSBPlots){
 
     TH1* totalSignal = NULL;

@@ -705,7 +705,7 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
 	etaLep = *l2eta;
       }
       
-      if(ptLep > 20 and fabs(etaLep) < 2.4){ // in acceptance --> read efficiency and SF
+      if(ptLep > 10 and fabs(etaLep) < 2.4){ // in acceptance --> read efficiency and SF
 	inAcceptance = true;
 	float ptVal = ptLep;
 	if(ptVal > effmuloose_id->GetYaxis()->GetXmax()) ptVal = effmuloose_id->GetYaxis()->GetXmax()-1;
