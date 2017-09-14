@@ -310,8 +310,6 @@ bool JetMetDphiTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup&
     incjetelmetdphimin4vector.clear();
     incjetphmetdphimin4vector.clear();
     
-    std::cout<<"T1 met "<<t1metH->front().corPt()<<" "<<t1metH->front().corPhi()<<" smear "<<t1metH->front().shiftedPt(pat::MET::METUncertainty::NoShift, pat::MET::METCorrectionLevel::Type1Smear)  <<" "<<t1metH->front().shiftedPhi(pat::MET::METUncertainty::NoShift,   pat::MET::METCorrectionLevel::Type1Smear)<<std::endl;
-    
     for (size_t i = 0; i < incjets_jer.size(); i++) {
       if (incjets_jer[i]->pt() > minJetPtCountAK4) {
 	float incjetphi = atan2(sin(incjets_jer[i]->phi()), cos(incjets_jer[i]->phi()));
