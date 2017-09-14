@@ -15,8 +15,10 @@ RecoilTreeFiller::RecoilTreeFiller(const edm::ParameterSet & iConfig, edm::Consu
   isPhotonPurity  (iConfig.existsAs<bool>("isPhotonPurity") ? iConfig.getParameter<bool>("isPhotonPurity") : false),
   isTriggerTree   (iConfig.existsAs<bool>("isTriggerTree") ? iConfig.getParameter<bool>("isTriggerTree") : false){
 
+
   isPuppi_ = isPuppi;
   if(isPuppi_){    
+    addMETSystematics = (iConfig.existsAs<bool>("addPuppiMETSystematics") ? iConfig.getParameter<bool>("addPuppiMETSystematics") : false);
     t1metTag   = iConfig.getParameter<edm::InputTag>("puppit1met");
     t1mumetTag = iConfig.getParameter<edm::InputTag>("puppit1mumet");
     t1elmetTag = iConfig.getParameter<edm::InputTag>("puppit1elmet");

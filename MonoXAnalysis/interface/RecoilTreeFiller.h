@@ -92,7 +92,7 @@ class RecoilTreeFiller {
   edm::EDGetTokenT<edm::View<pat::MET> >  pfMetUnclusteredToken;
 
   //Systematics
-  const bool addMETSystematics;
+  bool addMETSystematics;
 
   const bool isMC;
   const bool addBadMuonClean;

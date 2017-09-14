@@ -28,6 +28,7 @@ JetMetDphiTreeFiller::JetMetDphiTreeFiller(const edm::ParameterSet & iConfig, ed
   isPuppi_ = isPuppi;
 
   if(isPuppi_){
+    addMETSystematics = (iConfig.existsAs<bool>("addPuppiMETSystematics") ? iConfig.getParameter<bool>("addPuppiMETSystematics") : false);
     t1metTag   = iConfig.getParameter<edm::InputTag>("puppit1met");
     t1mumetTag = iConfig.getParameter<edm::InputTag>("puppit1mumet");
     t1elmetTag = iConfig.getParameter<edm::InputTag>("puppit1elmet");

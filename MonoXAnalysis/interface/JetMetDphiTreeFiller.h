@@ -101,7 +101,7 @@ class JetMetDphiTreeFiller {
   const double dRCleaningAK4;
   const std::string jetidwp;
   const double minJetPtCountAK4;
-  const bool addMETSystematics;
+  bool addMETSystematics;
 
   bool isPuppi_;
 
