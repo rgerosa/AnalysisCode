@@ -53,6 +53,8 @@ class TriggerTreeFiller {
   ////// -------
   void SetTriggerPaths(edm::Run const& iRun, edm::EventSetup const& iSetup);
 
+  std::unique_ptr<HLTPrescaleProvider> hltPrescaleProvider;
+
 
  private:
   ////// -------
@@ -117,7 +119,6 @@ class TriggerTreeFiller {
 
   std::vector<std::string>   triggerPathsVector;
   std::map<std::string, int> triggerPathsMap;
-  std::unique_ptr<HLTPrescaleProvider> hltPrescaleProvider;
 
   TTree* tree_;
   

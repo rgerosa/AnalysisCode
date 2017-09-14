@@ -36,8 +36,9 @@ ElectronTreeFiller::ElectronTreeFiller(const edm::ParameterSet & iConfig, edm::C
     electronIDCollectionToken = iC.consumes<std::vector<pat::Electron>> (iConfig.getParameter<edm::InputTag>("electronIDCollection"));    
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////

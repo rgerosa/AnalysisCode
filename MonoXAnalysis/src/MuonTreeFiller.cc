@@ -20,8 +20,8 @@ MuonTreeFiller::MuonTreeFiller(const edm::ParameterSet & iConfig, edm::ConsumesC
     fakeMuonCollToken = iC.consumes<edm::View<reco::Candidate> > (iConfig.getParameter<edm::InputTag>("fakeMuonCandidates"));
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////

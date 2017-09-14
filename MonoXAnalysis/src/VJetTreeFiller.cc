@@ -54,8 +54,8 @@ VJetTreeFiller::VJetTreeFiller(const edm::ParameterSet & iConfig, edm::ConsumesC
   }
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////
@@ -698,94 +698,6 @@ void VJetTreeFiller::calculateBtagSF(const pat::Jet & jet,
   }
 }
 
-//////
-// apply standard CMS jet ID
-bool VJetTreeFiller::applyJetID(const pat::Jet & jet, const std::string & level){
-  
-  if(level != "loose" and level != "tight" and level != "tightLepVeto")
-    return true;
-   
-  bool passjetid = false;
-
-  //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-  if(level == "loose"){ 
-    if (fabs(jet.eta()) <= 2.7 and
-	jet.neutralHadronEnergyFraction() < 0.99 and
-	jet.neutralEmEnergyFraction()     < 0.99 and
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4)
-	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and
-	       jet.chargedHadronEnergyFraction() > 0. and
-	       jet.chargedEmEnergyFraction()     < 0.99 and 
-	       jet.chargedMultiplicity()         > 0) 
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;  
-    else if(fabs(jet.eta()) > 3.0 and
-	    jet.neutralEmEnergyFraction() < 0.9 and
-	    jet.neutralMultiplicity()     > 10)
-      passjetid = true; 
-  } 
-  else if(level == "tight"){
-    
-    if (fabs(jet.eta()) <= 2.7 and 
-	jet.neutralHadronEnergyFraction() < 0.90 and 
-	jet.neutralEmEnergyFraction()     < 0.90 and 
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4) 
-	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and 
-	       jet.chargedHadronEnergyFraction() > 0. and 
-	       jet.chargedEmEnergyFraction() < 0.99 and 
-	       jet.chargedMultiplicity() > 0) 
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0  and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;
-    else if(fabs(jet.eta()) > 3.0 and
-	    jet.neutralEmEnergyFraction() < 0.9 and
-	    jet.neutralMultiplicity() > 10)
-      passjetid = true;    
-  }
-  
-  else if(level == "tightLepVeto"){
-    if (fabs(jet.eta()) <= 2.7 and
-        jet.neutralHadronEnergyFraction() < 0.90 and
-        jet.neutralEmEnergyFraction() < 0.90 and
-	jet.muonEnergyFraction() < 0.80 and 
-        (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4)
-        passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and
-               jet.chargedHadronEnergyFraction() > 0. and
-               jet.chargedEmEnergyFraction() < 0.90 and
-               jet.chargedMultiplicity() > 0)
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;
-    else if (fabs(jet.eta()) > 3.0 and 
-	     jet.neutralEmEnergyFraction() < 0.9 and
-	     jet.neutralMultiplicity() > 10)
-      passjetid = true;    
-    
-  }  
-  return passjetid;  
-}
 
 //// fill jet collection
 void VJetTreeFiller::fillJetCollections(const edm::Handle<std::vector<pat::Jet> > & jetsH, 

@@ -35,8 +35,9 @@ TriggerTreeFiller::TriggerTreeFiller(const edm::ParameterSet & iConfig, edm::Con
   }
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+  this->DeclareAndSetBranches();
+  this->initBranches();
+
 }
 
 /////

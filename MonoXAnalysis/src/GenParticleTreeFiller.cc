@@ -26,8 +26,9 @@ GenParticleTreeFiller::GenParticleTreeFiller(const edm::ParameterSet & iConfig, 
 
   readDMFromGenParticle_ = false;
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////

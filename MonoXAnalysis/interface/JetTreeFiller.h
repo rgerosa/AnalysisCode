@@ -31,6 +31,8 @@
 #include "TTree.h"
 #include "TLorentzVector.h"
 
+#include "AnalysisCode/MonoXAnalysis/interface/TreeFillerUtils.h"
+
 class JetTreeFiller {
 
  public:
@@ -53,10 +55,6 @@ class JetTreeFiller {
 			  std::vector<pat::JetRef> &, 
 			  const bool & = false);
 
-  // to apply jet ID
-  bool applyJetID(const pat::Jet &, const std::string &);
-  // to apply pileup-jet id
-  bool applyPileupJetID(const pat::Jet &, const std::string &, const bool &);
   // fill btag scale factors
   void calculateBtagSF(const pat::Jet &, const std::string &, std::vector<float> &, std::vector<float> &, std::vector<float> &);
  

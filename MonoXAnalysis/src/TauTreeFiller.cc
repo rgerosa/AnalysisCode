@@ -32,8 +32,8 @@ TauTreeFiller::TauTreeFiller(const edm::ParameterSet & iConfig, edm::ConsumesCol
   tausTightOldToken = iC.consumes<pat::TauRefVector> (tausTightOldTag);
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////

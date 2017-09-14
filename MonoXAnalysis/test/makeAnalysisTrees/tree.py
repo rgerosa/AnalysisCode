@@ -331,8 +331,8 @@ if options.inputFiles == []:
 	else:
 		#process.source.fileNames.append('file:pickevents.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/DYJetsToNuNu_PtZ-400To650_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/027B63CF-D72B-E611-988C-002590A52B4A.root')
-		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
-		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/4CAA7972-9BCB-E611-A395-0025905A6060.root')
+		process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/WJetsToLNu_Pt-100To250_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/60000/F0025F27-AA2B-E611-9077-0CC47A4DED1A.root')
+		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/WJetsToLNu_HT-100To200_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/4CAA7972-9BCB-E611-A395-0025905A6060.root')
 		#process.source.fileNames.append('/store/mc/RunIISpring16MiniAODv2/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUSpring16_80X_mcRun2_asymptotic_2016_miniAODv2_v0-v1/00000/7481FFE2-521A-E611-A18F-0025904C7B48.root')
 		#process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_HT-200to400_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/5E97F1F8-04D3-E611-9E11-549F3525DB98.root')
 #		process.source.fileNames.append('/store/mc/RunIISummer16MiniAODv2/Scalar_MonoJ_NLO_Mphi-100_Mchi-1_gSM-1p0_gDM-1p0_13TeV-madgraph/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/50000/A2E89D89-52D6-E611-93DE-02163E011949.root')
@@ -403,6 +403,7 @@ from AnalysisCode.MonoXAnalysis.JetTools_cff import JetCorrector
 ## apply JEC and propagation on MET for AK4PFchs
 jetCollName      = "slimmedJets"
 jetPuppiCollName = "slimmedJetsPuppi"
+
 jetCollName = JetCorrector(process,jetCollName,"AK4PFchs",options.isMC, options.applyL2L3Residuals)
 ## apply JEC and propagation on MET for AK4PFPuppi
 if options.addPuppiJets:
@@ -419,7 +420,7 @@ if hasattr(process,"correctedElectrons"):
 	process.selectedObjects.calibratedElectrons = cms.InputTag("correctedElectrons")
 if hasattr(process,"correctedPhotons"):
 	process.selectedObjects.calibratedPhotons = cms.InputTag("correctedPhotons")
-	
+
 ## modify some existing jet collections adding pileup-jet id and QGLikelihood from GT
 from AnalysisCode.MonoXAnalysis.JetTools_cff import addPileupJetID, addQGLikelihood
 
@@ -430,18 +431,21 @@ if options.addQGLikelihood:
 	jetCollName = addQGLikelihood(process,jetCollName,"");
 	if options.addPuppiJets:
 		jetPuppiCollName = addQGLikelihood(process,jetPuppiCollName,"Puppi");
-		
+
 ### correct the MET
 from AnalysisCode.MonoXAnalysis.metCorrector_cff import metCorrector
+
 if not options.isReMiniAOD: #### don't 
 	if not options.useMiniAODMet:
 		metCollection = "slimmedMETs"
 		metCorrector(process,jetCollName,metCollection,options.isMC,"AK4PFchs",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addMETSystematics,options.addBadMuonClean);
 	if options.addPuppiMET and not options.useMiniAODPuppiMet:
 		metCollectionPuppi = "slimmedMETsPuppi"
-		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addPuppiMETSystematics,options.addBadMuonClean);
+		metCorrector(process,jetPuppiCollName,metCollectionPuppi,options.isMC,"AK4PFPuppi",options.applyL2L3Residuals,options.useOfficialMETSystematics,options.addPuppiMETSystematics,options.
+addBadMuonClean);
 #### e-gamma fix in met for re-miniAOD
-elif options.isReMiniAOD and not options.useMiniAODMet:
+
+elif options.isReMiniAOD and not options.useMiniAODMet:	
 	from PhysicsTools.PatUtils.tools.corMETFromMuonAndEG import corMETFromMuonAndEG
 	from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 	runMetCorAndUncFromMiniAOD(process,
@@ -486,9 +490,11 @@ else:
 
    process.output = cms.EndPath(process.out)
 
+
 #### substructure sequence
 boostedJetCollection = "";
 boostedPuppiJetCollection = "";
+
 if not options.useMiniAODSubstructure:
 	from AnalysisCode.MonoXAnalysis.JetSubstructure_cff import JetSubstructure
 	if options.addSubstructureCHS:
@@ -525,7 +531,7 @@ if not options.useMiniAODSubstructure:
 			
 else:	
 	boostedJetCollection = JetCorrector(process,"slimmedJetsAK8","AK8PFchs",options.isMC, options.applyL2L3Residuals);
-	
+
 ### apply event selections
 from AnalysisCode.MonoXAnalysis.applyEventFilters_cff import applyEventFilters
 looseMuonPt = 10. ; tightMuonPt = 20.; 
@@ -553,6 +559,7 @@ applyEventFilters(process,
 	
 if options.useMiniAODMet and not options.isReMiniAOD:
 	process.filterHighRecoil.metCollections[0].srcMet = cms.InputTag("slimmedMETs","",options.miniAODProcess)
+
      					
 # Tree for the generator weights
 process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
@@ -569,6 +576,7 @@ process.gentree = cms.EDAnalyzer("LHEWeightsTreeMaker",
 triggerLabel = "RECO";
 if options.isMC:
 	triggerLabel = "PAT";
+
 
 # Make the tree 
 process.tree = cms.EDAnalyzer("MonoJetTreeMaker",

@@ -54,8 +54,9 @@ JetMetDphiTreeFiller::JetMetDphiTreeFiller(const edm::ParameterSet & iConfig, ed
   photonsToken   = iC.consumes<pat::PhotonRefVector> (photonsTag);
 
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////
@@ -337,102 +338,14 @@ bool JetMetDphiTreeFiller::Fill(const edm::Event& iEvent, const edm::EventSetup&
   return true;
 }
 
-// apply standard CMS jet ID
-bool JetMetDphiTreeFiller::applyJetID(const pat::Jet & jet, const std::string & level){
-  
-  if(level != "loose" and level != "tight" and level != "tightLepVeto")
-    return true;
-   
-  bool passjetid = false;
-
-  //apply a loose jet id https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_13_TeV_data
-  if(level == "loose"){ 
-    if (fabs(jet.eta()) <= 2.7 and
-	jet.neutralHadronEnergyFraction() < 0.99 and
-	jet.neutralEmEnergyFraction()     < 0.99 and
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4)
-	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and
-	       jet.chargedHadronEnergyFraction() > 0. and
-	       jet.chargedEmEnergyFraction()     < 0.99 and 
-	       jet.chargedMultiplicity()         > 0) 
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) <= 3.0 and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;  
-    else if(fabs(jet.eta()) > 3.0 and
-	    jet.neutralEmEnergyFraction() < 0.9 and
-	    jet.neutralMultiplicity()     > 10)
-      passjetid = true; 
-  } 
-  else if(level == "tight"){
-    
-    if (fabs(jet.eta()) <= 2.7 and 
-	jet.neutralHadronEnergyFraction() < 0.90 and 
-	jet.neutralEmEnergyFraction()     < 0.90 and 
-	(jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4) 
-	passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and 
-	       jet.chargedHadronEnergyFraction() > 0. and 
-	       jet.chargedEmEnergyFraction() < 0.99 and 
-	       jet.chargedMultiplicity() > 0) 
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0  and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;
-    else if(fabs(jet.eta()) > 3.0 and
-	    jet.neutralEmEnergyFraction() < 0.9 and
-	    jet.neutralMultiplicity() > 10)
-      passjetid = true;    
-  }
-  
-  else if(level == "tightLepVeto"){
-    if (fabs(jet.eta()) <= 2.7 and
-        jet.neutralHadronEnergyFraction() < 0.90 and
-        jet.neutralEmEnergyFraction() < 0.90 and
-	jet.muonEnergyFraction() < 0.80 and 
-        (jet.chargedMultiplicity() + jet.neutralMultiplicity()) > 1) {
-      
-      if (fabs(jet.eta()) > 2.4)
-        passjetid = true;
-      else if (fabs(jet.eta()) <= 2.4 and
-               jet.chargedHadronEnergyFraction() > 0. and
-               jet.chargedEmEnergyFraction() < 0.90 and
-               jet.chargedMultiplicity() > 0)
-	passjetid = true;
-    }
-    else if (fabs(jet.eta()) > 2.7 and fabs(jet.eta()) < 3.0 and
-	     jet.neutralHadronEnergyFraction() < 0.98 and
-             jet.neutralEmEnergyFraction() > 0.01 and
-             jet.neutralMultiplicity()     > 2)
-      passjetid = true;
-    else if (fabs(jet.eta()) > 3.0 and 
-	     jet.neutralEmEnergyFraction() < 0.9 and
-	     jet.neutralMultiplicity() > 10)
-      passjetid = true;    
-    
-  }  
-  return passjetid;  
-}
-
 //// fill jet collection
 void JetMetDphiTreeFiller::fillJetCollections(const edm::Handle<std::vector<pat::Jet> > & jetsH, 
-				       const pat::MuonRefVector & muons, 
-				       const pat::ElectronRefVector & electrons,
-				       const pat::PhotonRefVector & photons, 
-				       std::vector<pat::JetRef> & incjets, 
-				       std::vector<pat::JetRef> & alljets, 
-				       const bool & ispuppi){
+					      const pat::MuonRefVector & muons, 
+					      const pat::ElectronRefVector & electrons,
+					      const pat::PhotonRefVector & photons, 
+					      std::vector<pat::JetRef> & incjets, 
+					      std::vector<pat::JetRef> & alljets, 
+					      const bool & ispuppi){
   
   if(jetsH.isValid()){      
     for (auto jets_iter = jetsH->begin(); jets_iter != jetsH->end(); ++jets_iter) {

@@ -192,6 +192,8 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
 
   //Create filler objects
   triggerFiller = new TriggerTreeFiller(iConfig,iC,tree);
+  triggerFiller->hltPrescaleProvider.reset(new HLTPrescaleProvider(iConfig,iC,*this)); //ND 
+
   muonFiller    = new MuonTreeFiller(iConfig,iC,tree);
   electronFiller = new ElectronTreeFiller(iConfig,iC,tree);
   photonFiller   = new PhotonTreeFiller(iConfig,iC,tree);
@@ -310,7 +312,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     else nvtx = 0;
 
     // Fill other object fillers
-
     bool isGoodEvent = true;
     // fill trigger
     if(triggerFiller) {
@@ -391,6 +392,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       isGoodEvent = genParticleFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
+
     // FILL the Event tree    
     tree->Fill();    
 }    

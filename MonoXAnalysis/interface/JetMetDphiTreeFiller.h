@@ -24,6 +24,7 @@
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/METReco/interface/MET.h"
 
+#include "AnalysisCode/MonoXAnalysis/interface/TreeFillerUtils.h"
 
 #include "TTree.h"
 #include "TLorentzVector.h"
@@ -46,10 +47,6 @@ class JetMetDphiTreeFiller {
                           std::vector<pat::JetRef> &,
                           std::vector<pat::JetRef> &,
                           const bool & = false);
-
-  // to apply jet ID                                                                                                                                                                                   
-  bool applyJetID(const pat::Jet &, const std::string &);
-
 
  private:
 

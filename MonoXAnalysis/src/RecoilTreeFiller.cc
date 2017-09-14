@@ -77,8 +77,8 @@ RecoilTreeFiller::RecoilTreeFiller(const edm::ParameterSet & iConfig, edm::Consu
  
   
   tree_ = tree;
-  DeclareAndSetBranches();
-    
+  this->DeclareAndSetBranches();
+  this->initBranches();
 }
 
 /////
