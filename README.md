@@ -6,8 +6,8 @@ Repository for analysis code
 
 Recipe for 80X: 
 
-       cmsrel CMSSW_8_0_24_patch1
-       cd CMSSW_8_0_24_patch1/src
+       cmsrel CMSSW_8_0_26_patch1
+       cd CMSSW_8_0_26_patch1/src
        cmsenv
        git cms-init
        git cms-addpkg FWCore/Framework	
@@ -17,14 +17,12 @@ Recipe for 80X:
        git clone git@github.com:ECALELFS/ScalesSmearings.git
        cd -
        git cms-merge-topic -u cms-met:fromCMSSW_8_0_20_postICHEPfilter
-       git cms-merge-topic -u cms-met:METRecipe_8020
-       git cms-merge-topic -u ahinzmann:METRecipe_8020_Moriond17
-       git cms-merge-topic -u ikrav:egm_id_80X_v2
        git cms-merge-topic -u ikrav:egm_id_80X_v3_photons
-       git cms-merge-topic -u gpetruc:badMuonFilters_80X_v2
-       git cms-merge-topic mmarionncern:METRecipe_80X_part2 -u	
-       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_8024_X
-       scramv1 b j 4;
+       git cms-merge-topic -u cms-met:METRecipe_8020
+       git cms-merge-topic cms-met:METRecipe_80X_part2 -u
+       git cms-merge-topic ahinzmann:METRecipe_80X_part2PhotonPupp -u
+       git clone git@github.com:rgerosa/AnalysisCode.git -b Raffaele_NewFramework_8X
+       scramv1 b -j 4;
        cd $CMSSW_BASE/external/$SCRAM_ARCH;
        git clone https://github.com/ikrav/RecoEgamma-PhotonIdentification.git   RecoEgamma/PhotonIdentification/data
        git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
