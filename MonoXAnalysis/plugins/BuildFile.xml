@@ -29,5 +29,6 @@
 <use name="JetMETCorrections/Modules"/>
 <use name="CondFormats/BTauObjects"/>
 <use name="CondTools/BTau"/>
+<use name="AnalysisCode/MonoXAnalysis"/>
 <use name="boost"/>
 <flags EDM_PLUGIN="1"/>
