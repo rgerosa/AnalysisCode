@@ -27,15 +27,10 @@ Recipe for 80X:
        scramv1 b j 4;
        cd $CMSSW_BASE/external/$SCRAM_ARCH;
        git clone https://github.com/ikrav/RecoEgamma-PhotonIdentification.git   RecoEgamma/PhotonIdentification/data
-       git clone https://github.com/ikrav/RecoEgamma-ElectronIdentification.git RecoEgamma/ElectronIdentification/data
        cd RecoEgamma/PhotonIdentification/data;
        git checkout remotes/origin/egm_id_80X_v1;
        cd -
-       cd RecoEgamma/ElectronIdentification/data;
-       git checkout remotes/origin/egm_id_80X_v2;
-       cd -
        scp -r RecoEgamma/PhotonIdentification/data/* $CMSSW_BASE/src/RecoEgamma/PhotonIdentification/data/;
-       scp -r RecoEgamma/ElectronIdentification/data/* $CMSSW_BASE/src/RecoEgamma/ElectronIdentification/data/;
        
 	   
 How to Run the ntuple production (for analysis):
