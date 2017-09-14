@@ -531,6 +531,8 @@ if not options.useMiniAODSubstructure:
 			
 else:	
 	boostedJetCollection = JetCorrector(process,"slimmedJetsAK8","AK8PFchs",options.isMC, options.applyL2L3Residuals);
+	boostedPuppiJetCollection = boostedJetCollection;
+	
 
 ### apply event selections
 from AnalysisCode.MonoXAnalysis.applyEventFilters_cff import applyEventFilters
