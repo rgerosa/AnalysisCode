@@ -23,6 +23,7 @@
 
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/METReco/interface/MET.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "CondFormats/BTauObjects/interface/BTagCalibration.h"
@@ -70,7 +71,7 @@ class JetTreeFiller {
   edm::EDGetTokenT<pat::ElectronRefVector> electronsToken;
 
   const edm::InputTag  photonsTag;
-  edm::EDGetTokenT<pat::ElectronRefVector> photonsToken;
+  edm::EDGetTokenT<pat::PhotonRefVector> photonsToken;
 
   edm::InputTag jetsTag;
   edm::InputTag jetsJESUpTag;
@@ -85,6 +86,7 @@ class JetTreeFiller {
   const bool isMC;
   const bool isTriggerTree;
   const bool isQCDTree;
+  const bool isPhotonPurity;
 
   const bool cleanMuonJet;
   const bool cleanElectronJet;
@@ -105,15 +107,12 @@ class JetTreeFiller {
   bool addBTagScaleFactor;
   edm::FileInPath bTagScaleFactorFileCSV;
   edm::FileInPath bTagScaleFactorFileMVA;
-  edm::FileInPath bTagScaleFactorFileSubCSV;
 
   BTagCalibration calibCSV;
   BTagCalibration calibMVA;
-  BTagCalibration calibSubCSV;
 
   std::vector<BTagCalibrationReader> bMediumCSV;
   std::vector<BTagCalibrationReader> bMediumMVA;
-  std::vector<BTagCalibrationReader> bMediumSubCSV;
 
   ///////
   TTree* tree_;
@@ -127,6 +126,8 @@ class JetTreeFiller {
   uint32_t njetsincup,npuppijetsincup; 
   uint32_t njetsincdw,npuppijetsincdw;
   uint32_t njetsincjer,npuppijetsincjer;
+
+  float ht, htinc, Puppiht, Puppihtinc;
 
   std::vector<float> combinejetpt,combinejeteta,combinejetphi,combinejetm,combinejetbtag,combinejetbtagMVA,combinejetmetdphi;
   std::vector<float> combinejetCHfrac,combinejetNHfrac,combinejetEMfrac,combinejetCEMfrac,combinejetPHfrac,combinejetELfrac,combinejetMUfrac, combinejetHFHfrac, combinejetHFEMfrac;

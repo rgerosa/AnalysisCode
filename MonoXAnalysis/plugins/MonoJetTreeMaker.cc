@@ -33,6 +33,7 @@
 #include "AnalysisCode/MonoXAnalysis/interface/TriggerTreeFiller.h"
 #include "AnalysisCode/MonoXAnalysis/interface/VJetTreeFiller.h"
 #include "AnalysisCode/MonoXAnalysis/interface/RecoilTreeFiller.h"
+#include "AnalysisCode/MonoXAnalysis/interface/JetMetDphiTreeFiller.h"
 
 /// other includes
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -86,13 +87,13 @@ private:
   // rho
   const edm::InputTag rhoTag;
   edm::EDGetTokenT<double>  rhoToken;
-  // Substructure stuff
-  const bool addSubstructureCHS;
   // puppi stuff
   const bool addPuppiJets;
   const bool addPuppiMET;
+  // Substructure stuff
+  const bool addSubstructureCHS;
   const bool addSubstructurePuppi;
- 
+  const bool useMiniAODSubstructure;
 
   // inner vectors
   std::vector<std::string>   filterPathsVector;
@@ -115,13 +116,16 @@ private:
   RecoilTreeFiller* recoilPuppiTreeFiller;
   /////--
   GenParticleTreeFiller* genParticleFiller;
-
-  //  VJetTreeFiller* jetAK8Filler;
-  //  VJetTreeFiller* jetPuppiAK8Filler;
+  /////--
+  VJetTreeFiller* jetAK8Filler;
+  VJetTreeFiller* jetPuppiAK8Filler;
   /////--
   JetTreeFiller* jetAK4Filler;
   JetTreeFiller* jetPuppiAK4Filler;
-
+  ////--
+  JetMetDphiTreeFiller* jetMetDphiFiller;
+  JetMetDphiTreeFiller* puppiJetMetDphiFiller;
+  
   // tree
   TTree* tree;
   edm::Service<TFileService> fs;
@@ -151,11 +155,12 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   badPFMuonTag           (iConfig.getParameter<edm::InputTag>("badPFMuon")),  
   verticesTag   (iConfig.getParameter<edm::InputTag>("vertices")),
   rhoTag        (iConfig.getParameter<edm::InputTag>("rho")),
-  addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false),
   addPuppiJets(iConfig.existsAs<bool>("addPuppiJets") ? iConfig.getParameter<bool>("addPuppiJets") : false),
   addPuppiMET(iConfig.existsAs<bool>("addPuppiMET") ? iConfig.getParameter<bool>("addPuppiMET") : false),
-  addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false){
- 
+  addSubstructureCHS(iConfig.existsAs<bool>("addSubstructureCHS") ? iConfig.getParameter<bool>("addSubstructureCHS") : false), 
+  addSubstructurePuppi(iConfig.existsAs<bool>("addSubstructurePuppi") ? iConfig.getParameter<bool>("addSubstructurePuppi") : false),
+  useMiniAODSubstructure(iConfig.existsAs<bool>("useMiniAODSubstructure") ? iConfig.getParameter<bool>("useMiniAODSubstructure") : false){
+
   if(isMC)
     pileupInfoToken = consumes<std::vector<PileupSummaryInfo> > (iConfig.getParameter<edm::InputTag>("pileup"));
 
@@ -191,16 +196,23 @@ MonoJetTreeMaker::MonoJetTreeMaker(const edm::ParameterSet& iConfig):
   electronFiller = new ElectronTreeFiller(iConfig,iC,tree);
   photonFiller   = new PhotonTreeFiller(iConfig,iC,tree);
   tauFiller      = new TauTreeFiller(iConfig,iC,tree);
+
   recoilTreeFiller = new RecoilTreeFiller(iConfig,iC,tree);
-  jetAK4Filler   = new JetTreeFiller(iConfig,iC,tree);
+  jetAK4Filler     = new JetTreeFiller(iConfig,iC,tree);
+  jetMetDphiFiller = new JetMetDphiTreeFiller(iConfig,iC,tree);
+  
   if(addPuppiJets) 
-    jetPuppiAK4Filler  = new JetTreeFiller(iConfig,tree,true);
-  //  if(addSubstructureCHS)
-  //    jetAK8Filler   = new VJetTreeFiller(iConfig,tree);
-  //  if(addSubstructurePuppi) 
-  //    jetPuppiAK4Filler  = new VJetTreeFiller(iConfig,tree,true);
+    jetPuppiAK4Filler  = new JetTreeFiller(iConfig,iC,tree,true);
   if(addPuppiMET)
     recoilPuppiTreeFiller = new RecoilTreeFiller(iConfig,iC,tree,true);   
+  if(addPuppiMET and addPuppiJets)
+    puppiJetMetDphiFiller = new JetMetDphiTreeFiller(iConfig,iC,tree,true);
+
+  if(addSubstructureCHS or useMiniAODSubstructure)
+    jetAK8Filler   = new VJetTreeFiller(iConfig,iC,tree);
+  if(addSubstructurePuppi or useMiniAODSubstructure) 
+    jetPuppiAK8Filler  = new VJetTreeFiller(iConfig,iC,tree,true);
+
   if(isMC)
     genParticleFiller = new GenParticleTreeFiller(iConfig,iC,tree);
 }
@@ -215,10 +227,12 @@ MonoJetTreeMaker::~MonoJetTreeMaker() {
   if(genParticleFiller) delete genParticleFiller;
   if(jetAK4Filler) delete jetAK4Filler;
   if(jetPuppiAK4Filler) delete jetPuppiAK4Filler;
-  //  if(jetAK8Filler) delete jetAK8Filler;
-  //  if(jetPuppiAK8Filler) delete jetPuppiAK8Filler;
+  if(jetAK8Filler) delete jetAK8Filler;
+  if(jetPuppiAK8Filler) delete jetPuppiAK8Filler;
   if(recoilTreeFiller) delete recoilTreeFiller;
   if(recoilPuppiTreeFiller) delete recoilPuppiTreeFiller;
+  if(jetMetDphiFiller) delete jetMetDphiFiller;
+  if(puppiJetMetDphiFiller) delete puppiJetMetDphiFiller;
 }
 
 void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -245,7 +259,6 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     edm::Handle<bool> filterBadPFMuonH;
     iEvent.getByToken(badPFMuonToken,filterBadPFMuonH);
    
-
     // MET filter info
     flagbadchpf = *filterBadChCandH;
     flagbadpfmu = *filterBadPFMuonH;
@@ -327,19 +340,7 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       isGoodEvent = tauFiller->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
-    
-    // fill AK8 jets
-    if(jetAK4Filler) {
-      isGoodEvent = jetAK4Filler->Fill(iEvent,iSetup);
-      if(not isGoodEvent) return;
-    }
-
-    // fill AK8 Puppi jets
-    if(jetPuppiAK4Filler) {
-      isGoodEvent = jetPuppiAK4Filler->Fill(iEvent,iSetup);
-      if(not isGoodEvent) return;
-    }
-    
+        
     // fill Recoil
     if(recoilTreeFiller) {
       isGoodEvent = recoilTreeFiller->Fill(iEvent,iSetup);
@@ -349,6 +350,40 @@ void MonoJetTreeMaker::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // fill Puppi recoil
     if(recoilPuppiTreeFiller) {
       isGoodEvent = recoilPuppiTreeFiller->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    // fill AK4 jets
+    if(jetAK4Filler) {
+      isGoodEvent = jetAK4Filler->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    // fill AK4 Puppi jets
+    if(jetPuppiAK4Filler) {
+      isGoodEvent = jetPuppiAK4Filler->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    if(jetMetDphiFiller){
+      isGoodEvent = jetMetDphiFiller->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    if(puppiJetMetDphiFiller){
+      isGoodEvent = puppiJetMetDphiFiller->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    // fill AK8 jets
+    if(jetAK8Filler){
+      isGoodEvent = jetAK8Filler->Fill(iEvent,iSetup);
+      if(not isGoodEvent) return;
+    }
+
+    // fill AK8 Puppi jets
+    if(jetPuppiAK8Filler){
+      isGoodEvent = jetPuppiAK8Filler->Fill(iEvent,iSetup);
       if(not isGoodEvent) return;
     }
 
