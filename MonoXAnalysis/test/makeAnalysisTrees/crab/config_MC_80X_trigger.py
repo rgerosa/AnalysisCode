@@ -16,12 +16,13 @@ pyCfgParams = ['isMC=True',
                'addPuppiJets=False',
                'addPuppiMET=False',
                'addEGMSmear=False',
-               'addMVAMet=False',
                'addMETSystematics=False',
                'useOfficialMETSystematics=False',
                'addMETBreakDown=False',
                'addSubstructureCHS=False',
                'addSubstructurePuppi=False',
+               'useMiniAODSubstructure=False',
+               'addPuppiMETSystematics=False',
                'miniAODProcess=PAT'
                'outputFileName=tree.root',
                'isTriggerTree=True',
@@ -46,7 +47,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 50000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_13_03_2017_trigger/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionMC_14_09_2017_trigger/'
 config.Data.allowNonValidInputDataset = True
 config.Data.publication   = False
 

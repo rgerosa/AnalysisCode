@@ -1,4 +1,4 @@
-import os, sys
+1;95;0cimport os, sys
 from multiprocessing import Process
 from WMCore.Configuration import Configuration
 
@@ -44,7 +44,7 @@ config.section_('Data')
 config.Data.inputDBS      = 'global'
 config.Data.splitting     = 'EventAwareLumiBased'
 config.Data.unitsPerJob   = 75000
-config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_ReReco_36fb-1_28_01_2017/'
+config.Data.outLFNDirBase = '/store/group/phys_exotica/monojet/rgerosa/ProductionData_14_09_2017_trigger/'
 config.Data.lumiMask      = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
 #config.Data.runRange
 config.Data.publication   = False

@@ -4,41 +4,38 @@
 #include "triggerUtils.h"
 #include "../CMS_lumi.h"
 
-// recoil binning
-vector <float> bins_monojet_recoil   = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 225., 250., 275., 300., 325., 350., 400., 450., 500., 550., 650., 800., 1000., 1250};
-vector <float> bins_vbf_recoil       = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
-vector <float> bins_monoV_recoil     = {0.,50.,60.,70.,80.,85.,95.,100., 110., 120., 130., 140., 150., 160., 180., 200., 250., 300., 350., 400., 450., 500., 550., 650., 800., 1000., 1500};
-// mjj
-vector <float> bins_vbf_recoilvsmjj  = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
-vector <float> bins_vbf_mjj          = {0.,800.,1200.,1700.,3000.};
-// detajj
-vector <float> bins_vbf_recoilvsdetajj = {0.,50.,75.,100.,125.,150.,175.,200., 225, 250., 300., 400., 550., 800., 1500};
-vector <float> bins_vbf_detajj         = {0.,1.5,2.5,4.5,9};
-
-// eras
-vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
-
 //########## VBF selections
 static float leadingVBF  = 80;
 static float trailingVBF = 40;
-static float detajj      = 2.5; 
-static float mjj         = 500; 
+static float mjj         = 200; 
+static float detajj      = 1.0; 
 static float jetmetdphi  = 0.5; 
-static float dphijj      = 1.5;
-static float recoil      = 200;
+static float dphijj      = 1.3;
+static float recoil      = 250;
 static bool  drawUncertaintyBand   = false;
-static bool  useDoubleMuonTriggers = true;
 static bool  applyJetSelections    = true;
 
 /// plotting result
-void plotTurnOn(TCanvas* canvas, TEfficiency* eff, TF1* fitfunc, const string & axisLabel, const TString & postfix, const string & ouputDIR, const float  & luminosity, 
-		const bool & singleMuon, const TString & banner = "");
+void plotTurnOn(TCanvas* canvas, 
+		TEfficiency* eff, 
+		TF1* fitfunc, 
+		const string & axisLabel, 
+		const TString & postfix, 
+		const string & ouputDIR, 
+		const float  & luminosity, 
+		const bool & singleMuon, 
+		const TString & banner = "");
 
 /// confidence interval for the band
 void GetConfidenceIntervals(TF1* funz, TH1F* obj, Double_t cl, const TFitResultPtr & fitResult);
 
 /// main function
-void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity = 0.81, bool isMuon = true, bool doubleLepton = false) {
+void makeMETTriggerEfficiency(string inputDIR, 
+			      string ouputDIR, 
+			      bool   isMuon = true,  // measurement from single-muon or single-ele events
+			      bool   doubleLepton = false,
+			      bool   useDoubleMuonTriggers = false,
+			      float  luminosity = 35.9) {
 
   ROOT::Math::MinimizerOptions::SetDefaultMaxFunctionCalls(1410065408);
 
@@ -56,6 +53,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
     system(("ls "+inputDIR+"  | grep SingleMu > list_dir.txt").c_str());
   else
     system(("ls "+inputDIR+"  | grep SingleEle > list_dir.txt").c_str());
+
   ifstream dirlist ("list_dir.txt");
   string dirname;
   if(dirlist.is_open()){
@@ -89,8 +87,9 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
   fitfunc_monojet_recoil->SetParameters(120., 25., 30., 4., 1.);
   TF1 *fitfunc_monoV_recoil   = new TF1("fitfunc_monoV_recoil", ErfCB, bins_monoV_recoil.front(), bins_monoV_recoil.back(), 5);
   fitfunc_monoV_recoil->SetParameters(120., 25., 30., 4., 1.);
-  TF1* fitfunc_vbf_recoil = new TF1("fitfunc_vbf_recoil", ErfCB, bins_vbf_recoil.front(), bins_vbf_recoil.back(), 5);
+  TF1* fitfunc_vbf_recoil     = new TF1("fitfunc_vbf_recoil", ErfCB, bins_vbf_recoil.front(), bins_vbf_recoil.back(), 5);
   fitfunc_vbf_recoil->SetParameters(120., 25., 30., 4., 1.);
+
   //////
   vector<TF1*> fitfunc_vbf_mjj;
   for(size_t ibin = 0; ibin < bins_vbf_mjj.size()-1; ibin++){
@@ -324,6 +323,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
       efficiencyMonojetSelections->SetBinContent(11,efficiencyMonojetSelections->GetBinContent(11)+1);
       efficiencyMonoVSelections->SetBinContent(11,efficiencyMonoVSelections->GetBinContent(11)+1);
       efficiencyVBFSelections->SetBinContent(11,efficiencyVBFSelections->GetBinContent(11)+1);
+
       // transverse mass cut
       if(not doubleLepton){
 	float dphi = fabs(*mu1phi-*metphi);
@@ -350,6 +350,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	  cout<<"Monojet analysis: run "<<*run<<" lumi "<<*lumi<<" event "<<*event<<" t1mumet "<<*mmet<<" muon pt "<<*mu1pt<<" muon eta "<<*mu1eta<<" jet pt "<<jetpt->at(0)<<" eta "<<jeteta->at(0)<<" njets "<<*nincjets<<" pfmet "<<*met<<" calomet "<<*metcalo<<endl;
 	}
       }
+      
       else if(not applyJetSelections){
 	// monojet vs recoil and met
 	hden_monojet_recoil->Fill(*mmet);
@@ -366,13 +367,12 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 
       // denominator VBF
       if(*nincjets > 1 and jetpt->at(0) > leadingVBF and jetpt->at(1) > trailingVBF and *jmmdphi > jetmetdphi){
-
+	
 	// charge fraction cut on the central jet
 	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) < 0.1) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and jetnhfrac->at(0) > 0.8) continue;
 	if(fabs(jeteta->at(0)) < 2.5 and jetchfrac->at(0) > 0.997) continue;
-	if(fabs(jeteta->at(0)) < 3.2 and fabs(jeteta->at(0)) > 3.0 and jetnhfrac->at(0) > 0.96) continue; 
-
+	
 	float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
 	if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
 	if(deltaPhi > dphijj) continue;
@@ -382,18 +382,19 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	TLorentzVector jet1, jet2;
 	jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetm->at(0));
 	jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
-	if(fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
-	  efficiencyVBFSelections->SetBinContent(13,efficiencyVBFSelections->GetBinContent(13)+1);
-	  if((jet1+jet2).M() > mjj){
-	    efficiencyVBFSelections->SetBinContent(14,efficiencyVBFSelections->GetBinContent(14)+1);
-	    hden_vbf_recoil->Fill(*mmet);
-	    if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
-	      hnum_vbf_recoil->Fill(*mmet);
-	      efficiencyVBFSelections->SetBinContent(15,efficiencyVBFSelections->GetBinContent(15)+1);
-	    }
+	
+	// apply mjj and detajj cuts
+	efficiencyVBFSelections->SetBinContent(13,efficiencyVBFSelections->GetBinContent(13)+1);
+	if((jet1+jet2).M() > mjj and fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
+	  efficiencyVBFSelections->SetBinContent(14,efficiencyVBFSelections->GetBinContent(14)+1);
+	  hden_vbf_recoil->Fill(*mmet);
+	  if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm){
+	    hnum_vbf_recoil->Fill(*mmet);
+	    efficiencyVBFSelections->SetBinContent(15,efficiencyVBFSelections->GetBinContent(15)+1);
 	  }
 	}
-	  
+	
+	/// measurement vs mjj and recoil
 	if(fabs(jeteta->at(0)-jeteta->at(1)) > detajj){
 	  for(size_t ibin = 0; ibin < bins_vbf_mjj.size()-1; ibin++){
 	    if((jet1+jet2).M() > bins_vbf_mjj.at(ibin) and (jet1+jet2).M() <= bins_vbf_mjj.at(ibin+1)){
@@ -404,6 +405,7 @@ void makeMETTriggerEfficiency(string inputDIR, string ouputDIR, float luminosity
 	    }
 	  }
 	  
+	  // measurement vs detajj and recoil
 	  if((jet1+jet2).M() > mjj){
 	    for(size_t ibin = 0; ibin < bins_vbf_detajj.size()-1; ibin++){
 	      if(fabs(jeteta->at(0)-jeteta->at(1)) > bins_vbf_detajj.at(ibin) and fabs(jeteta->at(0)-jeteta->at(1)) <= bins_vbf_mjj.at(ibin+1)){

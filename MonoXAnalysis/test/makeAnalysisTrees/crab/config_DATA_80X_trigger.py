@@ -21,13 +21,12 @@ pyCfgParams = ['isMC=False',
                'addMETBreakDown=False',
                'addSubstructureCHS=False',
                'addSubstructurePuppi=False',
-               'miniAODProcess=RECO',
+               'useMiniAODSubstructure=False',
+               'addPuppiMETSystematics=False',
+               'miniAODProcess=RECO'
                'outputFileName=tree.root',
                'isTriggerTree=True',
                'addTriggerObjects=True',
-               'isReMiniAOD=True', ## re-miniaod option for data                                                                                                                                    
-               'useMiniAODPuppiMet=True', ## use puppi met reading from miniAOD directly                                                                                                          
-               'useMiniAODMet=False', ## MUEGclean redone on the flu                                                                                                                          
                'nThreads=4',
                'isCrab=True']
 
