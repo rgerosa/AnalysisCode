@@ -128,6 +128,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histogram, vector<TH1*> & khi
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));          
       if((jet1+jet2).M() < 200) continue;
+      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
     }
     else if(category == Category::VBF){
       if(*njetsinc < 2) continue;
@@ -142,7 +143,7 @@ void fillHistograms(TChain* chain, vector<TH1F*> & histogram, vector<TH1*> & khi
       jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
       jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));          
       if((jet1+jet2).M() < 1300) continue;
-
+      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
     }
 
     for(auto histo : histogram){

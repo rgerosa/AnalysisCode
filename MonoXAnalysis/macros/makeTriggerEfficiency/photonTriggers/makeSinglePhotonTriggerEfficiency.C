@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-#include "triggerUtils.h"
-#include "../CMS_lumi.h"
+#include "../triggerUtils.h"
+#include "../../CMS_lumi.h"
 
 // boson pt and recoil when using single photon
 vector<float> bins_singlePhoton            = {160,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,180,190,200,210,220,235,250,300};

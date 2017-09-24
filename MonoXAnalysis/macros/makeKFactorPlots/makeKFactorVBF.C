@@ -4,13 +4,13 @@ vector<float> bosonPt   {150.,200.,250.,350,500.,700.,1000};
 vector<float> mjj_bin   {150.,200.,250.,350,500.,700.,1000};
 
 static float mjj            = 1300;
-static float mjjrelaxed     = 400;
+static float mjjrelaxed     = 200;
 static float detajj         = 4.0;
 static float detajjrelaxed  = 1.0;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
 static float dphijj         = 1.5;
-static float dphijjrelaxed  = 1.3;
+static float dphijjrelaxed  = 1.5;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 1;
@@ -218,6 +218,7 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
 	bosonPt_LO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 	mjj_LO_twojet->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_lo/sumwgt_lo.at(ifile));
 			 
+	if(fabs(jets.at(1).Eta()) > 3 and fabs(jets.at(0).Eta()) > 3) continue;
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
 	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;
@@ -321,6 +322,8 @@ void makeKFactorVBF(string inputDIR_LO, string inputDIR_NLO, string outputDIR, S
       if(jets.size() >= 2 and jets.at(0).Pt() > leadingJetVBF and jets.at(1).Pt() > trailingJetVBF and fabs(jets.at(0).Eta()) < 4.7 and  fabs(jets.at(1).Eta()) < 4.7 and mindphi > 0.5){      
 	bosonPt_NLO_twojet->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
 	mjj_NLO_twojet->Fill((jets.at(0)+jets.at(1)).M(),lumi_*(*wgt)*(*xsec)*scale_nlo/sumwgt_nlo.at(ifile));
+
+	if(fabs(jets.at(1).Eta()) > 3 and fabs(jets.at(0).Eta()) > 3) continue;
 	if((jets.at(0)+jets.at(1)).M() < mjjrelaxed) continue;
 	if(jets.at(0).Eta()*jets.at(1).Eta()  > 0) continue; 
 	if(fabs(jets.at(0).Eta()-jets.at(1).Eta()) < detajjrelaxed) continue;

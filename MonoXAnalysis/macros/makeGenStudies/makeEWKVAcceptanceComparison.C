@@ -4,6 +4,7 @@ static float bosonPt        = 200;
 static float bosonPtMax     = 80000;
 static float mjj            = 500;
 static float detajj         = 2.5;
+static float dphijj         = 1.5;
 static float leadingJetVBF  = 80;
 static float trailingJetVBF = 40;
 static float minDeltaPhiVBF = 0.5;
@@ -335,6 +336,9 @@ void makeEWKVAcceptanceComparison(string inputDIR_QCD, string inputDIR_EWK, Samp
         TLorentzVector jet1, jet2;
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
+
+	if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
+	if(fabs(jet1.DeltaPhi(jet2) < dphijj) continue;
 
 	if(applyVBFCuts){
 	  if((jet1+jet2).M() < mjj) continue;

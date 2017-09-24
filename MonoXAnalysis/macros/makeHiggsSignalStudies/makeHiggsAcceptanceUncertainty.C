@@ -259,12 +259,6 @@ void makePDFEigen (TH1F* histo_inclusive,
 
 }
 
-/*
-void makeEvenlopePlot(TH1F* histo, vector<TH1F*> variations, const string & outputDIR, const string & postfix, const bool & do68CL = false){
-
-    }  
-}
-*/
 
 vector<float> binsPt  = {200.,225.,250,275.,300,350,400,450,500,600,700,800,1000,1250};
 vector<float> binsMjj = {300.,600.,900,1200,1600.,2000.,2500,3000}; 
@@ -431,6 +425,7 @@ void  makeHiggsAcceptanceUncertainty(string inputFileName, Category category, st
       if(fabs(jeteta->at(1)) > jeteta2Cut) continue;
       if(jeteta->at(1)*jeteta->at(0) > 0) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < detajjCut) continue;
+      if(fabs(jeteta->at(1)) > 3 and fabs(jeteta->at(0)) > 3) continue;
       if(fabs(jet1.DeltaPhi(jet2)) > dphijjCut) continue;
       if((jet1+jet2).M() < mjjCut) continue;      
     }

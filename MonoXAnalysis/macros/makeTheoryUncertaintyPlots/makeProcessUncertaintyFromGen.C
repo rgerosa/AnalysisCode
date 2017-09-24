@@ -175,6 +175,7 @@ void makeProcessUncertaintyFromGen(string inputDIR,  string outputDIR, Sample sa
 	if(jets.size() < 2) continue;
 	if(jets.at(0).Pt() < 80) continue;
 	if(jets.at(1).Pt() < 40) continue;
+	if(fabs(jets.at(0).Eta()) > 3 and fabs(jets.at(1).Eta())) continue;
 	if(fabs(jets.at(0).Eta()) > 4.7) continue;
 	if(fabs(jets.at(1).Eta()) > 4.7) continue;
 	if(jets.at(0).Eta()*jets.at(1).Eta() > 0) continue;

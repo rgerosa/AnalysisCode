@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-#include "triggerUtils.h"
-#include "../CMS_lumi.h"
+#include "../triggerUtils.h"
+#include "../../CMS_lumi.h"
 
 // recoil binning for monojet                                                                                                                                                                    
 vector <float> bins_monojet_recoil    = {150,160,170,180,190,200,210,220,230,240,250,265,280,300,320,340,360,380,400,430,460,490,520,550,580,610,650,700,740,800,900,1000,1250};
@@ -11,9 +11,9 @@ vector <float> bins_VBF_recoil        = {150,175,200,225,230,250,275,300,350,400
 vector <float> bins_VBFrelaxed_mjj    = {200,400,600,800,1000,1250,1500,1750,2000,2500,3500,5000};
 vector <float> bins_VBF_mjj           = {1300,1500,1750,2000,3500,3500,5000};
 
-vector <float> bins_VBFrelaxed_mjj_2d  = {200,600,1000,1500,2000,3000,5000};
-vector <float> bins_VBFrelaxed_ptj1_2d = {80,250,350,600};
-vector <float> bins_VBFrelaxed_ptj2_2d = {40,80,150,300};
+vector <float> bins_VBFrelaxed_mjj_2d    = {200,600,1000,1500,2000,3000,5000};
+vector <float> bins_VBFrelaxed_ptj1_2d   = {80,250,350,600};
+vector <float> bins_VBFrelaxed_ptj2_2d   = {40,80,150,300};
 vector <float> bins_VBFrelaxed_detajj_2d = {1,3,4.5,10};
 
 // cut for trigger values

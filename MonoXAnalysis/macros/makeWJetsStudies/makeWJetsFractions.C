@@ -614,11 +614,13 @@ void makeWJetsFractions(string inputDIR, string outputDIR, Category category, bo
     jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetm->at(1));
 
     if(category == Category::VBF){
+      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 4) continue;
       if((jet1+jet2).M() < 1300) continue;
       if(fabs(jet1.DeltaPhi(jet2)) > 1.5) continue;
     }
     else if(category == Category::VBFrelaxed){
+      if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
       if(fabs(jeteta->at(0)-jeteta->at(1)) < 1) continue;
       if((jet1+jet2).M() < 200) continue;
       if(fabs(jet1.DeltaPhi(jet2)) > 1.3) continue;

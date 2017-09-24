@@ -1,7 +1,7 @@
 #include <fstream>
 #include "TROOT.h"
-#include "../CMS_lumi.h"
-#include "triggerUtils.h"
+#include "../../CMS_lumi.h"
+#include "../triggerUtils.h"
 
 static float muonTagPtCut = 25;
 static float electronTagPtCut = 40;

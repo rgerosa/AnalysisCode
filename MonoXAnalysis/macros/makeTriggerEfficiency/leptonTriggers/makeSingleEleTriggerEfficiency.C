@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-#include "triggerUtils.h"
-#include "../CMS_lumi.h"
+#include "../triggerUtils.h"
+#include "../../CMS_lumi.h"
 
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
 

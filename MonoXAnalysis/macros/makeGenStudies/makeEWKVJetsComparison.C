@@ -3,8 +3,9 @@
 static float bosonPt        = 200;
 static float mjj            = 450;
 static float detajj         = 2.5;
-static float leadingJetVBF  = 70;
-static float trailingJetVBF = 50;
+static float dphijj         = 1.5;
+static float leadingJetVBF  = 80;
+static float trailingJetVBF = 40;
 
 enum class Sample {znn, zll, wjet, gam};
 float lumi_ = 12.9;
@@ -405,6 +406,9 @@ void makeEWKVComparison(string inputDIR_QCD, string inputDIR_EWK, Sample sample,
         TLorentzVector jet1, jet2;
         jet1.SetPtEtaPhiM(jetpt->at(0),jeteta->at(0),jetphi->at(0),jetmass->at(0));
         jet2.SetPtEtaPhiM(jetpt->at(1),jeteta->at(1),jetphi->at(1),jetmass->at(1));
+
+	if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) > 3) continue;
+	if(fabs(jet1.DeltaPhi(jet2)) > dphijj) continue;
 
 	//////////////////
 	bosonPt_QCD->Fill(*wzpt,lumi_*(*wgt)*(*xsec)*kwgt/sumwgt_qcd.at(ifile));

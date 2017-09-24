@@ -1,4 +1,4 @@
-#include "../CMS_lumi.h"
+#include "../../CMS_lumi.h"
 
 void makeTriggerPlotVBF (string observable){
 

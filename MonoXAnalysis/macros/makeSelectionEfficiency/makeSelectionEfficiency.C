@@ -34,8 +34,8 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
     }
     else if(category == Category::VBFrelaxed){
       detajj_cut = 1.0;
-      mjj_cut    = 0;
-      dphijj_cut = 1.3;
+      mjj_cut    = 200;
+      dphijj_cut = 1.5;
     }
   }
 
@@ -477,6 +477,7 @@ void makeSelectionEfficiency(string inputDirectory, string outputDir, Sample con
       if(fabs(leadingJet.Eta()) > jeteta1_cut) continue;
       if(subleadingJet.Pt() < jetpt2_cut) continue;
       if(fabs(subleadingJet.Eta()) > jeteta2_cut) continue;
+      if(fabs(jeteta->at(0)) > 3 and fabs(jeteta->at(1)) > 3) continue;
 
       n_jetpt++;
       nwgt_jetpt += *wgt;

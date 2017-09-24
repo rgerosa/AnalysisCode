@@ -36,8 +36,8 @@ void makeHiggsSignalEfficiency(string inputFileName, Category category, bool isG
     }
     else if(category == Category::VBFrelaxed){
       detajj_cut = 1.0;
-      mjj_cut    = 0;
-      dphijj_cut  = 1.3;
+      mjj_cut    = 200;
+      dphijj_cut = 1.3;
     }
   }
 
@@ -252,7 +252,7 @@ void makeHiggsSignalEfficiency(string inputFileName, Category category, bool isG
       if(fabs(leadingJet.Eta()) > jeteta1_cut) continue;
       if(subleadingJet.Pt() < jetpt2_cut) continue;
       if(fabs(subleadingJet.Eta()) > jeteta2_cut) continue;
-
+      if(fabs(subleadingJet.Eta()) > 3 and fabs(leadingJet.Eta()) > 3 ) continue;
       if(*genmet < met_cut) continue;
       if(leadingJet.Eta()*subleadingJet.Eta() > 0) continue;
 
