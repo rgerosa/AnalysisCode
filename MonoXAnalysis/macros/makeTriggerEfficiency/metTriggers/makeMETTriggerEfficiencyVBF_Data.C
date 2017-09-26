@@ -7,23 +7,29 @@
 // Recoil binning
 vector <float> bins_recoil_cc_wmn  = {0.,40.,80.,100.,120.,140.,150.,160.,170.,180.,190.,200.,215.,230.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
 vector <float> bins_recoil_cc_zmm  = {0.,80.,120.,160.,180.,200.,235,275.,350.,450.,550.,650.,800.,1000.,1250};
-vector <float> bins_recoil_cf_wmn  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
-vector <float> bins_recoil_cf_zmm  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,275.,300., 350.,400.,450.,500.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cf_wmn  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,350.,400.,450.,500.,550.,650.,800.,1000.,1250};
+vector <float> bins_recoil_cf_zmm  = {0.,40.,80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,350.,400.,450.,500.,550.,650.,800.,1000.,1250};
 vector <float> bins_recoil_cf_trailCen  = {0.,80.,100.,120.,140.,160.,180.,200.,225.,250.,300.,400.,500.,1250.};
 vector <float> bins_recoil_cf_highpt = {0,100.,140.,180.,220.,250.,300.,400.,500.,1250.};
 // Mjj
-vector <float> bins_mjj_wmm     = {200.,600,1000.,1500.,2000.,2500,4000};
-vector <float> bins_mjj_zmm     = {200.,800,1400.,2200.,5000};
+vector <float> bins_mjj_cc_wmm     = {200.,600,1000.,1500.,2000.,2500,4000};
+vector <float> bins_mjj_cc_zmm     = {200.,800,1400.,2200.,5000};
+vector <float> bins_mjj_cf_wmm     = {200.,800,1200.,1600.,2000.,2500,4000};
+vector <float> bins_mjj_cf_zmm     = {200.,800,1400.,2200.,5000};
 // Cuts
 vector <float> cuts_mjj_cc_wmn  = {200,750,1500,5000};
 vector <float> cuts_mjj_cf_wmn  = {200,800,1800,5000};
 vector <float> cuts_ptj1_cf_wmn = {80,140,600};
 vector <float> cuts_ptj2_cf_wmn = {40,70,110,350};
+vector <float> cuts_eta_cc_wmn  = {0,1.5,2.5,3.0};
+vector <float> cuts_eta_cf_wmn  = {0,2.0,3.0,4.7};
 
 vector <float> cuts_mjj_cc_zmm  = {200,1250,5000};
-vector <float> cuts_mjj_cf_zmm  = {200,1500,5000};
+vector <float> cuts_mjj_cf_zmm  = {200,1600,5000};
 vector <float> cuts_ptj1_cf_zmm = {80,140,600};
 vector <float> cuts_ptj2_cf_zmm = {40,100,350};
+vector <float> cuts_eta_cc_zmm  = {0,1.5,2.5,3.0};
+vector <float> cuts_eta_cf_zmm  = {0,2.0,3.0,4.7};
 
 // eras
 vector<string> RunEra = {"Run2016B","Run2016C","Run2016D","Run2016E","Run2016F","Run2016G","Run2016H"};
@@ -62,33 +68,42 @@ void plotTurnOn(TCanvas* canvas,
 
 
 /// main function
-void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample sample, bool doubleLepton = false) {
+void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample sample) {
 
   vector<float> bins_recoil_cc;
   vector<float> bins_recoil_cf;
-  vector<float> bins_mjj;
+  vector<float> bins_mjj_cc;
+  vector<float> bins_mjj_cf;
   vector<float> cuts_mjj_cc;
   vector<float> cuts_mjj_cf;
   vector<float> cuts_ptj1_cf;
   vector<float> cuts_ptj2_cf;
+  vector<float> cuts_eta_cc;
+  vector<float> cuts_eta_cf;
 
   if(sample == Sample::wmn){
     bins_recoil_cc = bins_recoil_cc_wmn;
     bins_recoil_cf = bins_recoil_cf_wmn;
-    bins_mjj = bins_mjj_wmm;
+    bins_mjj_cc = bins_mjj_cc_wmm;
+    bins_mjj_cf = bins_mjj_cf_wmm;
     cuts_mjj_cc = cuts_mjj_cc_wmn;
     cuts_mjj_cf = cuts_mjj_cf_wmn;
     cuts_ptj1_cf = cuts_ptj1_cf_wmn; 
     cuts_ptj2_cf = cuts_ptj2_cf_wmn; 
+    cuts_eta_cc = cuts_eta_cc_wmn;
+    cuts_eta_cf = cuts_eta_cf_wmn;
   }
   else{
     bins_recoil_cc = bins_recoil_cc_zmm;
     bins_recoil_cf = bins_recoil_cf_zmm;
-    bins_mjj = bins_mjj_zmm;
+    bins_mjj_cc = bins_mjj_cc_zmm;
+    bins_mjj_cf = bins_mjj_cf_zmm;
     cuts_mjj_cc = cuts_mjj_cc_zmm;
     cuts_mjj_cf = cuts_mjj_cf_zmm;
     cuts_ptj1_cf = cuts_ptj1_cf_zmm; 
     cuts_ptj2_cf = cuts_ptj2_cf_zmm; 
+    cuts_eta_cc = cuts_eta_cc_zmm;
+    cuts_eta_cf = cuts_eta_cf_zmm;
   }
 
 
@@ -139,12 +154,14 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     outputFile = new TFile((outputDIR+"/efficiencyVBF_Zmm.root").c_str(),"RECREATE");
   outputFile->cd();
 
-  /// CENTRAL JETS  : inclusive vs recoil, inclusive vs mjj, vs recoil in bins of Mjj
-  TH1F* hnum_mjj_cc = new TH1F("hnum_mjj_cc","", bins_mjj.size()-1, &bins_mjj[0]);
-  TH1F* hden_mjj_cc = new TH1F("hden_mjj_cc","", bins_mjj.size()-1, &bins_mjj[0]);
+
+  /// CENTRAL JETS --> incluisve vs Mjj
+  TH1F* hnum_mjj_cc = new TH1F("hnum_mjj_cc","", bins_mjj_cc.size()-1, &bins_mjj_cc[0]);
+  TH1F* hden_mjj_cc = new TH1F("hden_mjj_cc","", bins_mjj_cc.size()-1, &bins_mjj_cc[0]);
   hnum_mjj_cc->Sumw2();
   hden_mjj_cc->Sumw2();
-  ////
+
+  //// CENTRAL JETS --> incluisve vs Recoil
   TH1F* hnum_recoil_cc = new TH1F("hnum_recoil_cc","", bins_recoil_cc.size()-1, &bins_recoil_cc[0]);
   TH1F* hden_recoil_cc = new TH1F("hden_recoil_cc","", bins_recoil_cc.size()-1, &bins_recoil_cc[0]);
   hnum_recoil_cc->Sumw2();
@@ -155,12 +172,13 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   fitfunc_recoil_cc->SetParLimits(1,-100.,100.);
   fitfunc_recoil_cc->SetParLimits(3,0.,500.);
   fitfunc_recoil_cc->SetParLimits(4,0.,100);
-  ////
+
+  //// CENTRAL JETS --> differential vs Mjj
   vector<TH1F*> hnum_recoil_cc_vs_mjj;
   vector<TH1F*> hden_recoil_cc_vs_mjj;
   vector<TF1*>  fitfunc_recoil_cc_vs_mjj;
-  for(size_t ibin = 0; ibin < cuts_mjj_cc.size()-1; ibin++){
-    
+
+  for(size_t ibin = 0; ibin < cuts_mjj_cc.size()-1; ibin++){    
     hnum_recoil_cc_vs_mjj.push_back(new TH1F(Form("hnum_recoil_cc_vs_mjj_%d_%d",int(cuts_mjj_cc.at(ibin)),int(cuts_mjj_cc.at(ibin+1))),"",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
     hden_recoil_cc_vs_mjj.push_back(new TH1F(Form("hden_recoil_cc_vs_mjj_%d_%d",int(cuts_mjj_cc.at(ibin)),int(cuts_mjj_cc.at(ibin+1))),"",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
     hnum_recoil_cc_vs_mjj.back()->Sumw2();
@@ -171,6 +189,36 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     fitfunc_recoil_cc_vs_mjj.back()->SetParLimits(1,-100.,100.);
     fitfunc_recoil_cc_vs_mjj.back()->SetParLimits(3,-500.,500.);
     fitfunc_recoil_cc_vs_mjj.back()->SetParLimits(4,0.,100);
+  }
+
+
+  //// CENTRAL JETS --> differential vs Eta
+  vector<TH1F*> hnum_recoil_cc_vs_eta;
+  vector<TH1F*> hden_recoil_cc_vs_eta;
+  vector<TF1*>  fitfunc_recoil_cc_vs_eta;
+
+  for(size_t ibin = 0; ibin < cuts_eta_cc.size()-1; ibin++){    
+    hnum_recoil_cc_vs_eta.push_back(new TH1F(Form("hnum_recoil_cc_vs_eta_%.1f_%.1f",cuts_eta_cc.at(ibin),cuts_eta_cc.at(ibin+1)),"",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
+    hden_recoil_cc_vs_eta.push_back(new TH1F(Form("hden_recoil_cc_vs_eta_%.1f_%.1f",cuts_eta_cc.at(ibin),cuts_eta_cc.at(ibin+1)),"",bins_recoil_cc.size()-1,&bins_recoil_cc[0]));
+    hnum_recoil_cc_vs_eta.back()->Sumw2();
+    hden_recoil_cc_vs_eta.back()->Sumw2();
+    fitfunc_recoil_cc_vs_eta.push_back(new TF1(Form("fitfunc_recoil_cc_vs_eta_%.1f_%.1f",cuts_eta_cc.at(ibin),cuts_eta_cc.at(ibin+1)),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",bins_recoil_cc.front(),bins_recoil_cc.back()));
+    fitfunc_recoil_cc_vs_eta.back()->SetParameters(1.,0.01,0.02,50,0.01);
+    fitfunc_recoil_cc_vs_eta.back()->SetParLimits(0,0.,1.01);
+    fitfunc_recoil_cc_vs_eta.back()->SetParLimits(1,-100.,100.);
+    fitfunc_recoil_cc_vs_eta.back()->SetParLimits(3,-500.,500.);
+    fitfunc_recoil_cc_vs_eta.back()->SetParLimits(4,0.,100);
+  }
+
+  //// CENTRAL JETS --> differential vs Eta
+  vector<TH1F*> hnum_mjj_cc_vs_eta;
+  vector<TH1F*> hden_mjj_cc_vs_eta;
+
+  for(size_t ibin = 0; ibin < cuts_eta_cc.size()-1; ibin++){    
+    hnum_mjj_cc_vs_eta.push_back(new TH1F(Form("hnum_mjj_cc_vs_eta_%.1f_%.1f",cuts_eta_cc.at(ibin),cuts_eta_cc.at(ibin+1)),"",bins_mjj_cc.size()-1,&bins_mjj_cc[0]));
+    hden_mjj_cc_vs_eta.push_back(new TH1F(Form("hden_mjj_cc_vs_eta_%.1f_%.1f",cuts_eta_cc.at(ibin),cuts_eta_cc.at(ibin+1)),"",bins_mjj_cc.size()-1,&bins_mjj_cc[0]));
+    hnum_mjj_cc_vs_eta.back()->Sumw2();
+    hden_mjj_cc_vs_eta.back()->Sumw2();
   }
 
   // ONE CENTRAL AND ONE FORWARD --> measure inclusively vs recoil, vs recoil in Mjj bins, vs Mjj, vs Mjj in bins of jet pTs, vs Mjj when leading is central or trailing
@@ -186,20 +234,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   fitfunc_recoil_cf->SetParLimits(4,0.,100);
 
   ////
-  TH1F* hnum_mjj_cf = new TH1F("hnum_mjj_cf","", bins_mjj.size()-1, &bins_mjj[0]);
-  TH1F* hden_mjj_cf = new TH1F("hden_mjj_cf","", bins_mjj.size()-1, &bins_mjj[0]);
+  TH1F* hnum_mjj_cf = new TH1F("hnum_mjj_cf","", bins_mjj_cf.size()-1, &bins_mjj_cf[0]);
+  TH1F* hden_mjj_cf = new TH1F("hden_mjj_cf","", bins_mjj_cf.size()-1, &bins_mjj_cf[0]);
   hnum_mjj_cf->Sumw2();
   hden_mjj_cf->Sumw2();
-  ////
-  TH1F* hnum_mjj_cf_leadCen = new TH1F("hnum_mjj_cf_leadCen","", bins_mjj.size()-1, &bins_mjj[0]);
-  TH1F* hden_mjj_cf_leadCen = new TH1F("hden_mjj_cf_leadCen","", bins_mjj.size()-1, &bins_mjj[0]);
-  hnum_mjj_cf_leadCen->Sumw2();
-  hden_mjj_cf_leadCen->Sumw2();
-  ////
-  TH1F* hnum_mjj_cf_trailCen = new TH1F("hnum_mjj_cf_trailCen","", bins_mjj.size()-1, &bins_mjj[0]);
-  TH1F* hden_mjj_cf_trailCen = new TH1F("hden_mjj_cf_trailCen","", bins_mjj.size()-1, &bins_mjj[0]);
-  hnum_mjj_cf_trailCen->Sumw2();
-  hden_mjj_cf_trailCen->Sumw2();
+
   ////
   vector<TH1F*> hnum_recoil_cf_vs_mjj;
   vector<TH1F*> hden_recoil_cf_vs_mjj;
@@ -265,6 +304,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     fitfunc_recoil_cf_vs_ptj2.back()->SetParLimits(3,-500.,500.);
     fitfunc_recoil_cf_vs_ptj2.back()->SetParLimits(4,0.,100);
   }
+
   ////
   vector<TH1F*> hnum_recoil_cf_vs_mjj_leadCen;
   vector<TH1F*> hden_recoil_cf_vs_mjj_leadCen;
@@ -281,6 +321,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     fitfunc_recoil_cf_vs_mjj_leadCen.back()->SetParLimits(3,-500.,500.);
     fitfunc_recoil_cf_vs_mjj_leadCen.back()->SetParLimits(4,0.,100);
   }
+
   ////
   vector<TH1F*> hnum_recoil_cf_vs_mjj_trailCen;
   vector<TH1F*> hden_recoil_cf_vs_mjj_trailCen;
@@ -297,6 +338,34 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     fitfunc_recoil_cf_vs_mjj_trailCen.back()->SetParLimits(3,-500.,500.);
     fitfunc_recoil_cf_vs_mjj_trailCen.back()->SetParLimits(4,0.,100);
   }
+
+
+  ////
+  vector<TH1F*> hnum_recoil_cf_vs_eta;
+  vector<TH1F*> hden_recoil_cf_vs_eta;
+  vector<TF1*>  fitfunc_recoil_cf_vs_eta;
+  for(size_t ibin = 0; ibin < cuts_eta_cf.size()-1; ibin++){
+    hnum_recoil_cf_vs_eta.push_back(new TH1F(Form("hnum_recoil_cf_vs_eta_%d_%d",int(cuts_eta_cf.at(ibin)),int(cuts_eta_cf.at(ibin+1))),"",bins_recoil_cf.size()-1,&bins_recoil_cf[0]));
+    hden_recoil_cf_vs_eta.push_back(new TH1F(Form("hden_recoil_cf_vs_eta_%d_%d",int(cuts_eta_cf.at(ibin)),int(cuts_eta_cf.at(ibin+1))),"",bins_recoil_cf.size()-1,&bins_recoil_cf[0]));
+    hnum_recoil_cf_vs_eta.back()->Sumw2();
+    hden_recoil_cf_vs_eta.back()->Sumw2();
+    fitfunc_recoil_cf_vs_eta.push_back(new TF1(Form("fitfunc_recoil_cf_vs_eta_%d_%d",int(cuts_eta_cf.at(ibin)),int(cuts_eta_cf.at(ibin+1))),"[0]*1./((1.+[1]*exp(-[2]*(x-[3])))^(1./[4]))",bins_recoil_cf.front(),bins_recoil_cf.back()));
+    fitfunc_recoil_cf_vs_eta.back()->SetParameters(1.,0.01,0.02,50,0.01);
+    fitfunc_recoil_cf_vs_eta.back()->SetParLimits(0,0.,1.01);
+    fitfunc_recoil_cf_vs_eta.back()->SetParLimits(1,-100.,100.);
+    fitfunc_recoil_cf_vs_eta.back()->SetParLimits(3,-500.,500.);
+    fitfunc_recoil_cf_vs_eta.back()->SetParLimits(4,0.,100);
+  }
+
+  vector<TH1F*> hnum_mjj_cf_vs_eta;
+  vector<TH1F*> hden_mjj_cf_vs_eta;
+  for(size_t ibin = 0; ibin < cuts_eta_cf.size()-1; ibin++){
+    hnum_mjj_cf_vs_eta.push_back(new TH1F(Form("hnum_mjj_cf_vs_eta_%d_%d",int(cuts_eta_cf.at(ibin)),int(cuts_eta_cf.at(ibin+1))),"",bins_mjj_cf.size()-1,&bins_mjj_cf[0]));
+    hden_mjj_cf_vs_eta.push_back(new TH1F(Form("hden_mjj_cf_vs_eta_%d_%d",int(cuts_eta_cf.at(ibin)),int(cuts_eta_cf.at(ibin+1))),"",bins_mjj_cf.size()-1,&bins_mjj_cf[0]));
+    hnum_mjj_cf_vs_eta.back()->Sumw2();
+    hden_mjj_cf_vs_eta.back()->Sumw2();
+  }
+
 
   /// Reader  
   TTreeReader reader(tree);
@@ -439,7 +508,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     else if(sample == Sample::zmm){
       if(*nmuons != 2) continue;      
       if(*mu1pid == *mu2pid) continue; //opposite charge
-      if((*mu1pt > 20 and *mu1id != 1) or (*mu2pt > 20 and *mu2id != 1)) continue;
+      if(not ((*mu1pt > 20 and *mu1id == 1) or (*mu2pt > 20 and *mu2id == 1))) continue;
       if(*zmass < 60 or *zmass > 120) continue;
     }
     efficiencyVBFSelections->SetBinContent(9,efficiencyVBFSelections->GetBinContent(9)+1);
@@ -468,7 +537,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     ////
     float deltaPhi = fabs(jetphi->at(0)-jetphi->at(1));
     if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi()-deltaPhi;
-    if(deltaPhi > dphijj) continue;
+    if(sample == Sample::wmn and deltaPhi > dphijj) continue;
+    else if(sample == Sample::zmm and deltaPhi > 2.0) continue;
     efficiencyVBFSelections->SetBinContent(14,efficiencyVBFSelections->GetBinContent(12)+1);
 	
     /////
@@ -485,10 +555,11 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 
     // value  to be used to fill histograms
     float mjjval = (jet1+jet2).M();
-    if(mjjval > bins_mjj.back()) mjjval = bins_mjj.back()-1;
+    if(mjjval > bins_mjj_cc.back()) mjjval = bins_mjj_cc.back()-1;
 
     float metval = *mmet;
     if(metval > bins_recoil_cc.back()) metval =  bins_recoil_cc.back()-1;
+
 
     /// Start filling the histograms
     if(fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) < 3){ //central-central case
@@ -497,7 +568,16 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       hden_recoil_cc->Fill(metval);
       if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
 	hnum_recoil_cc->Fill(metval);
-
+      
+      /// binned in eta
+      for(size_t ihist = 0; ihist < hnum_recoil_cc_vs_eta.size(); ihist++){
+	if(fabs(jeteta->at(0)) > cuts_eta_cc.at(ihist) and fabs(jeteta->at(0)) <= cuts_eta_cc.at(ihist+1)){
+	  hden_recoil_cc_vs_eta.at(ihist)->Fill(metval);
+	  if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
+	    hnum_recoil_cc_vs_eta.at(ihist)->Fill(metval);
+	}
+      }
+      
       // recoil vs mjj
       for(size_t ihist = 0; ihist < hnum_recoil_cc_vs_mjj.size(); ihist++){
 	if(mjjval > cuts_mjj_cc.at(ihist) and mjjval <=  cuts_mjj_cc.at(ihist+1)){ // find the right mjj bin
@@ -512,6 +592,15 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	hden_mjj_cc->Fill(mjjval);
 	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
 	  hnum_mjj_cc->Fill(mjjval);
+
+	/// binned in eta
+	for(size_t ihist = 0; ihist < hnum_mjj_cc_vs_eta.size(); ihist++){
+	  if(fabs(jeteta->at(0)) > cuts_eta_cc.at(ihist) and fabs(jeteta->at(0)) <= cuts_eta_cc.at(ihist+1)){
+	    hden_mjj_cc_vs_eta.at(ihist)->Fill(mjjval);
+	    if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
+	      hnum_mjj_cc_vs_eta.at(ihist)->Fill(mjjval);
+	  }
+	}      
       }      
     }
 
@@ -523,6 +612,15 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
       hden_recoil_cf->Fill(metval);
       if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
 	hnum_recoil_cf->Fill(metval);
+
+
+      for(size_t ihist = 0; ihist < hnum_recoil_cf_vs_eta.size(); ihist++){
+	if(fabs(jeteta->at(0)) > cuts_eta_cf.at(ihist) and fabs(jeteta->at(0)) <= cuts_eta_cf.at(ihist+1)){
+	  hden_recoil_cf_vs_eta.at(ihist)->Fill(metval);
+	  if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
+	    hnum_recoil_cf_vs_eta.at(ihist)->Fill(metval);
+	}
+      }
 
       for(size_t ihist = 0; ihist < hnum_recoil_cf_vs_mjj.size(); ihist++){
 	if(mjjval > cuts_mjj_cf.at(ihist) and mjjval <=  cuts_mjj_cf.at(ihist+1)){ // find the right mjj bin                                                                                        
@@ -543,7 +641,6 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	}
       }
       
-
       // recoil vs mjj for trailCen
       if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3){
 	for(size_t ihist = 0; ihist < hnum_recoil_cf_vs_mjj_trailCen.size(); ihist++){
@@ -554,7 +651,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	  }	    
 	}
       }
-
+      
       for(size_t ihist = 0; ihist < hnum_recoil_cf_vs_ptj1.size(); ihist++){
 	if(jetpt->at(0) > cuts_ptj1_cf.at(ihist) and jetpt->at(0) <=  cuts_ptj1_cf.at(ihist+1)){ // find the right ptj1 bin                                                                           
 	  hden_recoil_cf_vs_ptj1.at(ihist)->Fill(metval);
@@ -577,18 +674,15 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
 	hden_mjj_cf->Fill(mjjval);
 	if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
 	  hnum_mjj_cf->Fill(mjjval);
+
 	
-	if(fabs(jet1.Eta()) < 3 and fabs(jet2.Eta()) > 3){// leading central
-	  hden_mjj_cf_leadCen->Fill(mjjval);
-	  if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
-	    hnum_mjj_cf_leadCen->Fill(mjjval);
-	}
-	
-	else if(fabs(jet1.Eta()) > 3 and fabs(jet2.Eta()) < 3){
-	  hden_mjj_cf_trailCen->Fill(mjjval);
-	  if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
-	    hnum_mjj_cf_trailCen->Fill(mjjval);
-	}	  	
+	for(size_t ihist = 0; ihist < hnum_mjj_cf_vs_eta.size(); ihist++){
+	  if(fabs(jeteta->at(0)) > cuts_eta_cf.at(ihist) and fabs(jeteta->at(0)) <= cuts_eta_cf.at(ihist+1)){
+	    hden_mjj_cf_vs_eta.at(ihist)->Fill(mjjval);
+	    if(*hltm90 or *hltm100 or *hltm110 or *hltm120 or *hltmwm120 or *hltmwm90 or *hltmwm100 or *hltmwm110 or *hltmwm170 or *hltmwm300 or *hltjm)
+	      hnum_mjj_cf_vs_eta.at(ihist)->Fill(mjjval);
+	  }
+	}	
       }
     }
   }
@@ -625,9 +719,15 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   name.ReplaceAll("hnum","eff");
   eff_recoil_cf->SetName(name.Data());
 
-  vector<TEfficiency*> eff_recoil; eff_recoil.push_back(eff_recoil_cc); eff_recoil.push_back(eff_recoil_cf);
-  vector<TF1*> fit_recoil; fit_recoil.push_back(fitfunc_recoil_cc); fit_recoil.push_back(fitfunc_recoil_cf);
-  vector<string> label; label.push_back("central-central"); label.push_back("central-forward");
+  vector<TEfficiency*> eff_recoil; 
+  eff_recoil.push_back(eff_recoil_cc); 
+  eff_recoil.push_back(eff_recoil_cf);
+  vector<TF1*> fit_recoil; 
+  fit_recoil.push_back(fitfunc_recoil_cc); 
+  fit_recoil.push_back(fitfunc_recoil_cf);
+  vector<string> label; 
+  label.push_back("central-central"); 
+  label.push_back("central-forward");
   if(sample == Sample::wmn)
     plotTurnOn(canvas,eff_recoil,fit_recoil,"Recoil [GeV]","recoil",outputDIR,label);
   else if(sample == Sample::zmm)
@@ -641,6 +741,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   eff_mjj_cc->SetMarkerStyle(20);
   eff_mjj_cc->SetMarkerSize(1);
   TF1* fitfunc_mjj_cc = NULL;
+
   TEfficiency* eff_mjj_cf = new TEfficiency(*hnum_mjj_cf,*hden_mjj_cf);
   eff_mjj_cf->SetMarkerColor(kBlue);
   eff_mjj_cf->SetLineColor(kBlue);
@@ -656,15 +757,20 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   name.ReplaceAll("hnum","eff");
   eff_mjj_cf->SetName(name.Data());
 
-  vector<TEfficiency*> eff_mjj; eff_mjj.push_back(eff_mjj_cc); eff_mjj.push_back(eff_mjj_cf);
-  vector<TF1*> fitfunc_mjj; fitfunc_mjj.push_back(fitfunc_mjj_cc); fitfunc_mjj.push_back(fitfunc_mjj_cf);
+  vector<TEfficiency*> eff_mjj; 
+  eff_mjj.push_back(eff_mjj_cc); 
+  eff_mjj.push_back(eff_mjj_cf);
+  vector<TF1*> fitfunc_mjj; 
+  fitfunc_mjj.push_back(fitfunc_mjj_cc); 
+  fitfunc_mjj.push_back(fitfunc_mjj_cf);
 
   if(sample == Sample::wmn)
     plotTurnOn(canvas,eff_mjj,fitfunc_mjj,"M_{jj} [GeV]","mjj",outputDIR,label);
   else if(sample == Sample::zmm)
     plotTurnOn(canvas,eff_mjj,fitfunc_mjj,"M_{jj} [GeV]","mjj",outputDIR,label);
   
-    
+
+  ///////---    
   vector<TEfficiency*> eff_recoil_cc_vs_mjj;
   int icolor = 0;
   for(size_t ibin = 0; ibin < cuts_mjj_cc.size()-1; ibin++){
@@ -685,40 +791,47 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   plotTurnOn(canvas,eff_recoil_cc_vs_mjj,fitfunc_recoil_cc_vs_mjj,"Recoil [GeV]","recoil_cc_vs_mjj",outputDIR,cuts_mjj_cc,"M_{jj}");
 
+  ///////---    
+  vector<TEfficiency*> eff_recoil_cc_vs_eta;
+  icolor = 0;
+  for(size_t ibin = 0; ibin < cuts_eta_cc.size()-1; ibin++){
+    eff_recoil_cc_vs_eta.push_back(new TEfficiency(*hnum_recoil_cc_vs_eta.at(ibin),*hden_recoil_cc_vs_eta.at(ibin)));    
+    icolor = ibin+1;
+    if(icolor == 3) icolor++;
+    eff_recoil_cc_vs_eta.back()->SetMarkerColor(icolor);
+    eff_recoil_cc_vs_eta.back()->SetLineColor(icolor);
+    eff_recoil_cc_vs_eta.back()->SetMarkerStyle(20);
+    eff_recoil_cc_vs_eta.back()->SetMarkerSize(1);
+    fitfunc_recoil_cc_vs_eta.at(ibin)->SetLineColor(icolor);
+    fitfunc_recoil_cc_vs_eta.at(ibin)->SetLineWidth(2);
 
-  TEfficiency* eff_mjj_cf_leadCen = new TEfficiency(*hnum_mjj_cf_leadCen,*hden_mjj_cf_leadCen);
-  eff_mjj_cf_leadCen->SetMarkerColor(kBlack);
-  eff_mjj_cf_leadCen->SetLineColor(kBlack);
-  eff_mjj_cf_leadCen->SetMarkerStyle(20);
-  eff_mjj_cf_leadCen->SetMarkerSize(1);
+    name = TString(hnum_recoil_cc_vs_eta.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cc_vs_eta.back()->SetName(name.Data());
 
-  name = TString(hnum_mjj_cf_leadCen->GetName());
-  name.ReplaceAll("hnum","eff");
-  eff_mjj_cf_leadCen->SetName(name.Data());
+  }
+  plotTurnOn(canvas,eff_recoil_cc_vs_eta,fitfunc_recoil_cc_vs_eta,"Recoil [GeV]","recoil_cc_vs_eta",outputDIR,cuts_eta_cc,"|#eta_{j1}|");
 
-  TEfficiency* eff_mjj_cf_trailCen = new TEfficiency(*hnum_mjj_cf_trailCen,*hden_mjj_cf_trailCen);
-  eff_mjj_cf_trailCen->SetMarkerColor(kBlue);
-  eff_mjj_cf_trailCen->SetLineColor(kBlue);
-  eff_mjj_cf_trailCen->SetMarkerStyle(20);
-  eff_mjj_cf_trailCen->SetMarkerSize(1);
-  TF1* fitfunc_mjj_cf_leadCen = NULL;
-  TF1* fitfunc_mjj_cf_trailCen = NULL;
+  ///////---    
+  vector<TEfficiency*> eff_mjj_cc_vs_eta;
+  vector<TF1*> fitfunc_mjj_cc_vs_eta;
+  icolor = 0;
+  for(size_t ibin = 0; ibin < cuts_eta_cc.size()-1; ibin++){
+    eff_mjj_cc_vs_eta.push_back(new TEfficiency(*hnum_mjj_cc_vs_eta.at(ibin),*hden_mjj_cc_vs_eta.at(ibin)));    
+    icolor = ibin+1;
+    if(icolor == 3) icolor++;
+    eff_mjj_cc_vs_eta.back()->SetMarkerColor(icolor);
+    eff_mjj_cc_vs_eta.back()->SetLineColor(icolor);
+    eff_mjj_cc_vs_eta.back()->SetMarkerStyle(20);
+    eff_mjj_cc_vs_eta.back()->SetMarkerSize(1);
+    name = TString(hnum_mjj_cc_vs_eta.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_mjj_cc_vs_eta.back()->SetName(name.Data());
+    
+  }
+  plotTurnOn(canvas,eff_mjj_cc_vs_eta,fitfunc_mjj_cc_vs_eta,"Mjj [GeV]","mjj_cc_vs_eta",outputDIR,cuts_eta_cc,"|#eta_{j1}|");
 
-  name = TString(hnum_mjj_cf_trailCen->GetName());
-  name.ReplaceAll("hnum","eff");
-  eff_mjj_cf_trailCen->SetName(name.Data());
-  
-  vector<TEfficiency*> eff_mjj_pos; eff_mjj_pos.push_back(eff_mjj_cf_leadCen); eff_mjj_pos.push_back(eff_mjj_cf_trailCen);
-  vector<TF1*> fitfunc_mjj_pos; fitfunc_mjj_pos.push_back(fitfunc_mjj_cf_leadCen); fitfunc_mjj_pos.push_back(fitfunc_mjj_cf_trailCen);
-  
-  label.clear();
-  label.push_back("leading central");
-  label.push_back("trailing central");
-  if(sample == Sample::wmn)
-    plotTurnOn(canvas,eff_mjj_pos,fitfunc_mjj_pos,"M_{jj} [GeV]","mjj_jetpos",outputDIR,label);
-  else if(sample == Sample::zmm)
-    plotTurnOn(canvas,eff_mjj_pos,fitfunc_mjj_pos,"M_{jj} [GeV]","mjj_jetpos",outputDIR,label);
-
+   //// ---
   vector<TEfficiency*> eff_recoil_cf_vs_mjj;
   for(size_t ibin = 0; ibin < cuts_mjj_cf.size()-1; ibin++){
     eff_recoil_cf_vs_mjj.push_back(new TEfficiency(*hnum_recoil_cf_vs_mjj.at(ibin),*hden_recoil_cf_vs_mjj.at(ibin)));
@@ -737,6 +850,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj,fitfunc_recoil_cf_vs_mjj,"Recoil [GeV]","recoil_cf_vs_mjj",outputDIR,cuts_mjj_cf,"M_{jj}");
 
+  ////
   vector<TEfficiency*> eff_recoil_cf_vs_ptj1;
   for(size_t ibin = 0; ibin < cuts_ptj1_cf.size()-1; ibin++){
     eff_recoil_cf_vs_ptj1.push_back(new TEfficiency(*hnum_recoil_cf_vs_ptj1.at(ibin),*hden_recoil_cf_vs_ptj1.at(ibin)));
@@ -754,6 +868,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_ptj1,fitfunc_recoil_cf_vs_ptj1,"Recoil [GeV]","recoil_cf_vs_ptj1",outputDIR,cuts_ptj1_cf,"p_{T}^{j1}");
 
+  /////
   vector<TEfficiency*> eff_recoil_cf_vs_ptj2;
   for(size_t ibin = 0; ibin < cuts_ptj2_cf.size()-1; ibin++){
     eff_recoil_cf_vs_ptj2.push_back(new TEfficiency(*hnum_recoil_cf_vs_ptj2.at(ibin),*hden_recoil_cf_vs_ptj2.at(ibin)));
@@ -771,6 +886,8 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_ptj2,fitfunc_recoil_cf_vs_ptj2,"Recoil [GeV]","recoil_cf_vs_ptj2",outputDIR,cuts_ptj2_cf,"p_{T}^{j2}");
 
+
+  ////
   vector<TEfficiency*> eff_recoil_cf_vs_mjj_leadCen;
   for(size_t ibin = 0; ibin < cuts_mjj_cf.size()-1; ibin++){
     eff_recoil_cf_vs_mjj_leadCen.push_back(new TEfficiency(*hnum_recoil_cf_vs_mjj_leadCen.at(ibin),*hden_recoil_cf_vs_mjj_leadCen.at(ibin)));
@@ -788,6 +905,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   }
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj_leadCen,fitfunc_recoil_cf_vs_mjj_leadCen,"Recoil [GeV]","recoil_cf_vs_mjj_leadCen",outputDIR,cuts_mjj_cf,"M_{jj}");
   
+  ////
   vector<TEfficiency*> eff_recoil_cf_vs_mjj_trailCen;
   for(size_t ibin = 0; ibin < cuts_mjj_cf.size()-1; ibin++){
     eff_recoil_cf_vs_mjj_trailCen.push_back(new TEfficiency(*hnum_recoil_cf_vs_mjj_trailCen.at(ibin),*hden_recoil_cf_vs_mjj_trailCen.at(ibin)));
@@ -804,7 +922,48 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
     eff_recoil_cf_vs_mjj_trailCen.back()->SetName(name.Data());
   } 
   plotTurnOn(canvas,eff_recoil_cf_vs_mjj_trailCen,fitfunc_recoil_cf_vs_mjj_trailCen,"Recoil [GeV]","recoil_cf_vs_mjj_trailCen",outputDIR,cuts_mjj_cf,"M_{jj}");
-  
+
+  ////
+  vector<TEfficiency*> eff_recoil_cf_vs_eta;
+  icolor = 0;
+  for(size_t ibin = 0; ibin < cuts_eta_cf.size()-1; ibin++){
+    eff_recoil_cf_vs_eta.push_back(new TEfficiency(*hnum_recoil_cf_vs_eta.at(ibin),*hden_recoil_cf_vs_eta.at(ibin)));    
+    icolor = ibin+1;
+    if(icolor == 3) icolor++;
+    eff_recoil_cf_vs_eta.back()->SetMarkerColor(icolor);
+    eff_recoil_cf_vs_eta.back()->SetLineColor(icolor);
+    eff_recoil_cf_vs_eta.back()->SetMarkerStyle(20);
+    eff_recoil_cf_vs_eta.back()->SetMarkerSize(1);
+    fitfunc_recoil_cf_vs_eta.at(ibin)->SetLineColor(icolor);
+    fitfunc_recoil_cf_vs_eta.at(ibin)->SetLineWidth(2);
+
+    name = TString(hnum_recoil_cf_vs_eta.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_recoil_cf_vs_eta.back()->SetName(name.Data());
+
+  }
+  plotTurnOn(canvas,eff_recoil_cf_vs_eta,fitfunc_recoil_cf_vs_eta,"Recoil [GeV]","recoil_cf_vs_eta",outputDIR,cuts_eta_cf,"|#eta_{j1}|");
+
+  ///////---    
+  vector<TEfficiency*> eff_mjj_cf_vs_eta;
+  vector<TF1*> fitfunc_mjj_cf_vs_eta;
+  icolor = 0;
+  for(size_t ibin = 0; ibin < cuts_eta_cf.size()-1; ibin++){
+    eff_mjj_cf_vs_eta.push_back(new TEfficiency(*hnum_mjj_cf_vs_eta.at(ibin),*hden_mjj_cf_vs_eta.at(ibin)));    
+    icolor = ibin+1;
+    if(icolor == 3) icolor++;
+    eff_mjj_cf_vs_eta.back()->SetMarkerColor(icolor);
+    eff_mjj_cf_vs_eta.back()->SetLineColor(icolor);
+    eff_mjj_cf_vs_eta.back()->SetMarkerStyle(20);
+    eff_mjj_cf_vs_eta.back()->SetMarkerSize(1);
+    name = TString(hnum_mjj_cf_vs_eta.at(ibin)->GetName());
+    name.ReplaceAll("hnum","eff");
+    eff_mjj_cf_vs_eta.back()->SetName(name.Data());
+    
+  }
+  plotTurnOn(canvas,eff_mjj_cf_vs_eta,fitfunc_mjj_cf_vs_eta,"Mjj [GeV]","mjj_cf_vs_eta",outputDIR,cuts_eta_cf,"|#eta_{j1}|");
+
+  /*
   // fill output file
   outputFile->cd();
   outputFile->mkdir("efficiency_cc");
@@ -834,7 +993,7 @@ void makeMETTriggerEfficiencyVBF_Data(string inputDIR, string outputDIR, Sample 
   for(auto eff: eff_recoil_cf_vs_mjj_trailCen) eff->Write();
   for(auto fit: fitfunc_recoil_cf_vs_mjj_trailCen) fit->Write();
   outputFile->Close();
-  
+  */  
 }
 
 ////// -------------
@@ -896,10 +1055,10 @@ void plotTurnOn(TCanvas* canvas,
   
   for(size_t iobj = 0; iobj < graph.size(); iobj++){
     graph.at(iobj)->Draw("E1PSAME");
-    if(fitfunc.at(iobj) != NULL and fitfunc.at(iobj) != 0){
+    if(fitfunc.size() != 0 and fitfunc.at(iobj) != NULL and fitfunc.at(iobj) != 0){
       fitfunc.at(iobj)->Draw("SAME");  
     }
-    leg.AddEntry(graph.at(iobj),Form("%d < %s < %d ",int(binning.at(iobj)),binningVar.c_str(),int(binning.at(iobj+1))),"EP");
+    leg.AddEntry(graph.at(iobj),Form("%.1f < %s < %.1f ",binning.at(iobj),binningVar.c_str(),binning.at(iobj+1)),"EP");
   }
   leg.Draw("same");
   
@@ -980,6 +1139,7 @@ void plotTurnOn(TCanvas* canvas,
 
   canvas->SaveAs((outputDIR+"/"+postfix+".png").c_str(),"png");
   canvas->SaveAs((outputDIR+"/"+postfix+".pdf").c_str(),"pdf");
+
 }
 
 
